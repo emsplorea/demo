@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Burger Lab — Online Ordering</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #0D1B2A;
+  --accent: #E85D3A;
+  --accent-hover: #D14E2D;
+  --surface: #F7F5F2;
+  --card: #FFFFFF;
+  --muted: #8A8578;
+  --border: #E8E4DE;
+  --success: #2D8A54;
+  --success-bg: #E8F5ED;
+  --text: #1B1B18;
+  --text-secondary: #5C584F;
+  --warm: #FFF8F0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: #E8E4DE;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+}
+
+#app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 80px rgba(0,0,0,0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.header {
+  position: sticky; top: 0; z-index: 20;
+  background: var(--primary); color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+}
+.header-title { font-weight: 700; font-size: 16px; letter-spacing: 0.02em; }
+.btn-back {
+  background: rgba(255,255,255,0.1); border: none; color: #fff;
+  width: 36px; height: 36px; border-radius: 10px; cursor: pointer;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+}
+.btn-back:hover { background: rgba(255,255,255,0.18); }
+.spacer { width: 36px; }
+
+.mini-cart {
+  background: var(--accent); border-radius: 10px; padding: 6px 10px;
+  font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;
+  animation: cartBounce 0.3s ease;
+}
+
+/* ── Content ── */
+.content { flex: 1; overflow-y: auto; }
+
+/* ── Animations ── */
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes cartBounce { 0% { transform: scale(1); } 40% { transform: scale(1.25); } 100% { transform: scale(1); } }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(420px) rotate(720deg); opacity: 0; }
+}
+@keyframes checkDraw { 0% { stroke-dashoffset: 50; } 100% { stroke-dashoffset: 0; } }
+@keyframes scaleCheck { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.15); } 100% { transform: scale(1); opacity: 1; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes rowPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
+.fade-up { animation: fadeUp 0.4s ease both; }
+
+/* ── Card ── */
+.card {
+  background: var(--card); border-radius: 16px;
+  border: 1px solid var(--border); padding: 20px;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  width: 100%; padding: 16px 24px;
+  background: var(--accent); color: #fff; border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  font-family: inherit; letter-spacing: 0.01em;
+  transition: all 0.2s ease;
+}
+.btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(232,93,58,0.3); }
+.btn-primary:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-secondary {
+  width: 100%; padding: 16px 20px;
+  background: var(--card); border: 2px solid var(--border); border-radius: 14px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  text-align: left; color: var(--text); font-family: inherit;
+  transition: all 0.2s ease;
+}
+.btn-secondary:hover { background: #FAFAF7; }
+.btn-secondary.active { background: var(--warm); border-color: var(--accent); }
+
+.btn-add {
+  background: var(--accent); color: #fff; border: none;
+  width: 36px; height: 36px; border-radius: 10px; font-size: 20px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-family: inherit; transition: transform 0.15s ease; flex-shrink: 0;
+}
+.btn-add:hover { transform: scale(1.08); }
+
+/* ── Qty control ── */
+.qty-control {
+  display: flex; align-items: center; gap: 0;
+  background: var(--surface); border-radius: 10px; border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.qty-btn {
+  width: 36px; height: 36px; border: none; background: transparent;
+  cursor: pointer; font-size: 18px; display: flex; align-items: center;
+  justify-content: center; font-family: inherit;
+}
+.qty-btn.minus { color: var(--muted); }
+.qty-btn.plus { color: var(--accent); }
+.qty-num { width: 28px; text-align: center; font-weight: 700; font-size: 14px; color: var(--text); }
+
+/* ── Sticky bottom ── */
+.sticky-bottom {
+  position: sticky; bottom: 0; padding: 16px 20px 20px;
+  background: linear-gradient(transparent, var(--surface) 20%);
+  pointer-events: none;
+}
+.sticky-bottom > * { pointer-events: auto; }
+
+/* ── Section label ── */
+.section-label {
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--muted);
+}
+
+/* ── Edit link ── */
+.edit-link {
+  background: none; border: none; color: var(--accent); font-size: 13px;
+  font-weight: 600; cursor: pointer; padding: 0; font-family: inherit;
+}
+.edit-link:hover { text-decoration: underline; }
+
+/* ── Input ── */
+.input-field {
+  width: 100%; padding: 14px 16px; border: 2px solid var(--border);
+  border-radius: 12px; font-size: 15px; font-family: inherit; outline: none;
+  transition: border-color 0.2s ease; background: var(--surface); box-sizing: border-box;
+}
+.input-field:focus { border-color: var(--accent); }
+
+/* ── Popular badge ── */
+.popular-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  background: #FFF3E0; color: #E65100; font-size: 11px; font-weight: 700;
+  padding: 2px 8px; border-radius: 6px; margin-left: 6px;
+}
+
+/* ── Textarea ── */
+.comment-box {
+  width: 100%; padding: 12px 14px; border: 2px solid var(--border);
+  border-radius: 12px; font-size: 14px; font-family: inherit; outline: none;
+  resize: vertical; background: var(--surface); box-sizing: border-box;
+  transition: border-color 0.2s ease;
+}
+.comment-box:focus { border-color: var(--accent); }
+
+/* ── Processing overlay ── */
+.processing-overlay {
+  position: fixed; inset: 0; background: rgba(13,27,42,0.85);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.spinner {
+  width: 64px; height: 64px; border: 4px solid rgba(255,255,255,0.2);
+  border-top-color: var(--accent); border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ── Confetti ── */
+.confetti-container {
+  position: absolute; top: 0; left: 0; right: 0; height: 200px;
+  overflow: hidden; pointer-events: none; z-index: 10;
+}
+.confetti-piece { position: absolute; top: -10px; opacity: 0; }
+
+/* ── Check animation ── */
+.animated-check { width: 80px; height: 80px; margin: 20px auto; animation: scaleCheck 0.5s ease forwards; }
+.check-path {
+  stroke-dasharray: 50; stroke-dashoffset: 50;
+  animation: checkDraw 0.5s ease 0.3s forwards;
+}
+
+/* ── Menu item row ── */
+.menu-item {
+  display: flex; align-items: center; gap: 14px; padding: 14px 20px;
+  border-bottom: 1px solid var(--border); transition: background 0.2s ease;
+}
+.menu-item.in-cart { background: var(--warm); }
+.menu-item.just-added { animation: rowPop 0.3s ease; }
+
+/* Hide scrollbar but keep scrolling */
+.content::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div class="header" id="header"></div>
+  <div class="content" id="content"></div>
+</div>
+
+<script>
+// ── DATA ──
+const MENU = [
+  { id: 1, name: "Smash Burger", emoji: "🍔", price: 149, desc: "Dobbel smash patty, cheddar, karamellisert løk", cat: "Burgere", popular: true },
+  { id: 2, name: "Cheeseburger", emoji: "🍔", price: 129, desc: "Klassisk med cheddar, salat, tomat", cat: "Burgere" },
+  { id: 3, name: "Crispy Chicken", emoji: "🍗", price: 139, desc: "Sprøstekt kylling, sriracha-mayo, coleslaw", cat: "Burgere" },
+  { id: 4, name: "Loaded Fries", emoji: "🍟", price: 89, desc: "Cheese sauce, bacon bits, jalapeño", cat: "Sides", popular: true },
+  { id: 5, name: "Sweet Potato Fries", emoji: "🍠", price: 69, desc: "Med aioli", cat: "Sides" },
+  { id: 6, name: "Cola", emoji: "🥤", price: 39, desc: "0.5L", cat: "Drikke" },
+  { id: 7, name: "Lemonade", emoji: "🍋", price: 49, desc: "Hjemmelaget sitronlimonade", cat: "Drikke" },
+  { id: 8, name: "Milkshake", emoji: "🥛", price: 79, desc: "Vanilje, sjokolade eller jordbær", cat: "Drikke" },
+];
+const TIMES = ["18:15","18:30","18:45","19:00","19:15","19:30"];
+const STEPS = ["Meny","Handlekurv","Levering","Detaljer","Info","Oversikt","Betaling","Bekreftelse"];
+
+// ── STATE ──
+let state = {
+  step: "Meny",
+  cart: {},
+  serviceType: "",
+  pickupTime: "asap",
+  address: "",
+  addressError: false,
+  addressChecked: false,
+  customer: { name: "", phone: "", email: "" },
+  comment: "",
+  orderNum: 0,
+};
+
+const fmt = n => `${n} kr`;
+const cartCount = () => Object.values(state.cart).reduce((a,b) => a+b, 0);
+const cartTotal = () => MENU.reduce((s,i) => s + (state.cart[i.id]||0)*i.price, 0);
+const subtotal = () => cartTotal();
+const deliveryFee = () => state.serviceType === "delivery" ? 59 : 0;
+const total = () => subtotal() + deliveryFee() + 5;
+
+function goTo(step) {
+  state.step = step;
+  render();
+  document.getElementById("content").scrollTop = 0;
+}
+function goBack() {
+  const idx = STEPS.indexOf(state.step);
+  if (idx > 0) goTo(STEPS[idx - 1]);
+}
+
+// ── RENDER HEADER ──
+function renderHeader() {
+  const s = state.step;
+  const showBack = STEPS.indexOf(s) > 0 && s !== "Bekreftelse";
+  const title = s === "Bekreftelse" ? "Bestilt!" : "Burger Lab";
+  const cc = cartCount();
+  const ct = cartTotal();
+  const showMiniCart = cc > 0 && s === "Meny";
+
+  document.getElementById("header").innerHTML = `
+    <div class="header-inner">
+      ${showBack ? '<button class="btn-back" onclick="goBack()">←</button>' : '<div class="spacer"></div>'}
+      <span class="header-title">${title}</span>
+      ${showMiniCart ? `<div class="mini-cart" key="${cc}">🛒 ${cc} • ${fmt(ct)}</div>` : '<div class="spacer"></div>'}
+    </div>
+  `;
+}
+
+// ── RENDER STEPS ──
+function render() {
+  renderHeader();
+  const el = document.getElementById("content");
+  switch(state.step) {
+    case "Meny": el.innerHTML = renderMenu(); break;
+    case "Handlekurv": el.innerHTML = renderCart(); break;
+    case "Levering": el.innerHTML = renderService(); break;
+    case "Detaljer": el.innerHTML = renderDetails(); break;
+    case "Info": el.innerHTML = renderCustomerInfo(); break;
+    case "Oversikt": el.innerHTML = renderReview(); break;
+    case "Betaling": el.innerHTML = renderPayment(); break;
+    case "Bekreftelse": el.innerHTML = renderConfirmation(); break;
+  }
+}
+
+// ── MENU ──
+function addItem(id) {
+  state.cart[id] = (state.cart[id] || 0) + 1;
+  render();
+  // Flash the row
+  const row = document.querySelector(`[data-item="${id}"]`);
+  if (row) { row.classList.add("just-added"); setTimeout(() => row.classList.remove("just-added"), 300); }
+}
+function removeItem(id) {
+  if (state.cart[id] > 1) state.cart[id]--;
+  else delete state.cart[id];
+  render();
+}
+
+function renderMenu() {
+  const cats = [...new Set(MENU.map(i => i.cat))];
+  const cc = cartCount();
+  const ct = cartTotal();
+
+  let html = '';
+
+  // Live badge
+  html += `
+    <div class="fade-up" style="margin:16px 20px 0; padding:10px 16px; background:var(--success-bg); border-radius:12px; display:flex; align-items:center; gap:8px; font-size:13px; font-weight:600; color:var(--success);">
+      <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--success); animation:pulse 2s infinite"></span>
+      Åpent nå · Henting ca. 15 min · Levering 35–45 min
+    </div>
+  `;
+
+  cats.forEach((cat, ci) => {
+    html += `<div class="fade-up" style="padding:20px 20px 8px; animation-delay:${ci*0.08}s">
+      <h3 style="font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted)">${cat}</h3>
+    </div>`;
+
+    MENU.filter(i => i.cat === cat).forEach((item, ii) => {
+      const inCart = state.cart[item.id] || 0;
+      html += `
+        <div class="menu-item fade-up ${inCart ? 'in-cart' : ''}" data-item="${item.id}" style="animation-delay:${ci*0.08 + ii*0.05}s">
+          <div style="font-size:32px; width:44px; text-align:center; flex-shrink:0">${item.emoji}</div>
+          <div style="flex:1; min-width:0">
+            <div style="display:flex; align-items:center; flex-wrap:wrap">
+              <span style="font-weight:700; font-size:15px; color:var(--text)">${item.name}</span>
+              ${item.popular ? '<span class="popular-badge">🔥 Populær</span>' : ''}
+            </div>
+            <div style="font-size:13px; color:var(--muted); margin-top:2px">${item.desc}</div>
+            <div style="font-size:15px; font-weight:700; color:var(--accent); margin-top:4px">${fmt(item.price)}</div>
+          </div>
+          ${inCart ? `
+            <div class="qty-control">
+              <button class="qty-btn minus" onclick="removeItem(${item.id})">−</button>
+              <span class="qty-num">${inCart}</span>
+              <button class="qty-btn plus" onclick="addItem(${item.id})">+</button>
+            </div>
+          ` : `
+            <button class="btn-add" onclick="addItem(${item.id})">+</button>
+          `}
+        </div>
+      `;
+    });
+  });
+
+  if (cc === 0) {
+    html += `<div class="fade-up" style="text-align:center; padding:40px 20px; color:var(--muted); animation-delay:0.3s">
+      <div style="font-size:40px; margin-bottom:12px">🍔</div>
+      <div style="font-weight:600; font-size:15px">Legg til noe godt fra menyen!</div>
+    </div>`;
+  }
+
+  if (cc > 0) {
+    html += `<div class="sticky-bottom">
+      <button class="btn-primary" onclick="goTo('Handlekurv')">Se bestilling (${cc}) • ${fmt(ct)}</button>
+    </div>`;
+  }
+
+  return html;
+}
+
+// ── CART ──
+function renderCart() {
+  const items = MENU.filter(i => state.cart[i.id]);
+  const st = subtotal();
+
+  if (items.length === 0) {
+    return `<div style="padding:40px; text-align:center; color:var(--muted)">
+      <div style="font-size:40px; margin-bottom:12px">🛒</div>
+      <div style="font-weight:600; font-size:15px">Handlekurven er tom</div>
+      <div style="font-size:13px; margin-top:8px">Legg til noe godt fra menyen 🍔</div>
+    </div>`;
+  }
+
+  let rows = items.map((item, i) => `
+    <div class="fade-up" style="display:flex; align-items:center; gap:14px; padding:14px 0; ${i < items.length-1 ? 'border-bottom:1px solid var(--border)' : ''}; animation-delay:${i*0.06}s">
+      <div style="font-size:28px">${item.emoji}</div>
+      <div style="flex:1">
+        <div style="font-weight:700; font-size:15px">${item.name}</div>
+        <div style="font-size:14px; color:var(--muted); margin-top:2px">${fmt(item.price * state.cart[item.id])}</div>
+      </div>
+      <div class="qty-control">
+        <button class="qty-btn minus" onclick="removeItem(${item.id}); render()">−</button>
+        <span class="qty-num">${state.cart[item.id]}</span>
+        <button class="qty-btn plus" onclick="addItem(${item.id})">+</button>
+      </div>
+    </div>
+  `).join('');
+
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="card">${rows}</div>
+      <div class="fade-up" style="margin-top:20px; padding:0 4px; animation-delay:0.2s">
+        <div style="display:flex; justify-content:space-between; font-size:14px; color:var(--text-secondary); margin-bottom:8px">
+          <span>Mat subtotal</span><span>${fmt(st)}</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; font-size:14px; color:var(--muted)">
+          <span>Levering</span><span>fra 59 kr</span>
+        </div>
+      </div>
+      <div class="sticky-bottom">
+        <button class="btn-primary" onclick="goTo('Levering')">Gå til utsjekk • ${fmt(st)}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── SERVICE TYPE — auto-advance on click ──
+function selectService(type) {
+  state.serviceType = type;
+  render();
+  // Brief visual feedback then advance
+  setTimeout(() => goTo("Detaljer"), 250);
+}
+
+function renderService() {
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="fade-up">
+        <h2 style="font-size:22px; font-weight:800; color:var(--text)">Leveringsmåte</h2>
+        <p style="margin-top:4px; font-size:14px; color:var(--muted)">Hvordan vil du få maten?</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:24px">
+        <div class="fade-up" style="animation-delay:0.08s">
+          <button class="btn-secondary ${state.serviceType==='pickup'?'active':''}" onclick="selectService('pickup')">
+            <div style="display:flex; align-items:center; gap:14px">
+              <span style="font-size:28px">🏪</span>
+              <div style="flex:1">
+                <div style="font-weight:700; font-size:16px">Hent selv</div>
+                <div style="font-size:13px; color:var(--muted); font-weight:400; margin-top:2px">Klar om ca. 15 min</div>
+              </div>
+              <div style="font-size:14px; font-weight:700; color:var(--success)">Gratis</div>
+            </div>
+          </button>
+        </div>
+        <div class="fade-up" style="animation-delay:0.16s">
+          <button class="btn-secondary ${state.serviceType==='delivery'?'active':''}" onclick="selectService('delivery')">
+            <div style="display:flex; align-items:center; gap:14px">
+              <span style="font-size:28px">🚗</span>
+              <div style="flex:1">
+                <div style="font-weight:700; font-size:16px">Levering</div>
+                <div style="font-size:13px; color:var(--muted); font-weight:400; margin-top:2px">35–45 min estimert</div>
+                <div style="font-size:13px; color:var(--accent); font-weight:600; margin-top:1px">fra 59 kr</div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── DETAILS (pickup time / delivery address) ──
+function selectPickupTime(t) {
+  state.pickupTime = t;
+  render();
+  setTimeout(() => goTo("Info"), 250);
+}
+
+function checkAddress() {
+  if (!state.address.trim()) return;
+  const lower = state.address.toLowerCase();
+  if (lower.includes("drammen") || lower.includes("bergen")) {
+    state.addressError = true;
+  } else {
+    state.addressError = false;
+  }
+  state.addressChecked = true;
+  render();
+}
+
+function renderDetails() {
+  if (state.serviceType === "pickup") {
+    let timeGrid = TIMES.map((t, i) => `
+      <div class="fade-up" style="animation-delay:${0.18 + i*0.04}s">
+        <button class="btn-secondary ${state.pickupTime===t?'active':''}" onclick="selectPickupTime('${t}')" style="padding:14px">
+          <div style="text-align:center; font-weight:700; font-size:15px">${t}</div>
+        </button>
+      </div>
+    `).join('');
+
+    return `
+      <div style="padding:20px; padding-bottom:110px">
+        <div class="fade-up">
+          <h2 style="font-size:22px; font-weight:800; color:var(--text)">Hentetidspunkt</h2>
+          <p style="margin-top:4px; font-size:14px; color:var(--muted)">Når vil du hente?</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; margin-top:24px">
+          <div class="fade-up" style="animation-delay:0.08s">
+            <button class="btn-secondary ${state.pickupTime==='asap'?'active':''}" onclick="selectPickupTime('asap')">
+              <div style="display:flex; justify-content:space-between; align-items:center">
+                <div>
+                  <div style="font-weight:700">Så snart som mulig</div>
+                  <div style="font-size:13px; color:var(--muted); font-weight:400">Klar ca. 15 min</div>
+                </div>
+                <span style="font-size:22px">⚡</span>
+              </div>
+            </button>
+          </div>
+          <div class="fade-up" style="animation-delay:0.14s">
+            <div style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--muted); margin-top:8px; margin-bottom:4px; padding-left:4px">
+              Eller velg tidspunkt
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px">
+            ${timeGrid}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Delivery address
+  let resultHtml = '';
+  if (state.addressChecked && !state.addressError) {
+    resultHtml = `<div class="fade-up" style="margin-top:16px; padding:14px; background:var(--success-bg); border-radius:12px; font-size:14px; color:var(--success); font-weight:600">
+      ✓ Levering: 59 kr · Estimert 35–45 min
+    </div>`;
+  } else if (state.addressError) {
+    resultHtml = `<div class="fade-up" style="margin-top:16px; padding:14px; background:#FEF1F0; border-radius:12px; font-size:14px; color:#C44; font-weight:600">
+      Vi leverer dessverre ikke til denne adressen
+    </div>`;
+  }
+
+  const canProceed = state.addressChecked && !state.addressError && state.address.trim();
+
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="fade-up">
+        <h2 style="font-size:22px; font-weight:800; color:var(--text)">Leveringsadresse</h2>
+        <p style="margin-top:4px; font-size:14px; color:var(--muted)">Hvor skal vi levere?</p>
+      </div>
+      <div class="card fade-up" style="margin-top:24px; animation-delay:0.08s">
+        <input class="input-field" type="text" placeholder="Skriv adresse..." value="${state.address}" oninput="state.address=this.value; state.addressChecked=false; state.addressError=false;">
+        <button onclick="checkAddress()" style="display:flex; align-items:center; gap:8px; margin-top:12px; background:none; border:none; color:var(--accent); font-size:14px; font-weight:600; cursor:pointer; padding:0; font-family:inherit">
+          📍 Sjekk adresse
+        </button>
+        ${resultHtml}
+      </div>
+      ${!state.addressChecked ? '<p class="fade-up" style="font-size:13px; color:var(--muted); margin-top:16px; text-align:center; animation-delay:0.2s">Prøv f.eks. «Karl Johans gate 12, Oslo»</p>' : ''}
+      <div class="sticky-bottom">
+        <button class="btn-primary" onclick="goTo('Info')" ${canProceed ? '' : 'disabled'}>Neste</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── CUSTOMER INFO ──
+function updateCustomer(field, val) {
+  state.customer[field] = val;
+  // Update button state without full re-render
+  const btn = document.querySelector('.sticky-bottom .btn-primary');
+  if (btn) btn.disabled = !(state.customer.name.trim() && state.customer.phone.trim());
+}
+
+function renderCustomerInfo() {
+  const canProceed = state.customer.name.trim() && state.customer.phone.trim();
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="fade-up">
+        <h2 style="font-size:22px; font-weight:800; color:var(--text)">Kontaktinfo</h2>
+        <p style="margin-top:4px; font-size:14px; color:var(--muted)">Så vi kan oppdatere deg om bestillingen</p>
+      </div>
+      <div class="card fade-up" style="margin-top:24px; animation-delay:0.08s">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+          <div>
+            <label class="section-label" style="display:block; margin-bottom:6px">Navn *</label>
+            <input class="input-field" type="text" placeholder="Ditt navn" value="${state.customer.name}" oninput="updateCustomer('name',this.value)">
+          </div>
+          <div>
+            <label class="section-label" style="display:block; margin-bottom:6px">Telefon *</label>
+            <input class="input-field" type="tel" placeholder="900 00 000" value="${state.customer.phone}" oninput="updateCustomer('phone',this.value)">
+          </div>
+        </div>
+        <div style="margin-top:18px">
+          <label class="section-label" style="display:block; margin-bottom:6px">E-post (valgfritt)</label>
+          <input class="input-field" type="email" placeholder="din@epost.no" value="${state.customer.email}" oninput="updateCustomer('email',this.value)">
+        </div>
+      </div>
+      <div class="sticky-bottom">
+        <button class="btn-primary" onclick="goTo('Oversikt')" ${canProceed ? '' : 'disabled'}>Neste</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── REVIEW ──
+function renderReview() {
+  const items = MENU.filter(i => state.cart[i.id]);
+  const st = subtotal();
+  const df = deliveryFee();
+  const t = total();
+  const dt = state.pickupTime === "asap" ? "ca. 15 min" : state.pickupTime;
+
+  let itemRows = items.map((item, i) => `
+    <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; ${i < items.length-1 ? 'border-bottom:1px solid var(--border)' : ''}">
+      <div style="display:flex; align-items:center; gap:12px">
+        <span style="font-size:22px">${item.emoji}</span>
+        <div>
+          <div style="font-weight:700; font-size:15px">${item.name}</div>
+          ${state.cart[item.id] > 1 ? `<div style="font-size:13px; color:var(--muted)">${state.cart[item.id]} stk</div>` : ''}
+        </div>
+      </div>
+      <div style="font-weight:700; font-size:15px">${fmt(item.price * state.cart[item.id])}</div>
+    </div>
+  `).join('');
+
+  const locationInfo = state.serviceType === "delivery"
+    ? `<div style="font-weight:700; font-size:15px; color:var(--text)">${state.address}</div>
+       <div style="font-size:13px; color:var(--muted); margin-top:4px">Estimert levering: 35–45 min</div>`
+    : `<div style="font-weight:700; font-size:15px; color:var(--text)">Burger Lab Grünerløkka</div>
+       <div style="font-size:13px; color:var(--muted); margin-top:4px">Klar ${dt}</div>`;
+
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="fade-up">
+        <h2 style="font-size:22px; font-weight:800; color:var(--text); margin-bottom:20px">Din bestilling</h2>
+      </div>
+
+      <div class="card fade-up" style="animation-delay:0.06s">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px">
+          <span class="section-label">Varer</span>
+          <button class="edit-link" onclick="goTo('Handlekurv')">Endre</button>
+        </div>
+        ${itemRows}
+        <div style="border-top:2px solid var(--border); margin-top:8px; padding-top:14px; display:flex; flex-direction:column; gap:8px">
+          <div style="display:flex; justify-content:space-between; font-size:14px; color:var(--text-secondary)">
+            <span>Mat subtotal</span><span>${fmt(st)}</span>
+          </div>
+          ${state.serviceType === "delivery" ? `<div style="display:flex; justify-content:space-between; font-size:14px; color:var(--text-secondary)"><span>Levering</span><span>${fmt(df)}</span></div>` : ''}
+          <div style="display:flex; justify-content:space-between; font-size:14px; color:var(--text-secondary)">
+            <span>Service fee</span><span>${fmt(5)}</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:18px; font-weight:800; color:var(--text); margin-top:4px; padding-top:10px; border-top:2px solid var(--border)">
+            <span>Totalt</span><span>${fmt(t)}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card fade-up" style="margin-top:14px; animation-delay:0.14s">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px">
+          <span class="section-label">${state.serviceType === "delivery" ? "Leveres til" : "Hentes hos"}</span>
+          <button class="edit-link" onclick="goTo('Detaljer')">Endre</button>
+        </div>
+        ${locationInfo}
+        <div style="border-top:1px solid var(--border); margin-top:16px; padding-top:14px">
+          <span class="section-label" style="display:block; margin-bottom:8px">Kontakt</span>
+          <div style="font-weight:700; font-size:15px; color:var(--text)">${state.customer.name}</div>
+          <div style="font-size:14px; color:var(--text-secondary); margin-top:1px">${state.customer.phone}${state.customer.email ? ' · ' + state.customer.email : ''}</div>
+        </div>
+      </div>
+
+      <div class="card fade-up" style="margin-top:14px; animation-delay:0.22s">
+        <span class="section-label" style="display:block; margin-bottom:10px">Kommentar til restauranten</span>
+        <textarea class="comment-box" placeholder="F.eks. ingen løk, ring på døra..." rows="3" oninput="state.comment=this.value">${state.comment}</textarea>
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn-primary" onclick="goTo('Betaling')">Velg betaling • ${fmt(t)}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── PAYMENT ──
+let paymentMethod = "";
+
+function selectPayment(method) {
+  paymentMethod = method;
+  render();
+}
+
+function processPayment() {
+  const overlay = document.createElement("div");
+  overlay.className = "processing-overlay";
+  overlay.innerHTML = `
+    <div class="spinner"></div>
+    <p style="color:#fff; margin-top:20px; font-weight:600; font-size:16px">
+      ${paymentMethod === "vipps" ? "Åpner Vipps..." : "Behandler betaling..."}
+    </p>
+  `;
+  document.getElementById("app").appendChild(overlay);
+  state.orderNum = Math.floor(3000 + Math.random() * 1000);
+  setTimeout(() => {
+    overlay.remove();
+    goTo("Bekreftelse");
+  }, 2000);
+}
+
+function renderPayment() {
+  const t = total();
+  return `
+    <div style="padding:20px; padding-bottom:110px">
+      <div class="fade-up" style="text-align:center; padding:20px 0 24px; border-bottom:1px solid var(--border); margin-bottom:24px">
+        <div style="font-size:13px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em">Totalt å betale</div>
+        <div style="font-size:36px; font-weight:800; color:var(--text); margin-top:4px">${fmt(t)}</div>
+      </div>
+
+      <div class="fade-up" style="animation-delay:0.06s">
+        <h2 style="font-size:18px; font-weight:700; color:var(--text); margin-bottom:16px">Velg betalingsmåte</h2>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px">
+        <div class="fade-up" style="animation-delay:0.1s">
+          <button class="btn-secondary ${paymentMethod==='vipps'?'active':''}" onclick="selectPayment('vipps')">
+            <div style="display:flex; align-items:center; gap:14px">
+              <div style="width:44px; height:44px; border-radius:12px; background:#FF5B24; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:13px">Vipps</div>
+              <div>
+                <div style="font-weight:700; font-size:16px">Vipps</div>
+                <div style="font-size:13px; color:var(--muted); font-weight:400; margin-top:2px">Betal med Vipps-appen</div>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="fade-up" style="animation-delay:0.18s">
+          <button class="btn-secondary ${paymentMethod==='card'?'active':''}" onclick="selectPayment('card')">
+            <div style="display:flex; align-items:center; gap:14px">
+              <div style="width:44px; height:44px; border-radius:12px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; font-size:20px">💳</div>
+              <div>
+                <div style="font-weight:700; font-size:16px">Kort</div>
+                <div style="font-size:13px; color:var(--muted); font-weight:400; margin-top:2px">Visa, Mastercard</div>
+              </div>
+            </div>
+          </button>
+        </div>
+      </div>
+
+      <div class="fade-up" style="display:flex; align-items:center; justify-content:center; gap:8px; margin-top:24px; font-size:13px; color:var(--muted); animation-delay:0.24s">
+        🔒 Sikker betaling${paymentMethod === 'vipps' ? ' via Vipps' : paymentMethod === 'card' ? ' via Adyen' : ''}
+      </div>
+
+      <div class="sticky-bottom">
+        <button class="btn-primary" onclick="processPayment()" ${paymentMethod ? '' : 'disabled'}>Betal ${fmt(t)}</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── CONFIRMATION ──
+function renderConfirmation() {
+  const items = MENU.filter(i => state.cart[i.id]);
+  const t = total();
+  const dt = state.pickupTime === "asap" ? "ca. 15 min" : state.pickupTime;
+
+  // Confetti
+  const colors = ["#E85D3A","#2D8A54","#F4C542","#4A90D9","#E85D9A","#6DD490"];
+  let confetti = '';
+  for (let i = 0; i < 40; i++) {
+    const c = colors[i % colors.length];
+    const left = (Math.random()*100).toFixed(1);
+    const delay = (Math.random()*0.6).toFixed(2);
+    const dur = (1.5 + Math.random()*1.5).toFixed(2);
+    const size = (6 + Math.random()*6).toFixed(0);
+    const isCircle = Math.random() > 0.5;
+    confetti += `<div class="confetti-piece" style="left:${left}%; width:${size}px; height:${isCircle ? size : size*1.5}px; border-radius:${isCircle ? '50%' : '2px'}; background:${c}; animation:confettiFall ${dur}s ease-in ${delay}s forwards"></div>`;
+  }
+
+  let itemRows = items.map((item, i) => `
+    <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:14px; ${i < items.length-1 ? 'border-bottom:1px solid var(--border)' : ''}">
+      <span>${item.emoji} ${item.name} ${state.cart[item.id] > 1 ? '×'+state.cart[item.id] : ''}</span>
+      <span style="font-weight:600">${fmt(item.price * state.cart[item.id])}</span>
+    </div>
+  `).join('');
+
+  return `
+    <div style="padding:20px; text-align:center; position:relative; overflow:hidden">
+      <div class="confetti-container">${confetti}</div>
+
+      <div class="animated-check">
+        <svg viewBox="0 0 80 80" width="80" height="80">
+          <circle cx="40" cy="40" r="38" fill="var(--success-bg)" stroke="var(--success)" stroke-width="2"/>
+          <path class="check-path" d="M24 42 L35 53 L56 28" fill="none" stroke="var(--success)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="fade-up" style="animation-delay:0.1s">
+        <h2 style="font-size:24px; font-weight:800; color:var(--text)">Takk for bestillingen!</h2>
+        <p style="font-size:15px; color:var(--muted); margin-top:4px">Ordrenummer <strong>#${state.orderNum}</strong></p>
+      </div>
+
+      <div class="card fade-up" style="margin-top:24px; text-align:left; animation-delay:0.25s">
+        <div style="padding:14px 0; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:12px">
+          <span style="font-size:24px">${state.serviceType === "delivery" ? "🚗" : "🏪"}</span>
+          <div>
+            <div style="font-weight:700; font-size:15px">${state.serviceType === "delivery" ? "Estimert levering" : "Klar til henting"}</div>
+            <div style="font-size:14px; color:var(--muted); margin-top:2px">${state.serviceType === "delivery" ? "35–45 min" : dt}</div>
+          </div>
+        </div>
+        ${itemRows}
+        <div style="display:flex; justify-content:space-between; font-weight:800; font-size:16px; padding-top:14px; margin-top:8px; border-top:2px solid var(--border)">
+          <span>Total</span><span>${fmt(t)}</span>
+        </div>
+      </div>
+
+      <div class="card fade-up" style="margin-top:14px; text-align:left; animation-delay:0.38s">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px">
+          <span style="font-size:20px">💬</span>
+          <div style="font-size:14px; color:var(--text-secondary)">
+            ${state.serviceType === "delivery" ? "Vi ringer når sjåføren er på vei" : "Hent maten i baren ved inngangen"}
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px; padding-top:12px; border-top:1px solid var(--border)">
+          <span style="font-size:20px">📱</span>
+          <div style="font-size:14px; color:var(--text-secondary)">
+            SMS-oppdateringer til ${state.customer.phone || "ditt nummer"}
+          </div>
+        </div>
+      </div>
+
+      <div class="fade-up" style="margin-top:28px; animation-delay:0.48s">
+        <button class="btn-primary" onclick="resetOrder()">Ny bestilling</button>
+      </div>
+    </div>
+  `;
+}
+
+function resetOrder() {
+  state = {
+    step: "Meny", cart: {}, serviceType: "", pickupTime: "asap",
+    address: "", addressError: false, addressChecked: false,
+    customer: { name: "", phone: "", email: "" }, comment: "", orderNum: 0,
+  };
+  paymentMethod = "";
+  goTo("Meny");
+}
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
