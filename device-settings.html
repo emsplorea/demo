@@ -1,0 +1,2102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Settings — Plorea</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* ───────── Design Tokens ───────── */
+        :root {
+            --primary: #0E2841;
+            --primary-light: #156082;
+            --accent: #0F9ED5;
+            --accent-hover: #0A7FB5;
+            --accent-soft: rgba(15,158,213,.08);
+            --danger: #E97132;
+            --warning: #E97132;
+            --success: #4EA72E;
+            --success-soft: rgba(78,167,46,.08);
+            --info: #0F9ED5;
+
+            --text-primary: #0E2841;
+            --text-secondary: #5A6C7D;
+            --text-muted: #8E9BAA;
+            --border: #D0D5DD;
+            --border-light: #E8ECF0;
+            --bg: #F5F7FA;
+            --card-bg: #FFFFFF;
+
+            --shadow-xs: 0 1px 2px rgba(14,40,65,.05);
+            --shadow-sm: 0 1px 3px rgba(14,40,65,.08);
+            --shadow-md: 0 4px 12px rgba(14,40,65,.10);
+            --shadow-lg: 0 10px 25px rgba(14,40,65,.15);
+
+            --header-h: 68px;
+            --nav-h: 48px;
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* ───────── Reset ───────── */
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased}
+
+        /* ───────── Focus / A11y (#9) ───────── */
+        :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+        .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+
+        /* ───────── HEADER (#1 + #2) ───────── */
+        .page-header{
+            background:var(--card-bg);border-bottom:1px solid var(--border);
+            position:sticky;top:0;z-index:100;box-shadow:var(--shadow-sm);
+            height:var(--header-h);
+        }
+        .header-content{
+            max-width:1600px;margin:0 auto;padding:0 2rem;
+            display:flex;align-items:center;gap:1.25rem;height:100%;
+        }
+
+        /* Left: device identity */
+        .header-left{display:flex;align-items:center;gap:.75rem;min-width:0;flex:1}
+        .device-selector-wrap{display:flex;align-items:center;gap:.5rem}
+        .device-selector{
+            background:var(--bg);border:1px solid var(--border);
+            padding:.35rem .75rem;border-radius:6px;font-size:.8125rem;
+            cursor:pointer;font-family:inherit;color:var(--text-primary);
+        }
+        .btn-icon-sm{
+            width:32px;height:32px;display:inline-flex;align-items:center;justify-content:center;
+            background:var(--bg);border:1px solid var(--border);border-radius:6px;
+            cursor:pointer;color:var(--text-secondary);transition:all .15s;flex-shrink:0;
+        }
+        .btn-icon-sm:hover{background:var(--border-light);color:var(--accent)}
+        .btn-icon-sm svg{width:16px;height:16px}
+
+        .device-name{
+            font-size:1.25rem;font-weight:700;color:var(--text-primary);
+            border:none;background:transparent;padding:.15rem 0;
+            border-bottom:2px solid transparent;transition:border-color .2s;
+            min-width:120px;max-width:260px;
+        }
+        .device-name:hover,.device-name:focus{border-bottom-color:var(--accent);outline:none}
+
+        .badge{
+            padding:.25rem .625rem;border-radius:5px;font-size:.6875rem;
+            font-weight:700;font-family:'JetBrains Mono',monospace;
+            letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;flex-shrink:0;
+        }
+        .badge-qr{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
+        .badge-kiosk{background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff}
+        .badge-online{background:linear-gradient(135deg,#43e97b,#38f9d7);color:#fff}
+        .badge-pos-simple{background:linear-gradient(135deg,#fa709a,#fee140);color:#fff}
+        .badge-pos-advanced{background:linear-gradient(135deg,#30cfd0,#330867);color:#fff}
+
+        /* Center: operative summary (#2) */
+        .header-center{display:flex;align-items:center;gap:.75rem;flex-shrink:0}
+
+        .status-chip{
+            display:inline-flex;align-items:center;gap:.375rem;
+            padding:.3rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;
+            cursor:pointer;transition:all .15s;border:none;
+        }
+        .status-chip.active{background:var(--success-soft);color:var(--success)}
+        .status-chip.paused{background:rgba(233,113,50,.1);color:var(--danger)}
+        .status-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+        .url-pill{
+            display:inline-flex;align-items:center;gap:.5rem;
+            background:var(--bg);border:1px solid var(--border);
+            padding:.3rem .375rem .3rem .75rem;border-radius:20px;
+            font-family:'JetBrains Mono',monospace;font-size:.6875rem;
+            color:var(--text-secondary);max-width:260px;overflow:hidden;
+        }
+        .url-pill-text{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .url-pill button{
+            width:24px;height:24px;border-radius:50%;border:none;
+            background:var(--accent);color:#fff;cursor:pointer;
+            display:inline-flex;align-items:center;justify-content:center;
+            transition:background .15s;flex-shrink:0;
+        }
+        .url-pill button:hover{background:var(--accent-hover)}
+        .url-pill button svg{width:12px;height:12px}
+
+        /* Right: actions (#1 unsaved-in-header) */
+        .header-right{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+        .unsaved-chip{
+            display:none;align-items:center;gap:.375rem;
+            padding:.3rem .75rem;border-radius:20px;font-size:.75rem;font-weight:600;
+            background:rgba(233,113,50,.1);color:var(--danger);
+            animation:fadeIn .25s;
+        }
+        .unsaved-chip.show{display:inline-flex}
+        .unsaved-chip .discard-link{
+            font-weight:500;text-decoration:underline;cursor:pointer;
+            margin-left:.25rem;opacity:.8;
+        }
+        .unsaved-chip .discard-link:hover{opacity:1}
+
+        .btn-primary{
+            background:var(--accent);color:#fff;border:none;
+            padding:.5rem 1.25rem;border-radius:var(--radius);
+            font-weight:600;font-size:.8125rem;cursor:pointer;
+            transition:all .15s;box-shadow:var(--shadow-xs);
+            display:inline-flex;align-items:center;gap:.375rem;
+            font-family:inherit;position:relative;
+        }
+        .btn-primary:hover:not(:disabled){background:var(--accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-sm)}
+        .btn-primary:disabled{opacity:.45;cursor:not-allowed}
+        .btn-primary.loading{color:transparent}
+        .btn-primary.loading::after{
+            content:'';position:absolute;width:14px;height:14px;
+            border:2px solid #fff;border-top-color:transparent;border-radius:50%;
+            animation:spin .5s linear infinite;
+        }
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        /* Kebab menu (#2) */
+        .kebab-wrap{position:relative}
+        .kebab-menu{
+            position:absolute;top:calc(100% + 4px);right:0;
+            background:var(--card-bg);border:1px solid var(--border);
+            border-radius:var(--radius);box-shadow:var(--shadow-md);
+            min-width:200px;z-index:200;display:none;overflow:hidden;
+        }
+        .kebab-menu.open{display:block;animation:fadeIn .15s}
+        .kebab-menu button{
+            display:flex;align-items:center;gap:.625rem;width:100%;
+            padding:.625rem 1rem;border:none;background:none;
+            font-size:.8125rem;font-family:inherit;color:var(--text-primary);
+            cursor:pointer;transition:background .1s;text-align:left;
+        }
+        .kebab-menu button:hover{background:var(--bg)}
+        .kebab-menu button svg{width:16px;height:16px;color:var(--text-secondary);flex-shrink:0}
+        @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ───────── SECTION NAV (#3) ───────── */
+        .sections-nav{
+            background:var(--card-bg);border-bottom:1px solid var(--border);
+            position:sticky;top:var(--header-h);z-index:90;
+            box-shadow:0 2px 8px rgba(14,40,65,.06);
+            height:var(--nav-h);
+        }
+        .sections-nav-content{
+            max-width:1600px;margin:0 auto;padding:0 2rem;
+            display:flex;gap:0;overflow-x:auto;height:100%;
+            scrollbar-width:none;
+        }
+        .sections-nav-content::-webkit-scrollbar{display:none}
+
+        .nav-tab{
+            display:flex;align-items:center;gap:.375rem;
+            padding:0 1rem;color:var(--text-secondary);
+            text-decoration:none;font-weight:500;font-size:.8125rem;
+            border:none;border-bottom:2px solid transparent;white-space:nowrap;
+            transition:all .2s;position:relative;height:100%;
+            background:none;cursor:pointer;font-family:inherit;
+        }
+        .nav-tab:hover:not(.disabled){color:var(--text-primary);background:var(--bg)}
+        .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+        .nav-tab.hidden{display:none}
+        .nav-tab.disabled{opacity:.35;cursor:not-allowed;pointer-events:none;position:relative}
+        .nav-tab.disabled[title]{pointer-events:auto}
+        .nav-tab.disabled:hover{color:var(--text-muted);background:transparent}
+
+        /* State chips on tabs (#3) */
+        .tab-chip{
+            font-size:.5625rem;font-weight:700;padding:.1rem .375rem;
+            border-radius:10px;letter-spacing:.3px;text-transform:uppercase;
+            margin-left:.375rem;flex-shrink:0;
+        }
+        .tab-chip.required{background:rgba(233,113,50,.12);color:var(--danger)}
+        .tab-chip.inherit{background:rgba(15,158,213,.1);color:var(--accent)}
+        .tab-chip.override{background:rgba(233,113,50,.1);color:var(--warning)}
+        .tab-chip.ok{background:var(--success-soft);color:var(--success)}
+
+        .nav-icon{font-size:.875rem}
+
+        /* ───────── MAIN LAYOUT ───────── */
+        .main-container{max-width:1600px;margin:0 auto;padding:1.5rem 2rem;min-height:calc(100vh - var(--header-h) - var(--nav-h))}
+        .content-area{display:flex;flex-direction:column;gap:1.25rem}
+
+        /* ───────── SETUP PROGRESS (#5) ───────── */
+        .setup-progress{
+            background:linear-gradient(135deg,var(--primary) 0%,var(--primary-light) 100%);
+            border-radius:var(--radius-lg);padding:1.25rem 1.5rem;color:#fff;
+            box-shadow:var(--shadow-md);
+        }
+        .setup-progress-header{
+            display:flex;justify-content:space-between;align-items:center;
+            cursor:pointer;
+        }
+        .setup-progress-title{display:flex;align-items:center;gap:.625rem;font-weight:700;font-size:1rem}
+        .setup-progress-count{
+            background:rgba(255,255,255,.15);padding:.25rem .75rem;
+            border-radius:6px;font-size:.8125rem;font-weight:600;
+        }
+        .setup-items{
+            display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+            gap:.75rem;margin-top:1rem;
+        }
+        .setup-item{
+            display:flex;align-items:center;gap:.5rem;font-size:.8125rem;
+            padding:.5rem .75rem;border-radius:6px;cursor:pointer;
+            transition:background .15s;
+        }
+        .setup-item:hover{background:rgba(255,255,255,.1)}
+        .setup-item .check{
+            width:20px;height:20px;border-radius:50%;display:flex;
+            align-items:center;justify-content:center;font-size:.7rem;flex-shrink:0;
+        }
+        .setup-item .check.done{background:rgba(255,255,255,.25)}
+        .setup-item .check.missing{background:rgba(255,255,255,.1)}
+        .setup-item .reason{font-size:.6875rem;opacity:.7;margin-left:auto;white-space:nowrap}
+
+        .setup-cta{
+            margin-top:1rem;display:flex;align-items:center;gap:.75rem;
+        }
+        .setup-cta button{
+            background:rgba(255,255,255,.2);color:#fff;border:none;
+            padding:.5rem 1rem;border-radius:6px;font-weight:600;
+            font-size:.8125rem;cursor:pointer;transition:background .15s;
+            font-family:inherit;
+        }
+        .setup-cta button:hover{background:rgba(255,255,255,.3)}
+        .setup-cta .next-label{font-size:.8125rem;opacity:.8}
+
+        /* ───────── ESSENTIALS / ADVANCED TOGGLE (#4) ───────── */
+        .view-toggle{
+            display:inline-flex;background:var(--card-bg);border:1px solid var(--border);
+            border-radius:var(--radius);overflow:hidden;
+        }
+        .view-toggle button{
+            padding:.5rem 1.25rem;border:none;background:none;
+            font-weight:600;font-size:.8125rem;cursor:pointer;
+            color:var(--text-secondary);transition:all .15s;font-family:inherit;
+        }
+        .view-toggle button.active{background:var(--accent);color:#fff}
+
+        /* ───────── SECTION CARDS ───────── */
+        .section-card{
+            background:var(--card-bg);border-radius:var(--radius-lg);
+            padding:1.75rem;box-shadow:var(--shadow-xs);
+            border:1px solid var(--border-light);
+            scroll-margin-top:calc(var(--header-h) + var(--nav-h) + 16px);
+            transition:border-color .2s,box-shadow .2s;
+        }
+        .section-card:hover{border-color:var(--border)}
+        .section-card.has-error{border-color:var(--danger);box-shadow:0 0 0 3px rgba(233,113,50,.08)}
+        .section-card.hidden{display:none}
+        .section-card.highlight{animation:highlightPulse 1.5s ease-out}
+        @keyframes highlightPulse{
+            0%{box-shadow:0 0 0 4px rgba(15,158,213,.3)}
+            100%{box-shadow:var(--shadow-xs)}
+        }
+
+        .section-header{
+            display:flex;justify-content:space-between;align-items:center;
+            margin-bottom:1.25rem;padding-bottom:.875rem;border-bottom:1px solid var(--border-light);
+        }
+        .section-title{font-size:1.125rem;font-weight:700}
+        .section-subtitle{font-size:.8125rem;color:var(--text-secondary);margin-top:.125rem}
+        .section-actions{display:flex;gap:.5rem;align-items:center}
+
+        /* ───────── FORM PATTERNS ───────── */
+        .form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.25rem}
+        .form-group{display:flex;flex-direction:column;gap:.375rem}
+        .form-label{font-size:.8125rem;font-weight:600;display:flex;align-items:center;gap:.375rem}
+        .required{color:var(--danger)}
+        .form-input,select,textarea{
+            background:var(--bg);border:1px solid var(--border);
+            padding:.625rem .875rem;border-radius:var(--radius);
+            font-size:.8125rem;color:var(--text-primary);font-family:inherit;
+            transition:border-color .15s,box-shadow .15s;
+        }
+        .form-input:hover,select:hover{border-color:var(--accent)}
+        .form-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+        textarea.form-input{min-height:80px;resize:vertical}
+        .help-text{font-size:.75rem;color:var(--text-muted)}
+        .error-text{font-size:.75rem;color:var(--danger);display:none}
+        .form-group.has-error .form-input,.form-group.has-error select{border-color:var(--danger)}
+        .form-group.has-error .error-text{display:block}
+
+        .select-wrapper{position:relative}
+        select{appearance:none;width:100%;cursor:pointer}
+        .select-wrapper::after{content:'▾';position:absolute;right:.875rem;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-muted);font-size:.75rem}
+
+        /* ───────── TOGGLE SUB-CARD (#6) ───────── */
+        .toggle-row{
+            display:flex;align-items:flex-start;gap:.75rem;
+            padding:.875rem 1rem;border-radius:var(--radius);
+            background:var(--bg);border:1px solid var(--border-light);
+            transition:border-color .15s;
+        }
+        .toggle-row:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+
+        .toggle-switch{
+            position:relative;width:40px;height:22px;
+            background:var(--border);border-radius:11px;
+            cursor:pointer;transition:background .2s;flex-shrink:0;
+            margin-top:1px;
+        }
+        .toggle-switch.active{background:var(--success)}
+        .toggle-switch::after{
+            content:'';position:absolute;width:16px;height:16px;
+            border-radius:50%;background:#fff;top:3px;left:3px;
+            transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+        }
+        .toggle-switch.active::after{transform:translateX(18px)}
+
+        .toggle-content{flex:1;min-width:0}
+        .toggle-title{font-weight:600;font-size:.8125rem}
+        .toggle-desc{font-size:.75rem;color:var(--text-muted);margin-top:.125rem}
+        .toggle-impact{
+            display:inline-flex;align-items:center;gap:.25rem;
+            margin-top:.375rem;font-size:.6875rem;font-weight:600;
+            color:var(--accent);
+        }
+
+        .sub-card{
+            margin-top:.75rem;padding:1rem;
+            background:var(--card-bg);border:1px solid var(--border-light);
+            border-radius:var(--radius);
+            animation:slideDown .2s ease-out;
+        }
+        .sub-card.disabled-look{opacity:.45;pointer-events:none;filter:grayscale(.3)}
+        @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+
+        /* ───────── INFO BOXES ───────── */
+        .info-box{
+            background:var(--accent-soft);border-left:3px solid var(--accent);
+            padding:.875rem 1rem;border-radius:0 var(--radius) var(--radius) 0;
+            font-size:.8125rem;color:var(--text-secondary);line-height:1.5;
+        }
+        .info-box strong{color:var(--text-primary)}
+        .warning-box{background:rgba(233,113,50,.05);border-left:3px solid var(--warning);padding:.875rem 1rem;border-radius:0 var(--radius) var(--radius) 0;font-size:.8125rem;color:var(--text-secondary)}
+        .success-box{background:var(--success-soft);border-left:3px solid var(--success);padding:.875rem 1rem;border-radius:0 var(--radius) var(--radius) 0;font-size:.8125rem;color:var(--text-secondary)}
+
+        /* ───────── URL DISPLAY ───────── */
+        .url-display{
+            display:flex;align-items:center;gap:.625rem;
+            background:var(--bg);padding:.75rem 1rem;
+            border-radius:var(--radius);border:1px solid var(--border-light);
+            font-family:'JetBrains Mono',monospace;font-size:.8125rem;
+        }
+        .url-text{flex:1;color:var(--text-primary);user-select:all}
+        .icon-btn{
+            background:none;border:none;cursor:pointer;padding:.25rem;
+            color:var(--text-muted);transition:color .15s;border-radius:4px;
+        }
+        .icon-btn:hover{color:var(--accent)}
+
+        /* ───────── CHECKBOX / RADIO ───────── */
+        .checkbox-wrapper{display:flex;align-items:center;gap:.5rem}
+        .checkbox-wrapper input[type="checkbox"]{width:16px;height:16px;accent-color:var(--accent);cursor:pointer}
+        .radio-group{display:flex;gap:1.25rem;flex-wrap:wrap}
+        .radio-option{display:flex;align-items:center;gap:.375rem;cursor:pointer;font-size:.8125rem}
+        .radio-option input[type="radio"]{width:16px;height:16px;accent-color:var(--accent)}
+
+        /* ───────── SEGMENTED CONTROL ───────── */
+        .segmented-control{
+            display:inline-flex;background:var(--bg);border-radius:var(--radius);
+            padding:3px;border:1px solid var(--border-light);
+        }
+        .seg-option{
+            padding:.375rem 1rem;border-radius:6px;font-size:.8125rem;
+            font-weight:500;cursor:pointer;border:none;background:transparent;
+            color:var(--text-secondary);transition:all .15s;font-family:inherit;
+        }
+        .seg-option.active{background:#fff;color:var(--accent);font-weight:600;box-shadow:var(--shadow-xs)}
+
+        /* ───────── HOURS EDITOR ───────── */
+        .hours-editor{border:1px solid var(--border-light);border-radius:var(--radius);overflow:hidden}
+        .hours-day{
+            display:grid;grid-template-columns:100px 1fr auto auto;
+            gap:.75rem;padding:.75rem 1rem;border-bottom:1px solid var(--border-light);
+            align-items:center;font-size:.8125rem;
+        }
+        .hours-day:last-child{border-bottom:none}
+        .day-name{font-weight:600;font-size:.8125rem}
+        .time-inputs{display:flex;gap:.375rem;align-items:center}
+        .time-input{padding:.375rem .625rem;border:1px solid var(--border);border-radius:6px;font-size:.8125rem;width:90px;font-family:inherit}
+
+        /* ───────── TIMELINE ───────── */
+        .timeline-viz{margin-top:1rem;padding:.875rem;background:var(--bg);border-radius:var(--radius)}
+        .timeline-day{display:grid;grid-template-columns:64px 1fr;gap:.75rem;margin-bottom:.375rem;align-items:center}
+        .timeline-day-name{font-size:.6875rem;font-weight:600;color:var(--text-muted)}
+        .timeline-bar{height:20px;background:var(--border-light);border-radius:3px;position:relative;overflow:hidden}
+        .timeline-segment{position:absolute;height:100%;background:var(--success);border-radius:3px}
+
+        /* ───────── SCHEDULE ROWS ───────── */
+        .schedule-row{
+            display:grid;grid-template-columns:2fr 1fr 1fr 2fr 2fr auto;
+            gap:.75rem;align-items:end;padding:.875rem;
+            background:var(--bg);border-radius:var(--radius);margin-bottom:.5rem;
+        }
+
+        /* ───────── TABLE ───────── */
+        .data-table{width:100%;border-collapse:collapse}
+        .data-table th{padding:.625rem;text-align:left;font-weight:600;font-size:.8125rem;background:var(--bg);border-bottom:1px solid var(--border)}
+        .data-table td{padding:.625rem;border-bottom:1px solid var(--border-light);font-size:.8125rem}
+        .btn-sm{padding:.25rem .625rem;border:1px solid var(--border);background:var(--bg);border-radius:5px;font-size:.75rem;cursor:pointer;font-family:inherit;transition:all .1s}
+        .btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+
+        /* ───────── PREVIEW PANEL (#7) ───────── */
+        .preview-panel{
+            position:fixed;top:0;right:-520px;width:520px;height:100vh;
+            background:var(--card-bg);box-shadow:-4px 0 20px rgba(0,0,0,.1);
+            z-index:150;transition:right .3s cubic-bezier(.4,0,.2,1);
+            display:flex;flex-direction:column;
+        }
+        .preview-panel.show{right:0}
+        .preview-header{
+            padding:1.25rem 1.5rem;border-bottom:1px solid var(--border-light);
+            display:flex;justify-content:space-between;align-items:center;
+            flex-shrink:0;
+        }
+        .preview-title{font-size:1rem;font-weight:700}
+        .preview-body{flex:1;overflow-y:auto;padding:1.25rem 1.5rem}
+
+        /* Test scenario switch (#7) */
+        .scenario-bar{
+            display:flex;gap:.375rem;padding:.75rem 1.5rem;
+            border-bottom:1px solid var(--border-light);background:var(--bg);flex-shrink:0;
+        }
+        .scenario-btn{
+            padding:.35rem .75rem;border:1px solid var(--border);
+            background:var(--card-bg);border-radius:20px;font-size:.6875rem;
+            font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit;
+            color:var(--text-secondary);
+        }
+        .scenario-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+        .config-summary{margin-bottom:1.5rem}
+        .config-row{
+            display:flex;justify-content:space-between;align-items:center;
+            padding:.5rem 0;border-bottom:1px solid var(--border-light);
+            font-size:.8125rem;
+        }
+        .config-row:last-child{border-bottom:none}
+        .config-label{color:var(--text-muted);font-weight:500}
+        .config-value{font-weight:600;display:flex;align-items:center;gap:.375rem}
+
+        .phone-mockup{
+            width:100%;max-width:320px;margin:0 auto;
+            aspect-ratio:9/19.5;border:10px solid #1a1f3a;
+            border-radius:28px;background:#fff;overflow:hidden;
+            box-shadow:0 20px 40px rgba(0,0,0,.15);position:relative;
+        }
+        .phone-notch{
+            position:absolute;top:0;left:50%;transform:translateX(-50%);
+            width:100px;height:20px;background:#1a1f3a;border-radius:0 0 10px 10px;
+        }
+        .phone-content{padding:1.75rem 1rem 1rem;height:100%;overflow-y:auto}
+
+        /* ───────── MODAL ───────── */
+        .modal-overlay{
+            position:fixed;inset:0;background:rgba(0,0,0,.45);
+            display:none;align-items:center;justify-content:center;
+            z-index:200;backdrop-filter:blur(4px);
+        }
+        .modal-overlay.show{display:flex}
+        .modal{
+            background:var(--card-bg);border-radius:var(--radius-lg);
+            padding:1.75rem;max-width:560px;width:90%;
+            box-shadow:var(--shadow-lg);animation:modalIn .25s;
+            max-height:80vh;overflow-y:auto;
+        }
+        @keyframes modalIn{from{opacity:0;transform:translateY(-12px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+        .modal-header{font-size:1.125rem;font-weight:700;margin-bottom:.75rem}
+        .modal-body{color:var(--text-secondary);line-height:1.6;margin-bottom:1.25rem}
+        .modal-actions{display:flex;gap:.75rem;justify-content:flex-end}
+
+        .btn-secondary{
+            background:var(--bg);border:1px solid var(--border);
+            padding:.5rem 1rem;border-radius:var(--radius);
+            font-weight:600;font-size:.8125rem;cursor:pointer;
+            transition:all .15s;color:var(--text-primary);font-family:inherit;
+        }
+        .btn-secondary:hover{background:var(--border-light);transform:translateY(-1px)}
+        .btn-danger{
+            background:var(--danger);color:#fff;border:none;
+            padding:.5rem 1.25rem;border-radius:var(--radius);
+            font-weight:600;font-size:.8125rem;cursor:pointer;
+            transition:all .15s;font-family:inherit;
+        }
+        .btn-danger:hover{filter:brightness(1.1);transform:translateY(-1px)}
+        .btn-danger:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+        /* ───────── DANGER ZONE (#10) ───────── */
+        .danger-zone{
+            border:1px solid rgba(233,113,50,.3);border-radius:var(--radius);
+            overflow:hidden;
+        }
+        .danger-zone-header{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:.875rem 1rem;cursor:pointer;transition:background .15s;
+        }
+        .danger-zone-header:hover{background:rgba(233,113,50,.03)}
+        .danger-zone-title{font-weight:700;font-size:.875rem;color:var(--danger);display:flex;align-items:center;gap:.5rem}
+        .danger-zone-body{padding:0 1rem 1rem;display:none}
+        .danger-zone-body.open{display:block;animation:slideDown .2s}
+
+        .delete-confirm-input{
+            font-family:'JetBrains Mono',monospace;font-weight:600;
+            letter-spacing:1px;
+        }
+        .consequence-list{margin:.75rem 0;display:flex;flex-direction:column;gap:.375rem}
+        .consequence-item{
+            display:flex;align-items:center;gap:.5rem;font-size:.8125rem;
+            color:var(--text-secondary);
+        }
+        .consequence-item::before{content:'•';color:var(--danger);font-weight:700}
+
+        /* ───────── TOAST ───────── */
+        .toast{
+            position:fixed;bottom:1.5rem;right:1.5rem;
+            background:var(--primary);color:#fff;
+            padding:.75rem 1.25rem;border-radius:var(--radius);
+            box-shadow:var(--shadow-lg);display:none;align-items:center;
+            gap:.5rem;z-index:300;max-width:360px;font-size:.8125rem;
+            animation:toastIn .25s;
+        }
+        .toast.show{display:flex}
+        .toast.success{background:var(--success)}
+        .toast.error{background:var(--danger)}
+        .toast.warning{background:var(--warning)}
+        @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+
+        /* ───────── TOOLTIP (#9) ───────── */
+        .tip{
+            cursor:help;color:var(--text-muted);position:relative;
+            display:inline-flex;font-size:.75rem;
+        }
+        .tip:hover .tip-text,.tip:focus .tip-text{display:block}
+        .tip .tip-text{
+            display:none;position:absolute;bottom:calc(100% + 6px);left:50%;
+            transform:translateX(-50%);background:var(--primary);color:#fff;
+            padding:.375rem .625rem;border-radius:6px;font-size:.6875rem;
+            white-space:nowrap;z-index:50;pointer-events:none;font-weight:500;
+        }
+
+        /* ───────── UPLOAD ZONE ───────── */
+        .upload-zone{
+            border:2px dashed var(--border);border-radius:var(--radius);
+            padding:1.5rem;text-align:center;cursor:pointer;
+            transition:all .15s;background:var(--bg);font-size:.8125rem;
+        }
+        .upload-zone:hover{border-color:var(--accent);background:var(--accent-soft)}
+
+        /* ───────── TEMPLATE CARDS ───────── */
+        .template-card{
+            padding:1rem;border:1px solid var(--border-light);border-radius:var(--radius);
+            cursor:pointer;transition:all .15s;
+        }
+        .template-card:hover{border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--shadow-sm)}
+        .template-card-header{display:flex;align-items:center;gap:.625rem}
+
+        /* ───────── RESPONSIVE ───────── */
+        @media(max-width:1024px){
+            .header-content{padding:0 1rem}
+            .url-pill-text{display:none}
+            .url-pill{padding:.3rem .375rem;gap:.25rem;max-width:none}
+            .main-container{padding:1rem}
+            .sections-nav-content{padding:0 1rem}
+            .schedule-row{grid-template-columns:1fr}
+            .preview-panel{width:100%;right:-100%}
+        }
+        @media(max-width:640px){
+            .header-center{display:none}
+            .form-grid{grid-template-columns:1fr}
+        }
+    </style>
+</head>
+<body>
+
+<!-- ═══════ HEADER (#1+#2) ═══════ -->
+<header class="page-header">
+    <div class="header-content">
+        <div class="header-left">
+            <div class="device-selector-wrap">
+                <select class="device-selector" onchange="loadDevice(this.value)" aria-label="Select device">
+                    <option value="main-dining">Main Dining QR</option>
+                    <option value="pickup-counter">Pickup Counter QR</option>
+                    <option value="entrance-kiosk">Entrance Kiosk</option>
+                    <option value="online-store">Online Store</option>
+                    <option value="pos-1">POS Terminal 1</option>
+                </select>
+                <button class="btn-icon-sm" onclick="showNewDeviceModal()" aria-label="Create new device" tabindex="0">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+            </div>
+            <input type="text" class="device-name" value="Main Dining QR" id="deviceName" oninput="markUnsaved()" aria-label="Device name">
+            <span class="badge badge-qr" id="deviceTypeBadge">QR</span>
+        </div>
+
+        <!-- Operative summary (#2) -->
+        <div class="header-center">
+            <button class="status-chip active" id="statusChip" onclick="toggleStatus()" aria-label="Toggle device status" tabindex="0">
+                <span class="status-dot"></span>
+                <span id="statusLabel">Active</span>
+            </button>
+
+            <div class="url-pill" id="urlPill">
+                <span class="url-pill-text" id="urlPillText">order.acme.com/d/a8k9x2</span>
+                <button onclick="copyUrl()" aria-label="Copy public URL">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                </button>
+                <button onclick="openUrl()" aria-label="Open public URL">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                </button>
+            </div>
+
+            <button class="btn-icon-sm" onclick="togglePreview()" aria-label="Preview device" tabindex="0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+        </div>
+
+        <!-- Actions (#1 unsaved-in-header) -->
+        <div class="header-right">
+            <span class="unsaved-chip" id="unsavedChip">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Unsaved
+                <span class="discard-link" onclick="discardChanges()">Discard</span>
+            </span>
+
+            <button class="btn-primary" id="saveBtn" onclick="saveSettings()" disabled>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                Save
+            </button>
+
+            <div class="kebab-wrap">
+                <button class="btn-icon-sm" onclick="toggleKebab()" aria-label="More actions" tabindex="0">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+                </button>
+                <div class="kebab-menu" id="kebabMenu">
+                    <button onclick="openTemplates()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        Load Template
+                    </button>
+                    <button onclick="exportConfig()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        Export Config
+                    </button>
+                    <button onclick="duplicateDevice()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        Duplicate Device
+                    </button>
+                    <button onclick="saveAsTemplate()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                        Save as Template
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- ═══════ SECTION NAV (#3) ═══════ -->
+<nav class="sections-nav">
+    <div class="sections-nav-content">
+        <button class="nav-tab active" data-section="core" onclick="navTo(event,'core')">
+            <span class="nav-icon">⚙️</span><span class="tab-label">Core</span>
+        </button>
+        <button class="nav-tab" data-section="catalog" onclick="navTo(event,'catalog')">
+            <span class="nav-icon">📋</span><span class="tab-label">Catalog</span>
+            <span class="tab-chip ok" id="tabChipCatalog">OK</span>
+        </button>
+        <button class="nav-tab" data-section="availability" data-channel-only="true" onclick="navTo(event,'availability')">
+            <span class="nav-icon">🕐</span><span class="tab-label">Availability</span>
+            <span class="tab-chip inherit" id="tabChipAvailability">Inherit</span>
+        </button>
+        <button class="nav-tab" data-section="leadtime" data-channel-only="true" onclick="navTo(event,'leadtime')">
+            <span class="nav-icon">⏱️</span><span class="tab-label">Lead Time</span>
+        </button>
+        <button class="nav-tab" data-section="behavior" onclick="navTo(event,'behavior')">
+            <span class="nav-icon">🎯</span><span class="tab-label">Behavior</span>
+        </button>
+        <button class="nav-tab" data-section="pos-template" data-pos-only="true" onclick="navTo(event,'pos-template')">
+            <span class="nav-icon">📄</span><span class="tab-label">POS Template</span>
+        </button>
+        <button class="nav-tab" data-section="payments" onclick="navTo(event,'payments')">
+            <span class="nav-icon">💳</span><span class="tab-label">Payments</span>
+        </button>
+        <button class="nav-tab" data-section="messaging" data-channel-only="true" onclick="navTo(event,'messaging')">
+            <span class="nav-icon">💬</span><span class="tab-label">Messaging</span>
+        </button>
+        <button class="nav-tab" data-section="pos-settings" data-pos-only="true" onclick="navTo(event,'pos-settings')">
+            <span class="nav-icon">🖥️</span><span class="tab-label">POS Settings</span>
+        </button>
+        <button class="nav-tab" data-section="printing" data-advanced="true" onclick="navTo(event,'printing')">
+            <span class="nav-icon">🖨️</span><span class="tab-label">Printing</span>
+        </button>
+        <button class="nav-tab" data-section="advanced" data-advanced="true" onclick="navTo(event,'advanced')">
+            <span class="nav-icon">🔧</span><span class="tab-label">Advanced</span>
+        </button>
+        <button class="nav-tab nav-advanced-toggle" id="navAdvancedBtn" onclick="expandAdvancedFromNav()" style="display:none;border:none;background:none;cursor:pointer">
+            <span class="tab-label" style="color:var(--accent)">+ Advanced</span>
+        </button>
+    </div>
+</nav>
+
+<!-- ═══════ MAIN CONTENT ═══════ -->
+<div class="main-container">
+    <main class="content-area">
+
+        <!-- SETUP PROGRESS (#5) -->
+        <div class="setup-progress" id="setupProgress">
+            <div class="setup-progress-header" onclick="toggleSetupPanel()">
+                <div class="setup-progress-title">
+                    <span id="setupToggleIcon">▼</span>
+                    ⚡ Setup Progress
+                </div>
+                <div class="setup-progress-count" id="setupCount">5 of 5 complete</div>
+            </div>
+            <div id="setupItems">
+                <div class="setup-items">
+                    <div class="setup-item" onclick="scrollToSetup('core','deviceName')">
+                        <div class="check done" id="check-device">✓</div>
+                        <span>Device Identity</span>
+                        <span class="reason" id="reason-device"></span>
+                    </div>
+                    <div class="setup-item" onclick="scrollToSetup('catalog','favoriteGroup')">
+                        <div class="check done" id="check-catalog">✓</div>
+                        <span>Favorite Group</span>
+                        <span class="reason" id="reason-catalog"></span>
+                    </div>
+                    <div class="setup-item" onclick="scrollToSetup('availability')">
+                        <div class="check done" id="check-availability">✓</div>
+                        <span>Availability</span>
+                        <span class="reason" id="reason-availability"></span>
+                    </div>
+                    <div class="setup-item" onclick="scrollToSetup('behavior')">
+                        <div class="check done" id="check-behavior">✓</div>
+                        <span>Order Behavior</span>
+                        <span class="reason" id="reason-behavior"></span>
+                    </div>
+                    <div class="setup-item" onclick="scrollToSetup('payments')">
+                        <div class="check done" id="check-payments">✓</div>
+                        <span>Payment Config</span>
+                        <span class="reason" id="reason-payments"></span>
+                    </div>
+                </div>
+                <div class="setup-cta" id="setupCta" style="display:none">
+                    <button onclick="completeNextStep()">Complete Next Step →</button>
+                    <span class="next-label" id="nextStepLabel"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ESSENTIALS / ADVANCED TOGGLE (#4) -->
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.75rem">
+            <div class="view-toggle">
+                <button class="active" onclick="setViewMode('essentials',this)">Essentials</button>
+                <button onclick="setViewMode('all',this)">All Sections</button>
+            </div>
+        </div>
+
+        <!-- ═══════ SECTION A: CORE ═══════ -->
+        <section class="section-card" id="core" data-section="core">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Core Settings</h2>
+                    <p class="section-subtitle">Device identity and base configuration</p>
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group" id="deviceNameGroup">
+                    <label class="form-label">Device Name <span class="required">*</span>
+                        <span class="tip" tabindex="0" role="tooltip"><span aria-hidden="true">ⓘ</span><span class="tip-text">Unique name to identify this device</span></span>
+                    </label>
+                    <input type="text" class="form-input" value="Main Dining QR" placeholder="Enter device name" oninput="markUnsaved();validateField(this)">
+                    <span class="error-text">Device name is required</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Device Type <span class="required">*</span></label>
+                    <div class="select-wrapper">
+                        <select class="form-input" id="deviceTypeSelect" onchange="handleDeviceTypeChange()">
+                            <option value="qr">QR</option>
+                            <option value="kiosk">Self-Service Kiosk</option>
+                            <option value="online">Online Ordering</option>
+                            <option value="pos-simple">Simple POS</option>
+                            <option value="pos-advanced">Advanced POS</option>
+                        </select>
+                    </div>
+                    <span class="help-text">Changing this regenerates the Public URL</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <div id="coreStatusDisplay" style="display:flex;align-items:center;gap:.625rem;padding:.5rem 0">
+                        <span id="coreStatusBadge" style="display:inline-flex;align-items:center;gap:.375rem;padding:.3rem .75rem;border-radius:20px;font-size:.8125rem;font-weight:600;background:var(--success-soft);color:var(--success)">
+                            <span style="width:7px;height:7px;border-radius:50%;background:currentColor"></span>
+                            <span id="coreStatusText">Active</span>
+                        </span>
+                        <button style="background:none;border:none;color:var(--accent);font-size:.8125rem;font-weight:600;cursor:pointer;text-decoration:underline;font-family:inherit" onclick="flashHeaderStatus()">Change</button>
+                    </div>
+                    <span class="help-text">Paused status overrides Availability</span>
+                </div>
+            </div>
+
+            <!-- Public URL (also in header pill) -->
+            <div id="publicUrlSection" style="margin-top:1.5rem">
+                <label class="form-label" style="margin-bottom:.5rem">Public URL</label>
+                <div class="url-display">
+                    <span class="url-text">https://order.acme.com/d/a8k9x2</span>
+                    <button class="icon-btn" onclick="copyUrl()" aria-label="Copy URL"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+                    <button class="icon-btn" onclick="openUrl()" aria-label="Open URL in new tab"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></button>
+                </div>
+                <div class="info-box" style="margin-top:.625rem">
+                    <strong>🔒 System generated.</strong> URL does not change on rename. Regenerates only when Device Type changes.
+                </div>
+            </div>
+
+            <!-- Admin Access -->
+            <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-light)">
+                <label class="form-label" style="margin-bottom:.5rem">Admin Access</label>
+                <div class="url-display">
+                    <span class="url-text">https://admin.plorea.no/device/abc123?token=xyz</span>
+                    <button class="icon-btn" onclick="copyAdminUrl()" aria-label="Copy admin link"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button>
+                </div>
+                <span class="help-text">API-generated link, may be time-limited.</span>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION: POS TEMPLATE ═══════ -->
+        <section class="section-card hidden" id="pos-template" data-section="pos-template" data-pos-only="true">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">POS Template</h2>
+                    <p class="section-subtitle">Template-based or manual device configuration</p>
+                </div>
+            </div>
+
+            <div class="toggle-row">
+                <div class="toggle-switch" id="templateToggle" onclick="toggleTemplateMode()" tabindex="0" role="switch" aria-checked="false" aria-label="Use template-based setup"></div>
+                <div class="toggle-content">
+                    <div class="toggle-title">Use Template-Based Setup</div>
+                    <div class="toggle-desc">When enabled, payment devices are managed by template. Disable for manual configuration.</div>
+                    <div class="toggle-impact">⚡ Auto-binds payment terminals on login</div>
+                </div>
+            </div>
+
+            <div id="templateModeContent" class="sub-card" style="display:none">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Template <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select class="form-input" onchange="markUnsaved()">
+                                <option value="">— Select Template —</option>
+                                <option>Event Template</option>
+                                <option>Standard Retail Template</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-box" style="margin-top:1rem">
+                    <strong>⚠️ Important:</strong> Templates do NOT contain TID or provider device IDs. These are bound dynamically during login.
+                </div>
+            </div>
+
+            <div id="manualModeMessage" class="sub-card">
+                <div class="info-box">
+                    <strong>📝 Manual Configuration Mode</strong><br>
+                    Payment devices are configured manually in the Payment Devices section below.
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION B: CATALOG ═══════ -->
+        <section class="section-card" id="catalog" data-section="catalog">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Catalog Mapping</h2>
+                    <p class="section-subtitle">Control which menu items are visible on this device</p>
+                </div>
+                <div class="section-actions">
+                    <span style="display:inline-flex;align-items:center;gap:.375rem;font-size:.75rem;color:var(--success);font-weight:600">
+                        <span style="width:7px;height:7px;border-radius:50%;background:var(--success);animation:pulse 2s infinite"></span>
+                        <span id="currentMenu">Showing: Main Menu</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="form-grid" id="defaultCatalog">
+                <div class="form-group" id="favoriteGroupGroup">
+                    <label class="form-label">Favorite Group <span class="required">*</span></label>
+                    <div class="select-wrapper">
+                        <select class="form-input" id="favoriteGroup" onchange="markUnsaved();validateCatalog()">
+                            <option value="">— Select Menu —</option>
+                            <option value="main" selected>Main Menu</option>
+                            <option value="breakfast">Breakfast Menu</option>
+                            <option value="lunch">Lunch Special</option>
+                            <option value="brunch">Weekend Brunch</option>
+                        </select>
+                    </div>
+                    <span class="error-text">Favorite Group is required to activate device</span>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Default Favorite Tab (Optional)</label>
+                    <div class="select-wrapper">
+                        <select class="form-input" onchange="markUnsaved()">
+                            <option value="">— None —</option>
+                            <option>Appetizers</option>
+                            <option>Main Courses</option>
+                            <option>Desserts</option>
+                            <option>Drinks</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Schedule toggle (#6 pattern) -->
+            <div style="margin-top:1.25rem">
+                <div class="toggle-row">
+                    <div class="toggle-switch" id="scheduleToggle" onclick="toggleSchedule()" tabindex="0" role="switch" aria-checked="false" aria-label="Enable schedule-based menus"></div>
+                    <div class="toggle-content">
+                        <div class="toggle-title">Use Schedule</div>
+                        <div class="toggle-desc">Show different menus based on time of day</div>
+                        <div class="toggle-impact">🕐 Adds time-based menu switching</div>
+                    </div>
+                </div>
+
+                <div id="scheduledCatalog" class="sub-card" style="display:none">
+                    <div class="schedule-row" id="schedule1">
+                        <div class="form-group">
+                            <label class="form-label">Days</label>
+                            <select class="form-input" multiple style="height:70px" onchange="markUnsaved()">
+                                <option selected>Monday</option><option selected>Tuesday</option><option selected>Wednesday</option>
+                                <option selected>Thursday</option><option selected>Friday</option><option>Saturday</option><option>Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label class="form-label">From</label><input type="time" class="form-input" value="06:00" onchange="markUnsaved()"></div>
+                        <div class="form-group"><label class="form-label">To</label><input type="time" class="form-input" value="11:00" onchange="markUnsaved()"></div>
+                        <div class="form-group"><label class="form-label">Favorite Group</label>
+                            <div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option>Breakfast Menu</option><option>Main Menu</option><option>Lunch Special</option></select></div>
+                        </div>
+                        <div class="form-group"><label class="form-label">Default Tab</label>
+                            <div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— None —</option><option>Hot Dishes</option></select></div>
+                        </div>
+                        <div class="form-group"><label class="form-label" style="visibility:hidden">X</label><button class="icon-btn" onclick="this.closest('.schedule-row').remove();markUnsaved()" aria-label="Remove schedule row"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+                    </div>
+
+                    <button class="btn-secondary" onclick="addScheduleRow()" style="margin-top:.5rem">+ Add Time Window</button>
+                    <div class="info-box" style="margin-top:.75rem"><strong>First matching schedule wins.</strong> If no schedule matches, falls back to default Favorite Group above.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION C: AVAILABILITY ═══════ -->
+        <section class="section-card" id="availability" data-section="availability" data-channel-only="true">
+            <div class="section-header">
+                <div>
+                    <h2 class="section-title">Availability</h2>
+                    <p class="section-subtitle">Control when customers can order from this device</p>
+                </div>
+                <div class="section-actions">
+                    <button class="btn-secondary" onclick="showQuickHoursPresets()">⚡ Quick Presets</button>
+                </div>
+            </div>
+
+            <div class="radio-group" style="margin-bottom:1.25rem">
+                <label class="radio-option"><input type="radio" name="availability" value="inherit" checked onchange="toggleAvailabilityMode();markUnsaved()"> Inherit from Location</label>
+                <label class="radio-option"><input type="radio" name="availability" value="override" onchange="toggleAvailabilityMode();markUnsaved()"> Override on Device</label>
+            </div>
+
+            <div class="info-box" id="inheritedHours">
+                <strong>Currently inheriting from:</strong> Downtown Restaurant<br>
+                Mon–Thu: 11:00–22:00 · Fri–Sat: 11:00–23:00 · Sun: 12:00–21:00
+            </div>
+
+            <div id="hoursOverride" style="display:none;margin-top:1.25rem">
+                <div class="hours-editor">
+                    <div class="hours-day"><div class="day-name">Monday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="22:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('monday')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="mon-closed" onchange="markUnsaved()"><label for="mon-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Tuesday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="22:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('tue')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="tue-closed" onchange="markUnsaved()"><label for="tue-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Wednesday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="22:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('wed')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="wed-closed" onchange="markUnsaved()"><label for="wed-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Thursday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="22:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('thu')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="thu-closed" onchange="markUnsaved()"><label for="thu-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Friday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="23:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('fri')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="fri-closed" onchange="markUnsaved()"><label for="fri-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Saturday</div><div class="time-inputs"><input type="time" class="time-input" value="11:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="23:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('sat')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="sat-closed" onchange="markUnsaved()"><label for="sat-closed" style="font-size:.75rem">Closed</label></div></div>
+                    <div class="hours-day"><div class="day-name">Sunday</div><div class="time-inputs"><input type="time" class="time-input" value="12:00" onchange="markUnsaved()"><span>–</span><input type="time" class="time-input" value="21:00" onchange="markUnsaved()"></div><button class="btn-sm" onclick="addInterval('sun')">+ Interval</button><div class="checkbox-wrapper"><input type="checkbox" id="sun-closed" onchange="markUnsaved()"><label for="sun-closed" style="font-size:.75rem">Closed</label></div></div>
+                </div>
+
+                <div class="timeline-viz">
+                    <div style="font-size:.6875rem;font-weight:600;color:var(--text-muted);margin-bottom:.5rem">Weekly Overview</div>
+                    <div class="timeline-day"><div class="timeline-day-name">Mon–Thu</div><div class="timeline-bar"><div class="timeline-segment" style="left:45.8%;width:45.8%"></div></div></div>
+                    <div class="timeline-day"><div class="timeline-day-name">Fri–Sat</div><div class="timeline-bar"><div class="timeline-segment" style="left:45.8%;width:50%"></div></div></div>
+                    <div class="timeline-day"><div class="timeline-day-name">Sunday</div><div class="timeline-bar"><div class="timeline-segment" style="left:50%;width:37.5%"></div></div></div>
+                </div>
+            </div>
+
+            <!-- Temporary closure (#6 pattern) -->
+            <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-light)">
+                <div class="toggle-row">
+                    <div class="toggle-switch" id="tempClosedToggle" onclick="toggleTempClosed()" tabindex="0" role="switch" aria-checked="false" aria-label="Temporarily closed"></div>
+                    <div class="toggle-content">
+                        <div class="toggle-title">Temporarily Closed</div>
+                        <div class="toggle-desc">Emergency stop for order acceptance</div>
+                        <div class="toggle-impact">⚠️ Blocks all new orders immediately</div>
+                    </div>
+                </div>
+                <div id="tempClosedOptions" class="sub-card" style="display:none">
+                    <div class="form-group">
+                        <label class="form-label">Closed Message</label>
+                        <input type="text" class="form-input" placeholder="We're temporarily closed. Check back soon!" oninput="markUnsaved()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="warning-box" style="margin-top:1rem">
+                <strong>⚠️ Note:</strong> Paused status in header overrides Availability. Closed is never stored as permanent Status.
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION D: LEAD TIME ═══════ -->
+        <section class="section-card" id="leadtime" data-section="leadtime" data-channel-only="true">
+            <div class="section-header">
+                <div><h2 class="section-title">Lead Time</h2><p class="section-subtitle">Determines estimated ready time for orders</p></div>
+            </div>
+            <div class="form-grid">
+                <div class="form-group"><label class="form-label">Base Preparation Time (min) <span class="required">*</span></label><input type="number" class="form-input" value="15" min="0" id="baseTime" oninput="markUnsaved();updateLeadTime()"><span class="help-text">Standard time to prepare orders</span></div>
+                <div class="form-group"><label class="form-label">Additional Buffer (min)</label><input type="number" class="form-input" placeholder="0" min="0" id="bufferTime" oninput="markUnsaved();updateLeadTime()"><span class="help-text">Extra time for busy periods</span></div>
+            </div>
+            <div class="success-box" style="margin-top:1.25rem">
+                <strong>📊 Ready Time Preview:</strong><br>
+                If a customer orders now (<span id="currentTime">14:30</span>), their order will be ready at: <strong id="readyTime">14:45</strong>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION E: BEHAVIOR ═══════ -->
+        <section class="section-card" id="behavior" data-section="behavior">
+            <div class="section-header">
+                <div><h2 class="section-title">Order Behavior</h2><p class="section-subtitle" id="behaviorSubtitle">Device-specific ordering behavior</p></div>
+            </div>
+
+            <!-- QR Behavior -->
+            <div id="behaviorQR">
+                <div style="margin-bottom:1.25rem">
+                    <label class="form-label" style="margin-bottom:.5rem">QR Mode</label>
+                    <div class="segmented-control">
+                        <button class="seg-option" onclick="setQRMode('standard',this)">Standard</button>
+                        <button class="seg-option active" onclick="setQRMode('table',this)">Table</button>
+                    </div>
+                </div>
+
+                <div class="form-grid" id="qrTableOptions">
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" id="tableFromQR" checked onchange="markUnsaved()"><label for="tableFromQR">Table Number from QR</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" id="allowManualTable" onchange="markUnsaved()"><label for="allowManualTable">Allow Manual Table Input</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" id="payCounter" checked onchange="markUnsaved()"><label for="payCounter">Pay at Counter</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" id="allowComment" checked onchange="markUnsaved()"><label for="allowComment">Allow Order Comment</label></div></div>
+                </div>
+
+                <!-- Park Order (#6 toggle pattern) -->
+                <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-light)">
+                    <div class="toggle-row">
+                        <div class="toggle-switch" id="parkOrderToggle" onclick="toggleSwitch(this,'parkOrderOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Enable park order"></div>
+                        <div class="toggle-content">
+                            <div class="toggle-title">Park Order</div>
+                            <div class="toggle-desc">Customers can save their order for later</div>
+                            <div class="toggle-impact">🍽️ Adds park-to-table/name flow</div>
+                        </div>
+                    </div>
+                    <div id="parkOrderOpts" class="sub-card" style="display:none">
+                        <div class="form-grid">
+                            <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>🍽️ Table — Park order to specific table</label></div></div>
+                            <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>👤 Name / Phone — Park with customer details</label></div></div>
+                        </div>
+                        <div class="info-box" style="margin-top:.75rem">"Quick" variant is only available on POS devices.</div>
+                    </div>
+                </div>
+
+                <!-- Receipt Pickup -->
+                <div style="margin-top:1.25rem">
+                    <div class="toggle-row">
+                        <div class="toggle-switch" id="receiptPickupToggle" onclick="toggleSwitch(this,'receiptPickupOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Enable receipt QR pickup"></div>
+                        <div class="toggle-content">
+                            <div class="toggle-title">Receipt QR Pickup</div>
+                            <div class="toggle-desc">Staff can mark orders as delivered by scanning receipt QR</div>
+                            <div class="toggle-impact">📱 Adds scan-to-deliver workflow</div>
+                        </div>
+                    </div>
+                    <div id="receiptPickupOpts" class="sub-card" style="display:none">
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Staff Screen Target</label><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— Default —</option><option>Kitchen Display</option><option>Pickup Counter</option></select></div></div>
+                            <div class="form-group"><label class="form-label">Delivered Button Label</label><input type="text" class="form-input" value="Delivered" oninput="markUnsaved()"></div>
+                        </div>
+                        <div class="info-box" style="margin-top:.75rem"><strong>🔒 Locked Behavior:</strong> QR token is one-time use. After "Delivered", token is invalidated and re-scan is blocked.</div>
+                    </div>
+                </div>
+
+                <!-- Branding (advanced) -->
+                <div style="margin-top:1.25rem" data-advanced-content="true">
+                    <div class="toggle-row">
+                        <div class="toggle-switch" id="qrBrandingToggle" onclick="toggleSwitch(this,'qrBrandingOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Custom branding"></div>
+                        <div class="toggle-content">
+                            <div class="toggle-title">Custom Branding</div>
+                            <div class="toggle-desc">Personalize the QR ordering page with your logo and cover image</div>
+                            <div class="toggle-impact">🎨 Changes customer-facing appearance</div>
+                        </div>
+                    </div>
+                    <div id="qrBrandingOpts" class="sub-card" style="display:none">
+                        <div class="form-grid">
+                            <div class="form-group"><label class="form-label">Upload Logo</label><div class="upload-zone">📸 Choose file or drag & drop<div style="font-size:.6875rem;color:var(--text-muted);margin-top:.25rem">PNG, JPG (max 2MB)</div></div></div>
+                            <div class="form-group"><label class="form-label">Upload Cover Image</label><div class="upload-zone">🖼️ Choose file or drag & drop<div style="font-size:.6875rem;color:var(--text-muted);margin-top:.25rem">PNG, JPG (max 5MB)</div></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kiosk Behavior -->
+            <div id="behaviorKiosk" style="display:none">
+                <div class="form-grid">
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Require Customer Name</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Require Phone Number</label></div></div>
+                    <div class="form-group"><label class="form-label">Idle Timeout (seconds)</label><input type="number" class="form-input" value="60" min="30" max="300" oninput="markUnsaved()"></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Auto Reset After Payment</label></div></div>
+                </div>
+                <div style="margin-top:1.25rem"><label class="form-label" style="margin-bottom:.5rem">Post-Payment Display</label>
+                    <div class="radio-group">
+                        <label class="radio-option"><input type="radio" name="postPayment" value="order-number" checked> Show Order Number</label>
+                        <label class="radio-option"><input type="radio" name="postPayment" value="qr-receipt"> Show QR Receipt</label>
+                        <label class="radio-option"><input type="radio" name="postPayment" value="thank-you"> Thank You Screen</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Online Behavior -->
+            <div id="behaviorOnline" style="display:none">
+                <div class="form-grid">
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Enable Pickup</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Enable Delivery</label></div></div>
+                    <div class="form-group"><label class="form-label">Minimum Order Amount</label><input type="number" class="form-input" placeholder="0" min="0" step="10" oninput="markUnsaved()"><span class="help-text">Minimum for delivery (optional)</span></div>
+                    <div class="form-group"><label class="form-label">Delivery Radius (km)</label><input type="number" class="form-input" value="5" min="1" max="50" oninput="markUnsaved()"></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Require Customer Account</label></div></div>
+                    <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Enable Scheduled Orders</label></div></div>
+                </div>
+            </div>
+
+            <!-- POS Behavior -->
+            <div id="behaviorPOS" style="display:none">
+                <div class="info-box">No specific order behavior settings for POS devices. See the POS Settings section.</div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION F: PAYMENTS ═══════ -->
+        <section class="section-card" id="payments" data-section="payments">
+            <div class="section-header">
+                <div><h2 class="section-title">Payment Devices</h2><p class="section-subtitle">Configure payment terminals and ecommerce processors</p></div>
+            </div>
+
+            <div id="templateManagedMessage" style="display:none">
+                <div class="info-box"><strong>🔒 Managed by POS Template</strong> — Payment devices are automatically configured via the selected template.</div>
+            </div>
+
+            <div id="manualPaymentDevices">
+                <table class="data-table">
+                    <thead><tr><th>Name</th><th>Type</th><th>Provider</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody id="paymentDevicesTable"></tbody>
+                </table>
+                <button class="btn-secondary" style="margin-top:.75rem" onclick="showAddPaymentDevice()">+ Add Payment Device</button>
+                <div class="info-box" style="margin-top:1rem"><strong>💳 Multi-Device Support:</strong> Combine in-person terminals with ecommerce processors.</div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION G: MESSAGING ═══════ -->
+        <section class="section-card" id="messaging" data-section="messaging" data-channel-only="true">
+            <div class="section-header"><div><h2 class="section-title">Messaging</h2><p class="section-subtitle">Customize messages shown to customers</p></div></div>
+            <div style="display:flex;flex-direction:column;gap:1rem">
+                <div class="form-group"><label class="form-label">Welcome Message</label><textarea class="form-input" oninput="markUnsaved()">Welcome to our restaurant! Browse our menu and place your order.</textarea></div>
+                <div class="form-group"><label class="form-label">Closed Message</label><textarea class="form-input" oninput="markUnsaved()">Sorry, we're currently closed. Our hours are Mon-Thu 11:00-22:00.</textarea></div>
+                <div class="form-group"><label class="form-label">Post-Order Message</label><textarea class="form-input" oninput="markUnsaved()">Thank you for your order! We'll have it ready for you shortly.</textarea></div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION H: POS SETTINGS ═══════ -->
+        <section class="section-card hidden" id="pos-settings" data-section="pos-settings" data-pos-only="true">
+            <div class="section-header"><div><h2 class="section-title">POS Settings</h2><p class="section-subtitle">Point of sale specific configuration</p></div></div>
+            <div class="form-grid">
+                <div class="form-group"><label class="form-label">Default Cashier Amount</label><input type="number" class="form-input" placeholder="0.00" step="0.01" oninput="markUnsaved()"></div>
+                <div class="form-group"><label class="form-label">Cash Handling Type</label><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option>Standard</option><option>Quick Cash</option><option>No Cash</option></select></div></div>
+                <div class="form-group"><label class="form-label">Standard Tax Level</label><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option>25% (High)</option><option>15% (Low)</option><option>12% (Food)</option><option>0% (Exempt)</option></select></div></div>
+                <div class="form-group"><label class="form-label">Auto Logout Time (min)</label><input type="number" class="form-input" value="30" min="0" oninput="markUnsaved()"></div>
+                <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Logout After Sale</label></div></div>
+                <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Search in Menu</label></div></div>
+                <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Allow Only Card Payments</label></div></div>
+                <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>Show Favorite Tabs</label></div></div>
+                <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" onchange="markUnsaved()"><label>Enable Receipt Modal</label></div></div>
+            </div>
+
+            <!-- POS Park Order (#6) -->
+            <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-light)">
+                <div class="toggle-row">
+                    <div class="toggle-switch" id="parkOrderPOSToggle" onclick="toggleSwitch(this,'parkOrderPOSOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Enable park order for POS"></div>
+                    <div class="toggle-content">
+                        <div class="toggle-title">Park Order</div>
+                        <div class="toggle-desc">Staff can park orders for later completion</div>
+                        <div class="toggle-impact">⚡ Adds park-to-table/name/quick flow</div>
+                    </div>
+                </div>
+                <div id="parkOrderPOSOpts" class="sub-card" style="display:none">
+                    <div class="form-grid">
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>🍽️ Table — Park to specific table</label></div></div>
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>👤 Name / Phone — Park with customer details</label></div></div>
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>⚡ Quick — Park without additional details</label></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- POS Split Payment (#6) -->
+            <div style="margin-top:1.25rem">
+                <div class="toggle-row">
+                    <div class="toggle-switch" id="splitPaymentToggle" onclick="toggleSwitch(this,'splitPaymentOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Enable split payment"></div>
+                    <div class="toggle-content">
+                        <div class="toggle-title">Split Payment</div>
+                        <div class="toggle-desc">Allow splitting payment between customers</div>
+                        <div class="toggle-impact">💳 Adds split-by-people/item/amount flow</div>
+                    </div>
+                </div>
+                <div id="splitPaymentOpts" class="sub-card" style="display:none">
+                    <div class="form-grid">
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>💳 Full amount — Pay in one transaction</label></div></div>
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>👥 Split by people — Divide equally</label></div></div>
+                        <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" checked onchange="markUnsaved()"><label>📋 Split by item — Pay for individual items</label></div></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION J: PRINTING (advanced) ═══════ -->
+        <section class="section-card" id="printing" data-section="printing" data-advanced="true">
+            <div class="section-header"><div><h2 class="section-title">Printing Configuration</h2><p class="section-subtitle">Printers and print routing</p></div></div>
+
+            <div class="radio-group" style="margin-bottom:1.25rem">
+                <label class="radio-option"><input type="radio" name="printerMode" value="cloud" checked onchange="togglePrinterMode();markUnsaved()"> Plorea Cloud Print</label>
+                <label class="radio-option"><input type="radio" name="printerMode" value="external" onchange="togglePrinterMode();markUnsaved()"> External Printer System</label>
+            </div>
+
+            <div id="cloudPrintMode">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">Receipt Printer (POS only)</label><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— None —</option><option>Front Desk (MAC: A4:5E:60:E7:91:2F)</option><option>Receipt 1 (MAC: B8:27:EB:4C:D1:8A)</option></select></div></div>
+                </div>
+
+                <div style="margin-top:1.25rem">
+                    <div class="toggle-row">
+                        <div class="toggle-switch" id="bongPrintToggle" onclick="toggleSwitch(this,'bongPrintOpts')" tabindex="0" role="switch" aria-checked="false" aria-label="Advanced bong print"></div>
+                        <div class="toggle-content">
+                            <div class="toggle-title">Advanced Bong Print</div>
+                            <div class="toggle-desc">Route different item categories to different printers</div>
+                            <div class="toggle-impact">🖨️ Enables per-station print routing</div>
+                        </div>
+                    </div>
+                    <div id="bongPrintOpts" class="sub-card" style="display:none">
+                        <div style="display:flex;flex-direction:column;gap:.75rem">
+                            <div style="display:grid;grid-template-columns:120px 1fr;gap:.75rem;align-items:center"><span style="font-weight:600;font-size:.8125rem">Kitchen</span><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— None —</option><option>Kitchen 1 (MAC: A4:5E:60)</option><option>Kitchen 2 (MAC: B8:27:EB)</option></select></div></div>
+                            <div style="display:grid;grid-template-columns:120px 1fr;gap:.75rem;align-items:center"><span style="font-weight:600;font-size:.8125rem">Bar</span><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— None —</option><option>Bar Printer (MAC: DC:A6:32)</option></select></div></div>
+                            <div style="display:grid;grid-template-columns:120px 1fr;gap:.75rem;align-items:center"><span style="font-weight:600;font-size:.8125rem">Dessert</span><div class="select-wrapper"><select class="form-input" onchange="markUnsaved()"><option value="">— None —</option><option>Pastry Station (MAC: F3:4A:7B)</option></select></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="externalPrintMode" style="display:none">
+                <div class="form-grid">
+                    <div class="form-group"><label class="form-label">External System Name <span class="required">*</span></label><input type="text" class="form-input" placeholder="e.g., Legacy Print Server" oninput="markUnsaved()"></div>
+                    <div class="form-group"><label class="form-label">Callback URL (Optional)</label><input type="text" class="form-input" placeholder="https://printserver.acme.com/webhook" oninput="markUnsaved()"></div>
+                </div>
+                <div class="info-box" style="margin-top:.75rem"><strong>External Mode:</strong> Order routing handled externally. Plorea emits order events only.</div>
+            </div>
+        </section>
+
+        <!-- ═══════ SECTION K: ADVANCED ═══════ -->
+        <section class="section-card" id="advanced" data-section="advanced" data-advanced="true">
+            <div class="section-header"><div><h2 class="section-title">Advanced Settings</h2><p class="section-subtitle">Technical information and management</p></div></div>
+
+            <div class="form-grid">
+                <div class="form-group"><label class="form-label">Device ID</label><input type="text" class="form-input" value="dev_a8k9x2m3n4p5" readonly style="opacity:.7"></div>
+                <div class="form-group"><label class="form-label">Public Token</label><input type="text" class="form-input" value="a8k9x2" readonly style="opacity:.7"></div>
+            </div>
+
+            <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border-light)">
+                <label class="form-label" style="margin-bottom:.75rem">Config Management</label>
+                <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+                    <button class="btn-secondary" onclick="resetToDefaults()">↻ Reset to Defaults</button>
+                    <button class="btn-secondary" onclick="copyFromDevice()">⟵ Copy from Another Device</button>
+                </div>
+            </div>
+
+            <!-- DANGER ZONE (#10) -->
+            <div class="danger-zone" style="margin-top:2rem">
+                <div class="danger-zone-header" onclick="toggleDangerZone()" tabindex="0" aria-label="Expand danger zone">
+                    <div class="danger-zone-title">⚠️ Danger Zone</div>
+                    <span id="dangerToggleIcon" style="color:var(--text-muted);font-size:.75rem">▶</span>
+                </div>
+                <div class="danger-zone-body" id="dangerZoneBody">
+                    <p style="font-size:.8125rem;color:var(--text-secondary);margin-bottom:.75rem">Permanently delete this device. This action <strong>cannot be undone</strong>.</p>
+                    <div class="consequence-list">
+                        <div class="consequence-item">Public URL will be permanently invalidated</div>
+                        <div class="consequence-item">All QR codes and shared links will stop working</div>
+                        <div class="consequence-item">Existing orders are unaffected</div>
+                        <div class="consequence-item">Template associations will be removed</div>
+                    </div>
+                    <div class="form-group" style="margin-top:1rem;max-width:320px">
+                        <label class="form-label" style="font-size:.75rem">Type <strong>DELETE</strong> to confirm</label>
+                        <input type="text" class="form-input delete-confirm-input" id="deleteConfirmInput" placeholder="DELETE" oninput="checkDeleteConfirm()">
+                    </div>
+                    <button class="btn-danger" id="deleteBtn" disabled onclick="confirmDelete()" style="margin-top:.75rem">Delete Device Permanently</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<!-- ═══════ PREVIEW PANEL (#7) ═══════ -->
+<div class="preview-panel" id="previewPanel">
+    <div class="preview-header">
+        <div class="preview-title">Live Preview</div>
+        <div style="display:flex;align-items:center;gap:.5rem">
+            <button class="btn-secondary" onclick="openUrl()" style="padding:.35rem .75rem;font-size:.75rem" id="previewOpenUrl">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:middle;margin-right:.25rem"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Open URL
+            </button>
+            <button class="icon-btn" onclick="togglePreview()" aria-label="Close preview"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+    </div>
+
+    <!-- Test scenarios (#7) -->
+    <div class="scenario-bar">
+        <button class="scenario-btn active" onclick="setScenario('now',this)">🟢 Now</button>
+        <button class="scenario-btn" onclick="setScenario('closed',this)">🔴 Outside Hours</button>
+        <button class="scenario-btn" onclick="setScenario('busy',this)">🟡 Busy (+Buffer)</button>
+    </div>
+
+    <!-- Config summary (#7) -->
+    <div class="preview-body">
+        <div class="config-summary">
+            <div style="font-weight:700;font-size:.875rem;margin-bottom:.5rem">Configuration Summary</div>
+            <div class="config-row"><span class="config-label">Menu</span><span class="config-value" id="previewMenu">Main Menu</span></div>
+            <div class="config-row"><span class="config-label">Availability</span><span class="config-value" id="previewAvail"><span style="color:var(--success)">● Open</span></span></div>
+            <div class="config-row"><span class="config-label">Lead Time</span><span class="config-value" id="previewLead">15 min</span></div>
+            <div class="config-row"><span class="config-label">Payment</span><span class="config-value" id="previewPayment">Pay at Counter</span></div>
+            <div class="config-row"><span class="config-label">Park Order</span><span class="config-value" id="previewPark">Disabled</span></div>
+        </div>
+
+        <div id="previewDevice">
+            <div class="phone-mockup">
+                <div class="phone-notch"></div>
+                <div class="phone-content" id="phoneContent">
+                    <h3 style="text-align:center;margin-bottom:.75rem;font-size:1rem">Main Dining QR</h3>
+                    <p style="text-align:center;color:var(--text-secondary);font-size:.8125rem;margin-bottom:1.5rem">Welcome to our restaurant!</p>
+                    <div style="background:var(--bg);padding:.875rem;border-radius:8px;margin-bottom:.75rem">
+                        <div style="font-weight:600;font-size:.875rem">Table 12</div>
+                        <div style="font-size:.8125rem;color:var(--text-secondary)">Ready time: ~15 min</div>
+                    </div>
+                    <div style="background:var(--bg);padding:.875rem;border-radius:8px">
+                        <div style="font-weight:600;margin-bottom:.5rem;font-size:.875rem">Main Menu</div>
+                        <div style="display:flex;flex-direction:column;gap:.375rem">
+                            <div style="padding:.625rem;background:#fff;border-radius:6px;font-size:.8125rem">Appetizers</div>
+                            <div style="padding:.625rem;background:#fff;border-radius:6px;font-size:.8125rem">Main Courses</div>
+                            <div style="padding:.625rem;background:#fff;border-radius:6px;font-size:.8125rem">Desserts</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Device Type Change Modal -->
+<div class="modal-overlay" id="deviceTypeModal">
+    <div class="modal">
+        <div class="modal-header" style="color:var(--danger)">⚠️ Change Device Type?</div>
+        <div class="modal-body">Changing Device Type will generate a new Public URL for channel devices. All existing QR codes and shared links will stop working.<br><br><strong>Are you sure?</strong></div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="cancelDeviceTypeChange()">Cancel</button>
+            <button class="btn-danger" onclick="confirmDeviceTypeChange()">Confirm Change</button>
+        </div>
+    </div>
+</div>
+
+<!-- Payment Device Modal -->
+<div class="modal-overlay" id="paymentDeviceModal">
+    <div class="modal">
+        <div class="modal-header">Add Payment Device</div>
+        <div class="modal-body">
+            <input type="hidden" id="paymentDeviceIndex">
+            <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Device Name <span class="required">*</span></label><input type="text" class="form-input" id="pdName" placeholder="e.g., Bar Terminal"></div>
+            <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Type</label><div class="select-wrapper"><select class="form-input" id="pdType"><option>In-Person</option><option>Ecom</option></select></div></div>
+            <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Provider</label><div class="select-wrapper"><select class="form-input" id="pdProvider"><option>Adyen</option><option>Nets</option><option>Vipps</option><option>Stripe</option></select></div></div>
+            <div class="form-group"><div class="checkbox-wrapper"><input type="checkbox" id="pdActive" checked><label for="pdActive">Active</label></div></div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closePaymentDeviceModal()">Cancel</button>
+            <button class="btn-primary" onclick="savePaymentDevice()">Save Device</button>
+        </div>
+    </div>
+</div>
+
+<!-- New Device Modal -->
+<div class="modal-overlay" id="newDeviceModal">
+    <div class="modal">
+        <div class="modal-header">Create New Device</div>
+        <div class="modal-body">
+            <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Device Name <span class="required">*</span></label><input type="text" class="form-input" id="newDeviceName" placeholder="e.g., Entrance Kiosk"></div>
+            <div class="form-group" style="margin-bottom:1rem"><label class="form-label">Device Type <span class="required">*</span></label><div class="select-wrapper"><select class="form-input" id="newDeviceType"><option value="qr">QR</option><option value="kiosk">Self-Service</option><option value="online">Online Ordering</option><option value="pos-simple">Simple POS</option><option value="pos-advanced">Advanced POS</option></select></div></div>
+            <div class="form-group"><label class="form-label">Location <span class="required">*</span></label><div class="select-wrapper"><select class="form-input" id="newDeviceLocation"><option>Downtown Restaurant</option><option>Westside Cafe</option><option>Airport Terminal</option></select></div></div>
+            <div class="info-box" style="margin-top:1rem"><strong>💡 Next steps:</strong> After creation, you'll configure the device settings.</div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('newDeviceModal')">Cancel</button>
+            <button class="btn-primary" onclick="createNewDevice()">Create & Edit</button>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="toastIcon">✓</span><span id="toastMessage"></span></div>
+
+<!-- Template Browser Modal -->
+<div class="modal-overlay" id="templateModal">
+    <div class="modal" style="max-width:680px">
+        <div class="modal-header">Load Device Template</div>
+        <div class="modal-body" style="margin-bottom:0">
+            <p style="color:var(--text-secondary);font-size:.8125rem;margin-bottom:1rem">Apply a pre-configured template. Your current settings will be overwritten.</p>
+            <div id="templateList" style="display:flex;flex-direction:column;gap:.625rem">
+
+                <div class="template-card" onclick="applyTemplate('fast-casual-qr')">
+                    <div class="template-card-header">
+                        <div><span class="badge badge-qr" style="font-size:.5625rem;padding:.15rem .5rem">QR</span></div>
+                        <strong style="font-size:.875rem">Fast Casual — Table QR</strong>
+                    </div>
+                    <div style="font-size:.8125rem;color:var(--text-secondary);margin-top:.25rem">Table-mode QR with pay-at-counter, park order (table+name), 15 min lead time. Menu: Main Menu. Inherits location hours.</div>
+                    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Pay at counter</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Park: Table + Name</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">15 min lead</span>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="applyTemplate('kiosk-entrance')">
+                    <div class="template-card-header">
+                        <div><span class="badge badge-kiosk" style="font-size:.5625rem;padding:.15rem .5rem">Kiosk</span></div>
+                        <strong style="font-size:.875rem">Self-Service Kiosk — Entrance</strong>
+                    </div>
+                    <div style="font-size:.8125rem;color:var(--text-secondary);margin-top:.25rem">Standalone kiosk with card-only payment, 60s idle timeout, auto-reset after payment. Shows order number post-payment.</div>
+                    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Card only</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">60s idle timeout</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Auto-reset</span>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="applyTemplate('online-delivery')">
+                    <div class="template-card-header">
+                        <div><span class="badge badge-online" style="font-size:.5625rem;padding:.15rem .5rem">Online</span></div>
+                        <strong style="font-size:.875rem">Online Ordering — Pickup & Delivery</strong>
+                    </div>
+                    <div style="font-size:.8125rem;color:var(--text-secondary);margin-top:.25rem">Full online store with pickup + delivery enabled, 5km radius, 200 NOK min order for delivery, scheduled orders allowed. 20 min lead time.</div>
+                    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Pickup + Delivery</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Min 200 NOK</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Scheduled orders</span>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="applyTemplate('pos-bar')">
+                    <div class="template-card-header">
+                        <div><span class="badge badge-pos-simple" style="font-size:.5625rem;padding:.15rem .5rem">POS</span></div>
+                        <strong style="font-size:.875rem">Simple POS — Bar Counter</strong>
+                    </div>
+                    <div style="font-size:.8125rem;color:var(--text-secondary);margin-top:.25rem">Bar-optimized POS with quick cash, logout after sale, no park/split. Single Adyen terminal. Receipt printer bound.</div>
+                    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Quick Cash</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Logout after sale</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">1× Adyen terminal</span>
+                    </div>
+                </div>
+
+                <div class="template-card" onclick="applyTemplate('pos-restaurant')">
+                    <div class="template-card-header">
+                        <div><span class="badge badge-pos-advanced" style="font-size:.5625rem;padding:.15rem .5rem">ADV POS</span></div>
+                        <strong style="font-size:.875rem">Advanced POS — Full-Service Restaurant</strong>
+                    </div>
+                    <div style="font-size:.8125rem;color:var(--text-secondary);margin-top:.25rem">Full restaurant POS with park order (table+name+quick), split payment (people+items), search-in-menu, bong printing to kitchen/bar stations.</div>
+                    <div style="display:flex;gap:.5rem;margin-top:.5rem;flex-wrap:wrap">
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Park: Table+Name+Quick</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Split: People+Items</span>
+                        <span style="font-size:.6875rem;background:var(--bg);padding:.15rem .5rem;border-radius:4px;color:var(--text-muted)">Bong routing</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="modal-actions" style="margin-top:1.25rem">
+            <button class="btn-secondary" onclick="closeModal('templateModal')">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// ═══════ STATE ═══════
+let hasUnsavedChanges = false;
+let previousDeviceType = 'qr';
+let currentViewMode = 'essentials';
+
+const deviceTypeConfig = {
+    'qr':          { badge:'badge-qr',          text:'QR',              isChannel:true,  isPOS:false },
+    'kiosk':       { badge:'badge-kiosk',        text:'Self-Service',    isChannel:true,  isPOS:false },
+    'online':      { badge:'badge-online',       text:'Online Ordering', isChannel:true,  isPOS:false },
+    'pos-simple':  { badge:'badge-pos-simple',   text:'Simple POS',     isChannel:false, isPOS:true  },
+    'pos-advanced':{ badge:'badge-pos-advanced',  text:'Advanced POS',   isChannel:false, isPOS:true  },
+};
+
+let paymentDevices = [
+    { name:'Bar Terminal', type:'In-Person', provider:'Adyen', active:true },
+    { name:'Online Ecom', type:'Ecom', provider:'Adyen', active:true },
+];
+
+// ═══════ INIT ═══════
+document.addEventListener('DOMContentLoaded', () => {
+    updateDeviceTypeUI('qr');
+    updateChecklist();
+    updateCurrentTime();
+    setInterval(updateCurrentTime, 60000);
+    renderPaymentDevices();
+    updatePreview();
+
+    window.addEventListener('beforeunload', e => {
+        if (hasUnsavedChanges) { e.preventDefault(); e.returnValue = ''; }
+    });
+
+    // Close kebab on outside click
+    document.addEventListener('click', e => {
+        if (!e.target.closest('.kebab-wrap')) {
+            document.getElementById('kebabMenu').classList.remove('open');
+        }
+    });
+
+    // ESC closes modals + preview (#5)
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape') {
+            document.querySelectorAll('.modal-overlay.show').forEach(m => m.classList.remove('show'));
+            document.getElementById('previewPanel').classList.remove('show');
+            document.getElementById('kebabMenu').classList.remove('open');
+        }
+    });
+
+    // Click outside modal content closes modal (#5)
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', e => {
+            if (e.target === overlay) overlay.classList.remove('show');
+        });
+    });
+});
+
+// ═══════ UNSAVED (#1) ═══════
+function markUnsaved() {
+    hasUnsavedChanges = true;
+    document.getElementById('unsavedChip').classList.add('show');
+    document.getElementById('saveBtn').disabled = false;
+    updateChecklist();
+    updatePreview();
+}
+function discardChanges() {
+    if (confirm('Discard all unsaved changes?')) location.reload();
+}
+function saveSettings() {
+    const btn = document.getElementById('saveBtn');
+    btn.classList.add('loading'); btn.disabled = true;
+    setTimeout(() => {
+        btn.classList.remove('loading');
+        hasUnsavedChanges = false;
+        document.getElementById('unsavedChip').classList.remove('show');
+        showToast('Changes saved successfully!','success');
+        updateChecklist();
+    }, 1200);
+}
+
+// ═══════ STATUS (#3 — single source of truth in header) ═══════
+function toggleStatus() {
+    const chip = document.getElementById('statusChip');
+    const isActive = chip.classList.contains('active');
+    if (!isActive && !validateCanActivate()) {
+        showToast('Cannot activate: missing required configuration','error');
+        return;
+    }
+    chip.classList.toggle('active'); chip.classList.toggle('paused');
+    const label = document.getElementById('statusLabel');
+    const newStatus = chip.classList.contains('active') ? 'Active' : 'Paused';
+    label.textContent = newStatus;
+    syncCoreStatusDisplay(newStatus);
+    markUnsaved();
+    updatePreview();
+}
+
+function syncCoreStatusDisplay(status) {
+    const badge = document.getElementById('coreStatusBadge');
+    const text = document.getElementById('coreStatusText');
+    if (!badge || !text) return;
+    text.textContent = status;
+    if (status === 'Active') {
+        badge.style.background = 'var(--success-soft)';
+        badge.style.color = 'var(--success)';
+    } else {
+        badge.style.background = 'rgba(233,113,50,.1)';
+        badge.style.color = 'var(--danger)';
+    }
+}
+
+function flashHeaderStatus() {
+    const chip = document.getElementById('statusChip');
+    chip.style.transition = 'box-shadow .2s';
+    chip.style.boxShadow = '0 0 0 4px rgba(15,158,213,.35)';
+    setTimeout(() => { chip.style.boxShadow = 'none'; }, 1200);
+    window.scrollTo({ top:0, behavior:'smooth' });
+    setTimeout(() => toggleStatus(), 400);
+}
+
+function validateCanActivate() { return !!document.getElementById('favoriteGroup').value; }
+
+// ═══════ DEVICE TYPE ═══════
+function handleDeviceTypeChange() { document.getElementById('deviceTypeModal').classList.add('show'); }
+function cancelDeviceTypeChange() {
+    document.getElementById('deviceTypeSelect').value = previousDeviceType;
+    document.getElementById('deviceTypeModal').classList.remove('show');
+}
+function confirmDeviceTypeChange() {
+    const t = document.getElementById('deviceTypeSelect').value;
+    previousDeviceType = t;
+    updateDeviceTypeUI(t);
+    document.getElementById('deviceTypeModal').classList.remove('show');
+    markUnsaved();
+    showToast('Device type changed. New URL generated.','warning');
+}
+
+function updateDeviceTypeUI(type) {
+    const cfg = deviceTypeConfig[type];
+    const badge = document.getElementById('deviceTypeBadge');
+    badge.className = 'badge ' + cfg.badge; badge.textContent = cfg.text;
+
+    // Tabs: hide completely if wrong type, or disable with tooltip (#4)
+    document.querySelectorAll('.nav-tab[data-section]').forEach(tab => {
+        const chOnly = tab.dataset.channelOnly === 'true';
+        const posOnly = tab.dataset.posOnly === 'true';
+
+        // Reset states
+        tab.classList.remove('hidden','disabled');
+        tab.removeAttribute('title');
+        tab.style.pointerEvents = '';
+
+        if (chOnly && !cfg.isChannel) {
+            tab.classList.add('disabled');
+            tab.title = 'Only available for channel devices (QR, Kiosk, Online)';
+            tab.style.pointerEvents = 'auto';
+        }
+        if (posOnly && !cfg.isPOS) {
+            tab.classList.add('disabled');
+            tab.title = 'Only available for POS devices';
+            tab.style.pointerEvents = 'auto';
+        }
+    });
+
+    // Sections: hide if wrong type
+    document.querySelectorAll('.section-card').forEach(el => {
+        const chOnly = el.dataset.channelOnly === 'true';
+        const posOnly = el.dataset.posOnly === 'true';
+        if (chOnly && !cfg.isChannel) el.classList.add('hidden');
+        else if (posOnly && !cfg.isPOS) el.classList.add('hidden');
+        else el.classList.remove('hidden');
+    });
+
+    // Apply view mode filter after type change
+    applyViewMode();
+
+    // URL pill visibility
+    document.getElementById('urlPill').style.display = cfg.isChannel ? 'inline-flex' : 'none';
+    document.getElementById('publicUrlSection').style.display = cfg.isChannel ? 'block' : 'none';
+
+    // Preview "Open URL" visibility
+    const previewUrlBtn = document.getElementById('previewOpenUrl');
+    if (previewUrlBtn) previewUrlBtn.style.display = cfg.isChannel ? 'inline-flex' : 'none';
+
+    // Behavior panels
+    document.getElementById('behaviorQR').style.display = type === 'qr' ? 'block' : 'none';
+    document.getElementById('behaviorKiosk').style.display = type === 'kiosk' ? 'block' : 'none';
+    document.getElementById('behaviorOnline').style.display = type === 'online' ? 'block' : 'none';
+    document.getElementById('behaviorPOS').style.display = cfg.isPOS ? 'block' : 'none';
+
+    updateChecklist();
+    updatePreview();
+}
+
+// ═══════ NAVIGATION (#3) ═══════
+function navTo(e, sectionId) {
+    e.preventDefault();
+    const tab = e.currentTarget;
+    // Don't navigate disabled tabs (#4)
+    if (tab.classList.contains('disabled')) {
+        showToast(tab.title || 'Not available for this device type', 'info');
+        return;
+    }
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(sectionId)?.scrollIntoView({ behavior:'smooth' });
+}
+
+// ═══════ SETUP PROGRESS (#5 + #7) ═══════
+function toggleSetupPanel() {
+    const items = document.getElementById('setupItems');
+    const icon = document.getElementById('setupToggleIcon');
+    const hidden = items.style.display === 'none';
+    items.style.display = hidden ? 'block' : 'none';
+    icon.textContent = hidden ? '▼' : '▶';
+}
+
+function scrollToSetup(sectionId, fieldId) {
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.scrollIntoView({ behavior:'smooth' });
+        section.classList.add('highlight');
+        setTimeout(() => section.classList.remove('highlight'), 1500);
+        if (fieldId) {
+            setTimeout(() => {
+                const field = document.getElementById(fieldId);
+                if (field) field.focus();
+            }, 400);
+        }
+    }
+}
+
+function updateChecklist() {
+    const checks = {
+        device:       { ok: !!document.getElementById('deviceName').value.trim(), reason:'Missing device name', section:'core', field:'deviceName' },
+        catalog:      { ok: !!document.getElementById('favoriteGroup').value,      reason:'No favorite group selected', section:'catalog', field:'favoriteGroup' },
+        availability: { ok: true,                                                  reason:'', section:'availability' },
+        behavior:     { ok: document.getElementById('payCounter')?.checked ?? true, reason:'No behavior configured', section:'behavior' },
+        payments:     { ok: paymentDevices.length > 0,                             reason:'No payment device added', section:'payments' },
+    };
+
+    let done = 0, firstIncomplete = null;
+    Object.entries(checks).forEach(([key, {ok, reason}]) => {
+        const el = document.getElementById(`check-${key}`);
+        const reasonEl = document.getElementById(`reason-${key}`);
+        if (ok) { el.className = 'check done'; el.textContent = '✓'; done++; if (reasonEl) reasonEl.textContent = ''; }
+        else { el.className = 'check missing'; el.textContent = '○'; if (reasonEl) reasonEl.textContent = reason; if (!firstIncomplete) firstIncomplete = key; }
+    });
+
+    document.getElementById('setupCount').textContent = `${done} of ${Object.keys(checks).length} complete`;
+
+    // Always show CTA with concrete label when incomplete (#7)
+    const cta = document.getElementById('setupCta');
+    const ctaBtn = cta.querySelector('button');
+    if (firstIncomplete) {
+        cta.style.display = 'flex';
+        const label = checks[firstIncomplete].reason;
+        ctaBtn.textContent = `Complete Next Step → ${label}`;
+        document.getElementById('nextStepLabel').textContent = '';
+    } else {
+        cta.style.display = 'none';
+    }
+}
+
+function completeNextStep() {
+    const checks = ['device','catalog','availability','behavior','payments'];
+    for (const key of checks) {
+        const el = document.getElementById(`check-${key}`);
+        if (el?.classList.contains('missing')) { scrollToSetup(key === 'device' ? 'core' : key); return; }
+    }
+}
+
+// ═══════ VIEW MODE (#4 + #6 — also hides tabs) ═══════
+function setViewMode(mode, btn) {
+    currentViewMode = mode;
+    btn.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    applyViewMode();
+}
+
+function applyViewMode() {
+    const cfg = deviceTypeConfig[document.getElementById('deviceTypeSelect').value];
+
+    // Advanced tabs in nav: hide or show, plus "+ Advanced" button (#6)
+    document.querySelectorAll('.nav-tab[data-advanced="true"]').forEach(tab => {
+        if (currentViewMode === 'essentials') {
+            tab.classList.add('hidden');
+        } else {
+            tab.classList.remove('hidden');
+            // Re-check if it should be disabled by device type
+            const chOnly = tab.dataset.channelOnly === 'true';
+            const posOnly = tab.dataset.posOnly === 'true';
+            if (chOnly && !cfg.isChannel) { tab.classList.add('disabled'); tab.title = 'Only available for channel devices'; }
+            else if (posOnly && !cfg.isPOS) { tab.classList.add('disabled'); tab.title = 'Only available for POS devices'; }
+        }
+    });
+    document.getElementById('navAdvancedBtn').style.display = currentViewMode === 'essentials' ? 'flex' : 'none';
+
+    // Advanced sections
+    document.querySelectorAll('.section-card[data-advanced="true"]').forEach(el => {
+        if (currentViewMode === 'essentials') el.classList.add('hidden');
+        else {
+            const chOnly = el.dataset.channelOnly === 'true';
+            const posOnly = el.dataset.posOnly === 'true';
+            if (chOnly && !cfg.isChannel) return;
+            if (posOnly && !cfg.isPOS) return;
+            el.classList.remove('hidden');
+        }
+    });
+    // Advanced content inside sections
+    document.querySelectorAll('[data-advanced-content="true"]').forEach(el => {
+        el.style.display = currentViewMode === 'essentials' ? 'none' : 'block';
+    });
+}
+
+function expandAdvancedFromNav() {
+    currentViewMode = 'all';
+    document.querySelectorAll('.view-toggle button').forEach((b,i) => {
+        b.classList.toggle('active', i === 1);
+    });
+    applyViewMode();
+    showToast('Showing all sections', 'info');
+}
+
+// ═══════ TOGGLE PATTERN (#6) ═══════
+function toggleSwitch(switchEl, targetId) {
+    switchEl.classList.toggle('active');
+    const isActive = switchEl.classList.contains('active');
+    switchEl.setAttribute('aria-checked', isActive);
+    const target = document.getElementById(targetId);
+    if (target) target.style.display = isActive ? 'block' : 'none';
+    markUnsaved();
+}
+
+function toggleTemplateMode() {
+    const sw = document.getElementById('templateToggle');
+    sw.classList.toggle('active');
+    const on = sw.classList.contains('active');
+    sw.setAttribute('aria-checked', on);
+    document.getElementById('templateModeContent').style.display = on ? 'block' : 'none';
+    document.getElementById('manualModeMessage').style.display = on ? 'none' : 'block';
+    markUnsaved();
+}
+
+function toggleSchedule() {
+    const sw = document.getElementById('scheduleToggle');
+    sw.classList.toggle('active');
+    const on = sw.classList.contains('active');
+    sw.setAttribute('aria-checked', on);
+    document.getElementById('scheduledCatalog').style.display = on ? 'block' : 'none';
+    markUnsaved();
+}
+
+function toggleTempClosed() {
+    const sw = document.getElementById('tempClosedToggle');
+    sw.classList.toggle('active');
+    const on = sw.classList.contains('active');
+    sw.setAttribute('aria-checked', on);
+    document.getElementById('tempClosedOptions').style.display = on ? 'block' : 'none';
+    markUnsaved();
+    updatePreview();
+}
+
+// ═══════ AVAILABILITY ═══════
+function toggleAvailabilityMode() {
+    const override = document.querySelector('input[name="availability"]:checked').value === 'override';
+    document.getElementById('inheritedHours').style.display = override ? 'none' : 'block';
+    document.getElementById('hoursOverride').style.display = override ? 'block' : 'none';
+    document.getElementById('tabChipAvailability').textContent = override ? 'Override' : 'Inherit';
+    document.getElementById('tabChipAvailability').className = 'tab-chip ' + (override ? 'override' : 'inherit');
+}
+
+function showQuickHoursPresets() { showToast('Quick presets applied: Standard 11–22','success'); markUnsaved(); }
+function addInterval(day) { showToast('Multiple intervals coming soon!','info'); }
+
+// ═══════ LEAD TIME ═══════
+function updateLeadTime() {
+    const base = parseInt(document.getElementById('baseTime').value) || 0;
+    const buffer = parseInt(document.getElementById('bufferTime')?.value) || 0;
+    const now = new Date();
+    const ready = new Date(now.getTime() + (base + buffer) * 60000);
+    document.getElementById('readyTime').textContent = ready.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    updatePreview();
+}
+function updateCurrentTime() {
+    document.getElementById('currentTime').textContent = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+    updateLeadTime();
+}
+
+// ═══════ QR MODE ═══════
+function setQRMode(mode, btn) {
+    btn.parentElement.querySelectorAll('.seg-option').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    markUnsaved();
+}
+
+// ═══════ PAYMENT DEVICES ═══════
+function renderPaymentDevices() {
+    document.getElementById('paymentDevicesTable').innerHTML = paymentDevices.map((d, i) => `
+        <tr>
+            <td>${d.name}</td><td>${d.type}</td><td>${d.provider}</td>
+            <td>${d.active ? '<span style="color:var(--success)">✓ Active</span>' : '<span style="color:var(--text-muted)">Inactive</span>'}</td>
+            <td><button class="btn-sm" onclick="editPaymentDevice(${i})">Edit</button> <button class="btn-sm" onclick="removePaymentDevice(${i})">Remove</button></td>
+        </tr>
+    `).join('');
+}
+function showAddPaymentDevice() { document.getElementById('paymentDeviceModal').classList.add('show'); document.getElementById('paymentDeviceIndex').value = ''; document.getElementById('pdName').value = ''; }
+function closePaymentDeviceModal() { document.getElementById('paymentDeviceModal').classList.remove('show'); }
+function savePaymentDevice() {
+    const idx = document.getElementById('paymentDeviceIndex').value;
+    const dev = { name:document.getElementById('pdName').value, type:document.getElementById('pdType').value, provider:document.getElementById('pdProvider').value, active:document.getElementById('pdActive').checked };
+    if (!dev.name.trim()) { showToast('Device name is required','error'); return; }
+    if (idx === '') paymentDevices.push(dev); else paymentDevices[idx] = dev;
+    renderPaymentDevices(); closePaymentDeviceModal(); markUnsaved();
+    showToast(idx === '' ? 'Payment device added' : 'Payment device updated','success');
+}
+function editPaymentDevice(i) {
+    const d = paymentDevices[i];
+    document.getElementById('pdName').value = d.name; document.getElementById('pdType').value = d.type;
+    document.getElementById('pdProvider').value = d.provider; document.getElementById('pdActive').checked = d.active;
+    document.getElementById('paymentDeviceIndex').value = i;
+    document.getElementById('paymentDeviceModal').classList.add('show');
+}
+function removePaymentDevice(i) {
+    if (confirm('Remove this payment device?')) { paymentDevices.splice(i,1); renderPaymentDevices(); markUnsaved(); showToast('Payment device removed','warning'); }
+}
+
+// ═══════ PREVIEW (#7) ═══════
+function togglePreview() { document.getElementById('previewPanel').classList.toggle('show'); }
+
+function setScenario(scenario, btn) {
+    btn.parentElement.querySelectorAll('.scenario-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const availEl = document.getElementById('previewAvail');
+    const leadEl = document.getElementById('previewLead');
+    const base = parseInt(document.getElementById('baseTime')?.value) || 15;
+    const buffer = parseInt(document.getElementById('bufferTime')?.value) || 0;
+
+    if (scenario === 'now') {
+        availEl.innerHTML = '<span style="color:var(--success)">● Open</span>';
+        leadEl.textContent = `${base + buffer} min`;
+    } else if (scenario === 'closed') {
+        availEl.innerHTML = '<span style="color:var(--danger)">● Closed</span>';
+        leadEl.textContent = '—';
+    } else if (scenario === 'busy') {
+        availEl.innerHTML = '<span style="color:var(--warning)">● Open (Busy)</span>';
+        leadEl.textContent = `${base + buffer + 10} min (+10 surge)`;
+    }
+}
+
+function updatePreview() {
+    const fg = document.getElementById('favoriteGroup');
+    document.getElementById('previewMenu').textContent = fg?.selectedOptions[0]?.text || 'Not set';
+
+    const base = parseInt(document.getElementById('baseTime')?.value) || 15;
+    const buffer = parseInt(document.getElementById('bufferTime')?.value) || 0;
+    document.getElementById('previewLead').textContent = `${base + buffer} min`;
+
+    document.getElementById('previewPayment').textContent = document.getElementById('payCounter')?.checked ? 'Pay at Counter' : 'Pay Online';
+
+    const parkToggle = document.getElementById('parkOrderToggle');
+    document.getElementById('previewPark').textContent = parkToggle?.classList.contains('active') ? 'Enabled' : 'Disabled';
+}
+
+// ═══════ KEBAB ═══════
+function toggleKebab() { document.getElementById('kebabMenu').classList.toggle('open'); }
+
+// ═══════ TEMPLATES ═══════
+function openTemplates() {
+    document.getElementById('kebabMenu').classList.remove('open');
+    document.getElementById('templateModal').classList.add('show');
+}
+
+function applyTemplate(templateId) {
+    const names = {
+        'fast-casual-qr': 'Fast Casual — Table QR',
+        'kiosk-entrance': 'Self-Service Kiosk — Entrance',
+        'online-delivery': 'Online Ordering — Pickup & Delivery',
+        'pos-bar': 'Simple POS — Bar Counter',
+        'pos-restaurant': 'Advanced POS — Full-Service Restaurant',
+    };
+    const types = {
+        'fast-casual-qr': 'qr',
+        'kiosk-entrance': 'kiosk',
+        'online-delivery': 'online',
+        'pos-bar': 'pos-simple',
+        'pos-restaurant': 'pos-advanced',
+    };
+
+    closeModal('templateModal');
+
+    const type = types[templateId];
+    if (type) {
+        document.getElementById('deviceTypeSelect').value = type;
+        previousDeviceType = type;
+        updateDeviceTypeUI(type);
+    }
+
+    showToast(`Template "${names[templateId]}" applied!`, 'success');
+    markUnsaved();
+}
+
+// ═══════ PRINTING ═══════
+function togglePrinterMode() {
+    const cloud = document.querySelector('input[name="printerMode"]:checked').value === 'cloud';
+    document.getElementById('cloudPrintMode').style.display = cloud ? 'block' : 'none';
+    document.getElementById('externalPrintMode').style.display = cloud ? 'none' : 'block';
+}
+
+// ═══════ DANGER ZONE (#10) ═══════
+function toggleDangerZone() {
+    const body = document.getElementById('dangerZoneBody');
+    const icon = document.getElementById('dangerToggleIcon');
+    const open = body.classList.toggle('open');
+    icon.textContent = open ? '▼' : '▶';
+}
+function checkDeleteConfirm() {
+    document.getElementById('deleteBtn').disabled = document.getElementById('deleteConfirmInput').value !== 'DELETE';
+}
+function confirmDelete() { showToast('Device deleted (demo mode)','warning'); }
+
+// ═══════ MISC ═══════
+function validateField(input) { const g = input.closest('.form-group'); if (!input.value.trim()) g.classList.add('has-error'); else g.classList.remove('has-error'); }
+function validateCatalog() {
+    const fg = document.getElementById('favoriteGroup');
+    const g = document.getElementById('favoriteGroupGroup');
+    if (!fg.value) g.classList.add('has-error'); else g.classList.remove('has-error');
+}
+function showNewDeviceModal() { document.getElementById('newDeviceModal').classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+function createNewDevice() {
+    const name = document.getElementById('newDeviceName').value;
+    if (!name.trim()) { showToast('Device name is required','error'); return; }
+    closeModal('newDeviceModal');
+    showToast(`Device "${name}" created!`,'success');
+    setTimeout(() => { document.getElementById('deviceName').value = name; markUnsaved(); }, 500);
+}
+function openUrl() { showToast('Public URL: order.acme.com/d/a8k9x2 (would open in new tab)','info'); }
+function copyUrl() { navigator.clipboard?.writeText('https://order.acme.com/d/a8k9x2'); showToast('URL copied!','success'); }
+function copyAdminUrl() { navigator.clipboard?.writeText('https://admin.plorea.no/device/abc123?token=xyz'); showToast('Admin link copied!','success'); }
+function exportConfig() {
+    showToast('Config exported as device-config.json','success');
+}
+function duplicateDevice() { showToast('Device duplicated as "Main Dining QR (Copy)"','success'); }
+function saveAsTemplate() { const n = prompt('Template name:'); if (n) showToast(`Saved as template: ${n}`,'success'); }
+function copyFromDevice() { showToast('Settings copied from another device','success'); markUnsaved(); }
+function resetToDefaults() { if (confirm('Reset all settings to defaults?')) { showToast('Settings reset','success'); markUnsaved(); }}
+function addScheduleRow() { showToast('Schedule row added','success'); markUnsaved(); }
+function loadDevice(id) { showToast(`Loaded device: ${id}`,'info'); }
+
+function showToast(message, type='success') {
+    const t = document.getElementById('toast');
+    document.getElementById('toastMessage').textContent = message;
+    const icons = {success:'✓',error:'✕',warning:'⚠',info:'ℹ'};
+    document.getElementById('toastIcon').textContent = icons[type]||'✓';
+    t.className = 'toast show ' + type;
+    setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>

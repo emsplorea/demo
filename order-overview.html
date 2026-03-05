@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Overview – Lean Operational Core</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple-deep: #240046;
+    --purple-dark: #0B0425;
+    --purple-vivid: #6806c8;
+    --purple-light: #f3eaff;
+    --purple-muted: #e8d5fa;
+    --purple-hover: #7c1fdb;
+    --bg: #fafafa;
+    --surface: #ffffff;
+    --border: #e8e8ec;
+    --text-primary: #1a1a2e;
+    --text-secondary: #6b6b80;
+    --text-muted: #9d9db0;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --green-border: #bbf7d0;
+    --orange: #ea580c;
+    --orange-bg: #fff7ed;
+    --orange-border: #fed7aa;
+    --red: #dc2626;
+    --red-bg: #fef2f2;
+    --red-border: #fecaca;
+    --blue: #2563eb;
+    --blue-bg: #eff6ff;
+    --blue-border: #bfdbfe;
+    --yellow: #ca8a04;
+    --yellow-bg: #fefce8;
+    --channel-qr: #6806c8;
+    --channel-kiosk: #2563eb;
+    --channel-online: #16a34a;
+    --channel-pos: #ea580c;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-lg: 0 4px 12px rgba(0,0,0,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Top Navigation ── */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--purple-deep);
+    letter-spacing: -0.5px;
+  }
+
+  .logo svg { width: 28px; height: 28px; }
+
+  .topbar-nav {
+    display: flex;
+    gap: 4px;
+  }
+
+  .topbar-nav a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    transition: all 0.15s;
+  }
+
+  .topbar-nav a:hover { color: var(--text-primary); background: var(--purple-light); }
+  .topbar-nav a.active { color: var(--purple-vivid); background: var(--purple-light); }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar-badge {
+    background: var(--purple-vivid);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 100px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--purple-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--purple-vivid);
+  }
+
+  /* ── Main Layout ── */
+  .main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  /* ── Overdue Banner ── */
+  .overdue-banner {
+    background: var(--red-bg);
+    border: 1px solid var(--red-border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    cursor: pointer;
+    transition: all 0.15s;
+    animation: bannerPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes bannerPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0); }
+    50% { box-shadow: 0 0 0 3px rgba(220,38,38,0.08); }
+  }
+
+  .overdue-banner:hover { background: #fee2e2; }
+
+  .overdue-banner-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .overdue-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .overdue-text {
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--red);
+  }
+
+  .overdue-sub {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 400;
+  }
+
+  .overdue-action {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .overdue-banner.hidden {
+    display: none;
+  }
+
+  /* ── Page Header ── */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .page-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+  }
+
+  .page-title-count {
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .view-toggle {
+    display: flex;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+  }
+
+  .view-toggle button {
+    border: none;
+    background: none;
+    padding: 7px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s;
+  }
+
+  .view-toggle button:hover { color: var(--text-primary); }
+  .view-toggle button.active {
+    background: var(--purple-light);
+    color: var(--purple-vivid);
+    font-weight: 600;
+  }
+
+  .view-toggle button + button { border-left: 1px solid var(--border); }
+
+  /* ── Filters ── */
+  .filters {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: inherit;
+  }
+
+  .filter-chip:hover { border-color: var(--purple-muted); color: var(--text-primary); }
+  .filter-chip.active {
+    border-color: var(--purple-vivid);
+    background: var(--purple-light);
+    color: var(--purple-vivid);
+    font-weight: 600;
+  }
+
+  .filter-chip .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .filter-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  .filter-persist-badge {
+    font-size: 11px;
+    color: var(--text-muted);
+    background: #f5f5f7;
+    padding: 4px 10px;
+    border-radius: 100px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .filter-persist-badge svg { opacity: 0.5; }
+
+  /* ── Table View ── */
+  .order-table {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .table-header {
+    display: grid;
+    grid-template-columns: 6px 100px 1fr 140px 140px 120px 100px 160px;
+    padding: 0 16px;
+    height: 40px;
+    align-items: center;
+    background: #f9f9fb;
+    border-bottom: 1px solid var(--border);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .table-header > div:first-child { opacity: 0; }
+
+  .order-row {
+    display: grid;
+    grid-template-columns: 6px 100px 1fr 140px 140px 120px 100px 160px;
+    padding: 0 16px;
+    min-height: 56px;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    font-size: 13.5px;
+    transition: background 0.1s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .order-row:last-child { border-bottom: none; }
+  .order-row:hover { background: #fafafe; }
+
+  .channel-stripe {
+    width: 4px;
+    height: 32px;
+    border-radius: 4px;
+    margin-right: 0;
+  }
+
+  .order-id {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .order-items {
+    color: var(--text-secondary);
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .allergy-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: var(--red-bg);
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--red-border);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .allergy-badge:hover .allergy-tooltip {
+    opacity: 1;
+    transform: translateX(0) translateY(-50%);
+    pointer-events: auto;
+  }
+
+  .allergy-tooltip {
+    position: absolute;
+    left: calc(100% + 8px);
+    top: 50%;
+    transform: translateX(-4px) translateY(-50%);
+    background: var(--purple-dark);
+    color: white;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.15s;
+    z-index: 10;
+  }
+
+  .allergy-tooltip::before {
+    content: '';
+    position: absolute;
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 4px solid transparent;
+    border-right-color: var(--purple-dark);
+  }
+
+  .order-channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .channel-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .order-time {
+    font-variant-numeric: tabular-nums;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+
+  .countdown {
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+
+  .countdown.ok { color: var(--green); }
+  .countdown.warn { color: var(--orange); }
+  .countdown.overdue { color: var(--red); }
+
+  .order-total {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ── Inline Status Buttons ── */
+  .status-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  .status-action.start {
+    background: var(--purple-light);
+    color: var(--purple-vivid);
+    border-color: var(--purple-muted);
+  }
+  .status-action.start:hover {
+    background: var(--purple-vivid);
+    color: white;
+    border-color: var(--purple-vivid);
+  }
+
+  .status-action.ready {
+    background: var(--green-bg);
+    color: var(--green);
+    border-color: var(--green-border);
+  }
+  .status-action.ready:hover {
+    background: var(--green);
+    color: white;
+    border-color: var(--green);
+  }
+
+  .status-action.deliver {
+    background: var(--blue-bg);
+    color: var(--blue);
+    border-color: var(--blue-border);
+  }
+  .status-action.deliver:hover {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+  }
+
+  .status-action.done {
+    background: #f5f5f7;
+    color: var(--text-muted);
+    border-color: var(--border);
+    cursor: default;
+    font-weight: 500;
+  }
+
+  .status-action.transitioning {
+    pointer-events: none;
+    opacity: 0.6;
+  }
+
+  /* ── Status Labels ── */
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .status-pill.new { background: var(--purple-light); color: var(--purple-vivid); }
+  .status-pill.preparing { background: var(--orange-bg); color: var(--orange); }
+  .status-pill.ready { background: var(--green-bg); color: var(--green); }
+  .status-pill.delivered { background: #f5f5f7; color: var(--text-muted); }
+
+  .status-pill::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  /* ── Drawer ── */
+  .drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(11,4,37,0.3);
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    backdrop-filter: blur(2px);
+  }
+
+  .drawer-overlay.open { opacity: 1; pointer-events: auto; }
+
+  .drawer {
+    position: fixed;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 440px;
+    background: var(--surface);
+    z-index: 201;
+    transform: translateX(100%);
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    flex-direction: column;
+    box-shadow: -8px 0 30px rgba(0,0,0,0.1);
+  }
+
+  .drawer.open { transform: translateX(0); }
+
+  .drawer-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .drawer-title { font-size: 17px; font-weight: 700; }
+  .drawer-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f5f5f7;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+    font-size: 16px;
+  }
+  .drawer-close:hover { background: var(--red-bg); color: var(--red); }
+
+  .drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+
+  .drawer-section {
+    margin-bottom: 24px;
+  }
+
+  .drawer-section-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+  }
+
+  .drawer-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .drawer-info-item label {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  .drawer-info-item span {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .drawer-item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    background: #f8f7fb;
+    border-radius: var(--radius-sm);
+    border: 1px solid #eee9f3;
+  }
+
+  .drawer-item-row:last-child { margin-bottom: 0; }
+
+  .drawer-item-name {
+    font-size: 15.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .drawer-item-note {
+    font-size: 12.5px;
+    color: var(--red);
+    font-weight: 600;
+    margin-top: 3px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .drawer-item-qty {
+    font-size: 15px;
+    color: var(--purple-vivid);
+    font-weight: 700;
+    background: var(--purple-light);
+    padding: 4px 14px;
+    border-radius: var(--radius-sm);
+    min-width: 44px;
+    text-align: center;
+  }
+
+  .drawer-sms-section {
+    padding: 14px 16px;
+    background: var(--blue-bg);
+    border: 1px solid var(--blue-border);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .drawer-sms-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13.5px;
+    color: var(--text-primary);
+  }
+
+  .drawer-sms-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    flex-shrink: 0;
+  }
+
+  .drawer-sms-phone {
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .drawer-sms-label {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .btn-sms {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--blue);
+    color: white;
+    border: none;
+    white-space: nowrap;
+  }
+
+  .btn-sms:hover { background: #1d4ed8; }
+
+  .sms-template-bar {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .sms-template-chip {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.15s;
+  }
+
+  .sms-template-chip:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    background: var(--blue-bg);
+  }
+
+  .drawer-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+  }
+
+  .drawer-footer button {
+    flex: 1;
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .btn-primary {
+    background: var(--purple-vivid);
+    color: white;
+    border: none;
+  }
+  .btn-primary:hover { background: var(--purple-hover); }
+
+  .btn-secondary {
+    background: var(--surface);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: #f5f5f7; }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--purple-dark);
+    color: white;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-size: 13.5px;
+    font-weight: 500;
+    z-index: 300;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 8px 24px rgba(11,4,37,0.25);
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Stats Row ── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s;
+  }
+
+  .stat-card:hover {
+    border-color: var(--purple-muted);
+    box-shadow: var(--shadow);
+  }
+
+  .stat-card.active-stat {
+    border-color: var(--purple-vivid);
+    background: var(--purple-light);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+  }
+
+  .stat-value.purple { color: var(--purple-vivid); }
+  .stat-value.green { color: var(--green); }
+  .stat-value.orange { color: var(--orange); }
+  .stat-value.red { color: var(--red); }
+
+  /* ── Demo Label ── */
+  .demo-label {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: var(--purple-deep);
+    color: white;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 100px;
+    z-index: 50;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .demo-label::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--purple-vivid);
+    animation: demoPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes demoPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Card View ── */
+  .order-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+
+  .order-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.15s;
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    animation: fadeInUp 0.3s ease forwards;
+    position: relative;
+  }
+
+  .order-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--purple-muted);
+  }
+
+  .order-card-stripe {
+    height: 4px;
+    width: 100%;
+  }
+
+  .order-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px 0;
+  }
+
+  .order-card-id {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--text-primary);
+  }
+
+  .order-card-channel {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  .order-card-body {
+    padding: 10px 16px;
+  }
+
+  .order-card-items {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .order-card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .order-card-time-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12.5px;
+  }
+
+  .order-card-time {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .order-card-total {
+    font-weight: 700;
+    font-size: 15px;
+  }
+
+  .order-card-footer {
+    padding: 0 16px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .order-card-footer .allergy-badge {
+    font-size: 11px;
+  }
+
+  .order-card-footer .status-action {
+    flex-shrink: 0;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 1024px) {
+    .table-header, .order-row {
+      grid-template-columns: 6px 80px 1fr 120px 100px 100px 80px 140px;
+    }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  /* ── Animations ── */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .order-row { animation: fadeInUp 0.3s ease forwards; }
+  .order-row:nth-child(2) { animation-delay: 0.03s; }
+  .order-row:nth-child(3) { animation-delay: 0.06s; }
+  .order-row:nth-child(4) { animation-delay: 0.09s; }
+  .order-row:nth-child(5) { animation-delay: 0.12s; }
+  .order-row:nth-child(6) { animation-delay: 0.15s; }
+  .order-row:nth-child(7) { animation-delay: 0.18s; }
+  .order-row:nth-child(8) { animation-delay: 0.21s; }
+
+  .filter-active-indicator {
+    background: var(--purple-light);
+    color: var(--purple-vivid);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 100px;
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-active-indicator.show { display: flex; }
+
+  .filter-clear {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+
+  .filter-clear:hover { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">
+      <svg viewBox="0 0 28 28" fill="none">
+        <rect width="28" height="28" rx="7" fill="#240046"/>
+        <text x="5" y="19.5" font-family="DM Sans" font-weight="700" font-size="12" fill="white">d.</text>
+      </svg>
+      done<span style="color: var(--purple-vivid); font-size: 13px; margin-left: 1px;">ai</span>
+    </div>
+    <nav class="topbar-nav">
+      <a href="#" class="active">Orders</a>
+      <a href="#">Menu</a>
+      <a href="#">Devices</a>
+      <a href="#">Settings</a>
+    </nav>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-badge">DEMO</span>
+    <div class="avatar">EM</div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Overdue Banner -->
+  <div class="overdue-banner" id="overdueBanner" onclick="filterOverdue()">
+    <div class="overdue-banner-left">
+      <div class="overdue-icon">!</div>
+      <div>
+        <div class="overdue-text"><span id="overdueCount">2</span> ordrer over tid</div>
+        <div class="overdue-sub">Eldste: 8 min forsinket</div>
+      </div>
+    </div>
+    <div class="overdue-action">
+      Vis overdue →
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card" onclick="filterFromStat('all')" style="cursor:pointer" title="Vis alle aktive">
+      <div class="stat-label">Aktive ordrer</div>
+      <div class="stat-value purple" id="statActive">7</div>
+    </div>
+    <div class="stat-card" onclick="filterFromStat('status-preparing')" style="cursor:pointer" title="Filtrer: Under tilberedning">
+      <div class="stat-label">Under tilberedning</div>
+      <div class="stat-value orange" id="statPreparing">3</div>
+    </div>
+    <div class="stat-card" onclick="filterFromStat('status-ready')" style="cursor:pointer" title="Filtrer: Klare til henting">
+      <div class="stat-label">Klare til henting</div>
+      <div class="stat-value green" id="statReady">2</div>
+    </div>
+    <div class="stat-card" onclick="filterFromStat('status-delivered')" style="cursor:pointer" title="Filtrer: Levert">
+      <div class="stat-label">Levert i dag</div>
+      <div class="stat-value" id="statDelivered">24</div>
+    </div>
+  </div>
+
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="page-title">
+      Ordre Oversikt <span class="page-title-count" id="orderCount">(8)</span>
+    </div>
+    <div class="view-toggle">
+      <button class="active" onclick="setView('list', this)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 3h14v1.5H1zm0 4h14v1.5H1zm0 4h14v1.5H1z"/></svg>
+        Liste
+      </button>
+      <button onclick="setView('card', this)">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M1 1h6v6H1zm8 0h6v6H9zm-8 8h6v6H1zm8 0h6v6H9z"/></svg>
+        Kort
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <button class="filter-chip active" data-filter="all" onclick="setFilter('all', this)">Alle</button>
+    <div class="filter-divider"></div>
+    <button class="filter-chip" data-filter="channel-qr" onclick="setFilter('channel-qr', this)">
+      <span class="dot" style="background: var(--channel-qr)"></span>QR
+    </button>
+    <button class="filter-chip" data-filter="channel-kiosk" onclick="setFilter('channel-kiosk', this)">
+      <span class="dot" style="background: var(--channel-kiosk)"></span>Kiosk
+    </button>
+    <button class="filter-chip" data-filter="channel-online" onclick="setFilter('channel-online', this)">
+      <span class="dot" style="background: var(--channel-online)"></span>Online
+    </button>
+    <button class="filter-chip" data-filter="channel-pos" onclick="setFilter('channel-pos', this)">
+      <span class="dot" style="background: var(--channel-pos)"></span>POS
+    </button>
+    <div class="filter-divider"></div>
+    <button class="filter-chip" data-filter="status-new" onclick="setFilter('status-new', this)">Ny</button>
+    <button class="filter-chip" data-filter="status-preparing" onclick="setFilter('status-preparing', this)">Tilberedes</button>
+    <button class="filter-chip" data-filter="status-ready" onclick="setFilter('status-ready', this)">Klar</button>
+    <button class="filter-chip" data-filter="status-overdue" onclick="setFilter('status-overdue', this)">Over tid</button>
+    <button class="filter-chip" data-filter="status-delivered" onclick="setFilter('status-delivered', this)">Levert</button>
+    <div class="filter-divider"></div>
+    <div class="filter-active-indicator" id="filterIndicator">
+      <span id="filterIndicatorText">Viser: Alle</span>
+      <span class="filter-clear" onclick="clearFilters()">✕</span>
+    </div>
+    <div class="filter-persist-badge">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 12.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11zM7.25 4v4.5l3.5 2-.75 1.25L6.25 9V4h1z"/></svg>
+      Filtre beholdes
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="order-table" id="orderTable">
+    <div class="table-header">
+      <div></div>
+      <div>Ordre</div>
+      <div>Innhold</div>
+      <div>Kanal</div>
+      <div>Klar</div>
+      <div>Nedtelling</div>
+      <div>Sum</div>
+      <div>Handling</div>
+    </div>
+    <!-- Rows injected by JS -->
+  </div>
+
+  <!-- Card View -->
+  <div class="order-cards" id="orderCards" style="display:none"></div>
+</div>
+
+<!-- Drawer -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-title" id="drawerTitle">Ordre #1047</div>
+    <button class="drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="drawer-body" id="drawerBody"></div>
+  <div class="drawer-footer" id="drawerFooter"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Demo Label -->
+<div class="demo-label">ORDER OVERVIEW · LEAN DEMO</div>
+
+<script>
+  // ── Order Data ──
+  const orders = [
+    {
+      id: '#1052', channel: 'qr', channelLabel: 'QR Bord 7', stripe: 'var(--channel-qr)',
+      items: '2× Pasta Carbonara, 1× Cæsarsalat',
+      itemsDetail: [
+        { name: 'Pasta Carbonara', qty: 2 },
+        { name: 'Cæsarsalat', qty: 1, note: '⚠ Glutenfri' }
+      ],
+      allergy: 'Glutenfri', allergyTooltip: 'Cæsarsalat – glutenfritt brød',
+      readyBy: -8, status: 'preparing', total: '487 kr',
+      customer: 'Bord 7', placed: '11:42'
+    },
+    {
+      id: '#1051', channel: 'online', channelLabel: 'Online', stripe: 'var(--channel-online)',
+      items: '1× Burger Deluxe, 1× Pommes, 1× Cola',
+      itemsDetail: [
+        { name: 'Burger Deluxe', qty: 1 },
+        { name: 'Pommes Frites', qty: 1 },
+        { name: 'Cola', qty: 1 }
+      ],
+      allergy: null,
+      readyBy: -3, status: 'preparing', total: '289 kr',
+      customer: 'Thomas H.', placed: '11:48'
+    },
+    {
+      id: '#1050', channel: 'kiosk', channelLabel: 'Kiosk 2', stripe: 'var(--channel-kiosk)',
+      items: '3× Fish & Chips, 2× Øl',
+      itemsDetail: [
+        { name: 'Fish & Chips', qty: 3 },
+        { name: 'Hansa Pilsner', qty: 2 }
+      ],
+      allergy: null,
+      readyBy: 4, status: 'preparing', total: '645 kr',
+      customer: 'Kiosk Ordre', placed: '11:55'
+    },
+    {
+      id: '#1049', channel: 'qr', channelLabel: 'QR Bord 3', stripe: 'var(--channel-qr)',
+      items: '1× Laks Teriyaki, 1× Miso Suppe',
+      itemsDetail: [
+        { name: 'Laks Teriyaki', qty: 1 },
+        { name: 'Miso Suppe', qty: 1, note: '⚠ Soyaallergi – bruk tamari' }
+      ],
+      allergy: 'Soya', allergyTooltip: 'Miso suppe – bruk soyafri tamari',
+      readyBy: 8, status: 'new', total: '329 kr',
+      customer: 'Bord 3', placed: '12:01'
+    },
+    {
+      id: '#1048', channel: 'pos', channelLabel: 'POS Kasse', stripe: 'var(--channel-pos)',
+      items: '2× Espresso, 1× Croissant',
+      itemsDetail: [
+        { name: 'Espresso', qty: 2 },
+        { name: 'Croissant', qty: 1 }
+      ],
+      allergy: null,
+      readyBy: 2, status: 'new', total: '127 kr',
+      customer: 'Walk-in', placed: '12:03'
+    },
+    {
+      id: '#1047', channel: 'online', channelLabel: 'Online', stripe: 'var(--channel-online)',
+      items: '1× Pizza Margherita, 1× Tiramisu',
+      itemsDetail: [
+        { name: 'Pizza Margherita', qty: 1 },
+        { name: 'Tiramisu', qty: 1 }
+      ],
+      allergy: null,
+      readyBy: 12, status: 'ready', total: '259 kr',
+      customer: 'Maria S.', placed: '11:35'
+    },
+    {
+      id: '#1046', channel: 'kiosk', channelLabel: 'Kiosk 1', stripe: 'var(--channel-kiosk)',
+      items: '1× Kyllingwrap, 1× Smoothie',
+      itemsDetail: [
+        { name: 'Kyllingwrap', qty: 1 },
+        { name: 'Mango Smoothie', qty: 1 }
+      ],
+      allergy: null,
+      readyBy: 0, status: 'ready', total: '189 kr',
+      customer: 'Kiosk Ordre', placed: '11:50'
+    },
+    {
+      id: '#1045', channel: 'qr', channelLabel: 'QR Bord 12', stripe: 'var(--channel-qr)',
+      items: '4× Taco, 2× Margarita',
+      itemsDetail: [
+        { name: 'Taco al Pastor', qty: 4 },
+        { name: 'Margarita', qty: 2 }
+      ],
+      allergy: null,
+      readyBy: null, status: 'delivered', total: '598 kr',
+      customer: 'Bord 12', placed: '11:15'
+    }
+  ];
+
+  const statusConfig = {
+    new: { label: 'Ny', class: 'new', nextAction: 'Start', nextClass: 'start', nextStatus: 'preparing', icon: '▶' },
+    preparing: { label: 'Tilberedes', class: 'preparing', nextAction: 'Klar', nextClass: 'ready', nextStatus: 'ready', icon: '✓' },
+    ready: { label: 'Klar', class: 'ready', nextAction: 'Levert', nextClass: 'deliver', nextStatus: 'delivered', icon: '🚚' },
+    delivered: { label: 'Levert', class: 'delivered', nextAction: null, nextClass: 'done', nextStatus: null, icon: '✓' }
+  };
+
+  let currentFilter = 'all';
+  let currentView = 'list';
+
+  function renderOrders() {
+    if (currentView === 'list') {
+      renderListView();
+    } else {
+      renderCardView();
+    }
+  }
+
+  function renderListView() {
+    const container = document.getElementById('orderTable');
+    const header = container.querySelector('.table-header');
+    container.innerHTML = '';
+    container.appendChild(header);
+
+    const filtered = getFilteredOrders();
+
+    document.getElementById('orderCount').textContent = `(${filtered.length})`;
+
+    filtered.forEach((order, i) => {
+      const cfg = statusConfig[order.status];
+      const isOverdue = order.readyBy !== null && order.readyBy < 0 && order.status !== 'delivered';
+
+      let countdownHtml = '';
+      if (order.status === 'delivered') {
+        countdownHtml = '<span style="color: var(--text-muted)">—</span>';
+      } else if (order.readyBy !== null) {
+        if (order.readyBy < 0) {
+          countdownHtml = `<span class="countdown overdue">${Math.abs(order.readyBy)} min over</span>`;
+        } else if (order.readyBy <= 3) {
+          countdownHtml = `<span class="countdown warn">${order.readyBy} min</span>`;
+        } else {
+          countdownHtml = `<span class="countdown ok">${order.readyBy} min</span>`;
+        }
+      }
+
+      let actionHtml = '';
+      if (cfg.nextAction) {
+        actionHtml = `<button class="status-action ${cfg.nextClass}" onclick="event.stopPropagation(); advanceStatus('${order.id}')">${cfg.icon} ${cfg.nextAction}</button>`;
+      } else {
+        actionHtml = `<button class="status-action done">✓ Levert</button>`;
+      }
+
+      let allergyHtml = '';
+      if (order.allergy) {
+        allergyHtml = `<span class="allergy-badge">⚠ ${order.allergy}<span class="allergy-tooltip">${order.allergyTooltip}</span></span>`;
+      }
+
+      const readyTime = order.status === 'delivered' ? '—' : (order.readyBy !== null ? `12:${String(15 + (8 - order.readyBy)).padStart(2, '0')}` : '—');
+
+      const row = document.createElement('div');
+      row.className = 'order-row';
+      row.style.animationDelay = `${i * 0.03}s`;
+      row.setAttribute('data-id', order.id);
+      row.onclick = () => openDrawer(order);
+
+      row.innerHTML = `
+        <div class="channel-stripe" style="background: ${order.stripe}"></div>
+        <div class="order-id">${order.id}</div>
+        <div class="order-items">
+          <span>${order.items}</span>
+          ${allergyHtml}
+        </div>
+        <div class="order-channel">
+          <span class="channel-dot" style="background: ${order.stripe}"></span>
+          ${order.channelLabel}
+        </div>
+        <div class="order-time">${readyTime}</div>
+        <div>${countdownHtml}</div>
+        <div class="order-total">${order.total}</div>
+        <div>${actionHtml}</div>
+      `;
+
+      container.appendChild(row);
+    });
+  }
+
+  function renderCardView() {
+    const container = document.getElementById('orderCards');
+    container.innerHTML = '';
+
+    const filtered = getFilteredOrders();
+    document.getElementById('orderCount').textContent = `(${filtered.length})`;
+
+    filtered.forEach((order, i) => {
+      const cfg = statusConfig[order.status];
+      const isOverdue = order.readyBy !== null && order.readyBy < 0 && order.status !== 'delivered';
+
+      let countdownHtml = '';
+      if (order.status === 'delivered') {
+        countdownHtml = '<span style="color: var(--text-muted)">—</span>';
+      } else if (order.readyBy !== null) {
+        if (order.readyBy < 0) {
+          countdownHtml = `<span class="countdown overdue">${Math.abs(order.readyBy)} min over</span>`;
+        } else if (order.readyBy <= 3) {
+          countdownHtml = `<span class="countdown warn">⏳ ${order.readyBy} min</span>`;
+        } else {
+          countdownHtml = `<span class="countdown ok">⏳ ${order.readyBy} min</span>`;
+        }
+      }
+
+      let actionHtml = '';
+      if (cfg.nextAction) {
+        actionHtml = `<button class="status-action ${cfg.nextClass}" onclick="event.stopPropagation(); advanceStatus('${order.id}')">${cfg.icon} ${cfg.nextAction}</button>`;
+      } else {
+        actionHtml = `<button class="status-action done">✓ Levert</button>`;
+      }
+
+      let allergyHtml = '';
+      if (order.allergy) {
+        allergyHtml = `<span class="allergy-badge">⚠ ${order.allergy}<span class="allergy-tooltip">${order.allergyTooltip}</span></span>`;
+      }
+
+      const readyTime = order.status === 'delivered' ? '' : (order.readyBy !== null ? `Klar ${String(12)}:${String(15 + (8 - order.readyBy)).padStart(2, '0')}` : '');
+
+      const card = document.createElement('div');
+      card.className = 'order-card';
+      card.style.animationDelay = `${i * 0.04}s`;
+      card.setAttribute('data-id', order.id);
+      card.onclick = () => openDrawer(order);
+
+      card.innerHTML = `
+        <div class="order-card-stripe" style="background: ${order.stripe}"></div>
+        <div class="order-card-header">
+          <div class="order-card-id">${order.id}</div>
+          <div class="order-card-channel">
+            <span class="channel-dot" style="background: ${order.stripe}"></span>
+            ${order.channelLabel}
+          </div>
+        </div>
+        <div class="order-card-body">
+          <div class="order-card-items">${order.items}</div>
+          <div class="order-card-meta">
+            <div class="order-card-time-group">
+              <span class="status-pill ${cfg.class}">${cfg.label}</span>
+              ${countdownHtml}
+            </div>
+            <div class="order-card-total">${order.total}</div>
+          </div>
+        </div>
+        <div class="order-card-footer">
+          <div>${allergyHtml}</div>
+          <div>${actionHtml}</div>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  function getFilteredOrders() {
+    return orders.filter(o => {
+      if (currentFilter === 'all') return true;
+      if (currentFilter === 'status-overdue') return o.readyBy !== null && o.readyBy < 0 && o.status !== 'delivered';
+      if (currentFilter.startsWith('channel-')) return o.channel === currentFilter.replace('channel-', '');
+      if (currentFilter.startsWith('status-')) return o.status === currentFilter.replace('status-', '');
+      return true;
+    });
+  }
+
+  function advanceStatus(orderId) {
+    const order = orders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const cfg = statusConfig[order.status];
+    if (!cfg.nextStatus) return;
+
+    // Optimistic UI
+    const btn = document.querySelector(`[data-id="${orderId}"] .status-action`);
+    if (btn) {
+      btn.classList.add('transitioning');
+    }
+
+    const oldStatus = cfg.label;
+    order.status = cfg.nextStatus;
+    const newCfg = statusConfig[order.status];
+
+    // Update countdown for delivered
+    if (order.status === 'delivered') {
+      order.readyBy = null;
+    }
+
+    setTimeout(() => {
+      renderOrders();
+      updateStats();
+      showToast(`${orderId} → ${newCfg.label}`);
+    }, 150);
+  }
+
+  function openDrawer(order) {
+    const cfg = statusConfig[order.status];
+    document.getElementById('drawerTitle').textContent = `Ordre ${order.id}`;
+
+    // Phone number simulation
+    const phones = { 'Thomas H.': '+47 912 34 567', 'Maria S.': '+47 987 65 432' };
+    const phone = phones[order.customer] || null;
+
+    const body = document.getElementById('drawerBody');
+    body.innerHTML = `
+      <div class="drawer-section">
+        <div class="drawer-section-title">Ordrelinjer</div>
+        ${order.itemsDetail.map(item => `
+          <div class="drawer-item-row">
+            <div>
+              <div class="drawer-item-name">${item.name}</div>
+              ${item.note ? `<div class="drawer-item-note">⚠ ${item.note.replace('⚠ ', '')}</div>` : ''}
+            </div>
+            <div class="drawer-item-qty">×${item.qty}</div>
+          </div>
+        `).join('')}
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:2px solid var(--purple-muted)">
+          <span style="font-size:13px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px">Total</span>
+          <span style="font-size:22px;font-weight:700;color:var(--text-primary)">${order.total}</span>
+        </div>
+      </div>
+
+      ${phone ? `
+      <div class="drawer-section">
+        <div class="drawer-section-title">Kunde & SMS</div>
+        <div class="drawer-sms-section">
+          <div class="drawer-sms-info">
+            <div class="drawer-sms-icon">✉</div>
+            <div>
+              <div class="drawer-sms-phone">${order.customer} · ${phone}</div>
+              <div class="drawer-sms-label">Send oppdatering via SMS</div>
+            </div>
+          </div>
+          <button class="btn-sms" onclick="sendSms('${order.id}', '${order.customer}', 'custom')">Send SMS</button>
+        </div>
+        <div class="sms-template-bar">
+          <button class="sms-template-chip" onclick="sendSms('${order.id}', '${order.customer}', 'ready')">📦 Klar til henting</button>
+          <button class="sms-template-chip" onclick="sendSms('${order.id}', '${order.customer}', 'delay')">⏳ Forsinket</button>
+          <button class="sms-template-chip" onclick="sendSms('${order.id}', '${order.customer}', 'confirm')">✓ Bekreftelse</button>
+        </div>
+      </div>
+      ` : ''}
+
+      <div class="drawer-section">
+        <div class="drawer-section-title">Detaljer</div>
+        <div class="drawer-info-grid">
+          <div class="drawer-info-item">
+            <label>Kanal</label>
+            <span style="display:flex;align-items:center;gap:6px">
+              <span class="channel-dot" style="background:${order.stripe}"></span>
+              ${order.channelLabel}
+            </span>
+          </div>
+          <div class="drawer-info-item">
+            <label>Status</label>
+            <span class="status-pill ${cfg.class}">${cfg.label}</span>
+          </div>
+          <div class="drawer-info-item">
+            <label>Kunde</label>
+            <span>${order.customer}</span>
+          </div>
+          <div class="drawer-info-item">
+            <label>Bestilt</label>
+            <span>${order.placed}</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const footer = document.getElementById('drawerFooter');
+    if (cfg.nextAction) {
+      footer.innerHTML = `
+        <button class="btn-secondary" onclick="closeDrawer()">Lukk</button>
+        <button class="btn-primary" onclick="advanceStatus('${order.id}'); closeDrawer();">${cfg.icon} ${cfg.nextAction}</button>
+      `;
+    } else {
+      footer.innerHTML = `<button class="btn-secondary" style="flex:1" onclick="closeDrawer()">Lukk</button>`;
+    }
+
+    document.getElementById('drawerOverlay').classList.add('open');
+    document.getElementById('drawer').classList.add('open');
+  }
+
+  function closeDrawer() {
+    document.getElementById('drawerOverlay').classList.remove('open');
+    document.getElementById('drawer').classList.remove('open');
+  }
+
+  function setFilter(filter, el) {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+
+    const indicator = document.getElementById('filterIndicator');
+    const indicatorText = document.getElementById('filterIndicatorText');
+
+    if (filter === 'all') {
+      indicator.classList.remove('show');
+    } else {
+      indicator.classList.add('show');
+      indicatorText.textContent = `Filter: ${el.textContent.trim()}`;
+    }
+
+    // Persist to localStorage
+    try { localStorage.setItem('plorea-filter', filter); } catch(e) {}
+
+    renderOrders();
+    updateOverdueBanner();
+  }
+
+  function clearFilters() {
+    currentFilter = 'all';
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+    document.querySelector('[data-filter="all"]').classList.add('active');
+    document.getElementById('filterIndicator').classList.remove('show');
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-stat'));
+    try { localStorage.setItem('plorea-filter', 'all'); } catch(e) {}
+    renderOrders();
+    updateOverdueBanner();
+  }
+
+  function filterOverdue() {
+    const chip = document.querySelector('[data-filter="status-overdue"]');
+    setFilter('status-overdue', chip);
+  }
+
+  function filterFromStat(filter) {
+    // Highlight the stat card
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.remove('active-stat'));
+    if (filter !== 'all') {
+      event.currentTarget.classList.add('active-stat');
+    }
+
+    // Find matching filter chip and activate it
+    const chip = document.querySelector(`[data-filter="${filter}"]`);
+    if (chip) {
+      setFilter(filter, chip);
+    } else {
+      // "all" for active orders – clear filters
+      clearFilters();
+    }
+  }
+
+  function sendSms(orderId, customer, template) {
+    const templates = {
+      ready: `Hei ${customer}! Ordren din (${orderId}) er klar til henting.`,
+      delay: `Hei ${customer}, ordren din (${orderId}) er litt forsinket. Vi beklager – den er snart klar!`,
+      confirm: `Hei ${customer}! Vi har mottatt ordren din (${orderId}). Den er på vei!`,
+      custom: `SMS til ${customer} om ordre ${orderId}`
+    };
+
+    const msg = templates[template] || templates.custom;
+    showToast(`SMS sendt til ${customer}: "${msg.substring(0, 40)}…"`);
+  }
+
+  function setView(view, btn) {
+    currentView = view;
+    document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    if (view === 'list') {
+      document.getElementById('orderTable').style.display = '';
+      document.getElementById('orderCards').style.display = 'none';
+    } else {
+      document.getElementById('orderTable').style.display = 'none';
+      document.getElementById('orderCards').style.display = '';
+    }
+    renderOrders();
+  }
+
+  function updateStats() {
+    const active = orders.filter(o => o.status !== 'delivered').length;
+    const preparing = orders.filter(o => o.status === 'preparing').length;
+    const ready = orders.filter(o => o.status === 'ready').length;
+    const delivered = orders.filter(o => o.status === 'delivered').length + 24;
+
+    document.getElementById('statActive').textContent = active;
+    document.getElementById('statPreparing').textContent = preparing;
+    document.getElementById('statReady').textContent = ready;
+    document.getElementById('statDelivered').textContent = delivered;
+  }
+
+  function updateOverdueBanner() {
+    const overdueOrders = orders.filter(o => o.readyBy !== null && o.readyBy < 0 && o.status !== 'delivered');
+    const banner = document.getElementById('overdueBanner');
+    const countEl = document.getElementById('overdueCount');
+
+    if (overdueOrders.length === 0) {
+      banner.classList.add('hidden');
+    } else {
+      banner.classList.remove('hidden');
+      countEl.textContent = overdueOrders.length;
+    }
+  }
+
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.innerHTML = `✓ ${message}`;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2000);
+  }
+
+  // ── Simulated live countdown ──
+  setInterval(() => {
+    orders.forEach(o => {
+      if (o.readyBy !== null && o.status !== 'delivered') {
+        // Simulate time passing slowly
+      }
+    });
+  }, 60000);
+
+  // ── Init ──
+  renderOrders();
+  updateStats();
+  updateOverdueBanner();
+</script>
+</body>
+</html>

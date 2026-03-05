@@ -1,0 +1,1995 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amendo Group Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #131722;
+            --bg-tertiary: #1a1f2e;
+            --accent-blue: #3b82f6;
+            --accent-cyan: #06b6d4;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #2d3548;
+            --chart-1: #3b82f6;
+            --chart-2: #8b5cf6;
+            --chart-3: #ec4899;
+            --chart-4: #f59e0b;
+            --chart-5: #10b981;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            letter-spacing: -0.02em;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn-icon {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .filters-section {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .filter-group {
+            position: relative;
+        }
+
+        .filter-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .filter-select, .filter-input {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-select:hover, .filter-input:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .filter-select:focus, .filter-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-trigger {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-trigger:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .dropdown-trigger.open {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .dropdown-search {
+            width: 100%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .dropdown-option {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .dropdown-option:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .dropdown-option input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .dropdown-option.selected {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .selected-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            min-height: 1.5rem;
+        }
+
+        .selected-tag {
+            background: var(--accent-blue);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .selected-tag button {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .calendar-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            left: 0;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 650px;
+            max-width: 90vw;
+        }
+
+        .calendar-container.show {
+            display: block;
+            animation: slideDown 0.2s ease-out;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .calendar-nav button {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .calendar-nav button:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .calendar-title:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .calendar-presets {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .preset-btn {
+            padding: 0.5rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.875rem;
+        }
+
+        .preset-btn:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-blue);
+            color: var(--text-primary);
+        }
+
+        .preset-btn.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .calendar-month {
+            flex: 1;
+        }
+
+        .calendar-month-title {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.25rem;
+        }
+
+        .calendar-day-label {
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            font-weight: 600;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+
+        .calendar-day:hover:not(.disabled):not(.outside-month) {
+            background: var(--bg-tertiary);
+            border-color: var(--accent-blue);
+        }
+
+        .calendar-day.outside-month {
+            color: var(--text-muted);
+            cursor: default;
+        }
+
+        .calendar-day.disabled {
+            color: var(--text-muted);
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .calendar-day.selected {
+            background: var(--accent-blue);
+            color: white;
+        }
+
+        .calendar-day.in-range {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--text-primary);
+        }
+
+        .calendar-day.today {
+            border: 2px solid var(--accent-cyan);
+        }
+
+        .calendar-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .calendar-selected-range {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .calendar-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .layout-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .layout-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .layout-modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .layout-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .layout-modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            line-height: 1;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            color: var(--text-primary);
+        }
+
+        .module-list-sortable {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .module-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: move;
+            transition: all 0.2s;
+        }
+
+        .module-item:hover {
+            border-color: var(--accent-blue);
+            transform: translateX(5px);
+        }
+
+        .module-item.dragging {
+            opacity: 0.5;
+        }
+
+        .drag-handle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .module-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .module-name {
+            flex: 1;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            animation: fadeInUp 0.6s ease-out;
+            animation-fill-mode: both;
+        }
+
+        .kpi-card:nth-child(1) { animation-delay: 0.1s; }
+        .kpi-card:nth-child(2) { animation-delay: 0.2s; }
+        .kpi-card:nth-child(3) { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .kpi-card:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.15);
+        }
+
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .kpi-card:hover::before {
+            opacity: 1;
+        }
+
+        .kpi-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .kpi-comparison {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .kpi-comparison.positive {
+            color: var(--accent-green);
+        }
+
+        .kpi-comparison.negative {
+            color: var(--accent-red);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .dashboard-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .card-large {
+            grid-column: span 12;
+        }
+
+        .card-medium {
+            grid-column: span 6;
+        }
+
+        .card-small {
+            grid-column: span 4;
+        }
+
+        @media (max-width: 1024px) {
+            .card-medium, .card-small {
+                grid-column: span 12;
+            }
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead tr {
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        tbody tr:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .rank-cell {
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+
+        .comparison-value {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .change-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .change-badge.positive {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .change-badge.negative {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--accent-red);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .pagination button {
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--accent-blue);
+        }
+
+        .pagination button.active {
+            background: var(--accent-blue);
+            color: white;
+            border-color: var(--accent-blue);
+        }
+
+        .layout-controls {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .layout-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .module-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .module-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .module-toggle:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .module-toggle input[type="checkbox"] {
+            cursor: pointer;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .tooltip {
+            position: absolute;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            font-size: 0.875rem;
+            pointer-events: none;
+            z-index: 1000;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <header class="app-header">
+        <div class="header-content">
+            <div class="logo">AMENDO</div>
+            <div class="header-actions">
+                <button class="btn-icon" id="openLayoutModal" title="Tilpass layout">⚙</button>
+                <button class="btn-icon" title="Hjelp">?</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Filters Section -->
+        <section class="filters-section">
+            <div class="filters-grid">
+                <div class="filter-group">
+                    <label class="filter-label">Butikker</label>
+                    <div class="custom-dropdown" id="storesDropdown">
+                        <div class="dropdown-trigger" id="storesTrigger">
+                            <div class="selected-tags" id="selectedStoresTags">
+                                <span style="color: var(--text-secondary);">Alle butikker</span>
+                            </div>
+                            <span>▼</span>
+                        </div>
+                        <div class="dropdown-menu" id="storesMenu">
+                            <input type="text" class="dropdown-search" placeholder="Søk butikker..." id="storesSearch">
+                            <div class="dropdown-option" data-value="all">
+                                <input type="checkbox" id="store-all" checked>
+                                <label for="store-all">Alle butikker</label>
+                            </div>
+                            <div class="dropdown-option" data-value="store1">
+                                <input type="checkbox" id="store-1">
+                                <label for="store-1">Bare Dykk – Småvika</label>
+                            </div>
+                            <div class="dropdown-option" data-value="store2">
+                                <input type="checkbox" id="store-2">
+                                <label for="store-2">Amendo Sport – Oslo</label>
+                            </div>
+                            <div class="dropdown-option" data-value="store3">
+                                <input type="checkbox" id="store-3">
+                                <label for="store-3">TeknoShop – Stavanger</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Periode</label>
+                    <div style="position: relative;">
+                        <input type="text" class="filter-input" id="periodInput" readonly placeholder="Velg periode..." value="Siste 30 dager">
+                        <div class="calendar-container" id="calendarContainer">
+                            <div class="calendar-presets">
+                                <button class="preset-btn" data-preset="today">I dag</button>
+                                <button class="preset-btn" data-preset="yesterday">I går</button>
+                                <button class="preset-btn" data-preset="last7">Siste 7 dager</button>
+                                <button class="preset-btn" data-preset="last30">Siste 30 dager</button>
+                                <button class="preset-btn" data-preset="thisWeek">Denne uke</button>
+                                <button class="preset-btn" data-preset="prevWeek">Forrige uke</button>
+                                <button class="preset-btn" data-preset="thisMonth">Denne måned</button>
+                                <button class="preset-btn" data-preset="prevMonth">Forrige måned</button>
+                                <button class="preset-btn" data-preset="thisQuarter">Dette kvartal</button>
+                                <button class="preset-btn" data-preset="prevQuarter">Forrige kvartal</button>
+                                <button class="preset-btn" data-preset="thisYear">Dette år</button>
+                                <button class="preset-btn" data-preset="ytd">År til dato</button>
+                            </div>
+                            <div class="calendar-header">
+                                <div class="calendar-nav">
+                                    <button id="prevYear">«</button>
+                                    <button id="prevMonth">‹</button>
+                                </div>
+                                <div class="calendar-title" id="calendarTitle">Oktober 2024</div>
+                                <div class="calendar-nav">
+                                    <button id="nextMonth">›</button>
+                                    <button id="nextYear">»</button>
+                                </div>
+                            </div>
+                            <div class="calendar-grid-container">
+                                <div class="calendar-month">
+                                    <div class="calendar-month-title" id="month1Title">Oktober 2024</div>
+                                    <div class="calendar-grid" id="calendar1"></div>
+                                </div>
+                                <div class="calendar-month">
+                                    <div class="calendar-month-title" id="month2Title">November 2024</div>
+                                    <div class="calendar-grid" id="calendar2"></div>
+                                </div>
+                            </div>
+                            <div class="calendar-footer">
+                                <div class="calendar-selected-range" id="selectedRange">Velg start- og sluttdato</div>
+                                <div class="calendar-actions">
+                                    <button class="btn btn-secondary" id="calendarCancel">Avbryt</button>
+                                    <button class="btn btn-primary" id="calendarApply">OK</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Ukedager</label>
+                    <select class="filter-select" id="weekdaysFilter">
+                        <option value="all">Alle dager</option>
+                        <option value="weekdays">Ukedager (Man-Fre)</option>
+                        <option value="weekend">Helg (Lør-Søn)</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Sammenligning</label>
+                    <select class="filter-select" id="comparisonFilter">
+                        <option value="none">Ingen</option>
+                        <option value="previous">Forrige periode</option>
+                        <option value="lastYear">Samme periode i fjor</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filter-actions">
+                <button class="btn btn-secondary" id="resetFilters">Nullstill</button>
+                <button class="btn btn-primary" id="applyFilters">Bruk filtre</button>
+            </div>
+        </section>
+
+        <!-- Layout Modal -->
+        <div class="layout-modal" id="layoutModal">
+            <div class="layout-modal-content">
+                <div class="layout-modal-header">
+                    <h2 class="layout-modal-title">Tilpass dashboard</h2>
+                    <button class="close-modal" id="closeLayoutModal">×</button>
+                </div>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
+                    Skru av/på moduler og endre rekkefølgen ved å dra og slippe.
+                </p>
+                <div class="module-list-sortable" id="moduleSortable">
+                    <div class="module-item" draggable="true" data-module="kpi">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">KPI-kort</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="time">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Omsetning over tid</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="topStores">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Top 10 butikker</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="topProducts">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Top 10 produkter</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="cat">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Kategorifordeling</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="channel">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Salg per kanal</span>
+                    </div>
+                    <div class="module-item" draggable="true" data-module="payment">
+                        <span class="drag-handle">⋮⋮</span>
+                        <input type="checkbox" class="module-checkbox" checked>
+                        <span class="module-name">Salg per betalingsmåte</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem; justify-content: flex-end;">
+                    <button class="btn btn-secondary" id="resetLayout">Tilbakestill</button>
+                    <button class="btn btn-primary" id="saveLayout">Lagre layout</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- KPI Cards -->
+        <section class="kpi-grid" id="kpiModule">
+            <div class="kpi-card">
+                <div class="kpi-label">Omsetning</div>
+                <div class="kpi-value" id="revenueKpi">1 955 325 kr</div>
+                <div class="kpi-comparison positive" id="revenueComparison">
+                    <span>↑ +15.4%</span>
+                    <span style="color: var(--text-muted);">vs forrige periode</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Transaksjoner</div>
+                <div class="kpi-value" id="transactionsKpi">2 958</div>
+                <div class="kpi-comparison positive" id="transactionsComparison">
+                    <span>↑ +8.3%</span>
+                    <span style="color: var(--text-muted);">vs forrige periode</span>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Snittverdi</div>
+                <div class="kpi-value" id="aovKpi">661 kr</div>
+                <div class="kpi-comparison negative" id="aovComparison">
+                    <span>↓ -3.2%</span>
+                    <span style="color: var(--text-muted);">vs forrige periode</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Revenue Over Time -->
+            <div class="dashboard-card card-large" id="timeModule">
+                <div class="card-header">
+                    <h2 class="card-title">Omsetning over tid</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top Stores -->
+            <div class="dashboard-card card-medium" id="topStoresModule">
+                <div class="card-header">
+                    <h2 class="card-title">Top 10 butikker</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Butikk</th>
+                                <th>Omsetning</th>
+                                <th>Kunder</th>
+                                <th>Snitt</th>
+                                <th>Endring</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topStoresTable">
+                            <!-- Data populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button>1</button>
+                    <button>2</button>
+                    <button>→</button>
+                </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="dashboard-card card-medium" id="topProductsModule">
+                <div class="card-header">
+                    <h2 class="card-title">Top 10 produkter</h2>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Produkt</th>
+                                <th>Antall</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topProductsTable">
+                            <!-- Data populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="pagination">
+                    <button>1</button>
+                    <button>2</button>
+                    <button>→</button>
+                </div>
+            </div>
+
+            <!-- Category Distribution -->
+            <div class="dashboard-card card-small" id="catModule">
+                <div class="card-header">
+                    <h2 class="card-title">Kategorifordeling</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Sales by Channel -->
+            <div class="dashboard-card card-small" id="channelModule">
+                <div class="card-header">
+                    <h2 class="card-title">Salg per kanal</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="channelChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Sales by Payment -->
+            <div class="dashboard-card card-small" id="paymentModule">
+                <div class="card-header">
+                    <h2 class="card-title">Salg per betalingsmåte</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="paymentChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // STORES DROPDOWN FUNCTIONALITY
+        // ============================================
+        const storesDropdown = {
+            trigger: document.getElementById('storesTrigger'),
+            menu: document.getElementById('storesMenu'),
+            tags: document.getElementById('selectedStoresTags'),
+            search: document.getElementById('storesSearch'),
+            selected: new Set(['all']),
+
+            init() {
+                this.trigger.addEventListener('click', () => this.toggle());
+                document.addEventListener('click', (e) => {
+                    if (!document.getElementById('storesDropdown').contains(e.target)) {
+                        this.close();
+                    }
+                });
+
+                const options = this.menu.querySelectorAll('.dropdown-option');
+                options.forEach(option => {
+                    const checkbox = option.querySelector('input');
+                    checkbox.addEventListener('change', (e) => {
+                        const value = option.dataset.value;
+                        if (value === 'all') {
+                            this.selectAll(e.target.checked);
+                        } else {
+                            this.toggleStore(value, e.target.checked);
+                        }
+                    });
+                });
+
+                this.search.addEventListener('input', (e) => this.filterOptions(e.target.value));
+                this.updateDisplay();
+            },
+
+            toggle() {
+                this.menu.classList.toggle('show');
+                this.trigger.classList.toggle('open');
+            },
+
+            close() {
+                this.menu.classList.remove('show');
+                this.trigger.classList.remove('open');
+            },
+
+            selectAll(checked) {
+                const checkboxes = this.menu.querySelectorAll('input[type="checkbox"]');
+                checkboxes.forEach(cb => cb.checked = checked);
+                
+                if (checked) {
+                    this.selected = new Set(['all']);
+                } else {
+                    this.selected.clear();
+                }
+                this.updateDisplay();
+            },
+
+            toggleStore(value, checked) {
+                if (checked) {
+                    this.selected.add(value);
+                    this.selected.delete('all');
+                    document.getElementById('store-all').checked = false;
+                } else {
+                    this.selected.delete(value);
+                    if (this.selected.size === 0) {
+                        this.selected.add('all');
+                        document.getElementById('store-all').checked = true;
+                    }
+                }
+                this.updateDisplay();
+            },
+
+            filterOptions(query) {
+                const options = this.menu.querySelectorAll('.dropdown-option');
+                options.forEach(option => {
+                    const label = option.querySelector('label').textContent.toLowerCase();
+                    option.style.display = label.includes(query.toLowerCase()) ? '' : 'none';
+                });
+            },
+
+            updateDisplay() {
+                if (this.selected.has('all')) {
+                    this.tags.innerHTML = '<span style="color: var(--text-secondary);">Alle butikker</span>';
+                } else {
+                    const stores = Array.from(this.selected).map(val => {
+                        const option = this.menu.querySelector(`[data-value="${val}"]`);
+                        return option ? option.querySelector('label').textContent : '';
+                    }).filter(Boolean);
+
+                    if (stores.length === 0) {
+                        this.tags.innerHTML = '<span style="color: var(--text-secondary);">Velg butikker</span>';
+                    } else if (stores.length <= 2) {
+                        this.tags.innerHTML = stores.map(store => 
+                            `<span class="selected-tag">${store} <button onclick="storesDropdown.removeStore('${store}')">×</button></span>`
+                        ).join('');
+                    } else {
+                        this.tags.innerHTML = `<span style="color: var(--text-secondary);">${stores.length} butikker valgt</span>`;
+                    }
+                }
+            },
+
+            removeStore(storeName) {
+                const option = Array.from(this.menu.querySelectorAll('.dropdown-option')).find(opt => 
+                    opt.querySelector('label').textContent === storeName
+                );
+                if (option) {
+                    const checkbox = option.querySelector('input');
+                    checkbox.checked = false;
+                    this.toggleStore(option.dataset.value, false);
+                }
+            }
+        };
+
+        // ============================================
+        // CALENDAR FUNCTIONALITY
+        // ============================================
+        const calendar = {
+            container: document.getElementById('calendarContainer'),
+            input: document.getElementById('periodInput'),
+            selectedRange: document.getElementById('selectedRange'),
+            currentMonth: new Date(2024, 9, 1), // October 2024
+            startDate: null,
+            endDate: null,
+            selecting: false,
+
+            init() {
+                this.input.addEventListener('click', () => this.open());
+                document.getElementById('calendarCancel').addEventListener('click', () => this.close());
+                document.getElementById('calendarApply').addEventListener('click', () => this.apply());
+                
+                document.getElementById('prevYear').addEventListener('click', () => this.changeMonth(-12));
+                document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
+                document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+                document.getElementById('nextYear').addEventListener('click', () => this.changeMonth(12));
+
+                const presets = document.querySelectorAll('.preset-btn');
+                presets.forEach(btn => {
+                    btn.addEventListener('click', () => this.applyPreset(btn.dataset.preset));
+                });
+
+                document.addEventListener('click', (e) => {
+                    if (!this.container.contains(e.target) && e.target !== this.input) {
+                        this.close();
+                    }
+                });
+
+                this.render();
+            },
+
+            open() {
+                this.container.classList.add('show');
+            },
+
+            close() {
+                this.container.classList.remove('show');
+            },
+
+            apply() {
+                if (this.startDate && this.endDate) {
+                    const start = this.formatDate(this.startDate);
+                    const end = this.formatDate(this.endDate);
+                    this.input.value = `${start} - ${end}`;
+                    this.close();
+                }
+            },
+
+            applyPreset(preset) {
+                const today = new Date(2026, 1, 10); // Feb 10, 2026
+                let start, end;
+
+                switch(preset) {
+                    case 'today':
+                        start = end = new Date(today);
+                        break;
+                    case 'yesterday':
+                        start = end = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                        break;
+                    case 'last7':
+                        end = new Date(today);
+                        start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
+                        break;
+                    case 'last30':
+                        end = new Date(today);
+                        start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 29);
+                        break;
+                    case 'thisWeek':
+                        const dayOfWeek = today.getDay();
+                        start = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                        end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+                        break;
+                    case 'prevWeek':
+                        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                        const lastWeekDay = lastWeek.getDay();
+                        start = new Date(lastWeek.getFullYear(), lastWeek.getMonth(), lastWeek.getDate() - (lastWeekDay === 0 ? 6 : lastWeekDay - 1));
+                        end = new Date(start.getFullYear(), start.getMonth(), start.getDate() + 6);
+                        break;
+                    case 'thisMonth':
+                        start = new Date(today.getFullYear(), today.getMonth(), 1);
+                        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                        break;
+                    case 'prevMonth':
+                        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+                        end = new Date(today.getFullYear(), today.getMonth(), 0);
+                        break;
+                    case 'thisQuarter':
+                        const quarter = Math.floor(today.getMonth() / 3);
+                        start = new Date(today.getFullYear(), quarter * 3, 1);
+                        end = new Date(today.getFullYear(), quarter * 3 + 3, 0);
+                        break;
+                    case 'prevQuarter':
+                        const prevQuarter = Math.floor(today.getMonth() / 3) - 1;
+                        start = new Date(today.getFullYear() + (prevQuarter < 0 ? -1 : 0), (prevQuarter < 0 ? 3 : prevQuarter) * 3, 1);
+                        end = new Date(today.getFullYear() + (prevQuarter < 0 ? -1 : 0), (prevQuarter < 0 ? 3 : prevQuarter) * 3 + 3, 0);
+                        break;
+                    case 'thisYear':
+                        start = new Date(today.getFullYear(), 0, 1);
+                        end = new Date(today.getFullYear(), 11, 31);
+                        break;
+                    case 'ytd':
+                        start = new Date(today.getFullYear(), 0, 1);
+                        end = new Date(today);
+                        break;
+                }
+
+                this.startDate = start;
+                this.endDate = end;
+                this.currentMonth = new Date(start);
+                this.render();
+                this.updateSelectedRange();
+
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+            },
+
+            changeMonth(delta) {
+                this.currentMonth.setMonth(this.currentMonth.getMonth() + delta);
+                this.render();
+            },
+
+            render() {
+                const month1 = new Date(this.currentMonth);
+                const month2 = new Date(month1.getFullYear(), month1.getMonth() + 1, 1);
+
+                document.getElementById('month1Title').textContent = this.formatMonthYear(month1);
+                document.getElementById('month2Title').textContent = this.formatMonthYear(month2);
+                document.getElementById('calendarTitle').textContent = this.formatMonthYear(month1);
+
+                this.renderMonth('calendar1', month1);
+                this.renderMonth('calendar2', month2);
+            },
+
+            renderMonth(containerId, month) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+
+                // Day labels
+                const dayLabels = ['Ma', 'Ti', 'On', 'To', 'Fr', 'Lø', 'Sø'];
+                dayLabels.forEach(label => {
+                    const div = document.createElement('div');
+                    div.className = 'calendar-day-label';
+                    div.textContent = label;
+                    container.appendChild(div);
+                });
+
+                const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
+                const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
+                const startDayOfWeek = (firstDay.getDay() + 6) % 7; // Adjust for Monday start
+                const today = new Date(2026, 1, 10); // Feb 10, 2026
+
+                // Previous month days
+                for (let i = 0; i < startDayOfWeek; i++) {
+                    const div = document.createElement('div');
+                    div.className = 'calendar-day outside-month';
+                    const prevMonthDay = new Date(month.getFullYear(), month.getMonth(), -startDayOfWeek + i + 1);
+                    div.textContent = prevMonthDay.getDate();
+                    container.appendChild(div);
+                }
+
+                // Current month days
+                for (let day = 1; day <= lastDay.getDate(); day++) {
+                    const div = document.createElement('div');
+                    const date = new Date(month.getFullYear(), month.getMonth(), day);
+                    div.className = 'calendar-day';
+                    div.textContent = day;
+
+                    if (this.isSameDay(date, today)) {
+                        div.classList.add('today');
+                    }
+
+                    if (this.startDate && this.isSameDay(date, this.startDate)) {
+                        div.classList.add('selected');
+                    }
+                    if (this.endDate && this.isSameDay(date, this.endDate)) {
+                        div.classList.add('selected');
+                    }
+                    if (this.startDate && this.endDate && date > this.startDate && date < this.endDate) {
+                        div.classList.add('in-range');
+                    }
+
+                    div.addEventListener('click', () => this.selectDate(date));
+                    container.appendChild(div);
+                }
+            },
+
+            selectDate(date) {
+                if (!this.selecting) {
+                    this.startDate = date;
+                    this.endDate = null;
+                    this.selecting = true;
+                } else {
+                    if (date < this.startDate) {
+                        this.endDate = this.startDate;
+                        this.startDate = date;
+                    } else {
+                        this.endDate = date;
+                    }
+                    this.selecting = false;
+                }
+                this.render();
+                this.updateSelectedRange();
+
+                // Remove active state from presets
+                document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+            },
+
+            updateSelectedRange() {
+                if (this.startDate && this.endDate) {
+                    this.selectedRange.textContent = `${this.formatDate(this.startDate)} - ${this.formatDate(this.endDate)}`;
+                } else if (this.startDate) {
+                    this.selectedRange.textContent = `${this.formatDate(this.startDate)} - Velg sluttdato`;
+                } else {
+                    this.selectedRange.textContent = 'Velg start- og sluttdato';
+                }
+            },
+
+            isSameDay(date1, date2) {
+                return date1.getFullYear() === date2.getFullYear() &&
+                       date1.getMonth() === date2.getMonth() &&
+                       date1.getDate() === date2.getDate();
+            },
+
+            formatDate(date) {
+                const months = ['jan', 'feb', 'mar', 'apr', 'mai', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'des'];
+                return `${date.getDate()}. ${months[date.getMonth()]} ${date.getFullYear()}`;
+            },
+
+            formatMonthYear(date) {
+                const months = ['Januar', 'Februar', 'Mars', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Desember'];
+                return `${months[date.getMonth()]} ${date.getFullYear()}`;
+            }
+        };
+
+        // ============================================
+        // LAYOUT MODAL FUNCTIONALITY
+        // ============================================
+        const layoutModal = {
+            modal: document.getElementById('layoutModal'),
+            sortable: document.getElementById('moduleSortable'),
+            draggedItem: null,
+
+            init() {
+                document.getElementById('openLayoutModal').addEventListener('click', () => this.open());
+                document.getElementById('closeLayoutModal').addEventListener('click', () => this.close());
+                document.getElementById('saveLayout').addEventListener('click', () => this.save());
+                document.getElementById('resetLayout').addEventListener('click', () => this.reset());
+
+                this.modal.addEventListener('click', (e) => {
+                    if (e.target === this.modal) this.close();
+                });
+
+                this.initDragAndDrop();
+                this.initCheckboxes();
+            },
+
+            open() {
+                this.modal.classList.add('show');
+            },
+
+            close() {
+                this.modal.classList.remove('show');
+            },
+
+            save() {
+                const modules = Array.from(this.sortable.children).map(item => ({
+                    module: item.dataset.module,
+                    visible: item.querySelector('input').checked
+                }));
+
+                // Apply visibility
+                modules.forEach(({ module, visible }) => {
+                    const element = document.getElementById(`${module}Module`);
+                    if (element) {
+                        element.style.display = visible ? '' : 'none';
+                    }
+                });
+
+                // Save to localStorage
+                localStorage.setItem('dashboardLayout', JSON.stringify(modules));
+
+                this.close();
+            },
+
+            reset() {
+                localStorage.removeItem('dashboardLayout');
+                location.reload();
+            },
+
+            initDragAndDrop() {
+                const items = this.sortable.querySelectorAll('.module-item');
+                
+                items.forEach(item => {
+                    item.addEventListener('dragstart', (e) => {
+                        this.draggedItem = item;
+                        item.classList.add('dragging');
+                    });
+
+                    item.addEventListener('dragend', () => {
+                        item.classList.remove('dragging');
+                        this.draggedItem = null;
+                    });
+
+                    item.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        const afterElement = this.getDragAfterElement(e.clientY);
+                        if (afterElement == null) {
+                            this.sortable.appendChild(this.draggedItem);
+                        } else {
+                            this.sortable.insertBefore(this.draggedItem, afterElement);
+                        }
+                    });
+                });
+            },
+
+            getDragAfterElement(y) {
+                const draggableElements = [...this.sortable.querySelectorAll('.module-item:not(.dragging)')];
+                
+                return draggableElements.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    
+                    if (offset < 0 && offset > closest.offset) {
+                        return { offset: offset, element: child };
+                    } else {
+                        return closest;
+                    }
+                }, { offset: Number.NEGATIVE_INFINITY }).element;
+            },
+
+            initCheckboxes() {
+                const checkboxes = this.sortable.querySelectorAll('.module-checkbox');
+                checkboxes.forEach(checkbox => {
+                    checkbox.addEventListener('change', () => {
+                        // Visual feedback only, actual change happens on save
+                        checkbox.parentElement.style.opacity = checkbox.checked ? '1' : '0.5';
+                    });
+                });
+            }
+        };
+
+        // ============================================
+        // MOCK DATA & CHARTS
+        // ============================================
+        const mockData = {
+            stores: [
+                { name: 'TeknoShop – Stavanger', revenue: 774175, customers: 1016, aov: 762, change: 15.4 },
+                { name: 'Amendo Sport – Oslo', revenue: 651775, customers: 958, aov: 680, change: 8.3 },
+                { name: 'Bare Dykk – Småvika', revenue: 529375, customers: 984, aov: 538, change: -3.2 }
+            ],
+            products: [
+                { name: 'iPhone 15 Cover', count: 250 },
+                { name: 'Nike Pegasus 41', count: 200 },
+                { name: 'Apeks XTX50 Regulator', count: 30 },
+                { name: 'Santi E.Motion Drakt', count: 15 }
+            ],
+            categories: [
+                { name: 'Regulatorer', value: 35, color: '#3b82f6' },
+                { name: 'Drakt', value: 25, color: '#ec4899' },
+                { name: 'Sportsklær', value: 20, color: '#f59e0b' },
+                { name: 'Mobilbehør', value: 20, color: '#10b981' }
+            ],
+            channels: [
+                { name: 'POS – Betjent', current: 300000, previous: 250000 },
+                { name: 'POS – Terminal', current: 150000, previous: 120000 },
+                { name: 'QR / Mobil', current: 80000, previous: 70000 },
+                { name: 'Selvbetjening', current: 0, previous: 0 },
+                { name: 'Web', current: 120000, previous: 100000 }
+            ],
+            payments: [
+                { name: 'Visa', current: 250000, previous: 200000 },
+                { name: 'MasterCard', current: 180000, previous: 150000 },
+                { name: 'Kontanter', current: 70000, previous: 80000 },
+                { name: 'Vipps', current: 140000, previous: 100000 },
+                { name: 'Annet', current: 40000, previous: 35000 }
+            ]
+        };
+
+        let revenueChart, categoryChart, channelChart, paymentChart;
+
+        function initCharts() {
+            const revenueCtx = document.getElementById('revenueChart');
+            if (revenueCtx) {
+                revenueChart = new Chart(revenueCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Uke 40', 'Uke 41', 'Uke 42', 'Uke 43', 'Uke 44', 'Uke 45', 'Uke 46'],
+                        datasets: [{
+                            label: 'TeknoShop – Stavanger',
+                            data: [94500, 98200, 102300, 106500, 94500, 110200, 112000],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Amendo Sport – Oslo',
+                            data: [113400, 108900, 115200, 119800, 113400, 121500, 124000],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }, {
+                            label: 'Bare Dykk – Småvika',
+                            data: [132300, 128700, 135600, 140200, 132300, 143800, 146500],
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            },
+                            tooltip: {
+                                backgroundColor: '#131722',
+                                borderColor: '#2d3548',
+                                borderWidth: 1,
+                                titleColor: '#f8fafc',
+                                bodyColor: '#94a3b8'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#2d3548' }
+                            },
+                            x: {
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#2d3548' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const categoryCtx = document.getElementById('categoryChart');
+            if (categoryCtx) {
+                categoryChart = new Chart(categoryCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: mockData.categories.map(c => c.name),
+                        datasets: [{
+                            data: mockData.categories.map(c => c.value),
+                            backgroundColor: mockData.categories.map(c => c.color),
+                            borderWidth: 2,
+                            borderColor: '#131722'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#94a3b8', padding: 15 }
+                            },
+                            tooltip: {
+                                backgroundColor: '#131722',
+                                borderColor: '#2d3548',
+                                borderWidth: 1,
+                                callbacks: {
+                                    label: (context) => {
+                                        const label = context.label || '';
+                                        const value = context.parsed || 0;
+                                        return `${label}: ${value}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const channelCtx = document.getElementById('channelChart');
+            if (channelCtx) {
+                channelChart = new Chart(channelCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: mockData.channels.map(c => c.name),
+                        datasets: [{
+                            label: 'Denne perioden',
+                            data: mockData.channels.map(c => c.current),
+                            backgroundColor: '#3b82f6'
+                        }, {
+                            label: 'Samme periode i fjor',
+                            data: mockData.channels.map(c => c.previous),
+                            backgroundColor: '#ef4444'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            },
+                            tooltip: {
+                                backgroundColor: '#131722',
+                                borderColor: '#2d3548',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#2d3548' }
+                            },
+                            y: {
+                                ticks: { color: '#64748b' },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+
+            const paymentCtx = document.getElementById('paymentChart');
+            if (paymentCtx) {
+                paymentChart = new Chart(paymentCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: mockData.payments.map(p => p.name),
+                        datasets: [{
+                            label: 'Denne perioden',
+                            data: mockData.payments.map(p => p.current),
+                            backgroundColor: '#3b82f6'
+                        }, {
+                            label: 'Samme periode i fjor',
+                            data: mockData.payments.map(p => p.previous),
+                            backgroundColor: '#ef4444'
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8' }
+                            },
+                            tooltip: {
+                                backgroundColor: '#131722',
+                                borderColor: '#2d3548',
+                                borderWidth: 1
+                            }
+                        },
+                        scales: {
+                            x: {
+                                ticks: { color: '#64748b' },
+                                grid: { color: '#2d3548' }
+                            },
+                            y: {
+                                ticks: { color: '#64748b' },
+                                grid: { display: false }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function populateTables() {
+            const topStoresTable = document.getElementById('topStoresTable');
+            if (topStoresTable) {
+                topStoresTable.innerHTML = mockData.stores.map((store, index) => `
+                    <tr>
+                        <td class="rank-cell">${index + 1}.</td>
+                        <td>${store.name}</td>
+                        <td>
+                            <strong>${store.revenue.toLocaleString('no-NO')} kr</strong>
+                            <div class="comparison-value">Samme periode i fjor: ${Math.round(store.revenue * 0.87).toLocaleString('no-NO')} kr</div>
+                        </td>
+                        <td>
+                            <strong>${store.customers}</strong>
+                            <div class="comparison-value">Samme periode i fjor: ${Math.round(store.customers * 0.92).toLocaleString('no-NO')}</div>
+                        </td>
+                        <td>
+                            <strong>${store.aov} kr</strong>
+                            <div class="comparison-value">Samme periode i fjor: ${Math.round(store.aov * 0.95)} kr</div>
+                        </td>
+                        <td>
+                            <span class="change-badge ${store.change > 0 ? 'positive' : 'negative'}">
+                                ${store.change > 0 ? '↑' : '↓'} ${Math.abs(store.change)}%
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const topProductsTable = document.getElementById('topProductsTable');
+            if (topProductsTable) {
+                topProductsTable.innerHTML = mockData.products.map((product, index) => `
+                    <tr>
+                        <td class="rank-cell">${index + 1}.</td>
+                        <td>${product.name}</td>
+                        <td><strong>${product.count}</strong></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Filter functionality
+        document.getElementById('applyFilters').addEventListener('click', () => {
+            console.log('Applying filters...');
+            const btn = document.getElementById('applyFilters');
+            btn.innerHTML = '<span class="loading-spinner"></span>';
+            setTimeout(() => {
+                btn.textContent = 'Bruk filtre';
+                populateTables();
+            }, 1000);
+        });
+
+        document.getElementById('resetFilters').addEventListener('click', () => {
+            storesDropdown.selectAll(true);
+            document.getElementById('periodInput').value = 'Siste 30 dager';
+            document.getElementById('weekdaysFilter').value = 'all';
+            document.getElementById('comparisonFilter').value = 'none';
+        });
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            storesDropdown.init();
+            calendar.init();
+            layoutModal.init();
+            initCharts();
+            populateTables();
+        });
+    </script>
+</body>
+</html>
