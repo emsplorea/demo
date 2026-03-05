@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea Architecture Portal — Integration Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0B0F1A;--surface:#131825;--border:#1E2538;
+  --accent:#6C5CE7;--accent-glow:rgba(108,92,231,.25);
+  --teal:#00CEC9;--teal-glow:rgba(0,206,201,.2);
+  --amber:#FDCB6E;--amber-glow:rgba(253,203,110,.15);
+  --rose:#FF6B6B;--green:#00B894;--orange:#E17055;--blue:#74B9FF;
+  --text:#E4E7EE;--text-dim:#6B7394;--text-faint:#3D4663;
+  --connector:#2D3555;
+  --mono:'JetBrains Mono',monospace;--sans:'DM Sans',sans-serif;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;padding:0;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(108,92,231,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(108,92,231,.02) 1px,transparent 1px);background-size:32px 32px;pointer-events:none}
+
+/* ═══════ TOOLBAR ═══════ */
+.toolbar{position:sticky;top:0;z-index:100;background:rgba(11,15,26,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.toolbar-brand{display:flex;align-items:center;gap:10px}
+.tb-logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--teal));display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;font-weight:700}
+.tb-title{font-size:14px;font-weight:700;letter-spacing:-.3px}
+.tb-version{font-family:var(--mono);font-size:9px;font-weight:700;color:var(--bg);background:var(--accent);padding:1px 6px;border-radius:4px}
+.view-tabs{display:flex;gap:4px;background:rgba(255,255,255,.03);border-radius:10px;padding:3px;border:1px solid var(--border)}
+.view-tab{font-family:var(--mono);font-size:10px;letter-spacing:.5px;padding:6px 14px;border-radius:8px;cursor:pointer;color:var(--text-dim);border:none;background:none;transition:all .2s;text-transform:uppercase}
+.view-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.view-tab--active{color:#fff;background:var(--accent);box-shadow:0 2px 8px var(--accent-glow)}
+.toolbar-toggles{display:flex;gap:12px;align-items:center}
+.toggle-btn{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;padding:5px 12px;border-radius:100px;cursor:pointer;border:1px solid var(--border);background:none;color:var(--text-dim);transition:all .2s;text-transform:uppercase}
+.toggle-btn:hover{border-color:rgba(255,255,255,.15);color:var(--text)}
+.toggle-btn--active{border-color:var(--accent);color:var(--accent);background:rgba(108,92,231,.08)}
+.toggle-dot{width:6px;height:6px;border-radius:50%;background:var(--text-faint);transition:background .2s}
+.toggle-btn--active .toggle-dot{background:var(--accent)}
+
+/* ═══════ MAIN ═══════ */
+.main{max-width:620px;margin:0 auto;padding:40px 24px 80px;position:relative;z-index:1}
+.header{text-align:center;margin-bottom:24px}
+.header h1{font-size:24px;font-weight:700;letter-spacing:-.5px;margin-bottom:6px}
+.header p{color:var(--text-dim);font-size:12px;font-family:var(--mono)}
+
+/* ═══════ BADGE LEGEND ═══════ */
+.badge-legend{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:28px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border)}
+.bl-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text-dim)}
+.bl-dot{width:6px;height:6px;border-radius:50%}
+.bl-dot--sync{background:var(--accent)}
+.bl-dot--async{background:var(--teal)}
+.bl-dot--batch{background:var(--amber)}
+.bl-sep{width:1px;height:14px;background:var(--border)}
+.bl-tag{font-family:var(--mono);font-size:8px;padding:2px 6px;border-radius:3px;border:1px solid var(--border);color:var(--text-faint)}
+
+/* ═══════ CONNECTORS ═══════ */
+.connector{width:2px;height:24px;margin:0 auto;background:linear-gradient(to bottom,var(--connector),rgba(108,92,231,.3));position:relative}
+.connector::after{content:'';position:absolute;left:50%;bottom:-2px;width:7px;height:7px;border-right:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent);transform:translateX(-50%) rotate(45deg)}
+.connector--up{background:linear-gradient(to top,var(--connector),rgba(253,203,110,.3))}
+.connector--up::after{border-color:var(--amber);top:-2px;bottom:auto;transform:translateX(-50%) rotate(-135deg)}
+.connector--gate{background:repeating-linear-gradient(to bottom,var(--orange) 0px,var(--orange) 3px,transparent 3px,transparent 8px)}
+.connector--gate::after{border-color:var(--orange)}
+.connector-label{font-family:var(--mono);font-size:10px;letter-spacing:.8px;text-transform:uppercase;padding:3px 14px;border-radius:100px;background:var(--bg);position:relative;z-index:2;margin:-4px auto;text-align:center;display:block;width:fit-content}
+.connector-label--down{color:var(--teal)}
+.connector-label--up{color:var(--amber)}
+
+/* ═══════ EXPANDABLE NODES ═══════ */
+.enode{width:100%;border-radius:14px;margin:4px 0;position:relative;transition:all .2s}
+.enode-header{padding:18px 22px;cursor:pointer;display:flex;align-items:center;gap:14px;border-radius:14px;transition:all .15s;position:relative}
+.enode-header:hover{transform:translateY(-1px)}
+.expand-hint{position:absolute;right:18px;top:50%;transform:translateY(-50%);font-family:var(--mono);font-size:9px;color:var(--text-faint);display:flex;align-items:center;gap:4px;opacity:0;transition:opacity .15s}
+.enode-header:hover .expand-hint{opacity:1}
+.expand-chevron{width:16px;height:16px;display:flex;align-items:center;justify-content:center;transition:transform .2s}
+.enode--open .expand-chevron{transform:rotate(90deg)}
+.enode-icon{flex-shrink:0;width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.enode-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.enode-sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:2px}
+.enode-body{max-height:0;overflow:hidden;transition:max-height .35s ease,padding .2s}
+.enode--open .enode-body{max-height:3000px;padding:0 22px 20px}
+.enode-body-inner{border-top:1px solid var(--border);padding-top:16px}
+
+/* Node variants */
+.enode--system .enode-header{background:var(--surface);border:1px solid rgba(253,203,110,.25)}
+.enode--system:hover .enode-header{border-color:rgba(253,203,110,.4);box-shadow:0 0 24px var(--amber-glow)}
+.enode--system .enode-icon{background:rgba(253,203,110,.15);border:1px solid rgba(253,203,110,.2)}
+.enode--system .enode-title{color:var(--amber)}
+
+.enode--core .enode-header{background:linear-gradient(135deg,rgba(108,92,231,.08),rgba(0,206,201,.04));border:1px solid rgba(108,92,231,.25);box-shadow:0 0 30px var(--accent-glow)}
+.enode--core .enode-icon{background:linear-gradient(135deg,var(--accent),#8B5CF6);color:#fff}
+.enode--core .enode-title{background:linear-gradient(90deg,var(--accent),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+
+.enode--gate .enode-header{background:linear-gradient(135deg,rgba(225,112,85,.06),rgba(253,203,110,.03));border:2px solid rgba(225,112,85,.3)}
+.enode--gate:hover .enode-header{border-color:rgba(225,112,85,.45);box-shadow:0 0 30px rgba(225,112,85,.1)}
+.enode--gate .enode-icon{background:linear-gradient(135deg,var(--orange),#D35400);color:#fff}
+.enode--gate .enode-title{color:var(--orange)}
+
+.enode--channels .enode-header{background:var(--surface);border:1px solid var(--border)}
+.enode--channels:hover .enode-header{border-color:rgba(108,92,231,.3);box-shadow:0 0 20px var(--accent-glow)}
+.enode--channels .enode-icon{background:rgba(108,92,231,.15);border:1px solid rgba(108,92,231,.2)}
+
+.enode--order .enode-header{background:var(--surface);border:1px solid rgba(0,206,201,.15)}
+.enode--order:hover .enode-header{border-color:rgba(0,206,201,.3);box-shadow:0 0 20px var(--teal-glow)}
+.enode--order .enode-icon{background:rgba(0,206,201,.15);border:1px solid rgba(0,206,201,.2)}
+.enode--order .enode-title{color:var(--teal)}
+
+.enode--pushback .enode-header{background:var(--surface);border:1px solid rgba(253,203,110,.15)}
+.enode--pushback:hover .enode-header{border-color:rgba(253,203,110,.3);box-shadow:0 0 20px var(--amber-glow)}
+.enode--pushback .enode-icon{background:rgba(253,203,110,.15);border:1px solid rgba(253,203,110,.2)}
+.enode--pushback .enode-title{color:var(--amber)}
+
+.enode--dl .enode-header{background:var(--surface);border:1px solid rgba(0,206,201,.15)}
+.enode--dl:hover .enode-header{border-color:rgba(0,206,201,.3);box-shadow:0 0 20px var(--teal-glow)}
+.enode--dl .enode-icon{background:rgba(0,206,201,.15);border:1px solid rgba(0,206,201,.2)}
+.enode--dl .enode-title{color:var(--teal)}
+
+/* ═══════ CONTENT BLOCKS ═══════ */
+.detail-section{margin-bottom:14px}
+.detail-section:last-child{margin-bottom:0}
+.ds-label{font-family:var(--mono);font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--text-dim);font-weight:600;margin-bottom:8px}
+.code-block{position:relative;padding:10px 14px;border-radius:8px;background:rgba(0,0,0,.25);border:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text-dim);line-height:1.7;overflow-x:auto;white-space:pre}
+.code-block .ck{color:var(--teal)}.code-block .cv{color:#C4B5FD}.code-block .cc{color:var(--text-faint);font-style:italic}.code-block .cn{color:var(--green)}.code-block .cr{color:var(--rose)}.code-block .co{color:var(--orange)}
+.rule-list{display:flex;flex-direction:column;gap:4px}
+.rule-item{display:flex;align-items:flex-start;gap:8px;padding:6px 10px;border-radius:6px;background:rgba(0,0,0,.1);border:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text-dim);line-height:1.5}
+.rule-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.rule-dot--teal{background:var(--teal)}.rule-dot--accent{background:var(--accent)}.rule-dot--amber{background:var(--amber)}.rule-dot--rose{background:var(--rose)}.rule-dot--green{background:var(--green)}.rule-dot--orange{background:var(--orange)}
+.status-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:9px}
+.status-table th{text-align:left;color:var(--text-faint);padding:4px 8px;border-bottom:1px solid var(--border);font-weight:600;text-transform:uppercase;letter-spacing:.8px}
+.status-table td{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.02);color:var(--text-dim)}
+.st-code{font-weight:700}.st-ok{color:var(--green)}.st-err{color:var(--rose)}.st-warn{color:var(--amber)}
+
+/* Protocol badges inline */
+.badge-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.pbadge{display:inline-flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;letter-spacing:.5px;text-transform:uppercase;padding:3px 10px;border-radius:100px}
+.pbadge--sync{color:var(--accent);background:rgba(108,92,231,.1);border:1px solid rgba(108,92,231,.15)}
+.pbadge--async{color:var(--teal);background:rgba(0,206,201,.1);border:1px solid rgba(0,206,201,.15)}
+.pbadge--batch{color:var(--amber);background:rgba(253,203,110,.1);border:1px solid rgba(253,203,110,.15)}
+.pbadge-dot{width:5px;height:5px;border-radius:50%}
+
+/* Payload tags */
+.ptags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.ptag{font-family:var(--mono);font-size:9px;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,.03);border:1px solid var(--border);color:var(--text-dim)}
+
+/* Meta tags */
+.mtag{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:9px;padding:3px 10px;border-radius:100px;margin-top:4px}
+.mtag--idem{color:var(--accent);background:rgba(108,92,231,.06);border:1px solid rgba(108,92,231,.1)}
+.mtag--ack{color:var(--green);background:rgba(0,184,148,.06);border:1px solid rgba(0,184,148,.1)}
+
+/* Channel chips in expanded view */
+.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.ch-card{padding:10px 14px;border-radius:8px;background:rgba(0,0,0,.1);border:1px solid var(--border);font-family:var(--mono);font-size:9px;color:var(--text-dim)}
+.ch-card-name{font-weight:600;color:var(--text);margin-bottom:4px;font-size:10px}
+
+/* ═══════ OWNERSHIP OVERLAY ═══════ */
+.ownership-dot{display:none;width:8px;height:8px;border-radius:50%;position:absolute;top:12px;right:12px;box-shadow:0 0 6px currentColor}
+body.show-ownership .ownership-dot{display:block}
+.ownership-dot--plorea{background:var(--accent);color:var(--accent)}
+.ownership-dot--external{background:var(--amber);color:var(--amber)}
+.ownership-dot--shared{background:var(--blue);color:var(--blue)}
+.ownership-legend-bar{display:none;justify-content:center;gap:16px;padding:8px 0;margin-bottom:4px}
+body.show-ownership .ownership-legend-bar{display:flex}
+.ol-item{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:9px;color:var(--text-dim)}
+.ol-dot{width:8px;height:8px;border-radius:50%}
+.ol-dot--plorea{background:var(--accent)}.ol-dot--ext{background:var(--amber)}.ol-dot--shared{background:var(--blue)}.ol-dot--forbidden{background:var(--rose)}
+
+/* ═══════ FAILURE PANELS ═══════ */
+.failure-panel{display:none;margin:6px 0;padding:14px 18px;border-radius:12px;background:rgba(255,107,107,.03);border:1px dashed rgba(255,107,107,.2)}
+body.show-failures .failure-panel{display:block}
+.fp-title{font-family:var(--mono);font-size:10px;font-weight:600;color:var(--rose);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.failure-btn{display:block;width:100%;text-align:left;padding:7px 12px;margin-bottom:5px;border-radius:8px;border:1px solid var(--border);background:rgba(0,0,0,.15);color:var(--text-dim);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .15s}
+.failure-btn:hover{border-color:rgba(255,107,107,.3);color:var(--text);background:rgba(255,107,107,.04)}
+.failure-result{display:none;margin-top:4px;margin-bottom:6px;padding:10px 12px;border-radius:6px;background:rgba(0,0,0,.2);border:1px solid rgba(255,107,107,.1);font-family:var(--mono);font-size:9px;color:var(--text-dim);line-height:1.6}
+.failure-result.visible{display:block}
+
+/* Structured failure rows */
+.fr-grid{display:grid;grid-template-columns:70px 1fr;gap:2px 8px;margin-top:6px}
+.fr-label{color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;font-size:8px;font-weight:600;padding-top:2px}
+.fr-val{color:var(--text-dim);line-height:1.5}
+.fr-owner{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.fr-owner--plorea{color:var(--accent);background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.12)}
+.fr-owner--ext{color:var(--amber);background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.12)}
+.fr-owner--shared{color:var(--blue);background:rgba(116,185,255,.08);border:1px solid rgba(116,185,255,.12)}
+
+/* Structured failure fields */
+.fr-grid{display:grid;grid-template-columns:70px 1fr;gap:2px 8px;margin-top:6px}
+.fr-label{color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px;font-size:8px;font-weight:600;padding-top:2px}
+.fr-val{color:var(--text-dim);line-height:1.5}
+.fr-owner{display:inline-flex;align-items:center;gap:4px;padding:1px 6px;border-radius:3px;font-size:8px;font-weight:600}
+.fr-owner--plorea{color:var(--accent);background:rgba(108,92,231,.08);border:1px solid rgba(108,92,231,.12)}
+.fr-owner--ext{color:var(--amber);background:rgba(253,203,110,.08);border:1px solid rgba(253,203,110,.12)}
+.fr-owner--shared{color:var(--blue);background:rgba(116,185,255,.08);border:1px solid rgba(116,185,255,.12)}
+.fr-status{font-weight:700}
+
+/* ═══════ COPY BUTTONS ═══════ */
+.copy-btn{position:absolute;top:6px;right:6px;font-family:var(--mono);font-size:8px;letter-spacing:.5px;padding:3px 8px;border-radius:4px;cursor:pointer;background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--text-faint);transition:all .15s;text-transform:uppercase}
+.copy-btn:hover{color:var(--text);border-color:rgba(255,255,255,.15)}
+.copy-btn--done{color:var(--green);border-color:rgba(0,184,148,.3)}
+
+/* ═══════ PHASE DIVIDER ═══════ */
+.phase-divider{display:flex;align-items:center;gap:14px;margin:8px 0}
+.phase-divider::before,.phase-divider::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+.phase-divider span{font-family:var(--mono);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text-faint);white-space:nowrap}
+
+/* ═══════ LOOP SVG ═══════ */
+.loop-section{text-align:center;margin:20px 0 8px}
+.loop-labels{display:flex;justify-content:space-between;max-width:200px;margin:8px auto 0;font-family:var(--mono);font-size:8px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px}
+.loop-labels span:first-child{color:var(--amber)}
+.loop-labels span:last-child{color:var(--teal)}
+
+/* ═══════ FORBIDDEN STRIPE ═══════ */
+.forbidden-stripe{margin-top:20px;padding:16px 20px;border-radius:12px;background:rgba(255,107,107,.03);border:2px solid rgba(255,107,107,.2);position:relative;overflow:hidden}
+.forbidden-stripe::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--rose),var(--orange),var(--rose))}
+.fs-title{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--rose);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.fs-rules{display:flex;flex-direction:column;gap:6px}
+.fs-rule{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:6px;background:rgba(255,107,107,.03);border:1px solid rgba(255,107,107,.08);font-family:var(--mono);font-size:10px;color:var(--text-dim)}
+.fs-x{color:var(--rose);font-weight:700;font-size:12px;flex-shrink:0}
+
+/* ═══════ VIEW MODES ═══════ */
+.contract-only,.governance-only{display:none}
+body.view-contract .contract-only{display:block}
+body.view-contract .flow-only{display:none}
+body.view-governance .governance-only{display:block}
+body.view-governance .flow-only{display:none}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media(max-width:600px){
+  .toolbar{padding:10px 16px}.view-tab{padding:5px 10px;font-size:9px}
+  .main{padding:24px 16px 60px}.ch-grid{grid-template-columns:1fr}
+  .badge-legend{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════ TOOLBAR ═══════ -->
+<div class="toolbar">
+  <div class="toolbar-brand">
+    <div class="tb-logo">◈</div>
+    <span class="tb-title">Integration Loop</span>
+    <span class="tb-version">V2</span>
+  </div>
+  <div class="view-tabs">
+    <button class="view-tab view-tab--active" onclick="setView('flow',this)">Flow</button>
+    <button class="view-tab" onclick="setView('contract',this)">Contract</button>
+    <button class="view-tab" onclick="setView('governance',this)">Governance</button>
+  </div>
+  <div class="toolbar-toggles">
+    <button class="toggle-btn" id="toggleOwnership" onclick="toggleClass('show-ownership',this)"><span class="toggle-dot"></span> Ownership</button>
+    <button class="toggle-btn" id="toggleFailures" onclick="toggleClass('show-failures',this)"><span class="toggle-dot"></span> Failures</button>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="header">
+  <h1>System Integration Loop</h1>
+  <p>RMSV / Amendo ↔ Plorea — Full Cycle</p>
+</div>
+
+<!-- D2: Badge Legend -->
+<div class="badge-legend">
+  <div class="bl-item"><div class="bl-dot bl-dot--sync"></div> Sync REST</div>
+  <div class="bl-item"><div class="bl-dot bl-dot--async"></div> Async Event</div>
+  <div class="bl-item"><div class="bl-dot bl-dot--batch"></div> Batch / Webhook</div>
+  <div class="bl-sep"></div>
+  <div class="bl-item"><span class="bl-tag">⚿ Idempotent</span></div>
+  <div class="bl-item"><span class="bl-tag">✓ Ack</span></div>
+  <div class="bl-item"><span class="bl-tag">EventId</span></div>
+</div>
+
+<!-- Ownership overlay legend -->
+<div class="ownership-legend-bar">
+  <div class="ol-item"><div class="ol-dot ol-dot--plorea"></div> Plorea</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--ext"></div> 3rd Party</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--shared"></div> Shared</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--forbidden"></div> Forbidden</div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 1. RMSV / AMENDO (SOURCE) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--system" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--external"></span>
+    <div class="enode-icon">⬡</div>
+    <div>
+      <div class="enode-title">RMSV / Amendo</div>
+      <div class="enode-sub">System-of-Record · Master Data + Finance</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Role</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Source of truth for company, locations, employees, menu catalog</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Owns all financial data: revenue, settlement, Z-rapport, accounting</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Kitchen print, EOD routines, reporting — all stays here</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Events Emitted</div>
+      <div class="code-block">CompanyUpserted      <span class="cc">// org-level changes</span>
+LocationUpserted     <span class="cc">// new/updated location</span>
+EmployeeRoleUpserted <span class="cc">// staff + role changes</span>
+MenuGroupSynced      <span class="cc">// menus_groups hierarchy</span>
+MenuCategorySynced   <span class="cc">// menus_categories</span>
+MenuItemSynced       <span class="cc">// menus_items + attributes</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">DB Canonical Mapping</div>
+      <div class="code-block"><span class="ck">Company</span>       → companies.id
+<span class="ck">Location</span>      → <span class="cn">companies_addresses.id</span>
+<span class="ck">Employee</span>      → <span class="cn">companies_users.id</span> (user_id → <span class="cn">users.id</span>; companies_address_id → <span class="cn">companies_addresses.id</span>; iam_group_id → <span class="cn">iam_groups.id</span>)
+<span class="ck">Group</span>         → <span class="cn">menus_groups.id</span> (via menus_groups_menus)
+<span class="ck">Category</span>      → <span class="cn">menus_categories.id</span>
+<span class="ck">Product</span>       → <span class="cn">menus_items.id</span>
+<span class="ck">Product↔Cat</span>  → <span class="cn">menus_items_categories</span> (join table)
+<span class="ck">Attribute</span>     → menus_items_attributes.id</div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector"></div>
+<div class="connector-label connector-label--down">Master Data Sync ↓</div>
+
+<!-- Failure: sync -->
+<div class="failure-panel">
+  <div class="fp-title">⚡ Simulate Failure — Master Data Sync</div>
+  <button class="failure-btn" onclick="showFailure(this,'f-stale')">Sync data stale (>24h since last push)</button>
+  <div class="failure-result" id="f-stale">
+    <span class="fr-status" style="color:var(--orange)">Warning State</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Integration Gate shows "master data stale" warning banner</span>
+      <span class="fr-label">Cause</span><span class="fr-val">No sync event received in 24h — masterDataSyncStatus=STALE</span>
+      <span class="fr-label">Action</span><span class="fr-val">3rd party must trigger a fresh master data push</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (sync schedule responsibility)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this,'f-sync-fail')">Sync webhook returns 5xx</button>
+  <div class="failure-result" id="f-sync-fail">
+    <span class="fr-status" style="color:var(--rose)">Retry with Backoff</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Sync webhook returns 5xx — data not persisted</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Plorea sync layer temporarily unavailable</span>
+      <span class="fr-label">Action</span><span class="fr-val">Auto-retry: 3× backoff (1s, 5s, 30s). After max: syncStatus=FAILED, ops alert</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--plorea">Plorea</span> (infrastructure / sync layer)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this,'f-schema')">Unknown field in sync payload</button>
+  <div class="failure-result" id="f-schema">
+    <span class="fr-status" style="color:var(--amber)">Graceful Ignore</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Sync accepted but unknown fields silently dropped</span>
+      <span class="fr-label">Cause</span><span class="fr-val">3rd party sent fields not in current Plorea schema (forward compat)</span>
+      <span class="fr-label">Action</span><span class="fr-val">No action needed for unknown fields. Invalid known fields → reject + log</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--shared">Shared</span> (schema evolution is coordinated)</span>
+    </div>
+  </div>
+</div>
+
+<div class="connector"></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- B3: INTEGRATION MODE GATE -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="phase-divider"><span>Integration Mode Gate</span></div>
+
+<div class="enode enode--gate" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">⛊</div>
+    <div>
+      <div class="enode-title">Integration Mode Gate</div>
+      <div class="enode-sub">Enforced before Plorea Core processes anything</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Gate Checks</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong style="color:var(--orange)">integrationActive</strong> — per org + location via Integration Registry</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong style="color:var(--orange)">serviceProvider</strong> — RMSV | Amendo (determines sync contract)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>masterDataSyncStatus</strong> — must be OK before ordering allowed</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>env</strong> match — prod ≠ staging tokens rejected</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> Financial boundary: settlement, revenue, reporting → blocked</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Integration Registry Object</div>
+      <div class="code-block">{
+  <span class="co">"integrationActive"</span>: <span class="cn">true</span>,
+  <span class="co">"serviceProvider"</span>: <span class="cv">"RMSV"</span>,
+  <span class="co">"activatedAt"</span>: <span class="cv">"2025-01-15T08:00:00Z"</span>,
+  <span class="co">"masterDataSyncStatus"</span>: <span class="cn">"OK"</span>,  <span class="cc">// OK | STALE | FAILED</span>
+  <span class="co">"financialSurfaces"</span>: <span class="cr">disabled</span>,
+  <span class="co">"reportingEndpoints"</span>: <span class="cr">disabled</span>
+}</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Gate Decisions</div>
+      <div class="status-table"><table style="width:100%">
+        <tr><th>State</th><th>Result</th></tr>
+        <tr><td class="st-code st-ok">Active + OK</td><td>Pass → Plorea Core processes normally</td></tr>
+        <tr><td class="st-code st-warn">Active + STALE</td><td>Warning → processing allowed, ops alert</td></tr>
+        <tr><td class="st-code st-err">Active + FAILED</td><td>Block ordering → only device/ops surfaces</td></tr>
+        <tr><td class="st-code st-warn">Inactive</td><td>Redirect → Plorea standalone mode</td></tr>
+        <tr><td class="st-code st-err">Financial</td><td>Hard 403 — "not available in integration mode"</td></tr>
+      </table></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector connector--gate"></div>
+<div class="phase-divider"><span>Plorea Platform</span></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 2. PLOREA CORE -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--core" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">◈</div>
+    <div>
+      <div class="enode-title">Plorea Order Core + Availability</div>
+      <div class="enode-sub">Availability · Lead Time · Channel Rules · Ordering</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Purpose</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Receives synced master data → computes availability decisions</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Pricing = computed from synced menus_items · no stock ownership</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Determinism guarantee: same input → same output</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Inputs</div>
+      <div class="ptags">
+        <span class="ptag">menus_groups</span><span class="ptag">menus_categories</span><span class="ptag">menus_items</span>
+        <span class="ptag">Attributes</span><span class="ptag">Location schedule</span>
+        <span class="ptag">Channel rules</span><span class="ptag">Ops overrides</span><span class="ptag">Lead time config</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Outputs</div>
+      <div class="ptags">
+        <span class="ptag">Availability decisions</span><span class="ptag">Reason codes</span>
+        <span class="ptag">Orders</span><span class="ptag">Order state transitions</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Override Precedence (highest → lowest)</div>
+      <div class="code-block"><span class="cr">1. Ops override</span>   (busy mode → block all)
+<span class="co">2. Manual toggle</span>  (per-item/category disable)
+<span class="ck">3. Schedule rule</span>  (operating hours)
+<span class="cv">4. Channel rule</span>   (channel-specific limits)
+<span class="cc">5. Default</span>        (catalog = available)</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Availability Response Contract</div>
+      <div class="code-block"><span class="cc">GET /v1/availability/{locationId}</span>
+
+{
+  <span class="ck">"locationId"</span>: <span class="cv">"loc_47"</span>,
+  <span class="ck">"channel"</span>: <span class="cv">"kiosk"</span>,
+  <span class="ck">"items"</span>: [
+    {
+      <span class="ck">"menusItemId"</span>: <span class="cv">"mi_123"</span>,
+      <span class="ck">"available"</span>: <span class="cn">true</span>,
+      <span class="ck">"reason"</span>: <span class="cv">"available"</span>,
+      <span class="ck">"leadTimeMin"</span>: <span class="cv">12</span>
+    }
+  ]
+}</div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector"></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 3. ORDER CHANNELS -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--channels" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">◫</div>
+    <div>
+      <div class="enode-title">Order Channels</div>
+      <div class="enode-sub">QR · Online · Kiosk · Catering — unified engine</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Channels</div>
+      <div class="ch-grid">
+        <div class="ch-card"><div class="ch-card-name">◫ QR</div>Auth: Anonymous session<br>ID: qr_{tableId}<br>Same Order Core API</div>
+        <div class="ch-card"><div class="ch-card-name">◉ Online</div>Auth: Guest or registered<br>ID: web_{sessionId}<br>Same Order Core API</div>
+        <div class="ch-card"><div class="ch-card-name">▣ Kiosk</div>Auth: Device JWT<br>ID: kiosk_{deviceId}<br>Same Order Core API</div>
+        <div class="ch-card"><div class="ch-card-name">◇ Catering</div>Auth: Registered user<br>ID: cater_{orderId}<br>Same Order Core API</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Key Principle</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> All channels use the same Order Core — no channel-specific logic</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Channel determines auth + presentation, never business rules</div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector"></div>
+<div class="phase-divider"><span>Customer Interaction</span></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 4. CUSTOMER ORDERS -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--order" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">🛒</div>
+    <div>
+      <div class="enode-title">Customer Orders</div>
+      <div class="enode-sub">Sync · REST API · Idempotent</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="badge-row">
+      <span class="pbadge pbadge--sync"><span class="pbadge-dot" style="background:var(--accent)"></span> Sync · REST</span>
+      <span class="mtag mtag--idem">⚿ Idempotency-Key required</span>
+    </div>
+    <div class="detail-section" style="margin-top:12px">
+      <div class="ds-label">State Machine</div>
+      <div class="code-block"><span class="cc">Draft</span> → <span class="co">PendingPayment</span> → <span class="ck">Paid</span> → <span class="cn">Confirmed</span> → <span class="cv">Pushed</span> → <span class="cn">Acknowledged</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Key Endpoints</div>
+      <div class="code-block"><span class="cn">GET </span> /v1/availability/{locationId}  <span class="cc">Availability (computed)</span>
+<span class="co">POST</span> /v1/orders                     <span class="cc">Create order (Idempotency-Key)</span>
+<span class="cn">GET </span> /v1/orders/{id}                <span class="cc">Order status</span>
+<span class="co">POST</span> /v1/orders/{id}/transition     <span class="cc">State transition</span></div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">DB Tables</div>
+      <div class="code-block"><span class="ck">orders</span>                    <span class="cc">// order header</span>
+<span class="ck">orders_items</span>              <span class="cc">// line items</span>
+  .menus_item_id → <span class="cn">menus_items.id</span>
+<span class="ck">orders_payments</span>           <span class="cc">// payment refs (Adyen)</span>
+<span class="ck">orders_items_prints</span>        <span class="cc">// kitchen/bong print log (closest audit trail in current schema)</span></div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector"></div>
+<div class="phase-divider"><span>Return Path</span></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 5. ORDER PUSH BACK -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--pushback" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--shared"></span>
+    <div class="enode-icon">⇅</div>
+    <div>
+      <div class="enode-title">Order Push Back</div>
+      <div class="enode-sub">Async Event · Webhook to 3rd party</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="badge-row">
+      <span class="pbadge pbadge--async"><span class="pbadge-dot" style="background:var(--teal)"></span> Async Event</span>
+      <span class="mtag mtag--idem">⚿ EventId · Idempotent</span>
+    </div>
+    <div class="detail-section" style="margin-top:12px">
+      <div class="ds-label">Payload</div>
+      <div class="ptags">
+        <span class="ptag">OrderCreated</span><span class="ptag">PaymentStatus</span>
+        <span class="ptag">orders_items + Attributes</span><span class="ptag">Timestamps</span>
+        <span class="ptag">Channel/Device</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Webhook Event Contract</div>
+      <div class="code-block"><span class="cc">POST {3rd_party_webhook_url}</span>
+
+{
+  <span class="ck">"eventId"</span>: <span class="cv">"evt_abc123"</span>,     <span class="cc">// idempotency key</span>
+  <span class="ck">"eventType"</span>: <span class="cv">"OrderCreated"</span>,
+  <span class="ck">"orderId"</span>: <span class="cv">"ord_789"</span>,
+  <span class="ck">"locationId"</span>: <span class="cv">"loc_47"</span>,
+  <span class="ck">"channel"</span>: <span class="cv">"kiosk"</span>,
+  <span class="ck">"deviceId"</span>: <span class="cv">"kiosk_003"</span>,
+  <span class="ck">"items"</span>: [
+    {
+      <span class="ck">"menusItemId"</span>: <span class="cv">"mi_123"</span>,
+      <span class="ck">"quantity"</span>: <span class="cv">2</span>,
+      <span class="ck">"attributes"</span>: [<span class="cv">"no_onion"</span>]
+    }
+  ],
+  <span class="ck">"paymentStatus"</span>: <span class="cv">"Paid"</span>,
+  <span class="ck">"timestamps"</span>: {
+    <span class="ck">"created"</span>: <span class="cv">"2025-03-04T14:30:00Z"</span>,
+    <span class="ck">"paid"</span>: <span class="cv">"2025-03-04T14:30:12Z"</span>
+  }
+}</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Retry Policy + Delivery Guarantees</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> <strong>At-least-once delivery</strong> — duplicates possible, receiver must dedup on eventId</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> <strong>Retry:</strong> exponential backoff — 1s, 5s, 30s, 5min, 30min (5 attempts max)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> <strong>Dead-letter:</strong> after max retries → DLQ + ops alert → manual review</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> <strong>Expected response:</strong> 200 OK within 5s timeout</div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Failure: pushback -->
+<div class="failure-panel">
+  <div class="fp-title">⚡ Simulate Failure — Order Push Back</div>
+  <button class="failure-btn" onclick="showFailure(this,'f-timeout')">Webhook timeout (3rd party slow)</button>
+  <div class="failure-result" id="f-timeout">
+    <span class="fr-status" style="color:var(--amber)">Retry Initiated</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Order stays in "Pushed" state — not Acknowledged</span>
+      <span class="fr-label">Cause</span><span class="fr-val">3rd party webhook endpoint exceeded 5s timeout</span>
+      <span class="fr-label">Action</span><span class="fr-val">Auto-retry with backoff (5 attempts). After max: DLQ + ops alert</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must respond within 5s)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this,'f-reject')">3rd party returns 4xx</button>
+  <div class="failure-result" id="f-reject">
+    <span class="fr-status" style="color:var(--rose)">No Retry (Client Error)</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Order push immediately fails — goes to DLQ</span>
+      <span class="fr-label">Cause</span><span class="fr-val">3rd party returned 4xx — permanent rejection (bad payload, auth, etc.)</span>
+      <span class="fr-label">Action</span><span class="fr-val">Manual investigation. Fix 3rd party endpoint, then replay from DLQ</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must fix webhook endpoint)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this,'f-dup')">Duplicate eventId received by 3rd party</button>
+  <div class="failure-result" id="f-dup">
+    <span class="fr-status" style="color:var(--green)">Idempotent — Safe</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">3rd party receives same eventId twice — no side effects</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Plorea retried after timeout, but 3rd party had already processed</span>
+      <span class="fr-label">Action</span><span class="fr-val">3rd party returns 200 OK — Plorea marks as Acknowledged</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must dedup on eventId)</span>
+    </div>
+  </div>
+</div>
+
+<div class="connector connector--up"></div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- 6. RMSV / AMENDO (RECEIVING) -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="enode enode--system" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--external"></span>
+    <div class="enode-icon">⬡</div>
+    <div>
+      <div class="enode-title">RMSV / Amendo</div>
+      <div class="enode-sub">Kitchen Print · Finance · EOD · Reporting</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="badge-row"><span class="mtag mtag--ack">✓ 200 OK / Ack</span></div>
+    <div class="detail-section" style="margin-top:12px">
+      <div class="ds-label">Receives + Owns</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Kitchen bong / print triggered on OrderCreated</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Payment reconciliation against Adyen settlement</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> EOD Z-rapport includes Plorea orders</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Full financial reporting stays in 3rd party</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Expected Ack Response</div>
+      <div class="code-block"><span class="cn">200 OK</span>
+{
+  <span class="ck">"received"</span>: <span class="cn">true</span>,
+  <span class="ck">"eventId"</span>: <span class="cv">"evt_abc123"</span>
+}</div>
+    </div>
+  </div></div>
+</div>
+
+<!-- D1: Semantic Loop -->
+<div class="loop-section">
+  <svg width="200" height="40" viewBox="0 0 200 40" fill="none" style="display:block;margin:0 auto">
+    <path d="M100 4 C 40 4,10 20,10 28 C 10 36,40 36,100 36 C 160 36,190 20,190 12 C 190 4,160 4,100 4"
+          stroke="url(#lg)" stroke-width="1.5" fill="none" stroke-dasharray="6 4" opacity=".5"/>
+    <defs><linearGradient id="lg" x1="0" y1="0" x2="200" y2="0">
+      <stop offset="0%" stop-color="#FDCB6E"/><stop offset="50%" stop-color="#6C5CE7"/><stop offset="100%" stop-color="#FDCB6E"/>
+    </linearGradient></defs>
+  </svg>
+  <div class="loop-labels">
+    <span>Master data (scheduled)</span>
+    <span>Orders (real-time)</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════ -->
+<!-- B2: DIRECT LINKS ENTRYPOINT -->
+<!-- ══════════════════════════════════════════════════ -->
+<div class="phase-divider" style="margin-top:20px"><span>Direct Links (SSO)</span></div>
+
+<div class="enode enode--dl" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">🔗</div>
+    <div>
+      <div class="enode-title">Plorea Hosted Surfaces</div>
+      <div class="enode-sub">SSO via JWT · role-scoped · versioned contracts</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Surfaces</div>
+      <div class="ptags">
+        <span class="ptag">favorite-setup v1</span><span class="ptag">device-page v1</span>
+        <span class="ptag">ops-console v1</span><span class="ptag">order-overview v1</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Security Flow</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Admin clicks link → 3rd party backend generates RS256 JWT</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Claims: sub, org, loc, aud=plorea, jti, env, role, surfaces, target, returnUrl</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Plorea validates via JWKS → maps roles → issues httpOnly session</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> External roles never 1:1 — always mapped via internal role matrix</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Full Specification</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> See <strong style="color:var(--teal)">direct-link-flow.html</strong> for complete security boundary, gate checks, failure paths, session model, and API contracts</div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════ GOVERNANCE VIEW ═══════ -->
+<div class="governance-only" style="margin-top:24px">
+  <div class="phase-divider"><span>Governance Rules</span></div>
+  <div style="margin-top:12px;border-radius:12px;padding:18px 22px;background:rgba(108,92,231,.04);border:1px solid rgba(108,92,231,.15)">
+    <div class="ds-label" style="color:var(--accent)">Architecture Governance</div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>No duplicated logic</strong> — availability computed once, used everywhere</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>No UI business logic</strong> — channels are presentation only</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>Extend don't fork</strong> — new channels reuse Order Core, never clone</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong>Integration boundary</strong> — gate enforced, financial surfaces blocked</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> <strong>Deterministic availability</strong> — same input → same output, always</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> <strong>Role matrix mapping</strong> — external roles never trusted 1:1</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--green"></span> <strong>At-least-once delivery</strong> — receiver must dedup on eventId</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> <strong>No POS bypass</strong> — all orders go through Order Core state machine</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FORBIDDEN STRIPE ═══════ -->
+<div class="forbidden-stripe">
+  <div class="fs-title"><span style="font-size:14px">🚫</span> What We Refuse To Do</div>
+  <div class="fs-rules">
+    <div class="fs-rule"><span class="fs-x">✕</span> No financial reporting in Plorea (integration mode)</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No channel-specific order logic — unified engine only</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No UI-based business logic — channels are presentation layer</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No settlement or Z-rapport in Plorea — stays in 3rd party</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No direct role passthrough — always mapped via matrix</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+function toggleNode(el){el.classList.toggle('enode--open')}
+
+function setView(view,btn){
+  document.body.classList.remove('view-contract','view-governance');
+  if(view!=='flow')document.body.classList.add('view-'+view);
+  document.querySelectorAll('.view-tab').forEach(t=>t.classList.remove('view-tab--active'));
+  btn.classList.add('view-tab--active');
+  if(view==='contract'){document.querySelectorAll('.enode').forEach(n=>n.classList.add('enode--open'))}
+  else if(view==='flow'){document.querySelectorAll('.enode').forEach(n=>n.classList.remove('enode--open'))}
+  try{syncUrlState()}catch(e){}
+}
+
+function toggleClass(cls,btn){document.body.classList.toggle(cls);btn.classList.toggle('toggle-btn--active');try{syncUrlState()}catch(e){}}
+
+function showFailure(btn,id){var el=document.getElementById(id);if(el)el.classList.toggle('visible')}
+
+function syncUrlState(){
+  try{
+    var p=new URLSearchParams();
+    var t=document.querySelector('.view-tab--active');
+    var v=t?t.textContent.toLowerCase():'flow';
+    if(v!=='flow')p.set('view',v);
+    if(document.body.classList.contains('show-ownership'))p.set('ownership','1');
+    if(document.body.classList.contains('show-failures'))p.set('failures','1');
+    var q=p.toString();
+    history.replaceState(null,'',q?'?'+q:location.pathname);
+  }catch(e){}
+}
+
+function injectCopyButtons(){
+  document.querySelectorAll('.code-block').forEach(function(block){
+    var btn=document.createElement('button');
+    btn.className='copy-btn';btn.textContent='Copy';
+    btn.onclick=function(e){
+      e.stopPropagation();
+      var text=block.textContent.replace(/^Copy/,'').trim();
+      try{navigator.clipboard.writeText(text).then(function(){done()}).catch(function(){fallback()})}
+      catch(err){fallback()}
+      function fallback(){var ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);done()}
+      function done(){btn.textContent='Copied';btn.classList.add('copy-btn--done');setTimeout(function(){btn.textContent='Copy';btn.classList.remove('copy-btn--done')},1500)}
+    };
+    block.appendChild(btn);
+  });
+}
+
+function restoreFromUrl(){
+  try{
+    var p=new URLSearchParams(location.search);
+    var v=p.get('view');
+    if(v==='contract'||v==='governance'){
+      var btn=[].slice.call(document.querySelectorAll('.view-tab')).find(function(t){return t.textContent.toLowerCase()===v});
+      if(btn)setView(v,btn);
+    }
+    if(p.get('ownership')==='1'){var ob=document.getElementById('toggleOwnership');document.body.classList.add('show-ownership');ob.classList.add('toggle-btn--active')}
+    if(p.get('failures')==='1'){var fb=document.getElementById('toggleFailures');document.body.classList.add('show-failures');fb.classList.add('toggle-btn--active')}
+  }catch(e){}
+}
+
+document.addEventListener('keydown',function(e){
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  var tabs=document.querySelectorAll('.view-tab');
+  switch(e.key){
+    case '1':tabs[0]&&setView('flow',tabs[0]);break;
+    case '2':tabs[1]&&setView('contract',tabs[1]);break;
+    case '3':tabs[2]&&setView('governance',tabs[2]);break;
+    case 'o':case 'O':toggleClass('show-ownership',document.getElementById('toggleOwnership'));break;
+    case 'f':case 'F':if(!e.metaKey&&!e.ctrlKey)toggleClass('show-failures',document.getElementById('toggleFailures'));break;
+  }
+});
+
+document.addEventListener('DOMContentLoaded',function(){injectCopyButtons();restoreFromUrl()});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea Architecture Portal — Direct Link Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0B0F1A;
+    --surface: #131825;
+    --surface-raised: #181E30;
+    --border: #1E2538;
+    --accent: #6C5CE7;
+    --accent-glow: rgba(108,92,231,0.25);
+    --teal: #00CEC9;
+    --teal-glow: rgba(0,206,201,0.2);
+    --amber: #FDCB6E;
+    --amber-glow: rgba(253,203,110,0.15);
+    --rose: #FF6B6B;
+    --rose-glow: rgba(255,107,107,0.12);
+    --green: #00B894;
+    --orange: #E17055;
+    --blue: #74B9FF;
+    --text: #E4E7EE;
+    --text-dim: #6B7394;
+    --text-faint: #3D4663;
+    --connector: #2D3555;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--sans);
+    min-height: 100vh; padding: 0; overflow-x: hidden;
+  }
+
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(108,92,231,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(108,92,231,0.02) 1px, transparent 1px);
+    background-size: 32px 32px; pointer-events: none;
+  }
+
+  /* ═══════ STICKY TOOLBAR ═══════ */
+  .toolbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,15,26,0.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .toolbar-brand {
+    display: flex; align-items: center; gap: 10px;
+  }
+
+  .toolbar-brand .tb-logo {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: #fff; font-weight: 700;
+  }
+
+  .toolbar-brand .tb-title {
+    font-size: 14px; font-weight: 700; letter-spacing: -0.3px;
+  }
+
+  .toolbar-brand .tb-version {
+    font-family: var(--mono); font-size: 9px; font-weight: 700;
+    color: var(--bg); background: var(--teal);
+    padding: 1px 6px; border-radius: 4px; letter-spacing: 0.5px;
+  }
+
+  /* View mode tabs */
+  .view-tabs {
+    display: flex; gap: 4px;
+    background: rgba(255,255,255,0.03); border-radius: 10px; padding: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .view-tab {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.5px;
+    padding: 6px 14px; border-radius: 8px; cursor: pointer;
+    color: var(--text-dim); border: none; background: none;
+    transition: all 0.2s ease; text-transform: uppercase;
+  }
+
+  .view-tab:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+
+  .view-tab--active {
+    color: #fff; background: var(--accent);
+    box-shadow: 0 2px 8px var(--accent-glow);
+  }
+
+  /* Toggles */
+  .toolbar-toggles { display: flex; gap: 12px; align-items: center; }
+
+  .toggle-btn {
+    display: flex; align-items: center; gap: 6px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px;
+    padding: 5px 12px; border-radius: 100px; cursor: pointer;
+    border: 1px solid var(--border); background: none; color: var(--text-dim);
+    transition: all 0.2s ease; text-transform: uppercase;
+  }
+
+  .toggle-btn:hover { border-color: rgba(255,255,255,0.15); color: var(--text); }
+
+  .toggle-btn--active { border-color: var(--accent); color: var(--accent); background: rgba(108,92,231,0.08); }
+
+  .toggle-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); transition: background 0.2s; }
+  .toggle-btn--active .toggle-dot { background: var(--accent); }
+
+  /* ═══════ MAIN CONTENT ═══════ */
+  .main { max-width: 620px; margin: 0 auto; padding: 40px 24px 80px; position: relative; z-index: 1; }
+
+  .header { text-align: center; margin-bottom: 40px; }
+  .header h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .header p { color: var(--text-dim); font-size: 12px; font-family: var(--mono); }
+
+  /* ═══════ CONNECTORS ═══════ */
+  .connector { width: 2px; height: 24px; margin: 0 auto; background: linear-gradient(to bottom, var(--connector), rgba(108,92,231,0.3)); position: relative; }
+  .connector::after {
+    content: ''; position: absolute; left: 50%; bottom: -2px;
+    width: 7px; height: 7px;
+    border-right: 1.5px solid var(--accent); border-bottom: 1.5px solid var(--accent);
+    transform: translateX(-50%) rotate(45deg);
+  }
+  .connector--gate { background: repeating-linear-gradient(to bottom, var(--orange) 0px, var(--orange) 3px, transparent 3px, transparent 8px); }
+  .connector--gate::after { border-color: var(--orange); }
+  .connector--secure { background: repeating-linear-gradient(to bottom, var(--teal) 0px, var(--teal) 3px, transparent 3px, transparent 8px); }
+  .connector--secure::after { border-color: var(--teal); }
+
+  /* ═══════ EXPANDABLE NODE ═══════ */
+  .enode {
+    width: 100%; border-radius: 14px; padding: 0;
+    position: relative; transition: all 0.2s ease;
+    margin: 4px 0;
+  }
+
+  .enode-header {
+    padding: 18px 22px; cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    border-radius: 14px;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+
+  .enode-header:hover { transform: translateY(-1px); }
+
+  .enode-header .expand-hint {
+    position: absolute; right: 18px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 9px; color: var(--text-faint);
+    display: flex; align-items: center; gap: 4px;
+    opacity: 0; transition: opacity 0.15s;
+  }
+
+  .enode-header:hover .expand-hint { opacity: 1; }
+
+  .expand-chevron {
+    width: 16px; height: 16px; display: flex; align-items: center; justify-content: center;
+    transition: transform 0.2s ease;
+  }
+
+  .enode--open .expand-chevron { transform: rotate(90deg); }
+
+  .enode-icon {
+    flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+
+  .enode-title { font-size: 14px; font-weight: 600; letter-spacing: -0.2px; }
+  .enode-sub { font-family: var(--mono); font-size: 10px; color: var(--text-dim); margin-top: 2px; }
+
+  /* Expandable body */
+  .enode-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.35s ease, padding 0.2s ease;
+    padding: 0 22px;
+  }
+
+  .enode--open .enode-body {
+    max-height: 2000px;
+    padding: 0 22px 20px;
+  }
+
+  .enode-body-inner {
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+
+  /* ═══════ NODE VARIANTS ═══════ */
+  .enode--admin .enode-header { background: var(--surface); border: 1px solid rgba(253,203,110,0.25); }
+  .enode--admin:hover .enode-header { border-color: rgba(253,203,110,0.4); box-shadow: 0 0 24px var(--amber-glow); }
+  .enode--admin .enode-icon { background: rgba(253,203,110,0.15); border: 1px solid rgba(253,203,110,0.2); }
+  .enode--admin .enode-title { color: var(--amber); }
+
+  .enode--security .enode-header { background: linear-gradient(135deg, rgba(0,206,201,0.04), rgba(108,92,231,0.03)); border: 1px solid rgba(0,206,201,0.2); }
+  .enode--security:hover .enode-header { border-color: rgba(0,206,201,0.35); box-shadow: 0 0 24px var(--teal-glow); }
+  .enode--security .enode-icon { background: linear-gradient(135deg, var(--teal), #00B894); color: #0B0F1A; }
+  .enode--security .enode-title { color: var(--teal); }
+
+  .enode--gate .enode-header { background: linear-gradient(135deg, rgba(225,112,85,0.06), rgba(253,203,110,0.03)); border: 2px solid rgba(225,112,85,0.3); }
+  .enode--gate:hover .enode-header { border-color: rgba(225,112,85,0.45); box-shadow: 0 0 30px rgba(225,112,85,0.1); }
+  .enode--gate .enode-icon { background: linear-gradient(135deg, var(--orange), #D35400); color: #fff; }
+  .enode--gate .enode-title { color: var(--orange); }
+
+  .enode--hosted .enode-header { background: linear-gradient(135deg, rgba(108,92,231,0.08), rgba(0,206,201,0.04)); border: 1px solid rgba(108,92,231,0.25); box-shadow: 0 0 30px var(--accent-glow); }
+  .enode--hosted .enode-icon { background: linear-gradient(135deg, var(--accent), #8B5CF6); color: #fff; }
+  .enode--hosted .enode-title { background: linear-gradient(90deg, var(--accent), var(--teal)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .enode--core .enode-header { background: var(--surface); border: 1px solid var(--border); }
+  .enode--core:hover .enode-header { border-color: rgba(108,92,231,0.3); box-shadow: 0 0 24px var(--accent-glow); }
+  .enode--core .enode-icon { background: rgba(108,92,231,0.15); border: 1px solid rgba(108,92,231,0.2); }
+
+  .enode--availability .enode-header { background: var(--surface); border: 1px solid rgba(0,206,201,0.15); }
+  .enode--availability:hover .enode-header { border-color: rgba(0,206,201,0.3); box-shadow: 0 0 20px var(--teal-glow); }
+  .enode--availability .enode-icon { background: rgba(0,206,201,0.15); border: 1px solid rgba(0,206,201,0.2); }
+  .enode--availability .enode-title { color: var(--teal); }
+
+  /* ═══════ CONTENT BLOCKS ═══════ */
+  .detail-section { margin-bottom: 14px; }
+  .detail-section:last-child { margin-bottom: 0; }
+
+  .ds-label {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--text-dim); font-weight: 600; margin-bottom: 8px;
+  }
+
+  .code-block {
+    padding: 10px 14px; border-radius: 8px;
+    background: rgba(0,0,0,0.25); border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 9px; color: var(--text-dim);
+    line-height: 1.7; overflow-x: auto; white-space: pre;
+  }
+
+  .code-block .ck { color: var(--teal); }
+  .code-block .cv { color: #C4B5FD; }
+  .code-block .cc { color: var(--text-faint); font-style: italic; }
+  .code-block .cn { color: var(--green); }
+  .code-block .cr { color: var(--rose); }
+  .code-block .co { color: var(--orange); }
+
+  .rule-list { display: flex; flex-direction: column; gap: 4px; }
+
+  .rule-item {
+    display: flex; align-items: flex-start; gap: 8px; padding: 6px 10px;
+    border-radius: 6px; background: rgba(0,0,0,0.1); border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 9px; color: var(--text-dim); line-height: 1.5;
+  }
+
+  .rule-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; margin-top: 4px; }
+  .rule-dot--teal { background: var(--teal); }
+  .rule-dot--accent { background: var(--accent); }
+  .rule-dot--amber { background: var(--amber); }
+  .rule-dot--rose { background: var(--rose); }
+  .rule-dot--green { background: var(--green); }
+  .rule-dot--orange { background: var(--orange); }
+
+  .status-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 9px; }
+  .status-table th { text-align: left; color: var(--text-faint); padding: 4px 8px; border-bottom: 1px solid var(--border); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+  .status-table td { padding: 5px 8px; border-bottom: 1px solid rgba(255,255,255,0.02); color: var(--text-dim); }
+  .status-table .st-code { font-weight: 700; }
+  .st-ok { color: var(--green); }
+  .st-err { color: var(--rose); }
+  .st-warn { color: var(--amber); }
+
+  /* ═══════ PROTOCOL BADGES ═══════ */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+
+  .pbadge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--mono); font-size: 9px; letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 100px;
+  }
+
+  .pbadge--sync { color: var(--accent); background: rgba(108,92,231,0.1); border: 1px solid rgba(108,92,231,0.15); }
+  .pbadge--async { color: var(--teal); background: rgba(0,206,201,0.1); border: 1px solid rgba(0,206,201,0.15); }
+  .pbadge--gate { color: var(--orange); background: rgba(225,112,85,0.1); border: 1px solid rgba(225,112,85,0.15); }
+
+  .pbadge-dot { width: 5px; height: 5px; border-radius: 50%; }
+  .pbadge-dot--sync { background: var(--accent); }
+  .pbadge-dot--async { background: var(--teal); }
+
+  /* ═══════ SURFACE CARDS ═══════ */
+  .surfaces-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 10px 0; }
+
+  .surface-card {
+    padding: 14px 16px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    transition: all 0.2s ease;
+  }
+
+  .surface-card:hover { border-color: rgba(108,92,231,0.3); box-shadow: 0 0 16px var(--accent-glow); transform: translateY(-1px); }
+
+  .sc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+
+  .sc-icon {
+    width: 26px; height: 26px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center; font-size: 13px;
+    background: rgba(108,92,231,0.1); border: 1px solid rgba(108,92,231,0.15);
+  }
+
+  .sc-name { font-size: 12px; font-weight: 600; }
+  .sc-slug { font-family: var(--mono); font-size: 8px; color: var(--text-faint); margin-top: 1px; }
+
+  .sc-version {
+    font-size: 8px; font-weight: 700; color: var(--accent);
+    background: rgba(108,92,231,0.1); border: 1px solid rgba(108,92,231,0.15);
+    padding: 0 4px; border-radius: 3px; margin-left: 4px;
+  }
+
+  .sc-perms { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 6px; }
+
+  .sc-p { font-family: var(--mono); font-size: 8px; padding: 2px 5px; border-radius: 3px; }
+  .sc-p--r { color: var(--teal); background: rgba(0,206,201,0.08); border: 1px solid rgba(0,206,201,0.1); }
+  .sc-p--w { color: var(--accent); background: rgba(108,92,231,0.08); border: 1px solid rgba(108,92,231,0.1); }
+  .sc-p--a { color: var(--amber); background: rgba(253,203,110,0.08); border: 1px solid rgba(253,203,110,0.1); }
+
+  /* Surface card drawer */
+  .sc-drawer {
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.3s ease, margin 0.2s ease;
+    margin-top: 0;
+  }
+
+  .sc--open .sc-drawer { max-height: 400px; margin-top: 10px; }
+
+  .sc-section {
+    display: flex; flex-direction: column; gap: 2px;
+    padding: 6px 0; border-top: 1px solid var(--border);
+  }
+
+  .sc-section:first-child { border-top: none; }
+
+  .sc-label {
+    font-family: var(--mono); font-size: 8px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-faint);
+  }
+
+  .sc-val { font-family: var(--mono); font-size: 9px; color: var(--text-dim); line-height: 1.5; }
+  .sc-val--mono { color: var(--teal); }
+  .sc-val--rose { color: var(--rose); }
+
+  .surface-card { cursor: pointer; }
+  .sc--open { border-color: rgba(108,92,231,0.3); box-shadow: 0 0 20px var(--accent-glow); }
+
+  /* ═══════ COPY BUTTON ON CODE BLOCKS ═══════ */
+  .code-block { position: relative; }
+
+  .copy-btn {
+    position: absolute; top: 6px; right: 6px;
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.5px;
+    padding: 3px 8px; border-radius: 4px; cursor: pointer;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+    color: var(--text-faint); transition: all 0.15s ease;
+    text-transform: uppercase;
+  }
+
+  .copy-btn:hover { color: var(--text); border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.06); }
+  .copy-btn--done { color: var(--green); border-color: rgba(0,184,148,0.3); }
+
+  /* ═══════ OWNERSHIP OVERLAY ═══════ */
+  .ownership-dot {
+    display: none;
+    width: 8px; height: 8px; border-radius: 50%;
+    position: absolute; top: 12px; right: 12px;
+    box-shadow: 0 0 6px currentColor;
+  }
+
+  body.show-ownership .ownership-dot { display: block; }
+  .ownership-dot--plorea { background: var(--accent); color: var(--accent); }
+  .ownership-dot--external { background: var(--amber); color: var(--amber); }
+  .ownership-dot--shared { background: var(--blue); color: var(--blue); }
+  .ownership-dot--forbidden { background: var(--rose); color: var(--rose); }
+
+  .ownership-legend-bar {
+    display: none;
+    justify-content: center; gap: 16px;
+    padding: 8px 0 0; margin-bottom: -8px;
+  }
+
+  body.show-ownership .ownership-legend-bar { display: flex; }
+
+  .ol-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9px; color: var(--text-dim); }
+  .ol-dot { width: 8px; height: 8px; border-radius: 50%; }
+  .ol-dot--plorea { background: var(--accent); }
+  .ol-dot--ext { background: var(--amber); }
+  .ol-dot--shared { background: var(--blue); }
+  .ol-dot--forbidden { background: var(--rose); }
+
+  /* ═══════ FAILURE SIMULATION ═══════ */
+  .failure-panel {
+    display: none; margin: 12px 0;
+    padding: 16px 20px; border-radius: 12px;
+    background: rgba(255,107,107,0.03); border: 1px dashed rgba(255,107,107,0.2);
+  }
+
+  body.show-failures .failure-panel { display: block; }
+
+  .failure-panel .fp-title {
+    font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--rose);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .failure-btn {
+    display: block; width: 100%; text-align: left;
+    padding: 8px 12px; margin-bottom: 6px;
+    border-radius: 8px; border: 1px solid var(--border);
+    background: rgba(0,0,0,0.15); color: var(--text-dim);
+    font-family: var(--mono); font-size: 10px;
+    cursor: pointer; transition: all 0.15s ease;
+  }
+
+  .failure-btn:hover { border-color: rgba(255,107,107,0.3); color: var(--text); background: rgba(255,107,107,0.04); }
+
+  .failure-result {
+    display: none; margin-top: 6px; padding: 10px 12px;
+    border-radius: 6px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,107,107,0.1);
+    font-family: var(--mono); font-size: 9px; color: var(--text-dim); line-height: 1.6;
+  }
+
+  .failure-result.visible { display: block; }
+
+  .fr-status { font-weight: 700; }
+
+  /* Structured failure fields */
+  .fr-grid { display: grid; grid-template-columns: 70px 1fr; gap: 2px 8px; margin-top: 6px; }
+  .fr-label { color: var(--text-faint); text-transform: uppercase; letter-spacing: .5px; font-size: 8px; font-weight: 600; padding-top: 2px; }
+  .fr-val { color: var(--text-dim); line-height: 1.5; }
+  .fr-owner { display: inline-flex; align-items: center; gap: 4px; padding: 1px 6px; border-radius: 3px; font-size: 8px; font-weight: 600; }
+  .fr-owner--plorea { color: var(--accent); background: rgba(108,92,231,.08); border: 1px solid rgba(108,92,231,.12); }
+  .fr-owner--ext { color: var(--amber); background: rgba(253,203,110,.08); border: 1px solid rgba(253,203,110,.12); }
+  .fr-owner--shared { color: var(--blue); background: rgba(116,185,255,.08); border: 1px solid rgba(116,185,255,.12); }
+
+  /* ═══════ DETERMINISM NODE ═══════ */
+  .determinism-badge {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 16px; border-radius: 8px; margin: 6px 0;
+    background: rgba(0,206,201,0.04); border: 1px solid rgba(0,206,201,0.15);
+  }
+
+  .det-icon {
+    width: 28px; height: 28px; border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,206,201,0.12); border: 1px solid rgba(0,206,201,0.2);
+    font-size: 13px; flex-shrink: 0;
+  }
+
+  .det-text { font-family: var(--mono); font-size: 10px; color: var(--teal); font-weight: 600; }
+  .det-sub { font-family: var(--mono); font-size: 9px; color: var(--text-dim); margin-top: 2px; }
+
+  /* ═══════ FORBIDDEN STRIPE ═══════ */
+  .forbidden-stripe {
+    margin-top: 20px; padding: 16px 20px; border-radius: 12px;
+    background: rgba(255,107,107,0.03);
+    border: 2px solid rgba(255,107,107,0.2);
+    position: relative; overflow: hidden;
+  }
+
+  .forbidden-stripe::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--rose), var(--orange), var(--rose));
+  }
+
+  .fs-title {
+    font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--rose); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .fs-rules { display: flex; flex-direction: column; gap: 6px; }
+
+  .fs-rule {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px; border-radius: 6px;
+    background: rgba(255,107,107,0.03); border: 1px solid rgba(255,107,107,0.08);
+    font-family: var(--mono); font-size: 10px; color: var(--text-dim);
+  }
+
+  .fs-x { color: var(--rose); font-weight: 700; font-size: 12px; flex-shrink: 0; }
+
+  /* ═══════ AUDIT STRIP ═══════ */
+  .audit-strip {
+    padding: 14px 18px; border-radius: 10px; margin: 6px 0;
+    background: var(--surface); border: 1px solid var(--border);
+    position: relative; overflow: hidden;
+  }
+
+  .audit-strip::after {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--teal), var(--accent), var(--amber));
+  }
+
+  .audit-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .audit-title { font-family: var(--mono); font-size: 10px; font-weight: 600; color: var(--teal); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  .audit-fields { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .af {
+    font-family: var(--mono); font-size: 9px; padding: 3px 7px; border-radius: 4px;
+    background: rgba(0,206,201,0.05); border: 1px solid rgba(0,206,201,0.1); color: var(--text-dim);
+  }
+
+  /* ═══════ PHASE DIVIDER ═══════ */
+  .phase-divider {
+    display: flex; align-items: center; gap: 14px; margin: 8px 0;
+  }
+
+  .phase-divider::before, .phase-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  .phase-divider span {
+    font-family: var(--mono); font-size: 9px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--text-faint); white-space: nowrap;
+  }
+
+  /* ═══════ VIEW-SPECIFIC ═══════ */
+  .contract-only, .governance-only { display: none; }
+  body.view-contract .contract-only { display: block; }
+  body.view-contract .flow-only { display: none; }
+  body.view-governance .governance-only { display: block; }
+  body.view-governance .flow-only { display: none; }
+
+  /* ═══════ RESPONSIVE ═══════ */
+  @media (max-width: 600px) {
+    .toolbar { padding: 10px 16px; }
+    .view-tab { padding: 5px 10px; font-size: 9px; }
+    .surfaces-grid { grid-template-columns: 1fr; }
+    .main { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════ TOOLBAR ═══════ -->
+<div class="toolbar">
+  <div class="toolbar-brand">
+    <div class="tb-logo">◈</div>
+    <span class="tb-title">Plorea Architecture Portal</span>
+    <span class="tb-version">V2</span>
+  </div>
+
+  <div class="view-tabs">
+    <button class="view-tab view-tab--active" onclick="setView('flow', this)">Flow</button>
+    <button class="view-tab" onclick="setView('contract', this)">Contract</button>
+    <button class="view-tab" onclick="setView('governance', this)">Governance</button>
+  </div>
+
+  <div class="toolbar-toggles">
+    <button class="toggle-btn" id="toggleOwnership" onclick="toggleClass('show-ownership', this)">
+      <span class="toggle-dot"></span> Ownership
+    </button>
+    <button class="toggle-btn" id="toggleFailures" onclick="toggleClass('show-failures', this)">
+      <span class="toggle-dot"></span> Failures
+    </button>
+  </div>
+</div>
+
+<div class="main">
+
+<div class="header">
+  <h1>Direct Link Flow</h1>
+  <p>3rd Party Admin → SSO → Integration Gate → Plorea Surfaces</p>
+</div>
+
+<div class="ownership-legend-bar">
+  <div class="ol-item"><div class="ol-dot ol-dot--plorea"></div> Plorea</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--ext"></div> 3rd Party</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--shared"></div> Shared</div>
+  <div class="ol-item"><div class="ol-dot ol-dot--forbidden"></div> Forbidden</div>
+</div>
+
+<!-- ═══════ 1. 3RD PARTY ADMIN ═══════ -->
+<div class="enode enode--admin" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--external"></span>
+    <div class="enode-icon">👤</div>
+    <div>
+      <div class="enode-title">3rd Party Admin UI</div>
+      <div class="enode-sub">RMSV / Amendo operator interface</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">User Roles</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Restaurant Manager — full surface access</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Location Admin — device + ops + favorites</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Operations Staff — ops console + order overview only</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Integration Trigger</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Admin clicks "Manage in Plorea" button in 3rd party UI</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> 3rd party backend intercepts, generates JWT, redirects</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> URL: <span style="color:var(--teal)">https://app.plorea.com/dl?token={jwt}</span></div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector connector--secure"></div>
+<div class="phase-divider"><span>Security Boundary</span></div>
+
+<!-- ═══════ 2. SECURITY ═══════ -->
+<div class="enode enode--security" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--shared"></span>
+    <div class="enode-icon">🔐</div>
+    <div>
+      <div class="enode-title">Secure Token Exchange</div>
+      <div class="enode-sub">RS256 · JWKS · Anti-replay · Environment isolation</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">JWT Claims Structure</div>
+      <div class="code-block">{
+  <span class="ck">"sub"</span>: <span class="cv">"usr_8f3k"</span>,       <span class="cc">// user id</span>
+  <span class="ck">"org"</span>: <span class="cv">"comp_12"</span>,       <span class="cc">// company id</span>
+  <span class="ck">"loc"</span>: <span class="cv">"loc_47"</span>,        <span class="cc">// location id</span>
+  <span class="ck">"aud"</span>: <span class="cv">"plorea"</span>,        <span class="cc">// audience (fixed)</span>
+  <span class="ck">"exp"</span>: <span class="cv">1710000300</span>,      <span class="cc">// 5 min from iat</span>
+  <span class="ck">"iat"</span>: <span class="cv">1710000000</span>,
+  <span class="ck">"jti"</span>: <span class="cv">"a1b2c3d4"</span>,      <span class="cc">// unique, anti-replay</span>
+  <span class="cn">"env"</span>: <span class="cv">"prod"</span>,          <span class="cc">// reject if mismatch</span>
+  <span class="ck">"role"</span>: <span class="cv">"manager"</span>,
+  <span class="ck">"surfaces"</span>: [<span class="cv">"favorite-setup"</span>, <span class="cv">"device-page"</span>,
+               <span class="cv">"ops-console"</span>, <span class="cv">"order-overview"</span>],
+  <span class="cn">"surfacesVersion"</span>: <span class="cv">1</span>,   <span class="cc">// contract version</span>
+  <span class="cn">"target"</span>: <span class="cv">"device-page"</span>,  <span class="cc">// deep link destination</span>
+  <span class="cn">"returnUrl"</span>: <span class="cv">"https://rmsv.example.com/locations/47"</span>
+}</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Required Headers</div>
+      <div class="code-block">Authorization: Bearer {jwt}
+X-Plorea-Env: prod
+Content-Type: application/json</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Validation Steps</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Fetch JWKS from <span style="color:var(--teal)">/.well-known/jwks.json</span></div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Verify RS256 signature · check exp + aud</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Reject if env ≠ current environment</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Reject replayed jti (dedup window: 10 min)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> External roles NEVER trusted directly — mapped via role matrix</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Session Model</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> JWT used only for bootstrap — consumed on first use</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Internal session cookie: httpOnly, Secure, SameSite=Strict</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Session TTL: 30 min idle, 8 hour absolute max</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> No refresh token — re-auth via new direct link</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Claim → DB Resolution</div>
+      <div class="code-block"><span class="ck">org</span>  (comp_12)  → <span class="cn">companies.id</span>
+<span class="ck">loc</span>  (loc_47)   → <span class="cn">companies_addresses.id</span>
+<span class="ck">sub</span>  (usr_8f3k) → <span class="cn">companies_users.id</span> → <span class="cn">users.id</span>
+<span class="ck">role</span> (manager)  → <span class="cn">iam_groups.id</span> (via role matrix mapping)</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Response Examples</div>
+      <div class="status-table">
+        <table style="width:100%">
+          <tr><th>Status</th><th>Scenario</th><th>Body</th></tr>
+          <tr><td class="st-code st-ok">200</td><td>Valid token</td><td>Set-Cookie + redirect to surface</td></tr>
+          <tr><td class="st-code st-err">401</td><td>Expired (exp)</td><td><span style="color:var(--rose)">{"error":"token_expired","redirect":"3p_login"}</span></td></tr>
+          <tr><td class="st-code st-err">403</td><td>Invalid signature</td><td><span style="color:var(--rose)">{"error":"invalid_signature"}</span></td></tr>
+          <tr><td class="st-code st-warn">403</td><td>Replayed jti</td><td><span style="color:var(--amber)">{"error":"token_replayed","jti":"a1b2c3d4"}</span></td></tr>
+          <tr><td class="st-code st-warn">403</td><td>Env mismatch</td><td><span style="color:var(--amber)">{"error":"env_mismatch","expected":"prod"}</span></td></tr>
+        </table>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Failure panel for security -->
+<div class="failure-panel">
+  <div class="fp-title">⚡ Simulate Failure — Security</div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-expired')">Token expired (5+ min old)</button>
+  <div class="failure-result" id="f-expired">
+    <span class="fr-status" style="color:var(--rose)">401 Unauthorized</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">User sees login redirect after clicking direct link</span>
+      <span class="fr-label">Cause</span><span class="fr-val">JWT exp claim exceeded (token older than 5 min)</span>
+      <span class="fr-label">Action</span><span class="fr-val">3rd party must generate a fresh token and redirect again</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span></span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-replay')">Token replayed (jti reuse)</button>
+  <div class="failure-result" id="f-replay">
+    <span class="fr-status" style="color:var(--rose)">403 Forbidden</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">User blocked on second click of same direct link</span>
+      <span class="fr-label">Cause</span><span class="fr-val">jti already consumed in dedup store (Redis, 10 min window)</span>
+      <span class="fr-label">Action</span><span class="fr-val">Generate a new link with fresh jti — tokens are single-use</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must generate unique jti per link)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-role')">Role mapping fails (unknown role)</button>
+  <div class="failure-result" id="f-role">
+    <span class="fr-status" style="color:var(--amber)">403 Forbidden</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Admin sees "access denied" after SSO redirect</span>
+      <span class="fr-label">Cause</span><span class="fr-val">External role (e.g. "super_admin") not found in Plorea role matrix</span>
+      <span class="fr-label">Action</span><span class="fr-val">Add mapping in role matrix or fix role claim in 3rd party</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--shared">Shared</span> (3rd party sends role, Plorea maps it)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-env')">Environment mismatch (staging → prod)</button>
+  <div class="failure-result" id="f-env">
+    <span class="fr-status" style="color:var(--orange)">403 Forbidden</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Admin gets "environment mismatch" error</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Token env=staging but Plorea server env=prod (or vice versa)</span>
+      <span class="fr-label">Action</span><span class="fr-val">Fix environment config in 3rd party integration settings</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (common setup error during integration)</span>
+    </div>
+  </div>
+</div>
+
+<div class="connector connector--gate"></div>
+<div class="phase-divider"><span>Integration Mode Gate</span></div>
+
+<!-- ═══════ 3. INTEGRATION MODE GATE ═══════ -->
+<div class="enode enode--gate" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">⛊</div>
+    <div>
+      <div class="enode-title">Integration Mode Gate</div>
+      <div class="enode-sub">Enforced before any surface renders</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">Gate Checks</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong style="color:var(--orange)">integrationActive</strong> — checked per org + location via Integration Registry</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong style="color:var(--orange)">serviceProvider</strong> — RMSV | Amendo (determines sync contract)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>masterDataSyncStatus</strong> — must be OK before surfaces render</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Feature flags evaluated per surface, per location</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> Financial boundary enforced: settlement, revenue, reporting → blocked</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Integration Context Object</div>
+      <div class="code-block">{
+  <span class="co">"integrationActive"</span>: <span class="cn">true</span>,
+  <span class="co">"serviceProvider"</span>: <span class="cv">"RMSV"</span>,
+  <span class="co">"activatedAt"</span>: <span class="cv">"2025-01-15T08:00:00Z"</span>,
+  <span class="co">"masterDataSyncStatus"</span>: <span class="cn">"OK"</span>,  <span class="cc">// OK | PENDING | FAILED</span>
+  <span class="co">"financialSurfaces"</span>: <span class="cr">disabled</span>,
+  <span class="co">"reportingEndpoints"</span>: <span class="cr">disabled</span>,
+  <span class="co">"settlementLogic"</span>: <span class="cr">not available</span>,
+  <span class="co">"featureFlags"</span>: {
+    <span class="ck">"favorite-setup"</span>: <span class="cn">true</span>,
+    <span class="ck">"device-page"</span>: <span class="cn">true</span>,
+    <span class="ck">"ops-console"</span>: <span class="cn">true</span>,
+    <span class="ck">"order-overview"</span>: <span class="cn">true</span>
+  }
+}</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Gate Decisions</div>
+      <div class="status-table">
+        <table style="width:100%">
+          <tr><th>State</th><th>Result</th></tr>
+          <tr><td class="st-code st-ok">Active</td><td>Pass → render requested surface</td></tr>
+          <tr><td class="st-code st-warn">Inactive</td><td>Redirect → Plorea native login (standalone mode)</td></tr>
+          <tr><td class="st-code st-warn">Partial</td><td>Surface-level flag check → allow or 404</td></tr>
+          <tr><td class="st-code st-err">Financial</td><td>Hard 403 — "not available in integration mode"</td></tr>
+        </table>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Failure panel for gate -->
+<div class="failure-panel">
+  <div class="fp-title">⚡ Simulate Failure — Gate</div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-inactive')">integrationActive = false</button>
+  <div class="failure-result" id="f-inactive">
+    <span class="fr-status" style="color:var(--orange)">302 Redirect</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">User redirected to Plorea native login instead of surface</span>
+      <span class="fr-label">Cause</span><span class="fr-val">integrationActive=false for org+location — standalone mode</span>
+      <span class="fr-label">Action</span><span class="fr-val">Activate integration via POST /v1/integrations/activate</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must complete onboarding flow)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-device')">Device page disabled (feature flag)</button>
+  <div class="failure-result" id="f-device">
+    <span class="fr-status" style="color:var(--amber)">404 Not Found</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Surface shows "not available" page</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Feature flag device-page=false for this location</span>
+      <span class="fr-label">Action</span><span class="fr-val">Enable feature flag per location in integration registry</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--plorea">Plorea</span> (feature flag configuration)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-financial')">User tries to access financial endpoint</button>
+  <div class="failure-result" id="f-financial">
+    <span class="fr-status" style="color:var(--rose)">403 Forbidden</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">API returns "not available in integration mode"</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Financial boundary: settlement, revenue, reporting blocked in integration mode</span>
+      <span class="fr-label">Action</span><span class="fr-val">Use 3rd party system for all financial data — this is by design</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--plorea">Plorea</span> (architectural boundary — will never change)</span>
+    </div>
+  </div>
+</div>
+
+<div class="connector"></div>
+
+<!-- ═══════ AUDIT LOGGING ═══════ -->
+<div class="audit-strip">
+  <div class="audit-header">
+    <span style="font-size:13px">📝</span>
+    <div class="audit-title">Audit Log (every access)</div>
+  </div>
+  <div class="audit-fields">
+    <span class="af">org</span><span class="af">loc</span><span class="af">user</span>
+    <span class="af">surface</span><span class="af">timestamp</span><span class="af">jti</span>
+    <span class="af">role_mapped</span><span class="af">gate_result</span><span class="af">env</span>
+  </div>
+</div>
+
+<div class="connector"></div>
+<div class="phase-divider"><span>Plorea Platform</span></div>
+
+<!-- ═══════ 4. HOSTED SURFACES ═══════ -->
+<div class="enode enode--hosted" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">◈</div>
+    <div>
+      <div class="enode-title">Plorea Hosted Surfaces</div>
+      <div class="enode-sub">Scoped to role + gate result · versioned contracts</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="surfaces-grid">
+      <div class="surface-card" onclick="this.classList.toggle('sc--open'); event.stopPropagation();">
+        <div class="sc-head"><div class="sc-icon">⭐</div><div><div class="sc-name">Favorite Setup</div><div class="sc-slug">favorite-setup <span class="sc-version">v1</span></div></div></div>
+        <div class="sc-perms"><span class="sc-p sc-p--r">read:menu</span><span class="sc-p sc-p--w">write:favorites</span></div>
+        <div class="sc-drawer">
+          <div class="sc-section"><span class="sc-label">Purpose</span><span class="sc-val">Configure quick-order favorite groups per location and channel</span></div>
+          <div class="sc-section"><span class="sc-label">Endpoint</span><span class="sc-val sc-val--mono">POST /v1/favorites/{locationId}</span></div>
+          <div class="sc-section"><span class="sc-label">DB Tables</span><span class="sc-val sc-val--mono">menus_items · menus_categories · menus_groups · favorites_setups</span></div>
+          <div class="sc-section"><span class="sc-label">Forbidden</span><span class="sc-val sc-val--rose">No price editing · no catalog mutations · read-only menu data</span></div>
+        </div>
+      </div>
+      <div class="surface-card" onclick="this.classList.toggle('sc--open'); event.stopPropagation();">
+        <div class="sc-head"><div class="sc-icon">📱</div><div><div class="sc-name">Device Page</div><div class="sc-slug">device-page <span class="sc-version">v1</span></div></div></div>
+        <div class="sc-perms"><span class="sc-p sc-p--r">read:devices</span><span class="sc-p sc-p--w">write:config</span><span class="sc-p sc-p--a">admin:pair</span></div>
+        <div class="sc-drawer">
+          <div class="sc-section"><span class="sc-label">Purpose</span><span class="sc-val">Manage kiosks, QR stations, terminal pairing and channel assignment</span></div>
+          <div class="sc-section"><span class="sc-label">Endpoints</span><span class="sc-val sc-val--mono">GET /v1/devices?loc={locationId}<br>POST /v1/devices/{id}/pair<br>PUT /v1/devices/{id}/config</span></div>
+          <div class="sc-section"><span class="sc-label">DB Tables</span><span class="sc-val sc-val--mono">devices · devices_terminals_setups</span></div>
+          <div class="sc-section"><span class="sc-label">Forbidden</span><span class="sc-val sc-val--rose">No network config · no firmware updates · hardware = ops team</span></div>
+        </div>
+      </div>
+      <div class="surface-card" onclick="this.classList.toggle('sc--open'); event.stopPropagation();">
+        <div class="sc-head"><div class="sc-icon">⚙</div><div><div class="sc-name">Ops Console</div><div class="sc-slug">ops-console <span class="sc-version">v1</span></div></div></div>
+        <div class="sc-perms"><span class="sc-p sc-p--r">read:orders</span><span class="sc-p sc-p--w">write:availability</span></div>
+        <div class="sc-drawer">
+          <div class="sc-section"><span class="sc-label">Purpose</span><span class="sc-val">Live order queue, channel status monitoring, busy-mode toggle</span></div>
+          <div class="sc-section"><span class="sc-label">Endpoints</span><span class="sc-val sc-val--mono">GET /v1/orders?loc={locationId}&status=active<br>PUT /v1/availability/{locationId}/busy</span></div>
+          <div class="sc-section"><span class="sc-label">DB Tables</span><span class="sc-val sc-val--mono">orders · orders_items · menus_items_available_days · devices</span></div>
+          <div class="sc-section"><span class="sc-label">Forbidden</span><span class="sc-val sc-val--rose">No order editing · no payment actions · no refunds</span></div>
+        </div>
+      </div>
+      <div class="surface-card" onclick="this.classList.toggle('sc--open'); event.stopPropagation();">
+        <div class="sc-head"><div class="sc-icon">📋</div><div><div class="sc-name">Order Overview</div><div class="sc-slug">order-overview <span class="sc-version">v1</span></div></div></div>
+        <div class="sc-perms"><span class="sc-p sc-p--r">read:orders</span><span class="sc-p sc-p--r">read:ops_metrics</span></div>
+        <div class="sc-drawer">
+          <div class="sc-section"><span class="sc-label">Purpose</span><span class="sc-val">Historical order view, status tracking, operational metrics (non-financial)</span></div>
+          <div class="sc-section"><span class="sc-label">Endpoints</span><span class="sc-val sc-val--mono">GET /v1/orders?loc={locationId}<br>GET /v1/ops-metrics/{locationId}</span></div>
+          <div class="sc-section"><span class="sc-label">DB Tables</span><span class="sc-val sc-val--mono">orders · orders_items · orders_items_prints</span></div>
+          <div class="sc-section"><span class="sc-label">Forbidden</span><span class="sc-val sc-val--rose">No revenue data · no settlement · no Z-rapport · no financial export</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Failure panel for surfaces -->
+    <div class="failure-panel" style="display:none" data-surface-failures>
+      <div class="fp-title">⚡ Simulate Failure — Surfaces</div>
+      <button class="failure-btn" onclick="showFailure(this, 'f-fav')">Favorite group missing in catalog</button>
+      <div class="failure-result" id="f-fav">
+        <span class="fr-status" style="color:var(--amber)">Graceful Degradation</span>
+        <div class="fr-grid">
+          <span class="fr-label">Symptom</span><span class="fr-val">Some favorite groups missing from UI</span>
+          <span class="fr-label">Cause</span><span class="fr-val">Master data sync incomplete</span>
+          <span class="fr-label">Action</span><span class="fr-val">Trigger re-sync from 3rd party</span>
+          <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span></span>
+        </div>
+      </div>
+      <button class="failure-btn" onclick="showFailure(this, 'f-ops')">Ops override active (busy mode)</button>
+      <div class="failure-result" id="f-ops">
+        <span class="fr-status" style="color:var(--orange)">Surface Adapted</span>
+        <div class="fr-grid">
+          <span class="fr-label">Symptom</span><span class="fr-val">Ordering paused, busy banner shown</span>
+          <span class="fr-label">Cause</span><span class="fr-val">Ops override active</span>
+          <span class="fr-label">Action</span><span class="fr-val">PUT /v1/availability/{loc}/busy</span>
+          <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--plorea">Plorea</span></span>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</div>
+
+<!-- Failure panel for surfaces (outside node for show-failures toggle) -->
+<div class="failure-panel">
+  <div class="fp-title">⚡ Simulate Failure — Surfaces</div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-fav2')">Favorite group missing in catalog</button>
+  <div class="failure-result" id="f-fav2">
+    <span class="fr-status" style="color:var(--amber)">Graceful Degradation</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Some favorite groups missing from UI</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Master data sync incomplete — referenced menus_group not yet synced</span>
+      <span class="fr-label">Action</span><span class="fr-val">Trigger re-sync of menu master data from 3rd party</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--ext">3rd Party</span> (must push complete catalog)</span>
+    </div>
+  </div>
+  <button class="failure-btn" onclick="showFailure(this, 'f-ops2')">Ops override active (busy mode)</button>
+  <div class="failure-result" id="f-ops2">
+    <span class="fr-status" style="color:var(--orange)">Surface Adapted</span>
+    <div class="fr-grid">
+      <span class="fr-label">Symptom</span><span class="fr-val">Ops Console shows "busy mode active" — ordering channels paused</span>
+      <span class="fr-label">Cause</span><span class="fr-val">Ops override enabled — availability engine returns empty for all items</span>
+      <span class="fr-label">Action</span><span class="fr-val">Toggle off via PUT /v1/availability/{loc}/busy</span>
+      <span class="fr-label">Owner</span><span class="fr-val"><span class="fr-owner fr-owner--plorea">Plorea</span> (ops team controls busy-mode)</span>
+    </div>
+  </div>
+</div>
+
+<div class="connector"></div>
+<div class="phase-divider"><span>Backend Services</span></div>
+
+<!-- ═══════ 5. AVAILABILITY + DETERMINISM ═══════ -->
+<div class="enode enode--availability" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">⚡</div>
+    <div>
+      <div class="enode-title">Availability Engine</div>
+      <div class="enode-sub">Deterministic · Same input → same output</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="determinism-badge">
+      <div class="det-icon">≡</div>
+      <div>
+        <div class="det-text">Determinism Guarantee</div>
+        <div class="det-sub">Same input → same output · no side effects · pure computation</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Input Matrix</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Synced catalog (menus_items, menus_categories, menus_groups)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Location schedule (operating hours)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Channel rules (QR/Online/Kiosk/Catering)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Ops overrides (busy mode, manual toggles)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Lead time configuration</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Override Precedence (highest → lowest)</div>
+      <div class="code-block"><span class="cr">1. Ops override</span>   (busy mode → block all)
+<span class="co">2. Manual toggle</span>  (per-item/category disable)
+<span class="ck">3. Schedule rule</span>  (operating hours)
+<span class="cv">4. Channel rule</span>   (channel-specific limits)
+<span class="cc">5. Default</span>        (catalog = available)</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Reason Codes</div>
+      <div class="code-block"><span class="ck">"available"</span>         → menus_item orderable
+<span class="co">"ops_override"</span>      → blocked by ops toggle
+<span class="cr">"outside_hours"</span>     → location closed
+<span class="cv">"channel_excluded"</span>  → not on this channel
+<span class="cc">"lead_time_exceeded"</span> → prep time too long</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Example Response Contract</div>
+      <div class="code-block"><span class="cc">GET /v1/availability/loc_47</span>
+
+{
+  <span class="ck">"locationId"</span>: <span class="cv">"loc_47"</span>,
+  <span class="ck">"timestamp"</span>: <span class="cv">"2025-03-04T14:30:00Z"</span>,
+  <span class="ck">"channel"</span>: <span class="cv">"kiosk"</span>,
+  <span class="ck">"items"</span>: [
+    {
+      <span class="ck">"menusItemId"</span>: <span class="cv">"mi_123"</span>,
+      <span class="ck">"available"</span>: <span class="cn">true</span>,
+      <span class="ck">"reason"</span>: <span class="cv">"available"</span>,
+      <span class="ck">"leadTimeMin"</span>: <span class="cv">12</span>
+    },
+    {
+      <span class="ck">"menusItemId"</span>: <span class="cv">"mi_456"</span>,
+      <span class="ck">"available"</span>: <span class="cr">false</span>,
+      <span class="ck">"reason"</span>: <span class="cv">"ops_override"</span>,
+      <span class="ck">"leadTimeMin"</span>: <span class="cv">null</span>
+    }
+  ]
+}</div>
+    </div>
+  </div></div>
+</div>
+
+<div class="connector"></div>
+
+<!-- ═══════ 6. ORDER CORE ═══════ -->
+<div class="enode enode--core" onclick="toggleNode(this)">
+  <div class="enode-header">
+    <span class="ownership-dot ownership-dot--plorea"></span>
+    <div class="enode-icon">⬡</div>
+    <div>
+      <div class="enode-title">Order Core</div>
+      <div class="enode-sub">All surfaces → same APIs · no surface-specific backends</div>
+    </div>
+    <div class="expand-hint"><span class="expand-chevron">›</span> details</div>
+  </div>
+  <div class="enode-body"><div class="enode-body-inner">
+    <div class="detail-section">
+      <div class="ds-label">State Machine</div>
+      <div class="code-block"><span class="cc">Draft</span> → <span class="co">PendingPayment</span> → <span class="ck">Paid</span> → <span class="cn">Confirmed</span> → <span class="cv">Pushed</span> → <span class="cn">Acknowledged</span>
+  │                    │                              │
+  └── (cancel) ────────┘── (payment fail → retry) ────┘── (webhook timeout → DLQ)</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Allowed Transitions</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Draft → PendingPayment (order submitted)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> PendingPayment → Paid (Adyen callback)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Paid → Confirmed (auto, after payment verified)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Confirmed → Pushed (webhook dispatched)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--green"></span> Pushed → Acknowledged (3rd party 200 OK)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> PendingPayment → Draft (payment fail, retry)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> Any → Cancelled (manual or timeout)</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Idempotency Rules</div>
+      <div class="rule-list">
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>Idempotency-Key</strong> required on POST /v1/orders</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> Duplicate key → return existing order (not error)</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> Payment ref idempotent — Adyen handles dedup</div>
+        <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> Webhook EventId idempotent — 3rd party must dedup</div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Example 409 Conflict</div>
+      <div class="code-block"><span class="cc">POST /v1/orders/{id}/transition</span>
+<span class="cc">Body: {"to": "Paid"}</span>
+
+<span class="cr">409 Conflict</span>
+{
+  <span class="ck">"error"</span>: <span class="cv">"invalid_transition"</span>,
+  <span class="ck">"currentState"</span>: <span class="cv">"Draft"</span>,
+  <span class="ck">"requestedState"</span>: <span class="cv">"Paid"</span>,
+  <span class="ck">"allowedTransitions"</span>: [<span class="cv">"PendingPayment"</span>, <span class="cv">"Cancelled"</span>]
+}</div>
+    </div>
+    <div class="detail-section">
+      <div class="ds-label">Surface API Endpoints</div>
+      <div class="code-block"><span class="cn">GET </span> /v1/availability/{locationId}      <span class="cc">Availability (computed)</span>
+<span class="co">PUT </span> /v1/availability/{locationId}/busy  <span class="cc">Ops busy-mode toggle</span>
+<span class="cn">GET </span> /v1/orders?loc={locationId}          <span class="cc">Order history</span>
+<span class="cn">GET </span> /v1/devices?loc={locationId}         <span class="cc">Device list</span>
+<span class="ck">POST</span> /v1/favorites/{locationId}           <span class="cc">Save favorites</span></div>
+    </div>
+  </div></div>
+</div>
+
+<!-- ═══════ GOVERNANCE VIEW CONTENT ═══════ -->
+<div class="governance-only" style="margin-top: 24px;">
+  <div class="phase-divider"><span>Governance Rules</span></div>
+
+  <div class="note-box" style="margin-top:12px; border-radius:12px; padding:18px 22px; background:rgba(108,92,231,0.04); border:1px solid rgba(108,92,231,0.15);">
+    <div class="ds-label" style="color:var(--accent);">Architecture Governance</div>
+    <div class="rule-list">
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>No duplicated logic</strong> — availability computed once, used everywhere</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>No UI business logic</strong> — surfaces are presentation only</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--accent"></span> <strong>Extend don't fork</strong> — new channels reuse Order Core, never clone</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--orange"></span> <strong>Integration boundary</strong> — gate enforced, financial surfaces blocked</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--teal"></span> <strong>Deterministic availability</strong> — same input → same output, always</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--amber"></span> <strong>Role matrix mapping</strong> — external roles never trusted 1:1</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--green"></span> <strong>Audit everything</strong> — every access logged with full context</div>
+      <div class="rule-item"><span class="rule-dot rule-dot--rose"></span> <strong>No POS bypass</strong> — all orders go through Order Core state machine</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ FORBIDDEN STRIPE ═══════ -->
+<div class="forbidden-stripe">
+  <div class="fs-title"><span style="font-size:14px">🚫</span> What We Refuse To Do</div>
+  <div class="fs-rules">
+    <div class="fs-rule"><span class="fs-x">✕</span> No financial reporting in Plorea (integration mode)</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No channel-specific order logic — unified engine only</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No UI-based business logic — surfaces are presentation layer</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No POS bypass — all orders through state machine</div>
+    <div class="fs-rule"><span class="fs-x">✕</span> No direct role passthrough — always mapped via matrix</div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ═══════ NODE TOGGLE ═══════
+function toggleNode(el) {
+  el.classList.toggle('enode--open');
+}
+
+// ═══════ VIEW TABS (Fix #1) ═══════
+function setView(view, btn) {
+  document.body.classList.remove('view-contract', 'view-governance');
+  if (view !== 'flow') document.body.classList.add('view-' + view);
+
+  document.querySelectorAll('.view-tab').forEach(t => t.classList.remove('view-tab--active'));
+  btn.classList.add('view-tab--active');
+
+  if (view === 'contract') {
+    document.querySelectorAll('.enode').forEach(n => n.classList.add('enode--open'));
+  } else if (view === 'flow') {
+    document.querySelectorAll('.enode').forEach(n => n.classList.remove('enode--open'));
+  }
+
+  syncUrlState();
+}
+
+// ═══════ TOGGLES ═══════
+function toggleClass(cls, btn) {
+  document.body.classList.toggle(cls);
+  btn.classList.toggle('toggle-btn--active');
+  syncUrlState();
+}
+
+function showFailure(btn, id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('visible');
+}
+
+// ═══════ FIX #3: COPY BUTTONS ═══════
+function injectCopyButtons() {
+  document.querySelectorAll('.code-block').forEach(block => {
+    const btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      const text = block.textContent.replace(/^Copy/, '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied';
+        btn.classList.add('copy-btn--done');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copy-btn--done'); }, 1500);
+      }).catch(() => {
+        // Fallback for non-HTTPS
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        btn.textContent = 'Copied';
+        btn.classList.add('copy-btn--done');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copy-btn--done'); }, 1500);
+      });
+    };
+    block.appendChild(btn);
+  });
+}
+
+// ═══════ FIX #7: URL STATE ═══════
+function syncUrlState() {
+  try {
+    const params = new URLSearchParams();
+    const activeTab = document.querySelector('.view-tab--active');
+    const view = activeTab ? activeTab.textContent.toLowerCase() : 'flow';
+    if (view !== 'flow') params.set('view', view);
+    if (document.body.classList.contains('show-ownership')) params.set('ownership', '1');
+    if (document.body.classList.contains('show-failures')) params.set('failures', '1');
+    const qs = params.toString();
+    history.replaceState(null, '', qs ? '?' + qs : location.pathname);
+  } catch(e) {
+    // Sandboxed iframe (about:srcdoc) — URL state not available
+  }
+}
+
+function restoreFromUrl() {
+  try {
+    const params = new URLSearchParams(location.search);
+
+    // View
+    const view = params.get('view');
+    if (view === 'contract' || view === 'governance') {
+      const btn = [...document.querySelectorAll('.view-tab')].find(t => t.textContent.toLowerCase() === view);
+      if (btn) setView(view, btn);
+    }
+
+    // Ownership
+    if (params.get('ownership') === '1') {
+      const btn = document.getElementById('toggleOwnership');
+      document.body.classList.add('show-ownership');
+      btn.classList.add('toggle-btn--active');
+    }
+
+    // Failures
+    if (params.get('failures') === '1') {
+      const btn = document.getElementById('toggleFailures');
+      document.body.classList.add('show-failures');
+      btn.classList.add('toggle-btn--active');
+    }
+  } catch(e) {
+    // Sandboxed iframe — URL restore not available
+  }
+}
+
+// ═══════ FIX #7: KEYBOARD SHORTCUTS ═══════
+document.addEventListener('keydown', function(e) {
+  // Don't trigger if typing in an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  const tabs = document.querySelectorAll('.view-tab');
+
+  switch(e.key) {
+    case '1': tabs[0] && setView('flow', tabs[0]); break;
+    case '2': tabs[1] && setView('contract', tabs[1]); break;
+    case '3': tabs[2] && setView('governance', tabs[2]); break;
+    case 'o': case 'O':
+      const ob = document.getElementById('toggleOwnership');
+      toggleClass('show-ownership', ob);
+      break;
+    case 'f': case 'F':
+      // Only if not Cmd+F / Ctrl+F
+      if (!e.metaKey && !e.ctrlKey) {
+        const fb = document.getElementById('toggleFailures');
+        toggleClass('show-failures', fb);
+      }
+      break;
+  }
+});
+
+// ═══════ INIT ═══════
+document.addEventListener('DOMContentLoaded', function() {
+  injectCopyButtons();
+  restoreFromUrl();
+});
+</script>
+
+</body>
+</html>
