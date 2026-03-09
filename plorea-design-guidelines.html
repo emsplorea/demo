@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea — Design System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   DESIGN TOKENS  (from updated config)
+───────────────────────────────────────── */
+:root {
+  /* Blues */
+  --blue-50:  #EBF6FB;
+  --blue-100: #C7E7F3;
+  --blue-200: #99D2E8;
+  --blue:     #6BB8DA;   /* primary */
+  --blue-600: #4FA3C8;
+  --blue-700: #468DAC;   /* secondary / interactive text */
+  --blue-800: #2E6B87;   /* dark interactive — replaces sky-500 */
+  --blue-900: #1D4A5F;
+
+  /* Grays */
+  --gray-50:  #FAFAFA;
+  --gray-100: #F1F5F9;
+  --gray-150: #EBEBEB;
+  --gray-200: #E9E9E9;
+  --gray-300: #D9D9D9;
+  --gray-400: #C4C4C4;
+  --gray-500: #A6A6A6;
+  --gray-550: #808080;
+  --gray-600: #666666;
+  --gray-700: #3F3D45;
+  --gray-800: #2D2C2F;
+  --gray-900: #1A1A1A;
+  --gray-border: #E9E9E9;
+  --gray-border-dark: #E3E3E4;
+
+  /* Semantic */
+  --green:     #6BDAB2;
+  --yellow:    #DADA6B;
+  --red:       #DA6B6B;
+  --rose:      #E5C1B6;   /* eat-in / dine */
+  --rose-hover:#D5B1A6;
+  --combo:     #FFB3BA;   /* combo meals */
+  --takeaway:  #D1E7DD;   /* takeaway orders */
+  --table-channel: #362F4A; /* table ordering */
+
+  /* Surfaces */
+  --white:   #FFFFFF;
+  --black:   #0B0B0B;
+  --black-90: rgba(0,0,0,0.9);
+
+  /* Radii */
+  --r-sm: 6px;
+  --r:    8px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+  --ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 100ms;
+  --dur:      160ms;
+  --dur-slow: 280ms;
+}
+
+/* ─────────────────────────────────────────
+   RESET & BASE
+───────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.6;
+  color: var(--gray-800);
+  background: var(--gray-50);
+  -webkit-font-smoothing: antialiased;
+}
+code, .mono {
+  font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
+  font-size: 0.875em;
+}
+
+/* ─────────────────────────────────────────
+   SIDEBAR
+───────────────────────────────────────── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 240px;
+  background: var(--gray-900);
+  display: flex; flex-direction: column;
+  overflow: hidden; z-index: 50;
+}
+.sidebar-inner { overflow-y: auto; flex: 1; padding-bottom: 24px; }
+.sidebar-inner::-webkit-scrollbar { width: 4px; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+.sidebar-logo {
+  padding: 28px 24px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+.sidebar-logo .wordmark {
+  font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: var(--white); letter-spacing: -0.01em;
+}
+.sidebar-logo .wordmark span { color: var(--blue); }
+.sidebar-logo .sub {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-top: 4px;
+}
+
+.nav-group { margin-bottom: 4px; }
+.nav-group-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  padding: 16px 24px 5px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 24px;
+  font-size: 12.5px; font-weight: 400;
+  color: rgba(255,255,255,0.48);
+  text-decoration: none;
+  transition: color var(--dur-fast), background var(--dur-fast);
+  border-left: 2px solid transparent;
+  position: relative;
+}
+.nav-link:hover { color: rgba(255,255,255,0.82); background: rgba(255,255,255,0.04); }
+.nav-link.active { color: var(--blue); border-left-color: var(--blue); background: rgba(107,184,218,0.06); }
+.nav-link .dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: currentColor; opacity: 0.5; flex-shrink: 0;
+}
+
+/* ─────────────────────────────────────────
+   MAIN
+───────────────────────────────────────── */
+.content { margin-left: 240px; min-height: 100vh; }
+.page { max-width: 960px; margin: 0 auto; padding: 56px 56px 120px; }
+
+/* ─────────────────────────────────────────
+   PAGE HEADER
+───────────────────────────────────────── */
+.page-hero {
+  margin-bottom: 64px;
+  padding-bottom: 40px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.page-hero .eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--blue-700);
+  margin-bottom: 14px;
+}
+.page-hero .eyebrow::before {
+  content: '';
+  display: block; width: 16px; height: 2px;
+  background: var(--blue); border-radius: 99px;
+}
+.page-hero h1 {
+  font-family: 'Sora', sans-serif;
+  font-size: 40px; font-weight: 700;
+  letter-spacing: -0.025em; line-height: 1.1;
+  color: var(--gray-900);
+  margin-bottom: 14px;
+}
+.page-hero .desc {
+  font-size: 15px; color: var(--gray-600);
+  max-width: 520px; line-height: 1.7;
+}
+.meta-row {
+  display: flex; align-items: center; gap: 16px;
+  margin-top: 20px; flex-wrap: wrap;
+}
+.meta-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-full);
+  padding: 4px 10px;
+  font-size: 11px; font-weight: 500; color: var(--gray-600);
+  box-shadow: var(--shadow-xs);
+}
+.meta-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+
+/* ─────────────────────────────────────────
+   SECTION
+───────────────────────────────────────── */
+.section { margin-bottom: 72px; scroll-margin-top: 40px; }
+.section-head { margin-bottom: 28px; }
+.section-head .label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--blue-700); margin-bottom: 5px;
+}
+.section-head h2 {
+  font-family: 'Sora', sans-serif;
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.015em;
+  color: var(--gray-900);
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-200);
+}
+h3.sub { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gray-500); margin: 28px 0 12px; }
+p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-bottom: 10px; }
+
+/* ─────────────────────────────────────────
+   CALLOUTS
+───────────────────────────────────────── */
+.callout {
+  border-radius: var(--r-md);
+  padding: 14px 18px;
+  margin: 18px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.callout strong {
+  display: block; font-size: 9px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.callout-info  { background: #EBF6FB; border-left: 3px solid var(--blue); color: var(--gray-700); }
+.callout-info strong { color: var(--blue-700); }
+.callout-warn  { background: #FFF8E7; border-left: 3px solid #E8A020; color: var(--gray-700); }
+.callout-warn strong { color: #9A5C00; }
+.callout-error { background: #FDF2F2; border-left: 3px solid var(--red); color: var(--gray-700); }
+.callout-error strong { color: #8B2020; }
+.callout-new   { background: #F0FDF4; border-left: 3px solid var(--green); color: var(--gray-700); }
+.callout-new strong { color: #1A6B4A; }
+
+/* ─────────────────────────────────────────
+   GRID HELPERS
+───────────────────────────────────────── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+
+/* ─────────────────────────────────────────
+   CARD
+───────────────────────────────────────── */
+.card {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+}
+.card-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gray-400); margin-bottom: 14px;
+}
+
+/* ─────────────────────────────────────────
+   TYPOGRAPHY SHOWCASE
+───────────────────────────────────────── */
+.type-stack { display: flex; flex-direction: column; gap: 0; }
+.type-row {
+  display: grid;
+  grid-template-columns: 140px 220px 1fr;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--gray-150);
+}
+.type-row:last-child { border-bottom: none; }
+.type-meta-name { font-size: 11px; font-weight: 600; color: var(--gray-600); }
+.type-meta-spec { font-size: 10px; color: var(--gray-400); line-height: 1.8; font-family: monospace; }
+.t-display { font-family: 'Sora',sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--gray-900); }
+.t-h1 { font-family: 'Sora',sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--gray-900); }
+.t-h2 { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.015em; color: var(--gray-900); }
+.t-h3 { font-size: 16px; font-weight: 700; color: var(--gray-800); }
+.t-body { font-size: 15px; font-weight: 400; color: var(--gray-700); line-height: 1.6; }
+.t-body-sm { font-size: 13px; font-weight: 400; color: var(--gray-600); line-height: 1.6; }
+.t-caption { font-size: 12px; font-weight: 400; color: var(--gray-500); }
+.t-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-600); }
+.t-mono { font-family: monospace; font-size: 13px; color: var(--gray-700); background: var(--gray-100); padding: 2px 6px; border-radius: 4px; }
+
+/* ─────────────────────────────────────────
+   COLOR SWATCHES
+───────────────────────────────────────── */
+.swatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 14px; }
+.swatch {
+  border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
+}
+.swatch:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.swatch .blk { height: 64px; }
+.swatch .info { padding: 9px 11px; background: var(--white); }
+.swatch .s-name { font-size: 10px; font-weight: 700; color: var(--gray-800); margin-bottom: 2px; }
+.swatch .s-hex { font-size: 10px; color: var(--gray-500); font-family: monospace; }
+.swatch .s-token { font-size: 9px; color: var(--blue-700); margin-top: 2px; font-family: monospace; }
+.swatch .s-role { font-size: 9px; color: var(--gray-400); margin-top: 1px; }
+
+.shade-strip { display: flex; gap: 5px; margin-top: 10px; }
+.shade-chip { flex: 1; border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
+.shade-chip .blk { height: 30px; }
+.shade-chip .s-hex { font-size: 8px; padding: 3px 5px; font-family: monospace; color: var(--gray-500); background: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ─────────────────────────────────────────
+   ORDER TYPE PALETTE
+───────────────────────────────────────── */
+.order-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px; margin-top: 14px; }
+.order-chip {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: var(--r-md); padding: 12px 14px;
+  box-shadow: var(--shadow-xs);
+  cursor: pointer;
+  transition: box-shadow var(--dur) var(--ease-out);
+}
+.order-chip:hover { box-shadow: var(--shadow-md); }
+.order-chip .swatch-dot { width: 32px; height: 32px; border-radius: var(--r); flex-shrink: 0; }
+.order-chip .oc-name { font-size: 12px; font-weight: 700; color: var(--gray-800); }
+.order-chip .oc-hex { font-size: 10px; color: var(--gray-400); font-family: monospace; }
+.order-chip .oc-token { font-size: 9px; color: var(--blue-700); font-family: monospace; margin-top: 1px; }
+
+/* ─────────────────────────────────────────
+   SPACING SCALE
+───────────────────────────────────────── */
+.spacing-scale { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 16px; padding: 24px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-lg); }
+.sp-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.sp-bar { background: var(--blue); border-radius: 3px; width: 24px; opacity: 0.55; }
+.sp-size { font-size: 10px; font-weight: 700; color: var(--gray-700); }
+.sp-class { font-size: 9px; color: var(--gray-400); font-family: monospace; }
+
+/* ─────────────────────────────────────────
+   BUTTONS
+───────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 9px 18px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  letter-spacing: 0.04em;
+  border-radius: var(--r-md); border: 1.5px solid transparent;
+  cursor: pointer; white-space: nowrap;
+  transition: all var(--dur) var(--ease-out);
+  text-decoration: none;
+}
+.btn-primary   { background: var(--blue); color: var(--white); border-color: var(--blue); }
+.btn-primary:hover { background: var(--blue-700); border-color: var(--blue-700); }
+.btn-secondary { background: var(--blue-800); color: var(--white); border-color: var(--blue-800); }
+.btn-secondary:hover { background: var(--blue-900); border-color: var(--blue-900); }
+.btn-outline   { background: transparent; color: var(--gray-700); border-color: var(--gray-300); }
+.btn-outline:hover { border-color: var(--gray-500); background: var(--gray-100); }
+.btn-ghost     { background: transparent; color: var(--blue-700); border-color: transparent; }
+.btn-ghost:hover { background: var(--blue-50); }
+.btn-danger    { background: var(--red); color: var(--white); border-color: var(--red); }
+.btn-danger:hover { filter: brightness(0.9); }
+.btn-success   { background: var(--green); color: var(--white); border-color: var(--green); }
+.btn-sm  { padding: 5px 12px; font-size: 11px; border-radius: var(--r); }
+.btn-lg  { padding: 13px 26px; font-size: 13px; border-radius: var(--r-lg); }
+.btn[disabled] { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
+.demo-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+/* ─────────────────────────────────────────
+   INPUTS
+───────────────────────────────────────── */
+.field { margin-bottom: 14px; }
+.field-label { display: block; font-size: 11px; font-weight: 700; color: var(--gray-700); margin-bottom: 5px; }
+.field-input {
+  width: 100%; padding: 9px 12px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px; font-weight: 400;
+  color: var(--gray-900);
+  background: var(--white);
+  border: 1.5px solid var(--gray-300);
+  border-radius: var(--r-md);
+  outline: none;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.field-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(107,184,218,0.2); }
+.field-input::placeholder { color: var(--gray-400); }
+.field-input.is-error { border-color: var(--red); }
+.field-input.is-error:focus { box-shadow: 0 0 0 3px rgba(218,107,107,0.2); }
+.field-hint  { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+.field-error { font-size: 11px; color: var(--red); margin-top: 4px; font-weight: 500; }
+
+/* ─────────────────────────────────────────
+   STATUS BADGES
+───────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: var(--r-full);
+}
+.badge .pip { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge-success { background: rgba(107,218,178,0.15); color: #1A6B4A; }
+.badge-success .pip { background: var(--green); }
+.badge-warning { background: rgba(218,218,107,0.2); color: #5C5C00; }
+.badge-warning .pip { background: var(--yellow); }
+.badge-error   { background: rgba(218,107,107,0.15); color: #8B2020; }
+.badge-error   .pip { background: var(--red); }
+.badge-info    { background: var(--blue-50); color: var(--blue-800); }
+.badge-info    .pip { background: var(--blue); }
+.badge-neutral { background: var(--gray-100); color: var(--gray-600); }
+.badge-neutral .pip { background: var(--gray-400); }
+
+/* order type badges */
+.badge-table    { background: rgba(54,47,74,0.12); color: var(--table-channel); }
+.badge-table    .pip { background: var(--table-channel); }
+.badge-takeaway { background: var(--takeaway); color: #1A4D35; }
+.badge-takeaway .pip { background: #5BAE84; }
+.badge-combo    { background: rgba(255,179,186,0.3); color: #8B2040; }
+.badge-combo    .pip { background: var(--combo); }
+
+/* ─────────────────────────────────────────
+   BREAKPOINTS TABLE
+───────────────────────────────────────── */
+.bp-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+.bp-table th {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--gray-400); padding: 8px 14px; text-align: left;
+  border-bottom: 2px solid var(--gray-200);
+}
+.bp-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-150); vertical-align: middle; color: var(--gray-700); }
+.bp-table tr:last-child td { border-bottom: none; }
+.bp-table td:first-child { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--blue-700); }
+.bp-table td:nth-child(2) { font-family: monospace; font-weight: 700; font-size: 12px; color: var(--gray-900); }
+.bp-vis { width: 100%; height: 8px; border-radius: 99px; background: var(--gray-200); overflow: hidden; }
+.bp-vis .fill { height: 100%; border-radius: 99px; background: var(--blue); }
+
+/* ─────────────────────────────────────────
+   MOTION TABLE
+───────────────────────────────────────── */
+.motion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; margin-top: 14px; }
+.motion-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-md); padding: 14px 16px; }
+.motion-card .mc-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 5px; }
+.motion-card .mc-val { font-size: 13px; font-weight: 700; font-family: monospace; color: var(--gray-800); }
+.motion-card .mc-desc { font-size: 10px; color: var(--gray-500); margin-top: 3px; }
+
+/* ─────────────────────────────────────────
+   DO / DON'T
+───────────────────────────────────────── */
+.do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+.do-box, .dont-box { border-radius: var(--r-md); padding: 18px; }
+.do-box   { background: #F0FDF6; border: 1px solid #A7DFC4; }
+.dont-box { background: #FDF2F2; border: 1px solid #F0AAAA; }
+.do-box .hd   { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A6B4A; margin-bottom: 12px; }
+.dont-box .hd { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B2020; margin-bottom: 12px; }
+.do-box ul, .dont-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.do-box li, .dont-box li { font-size: 12.5px; color: var(--gray-700); display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
+.do-box li::before   { content: "✓"; color: #3BAD7A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.dont-box li::before { content: "✗"; color: #C04040; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+/* ─────────────────────────────────────────
+   DARK MODE PREVIEW
+───────────────────────────────────────── */
+.dark-preview {
+  background: var(--gray-900);
+  border-radius: var(--r-xl);
+  padding: 28px 32px;
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.dark-preview .dp-label { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-bottom: 16px; }
+
+/* ─────────────────────────────────────────
+   ACCESSIBILITY TABLE
+───────────────────────────────────────── */
+.a11y-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+.a11y-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-400); padding: 8px 14px; text-align: left; border-bottom: 2px solid var(--gray-200); }
+.a11y-table td { padding: 11px 14px; border-bottom: 1px solid var(--gray-150); color: var(--gray-700); vertical-align: middle; }
+.a11y-table tr:last-child td { border-bottom: none; }
+.ratio-swatch { display: inline-flex; align-items: center; gap: 8px; font-family: monospace; font-size: 11px; }
+.ratio-swatch .mini { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
+.pass { color: #1A6B4A; font-weight: 700; font-size: 11px; }
+.fail { color: #8B2020; font-weight: 700; font-size: 11px; }
+.warn { color: #9A5C00; font-weight: 700; font-size: 11px; }
+
+/* ─────────────────────────────────────────
+   ICON GRID
+───────────────────────────────────────── */
+.icon-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+.icon-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  width: 64px;
+  background: var(--white); border: 1px solid var(--gray-200);
+  border-radius: var(--r-md); padding: 12px 8px 10px;
+  transition: box-shadow var(--dur) var(--ease-out);
+}
+.icon-item:hover { box-shadow: var(--shadow-md); }
+.icon-item svg { display: block; }
+.icon-item .i-name { font-size: 9px; color: var(--gray-400); text-align: center; line-height: 1.3; }
+
+/* ─────────────────────────────────────────
+   TOOLTIP DEMO
+───────────────────────────────────────── */
+.tooltip-wrap { position: relative; display: inline-block; }
+.tooltip-wrap .tooltip {
+  display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+  background: var(--gray-900); color: var(--white);
+  font-size: 11px; font-weight: 500; padding: 5px 10px;
+  border-radius: 6px; white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+}
+.tooltip-wrap .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--gray-900); }
+.tooltip-wrap:hover .tooltip { display: block; }
+
+/* ─────────────────────────────────────────
+   DIVIDER
+───────────────────────────────────────── */
+.divider { height: 1px; background: var(--gray-200); margin: 48px 0; }
+
+/* ─────────────────────────────────────────
+   SCROLLBAR
+───────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+
+/* ─────────────────────────────────────────
+   SPIN ANIMATION
+───────────────────────────────────────── */
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<!-- ══════════════ SIDEBAR ══════════════ -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Pl<span>or</span>ea</div>
+    <div class="sub">Design System · v2.1</div>
+  </div>
+  <div class="sidebar-inner">
+    <div class="nav-group">
+      <div class="nav-group-label">Foundation</div>
+      <a class="nav-link" onclick="nav('intro')"><span class="dot"></span>Introduction</a>
+      <a class="nav-link" onclick="nav('typography')"><span class="dot"></span>Typography</a>
+      <a class="nav-link" onclick="nav('colors')"><span class="dot"></span>Colors</a>
+      <a class="nav-link" onclick="nav('order-colors')"><span class="dot"></span>Order Type Colors</a>
+      <a class="nav-link" onclick="nav('spacing')"><span class="dot"></span>Spacing & Radius</a>
+      <a class="nav-link" onclick="nav('icons')"><span class="dot"></span>Iconography</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Components</div>
+      <a class="nav-link" onclick="nav('buttons')"><span class="dot"></span>Buttons</a>
+      <a class="nav-link" onclick="nav('inputs')"><span class="dot"></span>Inputs & Forms</a>
+      <a class="nav-link" onclick="nav('badges')"><span class="dot"></span>Badges & Status</a>
+      <a class="nav-link" onclick="nav('tooltips')"><span class="dot"></span>Tooltips</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Layout & Motion</div>
+      <a class="nav-link" onclick="nav('breakpoints')"><span class="dot"></span>Breakpoints</a>
+      <a class="nav-link" onclick="nav('motion')"><span class="dot"></span>Motion</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Guidance</div>
+      <a class="nav-link" onclick="nav('accessibility')"><span class="dot"></span>Accessibility</a>
+      <a class="nav-link" onclick="nav('darkmode')"><span class="dot"></span>Dark Mode</a>
+      <a class="nav-link" onclick="nav('dodont')"><span class="dot"></span>Do / Don't</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ══════════════ CONTENT ══════════════ -->
+<div class="content">
+<div class="page">
+
+  <!-- PAGE HERO -->
+  <div class="page-hero">
+    <div class="eyebrow">Plorea Design System</div>
+    <h1>Design Guidelines</h1>
+    <p class="desc">Det offisielle visuell- og interaksjonsspråket for Plorea-plattformen. Synkronisert med <code>tailwind.config.js</code> og DaisyUI <code>plorea</code>-temaet.</p>
+    <div class="meta-row">
+      <div class="meta-tag"><span class="dot"></span>v2.1 · Mars 2026</div>
+      <div class="meta-tag">Tailwind CSS + DaisyUI</div>
+      <div class="meta-tag">Plus Jakarta Sans · Sora</div>
+    </div>
+  </div>
+
+  <!-- ──────────── INTRO ──────────── -->
+  <section class="section" id="intro">
+    <div class="section-head">
+      <div class="label">01 — Foundation</div>
+      <h2>Introduction</h2>
+    </div>
+    <p class="body">Plorea er en restaurant-SaaS-plattform for POS, kiosk, QR og online bestilling. Design-systemet dekker alle berøringspunkter: back-office dashboard, kiosk-flate, operatørvisning og kundevendte bestillingsflater.</p>
+    <p class="body">Designspråket er <strong>clean-operasjonelt</strong> — presist, raskt å scanne, og bygget for høyfrekvent bruk av restaurantansatte under press. Estetikken henter fra Apple HIG (whitespace, typografistruktur), Linear (tetthet, fargebruk) og Stripe (dokumentasjonsskarphet).</p>
+    <div class="callout callout-info">
+      <strong>Stack</strong>
+      Tailwind CSS · DaisyUI (<code>plorea</code> theme) · @tailwindcss/typography · Plus Jakarta Sans (body) · Sora (display/headings)
+    </div>
+  </section>
+
+  <!-- ──────────── TYPOGRAPHY ──────────── -->
+  <section class="section" id="typography">
+    <div class="section-head">
+      <div class="label">02 — Typography</div>
+      <h2>Typography</h2>
+    </div>
+    <p class="body">To fonter: <strong>Sora</strong> for display og headings (kraftig, distinkt), <strong>Plus Jakarta Sans</strong> for body og UI. Begge er åpne fonter tilgjengelig via Google Fonts.</p>
+
+    <div class="card" style="margin-top: 16px; padding: 0; overflow: hidden;">
+      <div class="type-stack">
+        <div class="type-row" style="padding: 20px 20px;">
+          <div><div class="type-meta-name">Display</div></div>
+          <div class="type-meta-spec">Sora · 700<br>38px · -0.025em</div>
+          <div><span class="t-display">Plorea</span></div>
+        </div>
+        <div class="type-row" style="padding: 16px 20px;">
+          <div><div class="type-meta-name">Heading 1</div></div>
+          <div class="type-meta-spec">Sora · 700<br>26px · -0.02em</div>
+          <div><span class="t-h1">Heading 1</span></div>
+        </div>
+        <div class="type-row" style="padding: 14px 20px;">
+          <div><div class="type-meta-name">Heading 2</div></div>
+          <div class="type-meta-spec">Sora · 600<br>20px · -0.015em</div>
+          <div><span class="t-h2">Heading 2</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Heading 3</div></div>
+          <div class="type-meta-spec">Plus Jakarta · 700<br>16px</div>
+          <div><span class="t-h3">Heading 3</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Body · <code>md</code></div></div>
+          <div class="type-meta-spec">Plus Jakarta · 400<br>15px · 1.6lh</div>
+          <div><span class="t-body">Standard brødtekst for de fleste UI-elementer og beskrivelser.</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Body sm · <code>xs</code></div></div>
+          <div class="type-meta-spec">Plus Jakarta · 400<br>13px · 1.6lh</div>
+          <div><span class="t-body-sm">Sekundær tekst, hjelpetekster, tabellinnhold og lister.</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Caption · <code>xxs</code></div></div>
+          <div class="type-meta-spec">Plus Jakarta · 400<br>12px</div>
+          <div><span class="t-caption">Tidsstempler, metadata, tabellceller, lave nivåer av hierarki.</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Tiny · <code>tiny</code></div></div>
+          <div class="type-meta-spec">Plus Jakarta · 400<br>11px</div>
+          <div><span style="font-size:11px;color:var(--gray-600)">Badges, tag-labels, UI micro-copy. Minste tillatte størrelse.</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px;">
+          <div><div class="type-meta-name">Label</div></div>
+          <div class="type-meta-spec">Plus Jakarta · 700<br>10px · +0.1em · CAPS</div>
+          <div><span class="t-label">Section Label</span></div>
+        </div>
+        <div class="type-row" style="padding: 12px 20px; border-bottom: none;">
+          <div><div class="type-meta-name">Mono</div></div>
+          <div class="type-meta-spec">Monospace stack<br>13px</div>
+          <div><span class="t-mono">ORD-48291</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top: 16px;">
+      <strong>Font-størrelsesskala i Tailwind</strong>
+      Egendefinerte størrelser lagt til i <code>extend.fontSize</code>: <code>tiny</code> (11px), <code>xxs</code> (12px), <code>xs</code> (13px), <code>md</code> (15px). Bruk alltid disse fremfor hardkodede px-verdier.
+    </div>
+  </section>
+
+  <!-- ──────────── COLORS ──────────── -->
+  <section class="section" id="colors">
+    <div class="section-head">
+      <div class="label">03 — Colors</div>
+      <h2>Color System</h2>
+    </div>
+    <p class="body">Alle tokens er synkronisert med <code>tailwind.config.js</code>. Klikk en swatch for å kopiere hex-verdien.</p>
+
+    <h3 class="sub">Blue — Primary palette</h3>
+    <div class="shade-strip">
+      <div class="shade-chip" onclick="copyHex('#EBF6FB')"><div class="blk" style="background:#EBF6FB;border-bottom:1px solid #ddd;"></div><div class="s-hex">50·#EBF6FB</div></div>
+      <div class="shade-chip" onclick="copyHex('#C7E7F3')"><div class="blk" style="background:#C7E7F3"></div><div class="s-hex">100·#C7E7F3</div></div>
+      <div class="shade-chip" onclick="copyHex('#99D2E8')"><div class="blk" style="background:#99D2E8"></div><div class="s-hex">200·#99D2E8</div></div>
+      <div class="shade-chip" onclick="copyHex('#6BB8DA')"><div class="blk" style="background:#6BB8DA"></div><div class="s-hex">DEFAULT·#6BB8DA</div></div>
+      <div class="shade-chip" onclick="copyHex('#4FA3C8')"><div class="blk" style="background:#4FA3C8"></div><div class="s-hex">600·#4FA3C8</div></div>
+      <div class="shade-chip" onclick="copyHex('#468DAC')"><div class="blk" style="background:#468DAC"></div><div class="s-hex">700·#468DAC</div></div>
+      <div class="shade-chip" onclick="copyHex('#2E6B87')"><div class="blk" style="background:#2E6B87"></div><div class="s-hex">800·#2E6B87</div></div>
+      <div class="shade-chip" onclick="copyHex('#1D4A5F')"><div class="blk" style="background:#1D4A5F"></div><div class="s-hex">900·#1D4A5F</div></div>
+    </div>
+
+    <h3 class="sub">Gray</h3>
+    <div class="shade-strip">
+      <div class="shade-chip" onclick="copyHex('#FAFAFA')"><div class="blk" style="background:#FAFAFA;border-bottom:1px solid #ddd;"></div><div class="s-hex">50</div></div>
+      <div class="shade-chip" onclick="copyHex('#F1F5F9')"><div class="blk" style="background:#F1F5F9;border-bottom:1px solid #ddd;"></div><div class="s-hex">100</div></div>
+      <div class="shade-chip" onclick="copyHex('#E9E9E9')"><div class="blk" style="background:#E9E9E9"></div><div class="s-hex">200</div></div>
+      <div class="shade-chip" onclick="copyHex('#D9D9D9')"><div class="blk" style="background:#D9D9D9"></div><div class="s-hex">300</div></div>
+      <div class="shade-chip" onclick="copyHex('#C4C4C4')"><div class="blk" style="background:#C4C4C4"></div><div class="s-hex">400</div></div>
+      <div class="shade-chip" onclick="copyHex('#A6A6A6')"><div class="blk" style="background:#A6A6A6"></div><div class="s-hex">500</div></div>
+      <div class="shade-chip" onclick="copyHex('#666666')"><div class="blk" style="background:#666666"></div><div class="s-hex">600</div></div>
+      <div class="shade-chip" onclick="copyHex('#3F3D45')"><div class="blk" style="background:#3F3D45"></div><div class="s-hex">700</div></div>
+      <div class="shade-chip" onclick="copyHex('#2D2C2F')"><div class="blk" style="background:#2D2C2F"></div><div class="s-hex">800</div></div>
+      <div class="shade-chip" onclick="copyHex('#1A1A1A')"><div class="blk" style="background:#1A1A1A"></div><div class="s-hex">900</div></div>
+    </div>
+
+    <h3 class="sub">Semantic / Feedback</h3>
+    <div class="swatch-grid">
+      <div class="swatch" onclick="copyHex('#6BDAB2')">
+        <div class="blk" style="background:#6BDAB2"></div>
+        <div class="info"><div class="s-name">Green</div><div class="s-hex">#6BDAB2</div><div class="s-token">green · success</div></div>
+      </div>
+      <div class="swatch" onclick="copyHex('#DADA6B')">
+        <div class="blk" style="background:#DADA6B"></div>
+        <div class="info"><div class="s-name">Yellow</div><div class="s-hex">#DADA6B</div><div class="s-token">yellow · warning</div></div>
+      </div>
+      <div class="swatch" onclick="copyHex('#DA6B6B')">
+        <div class="blk" style="background:#DA6B6B"></div>
+        <div class="info"><div class="s-name">Red</div><div class="s-hex">#DA6B6B</div><div class="s-token">red · error</div></div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn" style="margin-top:20px;">
+      <strong>⚠ Fikset: blue-800</strong>
+      Den gamle config brukte <code>#0ea5e9</code> (Tailwind sky-500) som <code>blue-800</code> — ikke en Plorea-farge. Ny verdi: <code>#2E6B87</code>, som er en naturlig mørk nyanse av blå-paletten.
+    </div>
+    <div class="callout callout-warn">
+      <strong>⚠ Fikset: border-darker</strong>
+      Manglet <code>#</code>-prefix (<code>'e3e3e4'</code> → <code>'#E3E3E4'</code>).
+    </div>
+  </section>
+
+  <!-- ──────────── ORDER TYPE COLORS ──────────── -->
+  <section class="section" id="order-colors">
+    <div class="section-head">
+      <div class="label">04 — Order Type Colors</div>
+      <h2>Ordrekanalfarger</h2>
+    </div>
+    <p class="body">Disse fargene identifiserer ordretyper og kanaler gjennom hele plattformen — på ordrekort, badges og filterpaneler. Semantikken er nå eksplisitt definert.</p>
+
+    <div class="order-grid">
+      <div class="order-chip" onclick="copyHex('#362F4A')">
+        <div class="swatch-dot" style="background:#362F4A"></div>
+        <div><div class="oc-name">Table / Bord</div><div class="oc-hex">#362F4A</div><div class="oc-token">table · blue-Table</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#D1E7DD')">
+        <div class="swatch-dot" style="background:#D1E7DD"></div>
+        <div><div class="oc-name">Takeaway</div><div class="oc-hex">#D1E7DD</div><div class="oc-token">takeaway</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#E5C1B6')">
+        <div class="swatch-dot" style="background:#E5C1B6"></div>
+        <div><div class="oc-name">Eat-in / Inne</div><div class="oc-hex">#E5C1B6</div><div class="oc-token">rose</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#FFB3BA')">
+        <div class="swatch-dot" style="background:#FFB3BA"></div>
+        <div><div class="oc-name">Combo</div><div class="oc-hex">#FFB3BA</div><div class="oc-token">combo</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#6BDAB2')">
+        <div class="swatch-dot" style="background:#6BDAB2"></div>
+        <div><div class="oc-name">Betalt</div><div class="oc-hex">#6BDAB2</div><div class="oc-token">success</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#DADA6B')">
+        <div class="swatch-dot" style="background:#DADA6B"></div>
+        <div><div class="oc-name">Venter</div><div class="oc-hex">#DADA6B</div><div class="oc-token">warning</div></div>
+      </div>
+      <div class="order-chip" onclick="copyHex('#DA6B6B')">
+        <div class="swatch-dot" style="background:#DA6B6B"></div>
+        <div><div class="oc-name">Kansellert / Feil</div><div class="oc-hex">#DA6B6B</div><div class="oc-token">error</div></div>
+      </div>
+    </div>
+
+    <h3 class="sub" style="margin-top:28px;">Badge-bruk</h3>
+    <div class="demo-row">
+      <span class="badge badge-table"><span class="pip"></span>Bord 7</span>
+      <span class="badge badge-takeaway"><span class="pip"></span>Takeaway</span>
+      <span class="badge badge-combo"><span class="pip"></span>Combo</span>
+      <span class="badge badge-success"><span class="pip"></span>Betalt</span>
+      <span class="badge badge-warning"><span class="pip"></span>Venter</span>
+      <span class="badge badge-error"><span class="pip"></span>Kansellert</span>
+    </div>
+  </section>
+
+  <!-- ──────────── SPACING ──────────── -->
+  <section class="section" id="spacing">
+    <div class="section-head">
+      <div class="label">05 — Spacing & Radius</div>
+      <h2>Spacing & Border Radius</h2>
+    </div>
+    <p class="body">4px base-grid. Alle layout-, padding- og margin-verdier snapper til skalaen. Bruk Tailwind-klassenavn, ikke hardkodede px-verdier.</p>
+
+    <div class="spacing-scale">
+      <div class="sp-item"><div class="sp-bar" style="height:4px;"></div><div class="sp-size">4px</div><div class="sp-class">p-1</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:8px;"></div><div class="sp-size">8px</div><div class="sp-class">p-2</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:12px;"></div><div class="sp-size">12px</div><div class="sp-class">p-3</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:16px;"></div><div class="sp-size">16px</div><div class="sp-class">p-4</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:20px;"></div><div class="sp-size">20px</div><div class="sp-class">p-5</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:24px;"></div><div class="sp-size">24px</div><div class="sp-class">p-6</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:32px;"></div><div class="sp-size">32px</div><div class="sp-class">p-8</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:40px;"></div><div class="sp-size">40px</div><div class="sp-class">p-10</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:48px;"></div><div class="sp-size">48px</div><div class="sp-class">p-12</div></div>
+      <div class="sp-item"><div class="sp-bar" style="height:64px;"></div><div class="sp-size">64px</div><div class="sp-class">p-16</div></div>
+    </div>
+
+    <h3 class="sub">Border Radius</h3>
+    <div class="demo-row" style="flex-wrap:wrap; gap:16px; padding: 20px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-lg); margin-top: 8px;">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:4px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded<br>4px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:6px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-md<br>6px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:8px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-lg<br>8px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:10px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-md+<br>10px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:14px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-xl<br>14px ★</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:20px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-2xl<br>20px</span>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <div style="width:48px;height:48px;background:var(--blue);opacity:0.5;border-radius:9999px;"></div>
+        <span style="font-size:9px;color:var(--gray-400);font-family:monospace;">rounded-full<br>badges</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── ICONS ──────────── -->
+  <section class="section" id="icons">
+    <div class="section-head">
+      <div class="label">06 — Iconography</div>
+      <h2>Iconography</h2>
+    </div>
+    <p class="body">Anbefalt ikonbibliotek: <strong>Lucide React</strong> (MIT, outlined, 1.5px stroke). Visuelle størrelser: 16px (inline), 20px (standard), 24px (prominente handlinger). Touch target alltid ≥ 44×44px.</p>
+
+    <div class="icon-grid">
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="i-name">home</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <span class="i-name">search</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="i-name">orders</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span class="i-name">user</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+        <span class="i-name">signal</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span class="i-name">activity</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 12h6M9 15h4"/></svg>
+        <span class="i-name">receipt</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        <span class="i-name">add</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span class="i-name">info</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        <span class="i-name">security</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        <span class="i-name">settings</span>
+      </div>
+      <div class="icon-item">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gray-700)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        <span class="i-name">menu</span>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Bruk</strong>
+      Blanding av outline og filled ikoner er ikke tillatt. Hold deg til ett bibliotek og én stil. Standard: <code>stroke-width="1.5"</code>, farge: <code>currentColor</code> for å arve kontekstfarge automatisk.
+    </div>
+  </section>
+
+  <!-- ──────────── BUTTONS ──────────── -->
+  <section class="section" id="buttons">
+    <div class="section-head">
+      <div class="label">07 — Components</div>
+      <h2>Buttons</h2>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Varianter</div>
+        <div class="demo-row">
+          <button class="btn btn-primary">Primary</button>
+          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-ghost">Ghost</button>
+        </div>
+        <div class="demo-row" style="margin-top:10px;">
+          <button class="btn btn-secondary">Secondary</button>
+          <button class="btn btn-danger">Danger</button>
+          <button class="btn btn-success">Success</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Størrelser</div>
+        <div class="demo-row" style="align-items:center;">
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-lg">Large</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Paringsregel — én fill + én outline</div>
+        <div class="demo-row">
+          <button class="btn btn-primary">Bekreft ordre</button>
+          <button class="btn btn-outline">Avbryt</button>
+        </div>
+        <div class="demo-row" style="margin-top:10px;">
+          <button class="btn btn-danger">Slett</button>
+          <button class="btn btn-outline">Avbryt</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Tilstander</div>
+        <div class="demo-row">
+          <button class="btn btn-primary" disabled>Disabled</button>
+          <button class="btn btn-primary" style="position:relative;padding-left:32px;">
+            <span style="position:absolute;left:12px;top:50%;transform:translateY(-50%);width:11px;height:11px;border:2px solid rgba(255,255,255,0.35);border-top-color:#fff;border-radius:50%;animation:spin 0.6s linear infinite;"></span>
+            Lagrer…
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── INPUTS ──────────── -->
+  <section class="section" id="inputs">
+    <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Inputs &amp; Forms</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Default</div>
+        <div class="field">
+          <label class="field-label">Restaurantnavn</label>
+          <input class="field-input" placeholder="Skriv inn navn…">
+          <div class="field-hint">Vises på kvittering og kundeflater.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Error state</div>
+        <div class="field">
+          <label class="field-label">E-post</label>
+          <input class="field-input is-error" value="ikke-gyldig-epost">
+          <div class="field-error">Skriv inn en gyldig e-postadresse.</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Gruppert — maks 4 felt</div>
+        <div class="field"><label class="field-label">Fornavn</label><input class="field-input" placeholder="Fornavn"></div>
+        <div class="field"><label class="field-label">Etternavn</label><input class="field-input" placeholder="Etternavn"></div>
+        <div class="field"><label class="field-label">Telefon</label><input class="field-input" placeholder="+47"></div>
+      </div>
+      <div class="card">
+        <div class="card-label">Select</div>
+        <div class="field">
+          <label class="field-label">Kanaltype</label>
+          <select class="field-input">
+            <option>QR Bord</option>
+            <option>Kiosk</option>
+            <option>POS</option>
+            <option>Online</option>
+            <option>Takeaway</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Skjema-regel</strong>
+      Maks 4 input-felt per gruppe. Ved behov for flere: del opp i steg med en progressindikator (onboarding-flyt) eller undergrupper med en subtittel.
+    </div>
+  </section>
+
+  <!-- ──────────── BADGES ──────────── -->
+  <section class="section" id="badges">
+    <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Badges &amp; Status</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Systemstatus</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span class="badge badge-success"><span class="pip"></span>Betalt</span>
+          <span class="badge badge-warning"><span class="pip"></span>Venter</span>
+          <span class="badge badge-error"><span class="pip"></span>Mislyktes</span>
+          <span class="badge badge-info"><span class="pip"></span>Behandles</span>
+          <span class="badge badge-neutral"><span class="pip"></span>Utkast</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Ordrekanal</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <span class="badge badge-table"><span class="pip"></span>Bord</span>
+          <span class="badge badge-takeaway"><span class="pip"></span>Takeaway</span>
+          <span class="badge badge-combo"><span class="pip"></span>Combo</span>
+          <span class="badge badge-info"><span class="pip"></span>Online</span>
+          <span class="badge badge-neutral"><span class="pip"></span>Kiosk</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ──────────── TOOLTIPS ──────────── -->
+  <section class="section" id="tooltips">
+    <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Tooltips</h2>
+    <div class="card" style="max-width:400px;">
+      <div class="card-label">Hover for forhåndsvisning</div>
+      <div class="demo-row" style="padding:20px 0;">
+        <div class="tooltip-wrap">
+          <button class="btn btn-outline">Innstillinger<div class="tooltip">Konfigurer enhet</div></button>
+        </div>
+        <div class="tooltip-wrap">
+          <button class="btn btn-outline">Skriv ut<div class="tooltip">Skriv ut bon</div></button>
+        </div>
+      </div>
+    </div>
+    <p class="body" style="margin-top:12px;">Maks 6–8 ord. Beskriv handlingen — ikke elementnavnet. Forsinkelse: 400ms. Aldri blokker interaktive elementer.</p>
+  </section>
+
+  <!-- ──────────── BREAKPOINTS ──────────── -->
+  <section class="section" id="breakpoints">
+    <div class="section-head">
+      <div class="label">08 — Layout</div>
+      <h2>Breakpoints</h2>
+    </div>
+    <p class="body">Plorea definerer egne breakpoints tilpasset restaurant-hardware — kiosk, POS og nettbrett har andre dimensjoner enn standard web.</p>
+
+    <table class="bp-table">
+      <thead>
+        <tr>
+          <th>Token</th><th>Min-width</th><th>Kontekst / Device</th><th>Visuell</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>sm</td><td>350px</td>
+          <td style="font-size:12px;color:var(--gray-500)">Liten telefon — QR-bestilling, gjesteside</td>
+          <td style="width:180px;padding:10px 14px;"><div class="bp-vis"><div class="fill" style="width:19%;background:var(--gray-300);"></div></div></td>
+        </tr>
+        <tr>
+          <td>md</td><td>768px</td>
+          <td style="font-size:12px;color:var(--gray-500)">Nettbrett portrett, QR-flate</td>
+          <td><div class="bp-vis"><div class="fill" style="width:42%;"></div></div></td>
+        </tr>
+        <tr>
+          <td>lg</td><td>976px</td>
+          <td style="font-size:12px;color:var(--gray-500)">Kiosk / POS touch-skjerm, nettbrett landskap</td>
+          <td><div class="bp-vis"><div class="fill" style="width:54%;background:var(--blue-700);"></div></div></td>
+        </tr>
+        <tr>
+          <td>xl</td><td>1440px</td>
+          <td style="font-size:12px;color:var(--gray-500)">Back-office dashboard, desktop</td>
+          <td><div class="bp-vis"><div class="fill" style="width:79%;background:var(--blue-800);"></div></div></td>
+        </tr>
+        <tr>
+          <td>xxl</td><td>1820px</td>
+          <td style="font-size:12px;color:var(--gray-500)">Bred skjerm / kjøkken-display</td>
+          <td><div class="bp-vis"><div class="fill" style="width:100%;background:var(--blue-900);"></div></div></td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout callout-warn" style="margin-top:16px;">
+      <strong>⚠ sm: 350px</strong>
+      Avviker kraftig fra standard Tailwind (640px). Dette er intensjonelt for mobil QR-bestilling, men betyr at responsive klasser aktiveres svært tidlig. Vær bevisst på dette ved bruk av <code>sm:</code>-prefixet — det treffer praktisk talt alle moderne smarttelefoner.
+    </div>
+  </section>
+
+  <!-- ──────────── MOTION ──────────── -->
+  <section class="section" id="motion">
+    <div class="section-head">
+      <div class="label">09 — Motion</div>
+      <h2>Motion &amp; Animation</h2>
+    </div>
+    <p class="body">Konsistent bevegelse gjør UI-et responsivt og levende uten å være distraherende. Alle transisjoner har et funksjonelt formål.</p>
+
+    <div class="motion-grid">
+      <div class="motion-card"><div class="mc-label">Micro</div><div class="mc-val">100ms</div><div class="mc-desc">Hover, press-feedback</div></div>
+      <div class="motion-card"><div class="mc-label">Default</div><div class="mc-val">160ms</div><div class="mc-desc">De fleste UI-elementer</div></div>
+      <div class="motion-card"><div class="mc-label">Transition</div><div class="mc-val">280ms</div><div class="mc-desc">Paneler, modaler</div></div>
+      <div class="motion-card"><div class="mc-label">Page</div><div class="mc-val">350ms</div><div class="mc-desc">Sideskifter, drawers</div></div>
+      <div class="motion-card"><div class="mc-label">ease-out</div><div class="mc-val">Enter</div><div class="mc-desc">cubic-bezier(0.16,1,0.3,1)</div></div>
+      <div class="motion-card"><div class="mc-label">ease-in</div><div class="mc-val">Exit</div><div class="mc-desc">cubic-bezier(0.4,0,1,1)</div></div>
+      <div class="motion-card"><div class="mc-label">ease</div><div class="mc-val">Interactive</div><div class="mc-desc">cubic-bezier(0.4,0,0.2,1)</div></div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Prinsipp</strong>
+      Animer kun <code>transform</code> og <code>opacity</code> — aldri <code>width</code>, <code>height</code> eller layout-egenskaper. Elementer som entrer bruker ease-out. Elementer som forlater bruker ease-in. Interaktiv feedback: maks 100–160ms.
+    </div>
+  </section>
+
+  <!-- ──────────── ACCESSIBILITY ──────────── -->
+  <section class="section" id="accessibility">
+    <div class="section-head">
+      <div class="label">10 — Accessibility</div>
+      <h2>Accessibility</h2>
+    </div>
+    <p class="body">Mål: WCAG 2.1 AA. Krav er spesielt viktige i kiosk- og POS-kontekster der brukere kan ha nedsatt syn eller motorikk, og der skjermer kan ha varierende lysforhold.</p>
+
+    <table class="a11y-table">
+      <thead><tr><th>Fargepar</th><th>Kontrastratio</th><th>Normal tekst</th><th>Stor tekst / UI</th><th>Anbefaling</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><div class="ratio-swatch"><div class="mini" style="background:#6BB8DA;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue på hvit</div></td>
+          <td>2.8:1</td><td class="fail">FAIL</td><td class="warn">GRENSE</td>
+          <td style="font-size:12px;">Ikke bruk for brødtekst. OK for dekor/ikoner.</td>
+        </tr>
+        <tr>
+          <td><div class="ratio-swatch"><div class="mini" style="background:#468DAC;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue-700 på hvit</div></td>
+          <td>3.9:1</td><td class="warn">FAIL</td><td class="pass">PASS</td>
+          <td style="font-size:12px;">Bruk for lenker og store labels (18px+).</td>
+        </tr>
+        <tr>
+          <td><div class="ratio-swatch"><div class="mini" style="background:#2E6B87;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue-800 på hvit</div></td>
+          <td>5.3:1</td><td class="pass">PASS</td><td class="pass">PASS</td>
+          <td style="font-size:12px;">Foretrukket farge for interaktiv tekst.</td>
+        </tr>
+        <tr>
+          <td><div class="ratio-swatch"><div class="mini" style="background:#2D2C2F;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Gray-800 på hvit</div></td>
+          <td>14.7:1</td><td class="pass">PASS AAA</td><td class="pass">PASS</td>
+          <td style="font-size:12px;">Standard brødtekstfarge. ✓</td>
+        </tr>
+        <tr>
+          <td><div class="ratio-swatch"><div class="mini" style="background:#DA6B6B;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Red på hvit</div></td>
+          <td>3.2:1</td><td class="fail">FAIL</td><td class="pass">PASS</td>
+          <td style="font-size:12px;">Bruk alltid ikon + farge for feilmeldinger.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-error" style="margin-top:16px;">
+      <strong>Viktig: Blue (#6BB8DA) på hvit bakgrunn feiler WCAG AA for brødtekst</strong>
+      Bruk <code>blue-800 (#2E6B87)</code> for all interaktiv tekst og lenker. Primærfargen (#6BB8DA) er kun tillatt for ikoner, dekorative elementer og bakgrunnsflater.
+    </div>
+    <div class="callout callout-info">
+      <strong>Touch targets</strong>
+      Minimum 44×44px (iOS HIG). Anbefalt 48×48px. Spesielt viktig for kiosk og POS-flater der fingertrykkpresisjon er lavere.
+    </div>
+  </section>
+
+  <!-- ──────────── DARK MODE ──────────── -->
+  <section class="section" id="darkmode">
+    <div class="section-head">
+      <div class="label">11 — Dark Mode</div>
+      <h2>Dark Mode</h2>
+    </div>
+    <p class="body">Implementer dark mode via CSS-token-swap. Alle fargeverdier er definert som CSS custom properties, slik at én <code>data-theme="dark"</code>-attributt på <code>&lt;html&gt;</code> bytter hele paletten.</p>
+
+    <div class="grid-2">
+      <div class="dark-preview">
+        <div class="dp-label">Dark Preview</div>
+        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:#F1F5F9;margin-bottom:6px;">Ordre #4821</div>
+        <div style="font-size:13px;color:#808080;margin-bottom:4px;">Bord 7 · 3 varer</div>
+        <div style="font-size:20px;font-weight:700;color:#F1F5F9;margin-bottom:20px;">NOK 285</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm">Bekreft</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.12);">Avbryt</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Light Preview</div>
+        <div style="font-family:'Sora',sans-serif;font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:6px;">Ordre #4821</div>
+        <div style="font-size:13px;color:var(--gray-400);margin-bottom:4px;">Bord 7 · 3 varer</div>
+        <div style="font-size:20px;font-weight:700;color:var(--gray-900);margin-bottom:20px;">NOK 285</div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary btn-sm">Bekreft</button>
+          <button class="btn btn-outline btn-sm">Avbryt</button>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-warn" style="margin-top:16px;">
+      <strong>Status: TBA</strong>
+      Dark mode er ikke implementert i produksjon ennå. Anbefalt tilnærming: semantic CSS-token-lag som skiller strukturelle tokens (<code>--color-surface</code>, <code>--color-text-primary</code>) fra primitive tokens (<code>--gray-900</code>). Da kan dark mode aktiveres med én temabytte.
+    </div>
+  </section>
+
+  <!-- ──────────── DO / DON'T ──────────── -->
+  <section class="section" id="dodont">
+    <div class="section-head">
+      <div class="label">12 — Usage Rules</div>
+      <h2>Do / Don't</h2>
+    </div>
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="hd">✓ Gjør</div>
+        <ul>
+          <li>Én primær CTA per visning</li>
+          <li>Par alltid knapper: én fill + én outline</li>
+          <li>Bruk <code>blue-800</code> for interaktiv tekst og lenker</li>
+          <li>Maks 4 input-felt per gruppe</li>
+          <li>Bruk ikon + farge for feilmeldinger (ikke farge alene)</li>
+          <li>Hold tooltips til 6–8 ord</li>
+          <li>Snap spacing til 4px-grid</li>
+          <li>Bruk Lucide-ikoner konsekvent (outlined, 1.5px stroke)</li>
+          <li>Touch targets ≥ 44×44px</li>
+          <li>Bekreft destruktive handlinger med modal</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="hd">✗ Unngå</div>
+        <ul>
+          <li>Bruke <code>#6BB8DA</code> (primary blue) for brødtekst på hvit</li>
+          <li>To fylte eller to outline-knapper side om side</li>
+          <li>Gradient-fills (kun solid farger)</li>
+          <li>Blande outline og filled ikoner</li>
+          <li>Råe feilkoder til sluttbrukere</li>
+          <li>Auto-dismiss suksess-toast under 3 sekunder</li>
+          <li>Animere <code>width</code>/<code>height</code> direkte</li>
+          <li>Tooltip som blokkerer interaktive elementer</li>
+          <li>Mer enn 5–7 navigasjonspunkter i sidebar</li>
+          <li>Hardkodede px-verdier utenfor spacing-skalaen</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page -->
+</div><!-- /content -->
+
+<script>
+function nav(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Copy hex on swatch click
+function copyHex(hex) {
+  navigator.clipboard.writeText(hex).catch(() => {});
+  const el = event.currentTarget;
+  const hexEl = el.querySelector('.s-hex, .shex');
+  if (!hexEl) return;
+  const orig = hexEl.textContent;
+  hexEl.textContent = 'Kopiert!';
+  hexEl.style.color = 'var(--blue-700)';
+  setTimeout(() => { hexEl.textContent = orig; hexEl.style.color = ''; }, 1200);
+}
+
+// Active nav on scroll
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.nav-link');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.nav-link[onclick="nav('${e.target.id}')"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-25% 0px -65% 0px' });
+sections.forEach(s => io.observe(s));
+</script>
+</body>
+</html>
