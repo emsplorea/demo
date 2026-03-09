@@ -2,7 +2,7 @@
 
 /**
  * Plorea Design System — Tailwind Configuration
- * v2.2 · March 2026
+ * v2.3 · March 2026
  *
  * Structure:
  *   1. Primitive tokens   — raw color values, never reference directly in components
@@ -103,6 +103,14 @@ const semantic = {
   'border-default': primitives.gray.border,
   'border-strong':  primitives.gray[300],
   'border-focus':   primitives.blue.DEFAULT,
+
+  // Elevation semantic aliases (maps level → shadow token)
+  // Use these in components: shadow-elevation-1, etc.
+  'elevation-0': 'none',
+  'elevation-1': '0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)',
+  'elevation-2': '0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
+  'elevation-3': '0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
+  'elevation-4': '0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)',
 
   // Misc
   table:      '#362F4A',          // table-channel identifier (DaisyUI alias)
@@ -236,6 +244,23 @@ export default {
         '18': '4.5rem',  // 72px  — section gaps
         '22': '5.5rem',  // 88px  — large section padding
         '26': '6.5rem',  // 104px — hero/dashboard spacers
+      },
+
+      // Density system — applied via data-density attribute on container
+      // CSS vars --row-h, --row-gap, --cell-py are set per density level
+      // Reference in components via var() — not as Tailwind classes
+      density: {
+        comfortable: { row: '56px', gap: '16px', py: '14px' },
+        compact:     { row: '44px', gap: '12px', py: '10px' },
+        ultra:       { row: '36px', gap: '8px',  py: '7px'  },
+      },
+
+      // Layout hierarchy — fixed spacing per level (never deviate)
+      layout: {
+        page:      '48px',   // p-12 — route container padding
+        section:   '32px',   // gap-8 — between card groups
+        card:      '24px',   // p-6 — card internal padding
+        component: '12px',   // gap-3 — within components
       },
 
       // Fixed heights for kiosk / POS component rows
