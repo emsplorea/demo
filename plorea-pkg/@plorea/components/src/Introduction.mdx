@@ -1,0 +1,64 @@
+import { Meta } from '@storybook/blocks'
+
+<Meta title="Plorea Design System" />
+
+# Plorea Design System
+
+**v2.8 · March 2026**
+
+Component library for the Plorea restaurant platform — POS, kiosk, QR ordering, and back-office.
+
+---
+
+## Getting started
+
+```bash
+npm install @plorea/components
+```
+
+Import tokens **once** in your app root:
+
+```ts
+// main.tsx
+import '@plorea/components/tokens.css'
+```
+
+Set `darkMode: 'class'` in your `tailwind.config.js`.
+Toggle dark mode by adding `.dark` to `<html>`.
+
+---
+
+## Canonical components
+
+These five components cover the core order workflow.
+Use them as specified — override only with a documented reason.
+
+| # | Component | When to use |
+|---|-----------|-------------|
+| 01 | **AppShell** | Every page — fixed sidebar + topbar |
+| 02 | **OrderTable** | Back-office order lists, POS order queue |
+| 03 | **OrderCard** | KDS grid, mobile order view |
+| 04 | **CartSummary** | POS cart, QR checkout, online ordering |
+| 05 | **PaymentSelector** | Payment step — critical path |
+
+---
+
+## Token architecture
+
+```
+tokens.css (:root + .dark)     ← single source of truth
+       ↓
+tailwind.config.js             ← references via var() with fallbacks
+       ↓
+Components                     ← use var(--color-*) only
+```
+
+**Rule:** colours in `style={{ color: 'var(--color-*)' }}`, layout in `className`.
+Never `dark:bg-*` modifier. Never hardcoded hex in components.
+
+---
+
+## Toolbar
+
+Use the **Theme** toggle in the toolbar to switch between light and dark mode.
+Use the **Viewport** menu to preview components at kiosk (1080×1920), POS tablet (1024×768), or mobile (390×844).
