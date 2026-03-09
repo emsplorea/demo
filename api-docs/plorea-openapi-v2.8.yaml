@@ -1,0 +1,4982 @@
+openapi: 3.1.0
+info:
+  title: Plorea Public Integration API
+  version: 2.8.0-draft
+  summary: Canonical API-first contract for Plorea integrations (v2.7 draft)
+  description: "Draft OpenAPI contract for Plorea's public integration layer.\n\n\
+    Design goals:\n  - Use business-oriented resource names externally.\n  - Keep\
+    \ database naming internal.\n  - Replace legacy GET-with-body patterns with query/path\
+    \ params.\n  - Normalize response envelopes to data/meta/error.\n  - Support a\
+    \ single Order Core across channels.\n\nThis spec is intended as a developer-ready\
+    \ starting point for implementation,\nmock servers, contract review, and compatibility\
+    \ mapping from legacy endpoints.\n\n\nVersion 2.1 additions:\n  - operationId\
+    \ on all operations\n  - x-db-mapping on core schemas\n  - webhook event payload\
+    \ schemas and examples\n  - expanded reusable error responses\n  - compatibility\
+    \ notes for legacy partners/* and terminal/* migration\n\n\nVersion 2.2 additions:\n\
+    \  - operationId naming cleanup for consistency\n  - x-domain-owner and x-audience\
+    \ metadata on tags and operations\n  - x-tagGroups for clearer domain navigation\
+    \ in docs\n  - lifecycle/deprecation metadata for compatibility paths and schemas\n\
+    \  - standardized naming conventions section for public contract governance\n\n\
+    \nVersion 2.3 additions:\n  - standardized 422 validation error usage across write\
+    \ endpoints\n  - canonical list controls for pagination, sorting, sparse fieldsets,\
+    \ and filtering guidance\n  - webhook signing headers and delivery security model\n\
+    \  - expanded order edge-case examples for checkout and state transitions\n  -\
+    \ reusable list contract metadata for developers and SDK generation\n\n\nVersion\
+    \ 2.4 additions:\n  - enum cleanup and canonical naming guidance for public values\n\
+    \  - request schema required-field review notes and PATCH semantics clarifications\n\
+    \  - concrete response examples on list endpoints\n  - webhook retry policy and\
+    \ delivery status model\n  - explicit legacy compatibility inventory with deprecation\
+    \ targets\n\n\n\nVersion 2.5 additions:\n  - field-level validation guidance on\
+    \ all public write request schemas\n  - standard filter contract per core resource\
+    \ domain\n  - explicit idempotency policy metadata per write operation and globally\n\
+    \  - webhook eventVersion and schemaVersion fields for event evolution\n\n\n\n\
+    Version 2.6 additions:\n  - true PATCH schemas without inherited required fields\n\
+    \  - normalized catalog item pricing/tax schema and examples\n  - corrected address\
+    \ country example types\n  - explicit catalog read-only contract metadata\n  -\
+    \ split OrderSummary vs Order detail examples for clearer SDK generation\n  -\
+    \ consistent list/get/create/update operationId naming\n  - documented canonical\
+    \ order state machine and allowed transitions\n\n\nVersion 2.7 additions:\n  -\
+    \ implementation-readiness pass on nested request schemas and nullability notes\n\
+    \  - explicit AddressInput schema for write operations\n  - fixed remaining PATCH\
+    \ semantics gap on LocationUpdateRequest\n  - stronger required/minProperties\
+    \ rules on partial updates\n  - consistency pass on core examples and schema descriptions\n\
+    \  - added summary/detail examples for key read models\n"
+servers:
+- url: https://api.plorea.com
+  description: Production
+- url: https://staging-api.plorea.com
+  description: Staging
+tags:
+- name: Auth
+  x-domain-owner: Platform / IAM
+  x-audience: public
+- name: Device Sessions
+  x-domain-owner: Platform / IAM
+  x-audience: public
+- name: Companies
+  x-domain-owner: Core Configuration
+  x-audience: public
+- name: Locations
+  x-domain-owner: Core Configuration
+  x-audience: public
+- name: Employees
+  x-domain-owner: Core Configuration
+  x-audience: public
+- name: Devices
+  x-domain-owner: Order Experience
+  x-audience: public
+- name: Catalog
+  x-domain-owner: Catalog & Pricing
+  x-audience: public
+- name: Availability
+  x-domain-owner: Order Core
+  x-audience: public
+- name: Orders
+  x-domain-owner: Order Core
+  x-audience: public
+- name: Webhooks
+  x-domain-owner: Integrations
+  x-audience: public
+security:
+- bearerAuth: []
+paths:
+  /api/v2/auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Authenticate integration user
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              basic:
+                value:
+                  email: partner@plorea.com
+                  password: strong-secret
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthLoginResponse'
+              examples:
+                success:
+                  value:
+                    data:
+                      token: jwt_xxx
+                      tokenType: Bearer
+                      expiresAt: '2026-03-09T21:00:00+01:00'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: createAuthToken
+      x-domain-owner: Platform / IAM
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/me:
+    get:
+      tags:
+      - Auth
+      summary: Get authenticated integration context
+      responses:
+        '200':
+          description: Current authenticated principal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getAuthenticatedContext
+      x-domain-owner: Platform / IAM
+      x-audience: public
+      x-release-stage: draft
+  /api/v2/device-sessions:
+    post:
+      tags:
+      - Device Sessions
+      summary: Resolve a device token into a runtime session context
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceSessionCreateRequest'
+            examples:
+              qrDevice:
+                value:
+                  deviceToken: devtok_live_xxx
+      responses:
+        '201':
+          description: Device session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceSessionResponse'
+              examples:
+                resolved:
+                  value:
+                    data:
+                      sessionToken: jwt_session_xxx
+                      company:
+                        id: cmp_120
+                        name: Plorea Example
+                      location:
+                        id: loc_10
+                        name: Steinkjer Sentrum
+                        timezone: Europe/Oslo
+                      device:
+                        id: dev_8
+                        name: QR Main Entrance
+                        type: QR
+                        active: true
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+      operationId: createDeviceSession
+      x-domain-owner: Platform / IAM
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/companies:
+    get:
+      tags:
+      - Companies
+      summary: List companies
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: name
+        in: query
+        schema:
+          type: string
+      - name: organizationNumber
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Companies list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: cmp_120
+                      name: Plorea Example
+                      organizationNumber: '1234'
+                      email: contact@example.com
+                      phone: '+4744559988'
+                      website: https://example.com
+                      country:
+                        id: cty_30
+                        iso: 'NO'
+                        name: Norway
+                      currency:
+                        id: cur_89
+                        code: NOK
+                        symbol: kr
+                      language:
+                        id: lang_1
+                        code: nb
+                      capabilities:
+                        menuInUse: true
+                        adminCodeEnabled: true
+                        adyenEcomEnabled: true
+                      settings: {}
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCompanies
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: companies
+    post:
+      tags:
+      - Companies
+      summary: Create company
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CompanyCreateRequest'
+            examples:
+              create:
+                value:
+                  name: Plorea Example
+                  organizationNumber: '1234'
+                  website: https://example.com
+                  phone: '+4744559988'
+                  email: contact@example.com
+                  about: Something about this company
+                  countryId: 30
+                  currencyId: 89
+                  languageId: 1
+                  shortCode: '1234'
+                  capabilities:
+                    menuInUse: false
+                    adminCodeEnabled: true
+                    adyenEcomEnabled: true
+                  settings: {}
+      responses:
+        '201':
+          description: Company created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: createCompany
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/companies/{companyId}:
+    get:
+      tags:
+      - Companies
+      summary: Get company
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      responses:
+        '200':
+          description: Company details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getCompany
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+    patch:
+      tags:
+      - Companies
+      summary: Update company
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/CompanyUpdateRequest'
+            examples:
+              update:
+                value:
+                  phone: '+4799999999'
+                  capabilities:
+                    adyenEcomEnabled: false
+      responses:
+        '200':
+          description: Company updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompanyResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: updateCompany
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/companies/{companyId}/locations:
+    get:
+      tags:
+      - Locations
+      summary: List locations for company
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: name
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Locations list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationListResponse'
+              examples:
+                list:
+                  value:
+                    data:
+                    - id: loc_10
+                      companyId: cmp_120
+                      name: Steinkjer Sentrum
+                      currency:
+                        id: cur_89
+                        code: NOK
+                        symbol: kr
+                      address:
+                        street: Arve Skjeflos Veg 8
+                        postalCode: '7713'
+                        city: Steinkjer
+                        country: 'NO'
+                      timezone: Europe/Oslo
+                      formatting:
+                        dateFormat: DD.MM.YYYY
+                        timeFormat: HH:mm
+                        thousandsSeparator: ' '
+                        decimalSeparator: ','
+                        decimalPrecision: 2
+                      features:
+                        tipPayment: false
+                        cloudPrint: true
+                        splitPayment: false
+                      active: true
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+                default:
+                  value:
+                    data:
+                    - id: loc_10
+                      companyId: cmp_120
+                      name: Steinkjer Sentrum
+                      currency:
+                        id: cur_89
+                        code: NOK
+                        symbol: kr
+                      address:
+                        country: 'NO'
+                        city: Steinkjer
+                        street: Arve Skjeflos Veg 8
+                        postalCode: '7713'
+                      timezone: Europe/Oslo
+                      formatting:
+                        dateFormat: DD.MM.YYYY
+                        timeFormat: HH:mm
+                        thousandsSeparator: ' '
+                        decimalSeparator: ','
+                        decimalPrecision: 2
+                      features:
+                        tipPayment: false
+                        cloudPrint: true
+                        splitPayment: false
+                      active: true
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCompanyLocations
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: locations
+    post:
+      tags:
+      - Locations
+      summary: Create location under company
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationCreateRequest'
+            examples:
+              create:
+                value:
+                  name: Steinkjer Sentrum
+                  currencyId: 89
+                  address:
+                    street: Arve Skjeflos Veg 8
+                    postalCode: '7713'
+                    city: Steinkjer
+                    country: 'NO'
+                  phone: '+4797874646'
+                  timezone: Europe/Oslo
+                  formatting:
+                    dateFormat: DD.MM.YYYY
+                    timeFormat: HH:mm
+                    thousandsSeparator: ' '
+                    decimalSeparator: ','
+                    decimalPrecision: 2
+                  features:
+                    tipPayment: false
+                    cloudPrint: true
+                    splitPayment: false
+                  settings: {}
+      responses:
+        '201':
+          description: Location created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: createCompanyLocation
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/locations/{locationId}:
+    get:
+      tags:
+      - Locations
+      summary: Get location
+      parameters:
+      - $ref: '#/components/parameters/LocationId'
+      responses:
+        '200':
+          description: Location details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getLocation
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+    patch:
+      tags:
+      - Locations
+      summary: Update location
+      parameters:
+      - $ref: '#/components/parameters/LocationId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/LocationUpdateRequest'
+      responses:
+        '200':
+          description: Location updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: updateLocation
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/companies/{companyId}/employees:
+    get:
+      tags:
+      - Employees
+      summary: List employees for company
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: locationId
+        in: query
+        schema:
+          type: string
+      - name: email
+        in: query
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Employees list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: emp_37
+                      companyId: cmp_120
+                      locationId: loc_10
+                      name: Juazeiro
+                      email: juazeiro@example.com
+                      role: cashier
+                      permissions:
+                        admin: false
+                        adminView: false
+                      shortCode: '2203'
+                      externalId: rmsv-emp-2203
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCompanyEmployees
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: employees
+    post:
+      tags:
+      - Employees
+      summary: Create employee
+      parameters:
+      - $ref: '#/components/parameters/CompanyId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmployeeCreateRequest'
+            examples:
+              create:
+                value:
+                  locationId: loc_10
+                  iamGroupId: grp_37
+                  admin: true
+                  name: Juazeiro
+                  email: juazeiro@example.com
+                  shortCode: '2203'
+                  externalId: rmsv-emp-2203
+      responses:
+        '201':
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: createCompanyEmployee
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/employees/{employeeId}:
+    get:
+      tags:
+      - Employees
+      summary: Get employee
+      parameters:
+      - $ref: '#/components/parameters/EmployeeId'
+      responses:
+        '200':
+          description: Employee details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getEmployee
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+    patch:
+      tags:
+      - Employees
+      summary: Update employee
+      parameters:
+      - $ref: '#/components/parameters/EmployeeId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/EmployeeUpdateRequest'
+      responses:
+        '200':
+          description: Employee updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: updateEmployee
+      x-domain-owner: Core Configuration
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/locations/{locationId}/devices:
+    get:
+      tags:
+      - Devices
+      summary: List devices for location
+      parameters:
+      - $ref: '#/components/parameters/LocationId'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - name: type
+        in: query
+        schema:
+          $ref: '#/components/schemas/DeviceType'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Devices list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: dev_8
+                      locationId: loc_10
+                      companyId: cmp_120
+                      name: QR Main Entrance
+                      type: QR
+                      active: true
+                      favoriteGroupId: favgrp_6
+                      favoritesSetupId: favsetup_18
+                      hardware:
+                        printerId: prn_16
+                        kitchenPrinterId: prn_14
+                      ordering:
+                        takeaway: true
+                        cardOnly: false
+                        searchEnabled: true
+                      pos:
+                        cashierActive: false
+                        cashierAmount: 28
+                        openCashDrawer: true
+                        saleLogout: true
+                        autoLogout: false
+                        autoLogoutTime: 9
+                        showFavoriteTabs: true
+                        tableMapDisabled: true
+                      settings: {}
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listLocationDevices
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: devices
+    post:
+      tags:
+      - Devices
+      summary: Create device
+      parameters:
+      - $ref: '#/components/parameters/LocationId'
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeviceCreateRequest'
+            examples:
+              create:
+                value:
+                  name: QR Main Entrance
+                  type: QR
+                  active: true
+                  favoriteGroupId: favgrp_6
+                  favoritesSetupId: favsetup_18
+                  hardware:
+                    printerId: prn_16
+                    kitchenPrinterId: prn_14
+                  ordering:
+                    takeaway: true
+                    cardOnly: false
+                    searchEnabled: true
+                  pos:
+                    cashierActive: false
+                    cashierAmount: 28
+                    openCashDrawer: true
+                    saleLogout: true
+                    autoLogout: false
+                    autoLogoutTime: 9
+                    showFavoriteTabs: true
+                    tableMapDisabled: true
+                  settings: {}
+      responses:
+        '201':
+          description: Device created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: createLocationDevice
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/devices/{deviceId}:
+    get:
+      tags:
+      - Devices
+      summary: Get device
+      parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Device details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getDevice
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+    patch:
+      tags:
+      - Devices
+      summary: Update device
+      parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/DeviceUpdateRequest'
+      responses:
+        '200':
+          description: Device updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: updateDevice
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/devices/{deviceId}/activate:
+    post:
+      tags:
+      - Devices
+      summary: Activate device
+      parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Device activated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: activateDevice
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/devices/{deviceId}/deactivate:
+    post:
+      tags:
+      - Devices
+      summary: Deactivate device
+      parameters:
+      - $ref: '#/components/parameters/DeviceId'
+      responses:
+        '200':
+          description: Device deactivated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: deactivateDevice
+      x-domain-owner: Order Experience
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/catalog/menus:
+    get:
+      tags:
+      - Catalog
+      summary: List menus
+      parameters:
+      - name: companyId
+        in: query
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Menus list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: menu_78
+                      companyId: cmp_120
+                      name: Main Menu
+                      active: true
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCatalogMenus
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/catalog/menus/{menuId}:
+    get:
+      tags:
+      - Catalog
+      summary: Get menu
+      parameters:
+      - $ref: '#/components/parameters/MenuId'
+      responses:
+        '200':
+          description: Menu details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getCatalogMenu
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/catalog/items:
+    get:
+      tags:
+      - Catalog
+      summary: List items for menu
+      parameters:
+      - name: companyId
+        in: query
+        required: true
+        schema:
+          type: string
+      - name: menuId
+        in: query
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: Items list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: item_123
+                      menuId: menu_78
+                      name: Burger
+                      price:
+                        amount: 159
+                        currencyCode: NOK
+                      vatGroup:
+                        id: vat_1
+                        name: Food
+                        ratePercent: 15
+                      active: true
+                      plu: BURG-001
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCatalogItems
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: catalogItems
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/catalog/items/{itemId}:
+    get:
+      tags:
+      - Catalog
+      summary: Get item
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MenuItemResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                      id: item_123
+                      menuId: menu_78
+                      categoryId: cat_10
+                      vatGroupId: vat_1
+                      vatGroup:
+                        id: vat_1
+                        name: Food
+                        ratePercent: 15
+                      plu: BURG-001
+                      name: Burger
+                      description: Classic burger
+                      price:
+                        amount: 159
+                        currencyCode: NOK
+                      active: true
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getCatalogItem
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/catalog/items/{itemId}/modifiers:
+    get:
+      tags:
+      - Catalog
+      summary: List item modifiers
+      parameters:
+      - $ref: '#/components/parameters/ItemId'
+      responses:
+        '200':
+          description: Item modifiers list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModifierGroupListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: modgrp_1
+                      name: Choose sauce
+                      required: false
+                      modifiers:
+                      - id: mod_1
+                        name: BBQ
+                        price:
+                          amount: 0
+                          currencyCode: NOK
+                        active: true
+                    meta:
+                      page: 1
+                      pageSize: 50
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCatalogItemModifiers
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/catalog/vat-groups:
+    get:
+      tags:
+      - Catalog
+      summary: List VAT groups for company
+      parameters:
+      - name: companyId
+        in: query
+        required: true
+        schema:
+          type: string
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: VAT groups list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VatGroupListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: vat_1
+                      companyId: cmp_120
+                      name: Food
+                      ratePercent: 15
+                      active: true
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: listCatalogVatGroups
+      x-domain-owner: Catalog & Pricing
+      x-audience: public-read-only
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-resource-mode: read-only
+      description: Read-only public catalog contract. Catalog mutations are handled
+        via internal admin workflows or upstream master-data synchronization, not
+        through this public integration API.
+  /api/v2/availability/check:
+    post:
+      tags:
+      - Availability
+      summary: Evaluate whether a basket can be ordered for a requested service and
+        time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AvailabilityCheckRequest'
+            examples:
+              delivery:
+                value:
+                  deviceId: dev_8
+                  serviceType: DELIVERY
+                  requestedAt: '2026-03-09T18:30:00+01:00'
+                  customer:
+                    address:
+                      street: Storgata 10
+                      postalCode: '7713'
+                      city: Steinkjer
+                      country: 'NO'
+                  items:
+                  - itemId: item_123
+                    quantity: 2
+              scheduledDelivery:
+                value:
+                  deviceId: dev_8
+                  serviceType: DELIVERY
+                  requestedAt: '2026-03-09T20:00:00+01:00'
+                  customer:
+                    address:
+                      street: Storgata 10
+                      postalCode: '7713'
+                      city: Steinkjer
+                      country: 'NO'
+                  items:
+                  - itemId: item_123
+                    quantity: 2
+      responses:
+        '200':
+          description: Availability result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AvailabilityCheckResponse'
+              examples:
+                available:
+                  value:
+                    data:
+                      available: true
+                      reasonCode: OK
+                      windows:
+                      - from: '2026-03-09T18:45:00+01:00'
+                        to: '2026-03-09T19:00:00+01:00'
+                      estimate:
+                        leadTimeMinutes: 20
+                        readyAt: '2026-03-09T18:35:00+01:00'
+                      pricing:
+                        deliveryFee: 59
+                        minimumOrderAmount: 200
+                        currencyCode: NOK
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: checkAvailability
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      description: Evaluates whether the requested basket can be fulfilled for the
+        requested service type and time, and returns operational pricing and timing
+        guidance.
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/orders:
+    get:
+      tags:
+      - Orders
+      summary: List orders
+      parameters:
+      - name: locationId
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        schema:
+          $ref: '#/components/schemas/OrderStatus'
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      - name: channel
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/OrderChannel'
+      - name: createdFrom
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      - name: createdTo
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+      responses:
+        '200':
+          description: Orders list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: ord_9001
+                      channel: ONLINE
+                      status: NEW
+                      paymentStatus: AUTHORIZED
+                      locationId: loc_10
+                      deviceId: dev_8
+                      service:
+                        type: DELIVERY
+                        requestedTime: ASAP
+                        deliveryAddress:
+                          street: Storgata 10
+                          postalCode: '7713'
+                          city: Steinkjer
+                          country: 'NO'
+                      totals:
+                        subtotal: 320
+                        deliveryFee: 59
+                        total: 379
+                        currencyCode: NOK
+                      createdAt: '2026-03-09T18:12:00+01:00'
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+      operationId: listOrders
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: orders
+      description: List order summaries. Use GET /api/v2/orders/{orderId} for full
+        order details including items.
+    post:
+      tags:
+      - Orders
+      summary: Create order in the canonical Order Core format
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+            examples:
+              onlineDelivery:
+                value:
+                  channel: ONLINE
+                  deviceId: dev_8
+                  locationId: loc_10
+                  employeeId: null
+                  customer:
+                    name: Ola Nordmann
+                    phone: '+4799999999'
+                    email: ola@example.com
+                  service:
+                    type: DELIVERY
+                    requestedTime: ASAP
+                    deliveryAddress:
+                      street: Storgata 10
+                      postalCode: '7713'
+                      city: Steinkjer
+                      country: 'NO'
+                  items:
+                  - itemId: item_123
+                    quantity: 2
+                    note: No onion
+                    modifierSelections:
+                    - modifierId: mod_1
+                      quantity: 1
+                  payment:
+                    method: ADYEN_ECOM
+                    status: AUTHORIZED
+                  externalReference: rmsv-ord-9001
+                  metadata: {}
+              scheduledDelivery:
+                value:
+                  channel: ONLINE
+                  deviceId: dev_8
+                  locationId: loc_10
+                  customer:
+                    name: Ola Nordmann
+                    phone: '+4799999999'
+                  service:
+                    type: DELIVERY
+                    requestedTime: '2026-03-09T20:00:00+01:00'
+                    deliveryAddress:
+                      street: Storgata 10
+                      postalCode: '7713'
+                      city: Steinkjer
+                      country: 'NO'
+                  items:
+                  - itemId: item_123
+                    quantity: 2
+                  payment:
+                    method: ADYEN_ECOM
+                    status: AUTHORIZED
+                  externalReference: rmsv-ord-9002
+              pickupGuestCheckout:
+                value:
+                  channel: KIOSK
+                  deviceId: dev_22
+                  locationId: loc_10
+                  customer:
+                    name: Guest Checkout
+                    phone: '+4700000000'
+                  service:
+                    type: PICKUP
+                    requestedTime: ASAP
+                  items:
+                  - itemId: item_700
+                    quantity: 1
+                    modifierSelections:
+                    - modifierId: mod_1
+                      quantity: 1
+                  payment:
+                    method: TERMINAL
+                    status: PENDING
+      responses:
+        '201':
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+              examples:
+                created:
+                  value:
+                    data:
+                      id: ord_9001
+                      channel: ONLINE
+                      status: NEW
+                      paymentStatus: AUTHORIZED
+                      service:
+                        type: DELIVERY
+                        requestedTime: ASAP
+                        readyAt: '2026-03-09T18:35:00+01:00'
+                      totals:
+                        subtotal: 320
+                        deliveryFee: 59
+                        total: 379
+                        currencyCode: NOK
+                      createdAt: '2026-03-09T18:12:00+01:00'
+        '409':
+          description: Duplicate idempotency key or conflicting order state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '422':
+          description: Validation failed or request state is semantically invalid
+            for order creation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                closedDevice:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: Request validation failed.
+                      details:
+                        service.requestedTime:
+                        - The requested time is outside the device opening window.
+                outOfStock:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: Request validation failed.
+                      details:
+                        items.0.itemId:
+                        - The selected item is unavailable for the requested service
+                          type.
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+      operationId: createOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/orders/{orderId}:
+    get:
+      tags:
+      - Orders
+      summary: Get order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                      id: ord_9001
+                      channel: ONLINE
+                      status: NEW
+                      paymentStatus: AUTHORIZED
+                      locationId: loc_10
+                      deviceId: dev_8
+                      customer:
+                        name: Ola Nordmann
+                        phone: '+4799999999'
+                        email: ola@example.com
+                      service:
+                        type: DELIVERY
+                        requestedTime: ASAP
+                        deliveryAddress:
+                          street: Storgata 10
+                          postalCode: '7713'
+                          city: Steinkjer
+                          country: 'NO'
+                        readyAt: '2026-03-09T18:35:00+01:00'
+                      items:
+                      - itemId: item_123
+                        quantity: 2
+                        note: No onion
+                        modifierSelections:
+                        - modifierId: mod_1
+                          quantity: 1
+                      totals:
+                        subtotal: 320
+                        deliveryFee: 59
+                        total: 379
+                        currencyCode: NOK
+                      externalReference: rmsv-ord-9001
+                      metadata: {}
+                      createdAt: '2026-03-09T18:12:00+01:00'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+      operationId: getOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      description: Get full order details including line items, service information,
+        totals, and metadata.
+  /api/v2/orders/{orderId}/accept:
+    post:
+      tags:
+      - Orders
+      summary: Accept order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: acceptOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - NEW
+      x-transition-to: ACCEPTED
+      description: 'Allowed when current order status is one of: NEW. Returns HTTP
+        409 for illegal transitions.'
+  /api/v2/orders/{orderId}/reject:
+    post:
+      tags:
+      - Orders
+      summary: Reject order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderActionReasonRequest'
+      responses:
+        '200':
+          description: Order rejected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingReason:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: Request validation failed.
+                      details:
+                        reason:
+                        - A reason is required when rejecting a paid order.
+      operationId: rejectOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - NEW
+      x-transition-to: REJECTED
+      description: 'Allowed when current order status is one of: NEW. Returns HTTP
+        409 for illegal transitions.'
+  /api/v2/orders/{orderId}/mark-in-progress:
+    post:
+      tags:
+      - Orders
+      summary: Mark order in progress
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: markOrderInProgress
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - ACCEPTED
+      x-transition-to: IN_PROGRESS
+      description: 'Allowed when current order status is one of: ACCEPTED. Returns
+        HTTP 409 for illegal transitions.'
+  /api/v2/orders/{orderId}/mark-ready:
+    post:
+      tags:
+      - Orders
+      summary: Mark order ready
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: markOrderReady
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - IN_PROGRESS
+      x-transition-to: READY
+      description: 'Allowed when current order status is one of: IN_PROGRESS. Returns
+        HTTP 409 for illegal transitions.'
+  /api/v2/orders/{orderId}/fulfill:
+    post:
+      tags:
+      - Orders
+      summary: Fulfill order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      responses:
+        '200':
+          description: Order fulfilled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: fulfillOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - READY
+      x-transition-to: FULFILLED
+      description: 'Allowed when current order status is one of: READY. Returns HTTP
+        409 for illegal transitions.'
+  /api/v2/orders/{orderId}/cancel:
+    post:
+      tags:
+      - Orders
+      summary: Cancel order
+      parameters:
+      - $ref: '#/components/parameters/OrderId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderActionReasonRequest'
+      responses:
+        '200':
+          description: Order cancelled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '409':
+          $ref: '#/components/responses/ConflictError'
+        '422':
+          description: Validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                missingReason:
+                  value:
+                    error:
+                      code: VALIDATION_ERROR
+                      message: Request validation failed.
+                      details:
+                        reason:
+                        - A reason is required when cancelling an order after acceptance.
+      operationId: cancelOrder
+      x-domain-owner: Order Core
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+      x-allowed-from-statuses:
+      - NEW
+      - ACCEPTED
+      - IN_PROGRESS
+      x-transition-to: CANCELLED
+      description: 'Allowed when current order status is one of: NEW, ACCEPTED, IN_PROGRESS.
+        Returns HTTP 409 for illegal transitions.'
+  /api/v2/webhooks:
+    get:
+      tags:
+      - Webhooks
+      summary: List webhook registrations
+      responses:
+        '200':
+          description: Webhooks list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
+              examples:
+                default:
+                  value:
+                    data:
+                    - id: wh_123
+                      url: https://partner.example.com/plorea/webhooks
+                      events:
+                      - order.created
+                      - order.status.changed
+                      - payment.authorized
+                      active: true
+                      createdAt: '2026-03-09T10:00:00+01:00'
+                    meta:
+                      page: 1
+                      pageSize: 20
+                      total: 1
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+      operationId: listWebhooks
+      x-domain-owner: Integrations
+      x-audience: public
+      x-release-stage: draft
+      parameters:
+      - $ref: '#/components/parameters/Page'
+      - $ref: '#/components/parameters/PageSize'
+      - $ref: '#/components/parameters/Sort'
+      - $ref: '#/components/parameters/Fields'
+      x-list-contract: canonical-page-sort-fields
+      x-supported-filters: webhooks
+    post:
+      tags:
+      - Webhooks
+      summary: Create webhook registration
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookCreateRequest'
+            examples:
+              create:
+                value:
+                  url: https://partner.example.com/plorea/webhooks
+                  secret: whsec_xxx
+                  events:
+                  - order.created
+                  - order.status.changed
+                  - payment.authorized
+      responses:
+        '201':
+          description: Webhook created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+              examples:
+                created:
+                  value:
+                    data:
+                      id: wh_17
+                      url: https://partner.example.com/plorea/webhooks
+                      events:
+                      - order.created
+                      - order.status.changed
+                      - payment.authorized
+                      active: true
+                      createdAt: '2026-03-09T18:00:00+01:00'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: createWebhook
+      description: 'Registers a webhook endpoint that will receive event payloads
+        matching the WebhookEvent schema.
+
+
+        Outbound deliveries include X-Plorea-Signature, X-Plorea-Timestamp, and X-Plorea-Delivery-Id
+        headers. Consumers should verify the HMAC-SHA256 signature against the raw
+        request body and reject stale timestamps.'
+      x-domain-owner: Integrations
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: true
+        header: Idempotency-Key
+        behavior: Returns the original result for safe client retries.
+  /api/v2/webhooks/{webhookId}:
+    patch:
+      tags:
+      - Webhooks
+      summary: Update webhook registration
+      parameters:
+      - $ref: '#/components/parameters/WebhookId'
+      requestBody:
+        required: true
+        content:
+          application/merge-patch+json:
+            schema:
+              $ref: '#/components/schemas/WebhookUpdateRequest'
+      responses:
+        '200':
+          description: Webhook updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookResponse'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+      operationId: updateWebhook
+      x-domain-owner: Integrations
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+  /api/v2/webhooks/{webhookId}/test:
+    post:
+      tags:
+      - Webhooks
+      summary: Send a test event to webhook endpoint
+      parameters:
+      - $ref: '#/components/parameters/WebhookId'
+      responses:
+        '202':
+          description: Test webhook dispatched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicMessageResponse'
+              examples:
+                dispatched:
+                  value:
+                    data:
+                      message: Test webhook dispatched.
+                      sampleEvent: &id001
+                        eventId: evt_123
+                        eventType: order.created
+                        occurredAt: '2026-03-09T18:12:00+01:00'
+                        data:
+                          orderId: ord_9001
+                          externalReference: rmsv-ord-9001
+                          locationId: loc_10
+                          deviceId: dev_8
+                          status: NEW
+                          paymentStatus: AUTHORIZED
+                          total: 379
+                          currencyCode: NOK
+                        eventVersion: 1
+                        schemaVersion: '2026-03-10'
+                acceptedForDelivery:
+                  value:
+                    data:
+                      message: Test webhook event queued for delivery.
+                      delivery:
+                        deliveryId: whd_123
+                        webhookId: wh_123
+                        eventType: order.created
+                        status: PENDING
+                        attemptCount: 0
+                        retryPolicy:
+                          strategy: exponential-backoff
+                          maxAttempts: 6
+                          scheduleSeconds:
+                          - 0
+                          - 30
+                          - 120
+                          - 600
+                          - 1800
+                          - 7200
+                        attempts: []
+          headers:
+            X-Plorea-Delivery-Id:
+              $ref: '#/components/headers/X-Plorea-Delivery-Id'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+      operationId: testWebhook
+      x-domain-owner: Integrations
+      x-audience: public
+      x-release-stage: draft
+      x-idempotency:
+        supported: false
+        behavior: Not supported on this operation.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    Page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageSize:
+      name: pageSize
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 20
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+        maxLength: 255
+      description: Recommended for create/update commands that must be replay-safe.
+    CompanyId:
+      name: companyId
+      in: path
+      required: true
+      schema:
+        type: string
+    LocationId:
+      name: locationId
+      in: path
+      required: true
+      schema:
+        type: string
+    EmployeeId:
+      name: employeeId
+      in: path
+      required: true
+      schema:
+        type: string
+    DeviceId:
+      name: deviceId
+      in: path
+      required: true
+      schema:
+        type: string
+    MenuId:
+      name: menuId
+      in: path
+      required: true
+      schema:
+        type: string
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+    OrderId:
+      name: orderId
+      in: path
+      required: true
+      schema:
+        type: string
+    WebhookId:
+      name: webhookId
+      in: path
+      required: true
+      schema:
+        type: string
+    Sort:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+        example: name,-createdAt
+      description: Comma-separated field list for sorting. Prefix a field with - for
+        descending order.
+    Fields:
+      name: fields
+      in: query
+      required: false
+      schema:
+        type: string
+        example: id,name,active
+      description: Optional sparse fieldset. Comma-separated list of top-level response
+        fields to include where supported.
+  responses:
+    UnauthorizedError:
+      description: Authentication failed or token missing
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            unauthorized:
+              value:
+                error:
+                  code: UNAUTHORIZED
+                  message: Authentication failed.
+    NotFoundError:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            notFound:
+              value:
+                error:
+                  code: NOT_FOUND
+                  message: Resource not found.
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+    ForbiddenError:
+      description: Authenticated but not allowed to perform this action
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            forbidden:
+              value:
+                error:
+                  code: FORBIDDEN
+                  message: You do not have permission to perform this action.
+    ConflictError:
+      description: Request conflicts with current resource state
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            conflict:
+              value:
+                error:
+                  code: CONFLICT
+                  message: The request conflicts with the current resource state.
+    RateLimitError:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          examples:
+            rateLimited:
+              value:
+                error:
+                  code: RATE_LIMITED
+                  message: Too many requests. Please retry later.
+  schemas:
+    LoginRequest:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        email:
+        - required
+        - email
+        password:
+        - required
+        - string
+        - min:8
+    DataEnvelope:
+      type: object
+      properties:
+        data: {}
+        meta:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public
+    ErrorResponse:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              oneOf:
+              - type: object
+                additionalProperties: true
+              - type: array
+                items: {}
+              - type: string
+              - type: 'null'
+              description: Optional structured error details. Validation errors should
+                return an object keyed by field path.
+      x-release-stage: draft
+      x-audience: public-read
+    BasicMessageResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            message:
+              type: string
+      x-release-stage: draft
+      x-audience: public-read
+    AuthToken:
+      type: object
+      required:
+      - token
+      - tokenType
+      - expiresAt
+      properties:
+        token:
+          type: string
+        tokenType:
+          type: string
+          example: Bearer
+        expiresAt:
+          type: string
+          format: date-time
+      x-release-stage: draft
+      x-audience: public
+    AuthLoginResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AuthToken'
+      x-release-stage: draft
+      x-audience: public-read
+    Me:
+      type: object
+      properties:
+        integrationId:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        scopes:
+          type: array
+          items:
+            type: string
+      x-release-stage: draft
+      x-audience: public
+    MeResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Me'
+      x-release-stage: draft
+      x-audience: public-read
+    CompanyCapabilities:
+      type: object
+      properties:
+        menuInUse:
+          type: boolean
+        adminCodeEnabled:
+          type: boolean
+        adyenEcomEnabled:
+          type: boolean
+      x-release-stage: draft
+      x-audience: public
+    CountryRef:
+      type: object
+      properties:
+        id:
+          type: string
+        iso:
+          type: string
+        name:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+    LanguageRef:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        name:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+    CurrencyRef:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+        symbol:
+          type: string
+        country:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+    Company:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        organizationNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        website:
+          type: string
+          format: uri
+        about:
+          type: string
+          nullable: true
+        shortCode:
+          type: string
+          nullable: true
+        country:
+          $ref: '#/components/schemas/CountryRef'
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+        language:
+          $ref: '#/components/schemas/LanguageRef'
+        capabilities:
+          $ref: '#/components/schemas/CompanyCapabilities'
+        settings:
+          type: object
+          additionalProperties: true
+      x-db-mapping:
+        table: companies
+        fields:
+          id: companies.id
+          name: companies.name
+          organizationNumber: companies.organization_number
+          email: companies.email
+          phone: companies.phone
+          website: companies.url
+          countryId: companies.country_id
+          currencyId: companies.currency_id
+          languageId: companies.language_id
+          capabilities.menuInUse: companies.menu_in_use
+          capabilities.adminCodeEnabled: companies.admin_code
+          capabilities.adyenEcomEnabled: companies.adyen_ecom
+          settings: companies.options
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - name
+      - organizationNumber
+      example:
+        id: cmp_120
+        name: Plorea Example
+        organizationNumber: '123456789'
+        email: contact@example.com
+        phone: '+4744559988'
+        website: https://example.com
+        country:
+          id: cty_30
+          iso: 'NO'
+          name: Norway
+        currency:
+          id: cur_89
+          code: NOK
+          symbol: kr
+        language:
+          id: lang_1
+          code: nb
+        capabilities:
+          menuInUse: false
+          adminCodeEnabled: true
+          adyenEcomEnabled: true
+        settings: {}
+      description: Nullability review completed in v2.7; fields are non-null unless
+        explicitly marked nullable.
+    CompanyCreateRequest:
+      type: object
+      required:
+      - name
+      - countryId
+      properties:
+        name:
+          type: string
+        organizationNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        website:
+          type: string
+          format: uri
+        about:
+          type: string
+        shortCode:
+          type: string
+        countryId:
+          type: integer
+        currencyId:
+          type: integer
+        languageId:
+          type: integer
+        capabilities:
+          $ref: '#/components/schemas/CompanyCapabilities'
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        name:
+        - required
+        - string
+        - max:255
+        organizationNumber:
+        - string
+        - max:64
+        email:
+        - email
+        currency.id:
+        - string
+        language.code:
+        - string
+    CompanyUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        organizationNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        website:
+          type: string
+          format: uri
+        about:
+          type: string
+        shortCode:
+          type: string
+        countryId:
+          type: integer
+        currencyId:
+          type: integer
+        languageId:
+          type: integer
+        capabilities:
+          $ref: '#/components/schemas/CompanyCapabilities'
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.6-patch-semantics-aligned
+      x-validation-rules:
+        name:
+        - string
+        - max:255
+        organizationNumber:
+        - string
+        - max:64
+        email:
+        - email
+        currency.id:
+        - string
+        language.code:
+        - string
+      description: Partial update payload. Omitted fields remain unchanged.
+      minProperties: 1
+      x-nullability-review: v2.7-reviewed
+    CompanyResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Company'
+      x-release-stage: draft
+      x-audience: public-read
+    CompanyListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Company'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    Address:
+      type: object
+      description: Read model for addresses. Coordinates may be returned when known,
+        for example after geocoding or when stored on the underlying location/order.
+      properties:
+        street:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code.
+          examples:
+          - 'NO'
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+      x-release-stage: draft
+      x-audience: public
+      example:
+        street: Arve Skjeflos Veg 8
+        postalCode: '7713'
+        city: Steinkjer
+        country: 'NO'
+    AddressInput:
+      type: object
+      description: Write model for addresses used in create/update requests. Coordinates
+        are optional input and may be omitted by clients.
+      required:
+      - postalCode
+      - city
+      - country
+      properties:
+        street:
+          type: string
+        postalCode:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code.
+          examples:
+          - 'NO'
+        coordinates:
+          $ref: '#/components/schemas/Coordinates'
+      x-release-stage: draft
+      x-audience: public-write
+      example:
+        street: Storgata 10
+        postalCode: '7713'
+        city: Steinkjer
+        country: 'NO'
+    Coordinates:
+      type: object
+      properties:
+        lat:
+          type: number
+          format: double
+        lng:
+          type: number
+          format: double
+      x-release-stage: draft
+      x-audience: public
+    FormattingSettings:
+      type: object
+      properties:
+        dateFormat:
+          type: string
+        timeFormat:
+          type: string
+        thousandsSeparator:
+          type: string
+        decimalSeparator:
+          type: string
+        decimalPrecision:
+          type: integer
+      x-release-stage: draft
+      x-audience: public
+    LocationFeatures:
+      type: object
+      properties:
+        tipPayment:
+          type: boolean
+        cloudPrint:
+          type: boolean
+        splitPayment:
+          type: boolean
+      x-release-stage: draft
+      x-audience: public
+    Location:
+      type: object
+      properties:
+        id:
+          type: string
+        companyId:
+          type: string
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        phone:
+          type: string
+          nullable: true
+        currency:
+          $ref: '#/components/schemas/CurrencyRef'
+        timezone:
+          type: string
+        formatting:
+          $ref: '#/components/schemas/FormattingSettings'
+        features:
+          $ref: '#/components/schemas/LocationFeatures'
+        workingDays:
+          type: array
+          items:
+            type: string
+        active:
+          type: boolean
+        settings:
+          type: object
+          additionalProperties: true
+      x-db-mapping:
+        table: companies_addresses
+        fields:
+          id: companies_addresses.id
+          companyId: companies_addresses.company_id
+          name: companies_addresses.name
+          currency.id: companies_addresses.currency_id
+          address.street: companies_addresses.address
+          address.postalCode: companies_addresses.zip_code
+          address.city: companies_addresses.city
+          address.country: companies_addresses.country
+          timezone: companies_addresses.timezone
+          formatting.dateFormat: companies_addresses.date_format
+          formatting.timeFormat: companies_addresses.time_format
+          formatting.thousandsSeparator: companies_addresses.thousands_separator
+          formatting.decimalSeparator: companies_addresses.decimal_separator
+          formatting.decimalPrecision: companies_addresses.decimal_precision
+          features.tipPayment: companies_addresses.tip_payment
+          features.cloudPrint: companies_addresses.cloud_print
+          features.splitPayment: companies_addresses.split_payment
+          settings: companies_addresses.options
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - companyId
+      - name
+      - city
+      - active
+      example:
+        id: loc_10
+        companyId: cmp_120
+        name: Steinkjer Sentrum
+        currency:
+          id: cur_89
+          code: NOK
+          symbol: kr
+        address:
+          street: Arve Skjeflos Veg 8
+          postalCode: '7713'
+          city: Steinkjer
+          country: 'NO'
+        timezone: Europe/Oslo
+        formatting:
+          dateFormat: DD.MM.YYYY
+          timeFormat: HH:mm
+          thousandsSeparator: ' '
+          decimalSeparator: ','
+          decimalPrecision: 2
+        features:
+          tipPayment: false
+          cloudPrint: true
+          splitPayment: false
+        active: true
+      description: Nullability review completed in v2.7; fields are non-null unless
+        explicitly marked nullable.
+    LocationCreateRequest:
+      type: object
+      required:
+      - name
+      - currencyId
+      - address
+      properties:
+        name:
+          type: string
+        currencyId:
+          type: integer
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressInput'
+        timezone:
+          type: string
+        formatting:
+          $ref: '#/components/schemas/FormattingSettings'
+        features:
+          $ref: '#/components/schemas/LocationFeatures'
+        workingDays:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        name:
+        - required
+        - string
+        - max:255
+        currency.id:
+        - required
+        - string
+        timezone:
+        - required
+        - iana-timezone
+        address.country:
+        - required
+        - iso-country
+        address.city:
+        - required
+        - string
+        address.postalCode:
+        - required
+        - string
+      description: Create payload for a location. Address uses the write model with
+        required city/postalCode/country fields.
+      x-nullability-review: v2.7-reviewed
+    LocationUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        currencyId:
+          type: integer
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/AddressInput'
+        timezone:
+          type: string
+        formatting:
+          $ref: '#/components/schemas/FormattingSettings'
+        features:
+          $ref: '#/components/schemas/LocationFeatures'
+        workingDays:
+          type: array
+          items:
+            type: string
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      description: Partial update payload. Omitted fields remain unchanged.
+      x-required-review: v2.7-patch-semantics-aligned
+      x-validation-rules:
+        name:
+        - string
+        - max:255
+        currencyId:
+        - integer
+        timezone:
+        - iana-timezone
+        address.country:
+        - iso-country
+        address.city:
+        - string
+        address.postalCode:
+        - string
+      minProperties: 1
+      x-nullability-review: v2.7-reviewed
+    LocationResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Location'
+      x-release-stage: draft
+      x-audience: public-read
+    LocationListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    Employee:
+      type: object
+      properties:
+        id:
+          type: string
+        companyId:
+          type: string
+        locationId:
+          type: string
+        iamGroupId:
+          type: string
+          nullable: true
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          type: string
+          nullable: true
+        admin:
+          type: boolean
+        adminView:
+          type: boolean
+          nullable: true
+        shortCode:
+          type: string
+        externalId:
+          type: string
+          nullable: true
+      x-db-mapping:
+        table: companies_users
+        fields:
+          id: companies_users.id
+          companyId: companies_users.company_id
+          locationId: companies_users.companies_address_id
+          iamGroupId: companies_users.iam_group_id
+          role: companies_users.role
+          admin: companies_users.admin
+          adminView: companies_users.admin_view
+          shortCode: companies_users.short_code
+          externalId: companies_users.external_id
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - companyId
+      - locationId
+      - role
+      - externalId
+      - active
+      description: Nullability review completed in v2.7; fields are non-null unless
+        explicitly marked nullable.
+    EmployeeCreateRequest:
+      type: object
+      required:
+      - locationId
+      - name
+      - email
+      - shortCode
+      properties:
+        locationId:
+          type: string
+        iamGroupId:
+          type: string
+        admin:
+          type: boolean
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        shortCode:
+          type: string
+          minLength: 4
+          maxLength: 10
+        externalId:
+          type: string
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        name:
+        - required
+        - string
+        - max:255
+        locationId:
+        - required
+        - string
+        role:
+        - required
+        - string
+        email:
+        - email
+    EmployeeUpdateRequest:
+      type: object
+      properties:
+        locationId:
+          type: string
+        iamGroupId:
+          type: string
+        admin:
+          type: boolean
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        shortCode:
+          type: string
+          minLength: 4
+          maxLength: 10
+        externalId:
+          type: string
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.6-patch-semantics-aligned
+      x-validation-rules:
+        name:
+        - string
+        - max:255
+        locationId:
+        - string
+        role:
+        - string
+        email:
+        - email
+      description: Partial update payload. Omitted fields remain unchanged.
+      minProperties: 1
+      x-nullability-review: v2.7-reviewed
+    EmployeeResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Employee'
+      x-release-stage: draft
+      x-audience: public-read
+    EmployeeListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Employee'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    DeviceType:
+      type: string
+      enum:
+      - QR
+      - KIOSK
+      - ONLINE
+      - POS_ADVANCED
+      - POS_SIMPLE
+      - DIRECT_LINK
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for DeviceType.
+      x-enum-descriptions:
+        QR: QR ordering surface resolved through a device context.
+        KIOSK: Self-service kiosk client.
+        ONLINE: Hosted online ordering storefront.
+        POS_ADVANCED: Advanced POS terminal experience.
+        POS_SIMPLE: Simple POS terminal experience.
+        DIRECT_LINK: Virtual device bound to a direct link entry point.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+    DeviceHardware:
+      type: object
+      properties:
+        printerId:
+          type: string
+          nullable: true
+        kitchenPrinterId:
+          type: string
+          nullable: true
+      x-release-stage: draft
+      x-audience: public
+    DeviceOrdering:
+      type: object
+      properties:
+        takeaway:
+          type: boolean
+        cardOnly:
+          type: boolean
+        searchEnabled:
+          type: boolean
+      x-release-stage: draft
+      x-audience: public
+    DevicePosConfig:
+      type: object
+      properties:
+        cashierActive:
+          type: boolean
+        cashierAmount:
+          type: number
+        openCashDrawer:
+          type: boolean
+        saleLogout:
+          type: boolean
+        autoLogout:
+          type: boolean
+        autoLogoutTime:
+          type: integer
+        showFavoriteTabs:
+          type: boolean
+        tableMapDisabled:
+          type: boolean
+      x-release-stage: draft
+      x-audience: public
+    Device:
+      type: object
+      properties:
+        id:
+          type: string
+        companyId:
+          type: string
+        locationId:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        active:
+          type: boolean
+        favoriteGroupId:
+          type: string
+          nullable: true
+        favoritesSetupId:
+          type: string
+          nullable: true
+        hardware:
+          $ref: '#/components/schemas/DeviceHardware'
+        ordering:
+          $ref: '#/components/schemas/DeviceOrdering'
+        pos:
+          $ref: '#/components/schemas/DevicePosConfig'
+        settings:
+          type: object
+          additionalProperties: true
+      x-db-mapping:
+        table: devices
+        fields:
+          id: devices.id
+          companyId: devices.company_id
+          locationId: devices.companies_address_id
+          name: devices.name
+          type: devices.device_type
+          favoriteGroupId: devices.favorite_group_id
+          favoritesSetupId: devices.favorites_setup_id
+          hardware.printerId: devices.printer_id
+          hardware.kitchenPrinterId: devices.kitchen_printer_id
+          ordering.takeaway: devices.is_takeaway
+          ordering.cardOnly: devices.cardonly
+          ordering.searchEnabled: devices.search
+          active: devices.active
+          pos.cashierActive: devices.cashier_active
+          pos.cashierAmount: devices.cashier_amount
+          pos.openCashDrawer: devices.open_cash_drawer
+          pos.saleLogout: devices.sale_logout
+          pos.autoLogout: devices.auto_logout
+          pos.autoLogoutTime: devices.auto_logout_time
+          pos.showFavoriteTabs: devices.show_favorite_tabs
+          pos.tableMapDisabled: devices.table_map_not_in_use
+          settings: devices.options
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - locationId
+      - type
+      - active
+      - favoriteGroupId
+      example:
+        id: dev_8
+        locationId: loc_10
+        companyId: cmp_120
+        name: QR Main Entrance
+        type: QR
+        active: true
+        favoriteGroupId: favgrp_6
+        favoritesSetupId: favsetup_18
+        hardware:
+          printerId: prn_16
+          kitchenPrinterId: prn_14
+        ordering:
+          takeaway: true
+          cardOnly: false
+          searchEnabled: true
+        pos:
+          cashierActive: false
+          cashierAmount: 28
+        settings: {}
+      description: Nullability review completed in v2.7; fields are non-null unless
+        explicitly marked nullable.
+    DeviceCreateRequest:
+      type: object
+      required:
+      - name
+      - type
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        active:
+          type: boolean
+        favoriteGroupId:
+          type: string
+        favoritesSetupId:
+          type: string
+        hardware:
+          $ref: '#/components/schemas/DeviceHardware'
+        ordering:
+          $ref: '#/components/schemas/DeviceOrdering'
+        pos:
+          $ref: '#/components/schemas/DevicePosConfig'
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        name:
+        - required
+        - string
+        - max:255
+        type:
+        - required
+        - enum:DeviceType
+        active:
+        - boolean
+        favoriteGroupId:
+        - string
+    DeviceUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/DeviceType'
+        active:
+          type: boolean
+        favoriteGroupId:
+          type: string
+        favoritesSetupId:
+          type: string
+        hardware:
+          $ref: '#/components/schemas/DeviceHardware'
+        ordering:
+          $ref: '#/components/schemas/DeviceOrdering'
+        pos:
+          $ref: '#/components/schemas/DevicePosConfig'
+        settings:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.6-patch-semantics-aligned
+      x-validation-rules:
+        name:
+        - string
+        - max:255
+        type:
+        - enum:DeviceType
+        active:
+        - boolean
+        favoriteGroupId:
+        - string
+      description: Partial update payload. Omitted fields remain unchanged.
+      minProperties: 1
+      x-nullability-review: v2.7-reviewed
+    DeviceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Device'
+      x-release-stage: draft
+      x-audience: public-read
+    DeviceListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Device'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    DeviceSessionCreateRequest:
+      type: object
+      required:
+      - deviceToken
+      properties:
+        deviceToken:
+          type: string
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        deviceToken:
+        - required
+        - string
+    DeviceSession:
+      type: object
+      properties:
+        sessionToken:
+          type: string
+        company:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+        location:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            timezone:
+              type: string
+        device:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            type:
+              $ref: '#/components/schemas/DeviceType'
+            active:
+              type: boolean
+      x-release-stage: draft
+      x-audience: public
+    DeviceSessionResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/DeviceSession'
+      x-release-stage: draft
+      x-audience: public-read
+    Menu:
+      type: object
+      properties:
+        id:
+          type: string
+        companyId:
+          type: string
+        name:
+          type: string
+        about:
+          type: string
+          nullable: true
+        picture:
+          type: string
+          format: uri
+          nullable: true
+        step:
+          type: integer
+        tableOrder:
+          type: integer
+        priority:
+          type: integer
+      x-db-mapping:
+        table: menus
+        fields:
+          id: menus.id
+          companyId: menus.company_id
+          name: menus.name
+          active: menus.active
+          settings: menus.options
+      x-release-stage: draft
+      x-audience: public
+    MenuResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Menu'
+      x-release-stage: draft
+      x-audience: public-read
+    MenuListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Menu'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    MoneyAmount:
+      type: object
+      properties:
+        amount:
+          type: number
+        currencyCode:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+      required:
+      - amount
+      - currencyCode
+    MenuItem:
+      type: object
+      properties:
+        id:
+          type: string
+        menuId:
+          type: string
+        categoryId:
+          type: string
+          nullable: true
+        vatGroupId:
+          type: string
+        plu:
+          type: string
+          nullable: true
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        price:
+          $ref: '#/components/schemas/MoneyAmount'
+        active:
+          type: boolean
+        vatGroup:
+          $ref: '#/components/schemas/VatGroupRef'
+      x-release-stage: draft
+      x-audience: public-read
+      example:
+        id: item_123
+        menuId: menu_78
+        categoryId: cat_12
+        vatGroupId: vat_1
+        plu: '101'
+        name: Burger Menu
+        description: Burger with fries and dip
+        price:
+          amount: 189
+          currencyCode: NOK
+        active: true
+        vatGroup:
+          id: vat_1
+          name: Food 15%
+          ratePercent: 15
+      description: Nullability review completed in v2.7; fields are non-null unless
+        explicitly marked nullable.
+    MenuItemResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/MenuItem'
+      x-release-stage: draft
+      x-audience: public-read
+    MenuItemListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/MenuItem'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    Modifier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          $ref: '#/components/schemas/MoneyAmount'
+        active:
+          type: boolean
+          description: Indicates whether the modifier is currently selectable.
+        maxQty:
+          type: integer
+          nullable: true
+      x-release-stage: draft
+      x-audience: public
+      example:
+        id: mod_1
+        name: BBQ
+        price:
+          amount: 0
+          currencyCode: NOK
+        active: true
+    ModifierGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        required:
+          type: boolean
+        modifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/Modifier'
+      x-release-stage: draft
+      x-audience: public
+    ModifierGroupListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModifierGroup'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    VatRateRef:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        percentage:
+          type: number
+      x-release-stage: draft
+      x-audience: public
+    VatGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        hasTax:
+          type: boolean
+        isTakeaway:
+          type: boolean
+        vat1:
+          $ref: '#/components/schemas/VatRateRef'
+        vat2:
+          $ref: '#/components/schemas/VatRateRef'
+          nullable: true
+      x-db-mapping:
+        table: vat_groups
+        fields:
+          id: vat_groups.id
+          companyId: vat_groups.company_id
+          name: vat_groups.name
+          rate: vat_groups.percent
+      x-release-stage: draft
+      x-audience: public
+    VatGroupListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/VatGroup'
+      x-release-stage: draft
+      x-audience: public-read
+    ServiceType:
+      type: string
+      enum:
+      - PICKUP
+      - DELIVERY
+      - TABLE
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for ServiceType.
+      x-enum-descriptions:
+        PICKUP: Customer collects the order.
+        DELIVERY: Order is delivered to customer address.
+        TABLE: Order is fulfilled to a table or dine-in location.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+    AvailabilityCheckLine:
+      type: object
+      required:
+      - itemId
+      - quantity
+      properties:
+        itemId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+      x-release-stage: draft
+      x-audience: public
+    AvailabilityCheckRequest:
+      type: object
+      required:
+      - deviceId
+      - serviceType
+      - items
+      properties:
+        deviceId:
+          type: string
+        serviceType:
+          $ref: '#/components/schemas/ServiceType'
+        requestedAt:
+          type: string
+          format: date-time
+          nullable: true
+        customer:
+          type: object
+          properties:
+            address:
+              $ref: '#/components/schemas/Address'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvailabilityCheckLine'
+          minItems: 1
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        deviceId:
+        - required
+        - string
+        serviceType:
+        - required
+        - enum:ServiceType
+        requestedAt:
+        - date-time
+        items:
+        - required
+        - array
+        - min:1
+    AvailabilityWindow:
+      type: object
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+      x-release-stage: draft
+      x-audience: public
+    AvailabilityEstimate:
+      type: object
+      properties:
+        leadTimeMinutes:
+          type: integer
+        readyAt:
+          type: string
+          format: date-time
+      x-release-stage: draft
+      x-audience: public
+    AvailabilityPricing:
+      type: object
+      properties:
+        deliveryFee:
+          type: number
+        minimumOrderAmount:
+          type: number
+        currencyCode:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+    AvailabilityResult:
+      type: object
+      properties:
+        available:
+          type: boolean
+        reasonCode:
+          type: string
+        windows:
+          type: array
+          items:
+            $ref: '#/components/schemas/AvailabilityWindow'
+        estimate:
+          $ref: '#/components/schemas/AvailabilityEstimate'
+        pricing:
+          $ref: '#/components/schemas/AvailabilityPricing'
+      x-release-stage: draft
+      x-audience: public
+    AvailabilityCheckResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/AvailabilityResult'
+      x-release-stage: draft
+      x-audience: public-read
+    OrderChannel:
+      type: string
+      enum:
+      - POS
+      - QR
+      - KIOSK
+      - ONLINE
+      - DIRECT_LINK
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for OrderChannel.
+      x-enum-descriptions:
+        POS: Order initiated in staffed POS.
+        QR: Order initiated through QR flow.
+        KIOSK: Order initiated through kiosk flow.
+        ONLINE: Order initiated through hosted online storefront.
+        DIRECT_LINK: Order initiated through a direct-link campaign or entry point.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+    PaymentMethod:
+      type: string
+      enum:
+      - CASH
+      - CARD_TERMINAL
+      - ADYEN_ECOM
+      - VIPPS
+      - GIFT_CARD
+      - OTHER
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for PaymentMethod.
+      x-enum-descriptions:
+        CASH: Cash tendered in venue.
+        CARD_TERMINAL: Physical card terminal payment.
+        ADYEN_ECOM: Adyen e-commerce payment flow.
+        VIPPS: Vipps e-commerce payment flow.
+        GIFT_CARD: Gift card payment.
+        OTHER: Any allowed fallback payment method.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+    PaymentStatus:
+      type: string
+      enum:
+      - PENDING
+      - AUTHORIZED
+      - PAID
+      - FAILED
+      - REFUNDED
+      - VOIDED
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for PaymentStatus.
+      x-enum-descriptions:
+        PENDING: Payment not completed yet.
+        AUTHORIZED: Payment authorized but not yet captured/settled.
+        PAID: Payment completed successfully.
+        FAILED: Payment attempt failed.
+        REFUNDED: Payment refunded.
+        VOIDED: Payment authorization voided.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+    OrderStatus:
+      type: string
+      enum:
+      - NEW
+      - ACCEPTED
+      - REJECTED
+      - IN_PROGRESS
+      - READY
+      - FULFILLED
+      - CANCELLED
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical public enum for OrderStatus.
+      x-enum-descriptions:
+        NEW: Order created and awaiting review.
+        ACCEPTED: Order accepted for fulfilment.
+        REJECTED: Order rejected before fulfilment.
+        IN_PROGRESS: Order is being prepared.
+        READY: Order is ready for pickup, delivery dispatch, or handoff.
+        FULFILLED: Order has been handed off/completed.
+        CANCELLED: Order was cancelled after creation.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+      x-state-machine-ref: '#/x-order-state-machine'
+    OrderCustomer:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+      x-release-stage: draft
+      x-audience: public
+    OrderService:
+      type: object
+      description: Read model for service fulfillment details. deliveryAddress uses
+        the enriched Address schema; coordinates are optional and returned only when
+        known.
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/ServiceType'
+        requestedTime:
+          oneOf:
+          - type: string
+            enum:
+            - ASAP
+          - type: string
+            format: date-time
+        deliveryAddress:
+          $ref: '#/components/schemas/Address'
+        readyAt:
+          type: string
+          format: date-time
+          nullable: true
+      x-release-stage: draft
+      x-audience: public
+    OrderModifierSelection:
+      type: object
+      required:
+      - modifierId
+      - quantity
+      properties:
+        modifierId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+      x-release-stage: draft
+      x-audience: public
+    OrderLineCreate:
+      type: object
+      required:
+      - itemId
+      - quantity
+      properties:
+        itemId:
+          type: string
+        quantity:
+          type: integer
+          minimum: 1
+        note:
+          type: string
+          nullable: true
+        modifierSelections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderModifierSelection'
+      x-release-stage: draft
+      x-audience: public
+    PaymentInput:
+      type: object
+      properties:
+        method:
+          $ref: '#/components/schemas/PaymentMethod'
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+      x-release-stage: draft
+      x-audience: public
+    OrderCreateRequest:
+      type: object
+      required:
+      - channel
+      - deviceId
+      - locationId
+      - service
+      - items
+      properties:
+        channel:
+          $ref: '#/components/schemas/OrderChannel'
+        deviceId:
+          type: string
+        locationId:
+          type: string
+        employeeId:
+          type: string
+          nullable: true
+        customer:
+          $ref: '#/components/schemas/OrderCustomer'
+        service:
+          $ref: '#/components/schemas/OrderServiceInput'
+        items:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/OrderLineCreate'
+        payment:
+          $ref: '#/components/schemas/PaymentInput'
+        externalReference:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        channel:
+        - required
+        - enum:OrderChannel
+        deviceId:
+        - required
+        - string
+        locationId:
+        - required
+        - string
+        service.type:
+        - required
+        - enum:ServiceType
+        items:
+        - required
+        - array
+        - min:1
+        items[].quantity:
+        - integer
+        - min:1
+        payment.method:
+        - enum:PaymentMethod
+      x-nullability-review: v2.7-reviewed
+    OrderTotals:
+      type: object
+      properties:
+        subtotal:
+          type: number
+        deliveryFee:
+          type: number
+        total:
+          type: number
+        currencyCode:
+          type: string
+      x-release-stage: draft
+      x-audience: public
+    OrderLine:
+      type: object
+      properties:
+        itemId:
+          type: string
+        quantity:
+          type: integer
+        note:
+          type: string
+          nullable: true
+        modifierSelections:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderModifierSelection'
+      x-release-stage: draft
+      x-audience: public
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        channel:
+          $ref: '#/components/schemas/OrderChannel'
+        locationId:
+          type: string
+        deviceId:
+          type: string
+        employeeId:
+          type: string
+          nullable: true
+        customer:
+          $ref: '#/components/schemas/OrderCustomer'
+        service:
+          $ref: '#/components/schemas/OrderService'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLine'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        totals:
+          $ref: '#/components/schemas/OrderTotals'
+        externalReference:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+      x-db-mapping:
+        table: orders
+        fields:
+          id: orders.id
+          locationId: orders.companies_address_id
+          employeeId: orders.companies_user_id
+          customer.id: orders.customer_id
+          service.deliveryAddressId: orders.clients_address_id
+          service.tableId: orders.tm_table_id
+          service.requestedTime: orders.pickup_datetime
+          status: orders.status
+          externalReference: orders.external_id
+          metadata: orders.meta
+          options: orders.options
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - locationId
+      - deviceId
+      - status
+      - channel
+      - service.type
+      - externalReference
+      description: Detailed order representation returned by detail and mutation endpoints.
+        Nullability review completed in v2.7; fields are non-null unless explicitly
+        marked nullable.
+      x-state-machine-ref: '#/x-order-state-machine'
+      example:
+        id: ord_9001
+        channel: ONLINE
+        locationId: loc_10
+        deviceId: dev_8
+        employeeId: null
+        customer:
+          name: Ola Nordmann
+          phone: '+4799999999'
+          email: ola@example.com
+        service:
+          type: DELIVERY
+          requestedTime: ASAP
+          readyAt: '2026-03-09T18:35:00+01:00'
+          deliveryAddress:
+            street: Storgata 10
+            postalCode: '7713'
+            city: Steinkjer
+            country: 'NO'
+        status: NEW
+        paymentStatus: AUTHORIZED
+        totals:
+          subtotal: 320
+          deliveryFee: 59
+          total: 379
+          currencyCode: NOK
+        externalReference: rmsv-ord-9001
+        metadata: {}
+        createdAt: '2026-03-09T18:12:00+01:00'
+        items:
+        - itemId: item_123
+          quantity: 2
+          note: No onion
+          modifierSelections:
+          - modifierId: mod_1
+            quantity: 1
+    OrderResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Order'
+      x-release-stage: draft
+      x-audience: public-read
+    OrderListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderSummary'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    WebhookEventType:
+      type: string
+      enum:
+      - order.created
+      - order.status.changed
+      - order.cancelled
+      - payment.authorized
+      - payment.captured
+      - payment.failed
+      x-release-stage: draft
+      x-audience: webhook
+      description: Canonical public enum for WebhookEventType.
+      x-enum-descriptions:
+        order.created: New order created.
+        order.status.changed: Order status changed.
+        order.cancelled: Order cancelled event.
+        payment.authorized: Payment authorized.
+        payment.captured: Payment captured/paid.
+        payment.failed: Payment failed.
+      x-canonical-enum-case: lower.dot.case
+    Webhook:
+      type: object
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+        active:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        signingAlgorithm:
+          type: string
+          example: HMAC-SHA256
+          description: Current signing algorithm used for outbound webhook deliveries.
+        deliverySecurity:
+          $ref: '#/components/schemas/WebhookDeliverySecurity'
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - eventTypes
+      - active
+    WebhookCreateRequest:
+      type: object
+      required:
+      - url
+      - secret
+      - events
+      properties:
+        url:
+          type: string
+          format: uri
+        secret:
+          type: string
+          description: Shared secret used to compute X-Plorea-Signature over the raw
+            request body.
+        events:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+        signingAlgorithm:
+          type: string
+          example: HMAC-SHA256
+      x-release-stage: draft
+      x-audience: public-write
+      x-required-review: v2.4-complete
+      x-validation-rules:
+        targetUrl:
+        - required
+        - uri
+        eventTypes:
+        - required
+        - array
+        - min:1
+        secret:
+        - required
+        - string
+        - min:16
+    WebhookUpdateRequest:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        secret:
+          type: string
+          description: Shared secret used to compute X-Plorea-Signature over the raw
+            request body.
+        events:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookEventType'
+        active:
+          type: boolean
+        signingAlgorithm:
+          type: string
+          example: HMAC-SHA256
+      x-release-stage: draft
+      x-audience: public-write
+      description: Partial update payload. Omitted fields remain unchanged.
+      x-required-review: v2.4-complete-partial-update
+      x-validation-rules:
+        targetUrl:
+        - uri
+        eventTypes:
+        - array
+        - min:1
+        secret:
+        - string
+        - min:16
+        active:
+        - boolean
+    WebhookResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Webhook'
+      x-release-stage: draft
+      x-audience: public-read
+    WebhookListResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Webhook'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+      x-release-stage: draft
+      x-audience: public-read
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        total:
+          type: integer
+      x-release-stage: draft
+      x-audience: public
+      description: Canonical offset-pagination metadata used by all public list endpoints
+        in v2.x.
+      required:
+      - page
+      - pageSize
+      - total
+    WebhookEventBase:
+      type: object
+      required:
+      - eventId
+      - eventType
+      - eventVersion
+      - schemaVersion
+      - occurredAt
+      - data
+      properties:
+        eventId:
+          type: string
+        eventType:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        data:
+          type: object
+          additionalProperties: true
+        eventVersion:
+          type: integer
+          minimum: 1
+          example: 1
+          description: Version of the business event contract for this event type.
+        schemaVersion:
+          type: string
+          example: '2026-03-10'
+          description: Semantic or dated schema identifier used by consumers for parsing.
+      x-release-stage: draft
+      x-audience: webhook
+    OrderCreatedEventData:
+      type: object
+      required:
+      - orderId
+      - locationId
+      - deviceId
+      - status
+      - paymentStatus
+      - total
+      - currencyCode
+      properties:
+        orderId:
+          type: string
+        externalReference:
+          type:
+          - string
+          - 'null'
+        locationId:
+          type: string
+        deviceId:
+          type: string
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        total:
+          type: number
+        currencyCode:
+          type: string
+      x-release-stage: draft
+      x-audience: webhook
+    OrderStatusChangedEventData:
+      type: object
+      required:
+      - orderId
+      - fromStatus
+      - toStatus
+      - paymentStatus
+      - locationId
+      - deviceId
+      properties:
+        orderId:
+          type: string
+        externalReference:
+          type:
+          - string
+          - 'null'
+        fromStatus:
+          $ref: '#/components/schemas/OrderStatus'
+        toStatus:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        locationId:
+          type: string
+        deviceId:
+          type: string
+      x-release-stage: draft
+      x-audience: webhook
+    PaymentEventData:
+      type: object
+      required:
+      - orderId
+      - paymentReference
+      - provider
+      - method
+      - amount
+      - currencyCode
+      - status
+      properties:
+        orderId:
+          type: string
+        paymentReference:
+          type: string
+        provider:
+          type: string
+          example: ADYEN
+        method:
+          type: string
+        amount:
+          type: number
+        currencyCode:
+          type: string
+        status:
+          $ref: '#/components/schemas/PaymentStatus'
+      x-release-stage: draft
+      x-audience: webhook
+    OrderCreatedEvent:
+      allOf:
+      - $ref: '#/components/schemas/WebhookEventBase'
+      - type: object
+        properties:
+          eventType:
+            type: string
+            const: order.created
+          data:
+            $ref: '#/components/schemas/OrderCreatedEventData'
+      x-release-stage: draft
+      x-audience: webhook
+    OrderStatusChangedEvent:
+      allOf:
+      - $ref: '#/components/schemas/WebhookEventBase'
+      - type: object
+        properties:
+          eventType:
+            type: string
+            const: order.status.changed
+          data:
+            $ref: '#/components/schemas/OrderStatusChangedEventData'
+      x-release-stage: draft
+      x-audience: webhook
+    PaymentAuthorizedEvent:
+      allOf:
+      - $ref: '#/components/schemas/WebhookEventBase'
+      - type: object
+        properties:
+          eventType:
+            type: string
+            const: payment.authorized
+          data:
+            allOf:
+            - $ref: '#/components/schemas/PaymentEventData'
+            - type: object
+              properties:
+                status:
+                  type: string
+                  const: AUTHORIZED
+      x-release-stage: draft
+      x-audience: webhook
+    PaymentCapturedEvent:
+      allOf:
+      - $ref: '#/components/schemas/WebhookEventBase'
+      - type: object
+        properties:
+          eventType:
+            type: string
+            const: payment.captured
+          data:
+            allOf:
+            - $ref: '#/components/schemas/PaymentEventData'
+            - type: object
+              properties:
+                status:
+                  type: string
+                  const: CAPTURED
+      x-release-stage: draft
+      x-audience: webhook
+    PaymentFailedEvent:
+      allOf:
+      - $ref: '#/components/schemas/WebhookEventBase'
+      - type: object
+        properties:
+          eventType:
+            type: string
+            const: payment.failed
+          data:
+            allOf:
+            - $ref: '#/components/schemas/PaymentEventData'
+            - type: object
+              properties:
+                status:
+                  type: string
+                  const: FAILED
+                failureCode:
+                  type:
+                  - string
+                  - 'null'
+                failureReason:
+                  type:
+                  - string
+                  - 'null'
+      x-release-stage: draft
+      x-audience: webhook
+    WebhookEvent:
+      oneOf:
+      - $ref: '#/components/schemas/OrderCreatedEvent'
+      - $ref: '#/components/schemas/OrderStatusChangedEvent'
+      - $ref: '#/components/schemas/PaymentAuthorizedEvent'
+      - $ref: '#/components/schemas/PaymentCapturedEvent'
+      - $ref: '#/components/schemas/PaymentFailedEvent'
+      discriminator:
+        propertyName: eventType
+        mapping:
+          order.created: '#/components/schemas/OrderCreatedEvent'
+          order.status.changed: '#/components/schemas/OrderStatusChangedEvent'
+          payment.authorized: '#/components/schemas/PaymentAuthorizedEvent'
+          payment.captured: '#/components/schemas/PaymentCapturedEvent'
+          payment.failed: '#/components/schemas/PaymentFailedEvent'
+      x-release-stage: draft
+      x-audience: webhook
+    ValidationErrorDetails:
+      type: object
+      description: Validation errors keyed by request field path.
+      additionalProperties:
+        type: array
+        items:
+          type: string
+      example:
+        service.requestedTime:
+        - The service.requestedTime field must be ASAP or an ISO 8601 timestamp.
+        items.0.quantity:
+        - The items.0.quantity field must be at least 1.
+      x-release-stage: draft
+      x-audience: public-read
+    WebhookDeliverySecurity:
+      type: object
+      properties:
+        signatureHeader:
+          type: string
+          example: X-Plorea-Signature
+        timestampHeader:
+          type: string
+          example: X-Plorea-Timestamp
+        deliveryIdHeader:
+          type: string
+          example: X-Plorea-Delivery-Id
+        algorithm:
+          type: string
+          example: HMAC-SHA256
+      x-release-stage: draft
+      x-audience: public-read
+    WebhookDeliveryStatus:
+      type: string
+      enum:
+      - PENDING
+      - IN_PROGRESS
+      - SUCCEEDED
+      - FAILED
+      - GAVE_UP
+      description: Delivery state for a webhook attempt lifecycle.
+      x-canonical-enum-case: UPPER_SNAKE_CASE
+      x-enum-descriptions:
+        PENDING: Delivery has been created but not yet attempted.
+        IN_PROGRESS: Delivery is currently being attempted.
+        SUCCEEDED: Endpoint responded with a success status.
+        FAILED: Latest attempt failed and more retries may occur.
+        GAVE_UP: No more retries will be attempted.
+    WebhookRetryPolicy:
+      type: object
+      properties:
+        strategy:
+          type: string
+          example: exponential-backoff
+        maxAttempts:
+          type: integer
+          example: 6
+        scheduleSeconds:
+          type: array
+          items:
+            type: integer
+          example:
+          - 0
+          - 30
+          - 120
+          - 600
+          - 1800
+          - 7200
+      required:
+      - strategy
+      - maxAttempts
+      - scheduleSeconds
+    WebhookDeliveryAttempt:
+      type: object
+      properties:
+        attemptNumber:
+          type: integer
+          example: 2
+        status:
+          $ref: '#/components/schemas/WebhookDeliveryStatus'
+        deliveredAt:
+          type: string
+          format: date-time
+          nullable: true
+        responseStatusCode:
+          type: integer
+          nullable: true
+          example: 500
+        responseBodySnippet:
+          type: string
+          nullable: true
+          example: Internal Server Error
+        nextRetryAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - attemptNumber
+      - status
+    WebhookDeliveryRecord:
+      type: object
+      properties:
+        deliveryId:
+          type: string
+          example: whd_123
+        webhookId:
+          type: string
+          example: wh_123
+        eventType:
+          $ref: '#/components/schemas/WebhookEventType'
+        status:
+          $ref: '#/components/schemas/WebhookDeliveryStatus'
+        attemptCount:
+          type: integer
+          example: 2
+        lastAttemptAt:
+          type: string
+          format: date-time
+          nullable: true
+        retryPolicy:
+          $ref: '#/components/schemas/WebhookRetryPolicy'
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDeliveryAttempt'
+      required:
+      - deliveryId
+      - webhookId
+      - eventType
+      - status
+      - attemptCount
+      - retryPolicy
+      - attempts
+    ValidationFieldIssue:
+      type: object
+      properties:
+        code:
+          type: string
+          example: required
+        message:
+          type: string
+          example: This field is required.
+        rule:
+          type: string
+          example: required
+        allowedValues:
+          type: array
+          items:
+            type: string
+          nullable: true
+      required:
+      - code
+      - message
+      - rule
+      x-release-stage: draft
+      x-audience: public
+    ValidationErrorResponse:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          type: object
+          required:
+          - code
+          - message
+          - details
+          properties:
+            code:
+              type: string
+              example: VALIDATION_ERROR
+            message:
+              type: string
+              example: The request payload is invalid.
+            details:
+              type: object
+              additionalProperties:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationFieldIssue'
+              example:
+                deviceId:
+                - code: required
+                  message: The deviceId field is required.
+                  rule: required
+                service.type:
+                - code: enum
+                  message: The selected service.type is invalid.
+                  rule: enum
+                  allowedValues:
+                  - PICKUP
+                  - DELIVERY
+                  - TABLE
+      x-release-stage: draft
+      x-audience: public
+    VatGroupRef:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        ratePercent:
+          type: number
+      x-release-stage: draft
+      x-audience: public-read
+    OrderSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        channel:
+          $ref: '#/components/schemas/OrderChannel'
+        locationId:
+          type: string
+        deviceId:
+          type: string
+        employeeId:
+          type: string
+          nullable: true
+        customer:
+          $ref: '#/components/schemas/OrderCustomer'
+        service:
+          $ref: '#/components/schemas/OrderService'
+        status:
+          $ref: '#/components/schemas/OrderStatus'
+        paymentStatus:
+          $ref: '#/components/schemas/PaymentStatus'
+        totals:
+          $ref: '#/components/schemas/OrderTotals'
+        externalReference:
+          type: string
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        createdAt:
+          type: string
+          format: date-time
+      x-db-mapping:
+        table: orders
+        fields:
+          id: orders.id
+          locationId: orders.companies_address_id
+          employeeId: orders.companies_user_id
+          customer.id: orders.customer_id
+          service.deliveryAddressId: orders.clients_address_id
+          service.tableId: orders.tm_table_id
+          service.requestedTime: orders.pickup_datetime
+          status: orders.status
+          externalReference: orders.external_id
+          metadata: orders.meta
+          options: orders.options
+      x-release-stage: draft
+      x-audience: public
+      x-filterable-fields:
+      - locationId
+      - deviceId
+      - status
+      - channel
+      - service.type
+      - externalReference
+      description: Summary representation used in list endpoints. Nullability review
+        completed in v2.7; fields are non-null unless explicitly marked nullable.
+      example:
+        id: ord_9001
+        channel: ONLINE
+        locationId: loc_10
+        deviceId: dev_8
+        employeeId: null
+        customer:
+          name: Ola Nordmann
+          phone: '+4799999999'
+          email: ola@example.com
+        service:
+          type: DELIVERY
+          requestedTime: ASAP
+          readyAt: '2026-03-09T18:35:00+01:00'
+          deliveryAddress:
+            street: Storgata 10
+            postalCode: '7713'
+            city: Steinkjer
+            country: 'NO'
+        status: NEW
+        paymentStatus: AUTHORIZED
+        totals:
+          subtotal: 320
+          deliveryFee: 59
+          total: 379
+          currencyCode: NOK
+        externalReference: rmsv-ord-9001
+        metadata: {}
+        createdAt: '2026-03-09T18:12:00+01:00'
+    OrderActionReasonRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+      additionalProperties: false
+      x-release-stage: draft
+      x-audience: public-write
+    OrderServiceInput:
+      type: object
+      required:
+      - type
+      properties:
+        type:
+          $ref: '#/components/schemas/ServiceType'
+        requestedTime:
+          oneOf:
+          - type: string
+            enum:
+            - ASAP
+          - type: string
+            format: date-time
+        deliveryAddress:
+          $ref: '#/components/schemas/AddressInput'
+      x-release-stage: draft
+      x-audience: public-write
+      description: Write model for requested service. deliveryAddress is used when
+        service type requires it.
+  examples:
+    WebhookOrderCreated:
+      value: *id001
+    WebhookOrderStatusChanged:
+      value:
+        eventId: evt_124
+        eventType: order.status.changed
+        occurredAt: '2026-03-09T18:16:00+01:00'
+        data:
+          orderId: ord_9001
+          externalReference: rmsv-ord-9001
+          fromStatus: NEW
+          toStatus: ACCEPTED
+          paymentStatus: AUTHORIZED
+          locationId: loc_10
+          deviceId: dev_8
+        eventVersion: 1
+        schemaVersion: '2026-03-10'
+    WebhookPaymentAuthorized:
+      value:
+        eventId: evt_125
+        eventType: payment.authorized
+        occurredAt: '2026-03-09T18:12:05+01:00'
+        data:
+          orderId: ord_9001
+          paymentReference: pay_771
+          provider: ADYEN
+          method: ADYEN_ECOM
+          amount: 379
+          currencyCode: NOK
+          status: AUTHORIZED
+        eventVersion: 1
+        schemaVersion: '2026-03-10'
+  headers:
+    X-Plorea-Signature:
+      description: HMAC-SHA256 signature of the raw request body using the webhook
+        secret.
+      schema:
+        type: string
+        example: sha256=4f8b0f5d2b0f...
+    X-Plorea-Timestamp:
+      description: Unix timestamp used when computing the webhook signature.
+      schema:
+        type: string
+        example: '1773073200'
+    X-Plorea-Delivery-Id:
+      description: Unique Plorea delivery id for replay protection, tracing, and idempotent
+        webhook consumers.
+      schema:
+        type: string
+        example: whdel_01HV9H4M2X7A7Y1P2Q
+x-compatibility-notes:
+  legacyBasePaths:
+  - partners/*
+  - terminal/*
+  rules:
+  - New integrations should use /api/v2/* only.
+  - Legacy GET-with-body endpoints remain supported during transition but are deprecated.
+  - External contracts use business names such as locationId and employeeId; internal
+    DB names remain internal.
+  - Legacy payloads may be translated server-side into v2 application commands before
+    domain handling.
+  endpointMapping:
+  - legacy: partners/companies
+    v2: GET /api/v2/companies
+  - legacy: partners/locations
+    v2: GET /api/v2/companies/{companyId}/locations
+  - legacy: partners/employees
+    v2: GET /api/v2/companies/{companyId}/employees
+  - legacy: terminal/device
+    v2: GET /api/v2/devices/{deviceId}
+  - legacy: terminal/device/update
+    v2: PATCH /api/v2/devices/{deviceId}
+  - legacy: partners/order
+    v2: POST /api/v2/orders
+  - legacy: terminal/order
+    v2: POST /api/v2/orders
+  deprecationPolicy:
+    status: legacy supported during migration
+    rule: new integrations must target /api/v2/* only
+    sunsetHeaders: recommended for legacy endpoints when rollout plan is approved
+x-governance:
+  contractStyle: business-resource naming externally, DB naming internal
+  publicAudience: partners and first-party clients
+  compatAudience: legacy clients during migration window
+  namingConventions:
+    ids: camelCase resource ids externally (companyId, locationId, employeeId, deviceId)
+    timestamps: RFC3339 date-time strings with timezone offsets
+    money: minor units unless otherwise agreed per endpoint
+    envelopes: success uses data/meta, failures use error
+    writes: POST/PATCH writes should support Idempotency-Key where retry safety matters
+x-tagGroups:
+- name: Identity & Session
+  tags:
+  - Auth
+  - Device Sessions
+- name: Organization
+  tags:
+  - Companies
+  - Locations
+  - Employees
+- name: Commerce Configuration
+  tags:
+  - Devices
+  - Catalog
+  - Availability
+- name: Transactions & Integration
+  tags:
+  - Orders
+  - Webhooks
+x-artifacts:
+  publicSpec: This file contains public endpoints plus migration notes.
+  recommendedFutureSplit:
+  - public-openapi.yaml
+  - compatibility-notes.yaml
+  - webhooks-openapi.yaml
+x-contract-governance:
+  enumNaming:
+    rule: Public enums use stable canonical values. State enums use UPPER_SNAKE_CASE.
+      Event types use lower.dot.case.
+    examples:
+      orderStatus: IN_PROGRESS
+      serviceType: DELIVERY
+      webhookEventType: order.status.changed
+  patchSemantics:
+    rule: PATCH request bodies are partial updates. Omitted fields remain unchanged.
+      Null clears a nullable field only where explicitly supported by implementation.
+  listContract:
+    pagination: page + pageSize
+    sorting: sort field optionally prefixed with - for descending order
+    sparseFieldsets: fields comma-separated public field names only
+  webhookDelivery:
+    signature: HMAC-SHA256 over timestamp + raw body using webhook secret
+    retryPolicy:
+      strategy: exponential-backoff
+      maxAttempts: 6
+      scheduleSeconds:
+      - 0
+      - 30
+      - 120
+      - 600
+      - 1800
+      - 7200
+  compatibility:
+    legacyBasePaths:
+    - partners/*
+    - terminal/*
+    policy: Legacy endpoints remain translation layers only. New integrations must
+      use /api/v2/*.
+  idempotency:
+    header: Idempotency-Key
+    appliesTo:
+    - POST /api/v2/device-sessions
+    - POST /api/v2/companies
+    - POST /api/v2/companies/{companyId}/locations
+    - POST /api/v2/companies/{companyId}/employees
+    - POST /api/v2/locations/{locationId}/devices
+    - POST /api/v2/orders
+    - POST /api/v2/webhooks
+    - POST /api/v2/webhooks/{webhookId}/test
+    rule: When supplied, the server must return the original successful or failed
+      result for the same authenticated caller, route, and key within the retention
+      window.
+    retentionWindowHours: 24
+    conflictBehavior: Reuse of an Idempotency-Key with a materially different request
+      body must return HTTP 409 with code IDEMPOTENCY_KEY_REUSED_WITH_DIFFERENT_PAYLOAD.
+x-legacy-compatibility-inventory:
+- legacyPattern: partners/*
+  target: /api/v2/*
+  deprecationState: planned
+  notes: Legacy partner endpoints continue as translation layers only.
+- legacyPattern: terminal/*
+  target: /api/v2/*
+  deprecationState: planned
+  notes: Terminal endpoints must not become the canonical public contract.
+x-standard-filters:
+  companies:
+  - name
+  - organizationNumber
+  locations:
+  - companyId
+  - name
+  - city
+  - active
+  employees:
+  - companyId
+  - locationId
+  - role
+  - externalId
+  - active
+  devices:
+  - locationId
+  - type
+  - active
+  - favoriteGroupId
+  catalogItems:
+  - menuId
+  - categoryId
+  - active
+  - externalId
+  - vatGroupId
+  orders:
+  - locationId
+  - deviceId
+  - status
+  - channel
+  - serviceType
+  - createdFrom
+  - createdTo
+  - externalReference
+  webhooks:
+  - eventType
+  - active
+x-order-state-machine:
+  statusField: status
+  initialStatus: NEW
+  terminalStatuses:
+  - REJECTED
+  - FULFILLED
+  - CANCELLED
+  transitions:
+    NEW:
+      allowedActions:
+      - accept
+      - reject
+      - cancel
+      nextStatuses:
+      - ACCEPTED
+      - REJECTED
+      - CANCELLED
+    ACCEPTED:
+      allowedActions:
+      - mark-in-progress
+      - cancel
+      nextStatuses:
+      - IN_PROGRESS
+      - CANCELLED
+    IN_PROGRESS:
+      allowedActions:
+      - mark-ready
+      - cancel
+      nextStatuses:
+      - READY
+      - CANCELLED
+    READY:
+      allowedActions:
+      - fulfill
+      - cancel
+      nextStatuses:
+      - FULFILLED
+      - CANCELLED
+    REJECTED:
+      allowedActions: []
+      nextStatuses: []
+    FULFILLED:
+      allowedActions: []
+      nextStatuses: []
+    CANCELLED:
+      allowedActions: []
+      nextStatuses: []
+  notes:
+  - Partners must not assume unsupported transitions will be auto-coerced.
+  - Actions returning HTTP 409 indicate an illegal transition from the current order
+    status.
+  - Service-type specific operational rules may add stricter validation, but may not
+    broaden the canonical transition graph.
+  - Cancelling from READY is supported by the canonical contract for operational recovery
+    cases such as no-show customers or packing errors; integrations should supply a
+    reason when available.
+x-implementation-readiness:
+  status: draft-implementation-ready
+  focus:
+  - Schema consistency for SDK generation
+  - PATCH semantics aligned with partial update behavior
+  - Write payloads separated from read models where required
+  - Examples aligned to declared types and business naming
+  remainingReviewAreas:
+  - Final resource-specific validation rule mapping in backend validators
+  - Compatibility adapter contract tests for legacy partners/* and terminal/* endpoints
