@@ -2,7 +2,7 @@
 
 /**
  * Plorea Design System — Tailwind Configuration
- * v2.3 · March 2026
+ * v2.4 · March 2026
  *
  * Structure:
  *   1. Primitive tokens   — raw color values, never reference directly in components
@@ -169,6 +169,19 @@ export default {
   ],
 
   theme: {
+    // ── Container
+    // Centred with consistent padding. Used for all dashboard page wrappers.
+    // Kiosk/POS overrides: remove container, use full-bleed layout instead.
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1.5rem',  // 24px — mobile
+        md:      '2rem',    // 32px — tablet
+        lg:      '2.5rem',  // 40px — dashboard
+        xl:      '3rem',    // 48px — wide desktop
+      },
+    },
+
     // ── Breakpoints
     //    Aligned to real device widths.
     //    sm:360  — covers all modern smartphones (old 350 was non-standard)
@@ -302,6 +315,55 @@ export default {
         slow:    '240ms',
         panel:   '320ms',
         page:    '400ms',
+      },
+
+      // ── Z-index scale
+      // Named levels prevent z-[9999] sprawl in components.
+      // Each level must match its elevation counterpart.
+      zIndex: {
+        base:     '0',      // normal document flow
+        raised:   '10',     // sticky table headers, floating labels
+        dropdown: '1000',   // dropdowns, popovers, command palettes
+        sticky:   '1100',   // sticky nav, fixed sidebars
+        overlay:  '1200',   // drawer backdrops, scrim layers
+        modal:    '1300',   // modal dialogs, alert dialogs
+        toast:    '1400',   // toast notifications (must clear modals)
+      },
+
+      // ── Animation tokens (loading / skeleton states)
+      // Use these for consistent loading feedback across the platform.
+      keyframes: {
+        'skeleton': {
+          '0%, 100%': { opacity: '1' },
+          '50%':      { opacity: '0.4' },
+        },
+        'pulse-subtle': {
+          '0%, 100%': { opacity: '1' },
+          '50%':      { opacity: '0.65' },
+        },
+        'spin-slow': {
+          'to': { transform: 'rotate(360deg)' },
+        },
+        'slide-up': {
+          'from': { transform: 'translateY(8px)', opacity: '0' },
+          'to':   { transform: 'translateY(0)',   opacity: '1' },
+        },
+        'slide-down': {
+          'from': { transform: 'translateY(-8px)', opacity: '0' },
+          'to':   { transform: 'translateY(0)',    opacity: '1' },
+        },
+        'fade-in': {
+          'from': { opacity: '0' },
+          'to':   { opacity: '1' },
+        },
+      },
+      animation: {
+        'skeleton':     'skeleton 1.5s ease-in-out infinite',
+        'pulse-subtle': 'pulse-subtle 1.6s ease-in-out infinite',  // processing state
+        'spin-slow':    'spin-slow 1s linear infinite',             // loading spinner
+        'slide-up':     'slide-up 160ms cubic-bezier(0.16,1,0.3,1)',   // enter from below
+        'slide-down':   'slide-down 160ms cubic-bezier(0.16,1,0.3,1)', // enter from above
+        'fade-in':      'fade-in 120ms ease-out',                   // toast, tooltip
       },
     },
   },
