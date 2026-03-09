@@ -10,48 +10,13 @@
 /* ─────────────────────────────────────────
    DESIGN TOKENS  (from updated config)
 ───────────────────────────────────────── */
+/*
+ * Semantic token layer — single source of truth.
+ * In production: @import 'tokens.css' replaces this entire :root block.
+ * These values MUST stay in sync with tokens.css.
+ * Primitive colour values (#6BB8DA etc.) live in tailwind.config.js only.
+ */
 :root {
-  /* Blues */
-  --blue-50:  #EBF6FB;
-  --blue-100: #C7E7F3;
-  --blue-200: #99D2E8;
-  --blue:     #6BB8DA;   /* primary */
-  --blue-600: #4FA3C8;
-  --blue-700: #468DAC;   /* secondary / interactive text */
-  --blue-800: #2E6B87;   /* dark interactive — replaces sky-500 */
-  --blue-900: #1D4A5F;
-
-  /* Grays */
-  --gray-50:  #FAFAFA;
-  --gray-100: #F1F5F9;
-  --gray-150: #EBEBEB;
-  --gray-200: #E9E9E9;
-  --gray-300: #D9D9D9;
-  --gray-400: #C4C4C4;
-  --gray-500: #A6A6A6;
-  --gray-550: #808080;
-  --gray-600: #666666;
-  --gray-700: #3F3D45;
-  --gray-800: #2D2C2F;
-  --gray-900: #1A1A1A;
-  --gray-border: #E9E9E9;
-  --gray-border-dark: #E3E3E4;
-
-  /* Semantic */
-  --green:     #6BDAB2;
-  --yellow:    #DADA6B;
-  --red:       #DA6B6B;
-  --rose:      #E5C1B6;   /* eat-in / dine */
-  --rose-hover:#D5B1A6;
-  --combo:     #FFB3BA;   /* combo meals */
-  --takeaway:  #D1E7DD;   /* takeaway orders */
-  --table-channel: #362F4A; /* table ordering */
-
-  /* Surfaces */
-  --white:   #FFFFFF;
-  --black:   #0B0B0B;
-  --black-90: rgba(0,0,0,0.9);
-
   /* Surfaces */
   --color-bg-page:        #FAFAFA;
   --color-surface:        #FFFFFF;
@@ -82,6 +47,11 @@
   --color-error:          #DA6B6B;
   --color-error-bg:       #FAEAEA;
 
+  /* Selection — single token, swaps in dark mode */
+  --color-selection:        #EBF6FB;    /* row selected bg */
+  --color-selection-border: #99D2E8;    /* selection ring */
+  --color-selection-text:   #1D4A5F;    /* text on selection bg */
+
   /* Radii */
   --r-sm: 6px;
   --r:    8px;
@@ -91,13 +61,6 @@
   --r-full: 9999px;
 
   /* Shadows / Elevation */
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
-  --shadow-xl: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
-  --shadow-focus: 0 0 0 3px rgba(107,184,218,0.30);
-
   /* Elevation semantic mapping
      0 = page surface   (no shadow)
      1 = card           (shadow-sm)
@@ -105,10 +68,34 @@
      3 = modal          (shadow-lg)
      4 = overlay        (shadow-xl)  */
   --elevation-0: none;
-  --elevation-1: var(--shadow-sm);
-  --elevation-2: var(--shadow-md);
-  --elevation-3: var(--shadow-lg);
-  --elevation-4: var(--shadow-xl);
+  --elevation-1: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-2: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-3: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-4: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+  --elevation-focus: 0 0 0 3px rgba(107,184,218,0.30);
+
+  --color-info:    #6BB8DA;
+  --color-info-bg: #EBF6FB;
+  --color-border-focus: #6BB8DA;
+  --color-secondary: #468DAC;
+
+  /* Channel colours */
+  --channel-table-bg:        #362F4A;
+  --channel-table-border:    #4A3E60;
+  --channel-table-text:      #B8A8D4;
+  --channel-table-hover:     #2A2338;
+  --channel-takeaway-bg:     #D1E7DD;
+  --channel-takeaway-border: #8EC9AD;
+  --channel-takeaway-text:   #1A5C3A;
+  --channel-takeaway-hover:  #B8D9C8;
+  --channel-eatin-bg:        #E5C1B6;
+  --channel-eatin-border:    #C89888;
+  --channel-eatin-text:      #6B3020;
+  --channel-eatin-hover:     #D5B1A6;
+  --channel-combo-bg:        #FFB3BA;
+  --channel-combo-border:    #E08088;
+  --channel-combo-text:      #8B2040;
+  --channel-combo-hover:     #F09DA4;
 
   /* Density tokens
      Applied via data-density="comfortable|compact|ultra" on container */
@@ -133,8 +120,8 @@ html { scroll-behavior: smooth; }
 body {
   font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
   font-size: 15px; line-height: 1.6;
-  color: var(--gray-800);
-  background: var(--gray-50);
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
   -webkit-font-smoothing: antialiased;
 }
 code, .mono {
@@ -148,9 +135,10 @@ code, .mono {
 .sidebar {
   position: fixed; top: 0; left: 0; bottom: 0;
   width: 240px;
-  background: var(--gray-900);
+  background: #1A1825;
   display: flex; flex-direction: column;
   overflow: hidden; z-index: 50;
+  border-right: 1px solid #2E2C38;
 }
 .sidebar-inner { overflow-y: auto; flex: 1; padding-bottom: 24px; }
 .sidebar-inner::-webkit-scrollbar { width: 4px; }
@@ -165,9 +153,9 @@ code, .mono {
 .sidebar-logo .wordmark {
   font-family: 'Sora', sans-serif;
   font-size: 15px; font-weight: 700;
-  color: var(--white); letter-spacing: -0.01em;
+  color: var(--color-primary-text); letter-spacing: -0.01em;
 }
-.sidebar-logo .wordmark span { color: var(--blue); }
+.sidebar-logo .wordmark span { color: var(--color-primary); }
 .sidebar-logo .sub {
   font-size: 10px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
@@ -192,7 +180,7 @@ code, .mono {
   position: relative;
 }
 .nav-link:hover { color: rgba(255,255,255,0.82); background: rgba(255,255,255,0.04); }
-.nav-link.active { color: var(--blue); border-left-color: var(--blue); background: rgba(107,184,218,0.06); }
+.nav-link.active { color: var(--color-primary); border-left-color: var(--color-primary); background: rgba(107,184,218,0.06); }
 .nav-link .dot {
   width: 5px; height: 5px; border-radius: 50%;
   background: currentColor; opacity: 0.5; flex-shrink: 0;
@@ -210,29 +198,29 @@ code, .mono {
 .page-hero {
   margin-bottom: 64px;
   padding-bottom: 40px;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border);
 }
 .page-hero .eyebrow {
   display: inline-flex; align-items: center; gap: 6px;
   font-size: 10px; font-weight: 700;
   letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--blue-700);
+  color: var(--color-secondary);
   margin-bottom: 14px;
 }
 .page-hero .eyebrow::before {
   content: '';
   display: block; width: 16px; height: 2px;
-  background: var(--blue); border-radius: 99px;
+  background: var(--color-primary); border-radius: 99px;
 }
 .page-hero h1 {
   font-family: 'Sora', sans-serif;
   font-size: 40px; font-weight: 700;
   letter-spacing: -0.025em; line-height: 1.1;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
   margin-bottom: 14px;
 }
 .page-hero .desc {
-  font-size: 15px; color: var(--gray-600);
+  font-size: 15px; color: var(--color-text-secondary);
   max-width: 520px; line-height: 1.7;
 }
 .meta-row {
@@ -241,14 +229,14 @@ code, .mono {
 }
 .meta-tag {
   display: inline-flex; align-items: center; gap: 5px;
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--r-full);
   padding: 4px 10px;
-  font-size: 11px; font-weight: 500; color: var(--gray-600);
-  box-shadow: var(--shadow-xs);
+  font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+  box-shadow: var(--elevation-1);
 }
-.meta-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.meta-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); }
 
 /* ─────────────────────────────────────────
    SECTION
@@ -258,18 +246,18 @@ code, .mono {
 .section-head .label {
   font-size: 9px; font-weight: 700;
   letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--blue-700); margin-bottom: 5px;
+  color: var(--color-secondary); margin-bottom: 5px;
 }
 .section-head h2 {
   font-family: 'Sora', sans-serif;
   font-size: 22px; font-weight: 700;
   letter-spacing: -0.015em;
-  color: var(--gray-900);
+  color: var(--color-text-primary);
   padding-bottom: 16px;
-  border-bottom: 1px solid var(--gray-200);
+  border-bottom: 1px solid var(--color-border);
 }
-h3.sub { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--gray-500); margin: 28px 0 12px; }
-p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-bottom: 10px; }
+h3.sub { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted); margin: 28px 0 12px; }
+p.body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; margin-bottom: 10px; }
 
 /* ─────────────────────────────────────────
    CALLOUTS
@@ -286,13 +274,13 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
   letter-spacing: 0.14em; text-transform: uppercase;
   margin-bottom: 5px;
 }
-.callout-info  { background: #EBF6FB; border-left: 3px solid var(--blue); color: var(--gray-700); }
-.callout-info strong { color: var(--blue-700); }
-.callout-warn  { background: #FFF8E7; border-left: 3px solid #E8A020; color: var(--gray-700); }
+.callout-info  { background: var(--color-selection); border-left: 3px solid var(--color-primary); color: var(--color-text-secondary); }
+.callout-info strong { color: var(--color-secondary); }
+.callout-warn  { background: var(--color-warning-bg); border-left: 3px solid var(--color-warning); color: var(--color-text-secondary); }
 .callout-warn strong { color: #9A5C00; }
-.callout-error { background: #FDF2F2; border-left: 3px solid var(--red); color: var(--gray-700); }
+.callout-error { background: #FDF2F2; border-left: 3px solid var(--color-error); color: var(--color-text-secondary); }
 .callout-error strong { color: #8B2020; }
-.callout-new   { background: #F0FDF4; border-left: 3px solid var(--green); color: var(--gray-700); }
+.callout-new   { background: #F0FDF4; border-left: 3px solid var(--color-success); color: var(--color-text-secondary); }
 .callout-new strong { color: #1A6B4A; }
 
 /* ─────────────────────────────────────────
@@ -306,16 +294,16 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
    CARD
 ───────────────────────────────────────── */
 .card {
-  background: var(--white);
-  border: 1px solid var(--gray-200);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: var(--r-lg);
   padding: 20px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--elevation-1);
 }
 .card-label {
   font-size: 9px; font-weight: 700;
   letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--gray-400); margin-bottom: 14px;
+  color: var(--color-text-muted); margin-bottom: 14px;
 }
 
 /* ─────────────────────────────────────────
@@ -328,20 +316,20 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
   align-items: center;
   gap: 16px;
   padding: 18px 0;
-  border-bottom: 1px solid var(--gray-150);
+  border-bottom: 1px solid var(--color-border);
 }
 .type-row:last-child { border-bottom: none; }
-.type-meta-name { font-size: 11px; font-weight: 600; color: var(--gray-600); }
-.type-meta-spec { font-size: 10px; color: var(--gray-400); line-height: 1.8; font-family: monospace; }
-.t-display { font-family: 'Sora',sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--gray-900); }
-.t-h1 { font-family: 'Sora',sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--gray-900); }
-.t-h2 { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.015em; color: var(--gray-900); }
-.t-h3 { font-size: 16px; font-weight: 700; color: var(--gray-800); }
-.t-body { font-size: 15px; font-weight: 400; color: var(--gray-700); line-height: 1.6; }
-.t-body-sm { font-size: 13px; font-weight: 400; color: var(--gray-600); line-height: 1.6; }
-.t-caption { font-size: 12px; font-weight: 400; color: var(--gray-500); }
-.t-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-600); }
-.t-mono { font-family: monospace; font-size: 13px; color: var(--gray-700); background: var(--gray-100); padding: 2px 6px; border-radius: 4px; }
+.type-meta-name { font-size: 11px; font-weight: 600; color: var(--color-text-secondary); }
+.type-meta-spec { font-size: 10px; color: var(--color-text-muted); line-height: 1.8; font-family: monospace; }
+.t-display { font-family: 'Sora',sans-serif; font-size: 38px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.1; color: var(--color-text-primary); }
+.t-h1 { font-family: 'Sora',sans-serif; font-size: 26px; font-weight: 700; letter-spacing: -0.02em; color: var(--color-text-primary); }
+.t-h2 { font-family: 'Sora',sans-serif; font-size: 20px; font-weight: 600; letter-spacing: -0.015em; color: var(--color-text-primary); }
+.t-h3 { font-size: 16px; font-weight: 700; color: var(--color-text-primary); }
+.t-body { font-size: 15px; font-weight: 400; color: var(--color-text-secondary); line-height: 1.6; }
+.t-body-sm { font-size: 13px; font-weight: 400; color: var(--color-text-secondary); line-height: 1.6; }
+.t-caption { font-size: 12px; font-weight: 400; color: var(--color-text-muted); }
+.t-label { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-secondary); }
+.t-mono { font-family: monospace; font-size: 13px; color: var(--color-text-secondary); background: var(--color-surface-hover); padding: 2px 6px; border-radius: 4px; }
 
 /* ─────────────────────────────────────────
    COLOR SWATCHES
@@ -353,18 +341,18 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
   cursor: pointer;
   transition: transform var(--dur) var(--ease-out), box-shadow var(--dur) var(--ease-out);
 }
-.swatch:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.swatch:hover { transform: translateY(-3px); box-shadow: var(--elevation-2); }
 .swatch .blk { height: 64px; }
-.swatch .info { padding: 9px 11px; background: var(--white); }
-.swatch .s-name { font-size: 10px; font-weight: 700; color: var(--gray-800); margin-bottom: 2px; }
-.swatch .s-hex { font-size: 10px; color: var(--gray-500); font-family: monospace; }
-.swatch .s-token { font-size: 9px; color: var(--blue-700); margin-top: 2px; font-family: monospace; }
-.swatch .s-role { font-size: 9px; color: var(--gray-400); margin-top: 1px; }
+.swatch .info { padding: 9px 11px; background: var(--color-surface); }
+.swatch .s-name { font-size: 10px; font-weight: 700; color: var(--color-text-primary); margin-bottom: 2px; }
+.swatch .s-hex { font-size: 10px; color: var(--color-text-muted); font-family: monospace; }
+.swatch .s-token { font-size: 9px; color: var(--color-secondary); margin-top: 2px; font-family: monospace; }
+.swatch .s-role { font-size: 9px; color: var(--color-text-muted); margin-top: 1px; }
 
 .shade-strip { display: flex; gap: 5px; margin-top: 10px; }
 .shade-chip { flex: 1; border-radius: 6px; overflow: hidden; border: 1px solid rgba(0,0,0,0.05); cursor: pointer; }
 .shade-chip .blk { height: 30px; }
-.shade-chip .s-hex { font-size: 8px; padding: 3px 5px; font-family: monospace; color: var(--gray-500); background: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.shade-chip .s-hex { font-size: 8px; padding: 3px 5px; font-family: monospace; color: var(--color-text-muted); background: var(--color-surface); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ─────────────────────────────────────────
    ORDER TYPE PALETTE
@@ -372,26 +360,26 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .order-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px,1fr)); gap: 10px; margin-top: 14px; }
 .order-chip {
   display: flex; align-items: center; gap: 12px;
-  background: var(--white); border: 1px solid var(--gray-200);
+  background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--r-md); padding: 12px 14px;
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--elevation-1);
   cursor: pointer;
   transition: box-shadow var(--dur) var(--ease-out);
 }
-.order-chip:hover { box-shadow: var(--shadow-md); }
+.order-chip:hover { box-shadow: var(--elevation-2); }
 .order-chip .swatch-dot { width: 32px; height: 32px; border-radius: var(--r); flex-shrink: 0; }
-.order-chip .oc-name { font-size: 12px; font-weight: 700; color: var(--gray-800); }
-.order-chip .oc-hex { font-size: 10px; color: var(--gray-400); font-family: monospace; }
-.order-chip .oc-token { font-size: 9px; color: var(--blue-700); font-family: monospace; margin-top: 1px; }
+.order-chip .oc-name { font-size: 12px; font-weight: 700; color: var(--color-text-primary); }
+.order-chip .oc-hex { font-size: 10px; color: var(--color-text-muted); font-family: monospace; }
+.order-chip .oc-token { font-size: 9px; color: var(--color-secondary); font-family: monospace; margin-top: 1px; }
 
 /* ─────────────────────────────────────────
    SPACING SCALE
 ───────────────────────────────────────── */
-.spacing-scale { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 16px; padding: 24px; background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-lg); }
+.spacing-scale { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 16px; padding: 24px; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--r-lg); }
 .sp-item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.sp-bar { background: var(--blue); border-radius: 3px; width: 24px; opacity: 0.55; }
-.sp-size { font-size: 10px; font-weight: 700; color: var(--gray-700); }
-.sp-class { font-size: 9px; color: var(--gray-400); font-family: monospace; }
+.sp-bar { background: var(--color-primary); border-radius: 3px; width: 24px; opacity: 0.55; }
+.sp-size { font-size: 10px; font-weight: 700; color: var(--color-text-secondary); }
+.sp-class { font-size: 9px; color: var(--color-text-muted); font-family: monospace; }
 
 /* ─────────────────────────────────────────
    BUTTONS
@@ -407,17 +395,17 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
   transition: all var(--dur) var(--ease-out);
   text-decoration: none;
 }
-.btn-primary   { background: var(--blue); color: var(--white); border-color: var(--blue); }
-.btn-primary:hover { background: var(--blue-700); border-color: var(--blue-700); }
-.btn-secondary { background: var(--blue-800); color: var(--white); border-color: var(--blue-800); }
-.btn-secondary:hover { background: var(--blue-900); border-color: var(--blue-900); }
-.btn-outline   { background: transparent; color: var(--gray-700); border-color: var(--gray-300); }
-.btn-outline:hover { border-color: var(--gray-500); background: var(--gray-100); }
-.btn-ghost     { background: transparent; color: var(--blue-700); border-color: transparent; }
-.btn-ghost:hover { background: var(--blue-50); }
-.btn-danger    { background: var(--red); color: var(--white); border-color: var(--red); }
+.btn-primary   { background: var(--color-primary); color: var(--color-primary-text); border-color: var(--color-primary); }
+.btn-primary:hover { background: var(--color-secondary); border-color: var(--color-secondary); }
+.btn-secondary { background: var(--color-accent); color: var(--color-primary-text); border-color: var(--color-accent); }
+.btn-secondary:hover { background: #1D4A5F; border-color: #1D4A5F; }
+.btn-outline   { background: transparent; color: var(--color-text-secondary); border-color: var(--color-border-strong); }
+.btn-outline:hover { border-color: var(--color-text-muted); background: var(--color-surface-hover); }
+.btn-ghost     { background: transparent; color: var(--color-secondary); border-color: transparent; }
+.btn-ghost:hover { background: var(--color-info-bg); }
+.btn-danger    { background: var(--color-error); color: var(--color-primary-text); border-color: var(--color-error); }
 .btn-danger:hover { filter: brightness(0.9); }
-.btn-success   { background: var(--green); color: var(--white); border-color: var(--green); }
+.btn-success   { background: var(--color-success); color: var(--color-primary-text); border-color: var(--color-success); }
 .btn-sm  { padding: 5px 12px; font-size: 11px; border-radius: var(--r); }
 .btn-lg  { padding: 13px 26px; font-size: 13px; border-radius: var(--r-lg); }
 .btn[disabled] { opacity: 0.38; cursor: not-allowed; pointer-events: none; }
@@ -427,24 +415,24 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
    INPUTS
 ───────────────────────────────────────── */
 .field { margin-bottom: 14px; }
-.field-label { display: block; font-size: 11px; font-weight: 700; color: var(--gray-700); margin-bottom: 5px; }
+.field-label { display: block; font-size: 11px; font-weight: 700; color: var(--color-text-secondary); margin-bottom: 5px; }
 .field-input {
   width: 100%; padding: 9px 12px;
   font-family: 'Plus Jakarta Sans', sans-serif;
   font-size: 13.5px; font-weight: 400;
-  color: var(--gray-900);
-  background: var(--white);
-  border: 1.5px solid var(--gray-300);
+  color: var(--color-text-primary);
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-strong);
   border-radius: var(--r-md);
   outline: none;
   transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
 }
-.field-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(107,184,218,0.2); }
-.field-input::placeholder { color: var(--gray-400); }
-.field-input.is-error { border-color: var(--red); }
+.field-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px rgba(107,184,218,0.2); }
+.field-input::placeholder { color: var(--color-text-muted); }
+.field-input.is-error { border-color: var(--color-error); }
 .field-input.is-error:focus { box-shadow: 0 0 0 3px rgba(218,107,107,0.2); }
-.field-hint  { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
-.field-error { font-size: 11px; color: var(--red); margin-top: 4px; font-weight: 500; }
+.field-hint  { font-size: 11px; color: var(--color-text-muted); margin-top: 4px; }
+.field-error { font-size: 11px; color: var(--color-error); margin-top: 4px; font-weight: 500; }
 
 /* ─────────────────────────────────────────
    STATUS BADGES
@@ -456,23 +444,23 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 }
 .badge .pip { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 .badge-success { background: rgba(107,218,178,0.15); color: #1A6B4A; }
-.badge-success .pip { background: var(--green); }
+.badge-success .pip { background: var(--color-success); }
 .badge-warning { background: rgba(218,218,107,0.2); color: #5C5C00; }
-.badge-warning .pip { background: var(--yellow); }
+.badge-warning .pip { background: var(--color-warning); }
 .badge-error   { background: rgba(218,107,107,0.15); color: #8B2020; }
-.badge-error   .pip { background: var(--red); }
-.badge-info    { background: var(--blue-50); color: var(--blue-800); }
-.badge-info    .pip { background: var(--blue); }
-.badge-neutral { background: var(--gray-100); color: var(--gray-600); }
-.badge-neutral .pip { background: var(--gray-400); }
+.badge-error   .pip { background: var(--color-error); }
+.badge-info    { background: var(--color-info-bg); color: var(--color-accent); }
+.badge-info    .pip { background: var(--color-primary); }
+.badge-neutral { background: var(--color-surface-hover); color: var(--color-text-secondary); }
+.badge-neutral .pip { background: var(--color-text-muted); }
 
 /* order type badges */
-.badge-table    { background: rgba(54,47,74,0.12); color: var(--table-channel); }
-.badge-table    .pip { background: var(--table-channel); }
-.badge-takeaway { background: var(--takeaway); color: #1A4D35; }
+.badge-table    { background: rgba(54,47,74,0.12); color: var(--channel-table-text); }
+.badge-table    .pip { background: var(--channel-table-text); }
+.badge-takeaway { background: var(--channel-takeaway-bg); color: var(--channel-takeaway-text); }
 .badge-takeaway .pip { background: #5BAE84; }
 .badge-combo    { background: rgba(255,179,186,0.3); color: #8B2040; }
-.badge-combo    .pip { background: var(--combo); }
+.badge-combo    .pip { background: var(--channel-combo-bg); }
 
 /* ─────────────────────────────────────────
    BREAKPOINTS TABLE
@@ -480,24 +468,24 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .bp-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
 .bp-table th {
   font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-  color: var(--gray-400); padding: 8px 14px; text-align: left;
-  border-bottom: 2px solid var(--gray-200);
+  color: var(--color-text-muted); padding: 8px 14px; text-align: left;
+  border-bottom: 2px solid var(--color-border-strong);
 }
-.bp-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-150); vertical-align: middle; color: var(--gray-700); }
+.bp-table td { padding: 12px 14px; border-bottom: 1px solid var(--color-border); vertical-align: middle; color: var(--color-text-secondary); }
 .bp-table tr:last-child td { border-bottom: none; }
-.bp-table td:first-child { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--blue-700); }
-.bp-table td:nth-child(2) { font-family: monospace; font-weight: 700; font-size: 12px; color: var(--gray-900); }
-.bp-vis { width: 100%; height: 8px; border-radius: 99px; background: var(--gray-200); overflow: hidden; }
-.bp-vis .fill { height: 100%; border-radius: 99px; background: var(--blue); }
+.bp-table td:first-child { font-family: monospace; font-size: 12px; font-weight: 700; color: var(--color-secondary); }
+.bp-table td:nth-child(2) { font-family: monospace; font-weight: 700; font-size: 12px; color: var(--color-text-primary); }
+.bp-vis { width: 100%; height: 8px; border-radius: 99px; background: var(--color-border-strong); overflow: hidden; }
+.bp-vis .fill { height: 100%; border-radius: 99px; background: var(--color-primary); }
 
 /* ─────────────────────────────────────────
    MOTION TABLE
 ───────────────────────────────────────── */
 .motion-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: 10px; margin-top: 14px; }
-.motion-card { background: var(--white); border: 1px solid var(--gray-200); border-radius: var(--r-md); padding: 14px 16px; }
-.motion-card .mc-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 5px; }
-.motion-card .mc-val { font-size: 13px; font-weight: 700; font-family: monospace; color: var(--gray-800); }
-.motion-card .mc-desc { font-size: 10px; color: var(--gray-500); margin-top: 3px; }
+.motion-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--r-md); padding: 14px 16px; }
+.motion-card .mc-label { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 5px; }
+.motion-card .mc-val { font-size: 13px; font-weight: 700; font-family: monospace; color: var(--color-text-primary); }
+.motion-card .mc-desc { font-size: 10px; color: var(--color-text-muted); margin-top: 3px; }
 
 /* ─────────────────────────────────────────
    DO / DON'T
@@ -509,7 +497,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .do-box .hd   { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A6B4A; margin-bottom: 12px; }
 .dont-box .hd { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B2020; margin-bottom: 12px; }
 .do-box ul, .dont-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
-.do-box li, .dont-box li { font-size: 12.5px; color: var(--gray-700); display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
+.do-box li, .dont-box li { font-size: 12.5px; color: var(--color-text-secondary); display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
 .do-box li::before   { content: "✓"; color: #3BAD7A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 .dont-box li::before { content: "✗"; color: #C04040; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
@@ -517,7 +505,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
    DARK MODE PREVIEW
 ───────────────────────────────────────── */
 .dark-preview {
-  background: var(--gray-900);
+  background: #16151A;
   border-radius: var(--r-xl);
   padding: 28px 32px;
   border: 1px solid rgba(255,255,255,0.06);
@@ -528,8 +516,8 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
    ACCESSIBILITY TABLE
 ───────────────────────────────────────── */
 .a11y-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
-.a11y-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gray-400); padding: 8px 14px; text-align: left; border-bottom: 2px solid var(--gray-200); }
-.a11y-table td { padding: 11px 14px; border-bottom: 1px solid var(--gray-150); color: var(--gray-700); vertical-align: middle; }
+.a11y-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted); padding: 8px 14px; text-align: left; border-bottom: 2px solid var(--color-border-strong); }
+.a11y-table td { padding: 11px 14px; border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); vertical-align: middle; }
 .a11y-table tr:last-child td { border-bottom: none; }
 .ratio-swatch { display: inline-flex; align-items: center; gap: 8px; font-family: monospace; font-size: 11px; }
 .ratio-swatch .mini { width: 16px; height: 16px; border-radius: 3px; border: 1px solid rgba(0,0,0,0.08); }
@@ -544,13 +532,13 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .icon-item {
   display: flex; flex-direction: column; align-items: center; gap: 6px;
   width: 64px;
-  background: var(--white); border: 1px solid var(--gray-200);
+  background: var(--color-surface); border: 1px solid var(--color-border);
   border-radius: var(--r-md); padding: 12px 8px 10px;
   transition: box-shadow var(--dur) var(--ease-out);
 }
-.icon-item:hover { box-shadow: var(--shadow-md); }
+.icon-item:hover { box-shadow: var(--elevation-2); }
 .icon-item svg { display: block; }
-.icon-item .i-name { font-size: 9px; color: var(--gray-400); text-align: center; line-height: 1.3; }
+.icon-item .i-name { font-size: 9px; color: var(--color-text-muted); text-align: center; line-height: 1.3; }
 
 /* ─────────────────────────────────────────
    TOOLTIP DEMO
@@ -558,27 +546,27 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .tooltip-wrap { position: relative; display: inline-block; }
 .tooltip-wrap .tooltip {
   display: none; position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
-  background: var(--gray-900); color: var(--white);
+  background: #16151A; color: var(--color-primary-text);
   font-size: 11px; font-weight: 500; padding: 5px 10px;
   border-radius: 6px; white-space: nowrap;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--elevation-2);
   pointer-events: none;
 }
-.tooltip-wrap .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--gray-900); }
+.tooltip-wrap .tooltip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: var(--color-text-primary); }
 .tooltip-wrap:hover .tooltip { display: block; }
 
 /* ─────────────────────────────────────────
    DIVIDER
 ───────────────────────────────────────── */
-.divider { height: 1px; background: var(--gray-200); margin: 48px 0; }
+.divider { height: 1px; background: var(--color-border); margin: 48px 0; }
 
 /* ─────────────────────────────────────────
    SCROLLBAR
 ───────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--gray-400); }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-text-muted); }
 
 /* ─────────────────────────────────────────
    SPIN ANIMATION
@@ -592,43 +580,43 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 [data-density="compact"]     { --row-h:44px; --row-gap:12px; --cell-py:10px; }
 [data-density="ultra"]       { --row-h:36px; --row-gap:8px;  --cell-py:7px;  }
 
-.density-demo { border: 1px solid var(--gray-200); border-radius: var(--r-lg); overflow:hidden; }
+.density-demo { border: 1px solid var(--color-border); border-radius: var(--r-lg); overflow:hidden; }
 .density-toggle { display:flex; gap:8px; margin-bottom:12px; }
-.dtoggle { padding:5px 14px; border-radius:99px; border:1px solid var(--gray-300);
-  font-size:12px; font-weight:600; cursor:pointer; background:var(--white);
-  color:var(--gray-600); transition:all 120ms; }
-.dtoggle.active { background:var(--blue-800); color:var(--white); border-color:var(--blue-800); }
+.dtoggle { padding:5px 14px; border-radius:99px; border:1px solid var(--color-border-strong);
+  font-size:12px; font-weight:600; cursor:pointer; background:var(--color-surface);
+  color:var(--color-text-secondary); transition:all 120ms; }
+.dtoggle.active { background:var(--color-accent); color:var(--color-primary-text); border-color:var(--color-accent); }
 .d-row { display:flex; align-items:center; gap:var(--row-gap);
   height:var(--row-h); padding:0 16px;
-  border-bottom:1px solid var(--gray-150); font-size:13px;
+  border-bottom:1px solid var(--color-border); font-size:13px;
   transition:height 200ms var(--ease-out), gap 200ms var(--ease-out); }
 .d-row:last-child { border-bottom:none; }
-.d-row:hover { background:var(--gray-50); }
-.d-id   { font-family:monospace; font-weight:700; color:var(--blue-800); min-width:60px; }
+.d-row:hover { background:var(--color-surface-hover); }
+.d-id   { font-family:monospace; font-weight:700; color:var(--color-accent); min-width:60px; }
 .d-chan { min-width:80px; }
-.d-amt  { min-width:70px; color:var(--gray-600); }
-.d-time { min-width:50px; color:var(--gray-500); font-size:12px; }
+.d-amt  { min-width:70px; color:var(--color-text-secondary); }
+.d-time { min-width:50px; color:var(--color-text-muted); font-size:12px; }
 .d-status { margin-left:auto; }
 
 /* ─────────────────────────────────────────
    INTERACTION STATES
 ───────────────────────────────────────── */
 .state-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
-.state-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); padding:16px; }
+.state-card { border:1px solid var(--color-border); border-radius:var(--r-lg); padding:16px; }
 .state-label { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
-  color:var(--gray-400); margin-bottom:10px; }
+  color:var(--color-text-muted); margin-bottom:10px; }
 .state-demo  { display:flex; align-items:center; justify-content:center; min-height:52px; }
 
 /* order card states */
 .oc-card { border-radius:var(--r-lg); padding:12px 14px; border:2px solid transparent;
-  background:var(--white); box-shadow:var(--elevation-1); font-size:12px; cursor:pointer;
+  background:var(--color-surface); box-shadow:var(--elevation-1); font-size:12px; cursor:pointer;
   transition:all 160ms var(--ease-out); }
 .oc-default  { }
 .oc-hover    { box-shadow:var(--elevation-2); }
-.oc-selected { border-color:var(--blue-800); box-shadow:var(--shadow-focus); }
+.oc-selected { border-color:var(--color-accent); box-shadow:var(--elevation-focus); }
 .oc-processing { animation: pulse-subtle 1.6s ease-in-out infinite; }
 .oc-completed { opacity:0.6; }
-.oc-error    { border-color:var(--red); background:#fff5f5; }
+.oc-error    { border-color:var(--color-error); background:var(--color-error-bg); }
 @keyframes pulse-subtle { 0%,100%{opacity:1} 50%{opacity:.7} }
 
 /* ─────────────────────────────────────────
@@ -636,43 +624,43 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 ───────────────────────────────────────── */
 .layout-tree { display:flex; flex-direction:column; gap:0; }
 .lt-level { display:flex; align-items:center; gap:12px; padding:10px 16px;
-  border-left:2px solid var(--gray-200); margin-left:16px; position:relative; }
+  border-left:2px solid var(--color-border); margin-left:16px; position:relative; }
 .lt-level:first-child { margin-left:0; border-left:none; }
 .lt-badge { font-family:monospace; font-size:11px; font-weight:700;
   padding:3px 10px; border-radius:99px; white-space:nowrap; }
-.lt-pad { font-size:12px; color:var(--gray-500); font-family:monospace; }
-.lt-desc { font-size:12px; color:var(--gray-600); }
-.lt-page    .lt-badge { background:var(--blue-900); color:var(--white); }
-.lt-section .lt-badge { background:var(--blue-700); color:var(--white); }
-.lt-card    .lt-badge { background:var(--blue); color:var(--white); }
-.lt-comp    .lt-badge { background:var(--blue-100); color:var(--blue-900); }
+.lt-pad { font-size:12px; color:var(--color-text-muted); font-family:monospace; }
+.lt-desc { font-size:12px; color:var(--color-text-secondary); }
+.lt-page    .lt-badge { background:#1D4A5F; color:var(--color-primary-text); }
+.lt-section .lt-badge { background:var(--color-secondary); color:var(--color-primary-text); }
+.lt-card    .lt-badge { background:var(--color-primary); color:var(--color-primary-text); }
+.lt-comp    .lt-badge { background:var(--color-info-bg); color:#1D4A5F; }
 
 /* ─────────────────────────────────────────
    COMPONENT ANATOMY
 ───────────────────────────────────────── */
 .anatomy-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-.anatomy-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); overflow:hidden; }
-.anatomy-title { background:var(--gray-800); color:var(--white); padding:8px 14px;
+.anatomy-card { border:1px solid var(--color-border); border-radius:var(--r-lg); overflow:hidden; }
+.anatomy-title { background:var(--color-text-primary); color:var(--color-primary-text); padding:8px 14px;
   font-size:11px; font-weight:700; letter-spacing:0.05em; }
-.anatomy-zone  { padding:10px 14px; border-bottom:1px dashed var(--gray-200);
-  font-size:11px; color:var(--gray-600); display:flex; align-items:center; gap:8px; }
+.anatomy-zone  { padding:10px 14px; border-bottom:1px dashed var(--color-border);
+  font-size:11px; color:var(--color-text-secondary); display:flex; align-items:center; gap:8px; }
 .anatomy-zone:last-child { border-bottom:none; }
 .az-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
-.az-header { background:var(--blue-800); }
-.az-content { background:var(--blue); }
-.az-footer  { background:var(--gray-400); }
-.az-body    { background:var(--green); }
-.az-actions { background:var(--yellow); }
-.az-name { font-weight:700; color:var(--gray-800); }
+.az-header { background:var(--color-accent); }
+.az-content { background:var(--color-primary); }
+.az-footer  { background:var(--color-text-muted); }
+.az-body    { background:var(--color-success); }
+.az-actions { background:var(--color-warning); }
+.az-name { font-weight:700; color:var(--color-text-primary); }
 
 /* ─────────────────────────────────────────
    ELEVATION DEMO
 ───────────────────────────────────────── */
-.elevation-row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; padding:24px; background:var(--gray-100); border-radius:var(--r-lg); }
-.elev-card { background:var(--white); border-radius:var(--r-lg); padding:16px 20px; text-align:center; flex:1; min-width:100px; }
-.elev-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gray-400); margin-bottom:6px; }
-.elev-name  { font-size:13px; font-weight:700; color:var(--gray-800); margin-bottom:2px; }
-.elev-use   { font-size:11px; color:var(--gray-500); }
+.elevation-row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; padding:24px; background:var(--color-surface-hover); border-radius:var(--r-lg); }
+.elev-card { background:var(--color-surface); border-radius:var(--r-lg); padding:16px 20px; text-align:center; flex:1; min-width:100px; }
+.elev-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--color-text-muted); margin-bottom:6px; }
+.elev-name  { font-size:13px; font-weight:700; color:var(--color-text-primary); margin-bottom:2px; }
+.elev-use   { font-size:11px; color:var(--color-text-muted); }
 
 
 /* ─────────────────────────────────────────
@@ -680,35 +668,35 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 ───────────────────────────────────────── */
 .z-layer-demo { display:flex; flex-direction:column; gap:6px; }
 .z-row { display:flex; align-items:center; gap:16px; padding:10px 16px;
-  border-radius:var(--r); border:1px solid var(--gray-200); background:var(--white); }
-.z-val  { font-family:monospace; font-weight:700; color:var(--blue-800); min-width:55px; font-size:12px; }
-.z-name { font-weight:700; color:var(--gray-800); min-width:90px; font-size:13px; }
-.z-desc { font-size:12px; color:var(--gray-500); }
-.z-bar  { margin-left:auto; height:6px; border-radius:99px; background:var(--blue); opacity:0.15; }
+  border-radius:var(--r); border:1px solid var(--color-border); background:var(--color-surface); }
+.z-val  { font-family:monospace; font-weight:700; color:var(--color-accent); min-width:55px; font-size:12px; }
+.z-name { font-weight:700; color:var(--color-text-primary); min-width:90px; font-size:13px; }
+.z-desc { font-size:12px; color:var(--color-text-muted); }
+.z-bar  { margin-left:auto; height:6px; border-radius:99px; background:var(--color-primary); opacity:0.15; }
 
 /* ─────────────────────────────────────────
    TABLE PATTERN
 ───────────────────────────────────────── */
 .ds-table { width:100%; border-collapse:collapse; font-size:13px; }
-.ds-table thead tr { border-bottom:2px solid var(--gray-200); }
+.ds-table thead tr { border-bottom:2px solid var(--color-border-strong); }
 .ds-table th { text-align:left; padding:10px 14px; font-size:9px; font-weight:700;
-  letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-400);
-  background:var(--gray-50); white-space:nowrap; }
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--color-text-muted);
+  background:var(--color-surface-hover); white-space:nowrap; }
 .ds-table th.sortable { cursor:pointer; }
-.ds-table th.sortable:hover { color:var(--blue-800); }
-.ds-table td { padding:var(--cell-py) 14px; border-bottom:1px solid var(--gray-150);
-  color:var(--gray-700); transition:background 100ms; }
+.ds-table th.sortable:hover { color:var(--color-accent); }
+.ds-table td { padding:var(--cell-py) 14px; border-bottom:1px solid var(--color-border);
+  color:var(--color-text-secondary); transition:background 100ms; }
 .ds-table tr:last-child td { border-bottom:none; }
-.ds-table tbody tr:hover td { background:var(--gray-50); }
-.ds-table tbody tr[data-selected="true"] td { background:#EBF6FB; }
-.ds-table .cell-id   { font-family:monospace; font-weight:700; color:var(--blue-800); }
-.ds-table .cell-mono { font-family:monospace; font-size:12px; color:var(--gray-600); }
+.ds-table tbody tr:hover td { background:var(--color-surface-hover); }
+.ds-table tbody tr[data-selected="true"] td { background:var(--color-selection); }
+.ds-table .cell-id   { font-family:monospace; font-weight:700; color:var(--color-accent); }
+.ds-table .cell-mono { font-family:monospace; font-size:12px; color:var(--color-text-secondary); }
 .ds-table .cell-actions { text-align:right; }
 .ds-table .row-action { background:none; border:none; padding:4px 8px; border-radius:var(--r-sm);
-  cursor:pointer; color:var(--gray-500); font-size:12px; transition:all 100ms; }
-.ds-table .row-action:hover { background:var(--gray-100); color:var(--gray-800); }
+  cursor:pointer; color:var(--color-text-muted); font-size:12px; transition:all 100ms; }
+.ds-table .row-action:hover { background:var(--color-surface-hover); color:var(--color-text-primary); }
 .table-footer { display:flex; align-items:center; justify-content:space-between;
-  padding:12px 16px; border-top:1px solid var(--gray-200); font-size:12px; color:var(--gray-500); }
+  padding:12px 16px; border-top:1px solid var(--color-border); font-size:12px; color:var(--color-text-muted); }
 
 /* ─────────────────────────────────────────
    SKELETON / LOADING STATES
@@ -719,7 +707,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 }
 .skeleton {
   background: linear-gradient(90deg,
-    var(--gray-150) 25%, var(--gray-100) 50%, var(--gray-150) 75%);
+    var(--color-border) 25%, var(--color-surface-hover) 50%, var(--color-border) 75%);
   background-size: 400px 100%;
   animation: skeleton-shimmer 1.4s ease-in-out infinite;
   border-radius: var(--r-sm);
@@ -728,8 +716,8 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .skel-text { height:12px; border-radius:99px; }
 .skel-badge { height:22px; width:64px; border-radius:99px; display:inline-block; }
 .loading-states-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-.loading-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); overflow:hidden; }
-.loading-card-head { background:var(--gray-800); color:var(--white); padding:8px 14px;
+.loading-card { border:1px solid var(--color-border); border-radius:var(--r-lg); overflow:hidden; }
+.loading-card-head { background:var(--color-text-primary); color:var(--color-primary-text); padding:8px 14px;
   font-size:11px; font-weight:700; letter-spacing:0.05em; }
 .loading-card-body { padding:16px; }
 
@@ -773,6 +761,11 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 /* ─────────────────────────────────────────
    DARK MODE — DOC SURFACE OVERRIDES
 ───────────────────────────────────────── */
+.dark {
+  --color-selection:        #0D2030;
+  --color-selection-border: #2E6B87;
+  --color-selection-text:   #7EC8E3;
+}
 .dark body          { background: var(--color-bg-page); color: var(--color-text-primary); }
 .dark .sidebar      { background: #1E1D24; border-right-color: #2E2C38; }
 .dark .sidebar-logo { border-bottom-color: #2E2C38; }
@@ -842,13 +835,13 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .dark .ds-table th  { background: #26242E; color: #5C5970; }
 .dark .ds-table td  { color: #9B98A8; border-bottom-color: #2E2C38; }
 .dark .ds-table tbody tr:hover td { background: #26242E; }
-.dark .ds-table tbody tr[data-selected="true"] td { background: #0D2030; }
+.dark .ds-table tbody tr[data-selected="true"] td { background: var(--color-selection); color: var(--color-selection-text); }
 .dark .table-footer { border-top-color: #2E2C38; color: #5C5970; }
 .dark .row-action   { color: #5C5970; }
 .dark .row-action:hover { background: #3D3A4A; color: #F0EEF5; }
 .dark .state-card   { background: #26242E; border-color: #3D3A4A; }
 .dark .state-label  { color: #5C5970; }
-.dark .oc-card      { background: #26242E; box-shadow: var(--shadow-sm); }
+.dark .oc-card      { background: #26242E; box-shadow: var(--elevation-1); }
 .dark .oc-selected  { border-color: #7EC8E3; box-shadow: 0 0 0 3px rgba(126,200,227,0.30); }
 .dark .oc-error     { border-color: #D45858; background: #2E1212; }
 .dark .z-row        { background: #26242E; border-color: #3D3A4A; }
@@ -899,10 +892,10 @@ html.theme-transition *::after {
   border: 1px solid var(--color-border);
   background: var(--color-surface);
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 18px; box-shadow: var(--shadow-md);
+  font-size: 18px; box-shadow: var(--elevation-2);
   transition: all 160ms cubic-bezier(0.16,1,0.3,1);
 }
-#themeToggle:hover { transform: scale(1.08); box-shadow: var(--shadow-lg); }
+#themeToggle:hover { transform: scale(1.08); box-shadow: var(--elevation-3); }
 
 
 /* ─────────────────────────────────────────
@@ -1012,19 +1005,6 @@ html.theme-transition *::after {
 .dark .dont-box .hd { color: #D45858; }
 .dark .do-box ul li, .dark .dont-box ul li { color: #9B98A8; border-bottom-color: rgba(255,255,255,0.05); }
 /* dark toggle button */
-#darkToggle {
-  position: fixed; top: 16px; right: 20px; z-index: 1400;
-  background: var(--white); border: 1px solid var(--gray-200);
-  border-radius: 99px; padding: 6px 14px;
-  font-size: 12px; font-weight: 600; cursor: pointer;
-  display: flex; align-items: center; gap: 6px;
-  box-shadow: var(--shadow-sm);
-  transition: all 160ms;
-  color: var(--gray-700);
-  font-family: 'Plus Jakarta Sans', sans-serif;
-}
-#darkToggle:hover { box-shadow: var(--shadow-md); }
-.dark #darkToggle { background: #26242E; border-color: #3D3A4A; color: #F0EEF5; box-shadow: 0 1px 4px rgba(0,0,0,0.4); }
 /* dm-swatch for dark mode colour palette display */
 .dm-palette { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .dm-swatch  { border-radius: var(--r); overflow: hidden; border: 1px solid rgba(255,255,255,0.06); }
@@ -1034,28 +1014,522 @@ html.theme-transition *::after {
 .dm-hex     { font-size: 9px; font-family: monospace; color: #5C5970; margin-top: 1px; }
 /* light/dark comparison table */
 .cmp-table  { width: 100%; border-collapse: collapse; font-size: 12px; }
-.cmp-table th { padding: 8px 12px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 2px solid var(--gray-200); text-align: left; }
-.cmp-table td { padding: 10px 12px; border-bottom: 1px solid var(--gray-150); vertical-align: middle; }
+.cmp-table th { padding: 8px 12px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-bottom: 2px solid var(--color-border-strong); text-align: left; }
+.cmp-table td { padding: 10px 12px; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
 .dark .cmp-table th { border-bottom-color: #3D3A4A; }
 .dark .cmp-table td { border-bottom-color: #2E2C38; color: #9B98A8; }
 .cmp-dot    { width: 20px; height: 20px; border-radius: 4px; display: inline-block; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.08); }
 .cmp-pair   { display: flex; align-items: center; gap: 8px; }
 
+
+/* ─────────────────────────────────────────
+   FOCUS RINGS — explicit semantic tokens
+   Dark mode gets stronger ring (0.40 vs 0.30 opacity)
+───────────────────────────────────────── */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--elevation-focus);
+}
+.field-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--elevation-focus);
+}
+.dark .field-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(126,200,227,0.40);
+}
+.dark :focus-visible {
+  box-shadow: 0 0 0 3px rgba(126,200,227,0.40);
+}
+.btn:focus-visible {
+  box-shadow: var(--elevation-focus);
+}
+.dark .btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(126,200,227,0.40);
+}
+
+/* ─────────────────────────────────────────
+   SECONDARY TEXT CONTRAST VERIFICATION
+   --color-text-secondary dark = #9B98A8
+   On #1E1D24 (surface): contrast ≈ 4.8:1 ✓ WCAG AA
+   --color-text-muted dark = #5C5970
+   On #1E1D24: contrast ≈ 2.8:1 — decorative/non-essential only
+   Rule: muted NEVER used for interactive labels or body copy in dark mode
+───────────────────────────────────────── */
+.dark .field-label  { color: var(--color-text-secondary); } /* ≥ 4.8:1 */
+.dark .field-hint   { color: var(--color-text-muted); }     /* decorative */
+.dark .card-label   { color: var(--color-text-muted); }     /* decorative */
+.dark h3.sub        { color: var(--color-text-muted); }
+.dark p.body        { color: var(--color-text-secondary); } /* ≥ 4.8:1 */
+
+/* ─────────────────────────────────────────
+   CHANNEL CHIPS — dark mode
+   Ensure badges render correctly at small sizes
+   text contrast on deep bg verified below:
+   takeaway: #7DD4AA on #1A3328 ≈ 5.1:1 ✓
+   eat-in:   #E8A890 on #3D2218 ≈ 5.4:1 ✓
+   combo:    #F0A0AA on #3D1A20 ≈ 5.6:1 ✓
+   table:    #C4AFEE on #2A2340 ≈ 5.3:1 ✓
+───────────────────────────────────────── */
+.dark .badge-table {
+  background: var(--channel-table-bg);
+  border-color: var(--channel-table-border);
+  color: var(--channel-table-text);
+}
+.dark .badge-takeaway {
+  background: var(--channel-takeaway-bg);
+  border-color: var(--channel-takeaway-border);
+  color: var(--channel-takeaway-text);
+}
+.dark .badge-eatin,
+.dark .badge-eat-in {
+  background: var(--channel-eatin-bg);
+  border-color: var(--channel-eatin-border);
+  color: var(--channel-eatin-text);
+}
+.dark .badge-combo {
+  background: var(--channel-combo-bg);
+  border-color: var(--channel-combo-border);
+  color: var(--channel-combo-text);
+}
+/* Order chips in order overview */
+.dark .d-badge-table    { background:var(--channel-table-bg);    color:var(--channel-table-text);    border-color:var(--channel-table-border); }
+.dark .d-badge-takeaway { background:var(--channel-takeaway-bg); color:var(--channel-takeaway-text); border-color:var(--channel-takeaway-border); }
+.dark .d-badge-eatin    { background:var(--channel-eatin-bg);    color:var(--channel-eatin-text);    border-color:var(--channel-eatin-border); }
+.dark .d-badge-combo    { background:var(--channel-combo-bg);    color:var(--channel-combo-text);    border-color:var(--channel-combo-border); }
+
+
+/* ─────────────────────────────────────────
+   OPERATIONAL UX — POS PATTERNS
+───────────────────────────────────────── */
+
+/* Hero rule — 3-second rule */
+.pos-hero-rule {
+  background: linear-gradient(135deg, #1D4A5F 0%, #2E6B87 100%);
+  border-radius: var(--r-xl);
+  padding: 28px 32px;
+  margin-bottom: 8px;
+  color: #F0EEF5;
+}
+.pos-hero-inner {
+  display: flex; align-items: flex-start; gap: 24px; margin-bottom: 20px;
+}
+.pos-hero-number {
+  font-family: 'Sora', sans-serif;
+  font-size: 48px; font-weight: 700; line-height: 1;
+  color: #6BB8DA; flex-shrink: 0;
+  letter-spacing: -0.04em;
+}
+.pos-hero-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 18px; font-weight: 700;
+  color: #F0EEF5; margin-bottom: 6px;
+}
+.pos-hero-desc {
+  font-size: 13px; color: rgba(240,238,245,0.72); line-height: 1.7;
+}
+.pos-hero-flow {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.pos-flow-step {
+  background: rgba(255,255,255,0.10);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--r-md);
+  padding: 7px 14px;
+  font-size: 12px; font-weight: 600; color: rgba(240,238,245,0.85);
+}
+.pos-flow-arrow { color: rgba(107,184,218,0.7); font-size: 16px; }
+.pos-flow-done {
+  background: rgba(107,218,178,0.2);
+  border-color: rgba(107,218,178,0.4);
+  color: #6BDAB2;
+}
+
+/* Pattern grid */
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 4px;
+}
+@media (max-width: 900px) {
+  .pattern-grid { grid-template-columns: repeat(2,1fr); }
+}
+
+.pattern-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  box-shadow: var(--elevation-1);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.pattern-number {
+  font-family: 'Sora', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: var(--color-primary);
+  letter-spacing: 0.08em;
+}
+.pattern-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 700;
+  color: var(--color-text-primary);
+  margin-top: -4px;
+}
+.pattern-desc {
+  font-size: 12.5px; color: var(--color-text-secondary);
+  line-height: 1.65; margin: 0;
+}
+.pattern-rule {
+  font-size: 11px; color: var(--color-text-muted);
+  background: var(--color-surface-hover);
+  border-left: 2px solid var(--color-primary);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  padding: 8px 12px;
+  line-height: 1.55;
+  margin-top: auto;
+}
+
+/* Good / bad compare columns */
+.pattern-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+}
+.pc-col {
+  border-radius: var(--r-md); padding: 10px 12px;
+}
+.pc-good { background: rgba(107,218,178,0.08); border: 1px solid rgba(107,218,178,0.25); }
+.pc-bad  { background: rgba(218,107,107,0.07); border: 1px solid rgba(218,107,107,0.20); }
+.pc-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 7px;
+}
+.pc-good .pc-label { color: #1A6B4A; }
+.pc-bad  .pc-label { color: #8B2020; }
+.pc-code {
+  font-family: monospace; font-size: 11px;
+  color: var(--color-text-secondary); line-height: 1.9;
+}
+
+/* Zone diagram */
+.zone-diagram {
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px;
+  border-radius: var(--r-md); overflow: hidden;
+  border: 1px solid var(--color-border); height: 72px;
+}
+.zone {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+}
+.zone-products { background: rgba(107,184,218,0.12); color: var(--color-accent); }
+.zone-order    { background: rgba(107,218,178,0.12); color: #1A6B4A; }
+.zone-payment  { background: rgba(218,218,107,0.15); color: #5C5C00; }
+
+/* Scannable row demo */
+.scan-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 0;
+}
+.scan-id   { font-family:monospace; font-weight:700; color:var(--color-accent); font-size:12px; }
+.scan-tag  { background:rgba(54,47,74,0.12); color:#6B5FA0; font-size:10px; font-weight:700; padding:2px 7px; border-radius:99px; }
+.scan-count{ font-weight:700; color:var(--color-text-primary); font-size:12px; }
+.scan-time { font-family:monospace; color:var(--color-text-muted); font-size:11px; margin-left:auto; }
+
+/* Feedback timeline */
+.feedback-timeline { display:flex; flex-direction:column; gap:7px; }
+.ftl-item { display:flex; align-items:center; gap:10px; }
+.ftl-time  { font-family:monospace; font-size:10px; font-weight:700; color:var(--color-accent); width:44px; flex-shrink:0; }
+.ftl-bar   { height:6px; border-radius:99px; background:var(--color-primary); opacity:0.55; flex-shrink:0; }
+.ftl-label { font-size:11px; color:var(--color-text-secondary); }
+
+/* Quantity stepper */
+.qty-control {
+  display: inline-flex; align-items: center; gap: 0;
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--r-md); overflow: hidden;
+  margin: 8px 0;
+}
+.qty-btn {
+  width: 36px; height: 36px; border: none; background: var(--color-surface-hover);
+  font-size: 16px; font-weight: 700; color: var(--color-text-primary);
+  cursor: pointer; display:flex; align-items:center; justify-content:center;
+  transition: background 100ms;
+}
+.qty-btn:hover { background: var(--color-border-strong); }
+.qty-val {
+  width: 40px; text-align: center; font-family: monospace;
+  font-size: 14px; font-weight: 700; color: var(--color-text-primary);
+  border-left: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border);
+  padding: 0 8px;
+}
+
+/* Progressive flow */
+.progressive-flow { display: flex; flex-direction: column; gap: 0; }
+.pf-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 8px 0;
+  position: relative;
+}
+.pf-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 22px;
+  width: 2px; height: calc(100% - 10px);
+  background: var(--color-border);
+}
+.pf-dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--color-border-strong);
+  border: 2px solid var(--color-surface);
+  flex-shrink: 0; margin-top: 3px; position: relative; z-index: 1;
+}
+.pf-step.active .pf-dot { background: var(--color-primary); border-color: rgba(107,184,218,0.3); }
+.pf-title { font-size: 12px; font-weight: 700; color: var(--color-text-primary); }
+.pf-desc  { font-size: 11px; color: var(--color-text-muted); margin-top: 1px; }
+
+/* Muscle memory grid */
+.muscle-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.mg-item {
+  border-radius: var(--r-md); padding: 10px 8px;
+  font-size: 11px; font-weight: 700; text-align: center;
+  position: relative;
+}
+.mg-fixed { background: rgba(107,184,218,0.08); border: 1px solid rgba(107,184,218,0.2); color: var(--color-accent); }
+.mg-new   { background: rgba(107,218,178,0.08); border: 1px dashed rgba(107,218,178,0.4); color: #1A6B4A; }
+.mg-tag {
+  display: block; font-size: 8px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  opacity: 0.6; margin-top: 3px;
+}
+.mg-tag-new { color: #1A6B4A; }
+
+/* Dark mode overrides for POS section */
+.dark .pos-hero-rule { background: linear-gradient(135deg, #0D2A38 0%, #1D4A5F 100%); }
+.dark .pattern-card  { background: #1E1D24; border-color: #2E2C38; }
+.dark .pattern-rule  { background: #26242E; }
+.dark .pc-good { background: rgba(77,184,150,0.08); border-color: rgba(77,184,150,0.2); }
+.dark .pc-bad  { background: rgba(212,88,88,0.07); border-color: rgba(212,88,88,0.18); }
+.dark .pc-code { color: #9B98A8; }
+.dark .zone-products { background: rgba(107,184,218,0.10); color: #7EC8E3; }
+.dark .zone-order    { background: rgba(77,184,150,0.10); color: #4DB896; }
+.dark .zone-payment  { background: rgba(196,196,74,0.10); color: #C4C44A; }
+.dark .zone-diagram  { border-color: #2E2C38; }
+.dark .scan-tag      { background: rgba(54,47,74,0.5); color: #C4AFEE; }
+.dark .ftl-label     { color: #9B98A8; }
+.dark .qty-control   { border-color: #3D3A4A; }
+.dark .qty-btn       { background: #26242E; color: #F0EEF5; }
+.dark .qty-btn:hover { background: #3D3A4A; }
+.dark .qty-val       { color: #F0EEF5; border-color: #3D3A4A; }
+.dark .pf-dot        { background: #3D3A4A; border-color: #1E1D24; }
+.dark .pf-step.active .pf-dot { background: #6BB8DA; border-color: rgba(107,184,218,0.2); }
+.dark .pf-step::after { background: #2E2C38; }
+.dark .pf-title      { color: #F0EEF5; }
+.dark .mg-fixed      { background: rgba(107,184,218,0.06); border-color: rgba(107,184,218,0.15); color: #7EC8E3; }
+.dark .mg-new        { background: rgba(77,184,150,0.06); border-color: rgba(77,184,150,0.3); color: #4DB896; }
+
+/* ─────────────────────────────────────────
+   CANONICAL COMPONENTS
+───────────────────────────────────────── */
+
+/* Shared anatomy list */
+.canon-anatomy-list { display:flex; flex-direction:column; gap:10px; }
+.cal-item { display:flex; align-items:flex-start; gap:10px; font-size:12.5px; }
+.cal-dot  { width:10px; height:10px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+.cal-zone { font-weight:700; color:var(--color-text-primary); min-width:110px; flex-shrink:0; }
+.cal-desc { color:var(--color-text-secondary); line-height:1.55; }
+
+/* Shared rules list */
+.canon-rules-list { display:flex; flex-direction:column; gap:8px; }
+.cr-item { display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:var(--color-text-secondary); line-height:1.55; }
+.cr-bullet { color:var(--color-primary); font-weight:700; flex-shrink:0; margin-top:1px; }
+
+/* ── App Shell Preview ── */
+.shell-preview {
+  display:flex; height:200px; background:var(--color-bg-page);
+}
+.sp-sidebar {
+  width:140px; flex-shrink:0;
+  background:#1A1825;
+  padding:14px 0 0;
+  display:flex; flex-direction:column;
+}
+.sp-logo {
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:700;
+  color:#F0EEF5; padding:0 14px 12px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  margin-bottom:8px;
+}
+.sp-logo span { color:#6BB8DA; }
+.sp-nav-group {
+  font-size:8px; font-weight:700; letter-spacing:0.12em;
+  color:rgba(255,255,255,0.22); padding:8px 14px 4px;
+}
+.sp-nav-link {
+  font-size:11px; color:rgba(255,255,255,0.45);
+  padding:5px 14px; border-left:2px solid transparent;
+}
+.sp-nav-active {
+  color:#6BB8DA; border-left-color:#6BB8DA;
+  background:rgba(107,184,218,0.06);
+}
+.sp-main { flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.sp-topbar {
+  height:40px; flex-shrink:0;
+  background:var(--color-surface);
+  border-bottom:1px solid var(--color-border);
+  display:flex; align-items:center;
+  padding:0 16px; gap:12px;
+}
+.sp-breadcrumb {
+  font-size:11px; color:var(--color-text-secondary);
+  flex:1;
+}
+.sp-breadcrumb span { color:var(--color-text-muted); margin:0 4px; }
+.sp-topbar-action {
+  font-size:10px; font-weight:700;
+  background:var(--color-primary); color:var(--color-primary-text);
+  padding:4px 10px; border-radius:var(--r);
+}
+.sp-content { flex:1; padding:16px; overflow:hidden; }
+.sp-section-header {
+  font-family:'Sora',sans-serif; font-size:13px; font-weight:700;
+  color:var(--color-text-primary);
+  padding-bottom:10px; margin-bottom:10px;
+  border-bottom:1px solid var(--color-border);
+}
+.sp-placeholder-row {
+  height:10px; border-radius:99px;
+  background:var(--color-border); margin-bottom:8px;
+  width:90%;
+}
+.sp-placeholder-wide { width:100%; }
+.sp-placeholder-med  { width:65%; }
+
+/* ── Order Cards row ── */
+.order-cards-row {
+  display:grid; grid-template-columns:repeat(4,1fr); gap:12px;
+}
+@media (max-width:1000px) {
+  .order-cards-row { grid-template-columns:repeat(2,1fr); }
+}
+
+.ocard {
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-left-width:3px;
+  border-radius:var(--r-lg);
+  padding:12px 14px;
+  display:flex; flex-direction:column; gap:10px;
+  box-shadow:var(--elevation-1);
+}
+.ocard-new      { border-left-color:var(--color-primary); }
+.ocard-progress { border-left-color:var(--color-warning); }
+.ocard-ready    { border-left-color:var(--color-success); }
+.ocard-error    { border-left-color:var(--color-error); background:var(--color-error-bg); }
+
+.ocard-header { display:flex; align-items:center; gap:7px; }
+.ocard-id   { font-family:monospace; font-weight:700; color:var(--color-accent); font-size:12px; }
+.ocard-time { font-family:monospace; font-size:10px; color:var(--color-text-muted); margin-left:auto; }
+
+.ocard-items { display:flex; flex-direction:column; gap:4px; flex:1; }
+.ocard-item { font-size:12px; color:var(--color-text-secondary); display:flex; gap:6px; }
+.ocard-qty  { font-weight:700; color:var(--color-text-primary); min-width:20px; }
+.ocard-mod  { font-size:11px; color:var(--color-text-muted); padding-left:26px; }
+
+.ocard-footer { display:flex; align-items:center; gap:7px; border-top:1px solid var(--color-border); padding-top:10px; }
+.ocard-total  { font-weight:700; font-size:13px; color:var(--color-text-primary); margin-right:auto; }
+.ocard-btn {
+  font-size:10px; font-weight:700; padding:5px 10px;
+  border-radius:var(--r); border:1.5px solid var(--color-border-strong);
+  background:var(--color-surface-hover); color:var(--color-text-secondary);
+  cursor:pointer; transition:all 100ms;
+}
+.ocard-btn:hover { background:var(--color-primary); color:var(--color-primary-text); border-color:var(--color-primary); }
+.ocard-btn-success { background:var(--color-success-bg); color:#1A6B4A; border-color:rgba(107,218,178,0.4); }
+.ocard-btn-danger  { background:var(--color-error-bg); color:#8B2020; border-color:rgba(218,107,107,0.4); }
+
+/* ── Cart lines ── */
+.cart-line {
+  display:flex; align-items:center; gap:10px;
+  padding:10px 0; border-bottom:1px solid var(--color-border);
+}
+.cart-line:last-child { border-bottom:none; }
+.cart-stepper { display:flex; align-items:center; }
+.cart-name  { flex:1; font-size:13px; color:var(--color-text-primary); }
+.cart-price { font-weight:700; font-size:13px; color:var(--color-text-primary); white-space:nowrap; }
+.cart-mod-row {
+  font-size:11px; color:var(--color-text-muted);
+  padding:3px 0 3px 78px;
+  border-bottom:1px solid var(--color-border);
+}
+.totals-row {
+  display:flex; justify-content:space-between;
+  font-size:12px; color:var(--color-text-secondary);
+  padding:4px 0;
+}
+.totals-discount { color:var(--color-success); }
+.totals-tax      { color:var(--color-text-muted); font-size:11px; }
+.totals-total    {
+  font-weight:700; font-size:15px;
+  color:var(--color-text-primary);
+  border-top:1px solid var(--color-border);
+  padding-top:8px; margin-top:4px;
+}
+
+/* ── Payment method cards ── */
+.pay-method {
+  display:flex; align-items:center; gap:14px;
+  padding:14px 16px; border-radius:var(--r-lg);
+  border:2px solid var(--color-border);
+  background:var(--color-surface);
+  cursor:pointer;
+  transition:all 160ms var(--ease-out);
+}
+.pay-method:hover { border-color:var(--color-border-strong); }
+.pay-method-active {
+  border-color:var(--color-accent);
+  box-shadow:var(--elevation-focus);
+  background:var(--color-selection);
+}
+.pay-icon { font-size:22px; flex-shrink:0; }
+.pay-name { font-size:13px; font-weight:700; color:var(--color-text-primary); }
+.pay-sub  { font-size:11px; color:var(--color-text-muted); margin-top:1px; }
+.pay-check { margin-left:auto; font-size:14px; color:var(--color-accent); font-weight:700; }
+
+/* ── Dark mode: canonical components ── */
+.dark .sp-placeholder-row { background:var(--color-border); }
+.dark .sp-section-header  { color:#F0EEF5; border-bottom-color:#2E2C38; }
+.dark .sp-content  { background:#16151A; }
+.dark .sp-topbar   { background:#1E1D24; border-bottom-color:#2E2C38; }
+.dark .sp-breadcrumb { color:#9B98A8; }
+.dark .cal-zone    { color:#F0EEF5; }
+.dark .cal-desc    { color:#9B98A8; }
+.dark .cr-item     { color:#9B98A8; }
+.dark .ocard       { background:#1E1D24; border-color:#2E2C38; }
+.dark .ocard-error { background:#2E1212; }
+.dark .ocard-footer { border-top-color:#2E2C38; }
+.dark .ocard-btn   { background:#26242E; border-color:#3D3A4A; color:#9B98A8; }
+.dark .cart-line   { border-bottom-color:#2E2C38; }
+.dark .cart-mod-row { border-bottom-color:#2E2C38; color:#5C5970; }
+.dark .totals-total { border-top-color:#2E2C38; color:#F0EEF5; }
+.dark .totals-row  { color:#9B98A8; }
+.dark .pay-method  { background:#1E1D24; border-color:#2E2C38; }
+.dark .pay-method-active { background:var(--color-selection); border-color:#2E6B87; }
+.dark .pay-name    { color:#F0EEF5; }
+
 </style>
 </head>
 <body>
-
-<button id="darkToggle" onclick="toggleDark()">
-  <span id="darkIcon">🌙</span>
-  <span id="darkLabel">Dark</span>
-</button>
 
 <!-- ══════════════ SIDEBAR ══════════════ -->
 <button id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="wordmark">Pl<span>or</span>ea</div>
-    <div class="sub">Design System · v2.5</div>
+    <div class="sub">Design System · v2.7</div>
   </div>
   <div class="sidebar-inner">
     <div class="nav-group">
@@ -1085,6 +1559,7 @@ html.theme-transition *::after {
       <a class="nav-link" onclick="nav('zindex')"><span class="dot"></span>Z-Index Scale</a>
       <a class="nav-link" onclick="nav('table-pattern')"><span class="dot"></span>Table Pattern</a>
       <a class="nav-link" onclick="nav('loading')"><span class="dot"></span>Loading &amp; Skeleton</a>
+      <a class="nav-link" onclick="nav('react-tokens')"><span class="dot"></span>React Token Rules</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Layout & Motion</div>
@@ -1098,7 +1573,20 @@ html.theme-transition *::after {
       <a class="nav-link" onclick="nav('ux-writing')"><span class="dot"></span>UX Writing</a>
       <a class="nav-link" onclick="nav('dodont')"><span class="dot"></span>Do / Don't</a>
     </div>
-  </div>
+  
+    <div class="nav-group">
+      <div class="nav-group-label">Canonical Components</div>
+      <a class="nav-link" onclick="nav('canonical-app-shell')"><span class="dot"></span>App Shell</a>
+      <a class="nav-link" onclick="nav('canonical-order-table')"><span class="dot"></span>Order Table</a>
+      <a class="nav-link" onclick="nav('canonical-order-card')"><span class="dot"></span>Order Card</a>
+      <a class="nav-link" onclick="nav('canonical-cart')"><span class="dot"></span>Cart Summary</a>
+      <a class="nav-link" onclick="nav('canonical-payment')"><span class="dot"></span>Payment Selector</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Operational UX</div>
+      <a class="nav-link" onclick="nav('pos-ux-patterns')"><span class="dot"></span>POS Patterns</a>
+    </div>
+</div>
 </nav>
 
 <!-- ══════════════ CONTENT ══════════════ -->
@@ -1111,7 +1599,7 @@ html.theme-transition *::after {
     <h1>Design Guidelines</h1>
     <p class="desc">The official visual and interaction language of the Plorea platform. Synchronized with <code>tailwind.config.js</code> and the DaisyUI <code>plorea</code> theme.</p>
     <div class="meta-row">
-      <div class="meta-tag"><span class="dot"></span>v2.5 · March 2026</div>
+      <div class="meta-tag"><span class="dot"></span>v2.7 · March 2026</div>
       <div class="meta-tag">Tailwind CSS + DaisyUI</div>
       <div class="meta-tag">Vite · React · TypeScript</div>
     </div>
@@ -1954,7 +2442,178 @@ html.theme-transition *::after {
     </div>
   </section>
 
-  <!-- ──────────── DO / DON'T ──────────── -->
+
+  <!-- ──────────── REACT COMPONENT RULES ──────────── -->
+  <section class="section" id="react-tokens">
+    <div class="section-head">
+      <div class="label">13 — Guidance</div>
+      <h2>React Component Token Rules</h2>
+    </div>
+    <p class="body">The token architecture only delivers dark mode (and future theme support) if components consume <code>var(--color-*)</code> tokens exclusively. A single <code>bg-gray-100</code> in a component bypasses the entire swap mechanism. These are the rules that make the system work end-to-end.</p>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-label">✓ Correct — semantic token</div>
+        <div style="background:#0F172A;border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:2;color:#e2e8f0;">
+          <span style="color:#64748b;">// Card component</span><br>
+          <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span><br>
+          &nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"rounded-lg p-6"</span><br>
+          &nbsp;&nbsp;<span style="color:#93c5fd;">style</span><span style="color:#f8fafc;">={{</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fde68a;">background</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'var(--color-surface)'</span><span style="color:#f8fafc;">,</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fde68a;">border</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'1px solid var(--color-border)'</span><span style="color:#f8fafc;">,</span><br>
+          &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fde68a;">boxShadow</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'var(--elevation-1)'</span><br>
+          &nbsp;&nbsp;<span style="color:#f8fafc;">}}</span><br>
+          <span style="color:#f8fafc;">&gt;</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">✗ Wrong — primitive Tailwind class</div>
+        <div style="background:#0F172A;border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:2;color:#e2e8f0;">
+          <span style="color:#64748b;">// Bypasses token swap — stays white in dark mode</span><br>
+          <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span><br>
+          &nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"bg-white border border-gray-200"</span><br>
+          &nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"rounded-lg p-6 shadow-sm"</span><br>
+          <span style="color:#f8fafc;">&gt;</span><br><br>
+          <span style="color:#64748b;">// Also wrong — dark: modifier couples component to mode</span><br>
+          <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"bg-white dark:bg-gray-900"</span><span style="color:#f8fafc;">&gt;</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">Tailwind classes that are safe to use</h3>
+    <p class="body" style="margin-bottom:12px;">Not all Tailwind utility classes break token contract. Layout, spacing, radius and typography scale classes are fine — they carry no colour information.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">✓ Safe Tailwind classes</div>
+        <div style="font-size:12px;line-height:2.2;font-family:monospace;color:var(--color-text-secondary);">
+          <span style="color:var(--color-success);">✓</span> <code>p-6 px-4 py-2</code> — spacing<br>
+          <span style="color:var(--color-success);">✓</span> <code>gap-3 space-y-2</code> — layout<br>
+          <span style="color:var(--color-success);">✓</span> <code>rounded-lg rounded-xl</code> — radius<br>
+          <span style="color:var(--color-success);">✓</span> <code>text-xs text-sm text-md</code> — type scale<br>
+          <span style="color:var(--color-success);">✓</span> <code>font-bold font-semibold</code> — weight<br>
+          <span style="color:var(--color-success);">✓</span> <code>flex items-center justify-between</code><br>
+          <span style="color:var(--color-success);">✓</span> <code>w-full h-11 min-w-0</code> — sizing<br>
+          <span style="color:var(--color-success);">✓</span> <code>truncate overflow-hidden</code><br>
+          <span style="color:var(--color-success);">✓</span> <code>transition duration-fast</code> — motion<br>
+          <span style="color:var(--color-success);">✓</span> <code>z-modal z-dropdown</code> — named z-index
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">✗ Classes that break token contract</div>
+        <div style="font-size:12px;line-height:2.2;font-family:monospace;color:var(--color-text-secondary);">
+          <span style="color:var(--color-error);">✗</span> <code>bg-white bg-gray-50</code> — use <code>var(--color-surface)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>bg-gray-100</code> — use <code>var(--color-surface-hover)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>text-gray-900</code> — use <code>var(--color-text-primary)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>text-gray-500</code> — use <code>var(--color-text-muted)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>border-gray-200</code> — use <code>var(--color-border)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>shadow-sm shadow-md</code> — use <code>var(--elevation-1)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>text-blue-700</code> — use <code>var(--color-accent)</code><br>
+          <span style="color:var(--color-error);">✗</span> <code>dark:bg-gray-900</code> — never couple to mode<br>
+          <span style="color:var(--color-error);">✗</span> <code>bg-[#1E1D24]</code> — never hardcode hex<br>
+          <span style="color:var(--color-error);">✗</span> <code>z-[9999]</code> — use <code>z-modal</code> etc.
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub" style="margin-top:24px;">cn() helper — combining tokens with Tailwind</h3>
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-label">lib/utils.ts</div>
+      <div style="background:#0F172A;border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
+        <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">{ clsx, type ClassValue }</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'clsx'</span><br>
+        <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">{ twMerge }</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'tailwind-merge'</span><br><br>
+        <span style="color:#7dd3fc;">export function</span> <span style="color:#fde68a;">cn</span><span style="color:#f8fafc;">(...inputs: ClassValue[]) {</span><br>
+        &nbsp;&nbsp;<span style="color:#7dd3fc;">return</span> <span style="color:#fde68a;">twMerge</span><span style="color:#f8fafc;">(</span><span style="color:#fde68a;">clsx</span><span style="color:#f8fafc;">(inputs))</span><br>
+        <span style="color:#f8fafc;">}</span><br><br>
+        <span style="color:#64748b;">// Usage — layout classes via cn(), colour via style prop</span><br>
+        <span style="color:#7dd3fc;">const</span> <span style="color:#f8fafc;">Card = ({ className, ...props }) =&gt; (</span><br>
+        &nbsp;&nbsp;<span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">={</span><span style="color:#fde68a;">cn</span><span style="color:#f8fafc;">(</span><span style="color:#86efac;">"rounded-lg p-6"</span><span style="color:#f8fafc;">, className)}</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#93c5fd;">style</span><span style="color:#f8fafc;">={{ background: </span><span style="color:#86efac;">'var(--color-surface)'</span><span style="color:#f8fafc;">,</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fde68a;">border</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'1px solid var(--color-border)'</span><span style="color:#f8fafc;"> }}</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f8fafc;">{...props}</span><br>
+        &nbsp;&nbsp;<span style="color:#f8fafc;">/&gt;</span><br>
+        <span style="color:#f8fafc;">)</span>
+      </div>
+    </div>
+    <div class="callout callout-warn">
+      <strong>Pattern: layout in className, colour in style</strong>
+      Use <code>cn()</code> for structural Tailwind classes (spacing, radius, flex, sizing). Use inline <code>style</code> prop for all colour, border, and shadow tokens. This keeps className readable while ensuring every colour passes through the token layer.
+    </div>
+
+    <h3 class="sub" style="margin-top:24px;">Dark mode contrast verification</h3>
+    <div style="border:1px solid var(--color-border);border-radius:var(--r-lg);overflow:hidden;margin-bottom:12px;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:var(--color-surface-hover);">
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted);">Token pair</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted);">Light value</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted);">Dark value</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted);">Ratio</th>
+            <th style="padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-text-muted);">WCAG</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">text-primary / surface</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#1A1A1A / #FFF</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#F0EEF5 / #1E1D24</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">14.3:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AAA</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">text-secondary / surface</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#666 / #FFF</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#9B98A8 / #1E1D24</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">4.8:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AA</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">text-link / surface</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#2E6B87 / #FFF</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#7EC8E3 / #1E1D24</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">5.2:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AA</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">text-muted / surface</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#C4C4C4 / #FFF</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#5C5970 / #1E1D24</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">2.8:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-neutral" style="font-size:10px;">Decorative</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">channel takeaway text / bg</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#1A5C3A / #D1E7DD</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#7DD4AA / #1A3328</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">5.1:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AA</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">channel eat-in text / bg</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#6B3020 / #E5C1B6</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#E8A890 / #3D2218</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">5.4:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AA</span></td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-secondary);">channel combo text / bg</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#8B2040 / #FFB3BA</td>
+            <td style="padding:10px 14px;font-family:monospace;font-size:11px;color:var(--color-text-muted);">#F0A0AA / #3D1A20</td>
+            <td style="padding:10px 14px;font-weight:700;color:var(--color-text-primary);">5.6:1</td>
+            <td style="padding:10px 14px;"><span class="badge badge-success" style="font-size:10px;">AA</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-info">
+      <strong>text-muted er dekorativt — ikke funksjonelt</strong>
+      <code>--color-text-muted</code> i dark mode har kun 2.8:1 kontrast — under AA-kravet på 4.5:1. Bruk det kun for placeholder-tekst, disabled states og dekorative labels. Aldri for interaktive labels, knapper, badges eller annen meningsbærende tekst.
+    </div>
+  </section>
+
+
+  <!-- ──────────── DO
+ / DON'T ──────────── -->
   <section class="section" id="dodont">
     <div class="section-head">
       <div class="label">12 — Usage Rules</div>
@@ -2737,19 +3396,695 @@ html.theme-transition *::after {
     </div>
   </section>
 
+  <!-- ══════════════ CANONICAL COMPONENTS ══════════════ -->
+
+  <!-- ── App Shell ── -->
+  <section class="section" id="canonical-app-shell">
+    <div class="section-head">
+      <div class="label">Canonical Component · 01</div>
+      <h2>App Shell</h2>
+    </div>
+    <p class="body">The fixed frame around every Plorea view. Sidebar, topbar, and content area are defined here — not per-page. Use this layout as the single source of structural truth for all dashboard, POS, and back-office surfaces.</p>
+    <div class="callout callout-info" style="margin-bottom:20px;">
+      <strong>Use when</strong>
+      Any authenticated, full-screen Plorea surface. Use this pattern unless there is a strong documented reason not to.
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="canon-anatomy-list">
+          <div class="cal-item"><span class="cal-dot" style="background:#6BB8DA;"></span><span class="cal-zone">Sidebar</span><span class="cal-desc">240px fixed, always dark (#1A1825). Logo, nav groups, nav links.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#2E6B87;"></span><span class="cal-zone">Topbar</span><span class="cal-desc">48px fixed top. Page title, breadcrumb, primary action, user/account.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#6BDAB2;"></span><span class="cal-zone">Content area</span><span class="cal-desc">margin-left: 240px. Scrollable. max-width 1440px, auto-centred.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DADA6B;"></span><span class="cal-zone">Page container</span><span class="cal-desc">padding: 32px 40px. Section spacing: 48px gap.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span>Sidebar is always dark regardless of page theme mode</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Active nav item: <code>--color-primary</code> left border + tinted bg</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Topbar primary action: right-aligned, <code>btn-primary</code></div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Content area background: <code>--color-bg-page</code> — never hardcoded</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Section headers within page use <code>h2</code> with border-bottom divider</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Mobile: sidebar collapses to hamburger overlay at &lt;768px</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div class="card-label" style="padding:14px 20px 0;">Preview</div>
+      <div class="shell-preview">
+        <div class="sp-sidebar">
+          <div class="sp-logo">Pl<span>or</span>ea</div>
+          <div class="sp-nav-group">FOUNDATION</div>
+          <div class="sp-nav-link">Colors</div>
+          <div class="sp-nav-link sp-nav-active">Typography</div>
+          <div class="sp-nav-link">Spacing</div>
+          <div class="sp-nav-group" style="margin-top:12px;">COMPONENTS</div>
+          <div class="sp-nav-link">Buttons</div>
+          <div class="sp-nav-link">Inputs</div>
+        </div>
+        <div class="sp-main">
+          <div class="sp-topbar">
+            <div class="sp-breadcrumb">Design System <span>›</span> Typography</div>
+            <div class="sp-topbar-action">Export tokens</div>
+          </div>
+          <div class="sp-content">
+            <div class="sp-section-header">Typography Scale</div>
+            <div class="sp-placeholder-row sp-placeholder-wide"></div>
+            <div class="sp-placeholder-row"></div>
+            <div class="sp-placeholder-row sp-placeholder-med"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Order Table ── -->
+  <section class="section" id="canonical-order-table">
+    <div class="section-head">
+      <div class="label">Canonical Component · 02</div>
+      <h2>Order Table</h2>
+    </div>
+    <p class="body">The primary operational list component for order management. Drives every back-office and POS order view. Density, scanning, selection state, channel badges, and row actions are all specified here.</p>
+    <div class="callout callout-info" style="margin-bottom:20px;">
+      <strong>Use when</strong>
+      Any list of orders that requires scanning, filtering, or acting on rows. This is the single canonical pattern — do not build a separate order list component.
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="canon-anatomy-list">
+          <div class="cal-item"><span class="cal-dot" style="background:#6BB8DA;"></span><span class="cal-zone">Table header</span><span class="cal-desc">9px uppercase labels. Sortable columns use <code>sortable</code> class + active indicator.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#2E6B87;"></span><span class="cal-zone">Order ID cell</span><span class="cal-desc">Monospace, <code>--color-accent</code>. Always first column.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#6BDAB2;"></span><span class="cal-zone">Channel badge</span><span class="cal-desc">Channel colour tokens. Table / Takeaway / Eat-in / Combo.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DADA6B;"></span><span class="cal-zone">Status badge</span><span class="cal-desc">Semantic colours. New / In progress / Ready / Done.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DA6B6B;"></span><span class="cal-zone">Row actions</span><span class="cal-desc">Right-aligned. Icon buttons, visible on hover. Max 3 actions.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#468DAC;"></span><span class="cal-zone">Table footer</span><span class="cal-desc">Row count left, pagination right. Font: 12px muted.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span>Row height follows <code>--row-h</code> density token — never hardcoded</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Order IDs always monospace, <code>--color-accent</code></div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Selected row: <code>--color-selection</code> bg + <code>--color-accent</code> left border</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Hover: <code>--color-surface-hover</code> only — never border change</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Actions right-aligned, appear on row hover, max 3 icons</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Timestamps: monospace, <code>--color-text-muted</code>, right-aligned</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Empty state: centred illustration + action CTA, no blank table</div>
+        </div>
+      </div>
+    </div>
+    <!-- Interactive density demo -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:14px 20px 12px;display:flex;align-items:center;justify-content:space-between;">
+        <div class="card-label" style="margin:0;">Preview — density-aware</div>
+        <div class="density-toggle" style="margin:0;" id="ctDensityToggle">
+          <button class="dtoggle active" onclick="setCtDensity('comfortable',this)">Comfortable</button>
+          <button class="dtoggle" onclick="setCtDensity('compact',this)">Compact</button>
+          <button class="dtoggle" onclick="setCtDensity('ultra',this)">Ultra</button>
+        </div>
+      </div>
+      <div id="ctTableWrap" data-density="comfortable" style="border-top:1px solid var(--color-border);">
+        <table class="ds-table" style="width:100%;">
+          <thead>
+            <tr>
+              <th class="sortable">Order</th>
+              <th>Channel</th>
+              <th>Items</th>
+              <th>Status</th>
+              <th>Total</th>
+              <th>Time</th>
+              <th class="cell-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-selected="true">
+              <td class="cell-id">#2041</td>
+              <td><span class="badge badge-table"><span class="pip"></span>Table 4</span></td>
+              <td>3 items</td>
+              <td><span class="badge badge-success"><span class="pip"></span>Ready</span></td>
+              <td style="font-weight:600;">kr 284</td>
+              <td class="cell-mono">12:34</td>
+              <td class="cell-actions"><button class="row-action">✎</button><button class="row-action">⊕</button><button class="row-action">✕</button></td>
+            </tr>
+            <tr>
+              <td class="cell-id">#2040</td>
+              <td><span class="badge badge-takeaway"><span class="pip"></span>Takeaway</span></td>
+              <td>1 item</td>
+              <td><span class="badge badge-warning"><span class="pip"></span>In progress</span></td>
+              <td style="font-weight:600;">kr 89</td>
+              <td class="cell-mono">12:31</td>
+              <td class="cell-actions"><button class="row-action">✎</button><button class="row-action">⊕</button><button class="row-action">✕</button></td>
+            </tr>
+            <tr>
+              <td class="cell-id">#2039</td>
+              <td><span class="badge badge-eatin"><span class="pip"></span>Eat-in</span></td>
+              <td>5 items</td>
+              <td><span class="badge badge-info"><span class="pip"></span>New</span></td>
+              <td style="font-weight:600;">kr 512</td>
+              <td class="cell-mono">12:28</td>
+              <td class="cell-actions"><button class="row-action">✎</button><button class="row-action">⊕</button><button class="row-action">✕</button></td>
+            </tr>
+            <tr>
+              <td class="cell-id">#2038</td>
+              <td><span class="badge badge-combo"><span class="pip"></span>Combo</span></td>
+              <td>2 items</td>
+              <td><span class="badge badge-neutral"><span class="pip"></span>Done</span></td>
+              <td style="font-weight:600;">kr 175</td>
+              <td class="cell-mono">12:19</td>
+              <td class="cell-actions"><button class="row-action">✎</button><button class="row-action">⊕</button><button class="row-action">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="table-footer"><span>4 orders</span><span>Page 1 of 12</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Order Card ── -->
+  <section class="section" id="canonical-order-card">
+    <div class="section-head">
+      <div class="label">Canonical Component · 03</div>
+      <h2>Order Card</h2>
+    </div>
+    <p class="body">Compact representation of a single order. Used in POS dashboards, KDS screens, and mobile views where vertical space is limited and scanning speed is critical. State drives visual treatment — not ad-hoc styles.</p>
+    <div class="callout callout-info" style="margin-bottom:20px;">
+      <strong>Use when</strong>
+      Displaying orders in grid or column layouts. If the list is tabular (sortable columns, bulk actions), use Order Table instead.
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="canon-anatomy-list">
+          <div class="cal-item"><span class="cal-dot" style="background:#6BB8DA;"></span><span class="cal-zone">Card header</span><span class="cal-desc">Order ID (monospace), channel badge, time. Single scan line.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#2E6B87;"></span><span class="cal-zone">Item list</span><span class="cal-desc">Compact rows: quantity × name. Modifiers indented, muted.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#6BDAB2;"></span><span class="cal-zone">Card footer</span><span class="cal-desc">Total left, primary action right. State badge between.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DA6B6B;"></span><span class="cal-zone">State border</span><span class="cal-desc">2px left border. Colour maps to order state via token.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span>Card width: 240–320px. Never full-width except on mobile</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>State border: <code>new</code>=primary, <code>in-progress</code>=warning, <code>ready</code>=success, <code>error</code>=error</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Header is always one line — never wraps</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Max 6 item rows before collapse with "+N more"</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Processing state uses <code>pulse-subtle</code> animation — no spinner</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Tap target for primary action: min 44×44px</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">Preview — all states</div>
+      <div class="order-cards-row">
+        <!-- New -->
+        <div class="ocard ocard-new">
+          <div class="ocard-header">
+            <span class="ocard-id">#2044</span>
+            <span class="badge badge-eatin" style="font-size:10px;padding:2px 7px;"><span class="pip"></span>Eat-in</span>
+            <span class="ocard-time">12:38</span>
+          </div>
+          <div class="ocard-items">
+            <div class="ocard-item"><span class="ocard-qty">2×</span> Margherita</div>
+            <div class="ocard-item"><span class="ocard-qty">1×</span> Tiramisu</div>
+            <div class="ocard-mod">+ No garlic</div>
+          </div>
+          <div class="ocard-footer">
+            <span class="ocard-total">kr 348</span>
+            <span class="badge badge-info" style="font-size:10px;"><span class="pip"></span>New</span>
+            <button class="ocard-btn">Accept</button>
+          </div>
+        </div>
+        <!-- In progress -->
+        <div class="ocard ocard-progress">
+          <div class="ocard-header">
+            <span class="ocard-id">#2042</span>
+            <span class="badge badge-table" style="font-size:10px;padding:2px 7px;"><span class="pip"></span>Table 6</span>
+            <span class="ocard-time">12:31</span>
+          </div>
+          <div class="ocard-items">
+            <div class="ocard-item"><span class="ocard-qty">1×</span> Burger</div>
+            <div class="ocard-item"><span class="ocard-qty">1×</span> Fries</div>
+            <div class="ocard-item"><span class="ocard-qty">2×</span> Cola</div>
+          </div>
+          <div class="ocard-footer">
+            <span class="ocard-total">kr 189</span>
+            <span class="badge badge-warning" style="font-size:10px;"><span class="pip"></span>In progress</span>
+            <button class="ocard-btn">Ready</button>
+          </div>
+        </div>
+        <!-- Ready -->
+        <div class="ocard ocard-ready">
+          <div class="ocard-header">
+            <span class="ocard-id">#2040</span>
+            <span class="badge badge-takeaway" style="font-size:10px;padding:2px 7px;"><span class="pip"></span>Takeaway</span>
+            <span class="ocard-time">12:27</span>
+          </div>
+          <div class="ocard-items">
+            <div class="ocard-item"><span class="ocard-qty">1×</span> Caesar Salad</div>
+            <div class="ocard-mod">+ Dressing on side</div>
+          </div>
+          <div class="ocard-footer">
+            <span class="ocard-total">kr 129</span>
+            <span class="badge badge-success" style="font-size:10px;"><span class="pip"></span>Ready</span>
+            <button class="ocard-btn ocard-btn-success">Collect</button>
+          </div>
+        </div>
+        <!-- Error -->
+        <div class="ocard ocard-error">
+          <div class="ocard-header">
+            <span class="ocard-id">#2038</span>
+            <span class="badge badge-combo" style="font-size:10px;padding:2px 7px;"><span class="pip"></span>Combo</span>
+            <span class="ocard-time">12:19</span>
+          </div>
+          <div class="ocard-items">
+            <div class="ocard-item"><span class="ocard-qty">3×</span> Hot dog</div>
+          </div>
+          <div class="ocard-footer">
+            <span class="ocard-total">kr 225</span>
+            <span class="badge badge-error" style="font-size:10px;"><span class="pip"></span>Failed</span>
+            <button class="ocard-btn ocard-btn-danger">Retry</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Cart Summary ── -->
+  <section class="section" id="canonical-cart">
+    <div class="section-head">
+      <div class="label">Canonical Component · 04</div>
+      <h2>Cart Summary</h2>
+    </div>
+    <p class="body">Connects product selection to payment. Used in POS, QR ordering, and online checkout. CTA hierarchy is fixed — one primary action, payment never shown prematurely.</p>
+    <div class="callout callout-info" style="margin-bottom:20px;">
+      <strong>Use when</strong>
+      Displaying a running order before payment. The cart structure is canonical — do not build a custom totals panel.
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="canon-anatomy-list">
+          <div class="cal-item"><span class="cal-dot" style="background:#6BB8DA;"></span><span class="cal-zone">Cart header</span><span class="cal-desc">Channel badge, order reference, item count.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#2E6B87;"></span><span class="cal-zone">Line items</span><span class="cal-desc">Qty stepper · product name · line total. Modifier rows indented.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#6BDAB2;"></span><span class="cal-zone">Totals block</span><span class="cal-desc">Subtotal, discount (if applied), tax, total. Right-aligned values.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DADA6B;"></span><span class="cal-zone">CTA area</span><span class="cal-desc">Full-width primary CTA. Secondary actions below, smaller.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span>Qty stepper: <code>[-] n [+]</code> — never a text input</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Removing last item of a line: confirm only if total becomes 0</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Line total updates instantly — no loading state for calculation</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Discount row only renders if discount &gt; 0</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Primary CTA: min 48px height, full width, <code>btn-primary</code></div>
+          <div class="cr-item"><span class="cr-bullet">→</span>CTA label is outcome-led: "Send to kitchen" not "Submit"</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Empty cart shows product prompt — never a blank panel</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;max-width:380px;">
+      <div class="card-label" style="padding:14px 20px 12px;">Preview</div>
+      <div style="border-top:1px solid var(--color-border);">
+        <!-- Header -->
+        <div style="padding:12px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--color-border);">
+          <span class="badge badge-table" style="font-size:10px;"><span class="pip"></span>Table 4</span>
+          <span style="font-family:monospace;font-size:11px;color:var(--color-text-muted);">#2041</span>
+          <span style="margin-left:auto;font-size:11px;color:var(--color-text-muted);">3 items</span>
+        </div>
+        <!-- Line items -->
+        <div style="padding:0 20px;">
+          <div class="cart-line">
+            <div class="cart-stepper"><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">−</button><span class="qty-val" style="width:32px;font-size:12px;">2</span><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">+</button></div>
+            <span class="cart-name">Margherita</span>
+            <span class="cart-price">kr 238</span>
+          </div>
+          <div class="cart-mod-row">+ Extra cheese</div>
+          <div class="cart-line">
+            <div class="cart-stepper"><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">−</button><span class="qty-val" style="width:32px;font-size:12px;">1</span><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">+</button></div>
+            <span class="cart-name">Tiramisu</span>
+            <span class="cart-price">kr 89</span>
+          </div>
+          <div class="cart-line">
+            <div class="cart-stepper"><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">−</button><span class="qty-val" style="width:32px;font-size:12px;">1</span><button class="qty-btn" style="width:28px;height:28px;font-size:13px;">+</button></div>
+            <span class="cart-name">Cola</span>
+            <span class="cart-price">kr 39</span>
+          </div>
+        </div>
+        <!-- Totals -->
+        <div style="padding:14px 20px;border-top:1px solid var(--color-border);border-bottom:1px solid var(--color-border);">
+          <div class="totals-row"><span>Subtotal</span><span>kr 366</span></div>
+          <div class="totals-row totals-discount"><span>Discount (10%)</span><span>− kr 37</span></div>
+          <div class="totals-row totals-tax"><span>VAT (15%)</span><span>kr 49</span></div>
+          <div class="totals-row totals-total"><span>Total</span><span>kr 378</span></div>
+        </div>
+        <!-- CTA -->
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:8px;">
+          <button class="btn btn-primary" style="width:100%;justify-content:center;height:48px;font-size:14px;">Send to kitchen</button>
+          <button class="btn btn-outline" style="width:100%;justify-content:center;font-size:12px;">Add note</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Payment Selector ── -->
+  <section class="section" id="canonical-payment">
+    <div class="section-head">
+      <div class="label">Canonical Component · 05</div>
+      <h2>Payment Selector</h2>
+    </div>
+    <p class="body">The critical final step before order completion. Large touch targets, clear selection state, and zero ambiguity around the confirm action. This component is effectively irreversible — design accordingly.</p>
+    <div class="callout callout-warn" style="margin-bottom:20px;">
+      <strong>Critical path</strong>
+      Payment is irreversible. Error prevention and selection clarity override all aesthetic considerations here. Use this pattern without modification.
+    </div>
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="canon-anatomy-list">
+          <div class="cal-item"><span class="cal-dot" style="background:#6BB8DA;"></span><span class="cal-zone">Order summary</span><span class="cal-desc">Compact read-only recap. Total prominent. Not editable here.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#2E6B87;"></span><span class="cal-zone">Method cards</span><span class="cal-desc">One card per method. Icon + label. Min 64px height. Selection ring on active.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#6BDAB2;"></span><span class="cal-zone">Split option</span><span class="cal-desc">Secondary action. Opens split-payment flow. Never default.</span></div>
+          <div class="cal-item"><span class="cal-dot" style="background:#DADA6B;"></span><span class="cal-zone">Confirm CTA</span><span class="cal-desc">Disabled until method selected. 56px min height. Outcome label.</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span>No method selected on mount — always requires explicit user choice</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Confirm CTA disabled until method active — never enabled speculatively</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Method card min height: 64px. Touch target min: 48px</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Selected method: <code>--color-accent</code> border + <code>--elevation-focus</code> ring</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Processing state: spinner in CTA, method cards non-interactive</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>Error state: red border on card + inline message — no modal</div>
+          <div class="cr-item"><span class="cr-bullet">→</span>CTA label: "Charge kr X" — always show amount</div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;max-width:380px;">
+      <div class="card-label" style="padding:14px 20px 12px;">Preview</div>
+      <div style="border-top:1px solid var(--color-border);">
+        <!-- Order recap -->
+        <div style="padding:14px 20px;background:var(--color-surface-hover);border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:11px;color:var(--color-text-muted);margin-bottom:2px;">Table 4 · #2041 · 3 items</div>
+            <div style="font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);">kr 378</div>
+          </div>
+          <span class="badge badge-success" style="font-size:11px;"><span class="pip"></span>Ready</span>
+        </div>
+        <!-- Method cards -->
+        <div style="padding:16px 20px;display:flex;flex-direction:column;gap:8px;">
+          <div style="font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:4px;">Payment method</div>
+          <div class="pay-method pay-method-active" id="payCard">
+            <div class="pay-icon">💳</div>
+            <div>
+              <div class="pay-name">Card</div>
+              <div class="pay-sub">Tap, insert or swipe</div>
+            </div>
+            <div class="pay-check">✓</div>
+          </div>
+          <div class="pay-method" id="payCash" onclick="selectPayMethod(this)">
+            <div class="pay-icon">💵</div>
+            <div>
+              <div class="pay-name">Cash</div>
+              <div class="pay-sub">Count and confirm</div>
+            </div>
+            <div class="pay-check" style="opacity:0;">✓</div>
+          </div>
+          <div class="pay-method" id="payVipps" onclick="selectPayMethod(this)">
+            <div class="pay-icon">📱</div>
+            <div>
+              <div class="pay-name">Vipps</div>
+              <div class="pay-sub">QR or phone number</div>
+            </div>
+            <div class="pay-check" style="opacity:0;">✓</div>
+          </div>
+        </div>
+        <!-- Split + confirm -->
+        <div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;">
+          <button class="btn btn-primary" style="width:100%;justify-content:center;height:56px;font-size:15px;font-weight:700;" id="payConfirmBtn">Charge kr 378</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;font-size:12px;">Split payment</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ──────────── OPERATIONAL UX PATTERNS ──────────── -->
+  <section class="section" id="pos-ux-patterns">
+    <div class="section-head">
+      <div class="label">14 — Operational UX</div>
+      <h2>Operational UX Patterns (POS)</h2>
+    </div>
+
+    <p class="body">These patterns govern Plorea's behaviour in real-world restaurant environments — high-frequency use, time pressure, noise, and gloved hands. They are not style preferences. They are constraints.</p>
+
+    <div class="callout callout-warn" style="margin-bottom:28px;">
+      <strong>Architecture rule</strong>
+      These rules override visual preferences. Operational speed is always prioritised over aesthetic design. When a layout decision conflicts with any pattern below, the pattern wins.
+    </div>
+
+    <!-- ── 3-Second Order Rule ── -->
+    <div class="pos-hero-rule">
+      <div class="pos-hero-inner">
+        <div class="pos-hero-number">3s</div>
+        <div>
+          <div class="pos-hero-title">3-Second Order Rule</div>
+          <div class="pos-hero-desc">A simple order — single item, no modifiers — must be completable in under 3 seconds from screen-on to order confirmed. This is the industry benchmark for POS speed. If it takes longer, the layout is wrong.</div>
+        </div>
+      </div>
+      <div class="pos-hero-flow">
+        <div class="pos-flow-step">Tap product</div>
+        <div class="pos-flow-arrow">→</div>
+        <div class="pos-flow-step">Item in cart</div>
+        <div class="pos-flow-arrow">→</div>
+        <div class="pos-flow-step">Tap pay</div>
+        <div class="pos-flow-arrow">→</div>
+        <div class="pos-flow-step pos-flow-done">Order sent ✓</div>
+      </div>
+    </div>
+
+    <h3 class="sub" style="margin-top:32px;">The 7 Patterns</h3>
+
+    <div class="pattern-grid">
+
+      <!-- 1 -->
+      <div class="pattern-card">
+        <div class="pattern-number">01</div>
+        <div class="pattern-title">Zero-Thinking Actions</div>
+        <p class="pattern-desc">Every common POS action requires one tap. The user should never confirm a simple operation — confirmation dialogs are for destructive actions only.</p>
+        <div class="pattern-compare">
+          <div class="pc-col pc-good">
+            <div class="pc-label">✓ One tap</div>
+            <div class="pc-code">Tap product<br>→ added to cart</div>
+          </div>
+          <div class="pc-col pc-bad">
+            <div class="pc-label">✗ Three taps</div>
+            <div class="pc-code">Tap product<br>Confirm dialog<br>Tap "Add to cart"</div>
+          </div>
+        </div>
+        <div class="pattern-rule">Default quantity = 1. Tapping the same product again increments — never opens a dialog.</div>
+      </div>
+
+      <!-- 2 -->
+      <div class="pattern-card">
+        <div class="pattern-number">02</div>
+        <div class="pattern-title">Predictable Screen Zones</div>
+        <p class="pattern-desc">All POS screens share the same spatial layout. Users build muscle memory — disrupting zones forces conscious thought and slows every transaction.</p>
+        <div class="zone-diagram">
+          <div class="zone zone-products">Products</div>
+          <div class="zone zone-order">Order</div>
+          <div class="zone zone-payment">Payment</div>
+        </div>
+        <div class="pattern-rule">Zones never reorder, resize, or disappear between screens. Only content changes — not structure.</div>
+      </div>
+
+      <!-- 3 -->
+      <div class="pattern-card">
+        <div class="pattern-number">03</div>
+        <div class="pattern-title">Information Scanning</div>
+        <p class="pattern-desc">Critical order data must be readable in under 0.3 seconds. Dense prose forces the brain to parse — scannable tokens do not.</p>
+        <div class="pattern-compare">
+          <div class="pc-col pc-good">
+            <div class="pc-label">✓ Scannable</div>
+            <div class="pc-code scan-row"><span class="scan-id">#1832</span><span class="scan-tag">T7</span><span class="scan-count">3×</span><span class="scan-time">12:21</span></div>
+          </div>
+          <div class="pc-col pc-bad">
+            <div class="pc-label">✗ Prose</div>
+            <div class="pc-code" style="font-size:10px;line-height:1.8;">Order number 1832<br>Table number 7<br>3 items ordered<br>Placed at 12:21</div>
+          </div>
+        </div>
+        <div class="pattern-rule">Use monospace for IDs and times. Use tabular-nums for quantities. Never use sentence case for order metadata.</div>
+      </div>
+
+      <!-- 4 -->
+      <div class="pattern-card">
+        <div class="pattern-number">04</div>
+        <div class="pattern-title">Immediate Feedback</div>
+        <p class="pattern-desc">Every action must produce visible feedback within the motion system's timing. Silence after a tap feels like a broken system — staff will tap again.</p>
+        <div class="feedback-timeline">
+          <div class="ftl-item">
+            <div class="ftl-time">80ms</div>
+            <div class="ftl-bar" style="width:30%;"></div>
+            <div class="ftl-label">Button highlight</div>
+          </div>
+          <div class="ftl-item">
+            <div class="ftl-time">100ms</div>
+            <div class="ftl-bar" style="width:40%;"></div>
+            <div class="ftl-label">Cart animation</div>
+          </div>
+          <div class="ftl-item">
+            <div class="ftl-time">160ms</div>
+            <div class="ftl-bar" style="width:60%;"></div>
+            <div class="ftl-label">Row update</div>
+          </div>
+          <div class="ftl-item">
+            <div class="ftl-time">320ms</div>
+            <div class="ftl-bar" style="width:85%;"></div>
+            <div class="ftl-label">Panel transitions</div>
+          </div>
+        </div>
+        <div class="pattern-rule">Map to <code>micro</code>, <code>fast</code>, <code>DEFAULT</code>, <code>panel</code> tokens. Never animate beyond 320ms in a POS context.</div>
+      </div>
+
+      <!-- 5 -->
+      <div class="pattern-card">
+        <div class="pattern-number">05</div>
+        <div class="pattern-title">Error Prevention</div>
+        <p class="pattern-desc">Replace free-text inputs with constrained controls wherever possible. In a loud restaurant environment, typos and mis-taps are guaranteed.</p>
+        <div class="pattern-compare">
+          <div class="pc-col pc-good">
+            <div class="pc-label">✓ Control</div>
+            <div class="qty-control"><button class="qty-btn">−</button><span class="qty-val">2</span><button class="qty-btn">+</button></div>
+          </div>
+          <div class="pc-col pc-bad">
+            <div class="pc-label">✗ Free input</div>
+            <div style="padding:8px 0;"><div style="font-size:10px;color:var(--color-text-muted);margin-bottom:4px;">Quantity</div><div style="border:1px solid var(--color-border-strong);border-radius:var(--r);padding:6px 10px;font-size:12px;color:var(--color-text-muted);width:100%;">____</div></div>
+          </div>
+        </div>
+        <div class="pattern-rule">Inputs are permitted only for: customer name, special notes, and discount override. All other values use stepper, toggle, or select.</div>
+      </div>
+
+      <!-- 6 -->
+      <div class="pattern-card">
+        <div class="pattern-number">06</div>
+        <div class="pattern-title">Progressive Complexity</div>
+        <p class="pattern-desc">Show only what the user needs at each step. Each layer reveals itself only after the previous choice is made. Never front-load the full order flow.</p>
+        <div class="progressive-flow">
+          <div class="pf-step active">
+            <div class="pf-dot"></div>
+            <div class="pf-content"><div class="pf-title">Product grid</div><div class="pf-desc">All products visible</div></div>
+          </div>
+          <div class="pf-step">
+            <div class="pf-dot"></div>
+            <div class="pf-content"><div class="pf-title">Modifiers</div><div class="pf-desc">Only after product tap</div></div>
+          </div>
+          <div class="pf-step">
+            <div class="pf-dot"></div>
+            <div class="pf-content"><div class="pf-title">Cart review</div><div class="pf-desc">Only if modifiers confirmed</div></div>
+          </div>
+          <div class="pf-step">
+            <div class="pf-dot"></div>
+            <div class="pf-content"><div class="pf-title">Payment</div><div class="pf-desc">Explicit tap to proceed</div></div>
+          </div>
+        </div>
+        <div class="pattern-rule">Each layer adds one decision. Never show payment options before the order is confirmed. Never show modifiers before a product is selected.</div>
+      </div>
+
+      <!-- 7 -->
+      <div class="pattern-card">
+        <div class="pattern-number">07</div>
+        <div class="pattern-title">Muscle Memory Layouts</div>
+        <p class="pattern-desc">Frequently used products must stay in fixed positions. Automatic reordering by popularity destroys the spatial memory staff build after a few shifts.</p>
+        <div class="muscle-grid">
+          <div class="mg-item mg-fixed">Pizza<div class="mg-tag">Fixed</div></div>
+          <div class="mg-item mg-fixed">Burger<div class="mg-tag">Fixed</div></div>
+          <div class="mg-item mg-fixed">Fries<div class="mg-tag">Fixed</div></div>
+          <div class="mg-item mg-fixed">Cola<div class="mg-tag">Fixed</div></div>
+          <div class="mg-item mg-fixed">Beer<div class="mg-tag">Fixed</div></div>
+          <div class="mg-item mg-new">New item<div class="mg-tag mg-tag-new">Added last</div></div>
+        </div>
+        <div class="pattern-rule">Favourites are pinned. New items append to the end. Drag-to-reorder is available to managers — never automatic.</div>
+      </div>
+
+    </div><!-- /pattern-grid -->
+
+    <!-- ── Quick reference ── -->
+    <h3 class="sub" style="margin-top:40px;">Quick reference</h3>
+    <div style="border:1px solid var(--color-border);border-radius:var(--r-lg);overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead>
+          <tr style="background:var(--color-surface-hover);">
+            <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">#</th>
+            <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Pattern</th>
+            <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Measurable threshold</th>
+            <th style="padding:10px 16px;text-align:left;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-text-muted);">Breaks if…</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">3s</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">3-Second Order Rule</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">Simple order ≤ 3 seconds</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Confirmation dialogs added, slow animations</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">01</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Zero-Thinking Actions</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">1 tap per common action</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Modal added for simple add-to-cart</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">02</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Predictable Screen Zones</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">Zones identical across all screens</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Zone moves between views or on resize</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">03</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Information Scanning</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">Order readable in ≤ 0.3s</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Sentence-case prose used for order data</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">04</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Immediate Feedback</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">Visual response ≤ 80ms</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Animation > 320ms or no feedback at all</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">05</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Error Prevention</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">0 free-text fields for quantities</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Keyboard input required for numeric values</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">06</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Progressive Complexity</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">Max 1 decision per screen layer</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Payment shown before order confirmed</td>
+          </tr>
+          <tr style="border-top:1px solid var(--color-border);">
+            <td style="padding:10px 16px;font-weight:700;color:var(--color-accent);font-family:monospace;">07</td>
+            <td style="padding:10px 16px;font-weight:600;color:var(--color-text-primary);">Muscle Memory Layouts</td>
+            <td style="padding:10px 16px;color:var(--color-text-secondary);">0 auto-reorders of favourites</td>
+            <td style="padding:10px 16px;color:var(--color-text-muted);font-size:11px;">Products sorted by popularity automatically</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </section>
+
 
 </div><!-- /page -->
 </div><!-- /content -->
 
 <script>
-function toggleDark() {
-  const html = document.documentElement;
-  html.classList.toggle('dark');
-  const isDark = html.classList.contains('dark');
-  document.getElementById('darkIcon').textContent = isDark ? '☀️' : '🌙';
-  document.getElementById('darkLabel').textContent = isDark ? 'Light' : 'Dark';
-  try { localStorage.setItem('plorea-theme', isDark ? 'dark' : 'light'); } catch(e){}
-}
+
 
 // Init from saved preference or system
 (function() {
@@ -2832,6 +4167,24 @@ const io = new IntersectionObserver(entries => {
   });
 }, { rootMargin: '-25% 0px -65% 0px' });
 sections.forEach(s => io.observe(s));
+
+// Canonical Order Table — density toggle
+function setCtDensity(mode, btn) {
+  document.getElementById('ctTableWrap').dataset.density = mode;
+  document.querySelectorAll('#ctDensityToggle .dtoggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Canonical Payment — method selection
+function selectPayMethod(el) {
+  document.querySelectorAll('.pay-method').forEach(m => {
+    m.classList.remove('pay-method-active');
+    m.querySelector('.pay-check').style.opacity = '0';
+  });
+  el.classList.add('pay-method-active');
+  el.querySelector('.pay-check').style.opacity = '1';
+}
+
 </script>
 </body>
 </html>
