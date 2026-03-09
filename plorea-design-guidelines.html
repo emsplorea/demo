@@ -60,11 +60,31 @@
   --r-xl: 20px;
   --r-full: 9999px;
 
-  /* Shadows */
+  /* Shadows / Elevation */
   --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
   --shadow-sm: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
   --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
   --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-focus: 0 0 0 3px rgba(107,184,218,0.30);
+
+  /* Elevation semantic mapping
+     0 = page surface   (no shadow)
+     1 = card           (shadow-sm)
+     2 = dropdown       (shadow-md)
+     3 = modal          (shadow-lg)
+     4 = overlay        (shadow-xl)  */
+  --elevation-0: none;
+  --elevation-1: var(--shadow-sm);
+  --elevation-2: var(--shadow-md);
+  --elevation-3: var(--shadow-lg);
+  --elevation-4: var(--shadow-xl);
+
+  /* Density tokens
+     Applied via data-density="comfortable|compact|ultra" on container */
+  --row-h: 56px;
+  --row-gap: 16px;
+  --cell-py: 14px;
 
   /* Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -534,6 +554,96 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
    SPIN ANIMATION
 ───────────────────────────────────────── */
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ─────────────────────────────────────────
+   DENSITY SYSTEM
+───────────────────────────────────────── */
+[data-density="comfortable"] { --row-h:56px; --row-gap:16px; --cell-py:14px; }
+[data-density="compact"]     { --row-h:44px; --row-gap:12px; --cell-py:10px; }
+[data-density="ultra"]       { --row-h:36px; --row-gap:8px;  --cell-py:7px;  }
+
+.density-demo { border: 1px solid var(--gray-200); border-radius: var(--r-lg); overflow:hidden; }
+.density-toggle { display:flex; gap:8px; margin-bottom:12px; }
+.dtoggle { padding:5px 14px; border-radius:99px; border:1px solid var(--gray-300);
+  font-size:12px; font-weight:600; cursor:pointer; background:var(--white);
+  color:var(--gray-600); transition:all 120ms; }
+.dtoggle.active { background:var(--blue-800); color:var(--white); border-color:var(--blue-800); }
+.d-row { display:flex; align-items:center; gap:var(--row-gap);
+  height:var(--row-h); padding:0 16px;
+  border-bottom:1px solid var(--gray-150); font-size:13px;
+  transition:height 200ms var(--ease-out), gap 200ms var(--ease-out); }
+.d-row:last-child { border-bottom:none; }
+.d-row:hover { background:var(--gray-50); }
+.d-id   { font-family:monospace; font-weight:700; color:var(--blue-800); min-width:60px; }
+.d-chan { min-width:80px; }
+.d-amt  { min-width:70px; color:var(--gray-600); }
+.d-time { min-width:50px; color:var(--gray-500); font-size:12px; }
+.d-status { margin-left:auto; }
+
+/* ─────────────────────────────────────────
+   INTERACTION STATES
+───────────────────────────────────────── */
+.state-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.state-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); padding:16px; }
+.state-label { font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase;
+  color:var(--gray-400); margin-bottom:10px; }
+.state-demo  { display:flex; align-items:center; justify-content:center; min-height:52px; }
+
+/* order card states */
+.oc-card { border-radius:var(--r-lg); padding:12px 14px; border:2px solid transparent;
+  background:var(--white); box-shadow:var(--elevation-1); font-size:12px; cursor:pointer;
+  transition:all 160ms var(--ease-out); }
+.oc-default  { }
+.oc-hover    { box-shadow:var(--elevation-2); }
+.oc-selected { border-color:var(--blue-800); box-shadow:var(--shadow-focus); }
+.oc-processing { animation: pulse-subtle 1.6s ease-in-out infinite; }
+.oc-completed { opacity:0.6; }
+.oc-error    { border-color:var(--red); background:#fff5f5; }
+@keyframes pulse-subtle { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+/* ─────────────────────────────────────────
+   LAYOUT HIERARCHY
+───────────────────────────────────────── */
+.layout-tree { display:flex; flex-direction:column; gap:0; }
+.lt-level { display:flex; align-items:center; gap:12px; padding:10px 16px;
+  border-left:2px solid var(--gray-200); margin-left:16px; position:relative; }
+.lt-level:first-child { margin-left:0; border-left:none; }
+.lt-badge { font-family:monospace; font-size:11px; font-weight:700;
+  padding:3px 10px; border-radius:99px; white-space:nowrap; }
+.lt-pad { font-size:12px; color:var(--gray-500); font-family:monospace; }
+.lt-desc { font-size:12px; color:var(--gray-600); }
+.lt-page    .lt-badge { background:var(--blue-900); color:var(--white); }
+.lt-section .lt-badge { background:var(--blue-700); color:var(--white); }
+.lt-card    .lt-badge { background:var(--blue); color:var(--white); }
+.lt-comp    .lt-badge { background:var(--blue-100); color:var(--blue-900); }
+
+/* ─────────────────────────────────────────
+   COMPONENT ANATOMY
+───────────────────────────────────────── */
+.anatomy-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+.anatomy-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); overflow:hidden; }
+.anatomy-title { background:var(--gray-800); color:var(--white); padding:8px 14px;
+  font-size:11px; font-weight:700; letter-spacing:0.05em; }
+.anatomy-zone  { padding:10px 14px; border-bottom:1px dashed var(--gray-200);
+  font-size:11px; color:var(--gray-600); display:flex; align-items:center; gap:8px; }
+.anatomy-zone:last-child { border-bottom:none; }
+.az-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; }
+.az-header { background:var(--blue-800); }
+.az-content { background:var(--blue); }
+.az-footer  { background:var(--gray-400); }
+.az-body    { background:var(--green); }
+.az-actions { background:var(--yellow); }
+.az-name { font-weight:700; color:var(--gray-800); }
+
+/* ─────────────────────────────────────────
+   ELEVATION DEMO
+───────────────────────────────────────── */
+.elevation-row { display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; padding:24px; background:var(--gray-100); border-radius:var(--r-lg); }
+.elev-card { background:var(--white); border-radius:var(--r-lg); padding:16px 20px; text-align:center; flex:1; min-width:100px; }
+.elev-label { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; color:var(--gray-400); margin-bottom:6px; }
+.elev-name  { font-size:13px; font-weight:700; color:var(--gray-800); margin-bottom:2px; }
+.elev-use   { font-size:11px; color:var(--gray-500); }
+
 </style>
 </head>
 <body>
@@ -542,7 +652,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="wordmark">Pl<span>or</span>ea</div>
-    <div class="sub">Design System · v2.1</div>
+    <div class="sub">Design System · v2.3</div>
   </div>
   <div class="sidebar-inner">
     <div class="nav-group">
@@ -563,6 +673,14 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
       <a class="nav-link" onclick="nav('tooltips')"><span class="dot"></span>Tooltips</a>
     </div>
     <div class="nav-group">
+      <div class="nav-group-label">Patterns</div>
+      <a class="nav-link" onclick="nav('density')"><span class="dot"></span>Density System</a>
+      <a class="nav-link" onclick="nav('states')"><span class="dot"></span>Interaction States</a>
+      <a class="nav-link" onclick="nav('layout-hierarchy')"><span class="dot"></span>Layout Hierarchy</a>
+      <a class="nav-link" onclick="nav('elevation')"><span class="dot"></span>Elevation</a>
+      <a class="nav-link" onclick="nav('anatomy')"><span class="dot"></span>Component Anatomy</a>
+    </div>
+    <div class="nav-group">
       <div class="nav-group-label">Layout & Motion</div>
       <a class="nav-link" onclick="nav('breakpoints')"><span class="dot"></span>Breakpoints</a>
       <a class="nav-link" onclick="nav('motion')"><span class="dot"></span>Motion</a>
@@ -571,6 +689,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
       <div class="nav-group-label">Guidance</div>
       <a class="nav-link" onclick="nav('accessibility')"><span class="dot"></span>Accessibility</a>
       <a class="nav-link" onclick="nav('darkmode')"><span class="dot"></span>Dark Mode</a>
+      <a class="nav-link" onclick="nav('ux-writing')"><span class="dot"></span>UX Writing</a>
       <a class="nav-link" onclick="nav('dodont')"><span class="dot"></span>Do / Don't</a>
     </div>
   </div>
@@ -586,7 +705,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
     <h1>Design Guidelines</h1>
     <p class="desc">The official visual and interaction language of the Plorea platform. Synchronized with <code>tailwind.config.js</code> and the DaisyUI <code>plorea</code> theme.</p>
     <div class="meta-row">
-      <div class="meta-tag"><span class="dot"></span>v2.1 · Mars 2026</div>
+      <div class="meta-tag"><span class="dot"></span>v2.3 · March 2026</div>
       <div class="meta-tag">Tailwind CSS + DaisyUI</div>
       <div class="meta-tag">Vite · React · TypeScript</div>
     </div>
@@ -1347,6 +1466,9 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
           <li>Use react-icons consistently — pick one set and stick to it</li>
           <li>Touch targets ≥ 44×44px</li>
           <li>Confirm destructive actions with a modal dialog</li>
+          <li>Label primary actions with the outcome, not the action type</li>
+          <li>Use <code>data-density</code> to adapt list density per surface</li>
+          <li>Respect elevation levels — cards at 1, dropdowns at 2, modals at 3</li>
         </ul>
       </div>
       <div class="dont-box">
@@ -1362,10 +1484,497 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
           <li>Let tooltips obscure interactive elements</li>
           <li>Add more than 5–7 items to a sidebar nav group</li>
           <li>Hardcode px values outside the spacing scale</li>
+          <li>Skip elevation levels — don't use modal shadow on a card</li>
+          <li>Use <code>btn-primary-hover</code> style classes — use CSS pseudo-states instead</li>
+          <li>Write generic labels: "OK", "Yes", "Submit"</li>
         </ul>
       </div>
     </div>
   </section>
+
+
+  <!-- ──────────── DENSITY SYSTEM ──────────── -->
+  <section class="section" id="density">
+    <div class="section-head">
+      <div class="label">09 — Patterns</div>
+      <h2>Density System</h2>
+    </div>
+    <p class="body">Three density modes let each surface display the right amount of information for its context. Set <code>data-density</code> on any container — all child rows and gaps adapt automatically via CSS custom properties.</p>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-label">Token definitions</div>
+        <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:2;color:#e2e8f0;">
+          <span style="color:#64748b;">/* tailwind.config.js  →  extend */</span><br>
+          <span style="color:#7dd3fc;">density</span><span style="color:#f8fafc;">: {</span><br>
+          &nbsp;&nbsp;<span style="color:#fde68a;">comfortable</span><span style="color:#f8fafc;">: { row: </span><span style="color:#86efac;">'56px'</span><span style="color:#f8fafc;">, gap: </span><span style="color:#86efac;">'16px'</span><span style="color:#f8fafc;">, py: </span><span style="color:#86efac;">'14px'</span><span style="color:#f8fafc;"> },</span><br>
+          &nbsp;&nbsp;<span style="color:#fde68a;">compact</span><span style="color:#f8fafc;">:     { row: </span><span style="color:#86efac;">'44px'</span><span style="color:#f8fafc;">, gap: </span><span style="color:#86efac;">'12px'</span><span style="color:#f8fafc;">, py: </span><span style="color:#86efac;">'10px'</span><span style="color:#f8fafc;"> },</span><br>
+          &nbsp;&nbsp;<span style="color:#fde68a;">ultra</span><span style="color:#f8fafc;">:       { row: </span><span style="color:#86efac;">'36px'</span><span style="color:#f8fafc;">, gap: </span><span style="color:#86efac;">'8px'</span><span style="color:#f8fafc;">,  py: </span><span style="color:#86efac;">'7px'</span><span style="color:#f8fafc;">  },</span><br>
+          <span style="color:#f8fafc;">}</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">When to use each mode</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);width:100px;">Comfortable</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Back-office dashboard, settings, onboarding</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Compact</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Order lists, inventory, POS side panels</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Ultra</td>
+              <td style="padding:9px 0;color:var(--gray-600);">KDS, order board, live monitoring, scan lines</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="sub">Live demo — order list</h3>
+    <div class="density-toggle">
+      <button class="dtoggle active" onclick="setDensity('comfortable',this)">Comfortable</button>
+      <button class="dtoggle" onclick="setDensity('compact',this)">Compact</button>
+      <button class="dtoggle" onclick="setDensity('ultra',this)">Ultra</button>
+    </div>
+    <div class="density-demo" id="densityDemo" data-density="comfortable">
+      <div class="d-row">
+        <span class="d-id">#4821</span>
+        <span class="d-chan"><span class="badge badge-table" style="font-size:10px;">Table 7</span></span>
+        <span class="d-amt">3 items · kr 284</span>
+        <span class="d-time">12:21</span>
+        <span class="d-status"><span class="badge badge-warning" style="font-size:10px;">Pending</span></span>
+      </div>
+      <div class="d-row">
+        <span class="d-id">#4822</span>
+        <span class="d-chan"><span class="badge badge-takeaway" style="font-size:10px;">Takeaway</span></span>
+        <span class="d-amt">1 item · kr 95</span>
+        <span class="d-time">12:24</span>
+        <span class="d-status"><span class="badge badge-success" style="font-size:10px;">Paid</span></span>
+      </div>
+      <div class="d-row">
+        <span class="d-id">#4823</span>
+        <span class="d-chan"><span class="badge badge-combo" style="font-size:10px;">Combo</span></span>
+        <span class="d-amt">5 items · kr 512</span>
+        <span class="d-time">12:27</span>
+        <span class="d-status"><span class="badge badge-error" style="font-size:10px;">Cancelled</span></span>
+      </div>
+      <div class="d-row">
+        <span class="d-id">#4824</span>
+        <span class="d-chan"><span class="badge badge-table" style="font-size:10px;">Table 3</span></span>
+        <span class="d-amt">2 items · kr 178</span>
+        <span class="d-time">12:31</span>
+        <span class="d-status"><span class="badge badge-warning" style="font-size:10px;">Pending</span></span>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Implementation pattern</strong>
+      Apply <code>data-density="ultra"</code> to the container element. Child components read <code>var(--row-h)</code>, <code>var(--row-gap)</code>, <code>var(--cell-py)</code> via CSS. In React, expose a <code>DensityContext</code> so nested components can conditionally render additional detail (e.g. suppress secondary text in ultra mode). Ultra mode is also the basis for <strong>scan line layout</strong>: single-row, all key data inline, no stacking.
+    </div>
+  </section>
+
+  <!-- ──────────── INTERACTION STATES ──────────── -->
+  <section class="section" id="states">
+    <div class="section-head">
+      <div class="label">09b — Patterns</div>
+      <h2>Interaction States</h2>
+    </div>
+    <p class="body">Every interactive element must express all six states consistently. In restaurant software used under stress with touch input, state feedback directly reduces errors.</p>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-label">The six states — applied to every interactive component</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="border-bottom:2px solid var(--gray-200);">
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">State</th>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">CSS mechanism</th>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">Visual signal</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">default</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">base styles</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">elevation-1 shadow, border-default</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">hover</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">:hover</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">elevation-2 shadow, background surface-hover</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">active</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">:active</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">scale(0.98), elevation-0 — instant, 80ms</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">focus</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">:focus-visible</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">3px blue focus ring (shadow-focus), no outline</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">selected</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">aria-selected / data-selected</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">border-accent (blue-800) + shadow-focus</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;font-weight:700;color:var(--gray-800);">disabled</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">:disabled / aria-disabled</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">opacity-40, cursor-not-allowed, no interaction</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub">Order card states</h3>
+    <p class="body" style="margin-bottom:14px;">Order cards have domain-specific states beyond the base six. These map to business events, not CSS pseudo-classes.</p>
+    <div class="state-grid">
+      <div class="state-card">
+        <div class="state-label">Default</div>
+        <div class="state-demo">
+          <div class="oc-card oc-default" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;color:var(--gray-500);">3 items · 12:21</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-label">Hover</div>
+        <div class="state-demo">
+          <div class="oc-card oc-hover" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;color:var(--gray-500);">3 items · 12:21</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-label">Selected</div>
+        <div class="state-demo">
+          <div class="oc-card oc-selected" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;color:var(--gray-500);">3 items · 12:21</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-label">Processing</div>
+        <div class="state-demo">
+          <div class="oc-card oc-processing" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;color:var(--blue-700);">Sending to kitchen…</div>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-label">Completed</div>
+        <div class="state-demo">
+          <div class="oc-card oc-completed" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;"><span class="badge badge-success" style="font-size:10px;">Paid</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="state-card">
+        <div class="state-label">Error</div>
+        <div class="state-demo">
+          <div class="oc-card oc-error" style="width:100%;">
+            <div style="font-weight:700;font-size:12px;">#4821 · Table 7</div>
+            <div style="font-size:11px;color:var(--red);">Payment failed</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Implementation</strong>
+      Use Tailwind modifiers for CSS pseudo-states (<code>hover:</code>, <code>active:</code>, <code>focus-visible:</code>, <code>disabled:</code>). Use <code>data-</code> attributes or <code>aria-</code> for domain states (<code>data-state="processing"</code>). Never use class names like <code>btn-primary-hover</code> — these duplicate what CSS handles natively.
+    </div>
+  </section>
+
+  <!-- ──────────── LAYOUT HIERARCHY ──────────── -->
+  <section class="section" id="layout-hierarchy">
+    <div class="section-head">
+      <div class="label">09c — Patterns</div>
+      <h2>Layout Hierarchy</h2>
+    </div>
+    <p class="body">Four nested levels with fixed spacing rules. Developers should never need to decide what padding a card gets — the level determines it. This eliminates spacing inconsistency across the platform.</p>
+
+    <div class="layout-tree" style="margin-bottom:20px;">
+      <div class="lt-level lt-page">
+        <span class="lt-badge">Page</span>
+        <span class="lt-pad">p-12 (48px)</span>
+        <span class="lt-desc">Top-level route container. Full viewport height. Contains sections.</span>
+      </div>
+      <div class="lt-level lt-section" style="margin-left:24px;">
+        <span class="lt-badge">Section</span>
+        <span class="lt-pad">gap-8 (32px)</span>
+        <span class="lt-desc">Logical grouping of related cards. Separated by 32px gap.</span>
+      </div>
+      <div class="lt-level lt-card" style="margin-left:48px;">
+        <span class="lt-badge">Card</span>
+        <span class="lt-pad">p-6 (24px)</span>
+        <span class="lt-desc">Primary content container. Elevation-1. White background.</span>
+      </div>
+      <div class="lt-level lt-comp" style="margin-left:72px;">
+        <span class="lt-badge">Component</span>
+        <span class="lt-pad">gap-3 (12px)</span>
+        <span class="lt-desc">Internal component spacing. Buttons, inputs, labels.</span>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-label">Token mapping</div>
+      <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:2;color:#e2e8f0;">
+        <span style="color:#64748b;">/* Layout hierarchy — always use these, never invent new values */</span><br>
+        <span style="color:#7dd3fc;">const</span> <span style="color:#fde68a;">layoutTokens</span> <span style="color:#f8fafc;">= {</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">page</span><span style="color:#f8fafc;">:      </span><span style="color:#86efac;">'p-12'</span><span style="color:#f8fafc;">,     </span><span style="color:#64748b;">// 48px — route wrapper</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">section</span><span style="color:#f8fafc;">:   </span><span style="color:#86efac;">'gap-8'</span><span style="color:#f8fafc;">,    </span><span style="color:#64748b;">// 32px — between cards</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">card</span><span style="color:#f8fafc;">:      </span><span style="color:#86efac;">'p-6'</span><span style="color:#f8fafc;">,      </span><span style="color:#64748b;">// 24px — card internal</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">component</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'gap-3'</span><span style="color:#f8fafc;">,    </span><span style="color:#64748b;">// 12px — within components</span><br>
+        <span style="color:#f8fafc;">}</span>
+      </div>
+    </div>
+    <div class="callout callout-warn">
+      <strong>Kiosk / POS exception</strong>
+      Touch surfaces use reduced page padding: <code>p-6</code> (24px) at the page level to maximise usable screen area. Card and component spacing stays the same.
+    </div>
+  </section>
+
+  <!-- ──────────── ELEVATION ──────────── -->
+  <section class="section" id="elevation">
+    <div class="section-head">
+      <div class="label">09d — Patterns</div>
+      <h2>Elevation</h2>
+    </div>
+    <p class="body">Five elevation levels. The level determines which shadow token to use — not aesthetics. An element's elevation must match its position in the z-axis layer stack.</p>
+
+    <div class="elevation-row" style="margin-bottom:20px;">
+      <div class="elev-card" style="box-shadow:var(--elevation-0);border:1px solid var(--gray-200);">
+        <div class="elev-label">Elevation 0</div>
+        <div class="elev-name">Page</div>
+        <div class="elev-use">No shadow · base surface</div>
+      </div>
+      <div class="elev-card" style="box-shadow:var(--elevation-1);">
+        <div class="elev-label">Elevation 1</div>
+        <div class="elev-name">Card</div>
+        <div class="elev-use">shadow-sm</div>
+      </div>
+      <div class="elev-card" style="box-shadow:var(--elevation-2);">
+        <div class="elev-label">Elevation 2</div>
+        <div class="elev-name">Dropdown</div>
+        <div class="elev-use">shadow-md</div>
+      </div>
+      <div class="elev-card" style="box-shadow:var(--elevation-3);">
+        <div class="elev-label">Elevation 3</div>
+        <div class="elev-name">Modal</div>
+        <div class="elev-use">shadow-lg</div>
+      </div>
+      <div class="elev-card" style="box-shadow:var(--elevation-4);">
+        <div class="elev-label">Elevation 4</div>
+        <div class="elev-name">Overlay</div>
+        <div class="elev-use">shadow-xl</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Usage rules</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead><tr style="border-bottom:2px solid var(--gray-200);">
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">Level</th>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">Shadow token</th>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">Components</th>
+          <th style="text-align:left;padding:8px 12px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gray-400);">Hover upgrade</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-family:monospace;font-weight:700;color:var(--blue-700);">0</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">none</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">Page, table rows, list items</td>
+            <td style="padding:10px 12px;color:var(--gray-400);">→ elevation-1</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-family:monospace;font-weight:700;color:var(--blue-700);">1</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">shadow-sm</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">Cards, panels, form containers</td>
+            <td style="padding:10px 12px;color:var(--gray-400);">→ elevation-2</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-family:monospace;font-weight:700;color:var(--blue-700);">2</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">shadow-md</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">Dropdowns, popovers, command palettes</td>
+            <td style="padding:10px 12px;color:var(--gray-400);">—</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--gray-150);">
+            <td style="padding:10px 12px;font-family:monospace;font-weight:700;color:var(--blue-700);">3</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">shadow-lg</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">Modals, drawers, side panels</td>
+            <td style="padding:10px 12px;color:var(--gray-400);">—</td>
+          </tr>
+          <tr>
+            <td style="padding:10px 12px;font-family:monospace;font-weight:700;color:var(--blue-700);">4</td>
+            <td style="padding:10px 12px;font-family:monospace;font-size:11px;color:var(--gray-500);">shadow-xl</td>
+            <td style="padding:10px 12px;color:var(--gray-600);">Full-screen overlays, toast stack</td>
+            <td style="padding:10px 12px;color:var(--gray-400);">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Rule</strong>
+      Never skip levels — don't use elevation-3 on a card. Never go below a component's current elevation on hover — only upgrade. Focus ring (<code>shadow-focus</code>) sits outside the elevation system and can be combined with any level.
+    </div>
+  </section>
+
+  <!-- ──────────── COMPONENT ANATOMY ──────────── -->
+  <section class="section" id="anatomy">
+    <div class="section-head">
+      <div class="label">09e — Patterns</div>
+      <h2>Component Anatomy</h2>
+    </div>
+    <p class="body">Every component follows a predictable three-zone anatomy. New components should match this structure — it makes React implementations consistent and allows developers to infer structure without reading docs.</p>
+
+    <div class="anatomy-grid" style="margin-bottom:20px;">
+      <div class="anatomy-card">
+        <div class="anatomy-title">Card</div>
+        <div class="anatomy-zone"><span class="az-dot az-header"></span><span class="az-name">Header</span> — title, subtitle, actions</div>
+        <div class="anatomy-zone"><span class="az-dot az-content"></span><span class="az-name">Content</span> — primary data, body</div>
+        <div class="anatomy-zone"><span class="az-dot az-footer"></span><span class="az-name">Footer</span> — metadata, secondary actions</div>
+      </div>
+      <div class="anatomy-card">
+        <div class="anatomy-title">Table</div>
+        <div class="anatomy-zone"><span class="az-dot az-header"></span><span class="az-name">Header</span> — column labels, sort controls</div>
+        <div class="anatomy-zone"><span class="az-dot az-body"></span><span class="az-name">Body</span> — data rows</div>
+        <div class="anatomy-zone"><span class="az-dot az-footer"></span><span class="az-name">Footer</span> — pagination, totals</div>
+      </div>
+      <div class="anatomy-card">
+        <div class="anatomy-title">Modal</div>
+        <div class="anatomy-zone"><span class="az-dot az-header"></span><span class="az-name">Header</span> — title, close button</div>
+        <div class="anatomy-zone"><span class="az-dot az-content"></span><span class="az-name">Content</span> — form, description</div>
+        <div class="anatomy-zone"><span class="az-dot az-actions"></span><span class="az-name">Actions</span> — primary + secondary CTA</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px;">
+      <div class="card-label">TypeScript skeleton — Card</div>
+      <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
+        <span style="color:#7dd3fc;">interface</span> <span style="color:#fde68a;">CardProps</span> <span style="color:#f8fafc;">{</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">header</span><span style="color:#f8fafc;">?: React.ReactNode</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">children</span><span style="color:#f8fafc;">: React.ReactNode &nbsp;</span><span style="color:#64748b;">// content zone</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">footer</span><span style="color:#f8fafc;">?: React.ReactNode</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">elevation</span><span style="color:#f8fafc;">?: </span><span style="color:#86efac;">0</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">1</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">2</span> <span style="color:#64748b;">// default 1</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">?: string</span><br>
+        <span style="color:#f8fafc;">}</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">TypeScript skeleton — Modal</div>
+      <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
+        <span style="color:#7dd3fc;">interface</span> <span style="color:#fde68a;">ModalProps</span> <span style="color:#f8fafc;">{</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">title</span><span style="color:#f8fafc;">: string</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">isOpen</span><span style="color:#f8fafc;">: boolean</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">onClose</span><span style="color:#f8fafc;">: () =&gt; void</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">children</span><span style="color:#f8fafc;">: React.ReactNode</span><br>
+        &nbsp;&nbsp;<span style="color:#93c5fd;">actions</span><span style="color:#f8fafc;">: {</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#93c5fd;">primary</span><span style="color:#f8fafc;">: { label: string; onClick: () =&gt; void; isLoading?: boolean }</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#93c5fd;">secondary</span><span style="color:#f8fafc;">?: { label: string; onClick: () =&gt; void }</span><br>
+        &nbsp;&nbsp;<span style="color:#f8fafc;">}</span><br>
+        <span style="color:#f8fafc;">}</span>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Rule</strong>
+      Actions in Modals always follow the pattern: primary action right, secondary (cancel/dismiss) left. Primary label must describe the outcome — not just "OK". Example: <em>"Delete order"</em> not <em>"Confirm"</em>.
+    </div>
+  </section>
+
+  <!-- ──────────── UX WRITING ──────────── -->
+  <section class="section" id="ux-writing">
+    <div class="section-head">
+      <div class="label">13 — Guidance</div>
+      <h2>UX Writing</h2>
+    </div>
+    <p class="body">Language is part of the design system. Consistent copy reduces cognitive load for restaurant staff operating under time pressure. These rules apply to all interactive text in the platform.</p>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-label">Primary rule — never let the user guess</div>
+        <p style="font-size:13px;color:var(--gray-600);margin-bottom:14px;">The primary action label must describe the outcome. The user should never wonder what happens after they click.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="border-bottom:1px solid var(--gray-200);">
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);">✗ Don't</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);">✓ Do</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Save</td><td style="padding:8px;font-weight:600;">Save changes</td></tr>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">OK</td><td style="padding:8px;font-weight:600;">Confirm order</td></tr>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Submit</td><td style="padding:8px;font-weight:600;">Send to kitchen</td></tr>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Delete</td><td style="padding:8px;font-weight:600;">Delete order #4821</td></tr>
+            <tr><td style="padding:8px;color:var(--gray-500);">Yes</td><td style="padding:8px;font-weight:600;">Refund payment</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-label">Tone and style</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);width:110px;">Direct</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Imperative verbs. No filler words.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Specific</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Include context (order ID, table, amount) in destructive actions.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Calm</td>
+              <td style="padding:9px 0;color:var(--gray-600);">No exclamation marks. Errors are informational, not alarming.</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Short</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Labels ≤ 3 words. Tooltips ≤ 8 words. Errors ≤ 1 sentence.</td>
+            </tr>
+            <tr>
+              <td style="padding:9px 0;font-weight:700;color:var(--blue-700);">Outcome-led</td>
+              <td style="padding:9px 0;color:var(--gray-600);">Start with the verb. "Print receipt" not "Receipt printing".</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Error messages</div>
+        <p style="font-size:13px;color:var(--gray-600);margin-bottom:10px;">Always: what went wrong + what to do next.</p>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="border-bottom:1px solid var(--gray-200);">
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);">✗ Don't</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);">✓ Do</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Error 422</td><td style="padding:8px;font-weight:600;">Invalid phone number</td></tr>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Something went wrong</td><td style="padding:8px;font-weight:600;">Payment failed — try again or use cash</td></tr>
+            <tr><td style="padding:8px;color:var(--gray-500);">Required field</td><td style="padding:8px;font-weight:600;">Enter a table number</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="card-label">Loading and empty states</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <thead><tr style="border-bottom:1px solid var(--gray-200);">
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--red);">✗ Don't</th>
+            <th style="text-align:left;padding:6px 8px;font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);">✓ Do</th>
+          </tr></thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">Loading...</td><td style="padding:8px;font-weight:600;">Loading orders</td></tr>
+            <tr style="border-bottom:1px solid var(--gray-150);"><td style="padding:8px;color:var(--gray-500);">No data</td><td style="padding:8px;font-weight:600;">No orders yet today</td></tr>
+            <tr><td style="padding:8px;color:var(--gray-500);">Not found</td><td style="padding:8px;font-weight:600;">No orders match this filter</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
 
 </div><!-- /page -->
 </div><!-- /content -->
@@ -1383,9 +1992,16 @@ function copyHex(hex) {
   const hexEl = el.querySelector('.s-hex, .shex');
   if (!hexEl) return;
   const orig = hexEl.textContent;
-  hexEl.textContent = 'Kopiert!';
+  hexEl.textContent = 'Copied!';
   hexEl.style.color = 'var(--blue-700)';
   setTimeout(() => { hexEl.textContent = orig; hexEl.style.color = ''; }, 1200);
+}
+
+// Density toggle
+function setDensity(level, btn) {
+  document.getElementById('densityDemo').setAttribute('data-density', level);
+  document.querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
 }
 
 // Active nav on scroll
