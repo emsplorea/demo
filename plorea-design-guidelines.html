@@ -644,6 +644,65 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 .elev-name  { font-size:13px; font-weight:700; color:var(--gray-800); margin-bottom:2px; }
 .elev-use   { font-size:11px; color:var(--gray-500); }
 
+
+/* ─────────────────────────────────────────
+   Z-INDEX SYSTEM
+───────────────────────────────────────── */
+.z-layer-demo { display:flex; flex-direction:column; gap:6px; }
+.z-row { display:flex; align-items:center; gap:16px; padding:10px 16px;
+  border-radius:var(--r); border:1px solid var(--gray-200); background:var(--white); }
+.z-val  { font-family:monospace; font-weight:700; color:var(--blue-800); min-width:55px; font-size:12px; }
+.z-name { font-weight:700; color:var(--gray-800); min-width:90px; font-size:13px; }
+.z-desc { font-size:12px; color:var(--gray-500); }
+.z-bar  { margin-left:auto; height:6px; border-radius:99px; background:var(--blue); opacity:0.15; }
+
+/* ─────────────────────────────────────────
+   TABLE PATTERN
+───────────────────────────────────────── */
+.ds-table { width:100%; border-collapse:collapse; font-size:13px; }
+.ds-table thead tr { border-bottom:2px solid var(--gray-200); }
+.ds-table th { text-align:left; padding:10px 14px; font-size:9px; font-weight:700;
+  letter-spacing:0.1em; text-transform:uppercase; color:var(--gray-400);
+  background:var(--gray-50); white-space:nowrap; }
+.ds-table th.sortable { cursor:pointer; }
+.ds-table th.sortable:hover { color:var(--blue-800); }
+.ds-table td { padding:var(--cell-py) 14px; border-bottom:1px solid var(--gray-150);
+  color:var(--gray-700); transition:background 100ms; }
+.ds-table tr:last-child td { border-bottom:none; }
+.ds-table tbody tr:hover td { background:var(--gray-50); }
+.ds-table tbody tr[data-selected="true"] td { background:#EBF6FB; }
+.ds-table .cell-id   { font-family:monospace; font-weight:700; color:var(--blue-800); }
+.ds-table .cell-mono { font-family:monospace; font-size:12px; color:var(--gray-600); }
+.ds-table .cell-actions { text-align:right; }
+.ds-table .row-action { background:none; border:none; padding:4px 8px; border-radius:var(--r-sm);
+  cursor:pointer; color:var(--gray-500); font-size:12px; transition:all 100ms; }
+.ds-table .row-action:hover { background:var(--gray-100); color:var(--gray-800); }
+.table-footer { display:flex; align-items:center; justify-content:space-between;
+  padding:12px 16px; border-top:1px solid var(--gray-200); font-size:12px; color:var(--gray-500); }
+
+/* ─────────────────────────────────────────
+   SKELETON / LOADING STATES
+───────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg,
+    var(--gray-150) 25%, var(--gray-100) 50%, var(--gray-150) 75%);
+  background-size: 400px 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--r-sm);
+}
+.skel-row  { height:44px; margin-bottom:4px; }
+.skel-text { height:12px; border-radius:99px; }
+.skel-badge { height:22px; width:64px; border-radius:99px; display:inline-block; }
+.loading-states-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.loading-card { border:1px solid var(--gray-200); border-radius:var(--r-lg); overflow:hidden; }
+.loading-card-head { background:var(--gray-800); color:var(--white); padding:8px 14px;
+  font-size:11px; font-weight:700; letter-spacing:0.05em; }
+.loading-card-body { padding:16px; }
+
 </style>
 </head>
 <body>
@@ -652,7 +711,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="wordmark">Pl<span>or</span>ea</div>
-    <div class="sub">Design System · v2.3</div>
+    <div class="sub">Design System · v2.4</div>
   </div>
   <div class="sidebar-inner">
     <div class="nav-group">
@@ -679,6 +738,9 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
       <a class="nav-link" onclick="nav('layout-hierarchy')"><span class="dot"></span>Layout Hierarchy</a>
       <a class="nav-link" onclick="nav('elevation')"><span class="dot"></span>Elevation</a>
       <a class="nav-link" onclick="nav('anatomy')"><span class="dot"></span>Component Anatomy</a>
+      <a class="nav-link" onclick="nav('zindex')"><span class="dot"></span>Z-Index Scale</a>
+      <a class="nav-link" onclick="nav('table-pattern')"><span class="dot"></span>Table Pattern</a>
+      <a class="nav-link" onclick="nav('loading')"><span class="dot"></span>Loading &amp; Skeleton</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Layout & Motion</div>
@@ -705,7 +767,7 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
     <h1>Design Guidelines</h1>
     <p class="desc">The official visual and interaction language of the Plorea platform. Synchronized with <code>tailwind.config.js</code> and the DaisyUI <code>plorea</code> theme.</p>
     <div class="meta-row">
-      <div class="meta-tag"><span class="dot"></span>v2.3 · March 2026</div>
+      <div class="meta-tag"><span class="dot"></span>v2.4 · March 2026</div>
       <div class="meta-tag">Tailwind CSS + DaisyUI</div>
       <div class="meta-tag">Vite · React · TypeScript</div>
     </div>
@@ -1469,6 +1531,9 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
           <li>Label primary actions with the outcome, not the action type</li>
           <li>Use <code>data-density</code> to adapt list density per surface</li>
           <li>Respect elevation levels — cards at 1, dropdowns at 2, modals at 3</li>
+          <li>Use named z-index tokens (<code>z-modal</code>, <code>z-dropdown</code>)</li>
+          <li>Show skeleton states that mirror content shape while loading</li>
+          <li>Include reason + action in every empty state</li>
         </ul>
       </div>
       <div class="dont-box">
@@ -1487,6 +1552,9 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
           <li>Skip elevation levels — don't use modal shadow on a card</li>
           <li>Use <code>btn-primary-hover</code> style classes — use CSS pseudo-states instead</li>
           <li>Write generic labels: "OK", "Yes", "Submit"</li>
+          <li>Use <code>z-[9999]</code> or other raw z-index integers</li>
+          <li>Show a blank surface while data loads</li>
+          <li>Use a spinner where a skeleton is possible</li>
         </ul>
       </div>
     </div>
@@ -1887,6 +1955,254 @@ p.body { font-size: 14px; color: var(--gray-600); line-height: 1.7; margin-botto
     </div>
   </section>
 
+
+  <!-- ──────────── Z-INDEX ──────────── -->
+  <section class="section" id="zindex">
+    <div class="section-head">
+      <div class="label">09f — Patterns</div>
+      <h2>Z-Index Scale</h2>
+    </div>
+    <p class="body">Named z-index levels prevent <code>z-[9999]</code> sprawl. Every component that stacks above the document must use one of these values — never a raw integer.</p>
+
+    <div class="z-layer-demo" style="margin-bottom:20px;">
+      <div class="z-row"><span class="z-val">0</span><span class="z-name">base</span><span class="z-desc">Normal document flow. All static components.</span><div class="z-bar" style="width:20px;"></div></div>
+      <div class="z-row"><span class="z-val">10</span><span class="z-name">raised</span><span class="z-desc">Sticky table headers, floating input labels.</span><div class="z-bar" style="width:40px;"></div></div>
+      <div class="z-row"><span class="z-val">1000</span><span class="z-name">dropdown</span><span class="z-desc">Dropdowns, select menus, command palettes, popovers.</span><div class="z-bar" style="width:80px;"></div></div>
+      <div class="z-row"><span class="z-val">1100</span><span class="z-name">sticky</span><span class="z-desc">Fixed top nav, fixed sidebar, sticky page headers.</span><div class="z-bar" style="width:100px;"></div></div>
+      <div class="z-row"><span class="z-val">1200</span><span class="z-name">overlay</span><span class="z-desc">Drawer and modal backdrop scrim (surface-overlay).</span><div class="z-bar" style="width:120px;"></div></div>
+      <div class="z-row"><span class="z-val">1300</span><span class="z-name">modal</span><span class="z-desc">Modal dialogs, alert dialogs, full-screen kiosk panels.</span><div class="z-bar" style="width:140px;"></div></div>
+      <div class="z-row"><span class="z-val">1400</span><span class="z-name">toast</span><span class="z-desc">Toast notifications — must always clear modals.</span><div class="z-bar" style="width:160px;"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Tailwind usage</div>
+      <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
+        <span style="color:#64748b;">/* ✓ Correct — named token */</span><br>
+        <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"z-modal fixed inset-0"</span><span style="color:#f8fafc;">&gt;</span><br><br>
+        <span style="color:#64748b;">/* ✗ Wrong — raw integer */</span><br>
+        <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"z-[9999] fixed inset-0"</span><span style="color:#f8fafc;">&gt;</span>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:12px;">
+      <strong>Elevation + z-index must match</strong>
+      An element at elevation-3 (modal) must use <code>z-modal</code>. An element at elevation-2 (dropdown) must use <code>z-dropdown</code>. Mismatching these creates UI where a dropdown appears behind a card.
+    </div>
+  </section>
+
+  <!-- ──────────── TABLE PATTERN ──────────── -->
+  <section class="section" id="table-pattern">
+    <div class="section-head">
+      <div class="label">09g — Patterns</div>
+      <h2>Table Pattern</h2>
+    </div>
+    <p class="body">Tables are the primary data surface across POS dashboards, inventory, and order management. The table pattern integrates the density system — all row heights and cell padding respond to <code>data-density</code>.</p>
+
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card">
+        <div class="card-label">Anatomy</div>
+        <div class="anatomy-card" style="border:none;padding:0;">
+          <div style="background:var(--gray-800);color:var(--white);padding:8px 14px;font-size:11px;font-weight:700;border-radius:var(--r) var(--r) 0 0;">Table</div>
+          <div class="anatomy-zone" style="border-left:1px solid var(--gray-200);border-right:1px solid var(--gray-200);"><span class="az-dot az-header"></span><span class="az-name">Header</span> — column labels, sort controls, filter toggle</div>
+          <div class="anatomy-zone" style="border-left:1px solid var(--gray-200);border-right:1px solid var(--gray-200);"><span class="az-dot az-body"></span><span class="az-name">Row</span> — data cells, selection checkbox, row actions</div>
+          <div class="anatomy-zone" style="border-left:1px solid var(--gray-200);border-right:1px solid var(--gray-200);"><span class="az-dot az-content"></span><span class="az-name">Cell</span> — id, text, badge, mono, amount, actions variant</div>
+          <div class="anatomy-zone" style="border-left:1px solid var(--gray-200);border-right:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);border-radius:0 0 var(--r) var(--r);"><span class="az-dot az-footer"></span><span class="az-name">Footer</span> — pagination, row count, totals</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Cell type variants</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:8px 0;font-family:monospace;font-weight:700;color:var(--blue-700);width:90px;">cell-id</td>
+              <td style="padding:8px 0;color:var(--gray-600);">Order/entity IDs — monospace, bold, blue-800</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:8px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">cell-mono</td>
+              <td style="padding:8px 0;color:var(--gray-600);">Codes, SKUs, timestamps — monospace, gray-600</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:8px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">cell-amount</td>
+              <td style="padding:8px 0;color:var(--gray-600);">Currency — right-aligned, tabular nums, bold</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-150);">
+              <td style="padding:8px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">cell-badge</td>
+              <td style="padding:8px 0;color:var(--gray-600);">Status badge — channel or system badge</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">cell-actions</td>
+              <td style="padding:8px 0;color:var(--gray-600);">Row actions — right-aligned, icon buttons only</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h3 class="sub">Live table demo — responds to density</h3>
+    <div class="density-toggle">
+      <button class="dtoggle active" onclick="setTableDensity('comfortable',this)">Comfortable</button>
+      <button class="dtoggle" onclick="setTableDensity('compact',this)">Compact</button>
+      <button class="dtoggle" onclick="setTableDensity('ultra',this)">Ultra</button>
+    </div>
+    <div id="tableDemo" data-density="comfortable" style="border:1px solid var(--gray-200);border-radius:var(--r-lg);overflow:hidden;">
+      <table class="ds-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Channel</th>
+            <th class="sortable">Time ↕</th>
+            <th style="text-align:right;">Amount</th>
+            <th>Status</th>
+            <th style="text-align:right;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-id">#4821</td>
+            <td><span class="badge badge-table" style="font-size:10px;">Table 7</span></td>
+            <td class="cell-mono">12:21</td>
+            <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;">kr 284</td>
+            <td><span class="badge badge-warning" style="font-size:10px;">Pending</span></td>
+            <td class="cell-actions"><button class="row-action">Print</button><button class="row-action">View</button></td>
+          </tr>
+          <tr data-selected="true">
+            <td class="cell-id">#4822</td>
+            <td><span class="badge badge-takeaway" style="font-size:10px;">Takeaway</span></td>
+            <td class="cell-mono">12:24</td>
+            <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;">kr 95</td>
+            <td><span class="badge badge-success" style="font-size:10px;">Paid</span></td>
+            <td class="cell-actions"><button class="row-action">Print</button><button class="row-action">View</button></td>
+          </tr>
+          <tr>
+            <td class="cell-id">#4823</td>
+            <td><span class="badge badge-combo" style="font-size:10px;">Combo</span></td>
+            <td class="cell-mono">12:27</td>
+            <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;">kr 512</td>
+            <td><span class="badge badge-error" style="font-size:10px;">Cancelled</span></td>
+            <td class="cell-actions"><button class="row-action">Print</button><button class="row-action">View</button></td>
+          </tr>
+          <tr>
+            <td class="cell-id">#4824</td>
+            <td><span class="badge badge-table" style="font-size:10px;">Table 3</span></td>
+            <td class="cell-mono">12:31</td>
+            <td style="text-align:right;font-weight:700;font-variant-numeric:tabular-nums;">kr 178</td>
+            <td><span class="badge badge-warning" style="font-size:10px;">Pending</span></td>
+            <td class="cell-actions"><button class="row-action">Print</button><button class="row-action">View</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="table-footer">
+        <span>4 orders · kr 1,069 total</span>
+        <span>Page 1 of 1</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>TypeScript skeleton</strong>
+      Define column configs as typed objects: <code>{'{ key, label, sortable, align, render }'}</code>. Row actions should use an <code>actions</code> prop array, never inline JSX per row. The table footer always shows row count + a total when numeric data is present.
+    </div>
+  </section>
+
+  <!-- ──────────── LOADING & SKELETON STATES ──────────── -->
+  <section class="section" id="loading">
+    <div class="section-head">
+      <div class="label">09h — Patterns</div>
+      <h2>Loading &amp; Skeleton States</h2>
+    </div>
+    <p class="body">Three loading patterns for different contexts. Always show a loading state — never leave a surface blank while data fetches. Prefer skeletons over spinners for content areas; reserve spinners for single-action feedback.</p>
+
+    <div class="loading-states-grid" style="margin-bottom:20px;">
+      <div class="loading-card">
+        <div class="loading-card-head">Skeleton — content areas</div>
+        <div class="loading-card-body">
+          <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px;">Use when loading a list or card. Mirror the shape of real content.</p>
+          <div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;align-items:center;gap:12px;height:44px;padding:0 2px;">
+              <div class="skeleton skel-text" style="width:60px;"></div>
+              <div class="skeleton skel-badge"></div>
+              <div class="skeleton skel-text" style="width:80px;margin-left:auto;"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;height:44px;padding:0 2px;">
+              <div class="skeleton skel-text" style="width:60px;"></div>
+              <div class="skeleton skel-badge"></div>
+              <div class="skeleton skel-text" style="width:70px;margin-left:auto;"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;height:44px;padding:0 2px;">
+              <div class="skeleton skel-text" style="width:60px;"></div>
+              <div class="skeleton skel-badge"></div>
+              <div class="skeleton skel-text" style="width:90px;margin-left:auto;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-card">
+        <div class="loading-card-head">Skeleton — card</div>
+        <div class="loading-card-body">
+          <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px;">Use when loading a single card or form.</p>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="skeleton skel-text" style="width:40%;"></div>
+            <div class="skeleton skel-text" style="width:80%;"></div>
+            <div class="skeleton skel-text" style="width:65%;"></div>
+            <div style="margin-top:4px;display:flex;gap:8px;">
+              <div class="skeleton" style="height:32px;width:90px;border-radius:var(--r-sm);"></div>
+              <div class="skeleton" style="height:32px;width:70px;border-radius:var(--r-sm);"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="loading-card">
+        <div class="loading-card-head">Inline spinner — action feedback</div>
+        <div class="loading-card-body">
+          <p style="font-size:12px;color:var(--gray-500);margin-bottom:16px;">Use inside a button or inline after a mutation. Not for page-level loading.</p>
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <button class="btn btn-primary" style="display:flex;align-items:center;gap:8px;opacity:0.9;">
+              <svg style="animation:spin 1s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/></svg>
+              Saving…
+            </button>
+            <button class="btn btn-outline" style="display:flex;align-items:center;gap:8px;">
+              <svg style="animation:spin 1s linear infinite;width:14px;height:14px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83"/></svg>
+              Processing
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="loading-card">
+        <div class="loading-card-head">Empty state</div>
+        <div class="loading-card-body">
+          <p style="font-size:12px;color:var(--gray-500);margin-bottom:12px;">After loading completes with no results. Always include a reason and an action.</p>
+          <div style="text-align:center;padding:16px 8px;">
+            <div style="width:36px;height:36px;background:var(--gray-100);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--gray-400)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg>
+            </div>
+            <div style="font-weight:700;font-size:13px;color:var(--gray-800);margin-bottom:4px;">No orders yet today</div>
+            <div style="font-size:12px;color:var(--gray-500);margin-bottom:12px;">Orders will appear here as they come in.</div>
+            <button class="btn btn-outline" style="font-size:12px;padding:6px 14px;">Refresh</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Animation token usage — React + TypeScript</div>
+      <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
+        <span style="color:#64748b;">// Skeleton row — mirrors table row shape</span><br>
+        <span style="color:#7dd3fc;">function</span> <span style="color:#fde68a;">SkeletonRow</span><span style="color:#f8fafc;">() {</span><br>
+        &nbsp;&nbsp;<span style="color:#7dd3fc;">return</span> <span style="color:#f8fafc;">(&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"flex items-center gap-3 h-[var(--row-h)] px-4"</span><span style="color:#f8fafc;">&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"animate-skeleton h-3 w-16 rounded-full bg-gray-200"</span> <span style="color:#f8fafc;">/&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"animate-skeleton h-5 w-20 rounded-full bg-gray-200"</span> <span style="color:#f8fafc;">/&gt;</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"animate-skeleton h-3 w-14 ml-auto rounded-full bg-gray-200"</span> <span style="color:#f8fafc;">/&gt;</span><br>
+        &nbsp;&nbsp;<span style="color:#f8fafc;">&lt;/</span><span style="color:#f87171;">div</span><span style="color:#f8fafc;">&gt;)</span><br>
+        <span style="color:#f8fafc;">}</span><br><br>
+        <span style="color:#64748b;">// Processing state uses animate-pulse-subtle (defined in config)</span><br>
+        <span style="color:#f8fafc;">&lt;</span><span style="color:#f87171;">div</span> <span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">=</span><span style="color:#86efac;">"animate-pulse-subtle"</span><span style="color:#f8fafc;">&gt;…&lt;/</span><span style="color:#f87171;">div</span><span style="color:#f8fafc;">&gt;</span>
+      </div>
+    </div>
+    <div class="callout callout-info" style="margin-top:12px;">
+      <strong>Rules</strong>
+      Skeleton shapes must mirror real content — same width, height and grid position. Never show a generic spinner where a skeleton is possible. Empty states must always include: icon + title + reason + action. Loading buttons must disable <code>pointer-events</code> and show a spinner icon, never just change label text.
+    </div>
+  </section>
+
+
   <!-- ──────────── UX WRITING ──────────── -->
   <section class="section" id="ux-writing">
     <div class="section-head">
@@ -1997,10 +2313,17 @@ function copyHex(hex) {
   setTimeout(() => { hexEl.textContent = orig; hexEl.style.color = ''; }, 1200);
 }
 
-// Density toggle
+// Density toggle — order list demo
 function setDensity(level, btn) {
   document.getElementById('densityDemo').setAttribute('data-density', level);
-  document.querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
+  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Density toggle — table demo
+function setTableDensity(level, btn) {
+  document.getElementById('tableDemo').setAttribute('data-density', level);
+  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
