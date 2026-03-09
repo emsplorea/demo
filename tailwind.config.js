@@ -2,7 +2,7 @@
 
 /**
  * Plorea Design System — Tailwind Configuration
- * v2.5 · March 2026
+ * v2.8 · March 2026
  *
  * Structure:
  *   1. Primitive tokens   — raw color values, never reference directly in components
@@ -130,50 +130,73 @@ const dark = {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const semantic = {
-  // Interactive
-  primary:   primitives.blue.DEFAULT,
-  secondary: primitives.blue[700],
-  accent:    primitives.blue[800],
+  // ── Interactive
+  primary:          primitives.blue.DEFAULT,    // #6BB8DA — CTA, decorative
+  'primary-hover':  primitives.blue[600],       // #4FA3C8
+  'primary-active': primitives.blue[700],       // #468DAC
+  'primary-text':   '#FFFFFF',                  // text on primary btn (light)
+  secondary:        primitives.blue[700],       // #468DAC
+  accent:           primitives.blue[800],       // #2E6B87 — interactive text
 
-  // Feedback
-  success: primitives.feedback.green,
-  warning: primitives.feedback.yellow,
-  error:   primitives.feedback.red,
-  info:    primitives.blue[100],
+  // ── Feedback
+  success:          primitives.feedback.green,
+  'success-bg':     '#D1FAE5',
+  warning:          primitives.feedback.yellow,
+  'warning-bg':     '#FEF9C3',
+  error:            primitives.feedback.red,
+  'error-bg':       '#FEE2E2',
+  info:             primitives.blue.DEFAULT,
+  'info-bg':        primitives.blue[50],        // #EBF6FB
 
-  // DaisyUI base aliases
-  neutral:     primitives.gray.DEFAULT,
-  'base-100':  primitives.gray[100],
-  'base-200':  primitives.gray[50],
-  'base-300':  primitives.gray.border,
+  // ── DaisyUI base aliases
+  neutral:          primitives.gray.DEFAULT,
+  'base-100':       primitives.gray[100],
+  'base-200':       primitives.gray[50],
+  'base-300':       primitives.gray.border,
 
-  // Surface tokens
-  surface:           primitives.gray[50],
-  'surface-hover':   primitives.gray[100],
-  'surface-raised':  '#FFFFFF',
+  // ── Surfaces
+  //    Canonical: surface, surface-hover
+  //    These map to --color-surface / --color-surface-hover in tokens.css
+  'bg-page':        primitives.gray[50],        // #FAFAFA — app root
+  surface:          '#FFFFFF',                  // cards, panels — canonical
+  'surface-hover':  primitives.gray[100],       // hovered rows — canonical
+  'surface-raised': '#FFFFFF',
   'surface-overlay': 'rgba(0,0,0,0.48)',
 
-  // Text tokens
-  'text-primary':   primitives.gray[900],
-  'text-secondary': primitives.gray[600],
-  'text-muted':     primitives.gray[400],
+  // ── Text
+  'text-primary':   primitives.gray[900],       // #1A1A1A
+  'text-secondary': primitives.gray[600],       // #666666
+  'text-muted':     primitives.gray[400],       // #C4C4C4
   'text-inverted':  '#FFFFFF',
-  'text-link':      primitives.blue[800],
+  'text-link':      primitives.blue[800],       // #2E6B87
 
-  // Border tokens
-  'border-default': primitives.gray.border,
-  'border-strong':  primitives.gray[300],
-  'border-focus':   primitives.blue.DEFAULT,
+  // ── Borders
+  //    Canonical: border, border-strong
+  border:           primitives.gray.border,     // #E9E9E9 — canonical
+  'border-default': primitives.gray.border,     // legacy alias
+  'border-strong':  primitives.gray[300],       // #D9D9D9
+  'border-focus':   primitives.blue.DEFAULT,    // #6BB8DA
 
-  // Elevation aliases (light mode — subtle ring-based shadows)
+  // ── Selection
+  selection:          primitives.blue[50],      // #EBF6FB
+  'selection-border': primitives.blue[200],     // #99D2E8
+  'selection-text':   primitives.blue[900],     // #1D4A5F
+
+  // ── Elevation (light mode)
   'elevation-0': 'none',
   'elevation-1': '0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)',
   'elevation-2': '0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
   'elevation-3': '0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
   'elevation-4': '0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)',
+  'elevation-focus': '0 0 0 3px rgba(107,184,218,0.30)',
 
-  // Misc
-  table:      '#362F4A',
+  // ── Selection
+  selection:          primitives.blue[50],      // #EBF6FB
+  'selection-border': primitives.blue[200],     // #99D2E8
+  'selection-text':   primitives.blue[900],     // #1D4A5F
+
+  // ── Misc
+  table:      '#362F4A',                        // channel.table bg (light)
   'black-90': 'rgba(0,0,0,0.9)',
 }
 
@@ -322,6 +345,14 @@ export default {
         component: '12px',
       },
 
+      // Canonical component layout constants
+      shell: {
+        sidebar: '240px',     // App Shell sidebar width
+        topbar:  '48px',      // App Shell topbar height
+        'cart-max': '380px',  // Cart Summary max-width
+        'payment-max': '380px', // Payment Selector max-width
+      },
+
       height: {
         '30':   '7.5rem',
         '30.5': '7.625rem',
@@ -393,33 +424,53 @@ export default {
   daisyui: {
     themes: [
       {
-        // Light theme
+        // ── Light theme
+        // Values reference CSS custom properties from tokens.css.
+        // When the token layer updates, DaisyUI components update automatically.
+        // Note: DaisyUI v4 resolves var() at render time — fallback hex for v3 below.
         plorea: {
-          primary:    primitives.blue.DEFAULT,
-          secondary:  primitives.blue[700],
-          accent:     primitives.blue[800],
-          neutral:    primitives.gray.DEFAULT,
-          'base-100': primitives.gray[100],
-          info:       primitives.blue[100],
-          success:    primitives.feedback.green,
-          warning:    primitives.feedback.yellow,
-          error:      primitives.feedback.red,
+          'color-scheme': 'light',
+          primary:    'var(--color-primary, #6BB8DA)',
+          secondary:  'var(--color-secondary, #468DAC)',
+          accent:     'var(--color-accent, #2E6B87)',
+          neutral:    'var(--color-text-muted, #A6A6A6)',
+          'base-100': 'var(--color-surface, #F1F5F9)',
+          'base-200': 'var(--color-bg-page, #FAFAFA)',
+          'base-300': 'var(--color-border, #E9E9E9)',
+          info:       'var(--color-info-bg, #EBF6FB)',
+          success:    'var(--color-success, #6BDAB2)',
+          warning:    'var(--color-warning, #DADA6B)',
+          error:      'var(--color-error, #DA6B6B)',
+          '--rounded-box':   '0.625rem',   // matches --r-lg (10px)
+          '--rounded-btn':   '0.375rem',   // matches --r (6px)
+          '--rounded-badge': '9999px',     // always pill
+          '--animation-btn': '0.1s',       // matches dur-fast
+          '--animation-input': '0.16s',    // matches dur-default
+          '--btn-focus-scale': '0.98',
         },
       },
       {
-        // Dark theme — warm dark, matched to dark primitive tokens above
+        // ── Dark theme
+        // Synced to .dark token overrides in tokens.css.
         'plorea-dark': {
-          primary:    dark.blue.primary,       // #6BB8DA — keeps brand consistency
-          secondary:  '#468DAC',
-          accent:     dark.blue.accent,        // #7EC8E3 — cyan-shifted for dark bg
-          neutral:    '#3D3A4A',
-          'base-100': dark.bg.surface,         // #1E1D24
-          'base-200': dark.bg.page,            // #16151A
-          'base-300': dark.border.DEFAULT,     // #2E2C38
-          info:       '#1D4A5F',
-          success:    dark.feedback.green,     // #4DB896
-          warning:    dark.feedback.yellow,    // #C4C44A
-          error:      dark.feedback.red,       // #D45858
+          'color-scheme': 'dark',
+          primary:    'var(--color-primary, #6BB8DA)',
+          secondary:  'var(--color-secondary, #468DAC)',
+          accent:     'var(--color-accent, #7EC8E3)',
+          neutral:    'var(--color-text-muted, #5C5970)',
+          'base-100': 'var(--color-surface, #1E1D24)',
+          'base-200': 'var(--color-bg-page, #16151A)',
+          'base-300': 'var(--color-border, #2E2C38)',
+          info:       'var(--color-info-bg, #0D2030)',
+          success:    'var(--color-success, #4DB896)',
+          warning:    'var(--color-warning, #C4C44A)',
+          error:      'var(--color-error, #D45858)',
+          '--rounded-box':   '0.625rem',
+          '--rounded-btn':   '0.375rem',
+          '--rounded-badge': '9999px',
+          '--animation-btn': '0.1s',
+          '--animation-input': '0.16s',
+          '--btn-focus-scale': '0.98',
         },
       },
     ],
