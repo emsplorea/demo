@@ -2,28 +2,34 @@
 
 /**
  * Plorea Design System — Tailwind Configuration
- * v2.4 · March 2026
+ * v2.5 · March 2026
  *
  * Structure:
  *   1. Primitive tokens   — raw color values, never reference directly in components
- *   2. Semantic tokens    — role-based aliases (surface, text, border, feedback)
- *   3. Channel tokens     — order-type colour maps with bg/border/text variants
- *   4. Tailwind config    — screens, colors, typography, spacing, shadows, motion
- *   5. DaisyUI theme
+ *   2. Dark primitives    — dark mode raw values
+ *   3. Semantic tokens    — light mode role-based aliases
+ *   4. Channel tokens     — order-type colour maps (light + dark variants)
+ *   5. Tailwind config    — screens, colors, typography, spacing, shadows, motion
+ *   6. DaisyUI themes     — plorea (light) + plorea-dark
+ *
+ * Dark mode:
+ *   Toggle by adding `dark` class to <html>.
+ *   Components use CSS custom properties (var(--color-surface) etc.) defined in tokens.css.
+ *   The dark class triggers a token swap — components never need to know which mode they're in.
  *
  * Rules:
  *   • Components must use semantic or channel tokens, NOT primitives directly
- *   • Primary blue (#6BB8DA) is NOT allowed for body text — use accent (#2E6B87)
+ *   • Primary blue (#6BB8DA) is NOT allowed for body text — use accent token
  *   • All spacing must snap to the 4px grid
  *   • Touch targets must be ≥ 44×44px (48px preferred for kiosk/POS)
+ *   • Z-index values must use named tokens — never raw integers
  */
 
 import daisyui from 'daisyui'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 1. PRIMITIVE TOKENS
-//    Raw values only. Never import these into components.
-//    Access via brand.blue[700], brand.gray[800], etc.
+// 1. PRIMITIVE TOKENS — LIGHT
+//    Raw values only. Never import into components.
 // ─────────────────────────────────────────────────────────────────────────────
 
 const primitives = {
@@ -34,7 +40,7 @@ const primitives = {
     DEFAULT: '#6BB8DA',  // primary brand — decorative/backgrounds only
     600:     '#4FA3C8',
     700:     '#468DAC',  // secondary actions
-    800:     '#2E6B87',  // interactive text & links — passes WCAG AA (5.3:1 on white)
+    800:     '#2E6B87',  // interactive text & links — WCAG AA on white (5.3:1)
     900:     '#1D4A5F',
   },
 
@@ -56,23 +62,78 @@ const primitives = {
   },
 
   feedback: {
-    green:  '#6BDAB2',  // success
-    yellow: '#DADA6B',  // warning
-    red:    '#DA6B6B',  // error / destructive
+    green:  '#6BDAB2',
+    yellow: '#DADA6B',
+    red:    '#DA6B6B',
   },
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 2. SEMANTIC TOKENS
-//    Role-based. These are what components should reference.
-//    Light mode defaults — swap values for dark theme.
+// 2. PRIMITIVE TOKENS — DARK
+//    Warm dark palette. All backgrounds share a subtle purple undertone from
+//    channel.table (#362F4A) — gives the palette internal visual coherence.
+//    Never use #000000 or pure black — too harsh for long restaurant shifts.
+// ─────────────────────────────────────────────────────────────────────────────
+
+const dark = {
+  // Backgrounds — each step is ~8px lighter on the z-axis
+  bg: {
+    page:    '#16151A',  // base app background — warm near-black
+    surface: '#1E1D24',  // cards, panels — elevation 1
+    raised:  '#26242E',  // hover rows, active items — elevation 1 hover
+    overlay: '#2E2C38',  // side panels, modals — elevation 3+
+  },
+
+  // Borders
+  border: {
+    DEFAULT: '#2E2C38',  // subtle, only visible against bg.surface
+    strong:  '#3D3A4A',  // stronger separation, table headers
+  },
+
+  // Text — off-white, never pure #FFFFFF
+  text: {
+    primary:   '#F0EEF5',  // body, headings — warm off-white
+    secondary: '#9B98A8',  // metadata, labels, captions
+    muted:     '#5C5970',  // placeholder, disabled text
+    link:      '#7EC8E3',  // interactive — slightly cyan-shifted for contrast
+    inverted:  '#16151A',  // text on light buttons in dark mode
+  },
+
+  // Brand blue — light mode primary works well on dark surfaces
+  blue: {
+    primary:      '#6BB8DA',  // CTA buttons — keep as-is, reads well on dark
+    primaryHover: '#7EC8E8',  // slightly lighter on hover
+    accent:       '#7EC8E3',  // links — cyan-shifted vs #2E6B87 for dark bg contrast
+    focus:        'rgba(107,184,218,0.35)',  // slightly stronger than light mode
+  },
+
+  // Feedback — slightly desaturated, less aggressive in dark environments
+  feedback: {
+    green:  '#4DB896',  // success — darker/more muted than light #6BDAB2
+    yellow: '#C4C44A',  // warning — warm, not neon
+    red:    '#D45858',  // error — softer red, less alarming
+  },
+
+  // Channel backgrounds — deep + saturated, pastels don't work on dark
+  channel: {
+    table:    { bg: '#2A2340', border: '#3D3260', text: '#C4AFEE' },
+    takeaway: { bg: '#1A3328', border: '#2A5040', text: '#7DD4AA' },
+    eatIn:    { bg: '#3D2218', border: '#5A3425', text: '#E8A890' },
+    combo:    { bg: '#3D1A20', border: '#5A2830', text: '#F0A0AA' },
+  },
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. SEMANTIC TOKENS — LIGHT MODE
+//    Role-based. Components reference these — never primitives directly.
+//    Dark mode equivalents live in tokens.css under .dark { }
 // ─────────────────────────────────────────────────────────────────────────────
 
 const semantic = {
   // Interactive
-  primary:   primitives.blue.DEFAULT,  // brand CTA buttons, accents
-  secondary: primitives.blue[700],     // secondary actions
-  accent:    primitives.blue[800],     // text links, interactive labels (WCAG AA)
+  primary:   primitives.blue.DEFAULT,
+  secondary: primitives.blue[700],
+  accent:    primitives.blue[800],
 
   // Feedback
   success: primitives.feedback.green,
@@ -80,13 +141,13 @@ const semantic = {
   error:   primitives.feedback.red,
   info:    primitives.blue[100],
 
-  // DaisyUI base
+  // DaisyUI base aliases
   neutral:     primitives.gray.DEFAULT,
   'base-100':  primitives.gray[100],
   'base-200':  primitives.gray[50],
   'base-300':  primitives.gray.border,
 
-  // Surface tokens — use these for backgrounds, not raw gray values
+  // Surface tokens
   surface:           primitives.gray[50],
   'surface-hover':   primitives.gray[100],
   'surface-raised':  '#FFFFFF',
@@ -97,15 +158,14 @@ const semantic = {
   'text-secondary': primitives.gray[600],
   'text-muted':     primitives.gray[400],
   'text-inverted':  '#FFFFFF',
-  'text-link':      primitives.blue[800],  // the ONLY blue allowed for body text
+  'text-link':      primitives.blue[800],
 
   // Border tokens
   'border-default': primitives.gray.border,
   'border-strong':  primitives.gray[300],
   'border-focus':   primitives.blue.DEFAULT,
 
-  // Elevation semantic aliases (maps level → shadow token)
-  // Use these in components: shadow-elevation-1, etc.
+  // Elevation aliases (light mode — subtle ring-based shadows)
   'elevation-0': 'none',
   'elevation-1': '0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)',
   'elevation-2': '0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
@@ -113,14 +173,13 @@ const semantic = {
   'elevation-4': '0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)',
 
   // Misc
-  table:      '#362F4A',          // table-channel identifier (DaisyUI alias)
-  'black-90': 'rgba(0,0,0,0.9)', // scrims / overlays
+  table:      '#362F4A',
+  'black-90': 'rgba(0,0,0,0.9)',
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 3. ORDER CHANNEL TOKENS
-//    Each channel has bg / hover / border / text for consistent UI treatment.
-//    Usage: bg-channel-takeaway-bg, border-channel-takeaway-border, etc.
+// 4. ORDER CHANNEL TOKENS — LIGHT MODE
+//    Dark mode channel overrides live in tokens.css under .dark { }
 // ─────────────────────────────────────────────────────────────────────────────
 
 const channel = {
@@ -151,16 +210,15 @@ const channel = {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// 4. TAILWIND CONFIG
+// 5. TAILWIND CONFIG
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default {
 
   // Dark mode — toggle by adding `dark` class to <html>
+  // document.documentElement.classList.toggle('dark')
   darkMode: 'class',
 
-  // Content paths — covers React/TS, Blade templates, JS resources, HTML demos.
-  // All paths must be listed to prevent Tailwind from purging used styles.
   content: [
     './src/**/*.{js,jsx,ts,tsx}',
     './resources/**/*.blade.php',
@@ -169,30 +227,22 @@ export default {
   ],
 
   theme: {
-    // ── Container
-    // Centred with consistent padding. Used for all dashboard page wrappers.
-    // Kiosk/POS overrides: remove container, use full-bleed layout instead.
     container: {
       center: true,
       padding: {
-        DEFAULT: '1.5rem',  // 24px — mobile
-        md:      '2rem',    // 32px — tablet
-        lg:      '2.5rem',  // 40px — dashboard
-        xl:      '3rem',    // 48px — wide desktop
+        DEFAULT: '1.5rem',
+        md:      '2rem',
+        lg:      '2.5rem',
+        xl:      '3rem',
       },
     },
 
-    // ── Breakpoints
-    //    Aligned to real device widths.
-    //    sm:360  — covers all modern smartphones (old 350 was non-standard)
-    //    lg:1024 — standard tablet landscape + kiosk (old 976 was arbitrary)
-    //    xxl:1920 — full-HD kiosk / kitchen display (old 1820 was non-standard)
     screens: {
-      sm:  '360px',   // mobile — QR guest ordering, small phones
-      md:  '768px',   // tablet portrait, QR web
-      lg:  '1024px',  // tablet landscape, kiosk touch screen, POS
-      xl:  '1440px',  // back-office dashboard, desktop
-      xxl: '1920px',  // full-HD kiosk, kitchen displays
+      sm:  '360px',
+      md:  '768px',
+      lg:  '1024px',
+      xl:  '1440px',
+      xxl: '1920px',
     },
 
     colors: {
@@ -201,14 +251,16 @@ export default {
       white:       '#FFFFFF',
       black:       '#0B0B0B',
 
-      // Semantic tokens — USE THESE in components
+      // ── Semantic tokens (light mode) — use these in components
       ...semantic,
 
-      // Channel tokens — USE THESE for order-type UI
+      // ── Channel tokens — use these for order-type UI
       channel,
 
-      // Brand primitives — scoped under brand.* to avoid polluting top-level
-      // (prevents accidental bg-blue-200 usage in components)
+      // ── Dark primitives — exported for use in tokens.css and DaisyUI dark theme
+      dark,
+
+      // ── Brand primitives — scoped under brand.* to prevent bg-blue-200 usage
       brand: {
         blue: primitives.blue,
         gray: primitives.gray,
@@ -240,43 +292,36 @@ export default {
     },
 
     extend: {
-      // Font sizes — always use class names, never hardcode px in components
       fontSize: {
-        tiny: ['0.6875rem', { lineHeight: '1rem' }],      // 11px
-        xxs:  ['0.75rem',   { lineHeight: '1.125rem' }],  // 12px
-        xs:   ['0.8125rem', { lineHeight: '1.25rem' }],   // 13px
-        md:   ['0.9375rem', { lineHeight: '1.5rem' }],    // 15px
+        tiny: ['0.6875rem', { lineHeight: '1rem' }],
+        xxs:  ['0.75rem',   { lineHeight: '1.125rem' }],
+        xs:   ['0.8125rem', { lineHeight: '1.25rem' }],
+        md:   ['0.9375rem', { lineHeight: '1.5rem' }],
       },
 
       borderRadius: {
         xl: '14px',
       },
 
-      // Spacing extensions — fills gaps for dashboard layouts
       spacing: {
-        '18': '4.5rem',  // 72px  — section gaps
-        '22': '5.5rem',  // 88px  — large section padding
-        '26': '6.5rem',  // 104px — hero/dashboard spacers
+        '18': '4.5rem',
+        '22': '5.5rem',
+        '26': '6.5rem',
       },
 
-      // Density system — applied via data-density attribute on container
-      // CSS vars --row-h, --row-gap, --cell-py are set per density level
-      // Reference in components via var() — not as Tailwind classes
       density: {
         comfortable: { row: '56px', gap: '16px', py: '14px' },
         compact:     { row: '44px', gap: '12px', py: '10px' },
         ultra:       { row: '36px', gap: '8px',  py: '7px'  },
       },
 
-      // Layout hierarchy — fixed spacing per level (never deviate)
       layout: {
-        page:      '48px',   // p-12 — route container padding
-        section:   '32px',   // gap-8 — between card groups
-        card:      '24px',   // p-6 — card internal padding
-        component: '12px',   // gap-3 — within components
+        page:      '48px',
+        section:   '32px',
+        card:      '24px',
+        component: '12px',
       },
 
-      // Fixed heights for kiosk / POS component rows
       height: {
         '30':   '7.5rem',
         '30.5': '7.625rem',
@@ -284,25 +329,21 @@ export default {
         '31.5': '7.875rem',
       },
 
-      // Box shadows
-      // xs/sm: cards     md: hover states     lg: dropdowns
-      // xl:    modals, drawers, overlays       focus: keyboard ring
       boxShadow: {
         xs:    '0 1px 2px rgba(0,0,0,0.05)',
         sm:    '0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04)',
         md:    '0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)',
         lg:    '0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
         xl:    '0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)',
-        focus: '0 0 0 3px rgba(107,184,218,0.30)',
+        // Dark mode elevations use opacity-based shadows (more visible on dark bg)
+        'dark-sm': '0 1px 4px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.04)',
+        'dark-md': '0 4px 16px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.04)',
+        'dark-lg': '0 12px 40px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.05)',
+        'dark-xl': '0 20px 60px rgba(0,0,0,0.70), 0 0 0 1px rgba(255,255,255,0.06)',
+        focus:     '0 0 0 3px rgba(107,184,218,0.30)',
+        'dark-focus': '0 0 0 3px rgba(126,200,227,0.40)',
       },
 
-      // Motion
-      // micro:   button press — feels immediate
-      // fast:    hover states
-      // DEFAULT: most UI elements
-      // slow:    expand/collapse
-      // panel:   side panels, drawers
-      // page:    route transitions
       transitionTimingFunction: {
         'ease-out': 'cubic-bezier(0.16, 1, 0.3, 1)',
         'ease-in':  'cubic-bezier(0.4, 0, 1, 1)',
@@ -317,60 +358,42 @@ export default {
         page:    '400ms',
       },
 
-      // ── Z-index scale
-      // Named levels prevent z-[9999] sprawl in components.
-      // Each level must match its elevation counterpart.
       zIndex: {
-        base:     '0',      // normal document flow
-        raised:   '10',     // sticky table headers, floating labels
-        dropdown: '1000',   // dropdowns, popovers, command palettes
-        sticky:   '1100',   // sticky nav, fixed sidebars
-        overlay:  '1200',   // drawer backdrops, scrim layers
-        modal:    '1300',   // modal dialogs, alert dialogs
-        toast:    '1400',   // toast notifications (must clear modals)
+        base:     '0',
+        raised:   '10',
+        dropdown: '1000',
+        sticky:   '1100',
+        overlay:  '1200',
+        modal:    '1300',
+        toast:    '1400',
       },
 
-      // ── Animation tokens (loading / skeleton states)
-      // Use these for consistent loading feedback across the platform.
       keyframes: {
-        'skeleton': {
-          '0%, 100%': { opacity: '1' },
-          '50%':      { opacity: '0.4' },
-        },
-        'pulse-subtle': {
-          '0%, 100%': { opacity: '1' },
-          '50%':      { opacity: '0.65' },
-        },
-        'spin-slow': {
-          'to': { transform: 'rotate(360deg)' },
-        },
-        'slide-up': {
-          'from': { transform: 'translateY(8px)', opacity: '0' },
-          'to':   { transform: 'translateY(0)',   opacity: '1' },
-        },
-        'slide-down': {
-          'from': { transform: 'translateY(-8px)', opacity: '0' },
-          'to':   { transform: 'translateY(0)',    opacity: '1' },
-        },
-        'fade-in': {
-          'from': { opacity: '0' },
-          'to':   { opacity: '1' },
-        },
+        'skeleton':     { '0%, 100%': { opacity: '1' },   '50%': { opacity: '0.4' } },
+        'pulse-subtle': { '0%, 100%': { opacity: '1' },   '50%': { opacity: '0.65' } },
+        'spin-slow':    { 'to': { transform: 'rotate(360deg)' } },
+        'slide-up':     { 'from': { transform: 'translateY(8px)',  opacity: '0' }, 'to': { transform: 'translateY(0)', opacity: '1' } },
+        'slide-down':   { 'from': { transform: 'translateY(-8px)', opacity: '0' }, 'to': { transform: 'translateY(0)', opacity: '1' } },
+        'fade-in':      { 'from': { opacity: '0' }, 'to': { opacity: '1' } },
       },
       animation: {
         'skeleton':     'skeleton 1.5s ease-in-out infinite',
-        'pulse-subtle': 'pulse-subtle 1.6s ease-in-out infinite',  // processing state
-        'spin-slow':    'spin-slow 1s linear infinite',             // loading spinner
-        'slide-up':     'slide-up 160ms cubic-bezier(0.16,1,0.3,1)',   // enter from below
-        'slide-down':   'slide-down 160ms cubic-bezier(0.16,1,0.3,1)', // enter from above
-        'fade-in':      'fade-in 120ms ease-out',                   // toast, tooltip
+        'pulse-subtle': 'pulse-subtle 1.6s ease-in-out infinite',
+        'spin-slow':    'spin-slow 1s linear infinite',
+        'slide-up':     'slide-up 160ms cubic-bezier(0.16,1,0.3,1)',
+        'slide-down':   'slide-down 160ms cubic-bezier(0.16,1,0.3,1)',
+        'fade-in':      'fade-in 120ms ease-out',
       },
     },
   },
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // 6. DAISY UI THEMES
+  // ─────────────────────────────────────────────────────────────────────────
   daisyui: {
     themes: [
       {
+        // Light theme
         plorea: {
           primary:    primitives.blue.DEFAULT,
           secondary:  primitives.blue[700],
@@ -381,6 +404,22 @@ export default {
           success:    primitives.feedback.green,
           warning:    primitives.feedback.yellow,
           error:      primitives.feedback.red,
+        },
+      },
+      {
+        // Dark theme — warm dark, matched to dark primitive tokens above
+        'plorea-dark': {
+          primary:    dark.blue.primary,       // #6BB8DA — keeps brand consistency
+          secondary:  '#468DAC',
+          accent:     dark.blue.accent,        // #7EC8E3 — cyan-shifted for dark bg
+          neutral:    '#3D3A4A',
+          'base-100': dark.bg.surface,         // #1E1D24
+          'base-200': dark.bg.page,            // #16151A
+          'base-300': dark.border.DEFAULT,     // #2E2C38
+          info:       '#1D4A5F',
+          success:    dark.feedback.green,     // #4DB896
+          warning:    dark.feedback.yellow,    // #C4C44A
+          error:      dark.feedback.red,       // #D45858
         },
       },
     ],
