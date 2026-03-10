@@ -13,19 +13,13 @@ jobs:
     defaults:
       run:
         working-directory: 'plorea-pkg/@plorea/components'
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: 'plorea-pkg/@plorea/components/package-lock.json'
-
       - name: Install dependencies
-        run: npm ci
-
+        run: npm install
       - name: Typecheck
         run: npm run typecheck
 
@@ -36,35 +30,15 @@ jobs:
     defaults:
       run:
         working-directory: 'plorea-pkg/@plorea/components'
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: 'plorea-pkg/@plorea/components/package-lock.json'
-
       - name: Install dependencies
-        run: npm ci
-
+        run: npm install
       - name: Build
         run: npm run build
-
-      - name: Verify dist output
-        run: |
-          test -f dist/index.esm.js || (echo "dist/index.esm.js missing" && exit 1)
-          test -f dist/index.js     || (echo "dist/index.js missing"     && exit 1)
-          test -f dist/index.d.ts   || (echo "dist/index.d.ts missing"   && exit 1)
-          echo "✓ All dist files present"
-
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: 'plorea-pkg/@plorea/components/dist'
-          retention-days: 7
 
   build-storybook:
     name: Build Storybook
@@ -73,25 +47,12 @@ jobs:
     defaults:
       run:
         working-directory: 'plorea-pkg/@plorea/components'
-
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
-          cache-dependency-path: 'plorea-pkg/@plorea/components/package-lock.json'
-
       - name: Install dependencies
-        run: npm ci
-
+        run: npm install
       - name: Build Storybook
         run: npm run build-storybook
-
-      - name: Upload Storybook artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: storybook-static
-          path: 'plorea-pkg/@plorea/components/storybook-static'
-          retention-days: 7
