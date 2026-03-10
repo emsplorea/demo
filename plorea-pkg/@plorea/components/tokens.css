@@ -1,0 +1,305 @@
+/**
+ * Plorea Design System — Semantic Token Layer
+ * v2.8 · March 2026
+ *
+ * Single source of truth for all semantic tokens.
+ * Import once at the root of your app (main.tsx or App.tsx).
+ *
+ * Usage:
+ *   All components reference var(--color-*) tokens.
+ *   Dark mode: add `dark` class to <html>.
+ *   document.documentElement.classList.toggle('dark')
+ *
+ * Architecture:
+ *   :root        → light mode defaults
+ *   .dark        → dark mode overrides (same keys, different values)
+ *   Components never hardcode colour values.
+ *
+ * v2.8 changes:
+ *   • Canonical names: --color-surface, --color-surface-hover, --color-border
+ *     (bg-* and border-default aliases kept for backward compat, marked legacy)
+ *   • Added: --color-primary-text, --color-secondary (were missing from light)
+ *   • Added: --r-* radii tokens, --dur-* / --ease-* motion tokens
+ *   • Added: --color-surface-raised, --color-surface-overlay
+ *   • bg-page corrected to #FAFAFA (was #F1F5F9 — matches design guide)
+ */
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   LIGHT MODE  (default)
+───────────────────────────────────────────────────────────────────────────── */
+:root {
+
+  /* ── Backgrounds / Surfaces
+     Canonical: --color-surface, --color-surface-hover
+     bg-* aliases kept for backward compat — new code uses shorter form */
+  --color-bg-page:         #FAFAFA;  /* app root — gray-50 */
+  --color-surface:         #FFFFFF;  /* cards, panels — canonical */
+  --color-surface-hover:   #F1F5F9;  /* hovered rows, active items — canonical */
+  --color-surface-raised:  #FFFFFF;  /* elevated above base (dropdowns, modals) */
+  --color-surface-overlay: rgba(0,0,0,0.48);  /* scrim behind modals/drawers */
+  /* Legacy aliases — do not use in new components */
+  --color-bg-surface:      #FFFFFF;
+  --color-bg-hover:        #F1F5F9;
+  --color-bg-raised:       #FFFFFF;
+  --color-bg-overlay:      rgba(0,0,0,0.48);
+  --color-bg-input:        #FFFFFF;
+
+  /* ── Text */
+  --color-text-primary:    #1A1A1A;  /* headings, body — gray-900 */
+  --color-text-secondary:  #666666;  /* metadata, labels — gray-600 */
+  --color-text-muted:      #C4C4C4;  /* placeholders, disabled — gray-400 */
+  --color-text-link:       #2E6B87;  /* interactive text — WCAG AA on white (5.3:1) */
+  --color-text-inverted:   #FFFFFF;  /* text on dark/coloured surfaces */
+  --color-text-on-primary: #FFFFFF;  /* text on primary CTA buttons */
+  --color-primary-text:    #FFFFFF;  /* alias for --color-text-on-primary */
+
+  /* ── Borders
+     Canonical: --color-border, --color-border-strong
+     border-default alias kept for backward compat */
+  --color-border:          #E9E9E9;  /* standard dividers — canonical */
+  --color-border-strong:   #D9D9D9;  /* table headers, card outlines */
+  --color-border-focus:    #6BB8DA;  /* focus ring colour */
+  --color-border-default:  #E9E9E9;  /* legacy alias */
+
+  /* ── Brand / Interactive */
+  --color-primary:         #6BB8DA;  /* CTA buttons, decorative accents */
+  --color-primary-hover:   #4FA3C8;  /* button hover */
+  --color-primary-active:  #468DAC;  /* button pressed */
+  --color-secondary:       #468DAC;  /* secondary actions */
+  --color-accent:          #2E6B87;  /* interactive text — NOT for body copy */
+
+  /* ── Feedback */
+  --color-success:         #6BDAB2;
+  --color-success-bg:      #D1FAE5;
+  --color-warning:         #DADA6B;
+  --color-warning-bg:      #FEF9C3;
+  --color-error:           #DA6B6B;
+  --color-error-bg:        #FEE2E2;
+  --color-info:            #6BB8DA;
+  --color-info-bg:         #EBF6FB;
+
+  /* ── Selection (table rows, list items) */
+  --color-selection:        #EBF6FB;  /* selected row bg */
+  --color-selection-border: #99D2E8;  /* selection ring */
+  --color-selection-text:   #1D4A5F;  /* text on selected bg */
+
+  /* ── Elevation shadows */
+  --elevation-0:     none;
+  --elevation-1:     0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-2:     0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-3:     0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-4:     0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
+  --elevation-focus: 0 0 0 3px rgba(107,184,218,0.30);
+
+  /* ── Border radius */
+  --r-sm:   6px;
+  --r:      8px;
+  --r-md:   10px;
+  --r-lg:   14px;
+  --r-xl:   20px;
+  --r-full: 9999px;
+
+  /* ── Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in:  cubic-bezier(0.4, 0, 1, 1);
+  --ease:     cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-micro:  80ms;
+  --dur-fast:   100ms;
+  --dur:        160ms;   /* default */
+  --dur-slow:   240ms;
+  --dur-panel:  320ms;
+  --dur-page:   400ms;
+
+  /* ── Density (overridden by data-density on container) */
+  --row-h:   56px;
+  --row-gap: 16px;
+  --cell-py: 14px;
+
+  /* ── Order channel colours (light) */
+  --channel-table-bg:        #362F4A;
+  --channel-table-border:    #4A3E60;
+  --channel-table-text:      #B8A8D4;
+  --channel-table-hover:     #2A2338;
+
+  --channel-takeaway-bg:     #D1E7DD;
+  --channel-takeaway-border: #8EC9AD;
+  --channel-takeaway-text:   #1A5C3A;
+  --channel-takeaway-hover:  #B8D9C8;
+
+  --channel-eatin-bg:        #E5C1B6;
+  --channel-eatin-border:    #C89888;
+  --channel-eatin-text:      #6B3020;
+  --channel-eatin-hover:     #D5B1A6;
+
+  --channel-combo-bg:        #FFB3BA;
+  --channel-combo-border:    #E08088;
+  --channel-combo-text:      #8B2040;
+  --channel-combo-hover:     #F09DA4;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DENSITY MODES
+   Applied via data-density="comfortable|compact|ultra" on a container element.
+───────────────────────────────────────────────────────────────────────────── */
+[data-density="comfortable"] { --row-h: 56px; --row-gap: 16px; --cell-py: 14px; }
+[data-density="compact"]     { --row-h: 44px; --row-gap: 12px; --cell-py: 10px; }
+[data-density="ultra"]       { --row-h: 36px; --row-gap:  8px; --cell-py:  7px; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   DARK MODE
+   Activated by adding `dark` class to <html>.
+   Only tokens that differ from light mode are listed.
+   Keys are identical to :root — components are mode-agnostic.
+
+   Palette:
+   • Backgrounds share a warm purple undertone (#16151A base).
+   • Text is off-white (#F0EEF5) — pure white is too harsh on dim displays.
+   • Pastels replaced by deep saturated channel colours.
+   • Feedback colours slightly desaturated — less alarming in dark environments.
+───────────────────────────────────────────────────────────────────────────── */
+.dark {
+
+  /* ── Backgrounds / Surfaces */
+  --color-bg-page:         #16151A;
+  --color-surface:         #1E1D24;
+  --color-surface-hover:   #26242E;
+  --color-surface-raised:  #26242E;
+  --color-surface-overlay: rgba(0,0,0,0.70);
+  /* Legacy aliases */
+  --color-bg-surface:      #1E1D24;
+  --color-bg-hover:        #26242E;
+  --color-bg-raised:       #26242E;
+  --color-bg-overlay:      rgba(0,0,0,0.70);
+  --color-bg-input:        #26242E;
+
+  /* ── Text */
+  --color-text-primary:    #F0EEF5;  /* warm off-white */
+  --color-text-secondary:  #9B98A8;  /* 4.8:1 on surface — WCAG AA */
+  --color-text-muted:      #5C5970;  /* 2.8:1 — decorative only */
+  --color-text-link:       #7EC8E3;  /* cyan-shifted for dark bg contrast */
+  --color-text-inverted:   #16151A;
+  --color-text-on-primary: #0D2A38;
+  --color-primary-text:    #0D2A38;
+
+  /* ── Borders */
+  --color-border:          #2E2C38;
+  --color-border-default:  #2E2C38;  /* legacy alias */
+  --color-border-strong:   #3D3A4A;
+  --color-border-focus:    #7EC8E3;
+
+  /* ── Brand / Interactive */
+  --color-primary:         #6BB8DA;
+  --color-primary-hover:   #7EC8E8;
+  --color-primary-active:  #5AAAC8;
+  --color-secondary:       #5AAAC8;
+  --color-accent:          #7EC8E3;
+
+  /* ── Feedback */
+  --color-success:         #4DB896;
+  --color-success-bg:      #0D2A1E;
+  --color-warning:         #C4C44A;
+  --color-warning-bg:      #282808;
+  --color-error:           #D45858;
+  --color-error-bg:        #2A0808;
+  --color-info:            #7EC8E3;
+  --color-info-bg:         #0D2030;
+
+  /* ── Selection */
+  --color-selection:        #0D2030;
+  --color-selection-border: #2E6B87;
+  --color-selection-text:   #7EC8E3;
+
+  /* ── Elevation — stronger opacity + subtle white ring */
+  --elevation-1:     0 1px 4px rgba(0,0,0,0.40), 0 0 0 1px rgba(255,255,255,0.04);
+  --elevation-2:     0 4px 16px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.04);
+  --elevation-3:     0 12px 40px rgba(0,0,0,0.60), 0 0 0 1px rgba(255,255,255,0.05);
+  --elevation-4:     0 20px 60px rgba(0,0,0,0.70), 0 0 0 1px rgba(255,255,255,0.06);
+  --elevation-focus: 0 0 0 3px rgba(126,200,227,0.40);
+
+  /* ── Order channel colours — deep + saturated */
+  --channel-table-bg:        #2A2340;
+  --channel-table-border:    #3D3260;
+  --channel-table-text:      #C4AFEE;
+  --channel-table-hover:     #221C38;
+
+  --channel-takeaway-bg:     #1A3328;
+  --channel-takeaway-border: #2A5040;
+  --channel-takeaway-text:   #7DD4AA;
+  --channel-takeaway-hover:  #142A20;
+
+  --channel-eatin-bg:        #3D2218;
+  --channel-eatin-border:    #5A3425;
+  --channel-eatin-text:      #E8A890;
+  --channel-eatin-hover:     #321A12;
+
+  --channel-combo-bg:        #3D1A20;
+  --channel-combo-border:    #5A2830;
+  --channel-combo-text:      #F0A0AA;
+  --channel-combo-hover:     #301218;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   THEME TRANSITION — smooth crossfade on mode toggle
+───────────────────────────────────────────────────────────────────────────── */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 220ms var(--ease),
+    border-color     220ms var(--ease),
+    color            180ms var(--ease) !important;
+}
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   COMPONENT BASE STYLES
+   Optional utility classes that consume the tokens above.
+───────────────────────────────────────────────────────────────────────────── */
+
+/* Page wrapper */
+.plorea-page {
+  background: var(--color-bg-page);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+}
+
+/* Card */
+.plorea-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--elevation-1);
+  border-radius: var(--r-lg);
+  padding: 24px;
+}
+
+/* Input */
+.plorea-input {
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--r-md);
+  padding: 9px 12px;
+  font-size: 15px;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+.plorea-input:focus {
+  outline: none;
+  border-color: var(--color-border-focus);
+  box-shadow: var(--elevation-focus);
+}
+
+/* Channel badge */
+.channel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid;
+}
+.channel-badge--table    { background: var(--channel-table-bg);    border-color: var(--channel-table-border);    color: var(--channel-table-text);    }
+.channel-badge--takeaway { background: var(--channel-takeaway-bg); border-color: var(--channel-takeaway-border); color: var(--channel-takeaway-text); }
+.channel-badge--eatin    { background: var(--channel-eatin-bg);    border-color: var(--channel-eatin-border);    color: var(--channel-eatin-text);    }
+.channel-badge--combo    { background: var(--channel-combo-bg);    border-color: var(--channel-combo-border);    color: var(--channel-combo-text);    }
