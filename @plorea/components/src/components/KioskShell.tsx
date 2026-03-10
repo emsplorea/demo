@@ -202,12 +202,12 @@ function DineButton({
         ;(e.currentTarget as HTMLButtonElement).style.background = 'var(--color-primary)'
         ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'
       }}
-      onMouseDown={e =>
-        ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'
-      }
-      onMouseUp={e =>
-        ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'
-      }
+        onMouseDown={e => {
+          ;(e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'
+        }}
+        onMouseUp={e => {
+          ;(e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)'
+        }}
     >
       {icon}
       <span style={{ fontSize: 15, fontWeight: 700 }}>{label}</span>
