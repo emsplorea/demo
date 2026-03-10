@@ -112,7 +112,7 @@ function defAt(c){var a={};(PA[c]||[]).forEach(function(k){a[k]=k==="extras"?{}:
 function pmod(at){var m=0;if(at.size&&ATTRS.size.pm[at.size])m+=ATTRS.size.pm[at.size];if(at.extras)for(var k in at.extras)m+=at.extras[k]*15;return m}
 function uprc(it){return it.p+pmod(it.at||{})}
 function lprc(it){return uprc(it)*it.qty}
-function csub(){var s=0;cart.forEach(function(i){s+=lprc(i)});return s}
+function csub(){var s=0;cart.forEach(function(i){var lp=lprc(i);if(i.lineDisc){lp=i.lineDisc.t==="p"?lp-Math.round(lp*i.lineDisc.v/100):Math.max(0,lp-i.lineDisc.v)}s+=lp});return s}
 function damt(){if(!disc)return 0;return disc.t==="p"?Math.round(csub()*disc.v/100):Math.min(disc.v,csub())}
 function ctot(){return csub()-damt()}
 function ccnt(){var s=0;cart.forEach(function(i){s+=i.qty});return s}
@@ -272,23 +272,71 @@ function showCart(){
     var scr=el("div",{flex:"1",overflowY:"auto",padding:"4px 14px",minHeight:"0"});
     cart.forEach(function(it){
       var lp=lprc(it),atS=fmtAt(it.at||{},it.c);
-      var row=el("div",{display:"flex",alignItems:"flex-start",justifyContent:"space-between",padding:"12px 2px",borderBottom:"1px solid var(--brd)",gap:"4px"});
-      row.innerHTML='<div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><div style="width:40px;height:40px;border-radius:10px;background:var(--sfH);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+it.ic+'</div><div style="min-width:0"><div style="font-size:13px;font-weight:600">'+esc(it.n)+"</div>"+(atS?'<div style="font-size:10px;color:#468DAC;margin-top:1px;font-weight:500">'+esc(atS)+"</div>":"")+"</div></div>";
-      var rc2=el("div",{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"5px",flexShrink:"0"});
-      // Edit button
-      var eb=el("button",{padding:"3px 10px",borderRadius:"8px",border:"1px solid rgba(107,184,218,.25)",background:"var(--sel)",color:"var(--acc)",fontSize:"10px",fontWeight:"700",cursor:"pointer",letterSpacing:".02em"},"Endre");
-      eb.addEventListener("click",function(){ov.remove();editItem(it)});
-      rc2.appendChild(eb);
-      // Stepper
-      var stp=el("div",{display:"flex",alignItems:"center",background:"var(--sfH)",borderRadius:"10px",overflow:"hidden",border:"1px solid var(--brd)"});
-      var dc=el("button",{width:"36px",height:"36px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"\u2212");
-      dc.addEventListener("click",function(){it.qty--;if(it.qty<=0)cart=cart.filter(function(x){return x.ck!==it.ck});if(cart.length)rc();else{ov.remove();rMain()}});
-      var vl=el("span",{width:"22px",textAlign:"center",fontSize:"14px",fontWeight:"700"},String(it.qty));
-      var ic=el("button",{width:"36px",height:"36px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"+");
-      ic.addEventListener("click",function(){it.qty++;rc()});
-      stp.appendChild(dc);stp.appendChild(vl);stp.appendChild(ic);rc2.appendChild(stp);
-      rc2.appendChild(el("div",{fontSize:"14px",fontWeight:"700",color:"var(--acc)",minWidth:"50px",textAlign:"right"},lp+" kr"));
-      row.appendChild(rc2);scr.appendChild(row)
+      var lineDisc=it.lineDisc||null;
+      var lineLp=lp;
+      if(lineDisc){lineLp=lineDisc.t==="p"?lp-Math.round(lp*lineDisc.v/100):Math.max(0,lp-lineDisc.v)}
+
+      // Swipe container
+      var wrap=el("div",{position:"relative",overflow:"hidden",borderBottom:"1px solid var(--brd)"});
+
+      // Left action (swipe right reveals this) - DISCOUNT
+      var actL=el("div",{position:"absolute",left:"0",top:"0",bottom:"0",width:"90px",background:"#2E6B87",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"13px",fontWeight:"700",flexDirection:"column",gap:"2px",zIndex:"1"});
+      actL.innerHTML='<span style="font-size:18px">%</span><span>Rabatt</span>';
+      actL.addEventListener("click",function(){showLineDiscount(it,function(){rc()})});
+      wrap.appendChild(actL);
+
+      // Right action (swipe left reveals this) - REMOVE
+      var actR=el("div",{position:"absolute",right:"0",top:"0",bottom:"0",width:"90px",background:"#DA6B6B",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:"13px",fontWeight:"700",flexDirection:"column",gap:"2px",zIndex:"1"});
+      actR.innerHTML='<span style="font-size:18px">\uD83D\uDDD1</span><span>Fjern</span>';
+      actR.addEventListener("click",function(){cart=cart.filter(function(x){return x.ck!==it.ck});if(cart.length)rc();else{ov.remove();rMain()}});
+      wrap.appendChild(actR);
+
+      // Slidable row content
+      var row=el("div",{display:"flex",alignItems:"flex-start",justifyContent:"space-between",padding:"12px 8px",gap:"4px",background:"var(--sf)",position:"relative",zIndex:"2",transition:"transform .2s cubic-bezier(.16,1,.3,1)",touchAction:"pan-y",cursor:"pointer"});
+
+      // Touch/swipe handling
+      var startX=0,curX=0,swiping=false,moved=false;
+      row.addEventListener("touchstart",function(e){startX=e.touches[0].clientX;curX=0;swiping=true;moved=false;row.style.transition="none"},{passive:true});
+      row.addEventListener("touchmove",function(e){
+        if(!swiping)return;
+        var dx=e.touches[0].clientX-startX;
+        curX=dx;
+        if(Math.abs(dx)>8)moved=true;
+        // Clamp: left max -90, right max +90
+        var tx=Math.max(-90,Math.min(90,dx));
+        row.style.transform="translateX("+tx+"px)";
+      },{passive:true});
+      row.addEventListener("touchend",function(){
+        swiping=false;
+        row.style.transition="transform .2s cubic-bezier(.16,1,.3,1)";
+        if(curX<-50){row.style.transform="translateX(-90px)"}  // Lock open left (remove)
+        else if(curX>50){row.style.transform="translateX(90px)"} // Lock open right (discount)
+        else{row.style.transform="translateX(0)"}
+      });
+
+      // Mouse fallback for demo
+      row.addEventListener("mousedown",function(e){startX=e.clientX;swiping=true;moved=false;row.style.transition="none";e.preventDefault()});
+      row.addEventListener("mousemove",function(e){
+        if(!swiping)return;
+        var dx=e.clientX-startX;curX=dx;
+        if(Math.abs(dx)>8)moved=true;
+        row.style.transform="translateX("+Math.max(-90,Math.min(90,dx))+"px)";
+      });
+      row.addEventListener("mouseup",function(){
+        swiping=false;
+        row.style.transition="transform .2s cubic-bezier(.16,1,.3,1)";
+        if(curX<-50)row.style.transform="translateX(-90px)";
+        else if(curX>50)row.style.transform="translateX(90px)";
+        else{row.style.transform="translateX(0)";if(!moved)showItemOptions(it,ov,rc)}
+      });
+      row.addEventListener("mouseleave",function(){if(swiping){swiping=false;row.style.transition="transform .2s cubic-bezier(.16,1,.3,1)";row.style.transform="translateX(0)"}});
+
+      // Tap handler for touch (no mouse fallback needed, mouseup handles it)
+      row.addEventListener("click",function(e){if(!moved)showItemOptions(it,ov,rc)});
+
+      row.innerHTML='<div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><div style="width:40px;height:40px;border-radius:10px;background:var(--sfH);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+it.ic+'</div><div style="min-width:0"><div style="font-size:13px;font-weight:600">'+esc(it.n)+'</div>'+(atS?'<div style="font-size:10px;color:#468DAC;margin-top:1px;font-weight:500">'+esc(atS)+'</div>':'')+(lineDisc?'<div style="font-size:10px;color:var(--err);margin-top:1px;font-weight:600">\u2212'+lineDisc.l+' rabatt</div>':'')+'</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0"><div style="font-size:12px;color:var(--ts)">'+it.qty+' stk</div>'+(lineDisc?'<div style="font-size:11px;color:var(--ts);text-decoration:line-through">'+lp+' kr</div><div style="font-size:14px;font-weight:700;color:var(--err)">'+lineLp+' kr</div>':'<div style="font-size:14px;font-weight:700;color:var(--acc)">'+lp+' kr</div>')+'</div>';
+
+      wrap.appendChild(row);scr.appendChild(wrap)
     });
     ov.appendChild(scr);
     // Sum
@@ -305,6 +353,93 @@ function showCart(){
     ov.appendChild(ac)
   }
   rc();$.appendChild(ov)
+}
+
+/* === ITEM OPTIONS SHEET === */
+function showItemOptions(it,ov,rcFn){
+  var m=mkSheet();
+  m.innerHTML='<div style="padding:20px 20px 12px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between"><div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:10px;background:var(--sfH);display:flex;align-items:center;justify-content:center;font-size:24px">'+it.ic+'</div><div><div style="font-family:Sora;font-size:15px;font-weight:700;color:var(--tp)">'+esc(it.n)+'</div><div style="font-size:12px;color:var(--ts)">'+it.qty+' stk \u00b7 '+lprc(it)+' kr</div></div></div></div>';
+  var body=el("div",{padding:"14px 20px 20px",display:"flex",flexDirection:"column",gap:"8px"});
+
+  function optBtn(label,icon,color,bg,border,fn){
+    var b=el("button",{display:"flex",alignItems:"center",justifyContent:"center",gap:"8px",width:"100%",padding:"14px",borderRadius:"12px",border:"1.5px solid "+border,background:bg,color:color,fontSize:"14px",fontWeight:"700",cursor:"pointer"});
+    b.textContent=icon+" "+label;
+    b.addEventListener("click",function(){bd.remove();fn()});
+    return b;
+  }
+
+  body.appendChild(optBtn("Endre attributter & antall","\u270F\uFE0F","var(--acc)","var(--sel)","rgba(107,184,218,.25)",function(){ov.remove();editItem(it)}));
+  body.appendChild(optBtn("Linjerabatt","%","#1a8a5e","rgba(107,218,178,.1)","rgba(107,218,178,.25)",function(){showLineDiscount(it,rcFn)}));
+  body.appendChild(optBtn("MVA-type","\uD83C\uDFE6","var(--sec)","var(--sfH)","var(--brd)",function(){showVatType(it,rcFn)}));
+  body.appendChild(optBtn("Ordrelinje-info","\u2139\uFE0F","var(--ts)","var(--sfH)","var(--brd)",function(){showLineInfo(it)}));
+  body.appendChild(optBtn("Fjern vare","\uD83D\uDDD1\uFE0F","var(--err)","rgba(218,107,107,.08)","rgba(218,107,107,.25)",function(){cart=cart.filter(function(x){return x.ck!==it.ck});if(cart.length)rcFn();else{ov.remove();rMain()}}));
+
+  m.appendChild(body);
+  var bd=bdrop(m);
+}
+
+/* === LINE DISCOUNT === */
+function showLineDiscount(it,rcFn){
+  var m=mkModal();
+  m.innerHTML='<div style="text-align:center;margin-bottom:16px"><div style="font-size:28px;margin-bottom:6px">%</div><div style="font-family:Sora;font-size:18px;font-weight:700;color:var(--tp)">Linjerabatt</div><div style="font-size:13px;color:var(--ts);margin-top:4px">'+esc(it.n)+' \u2013 '+lprc(it)+' kr</div></div>';
+
+  // Quick presets
+  var pre=el("div",{display:"flex",flexWrap:"wrap",gap:"8px",justifyContent:"center",marginBottom:"16px"});
+  [10,20,25,50].forEach(function(v){
+    var b=el("button",{padding:"10px 16px",borderRadius:"10px",border:"1.5px solid rgba(107,184,218,.25)",background:"var(--sel)",color:"var(--acc)",fontSize:"14px",fontWeight:"700",cursor:"pointer"},v+"%");
+    b.addEventListener("click",function(){it.lineDisc={t:"p",v:v,l:v+"%"};bd.remove();rcFn()});
+    pre.appendChild(b);
+  });
+  m.appendChild(pre);
+
+  // Custom
+  var custType="p";
+  var tr=el("div",{display:"flex",gap:"8px",marginBottom:"10px"});
+  var tP=el("button",{flex:"1",padding:"10px",borderRadius:"10px",border:"1.5px solid var(--pri)",background:"var(--sel)",color:"var(--acc)",fontSize:"13px",fontWeight:"600",cursor:"pointer"},"%");
+  var tF=el("button",{flex:"1",padding:"10px",borderRadius:"10px",border:"1.5px solid var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"13px",fontWeight:"600",cursor:"pointer"},"kr");
+  tP.addEventListener("click",function(){custType="p";tP.style.borderColor="var(--pri)";tP.style.background="var(--sel)";tP.style.color="var(--acc)";tF.style.borderColor="var(--brd)";tF.style.background="var(--sf)";tF.style.color="var(--ts)"});
+  tF.addEventListener("click",function(){custType="f";tF.style.borderColor="var(--pri)";tF.style.background="var(--sel)";tF.style.color="var(--acc)";tP.style.borderColor="var(--brd)";tP.style.background="var(--sf)";tP.style.color="var(--ts)"});
+  tr.appendChild(tP);tr.appendChild(tF);m.appendChild(tr);
+  var ir=el("div",{display:"flex",gap:"8px"});
+  var inp=document.createElement("input");inp.type="number";inp.placeholder="Verdi";Object.assign(inp.style,{flex:"1",padding:"12px 14px",borderRadius:"10px",border:"1.5px solid var(--brd)",background:"var(--sf)",fontSize:"16px",outline:"none"});
+  ir.appendChild(inp);
+  ir.appendChild(mkBtn("Bruk",{padding:"12px 20px",background:"var(--acc)",color:"#fff",fontSize:"14px"},function(){var v=parseInt(inp.value);if(v>0){it.lineDisc={t:custType,v:v,l:custType==="p"?v+"%":v+" kr"};bd.remove();rcFn()}}));
+  m.appendChild(ir);
+
+  // Remove existing discount
+  if(it.lineDisc){
+    var rm=el("button",{width:"100%",marginTop:"12px",padding:"12px",borderRadius:"10px",border:"1.5px solid rgba(218,107,107,.25)",background:"rgba(218,107,107,.08)",color:"var(--err)",fontSize:"13px",fontWeight:"700",cursor:"pointer",textAlign:"center"},"Fjern rabatt");
+    rm.addEventListener("click",function(){delete it.lineDisc;bd.remove();rcFn()});
+    m.appendChild(rm);
+  }
+
+  var bd=bdrop(m,true);
+}
+
+/* === VAT TYPE === */
+function showVatType(it,rcFn){
+  var m=mkModal();
+  m.innerHTML='<div style="font-family:Sora;font-size:18px;font-weight:700;text-align:center;margin-bottom:16px;color:var(--tp)">MVA-type</div>';
+  var body=el("div",{display:"flex",flexDirection:"column",gap:"8px"});
+  [{l:"25% (standard mat)",v:25},{l:"15% (takeaway)",v:15},{l:"0% (avgiftsfri)",v:0}].forEach(function(vt){
+    var cur=(it.vatRate===undefined?25:it.vatRate)===vt.v;
+    var b=el("button",{display:"flex",alignItems:"center",justifyContent:"space-between",width:"100%",padding:"14px",borderRadius:"12px",border:"1.5px solid "+(cur?"var(--pri)":"var(--brd)"),background:cur?"var(--sel)":"var(--sf)",color:cur?"var(--acc)":"var(--ts)",fontSize:"14px",fontWeight:"600",cursor:"pointer"});
+    b.innerHTML='<span>'+vt.l+'</span>'+(cur?'<span style="font-weight:700">\u2713</span>':'');
+    b.addEventListener("click",function(){it.vatRate=vt.v;bd.remove();rcFn()});
+    body.appendChild(b);
+  });
+  m.appendChild(body);
+  m.appendChild(mkBtn("Lukk",{width:"100%",marginTop:"12px",padding:"14px",border:"1.5px solid var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"13px"},function(){bd.remove()}));
+  var bd=bdrop(m,true);
+}
+
+/* === LINE INFO === */
+function showLineInfo(it){
+  var lp=lprc(it),up=uprc(it),at=fmtAt(it.at||{},it.c);
+  var m=mkModal();
+  m.innerHTML='<div style="font-family:Sora;font-size:18px;font-weight:700;text-align:center;margin-bottom:16px;color:var(--tp)">Ordrelinje-info</div><div style="font-size:13px;color:var(--ts);line-height:1.8"><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Produkt</span><span style="font-weight:600;color:var(--tp)">'+esc(it.n)+'</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Enhetspris</span><span>'+up+' kr</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Antall</span><span>'+it.qty+'</span></div><div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Linjepris</span><span style="font-weight:700">'+lp+' kr</span></div>'+(at?'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Attributter</span><span>'+esc(at)+'</span></div>':'')+(it.lineDisc?'<div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--brd)"><span>Linjerabatt</span><span style="color:var(--err)">-'+it.lineDisc.l+'</span></div>':'')+'<div style="display:flex;justify-content:space-between;padding:4px 0"><span>MVA-sats</span><span>'+(it.vatRate===undefined?25:it.vatRate)+'%</span></div></div>';
+  m.appendChild(mkBtn("Lukk",{width:"100%",marginTop:"16px",padding:"14px",border:"1.5px solid var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"13px"},function(){bd.remove()}));
+  var bd=bdrop(m,true);
 }
 
 /* ═══ EDIT ITEM ═══ */
