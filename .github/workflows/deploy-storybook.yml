@@ -1,53 +1,52 @@
-name: Deploy Storybook
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:   # allow manual trigger from Actions tab
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
-jobs:
-  deploy:
-    name: Deploy to GitHub Pages
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    defaults:
-      run:
-        working-directory: '@plorea/components'
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: '@plorea/components/package-lock.json'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Storybook
-        run: npm run build-storybook
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '@plorea/components/storybook-static'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+(
+echo name: Deploy Storybook
+echo.
+echo on:
+echo   push:
+echo     branches: [main]
+echo   workflow_dispatch:
+echo.
+echo permissions:
+echo   contents: read
+echo   pages: write
+echo   id-token: write
+echo.
+echo concurrency:
+echo   group: pages
+echo   cancel-in-progress: false
+echo.
+echo jobs:
+echo   deploy:
+echo     name: Deploy to GitHub Pages
+echo     runs-on: ubuntu-latest
+echo     environment:
+echo       name: github-pages
+echo       url: ${{ steps.deployment.outputs.page_url }}
+echo.
+echo     steps:
+echo       - uses: actions/checkout@v4
+echo.
+echo       - uses: actions/setup-node@v4
+echo         with:
+echo           node-version: 20
+echo.
+echo       - name: Install dependencies
+echo         run: npm install
+echo         working-directory: "@plorea/components"
+echo.
+echo       - name: Build Storybook
+echo         run: npm run build-storybook
+echo         working-directory: "@plorea/components"
+echo.
+echo       - name: Setup Pages
+echo         uses: actions/configure-pages@v5
+echo.
+echo       - name: Upload Pages artifact
+echo         uses: actions/upload-pages-artifact@v3
+echo         with:
+echo           path: "@plorea/components/storybook-static"
+echo.
+echo       - name: Deploy to GitHub Pages
+echo         id: deployment
+echo         uses: actions/deploy-pages@v4
+) > .github\workflows\deploy-storybook.yml
