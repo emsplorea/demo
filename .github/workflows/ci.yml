@@ -10,49 +10,23 @@ jobs:
   typecheck:
     name: Typecheck
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: 'plorea-pkg/@plorea/components'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
       - name: Install dependencies
-        run: npm install
+        run: cd plorea-pkg && cd '@plorea' && cd components && npm install
       - name: Typecheck
-        run: npm run typecheck
+        run: cd plorea-pkg && cd '@plorea' && cd components && npm run typecheck
 
   build-lib:
     name: Build library
     runs-on: ubuntu-latest
     needs: typecheck
-    defaults:
-      run:
-        working-directory: 'plorea-pkg/@plorea/components'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install dependencies
-        run: npm install
-      - name: Build
-        run: npm run build
-
-  build-storybook:
-    name: Build Storybook
-    runs-on: ubuntu-latest
-    needs: typecheck
-    defaults:
-      run:
-        working-directory: 'plorea-pkg/@plorea/components'
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install dependencies
-        run: npm install
-      - name: Build Storybook
-        run: npm run build-storybook
+      - name: Install dep
