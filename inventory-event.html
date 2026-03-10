@@ -4,48 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Plorea Inventory v2 - Demo System</title>
-    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Highline Brushed Metal Palette */
-            --bg-main: #0d0f14;
-            --bg-card: #161920;
-            --bg-card-hover: #1c1f28;
-            --border: #2a2d36;
-            --border-accent: #3a3d46;
+            /* Plorea Blue Palette */
+            --blue-50: #EBF6FB;
+            --blue-100: #C7E7F3;
+            --blue-200: #99D2E8;
+            --blue-default: #6BB8DA;
+            --blue-600: #4FA3C8;
+            --blue-700: #468DAC;
+            --blue-800: #2E6B87;
+            --blue-900: #1D4A5F;
             
-            --text-primary: #e8e9ed;
-            --text-secondary: #a8aab5;
-            --text-muted: #6b6d78;
+            /* Plorea Gray Palette */
+            --gray-50: #F8F9FA;
+            --gray-100: #F1F3F5;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-400: #CED4DA;
+            --gray-500: #ADB5BD;
+            --gray-600: #868E96;
+            --gray-700: #495057;
+            --gray-800: #343A40;
+            --gray-900: #212529;
             
-            /* Brushed Brass/Gold - Primary accent */
-            --accent-primary: #d4af37;
-            --accent-primary-dark: #b8952e;
-            --accent-primary-light: #e8c969;
+            /* Semantic Colors */
+            --success: #6BDAB2;
+            --warning: #DADA6B;
+            --danger: #DA6B6B;
             
-            /* Brushed Copper - Secondary accent */
-            --accent-secondary: #b87333;
-            --accent-copper: #c77d4a;
+            /* Base colors - Light mode */
+            --bg-main: var(--gray-50);
+            --bg-card: #FFFFFF;
+            --bg-hover: var(--gray-100);
+            --border: var(--gray-300);
+            --border-light: var(--gray-200);
             
-            /* Brushed Steel highlights */
-            --steel-light: #c9cdd4;
-            --steel-dark: #8a8e96;
+            --text-primary: var(--gray-900);
+            --text-secondary: var(--gray-700);
+            --text-muted: var(--gray-600);
             
-            /* Status colors with metallic tint */
-            --success: #7fbf7f;
-            --warning: #e8a845;
-            --danger: #d97066;
-            --critical: #c95b51;
+            /* Accent colors */
+            --accent-primary: var(--blue-default);
+            --accent-secondary: var(--blue-700);
+            --accent-dark: var(--blue-800);
             
-            --status-open: #9b87d4;
-            --status-active: #7fbf7f;
-            --status-closing: #e8a845;
-            --status-closed: #6b6d78;
+            /* Status colors */
+            --status-open: var(--blue-default);
+            --status-active: var(--success);
+            --status-closing: var(--warning);
+            --status-closed: var(--gray-600);
             
-            --health-ok: #7fbf7f;
-            --health-low: #e8a845;
-            --health-critical: #d97066;
-            --health-empty: #6b6d78;
+            --health-ok: var(--success);
+            --health-low: var(--warning);
+            --health-critical: var(--danger);
+            --health-empty: var(--gray-500);
+            
+            /* Elevation system - Plorea shadows */
+            --elevation-0: none;
+            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+            --elevation-2: 0 4px 6px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.06);
+            --elevation-3: 0 10px 15px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.06);
         }
         
         * {
@@ -55,54 +75,11 @@
         }
         
         body {
-            font-family: 'Archivo', sans-serif;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-main);
             color: var(--text-primary);
             line-height: 1.6;
             overflow-x: hidden;
-        }
-        
-        /* Premium gradient overlay with metallic shimmer */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: 
-                radial-gradient(circle at 20% 30%, rgba(212, 175, 55, 0.04) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(184, 115, 51, 0.04) 0%, transparent 50%),
-                radial-gradient(circle at 50% 50%, rgba(201, 205, 212, 0.02) 0%, transparent 70%);
-            animation: gradientShift 20s ease infinite;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        /* Subtle metallic grain texture */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                repeating-linear-gradient(
-                    0deg,
-                    transparent,
-                    transparent 2px,
-                    rgba(212, 175, 55, 0.01) 2px,
-                    rgba(212, 175, 55, 0.01) 4px
-                );
-            pointer-events: none;
-            z-index: 0;
-            opacity: 0.3;
-        }
-        
-        @keyframes gradientShift {
-            0%, 100% { transform: translate(0, 0) rotate(0deg); }
-            50% { transform: translate(-3%, -3%) rotate(3deg); }
         }
         
         .container {
@@ -128,30 +105,19 @@
         }
         
         .logo {
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Sora', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, var(--accent-primary), var(--accent-copper), var(--accent-primary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
             letter-spacing: -0.02em;
             position: relative;
-            text-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
         
-        .logo::after {
-            content: 'INVENTORY v2';
-            position: absolute;
-            left: 0;
-            top: 0;
-            background: linear-gradient(135deg, var(--steel-light), var(--steel-dark));
+        .logo span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--blue-700));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            opacity: 0.1;
-            z-index: -1;
-            transform: translate(2px, 2px);
         }
         
         .system-status {
@@ -187,40 +153,24 @@
             border: 1px solid var(--border);
             color: var(--text-secondary);
             cursor: pointer;
-            font-family: 'Archivo', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.875rem;
             font-weight: 600;
             border-radius: 8px;
             transition: all 0.2s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .nav-tab::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(74, 158, 255, 0.1), transparent);
-            transition: left 0.3s ease;
-        }
-        
-        .nav-tab:hover::before {
-            left: 100%;
         }
         
         .nav-tab:hover {
             border-color: var(--accent-primary);
+            background: var(--bg-hover);
             color: var(--text-primary);
         }
         
         .nav-tab.active {
-            background: linear-gradient(135deg, rgba(212, 175, 55, 0.15), rgba(184, 115, 51, 0.15));
+            background: var(--accent-primary);
             border-color: var(--accent-primary);
-            color: var(--accent-primary);
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+            color: #FFFFFF;
+            box-shadow: var(--elevation-1);
         }
         
         /* Page sections */
@@ -490,11 +440,11 @@
         .form-input {
             width: 100%;
             padding: 0.75rem;
-            background: var(--bg-main);
+            background: #FFFFFF;
             border: 1px solid var(--border);
             border-radius: 6px;
             color: var(--text-primary);
-            font-family: 'Archivo', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             font-size: 0.875rem;
             transition: all 0.2s ease;
         }
@@ -502,7 +452,7 @@
         .form-input:focus {
             outline: none;
             border-color: var(--accent-primary);
-            box-shadow: 0 0 0 3px rgba(74, 158, 255, 0.1);
+            box-shadow: 0 0 0 3px rgba(107, 184, 218, 0.15);
         }
         
         .form-helper {
@@ -703,7 +653,7 @@
             max-height: 90vh;
             overflow: hidden;
             position: relative;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            box-shadow: var(--elevation-3);
             animation: modalSlideIn 0.3s ease;
         }
         
@@ -725,7 +675,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-copper), var(--accent-primary));
+            background: linear-gradient(90deg, var(--accent-primary), var(--blue-700), var(--accent-primary));
         }
         
         .modal-header {
@@ -854,6 +804,7 @@
             padding: 1.5rem;
             position: relative;
             overflow: hidden;
+            box-shadow: var(--elevation-1);
         }
         
         .kiosk-card::before {
@@ -863,7 +814,7 @@
             left: 0;
             right: 0;
             height: 3px;
-            background: linear-gradient(90deg, var(--accent-primary), var(--accent-copper), var(--accent-primary));
+            background: linear-gradient(90deg, var(--accent-primary), var(--blue-700), var(--accent-primary));
             border-radius: 12px 12px 0 0;
         }
         
@@ -931,28 +882,28 @@
         
         @keyframes pulseLow {
             0%, 100% {
-                box-shadow: 0 0 0 0 rgba(232, 168, 69, 0.4);
+                box-shadow: 0 0 0 0 rgba(218, 218, 107, 0.4);
             }
             50% {
-                box-shadow: 0 0 20px 5px rgba(232, 168, 69, 0.2);
+                box-shadow: 0 0 12px 3px rgba(218, 218, 107, 0.2);
             }
         }
         
         @keyframes pulseCritical {
             0%, 100% {
-                box-shadow: 0 0 0 0 rgba(217, 112, 102, 0.6);
+                box-shadow: 0 0 0 0 rgba(218, 107, 107, 0.6);
             }
             50% {
-                box-shadow: 0 0 30px 10px rgba(217, 112, 102, 0.3);
+                box-shadow: 0 0 16px 4px rgba(218, 107, 107, 0.3);
             }
         }
         
         @keyframes pulseDegraded {
             0%, 100% {
-                box-shadow: 0 0 0 0 rgba(155, 135, 212, 0.4);
+                box-shadow: 0 0 0 0 rgba(107, 184, 218, 0.4);
             }
             50% {
-                box-shadow: 0 0 20px 5px rgba(155, 135, 212, 0.2);
+                box-shadow: 0 0 12px 3px rgba(107, 184, 218, 0.2);
             }
         }
         
@@ -1113,9 +1064,15 @@
         
         .stat-card {
             padding: 1.5rem;
-            background: var(--bg-main);
+            background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 8px;
+            box-shadow: var(--elevation-1);
+            transition: all 0.2s ease;
+        }
+        
+        .stat-card:hover {
+            box-shadow: var(--elevation-2);
         }
         
         .stat-label {
@@ -1350,7 +1307,7 @@
     <div class="container">
         <div class="header">
             <div class="header-top">
-                <div class="logo">PLOREA // INVENTORY v2</div>
+                <div class="logo">PLOREA <span>INVENTORY v2</span></div>
                 <div class="system-status">
                     <div class="status-dot"></div>
                     <span>SYSTEM ONLINE</span>
