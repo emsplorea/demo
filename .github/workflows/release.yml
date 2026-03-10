@@ -1,0 +1,56 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # triggers on v2.8.0, v2.9.0, etc.
+
+permissions:
+  contents: write    # needed to create GitHub Release
+  packages: write    # needed to publish to GitHub Packages
+
+jobs:
+  release:
+    name: Publish to GitHub Packages
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: '@plorea/components'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@plorea'
+          cache: npm
+          cache-dependency-path: '@plorea/components/package-lock.json'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build library
+        run: npm run build
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Publish to GitHub Packages
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            '@plorea/components/dist/index.esm.js'
+            '@plorea/components/dist/index.js'
+            '@plorea/components/dist/index.d.ts'
+            '@plorea/components/tokens.css'
