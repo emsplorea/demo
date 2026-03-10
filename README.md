@@ -1,142 +1,131 @@
-# Plorea Design System — v2.8
+# Plorea Design System — v3.3
 
-**March 2026**
+**Storybook:** https://emsplorea.github.io/demo
 
-This package contains two projects:
-
-```
-plorea-design-system/
-├── @plorea/components/    ← Component library (build + publish this)
-└── plorea-starter/        ← Starter app (run this to see everything working)
-```
+**For deg som skal ta dette i bruk**
 
 ---
 
-## Quick start — see it running in 2 minutes
+## Start her
+
+### Alternativ A — Null installasjon
+
+Åpne `demo.html` i nettleseren. Ingen npm, ingen build. Alle tokens, alle
+komponent-eksempler, live dark mode og interaktive demos.
+
+### Alternativ B — Kjør starter-appen (anbefalt)
 
 ```bash
-# 1. Install deps for the component library
-cd @plorea/components
-npm install
-
-# 2. Open Storybook — all 5 canonical components with live controls
-npm run storybook
-# → http://localhost:6006
-
-# 3. Or run the starter app instead
-cd ../plorea-starter
-npm install
-npm run dev
+cd @plorea/components && npm install
+cd ../plorea-starter  && npm install && npm run dev
 # → http://localhost:5173
 ```
 
+Starter-appen peker på `@plorea/components/src` via Vite-alias — ingen
+publisering nødvendig. Endre en komponent og se hot reload.
+
+### Alternativ C — Storybook (live)
+
+**https://emsplorea.github.io/demo** ← ingen installasjon nødvendig
+
+```bash
+cd @plorea/components && npm install && npm run storybook
+# → http://localhost:6006
+```
+
 ---
 
-## @plorea/components
+## Hva er dette?
 
-The canonical component library.
+15 kanoniske komponenter for Plorea-plattformen i to lag:
 
-### Commands
+| Lag | Komponenter | Brukes på |
+|-----|------------|-----------|
+| **Virtuelle surfaces** | AppShell, OrderTable, OrderCard, CartSummary, PaymentSelector, ProductCard, ProductModal, CategoryNav, ComboSuggestion, KioskShell, CheckoutFlow | Dashboard, KDS, QR, kiosk, web |
+| **POS-terminal** | PinPad, PosCart, PosPaymentFlow, PosParkFlow, PosDiscountFlow, PosDrawer, PosZReport | Kun kasseterminal |
 
-| Command | What it does |
-|---------|-------------|
-| `npm run storybook` | Start Storybook dev server on :6006 |
-| `npm run build` | Build distributable to `dist/` |
-| `npm run build:watch` | Watch mode build |
-| `npm run typecheck` | Type-check without emitting |
-| `npm run build-storybook` | Build static Storybook to `storybook-static/` |
+---
 
-### What's included
+## Struktur
 
 ```
-@plorea/components/
-├── src/
-│   ├── components/
-│   │   ├── AppShell.tsx              + AppShell.stories.tsx
-│   │   ├── OrderTable.tsx            + OrderTable.stories.tsx
-│   │   ├── OrderCard.tsx             + OrderCard.stories.tsx
-│   │   ├── CartSummary.tsx           + CartSummary.stories.tsx
-│   │   └── PaymentSelector.tsx       + PaymentSelector.stories.tsx
-│   ├── hooks/
-│   │   ├── useDarkMode.ts
-│   │   └── useDensity.ts
-│   ├── index.ts                      ← barrel exports
-│   └── Introduction.mdx              ← Storybook intro page
-├── .storybook/
-│   ├── main.ts
-│   ├── preview.tsx                   ← dark mode toolbar, token injection
-│   └── previewStyles.ts
-├── tokens.css                        ← single source of truth for all tokens
-├── tailwind.config.js                ← shared Tailwind config
-├── vite.lib.config.ts                ← library build config
-├── tsconfig.json
-└── tsconfig.storybook.json
+plorea-design-system/
+├── demo.html                    ← START HER — åpnes direkte i nettleser
+├── @plorea/components/
+│   ├── src/
+│   │   ├── components/          ← 15 komponenter + stories
+│   │   ├── tokens/              ← TypeScript-tokens (colors, spacing, osv.)
+│   │   ├── patterns/            ← UX-mønstre dokumentert
+│   │   ├── docs/ux-rules.md     ← De 10 UX-reglene
+│   │   └── component-contract.ts
+│   ├── tokens.css               ← Importer EN gang i app-root
+│   └── tailwind.config.js
+├── plorea-starter/              ← Kjørbar demo-app
+└── .github/workflows/           ← CI + release + GitHub Pages
 ```
 
-### Publishing to npm
+---
 
-After `npm run build`:
+## Grunnleggende bruk
 
-```bash
-# Verify the dist output looks correct
-ls dist/
-
-# Publish (requires npm account with @plorea scope access)
-npm publish --access restricted
-```
-
-Consumers install with:
-```bash
-npm install @plorea/components
-```
-
-And import tokens once:
-```ts
-// main.tsx
+```tsx
+// main.tsx — importer tokens én gang
 import '@plorea/components/tokens.css'
+
+// Bruk komponenter
+import { OrderTable, CartSummary, PinPad } from '@plorea/components'
+
+// Alle priser i øre (minor units)
+<CartSummary lines={[{ id:'1', name:'Burger', unitPrice: 13900, quantity: 1 }]} />
+//                                                               ↑ 139 kr
 ```
 
----
+### Tokens — alltid, aldri hardkodede farger
 
-## plorea-starter
-
-A minimal working app that demonstrates all 5 canonical components with realistic data.
-
-Three views accessible from the sidebar:
-- **Order Table** — OrderTable with density toggle, row selection, row actions
-- **KDS View** — OrderCard grid, cards advance through state on action
-- **Checkout** — CartSummary + PaymentSelector wired together end-to-end
-
-Dark mode toggle in the topbar. Uses `useDarkMode` hook.
-
----
-
-## Token architecture
-
-```
-tokens.css (:root + .dark)     ← single source of truth
-       ↓
-tailwind.config.js             ← references tokens via var() with hex fallbacks
-       ↓
-Components                     ← consume var(--color-*) only, never hardcoded hex
+```tsx
+style={{ color: 'var(--color-text-primary)' }}   // ✅
+style={{ color: '#1A1A1A' }}                      // ❌ bryter dark mode
 ```
 
-Dark mode: add `.dark` class to `<html>`.
+### Dark mode
+
 ```ts
-document.documentElement.classList.toggle('dark')
+import { useDarkMode } from '@plorea/components'
+const { dark, toggle } = useDarkMode()
 ```
 
 ---
 
-## Design rules
+## Kommandoer
 
-| Rule | Detail |
-|------|--------|
-| Tokens only | All colours via `var(--color-*)` — never hardcoded hex in components |
-| Touch targets | Min 44×44px, 48px preferred for kiosk/POS |
-| Qty controls | `[-] n [+]` stepper — never a text input |
-| Payment | CTA disabled until method selected — never speculative |
-| Labels | Outcome-led: "Send to kitchen" not "Submit" |
-| Density | Row height always follows `--row-h` token |
+```bash
+# @plorea/components/
+npm run storybook       # Storybook :6006
+npm run build           # Bygg til dist/
+npm run typecheck
 
-Full documentation: see `plorea-design-guidelines.html` (in parent project).
+# plorea-starter/
+npm run dev             # Demo-app :5173
+```
+
+---
+
+## Dokumentasjon
+
+| Spørsmål | Fil |
+|----------|-----|
+| Alle fargetokens | `demo.html` eller `src/tokens/colors.ts` |
+| Props for komponent | Storybook eller `.tsx`-filen |
+| Ordre-state-maskin | `src/patterns/order-flow.md` |
+| Betalingsflyt | `src/patterns/payment-flow.md` |
+| UX-regler | `src/docs/ux-rules.md` |
+| Komponent-kontrakt | `src/component-contract.ts` |
+
+---
+
+## Repo
+
+GitHub: https://github.com/emsplorea/demo  
+Storybook (GitHub Pages): https://emsplorea.github.io/demo
+
+> GitHub Pages aktiveres i Settings → Pages → Source: **GitHub Actions**
