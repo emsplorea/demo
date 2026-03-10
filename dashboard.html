@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Amendo Group Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * {
@@ -13,32 +13,106 @@
             box-sizing: border-box;
         }
 
-        :root {
-            --bg-primary: #0a0e17;
-            --bg-secondary: #131722;
-            --bg-tertiary: #1a1f2e;
-            --accent-blue: #3b82f6;
-            --accent-cyan: #06b6d4;
-            --accent-green: #10b981;
-            --accent-red: #ef4444;
-            --text-primary: #f8fafc;
-            --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-            --border: #2d3548;
-            --chart-1: #3b82f6;
-            --chart-2: #8b5cf6;
-            --chart-3: #ec4899;
-            --chart-4: #f59e0b;
-            --chart-5: #10b981;
+        /* ─── Plorea Design System — Theme Tokens ─── */
+
+        /* DARK — warm near-black with purple undertone (default) */
+        :root, [data-theme="dark"] {
+            --bg-primary:    #16151A;
+            --bg-secondary:  #1E1D24;
+            --bg-tertiary:   #26242E;
+            --bg-overlay:    #2E2C38;
+            --accent-blue:   #6BB8DA;
+            --accent-cyan:   #7EC8E3;
+            --accent-green:  #4DB896;
+            --accent-red:    #D45858;
+            --accent-yellow: #C4C44A;
+            --text-primary:  #F0EEF5;
+            --text-secondary:#9B98A8;
+            --text-muted:    #5C5970;
+            --border:        #2E2C38;
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.4);
+            --shadow-md:     0 4px 12px rgba(0,0,0,.5);
+            --shadow-lg:     0 8px 24px rgba(0,0,0,.6);
+            --chart-1:       #6BB8DA;
+            --chart-2:       #9B98A8;
+            --chart-3:       #4DB896;
+            --chart-4:       #C4C44A;
+            --chart-5:       #D45858;
+            --chart-tooltip-bg:    #1E1D24;
+            --chart-tooltip-border:#2E2C38;
+            --chart-grid:    rgba(255,255,255,.06);
+            --chart-tick:    #5C5970;
+            --chart-legend:  #9B98A8;
+        }
+
+        /* DIM DARK — elevated warm purple, easier on tired eyes */
+        [data-theme="dim"] {
+            --bg-primary:    #2A2838;
+            --bg-secondary:  #34314A;
+            --bg-tertiary:   #3E3A58;
+            --bg-overlay:    #47426A;
+            --accent-blue:   #6BB8DA;
+            --accent-cyan:   #7EC8E3;
+            --accent-green:  #4DB896;
+            --accent-red:    #D45858;
+            --accent-yellow: #C4C44A;
+            --text-primary:  #EEEBf8;
+            --text-secondary:#B8B4CC;
+            --text-muted:    #7A7592;
+            --border:        #47426A;
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.35);
+            --shadow-md:     0 4px 12px rgba(0,0,0,.45);
+            --shadow-lg:     0 8px 24px rgba(0,0,0,.55);
+            --chart-1:       #6BB8DA;
+            --chart-2:       #B8B4CC;
+            --chart-3:       #4DB896;
+            --chart-4:       #C4C44A;
+            --chart-5:       #D45858;
+            --chart-tooltip-bg:    #34314A;
+            --chart-tooltip-border:#47426A;
+            --chart-grid:    rgba(255,255,255,.07);
+            --chart-tick:    #7A7592;
+            --chart-legend:  #B8B4CC;
+        }
+
+        /* LIGHT — clean operational, Plorea light palette */
+        [data-theme="light"] {
+            --bg-primary:    #F1F5F9;
+            --bg-secondary:  #FFFFFF;
+            --bg-tertiary:   #F1F5F9;
+            --bg-overlay:    #E9E9E9;
+            --accent-blue:   #2E6B87;
+            --accent-cyan:   #4FA3C8;
+            --accent-green:  #1A7A5E;
+            --accent-red:    #C44040;
+            --accent-yellow: #8A8A10;
+            --text-primary:  #1A1A1A;
+            --text-secondary:#666666;
+            --text-muted:    #BBBDC4;
+            --border:        #E3E3E4;
+            --shadow-sm:     0 1px 3px rgba(0,0,0,.06);
+            --shadow-md:     0 4px 12px rgba(0,0,0,.08);
+            --shadow-lg:     0 8px 24px rgba(0,0,0,.1);
+            --chart-1:       #6BB8DA;
+            --chart-2:       #468DAC;
+            --chart-3:       #6BDAB2;
+            --chart-4:       #DADA6B;
+            --chart-5:       #DA6B6B;
+            --chart-tooltip-bg:    #FFFFFF;
+            --chart-tooltip-border:#E3E3E4;
+            --chart-grid:    rgba(0,0,0,.06);
+            --chart-tick:    #999;
+            --chart-legend:  #666;
         }
 
         body {
-            font-family: 'DM Sans', sans-serif;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             background: var(--bg-primary);
             color: var(--text-primary);
             line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
+            transition: background 0.2s ease, color 0.2s ease;
         }
 
         .app-header {
@@ -60,17 +134,56 @@
         }
 
         .logo {
-            font-family: 'Space Mono', monospace;
+            font-family: 'Sora', sans-serif;
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--accent-cyan);
-            letter-spacing: -0.02em;
+            color: var(--accent-blue);
+            letter-spacing: -0.025em;
         }
 
         .header-actions {
             display: flex;
-            gap: 1rem;
+            gap: 0.75rem;
             align-items: center;
+        }
+
+        /* Theme switcher */
+        .theme-switcher {
+            display: flex;
+            gap: 2px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 3px;
+        }
+
+        .theme-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 5px 11px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            transition: background 0.14s ease, color 0.14s ease;
+            white-space: nowrap;
+        }
+
+        .theme-btn:hover {
+            color: var(--text-primary);
+            background: var(--bg-overlay);
+        }
+
+        .theme-btn.active {
+            background: var(--accent-blue);
+            color: #fff;
+        }
+
+        [data-theme="light"] .theme-btn.active {
+            color: #fff;
         }
 
         .btn-icon {
@@ -602,13 +715,14 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+            background: var(--accent-blue);
             color: white;
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(107, 184, 218, 0.3);
+            filter: brightness(1.08);
         }
 
         .btn-secondary {
@@ -658,8 +772,8 @@
 
         .kpi-card:hover {
             border-color: var(--accent-blue);
-            transform: translateY(-5px);
-            box-shadow: 0 15px 30px rgba(59, 130, 246, 0.15);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
         }
 
         .kpi-card::before {
@@ -668,10 +782,11 @@
             top: 0;
             left: 0;
             right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
+            height: 3px;
+            background: var(--accent-blue);
             opacity: 0;
-            transition: opacity 0.3s;
+            transition: opacity 0.2s;
+            border-radius: 1rem 1rem 0 0;
         }
 
         .kpi-card:hover::before {
@@ -758,9 +873,11 @@
         }
 
         .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
+            font-family: 'Sora', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
             color: var(--text-primary);
+            letter-spacing: -0.015em;
         }
 
         .card-actions {
@@ -944,6 +1061,11 @@
         <div class="header-content">
             <div class="logo">AMENDO</div>
             <div class="header-actions">
+                <div class="theme-switcher" role="group" aria-label="Velg tema">
+                    <button class="theme-btn" data-theme-target="light" title="Lyst tema">☀ Lys</button>
+                    <button class="theme-btn active" data-theme-target="dark" title="Mørkt tema">◐ Mørk</button>
+                    <button class="theme-btn" data-theme-target="dim" title="Dempet mørkt tema">⬛ Dim</button>
+                </div>
                 <button class="btn-icon" id="openLayoutModal" title="Tilpass layout">⚙</button>
                 <button class="btn-icon" title="Hjelp">?</button>
             </div>
@@ -1714,10 +1836,10 @@
                 { name: 'Santi E.Motion Drakt', count: 15 }
             ],
             categories: [
-                { name: 'Regulatorer', value: 35, color: '#3b82f6' },
-                { name: 'Drakt', value: 25, color: '#ec4899' },
-                { name: 'Sportsklær', value: 20, color: '#f59e0b' },
-                { name: 'Mobilbehør', value: 20, color: '#10b981' }
+                { name: 'Regulatorer', value: 35, color: '#6BB8DA' },
+                { name: 'Drakt', value: 25, color: '#4DB896' },
+                { name: 'Sportsklær', value: 20, color: '#C4C44A' },
+                { name: 'Mobilbehør', value: 20, color: '#9B98A8' }
             ],
             channels: [
                 { name: 'POS – Betjent', current: 300000, previous: 250000 },
@@ -1738,6 +1860,18 @@
         let revenueChart, categoryChart, channelChart, paymentChart;
 
         function initCharts() {
+            // Read current theme tokens
+            const cs = getComputedStyle(document.documentElement);
+            const cv = (v) => cs.getPropertyValue(v).trim();
+            const legend  = cv('--chart-legend')  || cv('--text-secondary');
+            const tick    = cv('--chart-tick')     || cv('--text-muted');
+            const grid    = cv('--chart-grid');
+            const tipBg   = cv('--chart-tooltip-bg');
+            const tipBdr  = cv('--chart-tooltip-border');
+            const c1 = cv('--chart-1'), c2 = cv('--chart-2'), c3 = cv('--chart-3');
+            const c4 = cv('--chart-4'), c5 = cv('--chart-5');
+            const surface = cv('--bg-secondary');
+
             const revenueCtx = document.getElementById('revenueChart');
             if (revenueCtx) {
                 revenueChart = new Chart(revenueCtx, {
@@ -1747,22 +1881,22 @@
                         datasets: [{
                             label: 'TeknoShop – Stavanger',
                             data: [94500, 98200, 102300, 106500, 94500, 110200, 112000],
-                            borderColor: '#3b82f6',
-                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderColor: c1,
+                            backgroundColor: c1 + '28',
                             tension: 0.4,
                             fill: true
                         }, {
                             label: 'Amendo Sport – Oslo',
                             data: [113400, 108900, 115200, 119800, 113400, 121500, 124000],
-                            borderColor: '#8b5cf6',
-                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderColor: c2,
+                            backgroundColor: c2 + '28',
                             tension: 0.4,
                             fill: true
                         }, {
                             label: 'Bare Dykk – Småvika',
                             data: [132300, 128700, 135600, 140200, 132300, 143800, 146500],
-                            borderColor: '#ec4899',
-                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            borderColor: c3,
+                            backgroundColor: c3 + '28',
                             tension: 0.4,
                             fill: true
                         }]
@@ -1772,25 +1906,25 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: { color: '#94a3b8' }
+                                labels: { color: legend }
                             },
                             tooltip: {
-                                backgroundColor: '#131722',
-                                borderColor: '#2d3548',
+                                backgroundColor: tipBg,
+                                borderColor: tipBdr,
                                 borderWidth: 1,
-                                titleColor: '#f8fafc',
-                                bodyColor: '#94a3b8'
+                                titleColor: cv('--text-primary'),
+                                bodyColor: legend
                             }
                         },
                         scales: {
                             y: {
                                 beginAtZero: true,
-                                ticks: { color: '#64748b' },
-                                grid: { color: '#2d3548' }
+                                ticks: { color: tick },
+                                grid: { color: grid }
                             },
                             x: {
-                                ticks: { color: '#64748b' },
-                                grid: { color: '#2d3548' }
+                                ticks: { color: tick },
+                                grid: { color: grid }
                             }
                         }
                     }
@@ -1807,7 +1941,7 @@
                             data: mockData.categories.map(c => c.value),
                             backgroundColor: mockData.categories.map(c => c.color),
                             borderWidth: 2,
-                            borderColor: '#131722'
+                            borderColor: surface
                         }]
                     },
                     options: {
@@ -1816,11 +1950,11 @@
                         plugins: {
                             legend: {
                                 position: 'bottom',
-                                labels: { color: '#94a3b8', padding: 15 }
+                                labels: { color: legend, padding: 15 }
                             },
                             tooltip: {
-                                backgroundColor: '#131722',
-                                borderColor: '#2d3548',
+                                backgroundColor: tipBg,
+                                borderColor: tipBdr,
                                 borderWidth: 1,
                                 callbacks: {
                                     label: (context) => {
@@ -1844,11 +1978,11 @@
                         datasets: [{
                             label: 'Denne perioden',
                             data: mockData.channels.map(c => c.current),
-                            backgroundColor: '#3b82f6'
+                            backgroundColor: c1
                         }, {
                             label: 'Samme periode i fjor',
                             data: mockData.channels.map(c => c.previous),
-                            backgroundColor: '#ef4444'
+                            backgroundColor: c5
                         }]
                     },
                     options: {
@@ -1857,21 +1991,21 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: { color: '#94a3b8' }
+                                labels: { color: legend }
                             },
                             tooltip: {
-                                backgroundColor: '#131722',
-                                borderColor: '#2d3548',
+                                backgroundColor: tipBg,
+                                borderColor: tipBdr,
                                 borderWidth: 1
                             }
                         },
                         scales: {
                             x: {
-                                ticks: { color: '#64748b' },
-                                grid: { color: '#2d3548' }
+                                ticks: { color: tick },
+                                grid: { color: grid }
                             },
                             y: {
-                                ticks: { color: '#64748b' },
+                                ticks: { color: tick },
                                 grid: { display: false }
                             }
                         }
@@ -1888,11 +2022,11 @@
                         datasets: [{
                             label: 'Denne perioden',
                             data: mockData.payments.map(p => p.current),
-                            backgroundColor: '#3b82f6'
+                            backgroundColor: c1
                         }, {
                             label: 'Samme periode i fjor',
                             data: mockData.payments.map(p => p.previous),
-                            backgroundColor: '#ef4444'
+                            backgroundColor: c5
                         }]
                     },
                     options: {
@@ -1901,21 +2035,21 @@
                         maintainAspectRatio: false,
                         plugins: {
                             legend: {
-                                labels: { color: '#94a3b8' }
+                                labels: { color: legend }
                             },
                             tooltip: {
-                                backgroundColor: '#131722',
-                                borderColor: '#2d3548',
+                                backgroundColor: tipBg,
+                                borderColor: tipBdr,
                                 borderWidth: 1
                             }
                         },
                         scales: {
                             x: {
-                                ticks: { color: '#64748b' },
-                                grid: { color: '#2d3548' }
+                                ticks: { color: tick },
+                                grid: { color: grid }
                             },
                             y: {
-                                ticks: { color: '#64748b' },
+                                ticks: { color: tick },
                                 grid: { display: false }
                             }
                         }
@@ -1989,7 +2123,98 @@
             layoutModal.init();
             initCharts();
             populateTables();
+
+            // Theme switcher
+            const htmlEl = document.documentElement;
+            const themeBtns = document.querySelectorAll('.theme-btn');
+
+            function applyTheme(theme) {
+                htmlEl.setAttribute('data-theme', theme);
+                themeBtns.forEach(b => b.classList.toggle('active', b.dataset.themeTarget === theme));
+                updateChartColors();
+            }
+
+            themeBtns.forEach(btn => {
+                btn.addEventListener('click', () => applyTheme(btn.dataset.themeTarget));
+            });
+
+            // Respect OS preference on first load
+            const saved = localStorage.getItem('amendo-theme');
+            const osDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            applyTheme(saved || (osDark ? 'dark' : 'light'));
         });
+
+        function getCssVar(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        function updateChartColors() {
+            const legend  = getCssVar('--chart-legend')  || getCssVar('--text-secondary');
+            const tick    = getCssVar('--chart-tick')     || getCssVar('--text-muted');
+            const grid    = getCssVar('--chart-grid');
+            const tipBg   = getCssVar('--chart-tooltip-bg')     || getCssVar('--bg-secondary');
+            const tipBdr  = getCssVar('--chart-tooltip-border') || getCssVar('--border');
+            const c1      = getCssVar('--chart-1');
+            const c2      = getCssVar('--chart-2');
+            const c3      = getCssVar('--chart-3');
+            const c4      = getCssVar('--chart-4');
+            const c5      = getCssVar('--chart-5');
+            const surface = getCssVar('--bg-secondary');
+
+            [revenueChart, categoryChart, channelChart, paymentChart].forEach(chart => {
+                if (!chart) return;
+                chart.options.plugins.legend.labels.color = legend;
+                chart.options.plugins.tooltip.backgroundColor = tipBg;
+                chart.options.plugins.tooltip.borderColor = tipBdr;
+                if (chart.options.plugins.tooltip.titleColor !== undefined)
+                    chart.options.plugins.tooltip.titleColor = getCssVar('--text-primary');
+                if (chart.options.plugins.tooltip.bodyColor !== undefined)
+                    chart.options.plugins.tooltip.bodyColor = legend;
+            });
+
+            if (revenueChart) {
+                ['x','y'].forEach(axis => {
+                    if (revenueChart.options.scales[axis]) {
+                        revenueChart.options.scales[axis].ticks.color = tick;
+                        revenueChart.options.scales[axis].grid.color  = grid;
+                    }
+                });
+                revenueChart.data.datasets[0].borderColor = c1;
+                revenueChart.data.datasets[0].backgroundColor = c1 + '28';
+                revenueChart.update('none');
+            }
+
+            if (categoryChart) {
+                categoryChart.data.datasets[0].borderColor = surface;
+                categoryChart.update('none');
+            }
+
+            if (channelChart) {
+                channelChart.data.datasets[0].backgroundColor = c1;
+                channelChart.data.datasets[1].backgroundColor = c5;
+                ['x','y'].forEach(axis => {
+                    if (channelChart.options.scales[axis]) {
+                        channelChart.options.scales[axis].ticks.color = tick;
+                        if (channelChart.options.scales[axis].grid)
+                            channelChart.options.scales[axis].grid.color = grid;
+                    }
+                });
+                channelChart.update('none');
+            }
+
+            if (paymentChart) {
+                paymentChart.data.datasets[0].backgroundColor = c1;
+                paymentChart.data.datasets[1].backgroundColor = c5;
+                ['x','y'].forEach(axis => {
+                    if (paymentChart.options.scales[axis]) {
+                        paymentChart.options.scales[axis].ticks.color = tick;
+                        if (paymentChart.options.scales[axis].grid)
+                            paymentChart.options.scales[axis].grid.color = grid;
+                    }
+                });
+                paymentChart.update('none');
+            }
+        }
     </script>
 </body>
 </html>
