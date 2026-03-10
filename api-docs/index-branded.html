@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plorea API Docs</title>
+  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css" />
+  <style>
+    :root {
+      --bg: #0b1020;
+      --bg-soft: #121935;
+      --card: rgba(18, 25, 53, 0.88);
+      --card-border: rgba(255,255,255,0.08);
+      --text: #eef2ff;
+      --muted: #aab4d6;
+      --accent: #7c9cff;
+      --accent-2: #4ee3c2;
+      --shadow: 0 12px 40px rgba(0,0,0,0.25);
+    }
+    body.light {
+      --bg: #f5f7fb;
+      --bg-soft: #ffffff;
+      --card: rgba(255,255,255,0.92);
+      --card-border: rgba(15,23,42,0.08);
+      --text: #162033;
+      --muted: #5e6b85;
+      --accent: #315efb;
+      --accent-2: #0bbf9a;
+      --shadow: 0 10px 30px rgba(18,25,53,0.08);
+    }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background:
+        radial-gradient(circle at top left, rgba(124,156,255,0.18), transparent 30%),
+        radial-gradient(circle at top right, rgba(78,227,194,0.12), transparent 25%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100%;
+    }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(14px);
+      background: rgba(11, 16, 32, 0.72);
+      border-bottom: 1px solid var(--card-border);
+    }
+    body.light .topbar { background: rgba(255,255,255,0.78); }
+    .topbar-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: grid;
+      place-items: center;
+      color: white;
+      font-weight: 800;
+      box-shadow: var(--shadow);
+      flex: 0 0 auto;
+    }
+    .brand-text { min-width: 0; }
+    .brand-title {
+      font-size: 18px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0;
+    }
+    .brand-subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .pill {
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 9px 12px;
+      font-size: 13px;
+      box-shadow: var(--shadow);
+    }
+    .btn {
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: transform .15s ease, opacity .15s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      border-color: transparent;
+    }
+    .hero {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 24px 20px 10px;
+    }
+    .hero-card {
+      border: 1px solid var(--card-border);
+      background: var(--card);
+      border-radius: 24px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 80ch;
+    }
+    .badges {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      border: 1px solid var(--card-border);
+      background: rgba(255,255,255,0.03);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    body.light .badge { background: rgba(0,0,0,0.02); }
+    .quick-actions {
+      display: grid;
+      gap: 10px;
+    }
+    .qa-box {
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 14px;
+      background: rgba(255,255,255,0.03);
+    }
+    body.light .qa-box { background: rgba(0,0,0,0.02); }
+    .qa-title {
+      margin: 0 0 6px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .qa-text {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .docs-wrap {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 14px 20px 32px;
+    }
+    .swagger-shell {
+      overflow: hidden;
+      border-radius: 24px;
+      border: 1px solid var(--card-border);
+      background: var(--bg-soft);
+      box-shadow: var(--shadow);
+    }
+    .swagger-ui {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    .swagger-ui .topbar,
+    .swagger-ui .scheme-container {
+      display: none !important;
+    }
+    .swagger-ui .information-container.wrapper { padding-top: 28px; }
+    .swagger-ui .info .title,
+    .swagger-ui .info,
+    .swagger-ui,
+    .swagger-ui .opblock-tag,
+    .swagger-ui .responses-inner h4,
+    .swagger-ui .responses-inner h5,
+    .swagger-ui .response-col_status,
+    .swagger-ui .response-col_description,
+    .swagger-ui table thead tr td,
+    .swagger-ui table thead tr th,
+    .swagger-ui .parameter__name,
+    .swagger-ui .parameter__type,
+    .swagger-ui .tab li button.tablinks,
+    .swagger-ui .model-title,
+    .swagger-ui section.models h4,
+    .swagger-ui .model,
+    .swagger-ui .prop,
+    .swagger-ui .opblock-summary-description,
+    .swagger-ui .opblock-description-wrapper p,
+    .swagger-ui .markdown p,
+    .swagger-ui label,
+    .swagger-ui .authorization__btn,
+    .swagger-ui .btn,
+    .swagger-ui select,
+    .swagger-ui input[type=text],
+    .swagger-ui textarea {
+      color: var(--text) !important;
+    }
+    .swagger-ui .info .description,
+    .swagger-ui .renderedMarkdown p,
+    .swagger-ui .opblock-description-wrapper,
+    .swagger-ui .parameter__deprecated,
+    .swagger-ui .response-col_links,
+    .swagger-ui .model-hint,
+    .swagger-ui .parameter__in {
+      color: var(--muted) !important;
+    }
+    .swagger-ui .wrapper {
+      max-width: none;
+      padding: 0 20px 28px;
+    }
+    .swagger-ui .info { margin: 0; }
+    .swagger-ui .opblock-tag {
+      border-bottom: 1px solid var(--card-border);
+      font-size: 18px;
+      padding: 14px 0;
+    }
+    .swagger-ui .opblock {
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: none;
+      border-width: 1px;
+    }
+    .swagger-ui .scheme-container,
+    .swagger-ui .opblock .opblock-summary,
+    .swagger-ui .opblock-body,
+    .swagger-ui .model-box,
+    .swagger-ui section.models,
+    .swagger-ui .responses-inner,
+    .swagger-ui .response-control-media-type,
+    .swagger-ui .opblock-section-header,
+    .swagger-ui .dialog-ux .modal-ux,
+    .swagger-ui select,
+    .swagger-ui textarea,
+    .swagger-ui input[type=text] {
+      background: transparent !important;
+    }
+    .swagger-ui section.models {
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .swagger-ui .btn.authorize {
+      border-color: var(--accent) !important;
+      color: var(--accent) !important;
+    }
+    .swagger-ui .btn.execute {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
+      border-color: transparent !important;
+      color: white !important;
+    }
+    .swagger-ui .opblock.opblock-get { border-color: rgba(97,175,254,.45); }
+    .swagger-ui .opblock.opblock-post { border-color: rgba(73,204,144,.45); }
+    .swagger-ui .opblock.opblock-patch { border-color: rgba(252,161,48,.45); }
+    .footer-note {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0 20px 28px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    code.inline-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 2px 6px;
+      color: var(--text);
+    }
+    body.light code.inline-code { background: rgba(0,0,0,0.04); }
+    @media (max-width: 980px) {
+      .hero-grid { grid-template-columns: 1fr; }
+      .topbar-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">P</div>
+        <div class="brand-text">
+          <h2 class="brand-title">Plorea API Docs</h2>
+          <p class="brand-subtitle">Interactive documentation for the public + inbound sync v2.9 contract</p>
+        </div>
+      </div>
+      <div class="actions">
+        <span class="pill" id="spec-version">Spec: loading…</span>
+        <button class="btn" id="toggle-theme" type="button">Toggle theme</button>
+        <button class="btn primary" id="auth-btn" type="button">Authorize</button>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-card">
+      <div class="hero-grid">
+        <div>
+          <h1>Partner-friendly API docs for read, sync, and order flows.</h1>
+          <p>
+            This page loads the Plorea OpenAPI contract directly from the local YAML file and presents it in a clean,
+            branded Swagger UI wrapper. It is meant to help developers review public read APIs, inbound sync flows,
+            schemas, examples, authentication, and order lifecycle behavior with less friction.
+          </p>
+          <div class="badges">
+            <span class="badge">Swagger UI</span>
+            <span class="badge">Local YAML</span>
+            <span class="badge">Bearer auth</span>
+            <span class="badge">Order Core</span>
+            <span class="badge">Inbound Sync</span>
+            <span class="badge">Catalog / Devices / Orders</span>
+          </div>
+        </div>
+        <div class="quick-actions">
+          <div class="qa-box">
+            <h3 class="qa-title">Try it out</h3>
+            <p class="qa-text">Use the Authorize button to set your bearer token, then test endpoints directly from the docs.</p>
+          </div>
+          <div class="qa-box">
+            <h3 class="qa-title">Single source of truth</h3>
+            <p class="qa-text">The page points to <code class="inline-code">plorea-openapi-v2.9.yaml</code> in the same folder, so updates are simple.</p>
+          </div>
+          <div class="qa-box">
+            <h3 class="qa-title">Upstream sync ready</h3>
+            <p class="qa-text">Covers both public read APIs and inbound synchronization from systems like RMSV and Amendo.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="docs-wrap">
+    <div class="swagger-shell">
+      <div id="swagger-ui"></div>
+    </div>
+  </main>
+
+  <div class="footer-note">
+    Place this file in the same folder as the OpenAPI YAML and serve both through a local or hosted web server.
+  </div>
+
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
+  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
+  <script>
+    const SPEC_URL = "plorea-openapi-v2.9.yaml";
+
+    function setTheme(theme) {
+      document.body.classList.toggle("light", theme === "light");
+      localStorage.setItem("plorea-docs-theme", theme);
+    }
+
+    function toggleTheme() {
+      const current = localStorage.getItem("plorea-docs-theme") || "dark";
+      setTheme(current === "dark" ? "light" : "dark");
+    }
+
+    async function updateVersionBadge() {
+      try {
+        const res = await fetch(SPEC_URL);
+        const text = await res.text();
+        const match = text.match(/\nversion:\s*["']?([^\n"']+)["']?/i);
+        const badge = document.getElementById("spec-version");
+        if (badge) {
+          badge.textContent = match ? `Spec: ${match[1].trim()}` : "Spec: local YAML";
+        }
+      } catch (e) {
+        const badge = document.getElementById("spec-version");
+        if (badge) badge.textContent = "Spec: unavailable";
+      }
+    }
+
+    window.onload = async () => {
+      setTheme(localStorage.getItem("plorea-docs-theme") || "dark");
+      document.getElementById("toggle-theme").addEventListener("click", toggleTheme);
+
+      SwaggerUIBundle({
+        url: SPEC_URL,
+        dom_id: "#swagger-ui",
+        deepLinking: true,
+        displayRequestDuration: true,
+        docExpansion: "list",
+        defaultModelsExpandDepth: 1,
+        defaultModelExpandDepth: 2,
+        filter: true,
+        persistAuthorization: true,
+        tryItOutEnabled: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        layout: "BaseLayout"
+      });
+
+      document.getElementById("auth-btn").addEventListener("click", () => {
+        const btn = document.querySelector(".swagger-ui .btn.authorize");
+        if (btn) btn.click();
+      });
+
+      await updateVersionBadge();
+    };
+  </script>
+</body>
+</html>
