@@ -82,8 +82,17 @@ var PRD=[
 {id:25,n:"Oliven",p:69,cp:25,c:"snacks",ic:"\uD83E\uDED2"},{id:26,n:"Nachos",p:89,cp:28,c:"snacks",ic:"\uD83C\uDF2E"}
 ];
 var POP=[1,3,6,10,11,14,18,22];
-// Speed rail — configurable top sellers
-var RAIL=[1,3,10,11,12,14,15,22];
+// Combos — most sold item combinations for speed rail
+var COMBOS=[
+  {n:"2x Pils",items:[{id:1,qty:2}]},
+  {n:"3x Pils",items:[{id:1,qty:3}]},
+  {n:"Pils + Vin",items:[{id:1,qty:1},{id:6,qty:1}]},
+  {n:"2x IPA",items:[{id:3,qty:2}]},
+  {n:"2x G&T",items:[{id:10,qty:2}]},
+  {n:"4x Pils",items:[{id:1,qty:4}]},
+  {n:"Pils + Cola",items:[{id:1,qty:1},{id:18,qty:1}]},
+  {n:"2x Mojito",items:[{id:11,qty:2}]}
+];
 var STF=[{n:"Maria H.",pin:"1234"},{n:"Erik S.",pin:"5678"},{n:"Lina K.",pin:"9012"}];
 var SPILL_REASONS=["S\u00f8l","Smakspr\u00f8ve","Feilblanding","Utg\u00e5tt","Annet"];
 
@@ -146,33 +155,9 @@ function render(){
   var prods=aCat==="popular"?PRD.filter(function(p){return POP.indexOf(p.id)>=0}):PRD.filter(function(p){return p.c===aCat});
 
   /* ── TOP BAR ── */
+  /* Top bar — logo + controls only, order tabs moved to cart */
   var top=el("div",{display:"flex",alignItems:"center",padding:"0 24px",height:"48px",background:"var(--bg-surface)",borderBottom:"1px solid var(--color-border)",flexShrink:"0",gap:"8px",boxShadow:"var(--elevation-1)",zIndex:"20"});
-  top.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-right:12px;flex-shrink:0">'+logo(18)+'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--color-selection-text);background:var(--color-selection);padding:2px 8px;border-radius:var(--r-sm);border:1px solid var(--color-selection-border)">BAR</span></div>';
-
-  /* Order tabs */
-  var tabs=el("div",{display:"flex",gap:"4px",flex:"1",overflowX:"auto",alignItems:"center",minWidth:"0"});
-  orders.forEach(function(o){
-    var isA=o.id===activeOid;
-    var bg={active:isA?"var(--color-selection)":"var(--bg-surface)",pending:isA?"var(--pend-bg-a)":"var(--pend-bg)",approved:isA?"var(--color-success-bg)":"var(--color-success-bg)",failed:isA?"var(--color-error-bg)":"var(--color-error-bg)"};
-    var bc={active:isA?"var(--color-primary)":"var(--color-border)",pending:"var(--color-warning)",approved:"var(--color-success)",failed:"var(--color-error)"};
-    var tc={active:isA?"var(--color-selection-text)":"var(--text-secondary)",pending:"var(--pend-tx)",approved:"var(--ok-tx)",failed:"var(--err-tx)"};
-    var tab=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"6px 12px",height:"36px",borderRadius:"var(--r)",border:(isA?"2px":"1px")+" solid "+(bc[o.status]),background:bg[o.status],cursor:"pointer",fontSize:"12px",fontWeight:"600",color:tc[o.status],whiteSpace:"nowrap",transition:"all var(--dur-fast) var(--ease)",fontFamily:"inherit",flexShrink:"0"});
-    var lbl=o.name?esc(o.name):"#"+o.num;
-    var timer=o.status==="pending"&&o.sentAt?'<span data-t="'+o.id+'" style="font-size:10px;font-weight:700;color:var(--pend-tx);font-family:monospace">'+fmtT(Date.now()-o.sentAt)+"</span>":"";
-    tab.innerHTML=dot(o.status,8)+"<span>"+lbl+"</span><span style='font-weight:700'>"+oTot(o)+"kr</span>"+timer;
-    tab.addEventListener("click",function(){activeOid=o.id;render()});
-    tabs.appendChild(tab)
-  });
-  /* New order + new tab buttons */
-  var nt=el("button",{width:"36px",height:"36px",borderRadius:"var(--r)",border:"1.5px dashed var(--color-border)",background:"transparent",color:"var(--text-muted)",fontSize:"18px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:"0"},"+");
-  nt.addEventListener("click",function(){newO();render()});
-  tabs.appendChild(nt);
-  /* Open named tab */
-  var ntab=el("button",{height:"36px",padding:"0 12px",borderRadius:"var(--r)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"11px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",gap:"4px",flexShrink:"0"});
-  ntab.innerHTML='\uD83C\uDF7A <span>Ny tab</span>';
-  ntab.addEventListener("click",function(){showNewTab()});
-  tabs.appendChild(ntab);
-  top.appendChild(tabs);
+  top.innerHTML='<div style="display:flex;align-items:center;gap:8px;flex:1">'+logo(18)+'<span style="font-size:10px;font-weight:700;letter-spacing:.08em;color:var(--color-selection-text);background:var(--color-selection);padding:2px 8px;border-radius:var(--r-sm);border:1px solid var(--color-selection-border)">BAR</span></div>';
 
   /* Right: terminals, auto, spill, theme, staff */
   var rc=el("div",{display:"flex",alignItems:"center",gap:"8px",flexShrink:"0",marginLeft:"12px"});
@@ -200,15 +185,18 @@ function render(){
   /* ── LEFT: speed rail + categories + grid ── */
   var left=el("div",{flex:"1",display:"flex",flexDirection:"column",minWidth:"0",borderRight:"1px solid var(--color-border)"});
 
-  /* Speed rail — always visible, large touch targets */
+  /* Combo rail — predefined popular combinations */
+  var canAdd=ao&&ao.status==="active";
   var rail=el("div",{flexShrink:"0",padding:"12px 24px",background:"var(--bg-surface)",borderBottom:"1px solid var(--color-border)",display:"flex",gap:"8px",overflowX:"auto"});
-  RAIL.forEach(function(pid){
-    var p=PRD.find(function(x){return x.id===pid});if(!p)return;
-    var rb=el("button",{display:"flex",flexDirection:"column",alignItems:"center",gap:"2px",padding:"8px 12px",minWidth:"64px",borderRadius:"var(--r)",border:"1px solid var(--color-border)",background:"var(--bg-surface)",cursor:canAdd?"pointer":"default",opacity:canAdd?"1":".4",transition:"all var(--dur-micro)",boxShadow:"var(--elevation-1)",flexShrink:"0"});
-    rb.innerHTML='<span style="font-size:20px;line-height:1">'+p.ic+'</span><span style="font-size:11px;font-weight:700;color:var(--color-accent)">'+p.p+'</span>';
-    var canAdd=ao&&ao.status==="active";
+  COMBOS.forEach(function(combo){
+    var tot=0;combo.items.forEach(function(ci){var p=PRD.find(function(x){return x.id===ci.id});if(p)tot+=p.p*ci.qty});
+    var rb=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"8px 14px",borderRadius:"var(--r)",border:"1px solid var(--color-border)",background:"var(--bg-surface)",cursor:canAdd?"pointer":"default",opacity:canAdd?"1":".4",transition:"all var(--dur-micro)",boxShadow:"var(--elevation-1)",flexShrink:"0",whiteSpace:"nowrap"});
+    rb.innerHTML='<span style="font-size:13px;font-weight:700;color:var(--text-primary)">'+esc(combo.n)+'</span><span style="font-size:12px;font-weight:700;color:var(--color-accent)">'+tot+'kr</span>';
     if(canAdd){
-      rb.addEventListener("click",function(){addItem(p);render()});
+      rb.addEventListener("click",function(){
+        combo.items.forEach(function(ci){var p=PRD.find(function(x){return x.id===ci.id});if(p){var ex=ao.items.find(function(x){return x.id===p.id});if(ex)ex.qty+=ci.qty;else ao.items.push({id:p.id,n:p.n,p:p.p,ic:p.ic,qty:ci.qty,ck:uid()})}});
+        render()
+      });
       rb.addEventListener("mouseenter",function(){rb.style.boxShadow="var(--elevation-2)";rb.style.transform="translateY(-1px)"});
       rb.addEventListener("mouseleave",function(){rb.style.boxShadow="var(--elevation-1)";rb.style.transform=""});
     }
@@ -223,7 +211,6 @@ function render(){
   catBar.appendChild(catScr);left.appendChild(catBar);
 
   /* Product grid */
-  var canAdd=ao&&ao.status==="active";
   var ga=el("div",{flex:"1",overflowY:"auto",padding:"24px"});
   var gr=el("div",{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"12px"});
   if(window.innerWidth<1200)gr.style.gridTemplateColumns="repeat(3,1fr)";
@@ -245,7 +232,30 @@ function render(){
   var right=el("div",{width:"400px",display:"flex",flexDirection:"column",background:"var(--bg-surface)",flexShrink:"0"});
   if(window.innerWidth>=1440)right.style.width="440px";
 
-  if(!ao){right.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:13px">Ingen aktiv ordre</div>'}
+  /* Order tabs — inside cart panel */
+  var tabBar=el("div",{flexShrink:"0",padding:"8px 16px",borderBottom:"1px solid var(--color-border)",display:"flex",gap:"4px",overflowX:"auto",alignItems:"center",background:"var(--bg-surface)"});
+  orders.forEach(function(o){
+    var isA=o.id===activeOid;
+    var bg={active:isA?"var(--color-selection)":"var(--bg-surface)",pending:isA?"var(--pend-bg-a)":"var(--pend-bg)",approved:isA?"var(--color-success-bg)":"var(--color-success-bg)",failed:isA?"var(--color-error-bg)":"var(--color-error-bg)"};
+    var bc={active:isA?"var(--color-primary)":"var(--color-border)",pending:"var(--color-warning)",approved:"var(--color-success)",failed:"var(--color-error)"};
+    var tc={active:isA?"var(--color-selection-text)":"var(--text-secondary)",pending:"var(--pend-tx)",approved:"var(--ok-tx)",failed:"var(--err-tx)"};
+    var tab=el("button",{display:"flex",alignItems:"center",gap:"5px",padding:"6px 10px",height:"34px",borderRadius:"var(--r)",border:(isA?"2px":"1px")+" solid "+bc[o.status],background:bg[o.status],cursor:"pointer",fontSize:"11px",fontWeight:"600",color:tc[o.status],whiteSpace:"nowrap",transition:"all var(--dur-fast) var(--ease)",fontFamily:"inherit",flexShrink:"0"});
+    var lbl=o.name?esc(o.name):"#"+o.num;
+    var timer=o.status==="pending"&&o.sentAt?'<span data-t="'+o.id+'" style="font-size:9px;font-weight:700;color:var(--pend-tx);font-family:monospace">'+fmtT(Date.now()-o.sentAt)+"</span>":"";
+    tab.innerHTML=dot(o.status,7)+"<span>"+lbl+"</span><span style='font-weight:700'>"+oTot(o)+"kr</span>"+timer;
+    tab.addEventListener("click",function(){activeOid=o.id;render()});
+    tabBar.appendChild(tab)
+  });
+  var nt=el("button",{width:"34px",height:"34px",borderRadius:"var(--r)",border:"1.5px dashed var(--color-border)",background:"transparent",color:"var(--text-muted)",fontSize:"16px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:"0"},"+");
+  nt.addEventListener("click",function(){newO();render()});
+  tabBar.appendChild(nt);
+  var ntab=el("button",{height:"34px",padding:"0 10px",borderRadius:"var(--r)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"10px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",gap:"4px",flexShrink:"0"});
+  ntab.innerHTML='\uD83C\uDF7A Tab';
+  ntab.addEventListener("click",function(){showNewTab()});
+  tabBar.appendChild(ntab);
+  right.appendChild(tabBar);
+
+  if(!ao){right.appendChild(el("div",{flex:"1",display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text-muted)",fontSize:"13px"},"Ingen aktiv ordre"))}
   else{
     var sLbl={active:"Aktiv",pending:"Sendt",approved:"Godkjent",failed:"Avvist"};
     var sClr={active:"var(--text-secondary)",pending:"var(--pend-tx)",approved:"var(--ok-tx)",failed:"var(--err-tx)"};
