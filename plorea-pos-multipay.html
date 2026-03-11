@@ -85,7 +85,13 @@ function mkBtn(label,style,onClick){var b=document.createElement("button");b.tex
 function toast(m){var t=el("div",{position:"fixed",top:"20px",left:"50%",transform:"translateX(-50%)",background:"var(--tp)",color:"#fff",padding:"12px 24px",borderRadius:"var(--rm)",fontSize:"14px",fontWeight:"600",zIndex:"9999",animation:"tI .3s",whiteSpace:"nowrap",boxShadow:"var(--e2)"},m);document.body.appendChild(t);setTimeout(function(){t.remove()},2800)}
 
 function activeOrder(){return orders.find(function(o){return o.id===activeOrderId})||null}
-function newOrder(){var o={id:uid(),num:nextOrderNum++,items:[],status:"active",terminal:null,time:now()};orders.push(o);activeOrderId=o.id;return o}
+function newOrder(){var o={id:uid(),num:nextOrderNum++,items:[],status:"active",terminal:null,time:now(),sentAt:null};orders.push(o);activeOrderId=o.id;return o}
+
+// Timer
+var timerInterval=null;
+function startTimer(){if(timerInterval)return;timerInterval=setInterval(function(){var needsUpdate=orders.some(function(o){return o.status==="pending"});if(needsUpdate)updateTimers()},1000)}
+function fmtElapsed(ms){var s=Math.floor(ms/1000);var m=Math.floor(s/60);s=s%60;return(m<10?"0":"")+m+":"+(s<10?"0":"")+s}
+function updateTimers(){document.querySelectorAll("[data-timer-id]").forEach(function(el){var oid=parseFloat(el.dataset.timerId);var o=orders.find(function(x){return x.id===oid});if(o&&o.sentAt){el.textContent=fmtElapsed(Date.now()-o.sentAt)}})}
 
 // Status dot HTML
 function dot(status,size){
@@ -141,8 +147,12 @@ function render(){
     var isActive=o.id===activeOrderId;
     var cnt=oCnt(o);
     var tot=oTotal(o);
-    var tab=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"7px 14px",borderRadius:"var(--r)",border:isActive?"2px solid var(--pri)":"1.5px solid "+(o.status==="approved"?"var(--ok)":o.status==="failed"?"var(--err)":o.status==="pending"?"var(--warn)":"var(--brd)"),background:isActive?"var(--sel)":"var(--sf)",cursor:"pointer",fontSize:"12px",fontWeight:"600",color:isActive?"var(--acc)":"var(--ts)",whiteSpace:"nowrap",transition:"all .16s",fontFamily:"inherit"});
-    tab.innerHTML=dot(o.status,8)+'<span>#'+o.num+'</span><span style="color:var(--ts);font-weight:400">'+cnt+'v</span><span style="font-weight:700">'+tot+'kr</span>';
+    var tabBg={active:isActive?"var(--sel)":"var(--sf)",pending:isActive?"#fefce8":"#fffbeb",approved:isActive?"#ecfdf5":"var(--okBg)",failed:isActive?"#fef2f2":"var(--errBg)"};
+    var tabBorder={active:isActive?"var(--pri)":"var(--brd)",pending:"var(--warn)",approved:"var(--ok)",failed:"var(--err)"};
+    var tabColor={active:isActive?"var(--acc)":"var(--ts)",pending:"#92600a",approved:"#166534",failed:"#991b1b"};
+    var tab=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"7px 14px",borderRadius:"var(--r)",border:(isActive?"2px":"1.5px")+" solid "+(tabBorder[o.status]||"var(--brd)"),background:tabBg[o.status]||"var(--sf)",cursor:"pointer",fontSize:"12px",fontWeight:"600",color:tabColor[o.status]||"var(--ts)",whiteSpace:"nowrap",transition:"all .16s",fontFamily:"inherit",position:"relative"});
+    var timerHtml=o.status==="pending"&&o.sentAt?' <span data-timer-id="'+o.id+'" style="font-size:10px;font-weight:700;color:#92600a;font-family:monospace">'+fmtElapsed(Date.now()-o.sentAt)+'</span>':'';
+    tab.innerHTML=dot(o.status,8)+'<span>#'+o.num+'</span><span style="font-weight:400">'+cnt+'v</span><span style="font-weight:700">'+tot+'kr</span>'+timerHtml;
     tab.addEventListener("click",function(){activeOrderId=o.id;render()});
     tabWrap.appendChild(tab);
   });
@@ -330,6 +340,31 @@ function render(){
 
   mainArea.appendChild(rightCol);
   $.appendChild(mainArea);
+
+  // ── TERMINAL STATUS BAR (bottom) ──
+  var termBar=el("div",{display:"flex",alignItems:"stretch",flexShrink:"0",borderTop:"1px solid var(--brd)",background:"var(--sf)",height:"56px",boxShadow:"0 -1px 4px rgba(0,0,0,.04)"});
+  terminals.forEach(function(t,idx){
+    var o=t.orderId?orders.find(function(x){return x.id===t.orderId}):null;
+    var bgMap={idle:"var(--sf)",busy:"#fffbeb",done:"var(--okBg)",failed:"var(--errBg)"};
+    var colorMap={idle:"var(--ts)",busy:"#92600a",done:"#166534",failed:"#991b1b"};
+    var panel=el("div",{flex:"1",display:"flex",alignItems:"center",padding:"0 20px",gap:"12px",background:bgMap[t.status]||"var(--sf)",borderRight:idx<terminals.length-1?"1px solid var(--brd)":"none"});
+    var dotH=termDot(t);
+    var info='<div style="display:flex;align-items:center;gap:8px;flex:1">'+dotH+'<span style="font-size:13px;font-weight:700;color:var(--tp)">'+t.n+'</span>';
+    if(t.status==="idle"){info+='<span style="font-size:12px;color:var(--ok);font-weight:600">Ledig</span>'}
+    else if(t.status==="busy"&&o){info+='<span style="font-size:12px;color:'+colorMap.busy+';font-weight:600">Ordre #'+o.num+' \u2013 '+oTotal(o)+' kr</span><span data-timer-id="'+o.id+'" style="font-size:12px;font-weight:700;color:#92600a;font-family:monospace">'+(o.sentAt?fmtElapsed(Date.now()-o.sentAt):"...")+'</span>'}
+    else if(t.status==="done"&&o){info+='<span style="font-size:12px;color:'+colorMap.done+';font-weight:600">\u2713 Ordre #'+o.num+' godkjent</span>'}
+    else if(t.status==="failed"){info+='<span style="font-size:12px;color:'+colorMap.failed+';font-weight:600">\u2717 Avvist</span>'}
+    info+="</div>";
+    // Keyboard hint
+    info+='<span style="font-size:10px;color:var(--tm);font-weight:600;background:var(--sfH);padding:2px 6px;border-radius:4px;border:1px solid var(--brd)">F'+(idx+1)+'</span>';
+    panel.innerHTML=info;
+    termBar.appendChild(panel);
+  });
+  // Shortcut hints
+  var hintPanel=el("div",{display:"flex",alignItems:"center",padding:"0 16px",gap:"8px",flexShrink:"0"});
+  hintPanel.innerHTML='<span style="font-size:10px;color:var(--tm);font-weight:600;background:var(--sfH);padding:2px 6px;border-radius:4px;border:1px solid var(--brd)">Tab</span><span style="font-size:10px;color:var(--tm)">Bytt ordre</span><span style="font-size:10px;color:var(--tm);font-weight:600;background:var(--sfH);padding:2px 6px;border-radius:4px;border:1px solid var(--brd)">F5</span><span style="font-size:10px;color:var(--tm)">Ny ordre</span>';
+  termBar.appendChild(hintPanel);
+  $.appendChild(termBar);
 }
 
 /* ═══ ADD PRODUCT ═══ */
@@ -403,8 +438,10 @@ function addProduct(p){
 function sendToTerminal(order,terminal){
   order.status="pending";
   order.terminal=terminal.id;
+  order.sentAt=Date.now();
   terminal.status="busy";
   terminal.orderId=order.id;
+  startTimer();
 
   // Auto-switch to new order for next customer
   if(autoNewOrder){
@@ -441,6 +478,34 @@ function completePayment(order,result){
 /* ═══ INIT ═══ */
 rPin();
 window.addEventListener("resize",function(){if(staff)render()});
+
+// Keyboard shortcuts
+document.addEventListener("keydown",function(e){
+  if(!staff)return;
+  var ao=activeOrder();
+  // F1 / F2 = send to terminal
+  if(e.key==="F1"||e.key==="F2"){
+    e.preventDefault();
+    var tIdx=e.key==="F1"?0:1;
+    var t=terminals[tIdx];
+    if(ao&&ao.status==="active"&&ao.items.length&&(t.status==="idle"||t.status==="done")){
+      sendToTerminal(ao,t);
+    }
+    return;
+  }
+  // F5 = new order
+  if(e.key==="F5"){e.preventDefault();newOrder();render();return}
+  // Tab = cycle through order tabs
+  if(e.key==="Tab"){
+    e.preventDefault();
+    if(orders.length<2)return;
+    var curIdx=orders.findIndex(function(o){return o.id===activeOrderId});
+    var next=e.shiftKey?(curIdx-1+orders.length)%orders.length:(curIdx+1)%orders.length;
+    activeOrderId=orders[next].id;
+    render();
+    return;
+  }
+});
 })();
 </script>
 </body>
