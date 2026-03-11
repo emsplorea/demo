@@ -100,6 +100,7 @@ var staff=null,pin="",pinErr=false,aCat="popular";
 var orders=[],activeOid=null,nextNum=1,autoNew=true;
 var terms=[{id:1,n:"Term 1",status:"idle",oid:null},{id:2,n:"Term 2",status:"idle",oid:null}];
 var spillLog=[];
+var receipts=[];
 
 function uid(){return Date.now()+Math.random()}
 function now(){return new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
@@ -171,6 +172,11 @@ function render(){
   var spb=el("button",{padding:"4px 10px",borderRadius:"var(--r-sm)",border:"1px solid "+(hasItems?"var(--color-error)":"var(--color-border)"),background:hasItems?"var(--color-error-bg)":"var(--bg-surface)",color:hasItems?"var(--err-tx)":"var(--text-muted)",fontSize:"11px",fontWeight:"600",cursor:hasItems?"pointer":"default",display:"flex",alignItems:"center",gap:"4px",opacity:hasItems?"1":".5",transition:"all var(--dur-fast)"});
   spb.innerHTML='\uD83D\uDCA7 <span>Svinn</span>';
   if(hasItems)spb.addEventListener("click",function(){showSpill(ao)});rc.appendChild(spb);
+  /* Receipts button */
+  var rcpBtn=el("button",{padding:"4px 10px",borderRadius:"var(--r-sm)",border:"1px solid var(--color-border)",background:receipts.length?"var(--bg-surface)":"var(--bg-surface)",color:receipts.length?"var(--text-secondary)":"var(--text-muted)",fontSize:"11px",fontWeight:"600",cursor:receipts.length?"pointer":"default",display:"flex",alignItems:"center",gap:"4px",opacity:receipts.length?"1":".5",transition:"all var(--dur-fast)"});
+  rcpBtn.innerHTML='\uD83D\uDDA8 <span>Kvitteringer'+(receipts.length?' ('+receipts.length+')':'')+'</span>';
+  if(receipts.length)rcpBtn.addEventListener("click",showReceipts);
+  rc.appendChild(rcpBtn);
   /* Theme */
   var thg=el("div",{display:"flex",borderRadius:"var(--r-sm)",overflow:"hidden",border:"1px solid var(--color-border)"});
   [{k:"light",l:"\u2600"},{k:"dark",l:"\uD83C\uDF19"},{k:"dark-dim",l:"\u2B50"}].forEach(function(t){var b=el("button",{padding:"4px 8px",border:"none",background:theme===t.k?"var(--color-accent)":"var(--bg-surface)",color:theme===t.k?"var(--color-primary-text)":"var(--text-muted)",fontSize:"12px",cursor:"pointer",transition:"all var(--dur-fast)",lineHeight:"1"},t.l);b.addEventListener("click",function(){setTheme(t.k);render()});thg.appendChild(b)});
@@ -324,20 +330,6 @@ function render(){
       sb2.appendChild(btn("\u2717 Avvist",{padding:"12px 24px",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--color-error)",fontSize:"13px"},function(){compPay(ao,"failed")}));
       pd.appendChild(sb2);right.appendChild(pd)
 
-    } else if(ao.status==="approved"){
-      var ad=el("div",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",gap:"12px"});
-      ad.innerHTML='<div style="width:72px;height:72px;border-radius:50%;background:var(--color-success-bg);display:flex;align-items:center;justify-content:center;font-size:36px;animation:checkPop .4s var(--ease-out)">\u2705</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:700">Godkjent!</div><div style="font-size:20px;font-weight:700;color:var(--color-success)">'+oTot(ao)+' kr'+(ao.tip?'<span style="font-size:13px;color:var(--text-secondary);font-weight:500"> + '+ao.tip+' kr tips</span>':'')+'</div>';
-      var ab=el("div",{display:"flex",flexDirection:"column",gap:"8px",marginTop:"16px",width:"100%",maxWidth:"280px"});
-      if(!ao.tip){ab.appendChild(btn("\uD83D\uDCB0 Legg til tips",{padding:"12px 20px",background:"var(--color-warning-bg)",color:"var(--pend-tx)",fontSize:"13px",border:"1px solid var(--color-warning)",width:"100%"},function(){showTips(ao)}))}
-      ab.appendChild(btn("\uD83D\uDDA8 Kvittering",{padding:"12px 20px",background:"var(--color-accent)",color:"var(--color-primary-text)",fontSize:"13px",width:"100%"},function(){toast("\uD83D\uDDA8\uFE0F Kvittering")}));
-      if(ao.name){
-        ab.appendChild(btn("\u21BB Samme igjen",{padding:"12px 20px",background:"var(--color-selection)",color:"var(--color-selection-text)",fontSize:"13px",border:"1.5px solid var(--color-selection-border)",width:"100%"},function(){var lastR=ao.rounds.length?ao.rounds[ao.rounds.length-1]:[];ao.items=lastR.map(function(i){return{id:i.id,n:i.n,p:i.p,ic:i.ic,qty:i.qty,ck:uid()}});ao.status="active";ao.term=null;ao.sentAt=null;ao.tip=0;render();toast("\uD83C\uDF7A "+ao.name+" \u2013 "+(lastR.length?lastR.reduce(function(s,x){return s+x.qty},0)+" varer klar":"ny runde"))}));
-        ab.appendChild(btn("Annen bestilling",{padding:"12px 20px",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"12px",width:"100%"},function(){ao.items=[];ao.status="active";ao.term=null;ao.sentAt=null;ao.tip=0;render();toast("\uD83C\uDF7A "+ao.name+" \u2013 tom runde")}));
-        ab.appendChild(btn("Lukk tab",{padding:"12px 20px",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"13px",width:"100%"},function(){orders=orders.filter(function(x){return x.id!==ao.id});if(orders.length)activeOid=orders[orders.length-1].id;else newO();render();toast("\uD83C\uDF7A Tab lukket")}));
-      } else {
-        ab.appendChild(btn("Lukk ordre",{padding:"12px 20px",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"13px",width:"100%"},function(){orders=orders.filter(function(x){return x.id!==ao.id});if(orders.length)activeOid=orders[orders.length-1].id;else newO();render()}));
-      }
-      ad.appendChild(ab);right.appendChild(ad)
     } else if(ao.status==="failed"){
       var fd=el("div",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"24px",gap:"12px"});
       fd.innerHTML='<div style="width:72px;height:72px;border-radius:50%;background:var(--color-error-bg);display:flex;align-items:center;justify-content:center;font-size:36px">\u274C</div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:700">Avvist</div><div style="font-size:13px;color:var(--text-secondary)">'+oTot(ao)+' kr</div>';
@@ -422,6 +414,24 @@ function showTips(o){
   var bd=bdrop(m,true)
 }
 
+/* ═══ RECEIPTS ═══ */
+function showReceipts(){
+  var m=mkModal();m.style.maxWidth="460px";
+  m.innerHTML='<div style="font-family:Sora,sans-serif;font-size:20px;font-weight:700;text-align:center;margin-bottom:16px">\uD83D\uDDA8 Kvitteringer</div>';
+  var list=el("div",{maxHeight:"400px",overflowY:"auto"});
+  if(!receipts.length)list.innerHTML='<div style="text-align:center;padding:24px;color:var(--text-muted);font-size:13px">Ingen kvitteringer enn\u00e5</div>';
+  else receipts.slice().reverse().forEach(function(r){
+    var row=el("div",{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px",borderBottom:"1px solid var(--color-border)",gap:"8px"});
+    row.innerHTML='<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700;color:var(--text-primary)">'+(r.name?esc(r.name):"Ordre #"+r.num)+'</div><div style="font-size:11px;color:var(--text-secondary)">'+r.items.map(function(i){return i.qty+"x "+i.n}).join(", ")+'</div></div><div style="text-align:right;flex-shrink:0"><div style="font-size:14px;font-weight:700;color:var(--color-accent)">'+r.total+' kr</div><div style="font-size:10px;color:var(--text-muted)">'+r.time+'</div></div>';
+    var pb=el("button",{padding:"6px 12px",borderRadius:"var(--r-sm)",border:"1px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"10px",fontWeight:"600",cursor:"pointer",flexShrink:"0",marginLeft:"8px"},"\uD83D\uDDA8");
+    pb.addEventListener("click",function(){toast("\uD83D\uDDA8\uFE0F Kvittering #"+r.num+" skrevet ut")});
+    row.appendChild(pb);list.appendChild(row)
+  });
+  m.appendChild(list);
+  m.appendChild(btn("Lukk",{padding:"12px 20px",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"13px",width:"100%",marginTop:"12px"},function(){bd.remove()}));
+  var bd=bdrop(m,true)
+}
+
 /* ═══ SPILL / SVINN — payment type flow ═══ */
 function showSpill(o){
   if(!o||!o.items.length)return;
@@ -497,10 +507,29 @@ function sendTerm(o,t){
   setTimeout(function(){if(o.status==="pending"){compPay(o,"failed");toast("\u26A0\uFE0F "+(o.name||"#"+o.num)+" timeout")}},60000)
 }
 function compPay(o,r){
-  o.status=r;
   var t=terms.find(function(x){return x.id===o.term});
   if(t){t.status=r==="approved"?"done":"idle";if(r!=="approved")t.oid=null}
   if(r==="approved"&&t)setTimeout(function(){if(t.status==="done"){t.status="idle";t.oid=null;render()}},3000);
+
+  if(r==="approved"){
+    /* Save receipt */
+    receipts.push({id:uid(),num:o.num,name:o.name,items:o.items.map(function(i){return{n:i.n,p:i.p,qty:i.qty,ic:i.ic}}),total:oTot(o),tip:o.tip||0,time:now(),staff:staff.n});
+    toast("\u2705 "+(o.name||"#"+o.num)+" \u2013 "+oTot(o)+" kr godkjent");
+
+    if(o.name){
+      /* Named tab: prefill with last round, ready for next */
+      var lastR=o.rounds.length?o.rounds[o.rounds.length-1]:[];
+      o.items=lastR.map(function(i){return{id:i.id,n:i.n,p:i.p,ic:i.ic,qty:i.qty,ck:uid()}});
+      o.status="active";o.term=null;o.sentAt=null;o.tip=0;
+    } else {
+      /* Regular order: close and move on */
+      orders=orders.filter(function(x){return x.id!==o.id});
+      if(!orders.some(function(x){return x.status==="active"}))newO();
+      if(!orders.find(function(x){return x.id===activeOid}))activeOid=orders[orders.length-1].id;
+    }
+  } else {
+    o.status="failed";
+  }
   render()
 }
 
