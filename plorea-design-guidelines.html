@@ -3,56 +3,46 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Plorea — Design System</title>
+<title>Plorea — UI Framework Blueprint v1.1</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 /* ─────────────────────────────────────────
-   DESIGN TOKENS  (from updated config)
+   DESIGN TOKENS
 ───────────────────────────────────────── */
-/*
- * Semantic token layer — single source of truth.
- * In production: @import 'tokens.css' replaces this entire :root block.
- * These values MUST stay in sync with tokens.css.
- * Primitive colour values (#6BB8DA etc.) live in tailwind.config.js only.
- */
 :root {
-  /* Surfaces */
-  --color-bg-page:        #FAFAFA;
+  --color-bg-page:        #F7F8FA;
   --color-surface:        #FFFFFF;
   --color-surface-hover:  #F1F5F9;
   --color-overlay:        rgba(0,0,0,0.48);
 
-  /* Text */
   --color-text-primary:   #1A1A1A;
   --color-text-secondary: #666666;
   --color-text-muted:     #C4C4C4;
   --color-text-link:      #2E6B87;
 
-  /* Interactive */
   --color-primary:        #6BB8DA;
   --color-primary-hover:  #4FA3C8;
   --color-primary-text:   #FFFFFF;
   --color-accent:         #2E6B87;
+  --color-secondary:      #468DAC;
 
-  /* Borders */
   --color-border:         #E9E9E9;
   --color-border-strong:  #D9D9D9;
 
-  /* Feedback */
   --color-success:        #6BDAB2;
   --color-success-bg:     #E8F7F1;
   --color-warning:        #DADA6B;
   --color-warning-bg:     #F7F7E0;
   --color-error:          #DA6B6B;
   --color-error-bg:       #FAEAEA;
+  --color-info:           #6BB8DA;
+  --color-info-bg:        #EBF6FB;
 
-  /* Selection — single token, swaps in dark mode */
-  --color-selection:        #EBF6FB;    /* row selected bg */
-  --color-selection-border: #99D2E8;    /* selection ring */
-  --color-selection-text:   #1D4A5F;    /* text on selection bg */
+  --color-selection:        #EBF6FB;
+  --color-selection-border: #99D2E8;
+  --color-selection-text:   #1D4A5F;
 
-  /* Radii */
   --r-sm: 6px;
   --r:    8px;
   --r-md: 10px;
@@ -60,56 +50,31 @@
   --r-xl: 20px;
   --r-full: 9999px;
 
-  /* Shadows / Elevation */
-  /* Elevation semantic mapping
-     0 = page surface   (no shadow)
-     1 = card           (shadow-sm)
-     2 = dropdown       (shadow-md)
-     3 = modal          (shadow-lg)
-     4 = overlay        (shadow-xl)  */
   --elevation-0: none;
   --elevation-1: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
   --elevation-2: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
   --elevation-3: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
-  --elevation-4: 0 20px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06);
   --elevation-focus: 0 0 0 3px rgba(107,184,218,0.30);
 
-  --color-info:    #6BB8DA;
-  --color-info-bg: #EBF6FB;
-  --color-border-focus: #6BB8DA;
-  --color-secondary: #468DAC;
-
-  /* Channel colours */
-  --channel-table-bg:        #362F4A;
-  --channel-table-border:    #4A3E60;
-  --channel-table-text:      #B8A8D4;
-  --channel-table-hover:     #2A2338;
-  --channel-takeaway-bg:     #D1E7DD;
-  --channel-takeaway-border: #8EC9AD;
-  --channel-takeaway-text:   #1A5C3A;
-  --channel-takeaway-hover:  #B8D9C8;
-  --channel-eatin-bg:        #E5C1B6;
-  --channel-eatin-border:    #C89888;
-  --channel-eatin-text:      #6B3020;
-  --channel-eatin-hover:     #D5B1A6;
-  --channel-combo-bg:        #FFB3BA;
-  --channel-combo-border:    #E08088;
-  --channel-combo-text:      #8B2040;
-  --channel-combo-hover:     #F09DA4;
-
-  /* Density tokens
-     Applied via data-density="comfortable|compact|ultra" on container */
-  --row-h: 56px;
-  --row-gap: 16px;
-  --cell-py: 14px;
-
-  /* Motion */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in:  cubic-bezier(0.4, 0, 1, 1);
   --ease:     cubic-bezier(0.4, 0, 0.2, 1);
   --dur-fast: 100ms;
   --dur:      160ms;
   --dur-slow: 280ms;
+
+  --row-h: 56px;
+  --row-gap: 16px;
+  --cell-py: 14px;
+
+  /* Channel colours */
+  --channel-table-bg:        #362F4A;
+  --channel-table-text:      #B8A8D4;
+  --channel-takeaway-bg:     #D1E7DD;
+  --channel-takeaway-text:   #1A5C3A;
+  --channel-eatin-bg:        #E5C1B6;
+  --channel-eatin-text:      #6B3020;
+  --channel-combo-bg:        #FFB3BA;
+  --channel-combo-text:      #8B2040;
 }
 
 /* ─────────────────────────────────────────
@@ -125,8 +90,11 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 code, .mono {
-  font-family: 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
-  font-size: 0.875em;
+  font-family: 'JetBrains Mono', 'SFMono-Regular', 'Menlo', monospace;
+  font-size: 0.85em;
+  background: var(--color-surface-hover);
+  padding: 1px 5px; border-radius: 4px;
+  border: 1px solid var(--color-border);
 }
 
 /* ─────────────────────────────────────────
@@ -153,13 +121,24 @@ code, .mono {
 .sidebar-logo .wordmark {
   font-family: 'Sora', sans-serif;
   font-size: 15px; font-weight: 700;
-  color: var(--color-primary-text); letter-spacing: -0.01em;
+  color: #fff; letter-spacing: -0.01em;
 }
 .sidebar-logo .wordmark span { color: var(--color-primary); }
 .sidebar-logo .sub {
   font-size: 10px; font-weight: 500;
   letter-spacing: 0.12em; text-transform: uppercase;
   color: rgba(255,255,255,0.28); margin-top: 4px;
+}
+.sidebar-logo .version-badge {
+  display: inline-block;
+  margin-top: 8px;
+  background: rgba(107,184,218,0.15);
+  border: 1px solid rgba(107,184,218,0.25);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 10px; font-weight: 600;
+  color: var(--color-primary);
+  letter-spacing: 0.04em;
 }
 
 .nav-group { margin-bottom: 4px; }
@@ -177,14 +156,10 @@ code, .mono {
   text-decoration: none;
   transition: color var(--dur-fast), background var(--dur-fast);
   border-left: 2px solid transparent;
-  position: relative;
 }
 .nav-link:hover { color: rgba(255,255,255,0.82); background: rgba(255,255,255,0.04); }
 .nav-link.active { color: var(--color-primary); border-left-color: var(--color-primary); background: rgba(107,184,218,0.06); }
-.nav-link .dot {
-  width: 5px; height: 5px; border-radius: 50%;
-  background: currentColor; opacity: 0.5; flex-shrink: 0;
-}
+.nav-link .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
 
 /* ─────────────────────────────────────────
    MAIN
@@ -224,7 +199,7 @@ code, .mono {
   max-width: 520px; line-height: 1.7;
 }
 .meta-row {
-  display: flex; align-items: center; gap: 16px;
+  display: flex; align-items: center; gap: 10px;
   margin-top: 20px; flex-wrap: wrap;
 }
 .meta-tag {
@@ -237,6 +212,8 @@ code, .mono {
   box-shadow: var(--elevation-1);
 }
 .meta-tag .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--color-success); }
+.meta-tag .dot-orange { background: #F59E0B; }
+.meta-tag .dot-blue { background: var(--color-primary); }
 
 /* ─────────────────────────────────────────
    SECTION
@@ -288,7 +265,6 @@ p.body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; 
 ───────────────────────────────────────── */
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
 
 /* ─────────────────────────────────────────
    CARD
@@ -306,6 +282,579 @@ p.body { font-size: 14px; color: var(--color-text-secondary); line-height: 1.7; 
   color: var(--color-text-muted); margin-bottom: 14px;
 }
 
+/* ─────────────────────────────────────────
+   ARCHITECTURE DIAGRAM
+───────────────────────────────────────── */
+.arch-diagram {
+  display: flex; flex-direction: column; gap: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--elevation-2);
+}
+.arch-layer {
+  padding: 20px 28px;
+  display: flex; align-items: center; gap: 16px;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+.arch-layer:last-child { border-bottom: none; }
+.arch-layer-tag {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 10px; border-radius: 99px;
+  white-space: nowrap; flex-shrink: 0;
+}
+.arch-layer-apps { background: #F0FDF4; }
+.arch-layer-apps .arch-layer-tag { background: #1A6B4A; color: #fff; }
+.arch-layer-plorea { background: var(--color-info-bg); border-left: 4px solid var(--color-primary); }
+.arch-layer-plorea .arch-layer-tag { background: var(--color-accent); color: #fff; }
+.arch-layer-open { background: var(--color-surface-hover); }
+.arch-layer-open .arch-layer-tag { background: var(--color-text-secondary); color: #fff; }
+.arch-layer-title { font-weight: 700; font-size: 14px; color: var(--color-text-primary); }
+.arch-layer-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.arch-arrow { text-align: center; padding: 6px; font-size: 16px; color: var(--color-text-muted); background: var(--color-bg-page); border-bottom: 1px solid var(--color-border); }
+
+/* ─────────────────────────────────────────
+   HIERARCHY STACK
+───────────────────────────────────────── */
+.hierarchy-stack {
+  display: flex; flex-direction: column; gap: 4px;
+  margin-top: 16px;
+}
+.hierarchy-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  position: relative;
+}
+.hierarchy-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 700;
+  color: var(--color-primary-text);
+  background: var(--color-accent);
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.hierarchy-name { font-weight: 700; font-size: 13px; color: var(--color-text-primary); }
+.hierarchy-desc { font-size: 12px; color: var(--color-text-secondary); margin-left: auto; text-align: right; }
+.hierarchy-item.h-top { border-color: var(--color-primary); background: var(--color-info-bg); }
+.hierarchy-item.h-top .hierarchy-num { background: var(--color-primary); }
+.hierarchy-item.h-bottom { opacity: 0.6; }
+
+/* ─────────────────────────────────────────
+   COMPONENT CATEGORIES
+───────────────────────────────────────── */
+.component-cat {
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+.component-cat-header {
+  padding: 16px 22px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+.component-cat-icon {
+  width: 36px; height: 36px;
+  border-radius: var(--r-md);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.cat-foundation .component-cat-icon { background: #EDE9FE; }
+.cat-wrapper .component-cat-icon { background: var(--color-info-bg); }
+.cat-domain .component-cat-icon { background: var(--color-success-bg); }
+.component-cat-title { font-family: 'Sora', sans-serif; font-weight: 700; font-size: 15px; color: var(--color-text-primary); }
+.component-cat-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.component-cat-body { padding: 18px 22px; background: var(--color-surface); }
+.component-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.component-chip {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px; font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  color: var(--color-accent);
+}
+.component-chip.p-prefix { color: var(--color-primary); background: var(--color-info-bg); border-color: var(--color-selection-border); }
+.component-chip.domain { color: #1A6B4A; background: #F0FDF4; border-color: #A7DFC4; }
+
+/* ─────────────────────────────────────────
+   USAGE POLICY TABLE
+───────────────────────────────────────── */
+.policy-table { width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 13px; }
+.policy-table th {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-muted); padding: 8px 14px; text-align: left;
+  border-bottom: 2px solid var(--color-border-strong);
+  background: var(--color-surface-hover);
+}
+.policy-table td { padding: 11px 14px; border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); vertical-align: top; }
+.policy-table tr:last-child td { border-bottom: none; }
+.policy-table td:first-child { font-weight: 700; color: var(--color-text-primary); width: 140px; }
+.policy-ok  { color: #1A6B4A; font-weight: 600; }
+.policy-no  { color: #8B2020; font-weight: 600; }
+
+/* ─────────────────────────────────────────
+   DO / DON'T
+───────────────────────────────────────── */
+.do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+.do-box, .dont-box { border-radius: var(--r-md); padding: 18px; }
+.do-box   { background: #F0FDF6; border: 1px solid #A7DFC4; }
+.dont-box { background: #FDF2F2; border: 1px solid #F0AAAA; }
+.do-box .hd   { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #1A6B4A; margin-bottom: 12px; }
+.dont-box .hd { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #8B2020; margin-bottom: 12px; }
+.do-box ul, .dont-box ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+.do-box li, .dont-box li { font-size: 12.5px; color: var(--color-text-secondary); display: flex; align-items: flex-start; gap: 7px; line-height: 1.5; }
+.do-box li::before   { content: "✓"; color: #3BAD7A; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+.dont-box li::before { content: "✗"; color: #C04040; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+/* ─────────────────────────────────────────
+   TOKEN TABLE
+───────────────────────────────────────── */
+.token-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 14px; }
+.token-table th { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted); padding: 8px 14px; text-align: left; border-bottom: 2px solid var(--color-border-strong); background: var(--color-surface-hover); }
+.token-table td { padding: 10px 14px; border-bottom: 1px solid var(--color-border); color: var(--color-text-secondary); vertical-align: middle; }
+.token-table tr:last-child td { border-bottom: none; }
+.token-table td:first-child { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--color-accent); font-weight: 600; }
+
+/* ─────────────────────────────────────────
+   UX PRINCIPLES
+───────────────────────────────────────── */
+.ux-principles { display: flex; flex-direction: column; gap: 8px; }
+.ux-rule {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 14px 18px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--elevation-1);
+}
+.ux-rule-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+  color: var(--color-primary);
+  min-width: 28px;
+  flex-shrink: 0;
+}
+.ux-rule-title { font-weight: 700; font-size: 13px; color: var(--color-text-primary); margin-bottom: 2px; }
+.ux-rule-desc  { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+
+/* ─────────────────────────────────────────
+   CODE BLOCK
+───────────────────────────────────────── */
+.code-block {
+  background: #16151A;
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 1.8;
+  color: #E2E8F0;
+  overflow-x: auto;
+  margin: 10px 0;
+}
+.code-block .c-comment { color: #5C5970; }
+.code-block .c-kw  { color: #7DD3FC; }
+.code-block .c-str { color: #86EFAC; }
+.code-block .c-fn  { color: #FDE68A; }
+.code-block .c-type { color: #F0ABFC; }
+.code-block .c-var { color: #F8FAFC; }
+.code-block .c-num { color: #FCA5A5; }
+.code-block .c-tag { color: #67E8F9; }
+.code-block .c-attr { color: #93C5FD; }
+
+/* ─────────────────────────────────────────
+   COMPONENT CONTRACT FILE TREE
+───────────────────────────────────────── */
+.file-tree {
+  background: #16151A;
+  border-radius: var(--r-lg);
+  padding: 18px 20px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  line-height: 2;
+  color: #E2E8F0;
+  margin: 10px 0;
+}
+.file-tree .ft-dir  { color: #7DD3FC; }
+.file-tree .ft-file { color: #86EFAC; }
+.file-tree .ft-note { color: #5C5970; font-size: 11px; }
+
+/* ─────────────────────────────────────────
+   VERSIONING
+───────────────────────────────────────── */
+.version-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+.version-card {
+  padding: 18px; border-radius: var(--r-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  text-align: center;
+}
+.version-card .vc-type { font-family: 'JetBrains Mono', monospace; font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.version-card .vc-label { font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted); margin-bottom: 8px; }
+.version-card .vc-desc  { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+.vc-major .vc-type { color: var(--color-error); }
+.vc-minor .vc-type { color: var(--color-warning); }
+.vc-patch .vc-type { color: var(--color-success); }
+
+/* ─────────────────────────────────────────
+   STATUS BADGES
+───────────────────────────────────────── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  padding: 3px 9px; border-radius: var(--r-full);
+}
+.badge .pip { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge-success { background: rgba(107,218,178,0.15); color: #1A6B4A; }
+.badge-success .pip { background: var(--color-success); }
+.badge-warning { background: rgba(218,218,107,0.2); color: #5C5C00; }
+.badge-warning .pip { background: var(--color-warning); }
+.badge-info    { background: var(--color-info-bg); color: var(--color-accent); }
+.badge-info    .pip { background: var(--color-primary); }
+.badge-neutral { background: var(--color-surface-hover); color: var(--color-text-secondary); }
+
+/* ─────────────────────────────────────────
+   LAYER TAGS
+───────────────────────────────────────── */
+.layer-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.06em;
+  padding: 4px 10px; border-radius: 99px;
+}
+.lt-tailwind { background: #EFF6FF; color: #1D4ED8; border: 1px solid #BFDBFE; }
+.lt-shadcn   { background: #FAF5FF; color: #7E22CE; border: 1px solid #E9D5FF; }
+.lt-daisy    { background: #FFF7ED; color: #C2410C; border: 1px solid #FDBA74; }
+.lt-plorea   { background: var(--color-info-bg); color: var(--color-accent); border: 1px solid var(--color-selection-border); }
+
+/* ─────────────────────────────────────────
+   DARK MODE
+───────────────────────────────────────── */
+.dark {
+  --color-bg-page:        #16151A;
+  --color-surface:        #1E1D24;
+  --color-surface-hover:  #26242E;
+  --color-text-primary:   #F0EEF5;
+  --color-text-secondary: #9B98A8;
+  --color-text-muted:     #5C5970;
+  --color-border:         #2E2C38;
+  --color-border-strong:  #3D3A4A;
+  --color-info-bg:        rgba(107,184,218,0.12);
+  --color-selection:      #0D2030;
+  --color-selection-border: #2E6B87;
+  --color-success-bg:     #132B22;
+  --color-warning-bg:     #282810;
+}
+.dark body { background: var(--color-bg-page); color: var(--color-text-primary); }
+.dark .sidebar { background: #1E1D24; border-right-color: #2E2C38; }
+.dark .sidebar-logo { border-bottom-color: #2E2C38; }
+.dark .nav-link { color: rgba(255,255,255,0.4); }
+.dark .nav-link:hover { color: rgba(255,255,255,0.82); background: rgba(255,255,255,0.04); }
+.dark .nav-link.active { color: var(--color-primary); background: rgba(107,184,218,0.06); }
+.dark .content { background: var(--color-bg-page); }
+.dark .card { background: #1E1D24; border-color: #2E2C38; }
+.dark .card-label { color: #5C5970; }
+.dark code { background: #26242E; color: #7EC8E3; border-color: #3D3A4A; }
+.dark .callout-info { background: #0D2030; border-color: #1D4A5F; color: #9B98A8; }
+.dark .callout-warn { background: #282808; border-color: #4A4A10; color: #9B98A8; }
+.dark .callout-new  { background: #132B22; border-color: #1D4A30; color: #9B98A8; }
+.dark .arch-diagram { background: #1E1D24; border-color: #2E2C38; }
+.dark .arch-layer { border-bottom-color: #2E2C38; }
+.dark .arch-layer-open { background: #26242E; }
+.dark .arch-layer-apps { background: #132B22; }
+.dark .arch-layer-plorea { background: rgba(107,184,218,0.06); }
+.dark .arch-arrow { background: #16151A; border-bottom-color: #2E2C38; }
+.dark .hierarchy-item { background: #1E1D24; border-color: #2E2C38; }
+.dark .hierarchy-item.h-top { background: rgba(107,184,218,0.06); border-color: rgba(107,184,218,0.3); }
+.dark .component-cat { border-color: #2E2C38; }
+.dark .component-cat-header { border-bottom-color: #2E2C38; }
+.dark .component-cat-body { background: #1E1D24; }
+.dark .component-chip { background: #26242E; border-color: #3D3A4A; }
+.dark .component-chip.p-prefix { background: rgba(107,184,218,0.1); border-color: rgba(107,184,218,0.2); }
+.dark .component-chip.domain { background: #132B22; border-color: #1D4A30; }
+.dark .policy-table th { background: #1E1D24; color: #5C5970; }
+.dark .policy-table td { border-bottom-color: #2E2C38; color: #9B98A8; }
+.dark .ux-rule { background: #1E1D24; border-color: #2E2C38; }
+.dark .ux-rule-title { color: #F0EEF5; }
+.dark .version-card { background: #1E1D24; border-color: #2E2C38; }
+.dark .vc-desc { color: #9B98A8; }
+.dark .token-table th { background: #1E1D24; color: #5C5970; }
+.dark .token-table td { border-bottom-color: #2E2C38; color: #9B98A8; }
+.dark .page-hero { border-bottom-color: #2E2C38; }
+.dark .meta-tag { background: #26242E; border-color: #3D3A4A; color: #9B98A8; }
+.dark .section-head h2 { color: #F0EEF5; border-bottom-color: #2E2C38; }
+.dark .do-box { background: #132B22; border-color: #1D4A30; }
+.dark .dont-box { background: #2E1212; border-color: #4A1A1A; }
+.dark .do-box li, .dark .dont-box li { color: #9B98A8; }
+.dark .lt-tailwind { background: #1E2A3A; color: #60A5FA; border-color: #2E4A6A; }
+.dark .lt-shadcn   { background: #2A1A3A; color: #C084FC; border-color: #4A2A6A; }
+.dark .lt-daisy    { background: #3A2010; color: #FB923C; border-color: #6A3A20; }
+.dark .lt-plorea   { background: rgba(107,184,218,0.1); color: #7EC8E3; border-color: rgba(107,184,218,0.25); }
+
+/* ─────────────────────────────────────────
+   THEME TOGGLE
+───────────────────────────────────────── */
+/* ─── Theme Picker ─── */
+#themePicker {
+  position: fixed; top: 16px; right: 16px; z-index: 1400;
+  display: flex; gap: 4px; align-items: center;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 6px;
+  box-shadow: var(--elevation-2);
+}
+.tp-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid transparent;
+  background: transparent; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 140ms;
+}
+.tp-btn:hover { background: var(--color-surface-hover); }
+.tp-btn.tp-active { border-color: var(--color-primary); background: var(--color-selection); }
+/* Dark mode picker surface */
+.dark #themePicker, .dark-dim #themePicker, .dark-neon #themePicker {
+  background: #1E1D24; border-color: #2E2C38;
+}
+
+/* ─── DARK DIM theme ─── */
+.dark-dim {
+  --color-bg-page:        #1C1C21;
+  --color-surface:        #242428;
+  --color-surface-hover:  #2C2C32;
+  --color-text-primary:   #E8E6F0;
+  --color-text-secondary: #9490A8;
+  --color-text-muted:     #56525E;
+  --color-primary:        #8BA0C4;
+  --color-primary-hover:  #9FB4D8;
+  --color-primary-text:   #0D1824;
+  --color-accent:         #8BA0C4;
+  --color-secondary:      #6E88A8;
+  --color-border:         #303038;
+  --color-border-strong:  #3E3E48;
+  --color-border-focus:   #8BA0C4;
+  --color-success:        #5AAA8A;
+  --color-success-bg:     #141E1A;
+  --color-warning:        #B0A84A;
+  --color-warning-bg:     #201E08;
+  --color-error:          #C05050;
+  --color-error-bg:       #220E0E;
+  --color-info-bg:        #141C24;
+  --color-selection:      #141C28;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.60);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.70);
+  --elevation-1: var(--shadow-xs);
+  --elevation-2: var(--shadow-sm);
+  --elevation-focus: 0 0 0 3px rgba(139,160,196,0.35);
+}
+.dark-dim body { background: #1C1C21; color: #E8E6F0; }
+.dark-dim .sidebar { background: #17171B; border-right-color: #303038; }
+.dark-dim .sidebar-logo { border-bottom-color: #303038; }
+.dark-dim .wordmark span { color: #8BA0C4; }
+.dark-dim .nav-group-label { color: #56525E; }
+.dark-dim .nav-link { color: #9490A8; }
+.dark-dim .nav-link:hover { background: #2C2C32; color: #E8E6F0; }
+.dark-dim .nav-link.active { background: rgba(139,160,196,0.10); color: #8BA0C4; border-left-color: #8BA0C4; }
+.dark-dim .content { background: #1C1C21; }
+.dark-dim .page-hero { border-bottom-color: #303038; }
+.dark-dim .page-hero h1 { color: #E8E6F0; }
+.dark-dim .page-hero .desc { color: #9490A8; }
+.dark-dim .meta-tag { background: #242428; border-color: #3E3E48; color: #9490A8; }
+.dark-dim .section-head h2 { color: #E8E6F0; border-bottom-color: #303038; }
+.dark-dim .section-head .label { color: #8BA0C4; }
+.dark-dim code { background: #2C2C32; color: #8BA0C4; border-color: #3E3E48; }
+.dark-dim .card { background: #242428; border-color: #303038; }
+.dark-dim .card-label { color: #56525E; }
+.dark-dim .callout-info { background: #141C24; border-color: #1E3050; color: #9490A8; }
+.dark-dim .callout-warn { background: #201E08; border-color: #403C10; color: #9490A8; }
+.dark-dim .field-input { background: #2C2C32; border-color: #3E3E48; color: #E8E6F0; }
+.dark-dim .field-label { color: #9490A8; }
+.dark-dim .btn-outline { border-color: #3E3E48; color: #9490A8; }
+.dark-dim .comp-tree { background: #242428; border-color: #303038; }
+.dark-dim .ct-root { color: #E8E6F0; }
+.dark-dim .ct-name { color: #8BA0C4; }
+.dark-dim .ct-branch { color: #3E3E48; }
+.dark-dim .lc-step { background: #242428; border-right-color: #303038; }
+.dark-dim .lc-label { color: #E8E6F0; }
+.dark-dim .sm-card { background: #242428; border-color: #303038; }
+.dark-dim .sm-header { border-bottom-color: #303038; }
+.dark-dim .sm-title { color: #E8E6F0; }
+.dark-dim .sm-rule { color: #9490A8; }
+.dark-dim .canon-item { background: #242428; border-color: #303038; }
+.dark-dim .ci-name { color: #E8E6F0; }
+.dark-dim .pattern-card { background: #242428; border-color: #303038; }
+.dark-dim .ocard { background: #242428; border-color: #303038; }
+.dark-dim .pay-method { background: #242428; border-color: #303038; }
+.dark-dim .ds-table th { background: #1C1C21; color: #56525E; border-bottom-color: #3E3E48; }
+.dark-dim .ds-table td { color: #9490A8; border-bottom-color: #303038; }
+.dark-dim .ds-table tbody tr:hover td { background: #2C2C32; }
+.dark-dim .d-row { border-bottom-color: #303038; color: #9490A8; }
+.dark-dim .d-row:hover { background: #2C2C32; }
+.dark-dim .d-id { color: #8BA0C4; }
+.dark-dim .dtoggle { background: #242428; border-color: #3E3E48; color: #9490A8; }
+.dark-dim .dtoggle.active { background: #2A3348; border-color: #2A3348; color: #E8E6F0; }
+.dark-dim .skeleton { background: linear-gradient(90deg, #2C2C32 25%, #363640 50%, #2C2C32 75%); background-size: 400px 100%; }
+.dark-dim .do-box  { background: rgba(90,170,138,0.05); border-color: rgba(90,170,138,0.2); }
+.dark-dim .dont-box{ background: rgba(192,80,80,0.05); border-color: rgba(192,80,80,0.2); }
+.dark-dim .elevation-row { background: #1C1C21; }
+.dark-dim .elev-card { background: #242428; }
+.dark-dim .z-row { background: #242428; border-color: #303038; }
+.dark-dim .anatomy-card { border-color: #303038; }
+.dark-dim .state-card { background: #242428; border-color: #303038; }
+.dark-dim .loading-card { border-color: #303038; }
+.dark-dim .pos-hero-rule { background: linear-gradient(135deg, #0D1828 0%, #162040 100%); }
+.dark-dim .pattern-rule { background: #2C2C32; }
+.dark-dim #themePicker { background: #242428; border-color: #303038; }
+
+/* ─── DARK NEON theme ─── */
+.dark-neon {
+  --color-bg-page:        #0E0E12;
+  --color-surface:        #14141A;
+  --color-surface-hover:  #1C1C24;
+  --color-text-primary:   #F0EEFF;
+  --color-text-secondary: #A09AB8;
+  --color-text-muted:     #504A65;
+  --color-primary:        #9B6AFF;
+  --color-primary-hover:  #B080FF;
+  --color-primary-text:   #0A0012;
+  --color-accent:         #B080FF;
+  --color-secondary:      #7B50D4;
+  --color-border:         #201E2C;
+  --color-border-strong:  #302C44;
+  --color-border-focus:   #9B6AFF;
+  --color-success:        #3ADBA8;
+  --color-success-bg:     #081A14;
+  --color-warning:        #F0C040;
+  --color-warning-bg:     #1A1400;
+  --color-error:          #FF5070;
+  --color-error-bg:       #1E0008;
+  --color-info-bg:        #100C1C;
+  --color-selection:      #180C28;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.60);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.70), 0 0 0 1px rgba(155,106,255,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.80), 0 0 0 1px rgba(155,106,255,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.90);
+  --elevation-1: var(--shadow-xs);
+  --elevation-2: var(--shadow-sm);
+  --elevation-focus: 0 0 0 3px rgba(155,106,255,0.40);
+}
+.dark-neon body { background: #0E0E12; color: #F0EEFF; }
+.dark-neon .sidebar { background: #0A0A10; border-right-color: #201E2C; }
+.dark-neon .sidebar-logo { border-bottom-color: #201E2C; }
+.dark-neon .wordmark span { color: #9B6AFF; }
+.dark-neon .nav-group-label { color: #504A65; }
+.dark-neon .nav-link { color: #A09AB8; }
+.dark-neon .nav-link:hover { background: #1C1C24; color: #F0EEFF; }
+.dark-neon .nav-link.active { background: rgba(155,106,255,0.12); color: #9B6AFF; border-left-color: #9B6AFF; }
+.dark-neon .content { background: #0E0E12; }
+.dark-neon .page-hero { border-bottom-color: #201E2C; }
+.dark-neon .page-hero h1 { color: #F0EEFF; }
+.dark-neon .page-hero .desc { color: #A09AB8; }
+.dark-neon .meta-tag { background: #14141A; border-color: #302C44; color: #A09AB8; }
+.dark-neon .section-head h2 { color: #F0EEFF; border-bottom-color: #201E2C; }
+.dark-neon .section-head .label { color: #9B6AFF; }
+.dark-neon code { background: #1C1824; color: #B080FF; border-color: #302C44; }
+.dark-neon .card { background: #14141A; border-color: #201E2C; }
+.dark-neon .card-label { color: #504A65; }
+.dark-neon .callout-info { background: #100C1C; border-color: #2A1E4A; color: #A09AB8; }
+.dark-neon .callout-warn { background: #1A1400; border-color: #3A3000; color: #A09AB8; }
+.dark-neon .field-input { background: #1C1C24; border-color: #302C44; color: #F0EEFF; }
+.dark-neon .field-label { color: #A09AB8; }
+.dark-neon .btn-primary { background: #9B6AFF; color: #0A0012; border-color: #9B6AFF; }
+.dark-neon .btn-primary:hover { background: #B080FF; }
+.dark-neon .btn-outline { border-color: #302C44; color: #A09AB8; }
+.dark-neon .comp-tree { background: #14141A; border-color: #201E2C; }
+.dark-neon .ct-root { color: #F0EEFF; }
+.dark-neon .ct-name { color: #9B6AFF; }
+.dark-neon .ct-branch { color: #302C44; }
+.dark-neon .ct-tag-foundation { background: rgba(155,106,255,0.12); color: #B080FF; }
+.dark-neon .ct-tag-wrapper    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .ct-tag-domain     { background: rgba(240,192,64,0.10); color: #F0C040; }
+.dark-neon .ct-tag-layout     { background: rgba(176,128,255,0.10); color: #B080FF; }
+.dark-neon .lc-step { background: #14141A; border-right-color: #201E2C; }
+.dark-neon .lc-label { color: #F0EEFF; }
+.dark-neon .sm-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .sm-header { border-bottom-color: #201E2C; }
+.dark-neon .sm-title { color: #F0EEFF; }
+.dark-neon .sm-rule { color: #A09AB8; }
+.dark-neon .canon-item { background: #14141A; border-color: #201E2C; }
+.dark-neon .ci-name { color: #F0EEFF; }
+.dark-neon .ci-dot-foundation { background: #9B6AFF; }
+.dark-neon .ci-dot-wrapper    { background: #3ADBA8; }
+.dark-neon .ci-dot-domain     { background: #F0C040; }
+.dark-neon .ci-dot-layout     { background: #B080FF; }
+.dark-neon .ci-safe-yes    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .ci-safe-review { background: rgba(240,192,64,0.10); color: #F0C040; }
+.dark-neon .pattern-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .pattern-rule { background: #1C1C24; border-left-color: #9B6AFF; }
+.dark-neon .ocard { background: #14141A; border-color: #201E2C; }
+.dark-neon .pay-method { background: #14141A; border-color: #201E2C; }
+.dark-neon .pay-method-active { background: #180C28; border-color: #9B6AFF; }
+.dark-neon .pay-check { color: #9B6AFF; }
+.dark-neon .ds-table th { background: #0E0E12; color: #504A65; border-bottom-color: #302C44; }
+.dark-neon .ds-table td { color: #A09AB8; border-bottom-color: #201E2C; }
+.dark-neon .ds-table tbody tr:hover td { background: #1C1C24; }
+.dark-neon .d-row { border-bottom-color: #201E2C; color: #A09AB8; }
+.dark-neon .d-row:hover { background: #1C1C24; }
+.dark-neon .d-id { color: #9B6AFF; }
+.dark-neon .dtoggle { background: #14141A; border-color: #302C44; color: #A09AB8; }
+.dark-neon .dtoggle.active { background: #2A1A4A; border-color: #9B6AFF; color: #F0EEFF; }
+.dark-neon .badge-success { background: rgba(58,219,168,0.12); color: #3ADBA8; }
+.dark-neon .badge-warning { background: rgba(240,192,64,0.12); color: #F0C040; }
+.dark-neon .badge-error   { background: rgba(255,80,112,0.12); color: #FF5070; }
+.dark-neon .badge-info    { background: rgba(155,106,255,0.12); color: #9B6AFF; }
+.dark-neon .badge-neutral { background: #1C1C24; border-color: #302C44; color: #A09AB8; }
+.dark-neon .skeleton { background: linear-gradient(90deg, #1C1C24 25%, #24202E 50%, #1C1C24 75%); background-size: 400px 100%; }
+.dark-neon .do-box  { background: rgba(58,219,168,0.05); border-color: rgba(58,219,168,0.2); }
+.dark-neon .dont-box{ background: rgba(255,80,112,0.05); border-color: rgba(255,80,112,0.2); }
+.dark-neon .elevation-row { background: #0E0E12; }
+.dark-neon .elev-card { background: #14141A; }
+.dark-neon .z-row { background: #14141A; border-color: #201E2C; }
+.dark-neon .anatomy-card { border-color: #201E2C; }
+.dark-neon .anatomy-zone { border-bottom-color: #201E2C; }
+.dark-neon .state-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .loading-card { border-color: #201E2C; }
+.dark-neon .loading-card-body { background: #14141A; }
+.dark-neon .pos-hero-rule { background: linear-gradient(135deg, #0C0820 0%, #1A1040 100%); }
+.dark-neon .pos-hero-number { color: #9B6AFF; }
+.dark-neon .zone-products { background: rgba(155,106,255,0.12); color: #B080FF; }
+.dark-neon .zone-order    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .zone-payment  { background: rgba(240,192,64,0.12); color: #F0C040; }
+.dark-neon .lc-step.lc-new { border-top-color: #9B6AFF; }
+.dark-neon .sm-loading .sm-header { border-top-color: #9B6AFF; }
+.dark-neon .sm-success .sm-header { border-top-color: #3ADBA8; }
+.dark-neon .sm-error   .sm-header { border-top-color: #FF5070; }
+.dark-neon #themePicker { background: #14141A; border-color: #201E2C; }
+.dark-neon .nav-link.active .dot { background: #9B6AFF; }
+
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition:
+    background-color 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color     220ms cubic-bezier(0.4, 0, 0.2, 1),
+    color            180ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 99px; }
+
+/* Divider */
+.divider { height: 1px; background: var(--color-border); margin: 48px 0; }
 /* ─────────────────────────────────────────
    TYPOGRAPHY SHOWCASE
 ───────────────────────────────────────── */
@@ -886,16 +1435,240 @@ html.theme-transition *::after {
 /* ─────────────────────────────────────────
    DARK MODE TOGGLE BUTTON
 ───────────────────────────────────────── */
-#themeToggle {
-  position: fixed; top: 16px; right: 20px; z-index: 1400;
-  width: 40px; height: 40px; border-radius: 50%;
-  border: 1px solid var(--color-border);
+/* ─── Theme Picker ─── */
+#themePicker {
+  position: fixed; top: 16px; right: 16px; z-index: 1400;
+  display: flex; gap: 4px; align-items: center;
   background: var(--color-surface);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 18px; box-shadow: var(--elevation-2);
-  transition: all 160ms cubic-bezier(0.16,1,0.3,1);
+  border: 1px solid var(--color-border);
+  border-radius: 99px;
+  padding: 4px 6px;
+  box-shadow: var(--elevation-2);
 }
-#themeToggle:hover { transform: scale(1.08); box-shadow: var(--elevation-3); }
+.tp-btn {
+  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid transparent;
+  background: transparent; cursor: pointer; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 140ms;
+}
+.tp-btn:hover { background: var(--color-surface-hover); }
+.tp-btn.tp-active { border-color: var(--color-primary); background: var(--color-selection); }
+/* Dark mode picker surface */
+.dark #themePicker, .dark-dim #themePicker, .dark-neon #themePicker {
+  background: #1E1D24; border-color: #2E2C38;
+}
+
+/* ─── DARK DIM theme ─── */
+.dark-dim {
+  --color-bg-page:        #1C1C21;
+  --color-surface:        #242428;
+  --color-surface-hover:  #2C2C32;
+  --color-text-primary:   #E8E6F0;
+  --color-text-secondary: #9490A8;
+  --color-text-muted:     #56525E;
+  --color-primary:        #8BA0C4;
+  --color-primary-hover:  #9FB4D8;
+  --color-primary-text:   #0D1824;
+  --color-accent:         #8BA0C4;
+  --color-secondary:      #6E88A8;
+  --color-border:         #303038;
+  --color-border-strong:  #3E3E48;
+  --color-border-focus:   #8BA0C4;
+  --color-success:        #5AAA8A;
+  --color-success-bg:     #141E1A;
+  --color-warning:        #B0A84A;
+  --color-warning-bg:     #201E08;
+  --color-error:          #C05050;
+  --color-error-bg:       #220E0E;
+  --color-info-bg:        #141C24;
+  --color-selection:      #141C28;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.40);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.50), 0 0 0 1px rgba(255,255,255,0.03);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.60);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.70);
+  --elevation-1: var(--shadow-xs);
+  --elevation-2: var(--shadow-sm);
+  --elevation-focus: 0 0 0 3px rgba(139,160,196,0.35);
+}
+.dark-dim body { background: #1C1C21; color: #E8E6F0; }
+.dark-dim .sidebar { background: #17171B; border-right-color: #303038; }
+.dark-dim .sidebar-logo { border-bottom-color: #303038; }
+.dark-dim .wordmark span { color: #8BA0C4; }
+.dark-dim .nav-group-label { color: #56525E; }
+.dark-dim .nav-link { color: #9490A8; }
+.dark-dim .nav-link:hover { background: #2C2C32; color: #E8E6F0; }
+.dark-dim .nav-link.active { background: rgba(139,160,196,0.10); color: #8BA0C4; border-left-color: #8BA0C4; }
+.dark-dim .content { background: #1C1C21; }
+.dark-dim .page-hero { border-bottom-color: #303038; }
+.dark-dim .page-hero h1 { color: #E8E6F0; }
+.dark-dim .page-hero .desc { color: #9490A8; }
+.dark-dim .meta-tag { background: #242428; border-color: #3E3E48; color: #9490A8; }
+.dark-dim .section-head h2 { color: #E8E6F0; border-bottom-color: #303038; }
+.dark-dim .section-head .label { color: #8BA0C4; }
+.dark-dim code { background: #2C2C32; color: #8BA0C4; border-color: #3E3E48; }
+.dark-dim .card { background: #242428; border-color: #303038; }
+.dark-dim .card-label { color: #56525E; }
+.dark-dim .callout-info { background: #141C24; border-color: #1E3050; color: #9490A8; }
+.dark-dim .callout-warn { background: #201E08; border-color: #403C10; color: #9490A8; }
+.dark-dim .field-input { background: #2C2C32; border-color: #3E3E48; color: #E8E6F0; }
+.dark-dim .field-label { color: #9490A8; }
+.dark-dim .btn-outline { border-color: #3E3E48; color: #9490A8; }
+.dark-dim .comp-tree { background: #242428; border-color: #303038; }
+.dark-dim .ct-root { color: #E8E6F0; }
+.dark-dim .ct-name { color: #8BA0C4; }
+.dark-dim .ct-branch { color: #3E3E48; }
+.dark-dim .lc-step { background: #242428; border-right-color: #303038; }
+.dark-dim .lc-label { color: #E8E6F0; }
+.dark-dim .sm-card { background: #242428; border-color: #303038; }
+.dark-dim .sm-header { border-bottom-color: #303038; }
+.dark-dim .sm-title { color: #E8E6F0; }
+.dark-dim .sm-rule { color: #9490A8; }
+.dark-dim .canon-item { background: #242428; border-color: #303038; }
+.dark-dim .ci-name { color: #E8E6F0; }
+.dark-dim .pattern-card { background: #242428; border-color: #303038; }
+.dark-dim .ocard { background: #242428; border-color: #303038; }
+.dark-dim .pay-method { background: #242428; border-color: #303038; }
+.dark-dim .ds-table th { background: #1C1C21; color: #56525E; border-bottom-color: #3E3E48; }
+.dark-dim .ds-table td { color: #9490A8; border-bottom-color: #303038; }
+.dark-dim .ds-table tbody tr:hover td { background: #2C2C32; }
+.dark-dim .d-row { border-bottom-color: #303038; color: #9490A8; }
+.dark-dim .d-row:hover { background: #2C2C32; }
+.dark-dim .d-id { color: #8BA0C4; }
+.dark-dim .dtoggle { background: #242428; border-color: #3E3E48; color: #9490A8; }
+.dark-dim .dtoggle.active { background: #2A3348; border-color: #2A3348; color: #E8E6F0; }
+.dark-dim .skeleton { background: linear-gradient(90deg, #2C2C32 25%, #363640 50%, #2C2C32 75%); background-size: 400px 100%; }
+.dark-dim .do-box  { background: rgba(90,170,138,0.05); border-color: rgba(90,170,138,0.2); }
+.dark-dim .dont-box{ background: rgba(192,80,80,0.05); border-color: rgba(192,80,80,0.2); }
+.dark-dim .elevation-row { background: #1C1C21; }
+.dark-dim .elev-card { background: #242428; }
+.dark-dim .z-row { background: #242428; border-color: #303038; }
+.dark-dim .anatomy-card { border-color: #303038; }
+.dark-dim .state-card { background: #242428; border-color: #303038; }
+.dark-dim .loading-card { border-color: #303038; }
+.dark-dim .pos-hero-rule { background: linear-gradient(135deg, #0D1828 0%, #162040 100%); }
+.dark-dim .pattern-rule { background: #2C2C32; }
+.dark-dim #themePicker { background: #242428; border-color: #303038; }
+
+/* ─── DARK NEON theme ─── */
+.dark-neon {
+  --color-bg-page:        #0E0E12;
+  --color-surface:        #14141A;
+  --color-surface-hover:  #1C1C24;
+  --color-text-primary:   #F0EEFF;
+  --color-text-secondary: #A09AB8;
+  --color-text-muted:     #504A65;
+  --color-primary:        #9B6AFF;
+  --color-primary-hover:  #B080FF;
+  --color-primary-text:   #0A0012;
+  --color-accent:         #B080FF;
+  --color-secondary:      #7B50D4;
+  --color-border:         #201E2C;
+  --color-border-strong:  #302C44;
+  --color-border-focus:   #9B6AFF;
+  --color-success:        #3ADBA8;
+  --color-success-bg:     #081A14;
+  --color-warning:        #F0C040;
+  --color-warning-bg:     #1A1400;
+  --color-error:          #FF5070;
+  --color-error-bg:       #1E0008;
+  --color-info-bg:        #100C1C;
+  --color-selection:      #180C28;
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.60);
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.70), 0 0 0 1px rgba(155,106,255,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.80), 0 0 0 1px rgba(155,106,255,0.06);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.90);
+  --elevation-1: var(--shadow-xs);
+  --elevation-2: var(--shadow-sm);
+  --elevation-focus: 0 0 0 3px rgba(155,106,255,0.40);
+}
+.dark-neon body { background: #0E0E12; color: #F0EEFF; }
+.dark-neon .sidebar { background: #0A0A10; border-right-color: #201E2C; }
+.dark-neon .sidebar-logo { border-bottom-color: #201E2C; }
+.dark-neon .wordmark span { color: #9B6AFF; }
+.dark-neon .nav-group-label { color: #504A65; }
+.dark-neon .nav-link { color: #A09AB8; }
+.dark-neon .nav-link:hover { background: #1C1C24; color: #F0EEFF; }
+.dark-neon .nav-link.active { background: rgba(155,106,255,0.12); color: #9B6AFF; border-left-color: #9B6AFF; }
+.dark-neon .content { background: #0E0E12; }
+.dark-neon .page-hero { border-bottom-color: #201E2C; }
+.dark-neon .page-hero h1 { color: #F0EEFF; }
+.dark-neon .page-hero .desc { color: #A09AB8; }
+.dark-neon .meta-tag { background: #14141A; border-color: #302C44; color: #A09AB8; }
+.dark-neon .section-head h2 { color: #F0EEFF; border-bottom-color: #201E2C; }
+.dark-neon .section-head .label { color: #9B6AFF; }
+.dark-neon code { background: #1C1824; color: #B080FF; border-color: #302C44; }
+.dark-neon .card { background: #14141A; border-color: #201E2C; }
+.dark-neon .card-label { color: #504A65; }
+.dark-neon .callout-info { background: #100C1C; border-color: #2A1E4A; color: #A09AB8; }
+.dark-neon .callout-warn { background: #1A1400; border-color: #3A3000; color: #A09AB8; }
+.dark-neon .field-input { background: #1C1C24; border-color: #302C44; color: #F0EEFF; }
+.dark-neon .field-label { color: #A09AB8; }
+.dark-neon .btn-primary { background: #9B6AFF; color: #0A0012; border-color: #9B6AFF; }
+.dark-neon .btn-primary:hover { background: #B080FF; }
+.dark-neon .btn-outline { border-color: #302C44; color: #A09AB8; }
+.dark-neon .comp-tree { background: #14141A; border-color: #201E2C; }
+.dark-neon .ct-root { color: #F0EEFF; }
+.dark-neon .ct-name { color: #9B6AFF; }
+.dark-neon .ct-branch { color: #302C44; }
+.dark-neon .ct-tag-foundation { background: rgba(155,106,255,0.12); color: #B080FF; }
+.dark-neon .ct-tag-wrapper    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .ct-tag-domain     { background: rgba(240,192,64,0.10); color: #F0C040; }
+.dark-neon .ct-tag-layout     { background: rgba(176,128,255,0.10); color: #B080FF; }
+.dark-neon .lc-step { background: #14141A; border-right-color: #201E2C; }
+.dark-neon .lc-label { color: #F0EEFF; }
+.dark-neon .sm-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .sm-header { border-bottom-color: #201E2C; }
+.dark-neon .sm-title { color: #F0EEFF; }
+.dark-neon .sm-rule { color: #A09AB8; }
+.dark-neon .canon-item { background: #14141A; border-color: #201E2C; }
+.dark-neon .ci-name { color: #F0EEFF; }
+.dark-neon .ci-dot-foundation { background: #9B6AFF; }
+.dark-neon .ci-dot-wrapper    { background: #3ADBA8; }
+.dark-neon .ci-dot-domain     { background: #F0C040; }
+.dark-neon .ci-dot-layout     { background: #B080FF; }
+.dark-neon .ci-safe-yes    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .ci-safe-review { background: rgba(240,192,64,0.10); color: #F0C040; }
+.dark-neon .pattern-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .pattern-rule { background: #1C1C24; border-left-color: #9B6AFF; }
+.dark-neon .ocard { background: #14141A; border-color: #201E2C; }
+.dark-neon .pay-method { background: #14141A; border-color: #201E2C; }
+.dark-neon .pay-method-active { background: #180C28; border-color: #9B6AFF; }
+.dark-neon .pay-check { color: #9B6AFF; }
+.dark-neon .ds-table th { background: #0E0E12; color: #504A65; border-bottom-color: #302C44; }
+.dark-neon .ds-table td { color: #A09AB8; border-bottom-color: #201E2C; }
+.dark-neon .ds-table tbody tr:hover td { background: #1C1C24; }
+.dark-neon .d-row { border-bottom-color: #201E2C; color: #A09AB8; }
+.dark-neon .d-row:hover { background: #1C1C24; }
+.dark-neon .d-id { color: #9B6AFF; }
+.dark-neon .dtoggle { background: #14141A; border-color: #302C44; color: #A09AB8; }
+.dark-neon .dtoggle.active { background: #2A1A4A; border-color: #9B6AFF; color: #F0EEFF; }
+.dark-neon .badge-success { background: rgba(58,219,168,0.12); color: #3ADBA8; }
+.dark-neon .badge-warning { background: rgba(240,192,64,0.12); color: #F0C040; }
+.dark-neon .badge-error   { background: rgba(255,80,112,0.12); color: #FF5070; }
+.dark-neon .badge-info    { background: rgba(155,106,255,0.12); color: #9B6AFF; }
+.dark-neon .badge-neutral { background: #1C1C24; border-color: #302C44; color: #A09AB8; }
+.dark-neon .skeleton { background: linear-gradient(90deg, #1C1C24 25%, #24202E 50%, #1C1C24 75%); background-size: 400px 100%; }
+.dark-neon .do-box  { background: rgba(58,219,168,0.05); border-color: rgba(58,219,168,0.2); }
+.dark-neon .dont-box{ background: rgba(255,80,112,0.05); border-color: rgba(255,80,112,0.2); }
+.dark-neon .elevation-row { background: #0E0E12; }
+.dark-neon .elev-card { background: #14141A; }
+.dark-neon .z-row { background: #14141A; border-color: #201E2C; }
+.dark-neon .anatomy-card { border-color: #201E2C; }
+.dark-neon .anatomy-zone { border-bottom-color: #201E2C; }
+.dark-neon .state-card { background: #14141A; border-color: #201E2C; }
+.dark-neon .loading-card { border-color: #201E2C; }
+.dark-neon .loading-card-body { background: #14141A; }
+.dark-neon .pos-hero-rule { background: linear-gradient(135deg, #0C0820 0%, #1A1040 100%); }
+.dark-neon .pos-hero-number { color: #9B6AFF; }
+.dark-neon .zone-products { background: rgba(155,106,255,0.12); color: #B080FF; }
+.dark-neon .zone-order    { background: rgba(58,219,168,0.10); color: #3ADBA8; }
+.dark-neon .zone-payment  { background: rgba(240,192,64,0.12); color: #F0C040; }
+.dark-neon .lc-step.lc-new { border-top-color: #9B6AFF; }
+.dark-neon .sm-loading .sm-header { border-top-color: #9B6AFF; }
+.dark-neon .sm-success .sm-header { border-top-color: #3ADBA8; }
+.dark-neon .sm-error   .sm-header { border-top-color: #FF5070; }
+.dark-neon #themePicker { background: #14141A; border-color: #201E2C; }
+.dark-neon .nav-link.active .dot { background: #9B6AFF; }
 
 
 /* ─────────────────────────────────────────
@@ -1520,188 +2293,1087 @@ html.theme-transition *::after {
 .dark .pay-method-active { background:var(--color-selection); border-color:#2E6B87; }
 .dark .pay-name    { color:#F0EEF5; }
 
+
+
+/* ─────────────────────────────────────────
+   COMPONENT HIERARCHY
+───────────────────────────────────────── */
+.comp-tree { font-family: 'DM Mono', monospace; font-size: 12.5px; line-height: 1.9; color: var(--color-text-secondary); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--r-lg); padding: 20px 24px; }
+.ct-root  { color: var(--color-text-primary); font-weight: 700; font-size: 13px; }
+.ct-l1    { padding-left: 18px; }
+.ct-l2    { padding-left: 36px; }
+.ct-l3    { padding-left: 54px; }
+.ct-branch { color: var(--color-text-muted); }
+.ct-name   { color: var(--color-secondary); font-weight: 600; }
+.ct-tag    { font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; margin-left: 8px; vertical-align: middle; }
+.ct-tag-foundation { background: rgba(107,184,218,0.12); color: var(--color-accent); }
+.ct-tag-wrapper    { background: rgba(107,218,178,0.12); color: #1A6B4A; }
+.ct-tag-domain     { background: rgba(218,218,107,0.15); color: #5C5C00; }
+.ct-tag-layout     { background: rgba(107,107,218,0.12); color: #5050A0; }
+.dark .ct-tag-foundation { background: rgba(107,184,218,0.10); color: #7EC8E3; }
+.dark .ct-tag-wrapper    { background: rgba(77,184,150,0.10); color: #4DB896; }
+.dark .ct-tag-domain     { background: rgba(196,196,74,0.10); color: #C4C44A; }
+.dark .ct-tag-layout     { background: rgba(126,126,218,0.10); color: #9898E0; }
+.dark .comp-tree { background: #1E1D24; border-color: #2E2C38; }
+.dark .ct-root   { color: #F0EEF5; }
+.dark .ct-name   { color: #7EC8E3; }
+.dark .ct-branch { color: #3D3A4A; }
+
+/* ─────────────────────────────────────────
+   INTERACTION PATTERNS / LIFECYCLE
+───────────────────────────────────────── */
+.lifecycle-row { display: flex; align-items: stretch; gap: 0; margin: 20px 0; }
+.lc-step {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 14px 8px 12px;
+  border-top: 3px solid transparent;
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  position: relative;
+}
+.lc-step:first-child { border-radius: var(--r-lg) 0 0 var(--r-lg); }
+.lc-step:last-child  { border-radius: 0 var(--r-lg) var(--r-lg) 0; border-right: none; }
+.lc-step.lc-new        { border-top-color: var(--color-primary); }
+.lc-step.lc-preparing  { border-top-color: var(--color-warning); }
+.lc-step.lc-ready      { border-top-color: var(--color-success); }
+.lc-step.lc-completed  { border-top-color: var(--color-text-muted); }
+.lc-step.lc-cancelled  { border-top-color: var(--color-error); }
+.lc-step.lc-pending    { border-top-color: var(--color-primary); }
+.lc-step.lc-authorized { border-top-color: var(--color-warning); }
+.lc-step.lc-paid       { border-top-color: var(--color-success); }
+.lc-step.lc-failed     { border-top-color: var(--color-error); }
+.lc-icon  { font-size: 18px; margin-bottom: 6px; }
+.lc-label { font-size: 10px; font-weight: 700; color: var(--color-text-primary); text-align: center; line-height: 1.3; }
+.lc-code  { font-size: 9px; font-family: monospace; color: var(--color-text-muted); margin-top: 3px; text-align: center; }
+.lc-arrow { color: var(--color-text-muted); font-size: 10px; position: absolute; right: -6px; top: 50%; transform: translateY(-50%); z-index: 1; background: var(--color-surface); padding: 2px 0; }
+.dark .lc-step   { background: #1E1D24; border-right-color: #2E2C38; }
+.dark .lc-label  { color: #F0EEF5; }
+.dark .lc-code   { color: #5C5970; }
+.dark .lc-arrow  { color: #3D3A4A; background: #1E1D24; }
+
+/* ─────────────────────────────────────────
+   STATE PATTERNS
+───────────────────────────────────────── */
+.state-matrix { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-top: 16px; }
+.sm-card {
+  border-radius: var(--r-lg); border: 1px solid var(--color-border);
+  background: var(--color-surface); overflow: hidden;
+  box-shadow: var(--elevation-1);
+}
+.sm-header {
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid var(--color-border);
+  display: flex; align-items: center; gap: 8px;
+}
+.sm-icon   { font-size: 16px; }
+.sm-title  { font-size: 11px; font-weight: 700; color: var(--color-text-primary); }
+.sm-body   { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; }
+.sm-rule   { font-size: 11px; color: var(--color-text-secondary); line-height: 1.5; display: flex; gap: 6px; }
+.sm-rule::before { content: '—'; color: var(--color-text-muted); flex-shrink: 0; }
+.sm-loading .sm-header { border-top: 2px solid var(--color-primary); }
+.sm-empty   .sm-header { border-top: 2px solid var(--color-text-muted); }
+.sm-error   .sm-header { border-top: 2px solid var(--color-error); }
+.sm-success .sm-header { border-top: 2px solid var(--color-success); }
+.sm-disabled .sm-header { border-top: 2px solid var(--color-border-strong); }
+.dark .sm-card    { background: #1E1D24; border-color: #2E2C38; }
+.dark .sm-header  { border-bottom-color: #2E2C38; }
+.dark .sm-title   { color: #F0EEF5; }
+.dark .sm-rule    { color: #9B98A8; }
+
+/* ─────────────────────────────────────────
+   CANONICAL COMPONENT LIST
+───────────────────────────────────────── */
+.canon-list { display: flex; flex-direction: column; gap: 24px; }
+.canon-group {}
+.canon-group-title {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--color-text-muted); margin-bottom: 10px;
+  display: flex; align-items: center; gap: 10px;
+}
+.canon-group-title::after { content: ''; flex: 1; height: 1px; background: var(--color-border); }
+.canon-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.canon-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--r-md); padding: 10px 12px;
+  transition: box-shadow var(--dur) var(--ease-out);
+}
+.canon-item:hover { box-shadow: var(--elevation-2); }
+.ci-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 3px; }
+.ci-dot-foundation { background: var(--color-primary); }
+.ci-dot-wrapper    { background: var(--color-success); }
+.ci-dot-domain     { background: var(--color-warning); }
+.ci-dot-layout     { background: #8080C8; }
+.ci-name { font-size: 12px; font-weight: 700; color: var(--color-text-primary); font-family: monospace; }
+.ci-desc { font-size: 11px; color: var(--color-text-muted); margin-top: 2px; }
+.ci-safe { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 99px; margin-top: 4px; display: inline-block; }
+.ci-safe-yes { background: rgba(107,218,178,0.12); color: #1A6B4A; }
+.ci-safe-review { background: rgba(218,218,107,0.15); color: #5C5C00; }
+.dark .canon-item { background: #1E1D24; border-color: #2E2C38; }
+.dark .ci-name    { color: #F0EEF5; }
+.dark .ci-desc    { color: #5C5970; }
+.dark .ci-safe-yes    { background: rgba(77,184,150,0.10); color: #4DB896; }
+.dark .ci-safe-review { background: rgba(196,196,74,0.10); color: #C4C44A; }
+
 </style>
 </head>
 <body>
 
-<!-- ══════════════ SIDEBAR ══════════════ -->
-<button id="themeToggle" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+<div id="themePicker">
+  <button class="tp-btn tp-active" data-theme="light" onclick="setTheme('light')" title="Light">☀️</button>
+  <button class="tp-btn" data-theme="dark" onclick="setTheme('dark')" title="Dark">🌙</button>
+  <button class="tp-btn" data-theme="dark-dim" onclick="setTheme('dark-dim')" title="Dark Dim">🌫️</button>
+  <button class="tp-btn" data-theme="dark-neon" onclick="setTheme('dark-neon')" title="Dark Neon">⚡</button>
+</div>
+
+<!-- ──────────── SIDEBAR ──────────── -->
 <nav class="sidebar">
   <div class="sidebar-logo">
     <div class="wordmark">Pl<span>or</span>ea</div>
-    <div class="sub">Design System · v2.7</div>
+    <div class="sub">UI Framework</div>
+    <div class="version-badge">Blueprint v1.1</div>
   </div>
   <div class="sidebar-inner">
     <div class="nav-group">
-      <div class="nav-group-label">Foundation</div>
-      <a class="nav-link" onclick="nav('intro')"><span class="dot"></span>Introduction</a>
-      <a class="nav-link" onclick="nav('techstack')"><span class="dot"></span>Tech Stack</a>
-      <a class="nav-link" onclick="nav('typography')"><span class="dot"></span>Typography</a>
-      <a class="nav-link" onclick="nav('colors')"><span class="dot"></span>Colors</a>
-      <a class="nav-link" onclick="nav('order-colors')"><span class="dot"></span>Order Type Colors</a>
-      <a class="nav-link" onclick="nav('spacing')"><span class="dot"></span>Spacing & Radius</a>
-      <a class="nav-link" onclick="nav('icons')"><span class="dot"></span>Iconography</a>
+      <div class="nav-group-label">Overview</div>
+      <a class="nav-link" onclick="nav('purpose')" active"><span class="dot"></span>Purpose</a>
+      <a class="nav-link" onclick="nav('foundations')""><span class="dot"></span>Foundations</a>
+      <a class="nav-link" onclick="nav('architecture')""><span class="dot"></span>Architecture</a>
+      <a class="nav-link" onclick="nav('styling-hierarchy')""><span class="dot"></span>Styling Hierarchy</a>
     </div>
     <div class="nav-group">
-      <div class="nav-group-label">Components</div>
-      <a class="nav-link" onclick="nav('buttons')"><span class="dot"></span>Buttons</a>
-      <a class="nav-link" onclick="nav('inputs')"><span class="dot"></span>Inputs &amp; Forms</a>
-      <a class="nav-link" onclick="nav('badges')"><span class="dot"></span>Badges &amp; Status</a>
-      <a class="nav-link" onclick="nav('tooltips')"><span class="dot"></span>Tooltips</a>
+      <div class="nav-group-label">Design System</div>
+      <a class="nav-link" onclick="nav('tokens')""><span class="dot"></span>Design Tokens</a>
+      <a class="nav-link" onclick="nav('components')""><span class="dot"></span>Component Architecture</a>
+      <a class="nav-link" onclick="nav('vendor-policy')""><span class="dot"></span>Vendor Policy</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Guidelines</div>
+      <a class="nav-link" onclick="nav('shadcn')""><span class="dot"></span>When to use shadcn/ui</a>
+      <a class="nav-link" onclick="nav('daisy')""><span class="dot"></span>When to use daisyUI</a>
+      <a class="nav-link" onclick="nav('ux-principles')""><span class="dot"></span>POS UX Principles</a>
+      <a class="nav-link" onclick="nav('performance')""><span class="dot"></span>Performance</a>
+      <a class="nav-link" onclick="nav('accessibility')""><span class="dot"></span>Accessibility</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Developer</div>
+      <a class="nav-link" onclick="nav('storybook')""><span class="dot"></span>Storybook</a>
+      <a class="nav-link" onclick="nav('contract')""><span class="dot"></span>Component Contract</a>
+      <a class="nav-link" onclick="nav('workflow')""><span class="dot"></span>Developer Workflow</a>
+      <a class="nav-link" onclick="nav('versioning')""><span class="dot"></span>Versioning</a>
+      <a class="nav-link" onclick="nav('future')""><span class="dot"></span>Future Evolution</a>
+    </div>
+
+
+    <div class="nav-group">
+      <div class="nav-group-label">System Architecture</div>
+      <a class="nav-link" onclick="nav('component-hierarchy')"" onclick="nav('component-hierarchy')"><span class="dot"></span>Component Hierarchy</a>
+      <a class="nav-link" onclick="nav('interaction-patterns')"" onclick="nav('interaction-patterns')"><span class="dot"></span>Interaction Patterns</a>
+      <a class="nav-link" onclick="nav('state-patterns')"" onclick="nav('state-patterns')"><span class="dot"></span>UI State Patterns</a>
+      <a class="nav-link" onclick="nav('canonical-component-list')"" onclick="nav('canonical-component-list')"><span class="dot"></span>Component List</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Visual Language</div>
+      <a class="nav-link" onclick="nav('typography')"" onclick="nav('typography')"><span class="dot"></span>Typography</a>
+      <a class="nav-link" onclick="nav('colors')"" onclick="nav('colors')"><span class="dot"></span>Colors</a>
+      <a class="nav-link" onclick="nav('order-colors')"" onclick="nav('order-colors')"><span class="dot"></span>Order Type Colors</a>
+      <a class="nav-link" onclick="nav('spacing')"" onclick="nav('spacing')"><span class="dot"></span>Spacing &amp; Radius</a>
+      <a class="nav-link" onclick="nav('icons')"" onclick="nav('icons')"><span class="dot"></span>Iconography</a>
+      <a class="nav-link" onclick="nav('breakpoints')"" onclick="nav('breakpoints')"><span class="dot"></span>Breakpoints</a>
+      <a class="nav-link" onclick="nav('motion')"" onclick="nav('motion')"><span class="dot"></span>Motion</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">UI Components</div>
+      <a class="nav-link" onclick="nav('buttons')"" onclick="nav('buttons')"><span class="dot"></span>Buttons</a>
+      <a class="nav-link" onclick="nav('inputs')"" onclick="nav('inputs')"><span class="dot"></span>Inputs &amp; Forms</a>
+      <a class="nav-link" onclick="nav('badges')"" onclick="nav('badges')"><span class="dot"></span>Badges &amp; Status</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Patterns</div>
-      <a class="nav-link" onclick="nav('density')"><span class="dot"></span>Density System</a>
-      <a class="nav-link" onclick="nav('states')"><span class="dot"></span>Interaction States</a>
-      <a class="nav-link" onclick="nav('layout-hierarchy')"><span class="dot"></span>Layout Hierarchy</a>
-      <a class="nav-link" onclick="nav('elevation')"><span class="dot"></span>Elevation</a>
-      <a class="nav-link" onclick="nav('anatomy')"><span class="dot"></span>Component Anatomy</a>
-      <a class="nav-link" onclick="nav('zindex')"><span class="dot"></span>Z-Index Scale</a>
-      <a class="nav-link" onclick="nav('table-pattern')"><span class="dot"></span>Table Pattern</a>
-      <a class="nav-link" onclick="nav('loading')"><span class="dot"></span>Loading &amp; Skeleton</a>
-      <a class="nav-link" onclick="nav('react-tokens')"><span class="dot"></span>React Token Rules</a>
-    </div>
-    <div class="nav-group">
-      <div class="nav-group-label">Layout & Motion</div>
-      <a class="nav-link" onclick="nav('breakpoints')"><span class="dot"></span>Breakpoints</a>
-      <a class="nav-link" onclick="nav('motion')"><span class="dot"></span>Motion</a>
+      <a class="nav-link" onclick="nav('density')"" onclick="nav('density')"><span class="dot"></span>Density System</a>
+      <a class="nav-link" onclick="nav('states')"" onclick="nav('states')"><span class="dot"></span>Interaction States</a>
+      <a class="nav-link" onclick="nav('layout-hierarchy')"" onclick="nav('layout-hierarchy')"><span class="dot"></span>Layout Hierarchy</a>
+      <a class="nav-link" onclick="nav('elevation')"" onclick="nav('elevation')"><span class="dot"></span>Elevation</a>
+      <a class="nav-link" onclick="nav('anatomy')"" onclick="nav('anatomy')"><span class="dot"></span>Component Anatomy</a>
+      <a class="nav-link" onclick="nav('zindex')"" onclick="nav('zindex')"><span class="dot"></span>Z-Index Scale</a>
+      <a class="nav-link" onclick="nav('table-pattern')"" onclick="nav('table-pattern')"><span class="dot"></span>Table Pattern</a>
+      <a class="nav-link" onclick="nav('loading')"" onclick="nav('loading')"><span class="dot"></span>Loading &amp; Skeleton</a>
+      <a class="nav-link" onclick="nav('react-tokens')"" onclick="nav('react-tokens')"><span class="dot"></span>React Token Rules</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Guidance</div>
-      <a class="nav-link" onclick="nav('accessibility')"><span class="dot"></span>Accessibility</a>
-      <a class="nav-link" onclick="nav('darkmode')"><span class="dot"></span>Dark Mode</a>
-      <a class="nav-link" onclick="nav('ux-writing')"><span class="dot"></span>UX Writing</a>
-      <a class="nav-link" onclick="nav('dodont')"><span class="dot"></span>Do / Don't</a>
+      <a class="nav-link" onclick="nav('darkmode')"" onclick="nav('darkmode')"><span class="dot"></span>Dark Mode</a>
+      <a class="nav-link" onclick="nav('ux-writing')"" onclick="nav('ux-writing')"><span class="dot"></span>UX Writing</a>
+      <a class="nav-link" onclick="nav('dodont')"" onclick="nav('dodont')"><span class="dot"></span>Do / Don't</a>
     </div>
-  
     <div class="nav-group">
       <div class="nav-group-label">Canonical Components</div>
-      <a class="nav-link" onclick="nav('canonical-app-shell')"><span class="dot"></span>App Shell</a>
-      <a class="nav-link" onclick="nav('canonical-order-table')"><span class="dot"></span>Order Table</a>
-      <a class="nav-link" onclick="nav('canonical-order-card')"><span class="dot"></span>Order Card</a>
-      <a class="nav-link" onclick="nav('canonical-cart')"><span class="dot"></span>Cart Summary</a>
-      <a class="nav-link" onclick="nav('canonical-payment')"><span class="dot"></span>Payment Selector</a>
+      <a class="nav-link" onclick="nav('canonical-app-shell')"" onclick="nav('canonical-app-shell')"><span class="dot"></span>App Shell</a>
+      <a class="nav-link" onclick="nav('canonical-order-table')"" onclick="nav('canonical-order-table')"><span class="dot"></span>Order Table</a>
+      <a class="nav-link" onclick="nav('canonical-order-card')"" onclick="nav('canonical-order-card')"><span class="dot"></span>Order Card</a>
+      <a class="nav-link" onclick="nav('canonical-cart')"" onclick="nav('canonical-cart')"><span class="dot"></span>Cart Summary</a>
+      <a class="nav-link" onclick="nav('canonical-payment')"" onclick="nav('canonical-payment')"><span class="dot"></span>Payment Selector</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-label">Operational UX</div>
-      <a class="nav-link" onclick="nav('pos-ux-patterns')"><span class="dot"></span>POS Patterns</a>
+      <a class="nav-link" onclick="nav('pos-ux-patterns')"" onclick="nav('pos-ux-patterns')"><span class="dot"></span>POS Patterns</a>
     </div>
-</div>
+  </div>
 </nav>
 
-<!-- ══════════════ CONTENT ══════════════ -->
+<!-- ──────────── MAIN ──────────── -->
 <div class="content">
 <div class="page">
 
-  <!-- PAGE HERO -->
+  <!-- HERO -->
   <div class="page-hero">
-    <div class="eyebrow">Plorea Design System</div>
-    <h1>Design Guidelines</h1>
-    <p class="desc">The official visual and interaction language of the Plorea platform. Synchronized with <code>tailwind.config.js</code> and the DaisyUI <code>plorea</code> theme.</p>
+    <div class="eyebrow">Internal Documentation</div>
+    <h1>Plorea UI Framework</h1>
+    <p class="desc">The standardized frontend platform used across all Plorea products — POS, kiosk, admin, KDS, online ordering, and QR surfaces.</p>
     <div class="meta-row">
-      <div class="meta-tag"><span class="dot"></span>v2.7 · March 2026</div>
-      <div class="meta-tag">Tailwind CSS + DaisyUI</div>
-      <div class="meta-tag">Vite · React · TypeScript</div>
+      <span class="meta-tag"><span class="dot"></span>Status: Active</span>
+      <span class="meta-tag"><span class="dot-blue dot"></span>Blueprint v1.1</span>
+      <span class="meta-tag"><span class="dot-orange dot"></span>Owner: Einar Morten Slapgård</span>
+      <span class="meta-tag">Scope: Entire Plorea Frontend</span>
+    </div>
+    <div style="margin-top:16px;display:flex;flex-wrap:wrap;gap:6px;">
+      <span class="layer-tag lt-tailwind">Tailwind CSS</span>
+      <span class="layer-tag lt-shadcn">shadcn/ui</span>
+      <span class="layer-tag lt-daisy">daisyUI</span>
+      <span class="layer-tag lt-plorea">@plorea/components</span>
     </div>
   </div>
 
-  <!-- ──────────── INTRO ──────────── -->
-  <section class="section" id="intro">
+  <!-- 1. PURPOSE -->
+  <section class="section" id="purpose">
     <div class="section-head">
-      <div class="label">01 — Foundation</div>
-      <h2>Introduction</h2>
+      <div class="label">01 — Overview</div>
+      <h2>Purpose</h2>
     </div>
-    <p class="body">Plorea is a restaurant SaaS platform covering POS, kiosk, QR and online ordering. The design system spans all touchpoints: back-office dashboard, kiosk surface, operator view, and customer-facing ordering flows.</p>
-    <p class="body">The design language is <strong>clean-operational</strong> — precise, fast to scan, and built for high-frequency use by restaurant staff under pressure. Aesthetic influences: Apple HIG (whitespace, type hierarchy), Linear (density, colour use) and Stripe (documentation sharpness).</p>
-    <div class="callout callout-info">
-      <strong>Tech Stack</strong>
-      <strong>Vite</strong> + <strong>React</strong> + <strong>TypeScript</strong> · Tailwind CSS · DaisyUI (<code>plorea</code> theme) · @tailwindcss/typography · Plus Jakarta Sans (body) · Sora (display/headings)
+    <p class="body">The Plorea UI Framework is the standardized frontend platform used across all Plorea products. It defines the visual language, interaction patterns, and UI architecture used on every surface the platform ships.</p>
+    <p class="body">Plorea does not attempt to reinvent low-level UI primitives. Instead it builds a curated, opinionated system on top of selected open-source foundations — keeping the investment focused on domain-specific UX rather than commodity components.</p>
+
+    <div class="grid-2" style="margin-top:20px;">
+      <div class="card">
+        <div class="card-label">Goals</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;flex-shrink:0;">→</span>Consistent user experience across all surfaces</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;flex-shrink:0;">→</span>Rapid feature development without UI debt</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;flex-shrink:0;">→</span>Performance on POS terminal hardware</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;flex-shrink:0;">→</span>Scalability across markets and white-label partners</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Applies to</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-accent);font-weight:700;flex-shrink:0;">⬡</span>POS Terminal</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-accent);font-weight:700;flex-shrink:0;">⬡</span>Admin Backoffice</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-accent);font-weight:700;flex-shrink:0;">⬡</span>Kitchen Display System (KDS)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-accent);font-weight:700;flex-shrink:0;">⬡</span>Online Ordering / QR / Self-Service</li>
+        </ul>
+      </div>
     </div>
   </section>
 
-
-  <!-- ──────────── TECH STACK ──────────── -->
-  <section class="section" id="techstack">
+  <!-- 2. FOUNDATIONS -->
+  <section class="section" id="foundations">
     <div class="section-head">
-      <div class="label">01b — Tech Stack</div>
-      <h2>Tech Stack</h2>
+      <div class="label">02 — Tech Stack</div>
+      <h2>Framework Foundations</h2>
     </div>
-    <p class="body">The Plorea frontend is built on Vite + React + TypeScript. This section documents the conventions and configuration relevant to the design system within that stack.</p>
+    <p class="body">The framework is built on top of four complementary technologies. Each plays a specific role — none of them overlap, and none of them are optional.</p>
+
+    <div style="overflow:auto;margin-top:16px;">
+      <table class="token-table">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Technology</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Framework</td>
+            <td><span class="badge badge-neutral">React + TypeScript</span></td>
+            <td style="color:var(--color-text-secondary);">UI runtime. Strict mode, concurrent features.</td>
+          </tr>
+          <tr>
+            <td>Styling</td>
+            <td><span class="layer-tag lt-tailwind">Tailwind CSS</span></td>
+            <td style="color:var(--color-text-secondary);">Low-level utilities. Layout, spacing, responsive breakpoints.</td>
+          </tr>
+          <tr>
+            <td>Component primitives</td>
+            <td><span class="layer-tag lt-shadcn">shadcn/ui</span></td>
+            <td style="color:var(--color-text-secondary);">Accessible, composable React primitives. Complex interactions.</td>
+          </tr>
+          <tr>
+            <td>Utility components</td>
+            <td><span class="layer-tag lt-daisy">daisyUI</span></td>
+            <td style="color:var(--color-text-secondary);">Semantic utility classes. Badges, alerts, stats, rapid prototyping.</td>
+          </tr>
+          <tr>
+            <td>Bundler</td>
+            <td><span class="badge badge-neutral">Vite</span></td>
+            <td style="color:var(--color-text-secondary);">Fast HMR, ESM-native, library build mode.</td>
+          </tr>
+          <tr>
+            <td>Data handling</td>
+            <td><span class="badge badge-neutral">TanStack Query</span></td>
+            <td style="color:var(--color-text-secondary);">Server state, caching, optimistic updates.</td>
+          </tr>
+          <tr>
+            <td>Backend integration</td>
+            <td><span class="badge badge-neutral">Laravel + Inertia</span></td>
+            <td style="color:var(--color-text-secondary);">SSR-friendly SPA. Shared data model with backend.</td>
+          </tr>
+          <tr>
+            <td>Documentation</td>
+            <td><span class="badge badge-info"><span class="pip"></span>Storybook</span></td>
+            <td style="color:var(--color-text-secondary);">Visual reference and development environment.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub">Role of Each Foundation</h3>
+    <div class="grid-2">
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span class="layer-tag lt-tailwind">Tailwind</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:13px;color:var(--color-text-secondary);">Low-level utility styling</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Layout and spacing</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Responsive breakpoints</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">The <code>cn()</code> utility for class composition</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span class="layer-tag lt-shadcn">shadcn/ui</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:13px;color:var(--color-text-secondary);">Composable React primitives</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Accessible interaction patterns (ARIA)</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Complex UI: dialogs, dropdowns, command palettes</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Foundation for Plorea wrapper components</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span class="layer-tag lt-daisy">daisyUI</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:13px;color:var(--color-text-secondary);">Semantic utility classes</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Lightweight visual components</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Rapid UI composition in prototypes</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Theme layer — maps to Plorea tokens via CSS vars</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span class="layer-tag lt-plorea">Plorea Framework</span>
+        </div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:5px;">
+          <li style="font-size:13px;color:var(--color-text-secondary);">Design tokens (single source of truth)</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Wrapper components with Plorea variants</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">Domain components (orders, payments, KDS)</li>
+          <li style="font-size:13px;color:var(--color-text-secondary);">UX rules and POS performance standards</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. ARCHITECTURE -->
+  <section class="section" id="architecture">
+    <div class="section-head">
+      <div class="label">03 — Architecture</div>
+      <h2>Architecture Overview</h2>
+    </div>
+    <p class="body">The UI ecosystem has three layers. Applications interact with Plorea components — never directly with vendor primitives. The Plorea layer controls all branding, UX rules, and domain logic.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-layer arch-layer-apps">
+        <span class="arch-layer-tag">Applications</span>
+        <div>
+          <div class="arch-layer-title">Product Applications</div>
+          <div class="arch-layer-desc">POS · Backoffice · KDS · Online Ordering · Kiosk · QR</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer arch-layer-plorea">
+        <span class="arch-layer-tag">Plorea</span>
+        <div>
+          <div class="arch-layer-title">@plorea/components — UI Framework</div>
+          <div class="arch-layer-desc">Design tokens · Wrapper components (PButton, PInput…) · Domain components (OrderCard, KitchenTicket…) · UX rules</div>
+        </div>
+      </div>
+      <div class="arch-arrow">↓</div>
+      <div class="arch-layer arch-layer-open">
+        <span class="arch-layer-tag">Open Source</span>
+        <div>
+          <div class="arch-layer-title">Open UI Foundations</div>
+          <div class="arch-layer-desc">Tailwind CSS · shadcn/ui primitives · daisyUI semantic classes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:20px;">
+      <strong>Rule</strong>
+      Applications must import from <code>@plorea/components</code> only. Direct use of <code>shadcn/ui</code> or <code>daisyUI</code> inside product code is not permitted except in prototype branches.
+    </div>
+  </section>
+
+  <!-- 4. STYLING HIERARCHY -->
+  <section class="section" id="styling-hierarchy">
+    <div class="section-head">
+      <div class="label">04 — Styling</div>
+      <h2>Styling Hierarchy</h2>
+    </div>
+    <p class="body">The framework defines a strict styling hierarchy. Following this order ensures consistent theming, dark mode support, and maintainability across the codebase.</p>
+
+    <div class="hierarchy-stack">
+      <div class="hierarchy-item h-top">
+        <div class="hierarchy-num">1</div>
+        <div>
+          <div class="hierarchy-name">Plorea Design Tokens</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">CSS custom properties. <code>var(--color-primary)</code>, <code>var(--r-lg)</code>, <code>var(--dur-fast)</code>. Never use raw hex values in components.</div>
+        </div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">2</div>
+        <div>
+          <div class="hierarchy-name">Plorea Wrapper Components</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">Use <code>PButton</code>, <code>PInput</code>, <code>PDialog</code> etc. These components already apply the right tokens and variants.</div>
+        </div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">3</div>
+        <div>
+          <div class="hierarchy-name">shadcn/ui Primitives</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">Used inside Plorea wrappers. Not consumed directly in product code.</div>
+        </div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">4</div>
+        <div>
+          <div class="hierarchy-name">daisyUI Semantic Classes</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">Used inside Plorea wrappers for quick composition. Not used directly in product screens.</div>
+        </div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">5</div>
+        <div>
+          <div class="hierarchy-name">Tailwind Utilities</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">Layout, spacing, and responsive helpers. Used everywhere via <code>className</code>. Color classes only via token-mapped aliases.</div>
+        </div>
+      </div>
+      <div class="hierarchy-item h-bottom">
+        <div class="hierarchy-num">6</div>
+        <div>
+          <div class="hierarchy-name">Raw CSS — by exception only</div>
+          <div class="ux-rule-desc" style="margin-top:2px;">Only when no other layer can achieve the result. Must be documented with a comment explaining why.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TOKENS -->
+  <section class="section" id="tokens">
+    <div class="section-head">
+      <div class="label">05 — Design Tokens</div>
+      <h2>Design Tokens</h2>
+    </div>
+    <p class="body">Design tokens define the core visual language of Plorea. They are the single source of truth for all colour, spacing, radius, shadow, and motion values. Raw values must never be used in components.</p>
 
     <div class="grid-2" style="margin-bottom:16px;">
       <div class="card">
-        <div class="card-label">Core stack</div>
-        <table style="width:100%;border-collapse:collapse;font-size:13px;">
-          <tbody>
-            <tr style="border-bottom:1px solid var(--gray-150);">
-              <td style="padding:9px 0;font-family:monospace;font-weight:700;color:var(--blue-700);width:120px;">Vite</td>
-              <td style="padding:9px 0;color:var(--gray-600);">Build tool &amp; dev server. Fast HMR, ESM-native.</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--gray-150);">
-              <td style="padding:9px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">React 18+</td>
-              <td style="padding:9px 0;color:var(--gray-600);">UI framework. Concurrent features, Suspense.</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--gray-150);">
-              <td style="padding:9px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">TypeScript</td>
-              <td style="padding:9px 0;color:var(--gray-600);">Strict mode on. Types for all props and tokens.</td>
-            </tr>
-            <tr style="border-bottom:1px solid var(--gray-150);">
-              <td style="padding:9px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">Tailwind CSS</td>
-              <td style="padding:9px 0;color:var(--gray-600);">Utility-first. Plorea theme via DaisyUI.</td>
-            </tr>
-            <tr>
-              <td style="padding:9px 0;font-family:monospace;font-weight:700;color:var(--blue-700);">react-icons</td>
-              <td style="padding:9px 0;color:var(--gray-600);">Icon library. Tree-shaken named imports only.</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="card-label">Token Structure</div>
+        <div class="file-tree">
+<span class="ft-dir">tokens/</span>
+  <span class="ft-file">  colors.ts</span>     <span class="ft-note">← surface, text, semantic</span>
+  <span class="ft-file">  spacing.ts</span>    <span class="ft-note">← scale + semantic</span>
+  <span class="ft-file">  typography.ts</span> <span class="ft-note">← size, weight, family</span>
+  <span class="ft-file">  radius.ts</span>     <span class="ft-note">← --r-sm through --r-full</span>
+  <span class="ft-file">  shadows.ts</span>    <span class="ft-note">← elevation 0–4</span>
+  <span class="ft-file">  motion.ts</span>     <span class="ft-note">← dur-fast, dur, ease-out</span>
+  <span class="ft-file">  index.ts</span>      <span class="ft-note">← barrel export</span>
+        </div>
       </div>
       <div class="card">
-        <div class="card-label">Tailwind + Vite setup</div>
-        <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
-          <span style="color:#64748b;"># vite.config.ts</span><br>
-          <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">{ defineConfig }</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'vite'</span><br>
-          <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">react</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'@vitejs/plugin-react'</span><br><br>
-          <span style="color:#7dd3fc;">export default</span> <span style="color:#fde68a;">defineConfig</span><span style="color:#f8fafc;">({</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">plugins</span><span style="color:#f8fafc;">: [</span><span style="color:#fde68a;">react</span><span style="color:#f8fafc;">()],</span><br>
-          <span style="color:#f8fafc;">})</span>
+        <div class="card-label">Example Token Definition</div>
+        <div class="code-block">
+<span class="c-kw">export const</span> <span class="c-var">colors</span> = {
+  surface:         <span class="c-str">"#FFFFFF"</span>,
+  surfaceElevated: <span class="c-str">"#F7F8FA"</span>,
+  border:          <span class="c-str">"#E9E9E9"</span>,
+  textPrimary:     <span class="c-str">"#1A1A1A"</span>,
+  textMuted:       <span class="c-str">"#C4C4C4"</span>,
+  primary:         <span class="c-str">"#6BB8DA"</span>,
+  success:         <span class="c-str">"#6BDAB2"</span>,
+  warning:         <span class="c-str">"#DADA6B"</span>,
+  danger:          <span class="c-str">"#DA6B6B"</span>,
+}
         </div>
       </div>
     </div>
 
-    <div class="grid-2">
-      <div class="card">
-        <div class="card-label">TypeScript — component prop conventions</div>
-        <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
-          <span style="color:#64748b;">// Always type className as optional string</span><br>
-          <span style="color:#7dd3fc;">interface</span> <span style="color:#fde68a;">ButtonProps</span> <span style="color:#f8fafc;">{</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">variant</span><span style="color:#f8fafc;">: </span><span style="color:#86efac;">'primary'</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">'outline'</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">'ghost'</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">'danger'</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">size</span><span style="color:#f8fafc;">?: </span><span style="color:#86efac;">'sm'</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">'md'</span><span style="color:#f8fafc;"> | </span><span style="color:#86efac;">'lg'</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">isLoading</span><span style="color:#f8fafc;">?: boolean</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">className</span><span style="color:#f8fafc;">?: string</span><br>
-          &nbsp;&nbsp;<span style="color:#93c5fd;">children</span><span style="color:#f8fafc;">: React.ReactNode</span><br>
-          <span style="color:#f8fafc;">}</span>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-label">Tailwind class merging (cn utility)</div>
-        <p style="font-size:13px;color:var(--gray-500);margin-bottom:10px;">Use <code>clsx</code> + <code>tailwind-merge</code> to safely compose Tailwind classes.</p>
-        <div style="background:var(--gray-900);border-radius:var(--r);padding:14px;font-family:monospace;font-size:11px;line-height:1.9;color:#e2e8f0;">
-          <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">{ clsx, type ClassValue }</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'clsx'</span><br>
-          <span style="color:#7dd3fc;">import</span> <span style="color:#f8fafc;">{ twMerge }</span> <span style="color:#7dd3fc;">from</span> <span style="color:#86efac;">'tailwind-merge'</span><br><br>
-          <span style="color:#7dd3fc;">export function</span> <span style="color:#fde68a;">cn</span><span style="color:#f8fafc;">(...inputs: ClassValue[]) {</span><br>
-          &nbsp;&nbsp;<span style="color:#7dd3fc;">return</span> <span style="color:#fde68a;">twMerge</span><span style="color:#f8fafc;">(</span><span style="color:#fde68a;">clsx</span><span style="color:#f8fafc;">(inputs))</span><br>
-          <span style="color:#f8fafc;">}</span>
-        </div>
-      </div>
-    </div>
-    <div class="callout callout-info" style="margin-top:16px;">
-      <strong>File structure convention</strong>
-      Components live in <code>src/components/</code>. Each component gets its own folder: <code>Button/Button.tsx</code>, <code>Button/Button.types.ts</code>, <code>Button/index.ts</code>. Design tokens are consumed via Tailwind classes — never import raw CSS variables into TypeScript files.
+    <h3 class="sub">Token Mapping to daisyUI Theme</h3>
+    <p class="body">Plorea tokens map to daisyUI theme variables, allowing Plorea to control branding while still leveraging daisyUI's semantic class system.</p>
+    <table class="token-table">
+      <thead>
+        <tr>
+          <th>daisyUI Variable</th>
+          <th>Plorea Token</th>
+          <th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>--p-color-primary</td><td><code>colors.primary</code></td><td style="color:var(--color-text-secondary);">#6BB8DA</td></tr>
+        <tr><td>--p-color-secondary</td><td><code>colors.secondary</code></td><td style="color:var(--color-text-secondary);">#468DAC</td></tr>
+        <tr><td>--p-color-accent</td><td><code>colors.accent</code></td><td style="color:var(--color-text-secondary);">#2E6B87</td></tr>
+        <tr><td>--p-color-neutral</td><td><code>colors.textMuted</code></td><td style="color:var(--color-text-secondary);">#C4C4C4</td></tr>
+        <tr><td>--p-color-success</td><td><code>colors.success</code></td><td style="color:var(--color-text-secondary);">#6BDAB2</td></tr>
+        <tr><td>--p-color-warning</td><td><code>colors.warning</code></td><td style="color:var(--color-text-secondary);">#DADA6B</td></tr>
+        <tr><td>--p-color-danger</td><td><code>colors.danger</code></td><td style="color:var(--color-text-secondary);">#DA6B6B</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-warn" style="margin-top:16px;">
+      <strong>Token Rule</strong>
+      Components consume tokens via <code>var(--color-*)</code> in <code>style</code> props or Tailwind token aliases. Raw hex values in component code are a violation. TypeScript token objects are only for charting, canvas, or animation libraries.
     </div>
   </section>
 
-  <!-- ──────────── TYPOGRAPHY ──────────── -->
+  <!-- 6. COMPONENT ARCHITECTURE -->
+  <section class="section" id="components">
+    <div class="section-head">
+      <div class="label">06 — Components</div>
+      <h2>Component Architecture</h2>
+    </div>
+    <p class="body">All components in <code>@plorea/components</code> are divided into three categories with distinct responsibilities. The category determines where a component lives, how it is tested, and who consumes it.</p>
+
+    <!-- Foundation -->
+    <div class="component-cat cat-foundation">
+      <div class="component-cat-header">
+        <div class="component-cat-icon">🧱</div>
+        <div>
+          <div class="component-cat-title">Foundation Components</div>
+          <div class="component-cat-sub">Based on shadcn/ui primitives. Provide interaction logic and accessibility. Not consumed directly in product code.</div>
+        </div>
+      </div>
+      <div class="component-cat-body">
+        <p style="font-size:13px;color:var(--color-text-secondary);">These components form the interaction and accessibility layer. They are wrapped by Plorea components before exposure to product teams.</p>
+        <div class="component-chips">
+          <span class="component-chip">Button</span>
+          <span class="component-chip">Input</span>
+          <span class="component-chip">Dialog</span>
+          <span class="component-chip">Dropdown</span>
+          <span class="component-chip">Tabs</span>
+          <span class="component-chip">Popover</span>
+          <span class="component-chip">Sheet</span>
+          <span class="component-chip">Command</span>
+          <span class="component-chip">Form</span>
+          <span class="component-chip">Drawer</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wrapped -->
+    <div class="component-cat cat-wrapper">
+      <div class="component-cat-header">
+        <div class="component-cat-icon">🎨</div>
+        <div>
+          <div class="component-cat-title">Plorea Wrapped Components</div>
+          <div class="component-cat-sub">Wrap foundation components and apply Plorea styling, variants, and token mapping. These are the <strong>public UI API</strong> for product teams.</div>
+        </div>
+      </div>
+      <div class="component-cat-body">
+        <p style="font-size:13px;color:var(--color-text-secondary);">Applications should use these components instead of direct vendor components. They carry Plorea's visual language and UX rules.</p>
+        <div class="component-chips">
+          <span class="component-chip p-prefix">PButton</span>
+          <span class="component-chip p-prefix">PInput</span>
+          <span class="component-chip p-prefix">PSelect</span>
+          <span class="component-chip p-prefix">PDialog</span>
+          <span class="component-chip p-prefix">PBadge</span>
+          <span class="component-chip p-prefix">PCard</span>
+          <span class="component-chip p-prefix">PAlert</span>
+          <span class="component-chip p-prefix">PTabs</span>
+          <span class="component-chip p-prefix">PDropdown</span>
+          <span class="component-chip p-prefix">PToast</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Domain -->
+    <div class="component-cat cat-domain">
+      <div class="component-cat-header">
+        <div class="component-cat-icon">🏪</div>
+        <div>
+          <div class="component-cat-title">Domain Components</div>
+          <div class="component-cat-sub">Represent business functionality. Encapsulate POS, order, and payment domain logic. These do not exist in shadcn/ui or daisyUI.</div>
+        </div>
+      </div>
+      <div class="component-cat-body">
+        <p style="font-size:13px;color:var(--color-text-secondary);">These components are unique to Plorea. They carry state machine logic, channel awareness, and domain-specific interaction rules.</p>
+        <div class="component-chips">
+          <span class="component-chip domain">OrderCard</span>
+          <span class="component-chip domain">OrderTable</span>
+          <span class="component-chip domain">CartSummary</span>
+          <span class="component-chip domain">PaymentSelector</span>
+          <span class="component-chip domain">TerminalStatusBanner</span>
+          <span class="component-chip domain">KitchenTicket</span>
+          <span class="component-chip domain">OrderTimeline</span>
+          <span class="component-chip domain">AppShell</span>
+          <span class="component-chip domain">KioskShell</span>
+          <span class="component-chip domain">PosCart</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. VENDOR POLICY -->
+  <section class="section" id="vendor-policy">
+    <div class="section-head">
+      <div class="label">07 — Policy</div>
+      <h2>Vendor Usage Policy</h2>
+    </div>
+    <p class="body">To avoid UI fragmentation, vendor components must follow strict usage rules. Plorea components must remain the single UI contract across all product surfaces.</p>
+
+    <div class="do-dont">
+      <div class="do-box">
+        <div class="hd">✓ Allowed</div>
+        <ul>
+          <li>Using vendor components <em>via</em> Plorea wrapper components</li>
+          <li>Direct usage in prototype branches or experiments</li>
+          <li>Direct usage when creating a new canonical Plorea component</li>
+          <li>Using daisyUI classes inside <code>@plorea/components</code> source</li>
+        </ul>
+      </div>
+      <div class="dont-box">
+        <div class="hd">✗ Not Allowed</div>
+        <ul>
+          <li>Random <code>badge-success</code> classes scattered in product screens</li>
+          <li>Multiple visual implementations of the same UI pattern</li>
+          <li>App-specific theme definitions that override Plorea tokens</li>
+          <li>Importing directly from <code>shadcn/ui</code> in product application code</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:4px;">
+      <strong>Principle</strong>
+      If you find yourself writing <code>class="badge badge-success"</code> in a product screen, you should be writing <code>&lt;PStatusBadge status="paid" /&gt;</code> instead.
+    </div>
+  </section>
+
+  <!-- 8. SHADCN -->
+  <section class="section" id="shadcn">
+    <div class="section-head">
+      <div class="label">08 — shadcn/ui</div>
+      <h2>When to use shadcn/ui</h2>
+    </div>
+    <p class="body">shadcn/ui is the right tool for building complex, interactive components that require accessible interaction patterns. It handles keyboard navigation, focus management, and ARIA attributes.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Use shadcn/ui for</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Complex interactive components</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Form elements with validation</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Modals and dialogs</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Menus and command palettes</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Composable UI structures</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Typical examples</div>
+        <div class="component-chips" style="margin-top:4px;">
+          <span class="component-chip">Dialog</span>
+          <span class="component-chip">DropdownMenu</span>
+          <span class="component-chip">Popover</span>
+          <span class="component-chip">Command</span>
+          <span class="component-chip">Tabs</span>
+          <span class="component-chip">Drawer</span>
+          <span class="component-chip">Form</span>
+          <span class="component-chip">Select</span>
+          <span class="component-chip">Combobox</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:16px;">
+      <strong>Remember</strong>
+      Always wrap shadcn/ui components in a Plorea component before exposing them to product teams. The Plorea wrapper applies tokens, sets variant constraints, and gives the component a stable public API.
+    </div>
+  </section>
+
+  <!-- 9. DAISY -->
+  <section class="section" id="daisy">
+    <div class="section-head">
+      <div class="label">09 — daisyUI</div>
+      <h2>When to use daisyUI</h2>
+    </div>
+    <p class="body">daisyUI is best for simple visual components, quick layout prototyping, and lightweight UI elements that don't require complex interaction logic.</p>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Use daisyUI for</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Simple visual components</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Fast layout prototyping</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Lightweight UI elements</li>
+        </ul>
+        <div style="margin-top:12px;">
+          <div class="card-label">Typical examples</div>
+          <div class="component-chips" style="margin-top:4px;">
+            <span class="component-chip">badge</span>
+            <span class="component-chip">alert</span>
+            <span class="component-chip">loading</span>
+            <span class="component-chip">stat</span>
+            <span class="component-chip">card</span>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Wrapper Pattern</div>
+        <p style="font-size:12px;color:var(--color-text-secondary);margin-bottom:10px;">Always wrap daisyUI classes inside a Plorea component:</p>
+        <div class="code-block" style="font-size:11px;">
+<span class="c-comment">// ✅ Correct — Plorea wrapper</span>
+&lt;<span class="c-tag">PStatusBadge</span> <span class="c-attr">status</span>=<span class="c-str">"paid"</span> /&gt;
+
+<span class="c-comment">// ✗ Not allowed in product screens</span>
+&lt;<span class="c-tag">span</span> <span class="c-attr">class</span>=<span class="c-str">"badge badge-success"</span>&gt;
+  Paid
+&lt;/<span class="c-tag">span</span>&gt;
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10. UX PRINCIPLES -->
+  <section class="section" id="ux-principles">
+    <div class="section-head">
+      <div class="label">10 — UX</div>
+      <h2>POS UX Principles</h2>
+    </div>
+    <p class="body">Plorea POS interfaces follow strict UX principles designed for high-frequency, high-pressure operational environments. These rules are non-negotiable for POS and KDS surfaces.</p>
+
+    <div class="ux-principles">
+      <div class="ux-rule">
+        <div class="ux-rule-num">01</div>
+        <div>
+          <div class="ux-rule-title">Maximum two clicks for common actions</div>
+          <div class="ux-rule-desc">Any action a cashier performs more than 20 times per shift must be reachable in ≤ 2 taps from the main screen.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">02</div>
+        <div>
+          <div class="ux-rule-title">Primary actions always visible</div>
+          <div class="ux-rule-desc">The primary action on every screen is always above the fold and visually prominent. Never hidden behind a menu.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">03</div>
+        <div>
+          <div class="ux-rule-title">No hidden navigation layers</div>
+          <div class="ux-rule-desc">POS interfaces must not require discovery. All navigation paths are visible. No hamburger menus on operational screens.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">04</div>
+        <div>
+          <div class="ux-rule-title">Visual feedback under 100ms</div>
+          <div class="ux-rule-desc">All interactive elements provide visual feedback within 100ms. Use CSS transitions, not JS animations, for this layer.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">05</div>
+        <div>
+          <div class="ux-rule-title">Color communicates state</div>
+          <div class="ux-rule-desc">State colours are defined in tokens and are never overridden per-component. Green = ready, yellow = in progress, red = error/alert — always.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">06</div>
+        <div>
+          <div class="ux-rule-title">Avoid blocking modal flows</div>
+          <div class="ux-rule-desc">Modals that block the entire POS screen are only acceptable for payment flows and destructive confirmations. Never for informational content.</div>
+        </div>
+      </div>
+      <div class="ux-rule">
+        <div class="ux-rule-num">07</div>
+        <div>
+          <div class="ux-rule-title">Interface must work without training</div>
+          <div class="ux-rule-desc">A new cashier with restaurant industry experience should be able to process a simple order within 5 minutes on their first day.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11. PERFORMANCE -->
+  <section class="section" id="performance">
+    <div class="section-head">
+      <div class="label">11 — Performance</div>
+      <h2>Performance Guidelines</h2>
+    </div>
+    <p class="body">POS terminals are dedicated hardware, often with limited CPU resources. The UI must remain responsive during peak lunch and dinner rushes, with multiple concurrent orders updating in real time.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Render Rules</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-error);font-weight:700;">✗</span>Avoid heavy CSS animations on POS screens</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Target frame render under 16ms (60fps)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-error);font-weight:700;">✗</span>Avoid deep component nesting (&gt; 8 levels)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-error);font-weight:700;">✗</span>Limit unnecessary state updates and re-renders</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Use skeleton loaders, not spinners</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Optimistic updates for order state changes</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Touch Targets</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Minimum: 44×44px (WCAG AA)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>POS terminal: 48×48px preferred</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Kiosk dine-choice buttons: 120px minimum</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Destructive actions: always require confirmation</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12. ACCESSIBILITY -->
+  <section class="section" id="accessibility">
+    <div class="section-head">
+      <div class="label">12 — Accessibility</div>
+      <h2>Accessibility</h2>
+    </div>
+    <p class="body">Accessibility is a first-class requirement, not an afterthought. shadcn/ui provides the accessible interaction primitives — Plorea wrapper components must preserve and extend that foundation.</p>
+
+    <div class="callout callout-new">
+      <strong>Requirement</strong>
+      All canonical components must pass WCAG AA before they can be promoted from <em>experimental</em> to <em>stable</em> in the component registry.
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-label">Requirements</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Full keyboard navigation</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Screen reader compatibility (ARIA labels)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>High contrast colour combinations (4.5:1 min)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-success);font-weight:700;">✓</span>Visible focus states on all interactive elements</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">shadcn/ui Advantage</div>
+        <p style="font-size:13px;color:var(--color-text-secondary);line-height:1.6;">shadcn/ui is built on Radix UI primitives, which handle focus trapping, keyboard navigation, ARIA attributes, and screen reader announcements automatically. Plorea wrapper components inherit this foundation.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13. STORYBOOK -->
+  <section class="section" id="storybook">
+    <div class="section-head">
+      <div class="label">13 — Documentation</div>
+      <h2>Storybook</h2>
+    </div>
+    <p class="body">Storybook is the visual documentation and development environment for the framework. It is the single visual reference for product teams and new developers.</p>
+    <p class="body">Live at: <code>https://emsplorea.github.io/demo/</code></p>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-label">Each component must include</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Interactive examples with live controls</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Props documentation (auto-generated)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Variant demonstrations</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Accessibility notes</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Dark mode story</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Run locally</div>
+        <div class="code-block" style="font-size:11px;">
+<span class="c-comment"># From @plorea/components</span>
+<span class="c-kw">npm</span> install
+<span class="c-kw">npm</span> run storybook
+
+<span class="c-comment"># Build static</span>
+<span class="c-kw">npm</span> run build-storybook
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14. CONTRACT -->
+  <section class="section" id="contract">
+    <div class="section-head">
+      <div class="label">14 — Contract</div>
+      <h2>Component Contract</h2>
+    </div>
+    <p class="body">All components must follow the same file structure and export contract. This ensures consistent discoverability, testability, and documentation across the library.</p>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">File Structure</div>
+        <div class="file-tree">
+<span class="ft-dir">Button/</span>
+  <span class="ft-file">  Button.tsx</span>       <span class="ft-note">← component</span>
+  <span class="ft-file">  Button.types.ts</span>  <span class="ft-note">← prop types</span>
+  <span class="ft-file">  Button.stories.tsx</span> <span class="ft-note">← Storybook</span>
+  <span class="ft-file">  Button.test.ts</span>   <span class="ft-note">← Vitest</span>
+  <span class="ft-file">  Button.docs.mdx</span>  <span class="ft-note">← docs</span>
+  <span class="ft-file">  index.ts</span>         <span class="ft-note">← barrel export</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">Docs file must include</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Component description and intent</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Allowed variants</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Accessibility notes</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>POS surface suitability</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Dark mode behaviour</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sub">Base Prop Interfaces</h3>
+    <div class="code-block">
+<span class="c-comment">// component-contract.ts — all components extend these</span>
+<span class="c-kw">interface</span> <span class="c-type">BaseProps</span> {
+  style?: <span class="c-type">CSSProperties</span>  <span class="c-comment">// layout only — never colours</span>
+}
+<span class="c-kw">interface</span> <span class="c-type">LoadableProps</span> {
+  loading?: <span class="c-type">boolean</span>      <span class="c-comment">// skeleton, never spinner</span>
+}
+<span class="c-kw">interface</span> <span class="c-type">DisableableProps</span> {
+  disabled?: <span class="c-type">boolean</span>
+}
+<span class="c-comment">// Event handler naming: on{Noun}{Verb} — never handle*</span>
+<span class="c-kw">interface</span> <span class="c-type">OrderCardProps</span> <span class="c-kw">extends</span> <span class="c-type">BaseProps</span>, <span class="c-type">LoadableProps</span> {
+  onOrderSelect?: (id: <span class="c-type">string</span>) => <span class="c-type">void</span>
+  onOrderComplete?: (id: <span class="c-type">string</span>) => <span class="c-type">void</span>
+}
+    </div>
+  </section>
+
+  <!-- 15. WORKFLOW -->
+  <section class="section" id="workflow">
+    <div class="section-head">
+      <div class="label">15 — Developer Workflow</div>
+      <h2>Developer Workflow</h2>
+    </div>
+    <p class="body">The framework is published as an npm package. Product applications install and import from <code>@plorea/components</code> — no direct configuration of Tailwind, shadcn, or daisyUI is required in the application.</p>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Installation</div>
+        <div class="code-block" style="font-size:11px;">
+<span class="c-kw">npm</span> install <span class="c-str">@plorea/components</span>
+        </div>
+        <div style="margin-top:12px;">
+          <div class="card-label">Basic Usage</div>
+          <div class="code-block" style="font-size:11px;">
+<span class="c-kw">import</span> {
+  PButton,
+  OrderTable,
+  AppShell
+} <span class="c-kw">from</span> <span class="c-str">"@plorea/components"</span>
+
+<span class="c-kw">export default function</span> <span class="c-fn">OrdersPage</span>() {
+  <span class="c-kw">return</span> (
+    &lt;<span class="c-tag">AppShell</span>&gt;
+      &lt;<span class="c-tag">OrderTable</span> /&gt;
+    &lt;/<span class="c-tag">AppShell</span>&gt;
+  )
+}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">What's Included</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:4px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>15 canonical components (v3.3)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>TypeScript token system</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Component contract and types</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span><code>useDarkMode</code> and <code>useDensity</code> hooks</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Pre-configured tokens.css</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>tailwind.config.js with Plorea theme</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16. VERSIONING -->
+  <section class="section" id="versioning">
+    <div class="section-head">
+      <div class="label">16 — Versioning</div>
+      <h2>Versioning Strategy</h2>
+    </div>
+    <p class="body">The framework follows semantic versioning. All breaking changes must be documented in a migration guide before release.</p>
+
+    <div class="version-grid">
+      <div class="version-card vc-major">
+        <div class="vc-label">Major</div>
+        <div class="vc-type">X.0.0</div>
+        <div class="vc-desc">Breaking changes. Token renames, component API changes, removed exports. Requires migration guide.</div>
+      </div>
+      <div class="version-card vc-minor">
+        <div class="vc-label">Minor</div>
+        <div class="vc-type">0.X.0</div>
+        <div class="vc-desc">New components, new props, new token additions. Fully backward compatible.</div>
+      </div>
+      <div class="version-card vc-patch">
+        <div class="vc-label">Patch</div>
+        <div class="vc-type">0.0.X</div>
+        <div class="vc-desc">Bug fixes, visual corrections, documentation updates. Safe to upgrade immediately.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17. FUTURE -->
+  <section class="section" id="future">
+    <div class="section-head">
+      <div class="label">17 — Roadmap</div>
+      <h2>Future Evolution</h2>
+    </div>
+    <p class="body">The Plorea UI Framework will expand to support additional surfaces and partner use cases. The long-term goal is to make the framework the foundation of the entire Plorea product ecosystem.</p>
+
+    <div class="grid-2" style="margin-bottom:16px;">
+      <div class="card">
+        <div class="card-label">Near-term</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Vitest + Testing Library component tests</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>KDS-specific OrderCard variant</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>KitchenTicket component (stable)</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Parked orders list UI</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-label">Long-term</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:7px;">
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Mobile POS surface</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>White-label partner theme support</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Marketplace integrations</li>
+          <li style="display:flex;gap:8px;font-size:13px;color:var(--color-text-secondary);align-items:flex-start;"><span style="color:var(--color-primary);font-weight:700;">→</span>Figma token sync (Style Dictionary)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Architectural Note</strong>
+      The choice of shadcn/ui + daisyUI as foundations gives Plorea maximum flexibility for white-label scenarios — the Plorea token layer controls all branding without touching vendor component internals.
+    </div>
+  </section>
+
+
+  <!-- ═══ VISUAL LANGUAGE & PATTERNS (from v2.7) ═══ -->
   <section class="section" id="typography">
     <div class="section-head">
       <div class="label">02 — Typography</div>
@@ -1770,6 +3442,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── COLORS ──────────── -->
+
   <section class="section" id="colors">
     <div class="section-head">
       <div class="label">03 — Colors</div>
@@ -1830,6 +3503,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── ORDER TYPE COLORS ──────────── -->
+
   <section class="section" id="order-colors">
     <div class="section-head">
       <div class="label">04 — Order Type Colors</div>
@@ -1880,6 +3554,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── SPACING ──────────── -->
+
   <section class="section" id="spacing">
     <div class="section-head">
       <div class="label">05 — Spacing & Radius</div>
@@ -1934,6 +3609,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── ICONS ──────────── -->
+
   <section class="section" id="icons">
     <div class="section-head">
       <div class="label">06 — Iconography</div>
@@ -2040,6 +3716,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── BUTTONS ──────────── -->
+
   <section class="section" id="buttons">
     <div class="section-head">
       <div class="label">07 — Components</div>
@@ -2093,6 +3770,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── INPUTS ──────────── -->
+
   <section class="section" id="inputs">
     <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Inputs &amp; Forms</h2>
     <div class="grid-2">
@@ -2139,6 +3817,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── BADGES ──────────── -->
+
   <section class="section" id="badges">
     <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Badges &amp; Status</h2>
     <div class="grid-2">
@@ -2166,23 +3845,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── TOOLTIPS ──────────── -->
-  <section class="section" id="tooltips">
-    <h2 style="font-family:Sora;font-size:22px;font-weight:700;border-bottom:1px solid var(--gray-200);padding-bottom:16px;margin-bottom:28px;">Tooltips</h2>
-    <div class="card" style="max-width:400px;">
-      <div class="card-label">Hover to preview</div>
-      <div class="demo-row" style="padding:20px 0;">
-        <div class="tooltip-wrap">
-          <button class="btn btn-outline">Settings<div class="tooltip">Configure device</div></button>
-        </div>
-        <div class="tooltip-wrap">
-          <button class="btn btn-outline">Print<div class="tooltip">Print receipt</div></button>
-        </div>
-      </div>
-    </div>
-    <p class="body" style="margin-top:12px;">Max 6–8 words. Describe the action — not the element name. Delay: 400ms. Never obscure interactive elements.</p>
-  </section>
 
-  <!-- ──────────── BREAKPOINTS ──────────── -->
   <section class="section" id="breakpoints">
     <div class="section-head">
       <div class="label">08 — Layout</div>
@@ -2231,6 +3894,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── MOTION ──────────── -->
+
   <section class="section" id="motion">
     <div class="section-head">
       <div class="label">09 — Motion</div>
@@ -2256,55 +3920,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── ACCESSIBILITY ──────────── -->
-  <section class="section" id="accessibility">
-    <div class="section-head">
-      <div class="label">10 — Accessibility</div>
-      <h2>Accessibility</h2>
-    </div>
-    <p class="body">Target: WCAG 2.1 AA. Requirements are especially important in kiosk and POS contexts where users may have visual or motor impairments, and screens may face variable lighting conditions.</p>
 
-    <table class="a11y-table">
-      <thead><tr><th>Fargepar</th><th>Kontrastratio</th><th>Normal tekst</th><th>Stor tekst / UI</th><th>Anbefaling</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><div class="ratio-swatch"><div class="mini" style="background:#6BB8DA;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue on white</div></td>
-          <td>2.8:1</td><td class="fail">FAIL</td><td class="warn">GRENSE</td>
-          <td style="font-size:12px;">Not for body text. OK for decorative use / icons.</td>
-        </tr>
-        <tr>
-          <td><div class="ratio-swatch"><div class="mini" style="background:#468DAC;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue-700 on white</div></td>
-          <td>3.9:1</td><td class="warn">FAIL</td><td class="pass">PASS</td>
-          <td style="font-size:12px;">Use for links and large labels (18px+).</td>
-        </tr>
-        <tr>
-          <td><div class="ratio-swatch"><div class="mini" style="background:#2E6B87;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Blue-800 on white</div></td>
-          <td>5.3:1</td><td class="pass">PASS</td><td class="pass">PASS</td>
-          <td style="font-size:12px;">Preferred colour for interactive text.</td>
-        </tr>
-        <tr>
-          <td><div class="ratio-swatch"><div class="mini" style="background:#2D2C2F;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Gray-800 on white</div></td>
-          <td>14.7:1</td><td class="pass">PASS AAA</td><td class="pass">PASS</td>
-          <td style="font-size:12px;">Default body text colour. ✓</td>
-        </tr>
-        <tr>
-          <td><div class="ratio-swatch"><div class="mini" style="background:#DA6B6B;"></div><div class="mini" style="background:#fff;border:1px solid #ddd;"></div> Red on white</div></td>
-          <td>3.2:1</td><td class="fail">FAIL</td><td class="pass">PASS</td>
-          <td style="font-size:12px;">Always combine with icon + text for error states.</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <div class="callout callout-error" style="margin-top:16px;">
-      <strong>Important: Blue (#6BB8DA) on white fails WCAG AA for body text</strong>
-      Use <code>blue-800 (#2E6B87)</code> for all interactive text and links. The primary brand colour (#6BB8DA) is only permitted for icons, decorative elements, and background surfaces.
-    </div>
-    <div class="callout callout-info">
-      <strong>Touch targets</strong>
-      Minimum 44×44px (iOS HIG). Recommended 48×48px. Especially important on kiosk and POS surfaces where touch precision is lower.
-    </div>
-  </section>
-
-  <!-- ──────────── DARK MODE ──────────── -->
   <section class="section" id="darkmode">
     <div class="section-head">
       <div class="label">11 — Dark Mode</div>
@@ -2444,6 +4060,7 @@ html.theme-transition *::after {
 
 
   <!-- ──────────── REACT COMPONENT RULES ──────────── -->
+
   <section class="section" id="react-tokens">
     <div class="section-head">
       <div class="label">13 — Guidance</div>
@@ -2614,6 +4231,7 @@ html.theme-transition *::after {
 
   <!-- ──────────── DO
  / DON'T ──────────── -->
+
   <section class="section" id="dodont">
     <div class="section-head">
       <div class="label">12 — Usage Rules</div>
@@ -2667,6 +4285,7 @@ html.theme-transition *::after {
 
 
   <!-- ──────────── DENSITY SYSTEM ──────────── -->
+
   <section class="section" id="density">
     <div class="section-head">
       <div class="label">09 — Patterns</div>
@@ -2750,6 +4369,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── INTERACTION STATES ──────────── -->
+
   <section class="section" id="states">
     <div class="section-head">
       <div class="label">09b — Patterns</div>
@@ -2865,6 +4485,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── LAYOUT HIERARCHY ──────────── -->
+
   <section class="section" id="layout-hierarchy">
     <div class="section-head">
       <div class="label">09c — Patterns</div>
@@ -2914,6 +4535,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── ELEVATION ──────────── -->
+
   <section class="section" id="elevation">
     <div class="section-head">
       <div class="label">09d — Patterns</div>
@@ -2999,6 +4621,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── COMPONENT ANATOMY ──────────── -->
+
   <section class="section" id="anatomy">
     <div class="section-head">
       <div class="label">09e — Patterns</div>
@@ -3062,6 +4685,7 @@ html.theme-transition *::after {
 
 
   <!-- ──────────── Z-INDEX ──────────── -->
+
   <section class="section" id="zindex">
     <div class="section-head">
       <div class="label">09f — Patterns</div>
@@ -3095,6 +4719,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── TABLE PATTERN ──────────── -->
+
   <section class="section" id="table-pattern">
     <div class="section-head">
       <div class="label">09g — Patterns</div>
@@ -3208,6 +4833,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ──────────── LOADING & SKELETON STATES ──────────── -->
+
   <section class="section" id="loading">
     <div class="section-head">
       <div class="label">09h — Patterns</div>
@@ -3309,6 +4935,7 @@ html.theme-transition *::after {
 
 
   <!-- ──────────── UX WRITING ──────────── -->
+
   <section class="section" id="ux-writing">
     <div class="section-head">
       <div class="label">13 — Guidance</div>
@@ -3399,6 +5026,7 @@ html.theme-transition *::after {
   <!-- ══════════════ CANONICAL COMPONENTS ══════════════ -->
 
   <!-- ── App Shell ── -->
+
   <section class="section" id="canonical-app-shell">
     <div class="section-head">
       <div class="label">Canonical Component · 01</div>
@@ -3461,6 +5089,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ── Order Table ── -->
+
   <section class="section" id="canonical-order-table">
     <div class="section-head">
       <div class="label">Canonical Component · 02</div>
@@ -3564,6 +5193,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ── Order Card ── -->
+
   <section class="section" id="canonical-order-card">
     <div class="section-head">
       <div class="label">Canonical Component · 03</div>
@@ -3673,6 +5303,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ── Cart Summary ── -->
+
   <section class="section" id="canonical-cart">
     <div class="section-head">
       <div class="label">Canonical Component · 04</div>
@@ -3751,6 +5382,7 @@ html.theme-transition *::after {
   </section>
 
   <!-- ── Payment Selector ── -->
+
   <section class="section" id="canonical-payment">
     <div class="section-head">
       <div class="label">Canonical Component · 05</div>
@@ -3834,6 +5466,7 @@ html.theme-transition *::after {
 
 
   <!-- ──────────── OPERATIONAL UX PATTERNS ──────────── -->
+
   <section class="section" id="pos-ux-patterns">
     <div class="section-head">
       <div class="label">14 — Operational UX</div>
@@ -4083,19 +5716,300 @@ html.theme-transition *::after {
 </div><!-- /page -->
 </div><!-- /content -->
 
-<script>
+
+  <!-- ══ COMPONENT HIERARCHY ══ -->
+  <section class="section" id="component-hierarchy">
+    <div class="section-head">
+      <div class="label">Architecture</div>
+      <h2>Component Hierarchy</h2>
+    </div>
+    <p class="body">The component tree shows how Plorea components compose into full surfaces. Every application surface is assembled from the same set of registered components — never ad-hoc HTML.</p>
+
+    <div class="comp-tree">
+      <div class="ct-root">AppShell <span class="ct-tag ct-tag-layout">Layout</span></div>
+      <div class="ct-l1"><span class="ct-branch">├─ </span><span class="ct-name">Sidebar</span> <span class="ct-tag ct-tag-layout">Layout</span></div>
+      <div class="ct-l2"><span class="ct-branch">│  ├─ </span><span class="ct-name">SidebarLogo</span></div>
+      <div class="ct-l2"><span class="ct-branch">│  └─ </span><span class="ct-name">SidebarNav</span></div>
+      <div class="ct-l1"><span class="ct-branch">├─ </span><span class="ct-name">TopBar</span> <span class="ct-tag ct-tag-layout">Layout</span></div>
+      <div class="ct-l2"><span class="ct-branch">│  ├─ </span><span class="ct-name">Breadcrumb</span></div>
+      <div class="ct-l2"><span class="ct-branch">│  └─ </span><span class="ct-name">PButton</span> <span class="ct-tag ct-tag-wrapper">Wrapper</span></div>
+      <div class="ct-l1"><span class="ct-branch">└─ </span><span class="ct-name">PageContainer</span> <span class="ct-tag ct-tag-layout">Layout</span></div>
+      <div class="ct-l2"><span class="ct-branch">   ├─ </span><span class="ct-name">OrderGrid</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  ├─ </span><span class="ct-name">OrderCard</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  │  ├─ </span><span class="ct-name">PBadge</span> <span class="ct-tag ct-tag-wrapper">Wrapper</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  │  └─ </span><span class="ct-name">PButton</span> <span class="ct-tag ct-tag-wrapper">Wrapper</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  └─ </span><span class="ct-name">OrderTable</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l2"><span class="ct-branch">   ├─ </span><span class="ct-name">CartPanel</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  ├─ </span><span class="ct-name">CartSummary</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l3"><span class="ct-branch">   │  └─ </span><span class="ct-name">PaymentSelector</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l2"><span class="ct-branch">   └─ </span><span class="ct-name">KioskShell</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l3"><span class="ct-branch">      ├─ </span><span class="ct-name">CheckoutFlow</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+      <div class="ct-l3"><span class="ct-branch">      └─ </span><span class="ct-name">KitchenTicket</span> <span class="ct-tag ct-tag-domain">Domain</span></div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:20px;">
+      <strong>Rule</strong>
+      Applications assemble surfaces from these registered components only. No raw HTML equivalents, no direct vendor imports.
+    </div>
+  </section>
+
+  <!-- ══ INTERACTION PATTERNS ══ -->
+  <section class="section" id="interaction-patterns">
+    <div class="section-head">
+      <div class="label">Architecture</div>
+      <h2>Interaction Patterns</h2>
+    </div>
+    <p class="body">Plorea defines canonical lifecycles for orders and payments. UI state must always reflect the canonical state — components never invent intermediate states.</p>
+
+    <h3 class="sub">Order Lifecycle</h3>
+    <div class="lifecycle-row">
+      <div class="lc-step lc-new">
+        <div class="lc-icon">🆕</div>
+        <div class="lc-label">Created</div>
+        <div class="lc-code">new</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-preparing">
+        <div class="lc-icon">🔥</div>
+        <div class="lc-label">Preparing</div>
+        <div class="lc-code">preparing</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-ready">
+        <div class="lc-icon">✅</div>
+        <div class="lc-label">Ready</div>
+        <div class="lc-code">ready</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-completed">
+        <div class="lc-icon">📦</div>
+        <div class="lc-label">Completed</div>
+        <div class="lc-code">completed</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-cancelled">
+        <div class="lc-icon">🚫</div>
+        <div class="lc-label">Cancelled</div>
+        <div class="lc-code">cancelled</div>
+      </div>
+    </div>
+
+    <h3 class="sub">Payment Lifecycle</h3>
+    <div class="lifecycle-row">
+      <div class="lc-step lc-pending">
+        <div class="lc-icon">⏳</div>
+        <div class="lc-label">Requested</div>
+        <div class="lc-code">payment_requested</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-pending">
+        <div class="lc-icon">🔄</div>
+        <div class="lc-label">Pending</div>
+        <div class="lc-code">payment_pending</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-authorized">
+        <div class="lc-icon">🔐</div>
+        <div class="lc-label">Authorized</div>
+        <div class="lc-code">payment_authorized</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-paid">
+        <div class="lc-icon">💳</div>
+        <div class="lc-label">Completed</div>
+        <div class="lc-code">payment_completed</div>
+        <div class="lc-arrow">›</div>
+      </div>
+      <div class="lc-step lc-failed">
+        <div class="lc-icon">⛔</div>
+        <div class="lc-label">Failed</div>
+        <div class="lc-code">payment_failed</div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-top:20px; gap:14px;">
+      <div class="card">
+        <div class="card-label">Cart editing rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span> Add / remove lines only while order is in <code>new</code> state</div>
+          <div class="cr-item"><span class="cr-bullet">→</span> Quantity edits trigger <code>onLineChange</code> — never mutate cart directly</div>
+          <div class="cr-item"><span class="cr-bullet">→</span> Discount applied after subtotal, before VAT</div>
+          <div class="cr-item"><span class="cr-bullet">→</span> CartSummary is read-only once payment is initiated</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-label">State transition rules</div>
+        <div class="canon-rules-list">
+          <div class="cr-item"><span class="cr-bullet">→</span> Only the API can advance order state — never optimistic local transitions</div>
+          <div class="cr-item"><span class="cr-bullet">→</span> <code>cancelled</code> is a terminal state — no re-open</div>
+          <div class="cr-item"><span class="cr-bullet">→</span> <code>payment_failed</code> returns to <code>payment_requested</code></div>
+          <div class="cr-item"><span class="cr-bullet">→</span> UI shows spinner for any pending state &gt; 300ms</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══ STATE PATTERNS ══ -->
+  <section class="section" id="state-patterns">
+    <div class="section-head">
+      <div class="label">Architecture</div>
+      <h2>UI State Patterns</h2>
+    </div>
+    <p class="body">Every component that loads or mutates data must handle all five UI states consistently. Inconsistent state handling is the single most common source of UX bugs in POS systems.</p>
+
+    <div class="state-matrix">
+      <div class="sm-card sm-loading">
+        <div class="sm-header"><div class="sm-icon">⏳</div><div class="sm-title">Loading</div></div>
+        <div class="sm-body">
+          <div class="sm-rule">Show skeleton, not spinner, for list/table views</div>
+          <div class="sm-rule">Spinner only for actions (button, submit)</div>
+          <div class="sm-rule">Never block entire page for background refetch</div>
+          <div class="sm-rule">Timeout UI after 8s with retry option</div>
+        </div>
+      </div>
+      <div class="sm-card sm-empty">
+        <div class="sm-header"><div class="sm-icon">📭</div><div class="sm-title">Empty</div></div>
+        <div class="sm-body">
+          <div class="sm-rule">Always show why it is empty, not just a blank area</div>
+          <div class="sm-rule">Provide a clear action to resolve the empty state</div>
+          <div class="sm-rule">Use consistent empty illustration style</div>
+          <div class="sm-rule">Never show "no results" without search context</div>
+        </div>
+      </div>
+      <div class="sm-card sm-error">
+        <div class="sm-header"><div class="sm-icon">⛔</div><div class="sm-title">Error</div></div>
+        <div class="sm-body">
+          <div class="sm-rule">Always show a human-readable message</div>
+          <div class="sm-rule">Always offer a retry action</div>
+          <div class="sm-rule">Log error to monitoring but never expose stack trace</div>
+          <div class="sm-rule">Error border on field, not just text below</div>
+        </div>
+      </div>
+      <div class="sm-card sm-success">
+        <div class="sm-header"><div class="sm-icon">✅</div><div class="sm-title">Success</div></div>
+        <div class="sm-body">
+          <div class="sm-rule">Auto-dismiss success toasts after 3s</div>
+          <div class="sm-rule">No success state for read operations — only mutations</div>
+          <div class="sm-rule">Payment confirmation is persistent (never auto-dismiss)</div>
+          <div class="sm-rule">Use green accent — never primary blue for success</div>
+        </div>
+      </div>
+      <div class="sm-card sm-disabled">
+        <div class="sm-header"><div class="sm-icon">🚫</div><div class="sm-title">Disabled</div></div>
+        <div class="sm-body">
+          <div class="sm-rule">opacity: 0.38 — never hide disabled elements</div>
+          <div class="sm-rule">Tooltip explaining why on hover (desktop)</div>
+          <div class="sm-rule">Never disable the primary CTA — show error instead</div>
+          <div class="sm-rule">Disabled ≠ Read-only: communicate the difference</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn" style="margin-top:20px;">
+      <strong>POS rule</strong>
+      On POS and Kiosk surfaces, <strong>Loading</strong> must show within 100ms and <strong>Error</strong> must offer a direct retry without requiring page navigation.
+    </div>
+  </section>
+
+  <!-- ══ CANONICAL COMPONENT LIST ══ -->
+  <section class="section" id="canonical-component-list">
+    <div class="section-head">
+      <div class="label">Architecture</div>
+      <h2>Canonical Component List</h2>
+    </div>
+    <p class="body">These are the official, registered components of the Plorea UI Framework. Applications import exclusively from <code>@plorea/components</code>. No direct shadcn/ui or daisyUI imports in application code.</p>
+
+    <div class="canon-list">
+
+      <div class="canon-group">
+        <div class="canon-group-title">Foundation — shadcn/ui primitives, Plorea-controlled</div>
+        <div class="canon-items">
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PButton</div><div class="ci-desc">Primary action surface</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PInput</div><div class="ci-desc">Text and numeric input</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PSelect</div><div class="ci-desc">Dropdown / select field</div><div class="ci-safe ci-safe-review">⚠ Needs review</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PBadge</div><div class="ci-desc">Status and label chips</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PDialog</div><div class="ci-desc">Modal / confirmation</div><div class="ci-safe ci-safe-review">⚠ Needs review</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PCard</div><div class="ci-desc">Content container surface</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PAlert</div><div class="ci-desc">Inline status messages</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-foundation"></div><div><div class="ci-name">PTabs</div><div class="ci-desc">Tab navigation surface</div><div class="ci-safe ci-safe-review">⚠ Needs review</div></div></div>
+        </div>
+      </div>
+
+      <div class="canon-group">
+        <div class="canon-group-title">Layout — structural shells, not imported into domain components</div>
+        <div class="canon-items">
+          <div class="canon-item"><div class="ci-dot ci-dot-layout"></div><div><div class="ci-name">AppShell</div><div class="ci-desc">Dashboard layout frame</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-layout"></div><div><div class="ci-name">Sidebar</div><div class="ci-desc">Navigation sidebar</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-layout"></div><div><div class="ci-name">TopBar</div><div class="ci-desc">Header / breadcrumb bar</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-layout"></div><div><div class="ci-name">KioskShell</div><div class="ci-desc">Full-screen kiosk wrapper</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+        </div>
+      </div>
+
+      <div class="canon-group">
+        <div class="canon-group-title">Domain — business logic components, restaurant-specific</div>
+        <div class="canon-items">
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">OrderCard</div><div class="ci-desc">Single order summary tile</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">OrderTable</div><div class="ci-desc">Tabular order list</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">CartSummary</div><div class="ci-desc">Cart lines and totals</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">PaymentSelector</div><div class="ci-desc">Payment method chooser</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">KitchenTicket</div><div class="ci-desc">KDS ticket card</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">ProductCard</div><div class="ci-desc">Menu item tile (kiosk/QR)</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">CategoryNav</div><div class="ci-desc">Menu category selector</div><div class="ci-safe ci-safe-review">⚠ Needs review</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">CheckoutFlow</div><div class="ci-desc">Multi-step checkout</div><div class="ci-safe ci-safe-review">⚠ Needs review</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">PinPad</div><div class="ci-desc">Numeric PIN input</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+          <div class="canon-item"><div class="ci-dot ci-dot-domain"></div><div><div class="ci-name">PosCart</div><div class="ci-desc">POS cart panel</div><div class="ci-safe ci-safe-yes">✓ POS safe</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top:20px;">
+      <strong>Import rule</strong>
+      <code>import { OrderCard, PButton } from '@plorea/components'</code> — this is the only valid import pattern in application code. Direct imports from <code>shadcn/ui</code>, <code>daisyui</code>, or <code>@radix-ui</code> are not permitted.
+    </div>
+  </section>
+
+  <!-- CONCLUSION -->
+  <section class="section" id="conclusion">
+    <div class="section-head">
+      <div class="label">Conclusion</div>
+      <h2>Summary</h2>
+    </div>
+    <p class="body">The Plorea UI Framework standardizes how user interfaces are built across the entire Plorea platform. By combining modern open foundations with Plorea-specific design tokens, wrapper components, and domain components, the framework enables consistent UX, faster development, scalable architecture, and maintainable frontend systems.</p>
+
+    <div class="callout callout-new" style="margin-top:20px;">
+      <strong>Why this matters</strong>
+      Platforms that follow a layered component strategy consistently ship features 2–3× faster after the initial investment, with dramatically lower UI-related bug rates. This is the difference between a mature SaaS platform and a legacy POS system that's hard to change. The Plorea framework is the foundation that makes the rest possible.
+    </div>
+
+    <div style="margin-top:28px;padding:24px;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);box-shadow:var(--elevation-1);">
+      <div style="font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:10px;">Document Info</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px;color:var(--color-text-secondary);">
+        <div><strong style="color:var(--color-text-primary);">Version:</strong> Blueprint v1.1</div>
+        <div><strong style="color:var(--color-text-primary);">Status:</strong> <span class="badge badge-success"><span class="pip"></span>Active</span></div>
+        <div><strong style="color:var(--color-text-primary);">Owner:</strong> Einar Morten Slapgård</div>
+        <div><strong style="color:var(--color-text-primary);">Package:</strong> <code>@plorea/<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="51323e3c213e3f343f252211627f627f61">[email&#160;protected]</a></code></div>
+        <div><strong style="color:var(--color-text-primary);">Storybook:</strong> <code>emsplorea.github.io/demo/</code></div>
+        <div><strong style="color:var(--color-text-primary);">Repo:</strong> <code>emsplorea/demo</code></div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /page -->
+</div><!-- /content -->
 
 
-// Init from saved preference or system
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+
+
+// Init theme from saved preference or system
 (function() {
   try {
     const saved = localStorage.getItem('plorea-theme');
     const osDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (saved === 'dark' || (!saved && osDark)) {
-      document.documentElement.classList.add('dark');
-      document.getElementById('darkIcon').textContent = '☀️';
-      document.getElementById('darkLabel').textContent = 'Light';
-    }
+    const theme = saved || (osDark ? 'dark' : 'light');
+    if (theme !== 'light') document.documentElement.classList.add(theme);
+    // Will update picker buttons after DOM ready
+    window._initTheme = theme;
   } catch(e) {}
 })();
 
@@ -4104,28 +6018,77 @@ function nav(id) {
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// Dark mode toggle
+// Theme switcher
+const THEMES = ['light', 'dark', 'dark-dim', 'dark-neon'];
+function setTheme(theme) {
+  const html = document.documentElement;
+  html.classList.add('theme-transition');
+  THEMES.forEach(t => html.classList.remove(t));
+  if (theme !== 'light') html.classList.add(theme);
+  // Update picker buttons
+  document.querySelectorAll('.tp-btn').forEach(b => {
+    b.classList.toggle('tp-active', b.dataset.theme === theme);
+  });
+  try { localStorage.setItem('plorea-theme', theme); } catch(e) {}
+  setTimeout(() => html.classList.remove('theme-transition'), 260);
+}
+// Legacy compat
+function toggleTheme() { setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark'); }
+
+// Sync picker state after DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  const theme = window._initTheme || 'light';
+  document.querySelectorAll('.tp-btn').forEach(b => {
+    b.classList.toggle('tp-active', b.dataset.theme === theme);
+  });
+});
+
+// Copy hex on swatch click
+
+
 function toggleTheme() {
   const html = document.documentElement;
   html.classList.add('theme-transition');
-  const isDark = html.classList.toggle('dark');
-  document.getElementById('themeToggle').textContent = isDark ? '☀️' : '🌙';
-  try { localStorage.setItem('plorea-theme', isDark ? 'dark' : 'light'); } catch(e) {}
-  setTimeout(() => html.classList.remove('theme-transition'), 260);
+  html.classList.toggle('dark');
+  const btn = document.getElementById('themeToggle');
+  btn.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+  setTimeout(() => html.classList.remove('theme-transition'), 300);
 }
 
-// Apply saved theme on load
-(function() {
-  try {
-    const saved = localStorage.getItem('plorea-theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (saved === 'dark' || (!saved && prefersDark)) {
-      document.documentElement.classList.add('dark');
-      const btn = document.getElementById('themeToggle');
-      if (btn) btn.textContent = '☀️';
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const link = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (link) link.classList.add('active');
     }
-  } catch(e) {}
-})();
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+
+function nav(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// Density toggle — order list demo
+function setDensity(level, btn) {
+  const demo = document.getElementById('densityDemo');
+  if (demo) demo.setAttribute('data-density', level);
+  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+// Density toggle — table demo
+function setTableDensity(level, btn) {
+  const demo = document.getElementById('tableDemo');
+  if (demo) demo.setAttribute('data-density', level);
+  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
 
 // Copy hex on swatch click
 function copyHex(hex) {
@@ -4135,54 +6098,28 @@ function copyHex(hex) {
   if (!hexEl) return;
   const orig = hexEl.textContent;
   hexEl.textContent = 'Copied!';
-  hexEl.style.color = 'var(--blue-700)';
+  hexEl.style.color = 'var(--color-secondary)';
   setTimeout(() => { hexEl.textContent = orig; hexEl.style.color = ''; }, 1200);
 }
 
-// Density toggle — order list demo
-function setDensity(level, btn) {
-  document.getElementById('densityDemo').setAttribute('data-density', level);
-  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// Density toggle — table demo
-function setTableDensity(level, btn) {
-  document.getElementById('tableDemo').setAttribute('data-density', level);
-  btn.closest('.density-toggle').querySelectorAll('.dtoggle').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// Active nav on scroll
-const sections = document.querySelectorAll('section[id]');
-const links = document.querySelectorAll('.nav-link');
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      links.forEach(l => l.classList.remove('active'));
-      const id = e.target.id;
-      const a = document.querySelector(`.nav-link[onclick="nav('${id}')"]`);
-      if (a) a.classList.add('active');
-    }
-  });
-}, { rootMargin: '-25% 0px -65% 0px' });
-sections.forEach(s => io.observe(s));
-
-// Canonical Order Table — density toggle
+// Canonical Order Table density toggle
 function setCtDensity(mode, btn) {
-  document.getElementById('ctTableWrap').dataset.density = mode;
+  const el = document.getElementById('ctTableWrap');
+  if (el) el.dataset.density = mode;
   document.querySelectorAll('#ctDensityToggle .dtoggle').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 }
 
-// Canonical Payment — method selection
+// Canonical Payment method selection
 function selectPayMethod(el) {
   document.querySelectorAll('.pay-method').forEach(m => {
     m.classList.remove('pay-method-active');
-    m.querySelector('.pay-check').style.opacity = '0';
+    const chk = m.querySelector('.pay-check');
+    if (chk) chk.style.opacity = '0';
   });
   el.classList.add('pay-method-active');
-  el.querySelector('.pay-check').style.opacity = '1';
+  const chk = el.querySelector('.pay-check');
+  if (chk) chk.style.opacity = '1';
 }
 
 </script>
