@@ -66,6 +66,7 @@ var terminals=[{id:1,n:"Term 1",status:"idle",orderId:null},{id:2,n:"Term 2",sta
 // status: idle | busy | done | failed
 
 var nextOrderNum=1;
+var autoNewOrder=true;
 
 /* ═══ HELPERS ═══ */
 function uid(){return Date.now()+Math.random()}
@@ -160,6 +161,12 @@ function render(){
     termWrap.appendChild(tw);
   });
   topBar.appendChild(termWrap);
+
+  // Auto new order toggle
+  var autoWrap=el("div",{display:"flex",alignItems:"center",gap:"6px",marginLeft:"10px",padding:"5px 12px",borderRadius:"var(--r)",border:"1px solid var(--brd)",background:autoNewOrder?"var(--okBg)":"var(--sf)",cursor:"pointer",flexShrink:"0",transition:"all .16s",userSelect:"none"});
+  autoWrap.innerHTML='<div style="width:32px;height:18px;border-radius:9px;background:'+(autoNewOrder?"var(--ok)":"var(--brdS)")+';position:relative;transition:background .2s"><div style="width:14px;height:14px;border-radius:50%;background:#fff;position:absolute;top:2px;'+(autoNewOrder?"right:2px":"left:2px")+';transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)"></div></div><span style="font-size:10px;font-weight:600;color:'+(autoNewOrder?"#1a8a5e":"var(--ts)")+';white-space:nowrap">Auto ny ordre</span>';
+  autoWrap.addEventListener("click",function(){autoNewOrder=!autoNewOrder;render()});
+  topBar.appendChild(autoWrap);
 
   // Staff
   var sb=el("button",{fontSize:"11px",fontWeight:"700",color:"var(--acc)",background:"var(--sel)",padding:"6px 12px",borderRadius:"20px",border:"1px solid var(--selB)",cursor:"pointer",marginLeft:"8px",flexShrink:"0"},staff.n+" \u2715");
@@ -400,11 +407,14 @@ function sendToTerminal(order,terminal){
   terminal.orderId=order.id;
 
   // Auto-switch to new order for next customer
-  var hasActive=orders.some(function(o){return o.status==="active"&&o.id!==order.id});
-  if(!hasActive){
-    // Create new order and switch to it
-    newOrder();
-    toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n+" \u2013 ny ordre startet");
+  if(autoNewOrder){
+    var hasActive=orders.some(function(o){return o.status==="active"&&o.id!==order.id});
+    if(!hasActive){
+      newOrder();
+      toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n+" \u2013 ny ordre startet");
+    } else {
+      toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n);
+    }
   } else {
     toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n);
   }
