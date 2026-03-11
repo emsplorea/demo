@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plorea POS — Multipay</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FAFAFA;--sf:#FFFFFF;--sfH:#F1F5F9;--ov:rgba(0,0,0,.48);--tp:#1A1A1A;--ts:#666;--tm:#C4C4C4;--pri:#6BB8DA;--priH:#4FA3C8;--acc:#2E6B87;--sec:#468DAC;--brd:#E9E9E9;--brdS:#D9D9D9;--ok:#6BDAB2;--okBg:#E8F7F1;--warn:#DADA6B;--warnBg:#F7F7E0;--err:#DA6B6B;--errBg:#FAEAEA;--sel:#EBF6FB;--selB:#99D2E8;--selT:#1D4A5F;--ambTx:#8a7a20;--e1:0 1px 4px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04);--e2:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);--e3:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04);--r:8px;--rm:10px;--rl:14px;--rx:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;color:var(--tp);background:#d5d8dc;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(107,184,218,.25);border-radius:4px}
+input::placeholder{color:var(--tm)}
+#app{width:100%;height:100vh;display:flex;flex-direction:column;background:var(--bg);overflow:hidden}
+@keyframes sU{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fI{from{opacity:0}to{opacity:1}}
+@keyframes sI{from{transform:scale(.93);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes pI{0%{transform:scale(.85);opacity:.5}60%{transform:scale(1.05)}100%{transform:scale(1);opacity:1}}
+@keyframes cP{0%{transform:scale(0)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes pl{0%,100%{box-shadow:0 0 0 0 rgba(107,184,218,.3)}50%{box-shadow:0 0 0 10px rgba(107,184,218,0)}}
+@keyframes tI{0%{transform:translateX(-50%) translateY(-20px);opacity:0}100%{transform:translateX(-50%) translateY(0);opacity:1}}
+@keyframes sh{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-6px)}50%{transform:translateX(6px)}}
+@keyframes pulseY{0%,100%{opacity:1}50%{opacity:.5}}
+@keyframes blinkG{0%{box-shadow:0 0 0 0 rgba(107,218,178,.6)}100%{box-shadow:0 0 0 8px rgba(107,218,178,0)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+"use strict";
+var $=document.getElementById("app");
+
+/* ═══ DATA ═══ */
+var CAT=[{id:"popular",n:"Popul\u00e6rt",ic:"\uD83D\uDD25"},{id:"burgers",n:"Burgere",ic:"\uD83C\uDF54"},{id:"chicken",n:"Kylling",ic:"\uD83C\uDF57"},{id:"sides",n:"Tilbeh\u00f8r",ic:"\uD83C\uDF5F"},{id:"drinks",n:"Drikke",ic:"\uD83E\uDD64"},{id:"desserts",n:"Dessert",ic:"\uD83C\uDF66"}];
+var PRD=[
+{id:1,n:"Classic Burger",d:"Angus biff, cheddar",p:139,c:"burgers",ic:"\uD83C\uDF54"},
+{id:2,n:"Dobbel Cheese",d:"2x biff, 2x cheddar",p:169,c:"burgers",ic:"\uD83C\uDF54"},
+{id:3,n:"BBQ Bacon",d:"Bacon, BBQ-saus",p:179,c:"burgers",ic:"\uD83C\uDF54"},
+{id:4,n:"Veggie Burger",d:"Plantebasert",p:149,c:"burgers",ic:"\uD83E\uDD6C"},
+{id:5,n:"Crispy Chicken",d:"Panert kylling",p:139,c:"chicken",ic:"\uD83C\uDF57"},
+{id:6,n:"Spicy Chicken",d:"Chili-marinert",p:149,c:"chicken",ic:"\uD83C\uDF36\uFE0F"},
+{id:7,n:"Chicken Wrap",d:"Grillet kylling",p:129,c:"chicken",ic:"\uD83C\uDF2F"},
+{id:8,n:"Pommes Frites",d:"Spr\u00f8stekte",p:49,c:"sides",ic:"\uD83C\uDF5F"},
+{id:9,n:"S\u00f8tpotetfries",d:"Crispy",p:59,c:"sides",ic:"\uD83C\uDF60"},
+{id:10,n:"L\u00f8kringer",d:"Panerte",p:59,c:"sides",ic:"\uD83E\uDDC5"},
+{id:11,n:"Cola",d:"0.5L",p:39,c:"drinks",ic:"\uD83E\uDD64"},
+{id:12,n:"Fanta",d:"0.5L",p:39,c:"drinks",ic:"\uD83C\uDF4A"},
+{id:13,n:"Milkshake",d:"Sjokolade",p:69,c:"drinks",ic:"\uD83E\uDD5B"},
+{id:14,n:"Sjokoladekake",d:"Varm",p:79,c:"desserts",ic:"\uD83C\uDF6B"},
+{id:15,n:"Softis",d:"Vanilje",p:49,c:"desserts",ic:"\uD83C\uDF66"},
+{id:16,n:"Churros",d:"Sjokoladedip",p:59,c:"desserts",ic:"\uD83E\uDD56"}
+];
+var POP=[1,2,5,8,11,14];
+var STF=[{n:"Maria H.",pin:"1234"},{n:"Erik S.",pin:"5678"},{n:"Lina K.",pin:"9012"}];
+var ATTRS={size:{l:"St\u00f8rrelse",o:["Liten","Medium","Stor"],pm:{Liten:-20,Medium:0,Stor:30}},extras:{l:"Ekstra",o:["Bacon","Ost","Jalape\u00f1o","Ekstra saus","Avokado","Egg"],pe:15},drink:{l:"Drikke",o:["Cola","Fanta","Sprite","Vann"]}};
+var PA={burgers:["size","extras","drink"],chicken:["size","extras","drink"],sides:["size"],drinks:["size"],desserts:["size"]};
+
+/* ═══ STATE ═══ */
+var staff=null,pin="",pinErr=false,aCat="popular";
+// Orders: array of {id,items[],status:'active'|'pending'|'approved'|'failed',terminal:null|1|2,total,time}
+var orders=[];
+var activeOrderId=null;
+var terminals=[{id:1,n:"Term 1",status:"idle",orderId:null},{id:2,n:"Term 2",status:"idle",orderId:null}];
+// status: idle | busy | done | failed
+
+var nextOrderNum=1;
+
+/* ═══ HELPERS ═══ */
+function uid(){return Date.now()+Math.random()}
+function now(){return new Date().toLocaleTimeString("no-NO",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}
+function defAt(c){var a={};(PA[c]||[]).forEach(function(k){a[k]=k==="extras"?{}:k==="size"?"Medium":null});return a}
+function pmod(at){var m=0;if(at.size&&ATTRS.size.pm[at.size])m+=ATTRS.size.pm[at.size];if(at.extras)for(var k in at.extras)m+=at.extras[k]*15;return m}
+function uprc(it){return it.p+pmod(it.at||{})}
+function lprc(it){return uprc(it)*it.qty}
+function oTotal(o){var s=0;o.items.forEach(function(i){s+=lprc(i)});return s}
+function oCnt(o){var s=0;o.items.forEach(function(i){s+=i.qty});return s}
+function fmtAt(at,c){var p=[];(PA[c]||[]).forEach(function(k){if(k==="size"&&at.size)p.push(at.size);if(k==="extras"&&at.extras){var x=[];for(var n in at.extras)if(at.extras[n]>0)x.push(at.extras[n]>1?at.extras[n]+"x "+n:n);if(x.length)p.push(x.join(", "))}if(k==="drink"&&at.drink)p.push(at.drink)});return p.join(" \u00b7 ")}
+function logo(s){return '<span style="font-family:Sora,sans-serif;font-size:'+s+'px;font-weight:700;color:var(--tp);letter-spacing:-.01em">Pl<span style="color:var(--pri)">or</span>ea</span>'}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function el(tag,st,inner){var e=document.createElement(tag);if(st)Object.assign(e.style,st);if(inner!==undefined)e.innerHTML=inner;return e}
+function mkBtn(label,style,onClick){var b=document.createElement("button");b.textContent=label;Object.assign(b.style,{borderRadius:"var(--rl)",cursor:"pointer",fontFamily:"inherit",fontWeight:"700",border:"none"},style);b.addEventListener("click",onClick);return b}
+function toast(m){var t=el("div",{position:"fixed",top:"20px",left:"50%",transform:"translateX(-50%)",background:"var(--tp)",color:"#fff",padding:"12px 24px",borderRadius:"var(--rm)",fontSize:"14px",fontWeight:"600",zIndex:"9999",animation:"tI .3s",whiteSpace:"nowrap",boxShadow:"var(--e2)"},m);document.body.appendChild(t);setTimeout(function(){t.remove()},2800)}
+
+function activeOrder(){return orders.find(function(o){return o.id===activeOrderId})||null}
+function newOrder(){var o={id:uid(),num:nextOrderNum++,items:[],status:"active",terminal:null,time:now()};orders.push(o);activeOrderId=o.id;return o}
+
+// Status dot HTML
+function dot(status,size){
+  size=size||10;
+  var colors={idle:"var(--tm)",active:"var(--tm)",pending:"var(--warn)",approved:"var(--ok)",failed:"var(--err)"};
+  var c=colors[status]||"var(--tm)";
+  var anim=status==="pending"?"animation:pulseY 1.2s infinite;":status==="approved"?"animation:blinkG .6s 3;":"";
+  return '<div style="width:'+size+'px;height:'+size+'px;border-radius:50%;background:'+c+';flex-shrink:0;'+anim+'"></div>';
+}
+
+function termDot(t){
+  var colors={idle:"var(--ok)",busy:"var(--warn)",done:"var(--ok)",failed:"var(--err)"};
+  var c=colors[t.status]||"var(--tm)";
+  var anim=t.status==="busy"?"animation:pulseY 1.2s infinite;":"";
+  return '<div style="width:10px;height:10px;border-radius:50%;background:'+c+';flex-shrink:0;'+anim+'"></div>';
+}
+
+/* ═══ PIN ═══ */
+function rPin(){
+  $.innerHTML="";
+  var w=el("div",{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:"100%",background:"var(--sf)",padding:"20px"});
+  w.innerHTML=logo(32)+'<div style="font-family:Sora;font-size:12px;color:var(--ts);margin-top:10px;margin-bottom:32px;text-transform:uppercase;letter-spacing:.08em;font-weight:600">POS Multipay</div>';
+  var dots=el("div",{display:"flex",gap:"12px",marginBottom:"10px"});
+  for(var i=0;i<4;i++){var d=el("div",{width:"20px",height:"20px",borderRadius:"50%",border:"2.5px solid var(--brd)",transition:"all .16s"});if(pin.length>i){d.style.background="var(--acc)";d.style.borderColor="var(--acc)"}if(pinErr){d.style.borderColor="var(--err)";d.style.animation="sh .4s";if(pin.length>i)d.style.background="var(--err)"}dots.appendChild(d)}
+  w.appendChild(dots);
+  w.appendChild(el("div",{fontSize:"13px",color:pinErr?"var(--err)":"var(--ts)",height:"22px",marginBottom:"16px",fontWeight:"500"},pinErr?"Feil PIN-kode":"Tast inn 4-sifret PIN"));
+  var pad=el("div",{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"10px",width:"260px"});
+  [1,2,3,4,5,6,7,8,9,"C",0,"B"].forEach(function(v){
+    var b=el("button",{height:"58px",borderRadius:"var(--rl)",border:"1px solid var(--brd)",background:"var(--sf)",color:v==="C"||v==="B"?"var(--ts)":"var(--tp)",fontSize:v==="C"||v==="B"?"13px":"24px",fontWeight:"600",cursor:"pointer",fontFamily:v==="C"||v==="B"?"inherit":"Sora,sans-serif",display:"flex",alignItems:"center",justifyContent:"center"},v==="C"?"Slett":v==="B"?"\u232B":String(v));
+    b.addEventListener("click",function(){
+      if(String(v)==="C"){pin="";pinErr=false;rPin();return}
+      if(String(v)==="B"){pin=pin.slice(0,-1);pinErr=false;rPin();return}
+      pin+=v;if(pin.length===4){var f=STF.find(function(s){return s.pin===pin});if(f){staff=f;pin="";pinErr=false;newOrder();render()}else{pinErr=true;rPin();setTimeout(function(){pin="";pinErr=false;rPin()},800)}}else rPin()
+    });pad.appendChild(b)});
+  w.appendChild(pad);
+  w.appendChild(el("div",{fontSize:"11px",color:"var(--ts)",marginTop:"20px",opacity:".6"},"Demo: 1234 \u00b7 5678 \u00b7 9012"));
+  $.appendChild(w)
+}
+
+/* ═══ MAIN RENDER ═══ */
+function render(){
+  $.innerHTML="";
+  var ao=activeOrder();
+  var prods=aCat==="popular"?PRD.filter(function(p){return POP.indexOf(p.id)>=0}):PRD.filter(function(p){return p.c===aCat});
+
+  // ── TOP BAR with order tabs ──
+  var topBar=el("div",{display:"flex",alignItems:"center",padding:"0 16px",height:"52px",background:"var(--sf)",borderBottom:"1px solid var(--brd)",flexShrink:"0",gap:"8px",boxShadow:"var(--e1)",zIndex:"20"});
+  topBar.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-right:16px">'+logo(18)+'<span style="font-size:9px;font-weight:700;color:var(--acc);background:var(--sel);padding:2px 8px;border-radius:12px;letter-spacing:.08em;border:1px solid var(--selB)">MULTIPAY</span></div>';
+
+  // Order tabs
+  var tabWrap=el("div",{display:"flex",gap:"4px",flex:"1",overflowX:"auto",alignItems:"center"});
+  orders.forEach(function(o){
+    var isActive=o.id===activeOrderId;
+    var cnt=oCnt(o);
+    var tot=oTotal(o);
+    var tab=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"7px 14px",borderRadius:"var(--r)",border:isActive?"2px solid var(--pri)":"1.5px solid "+(o.status==="approved"?"var(--ok)":o.status==="failed"?"var(--err)":o.status==="pending"?"var(--warn)":"var(--brd)"),background:isActive?"var(--sel)":"var(--sf)",cursor:"pointer",fontSize:"12px",fontWeight:"600",color:isActive?"var(--acc)":"var(--ts)",whiteSpace:"nowrap",transition:"all .16s",fontFamily:"inherit"});
+    tab.innerHTML=dot(o.status,8)+'<span>#'+o.num+'</span><span style="color:var(--ts);font-weight:400">'+cnt+'v</span><span style="font-weight:700">'+tot+'kr</span>';
+    tab.addEventListener("click",function(){activeOrderId=o.id;render()});
+    tabWrap.appendChild(tab);
+  });
+
+  // New order tab
+  var newTab=el("button",{width:"34px",height:"34px",borderRadius:"var(--r)",border:"1.5px dashed var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"18px",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:"0"},"+");
+  newTab.addEventListener("click",function(){newOrder();render()});
+  tabWrap.appendChild(newTab);
+  topBar.appendChild(tabWrap);
+
+  // Terminal status indicators
+  var termWrap=el("div",{display:"flex",gap:"8px",marginLeft:"12px",alignItems:"center",flexShrink:"0"});
+  terminals.forEach(function(t){
+    var tw=el("div",{display:"flex",alignItems:"center",gap:"5px",padding:"6px 12px",borderRadius:"var(--r)",border:"1px solid var(--brd)",background:"var(--sf)",fontSize:"11px",fontWeight:"600",color:"var(--ts)"});
+    tw.innerHTML=termDot(t)+'<span>'+t.n+'</span>';
+    termWrap.appendChild(tw);
+  });
+  topBar.appendChild(termWrap);
+
+  // Staff
+  var sb=el("button",{fontSize:"11px",fontWeight:"700",color:"var(--acc)",background:"var(--sel)",padding:"6px 12px",borderRadius:"20px",border:"1px solid var(--selB)",cursor:"pointer",marginLeft:"8px",flexShrink:"0"},staff.n+" \u2715");
+  sb.addEventListener("click",function(){staff=null;orders=[];activeOrderId=null;rPin()});
+  topBar.appendChild(sb);
+  $.appendChild(topBar);
+
+  // ── MAIN AREA: products + cart side by side ──
+  var mainArea=el("div",{display:"flex",flex:"1",overflow:"hidden"});
+
+  // ── LEFT: Products ──
+  var leftCol=el("div",{flex:"1",display:"flex",flexDirection:"column",minWidth:"0",borderRight:"1px solid var(--brd)"});
+
+  // Categories
+  var catBar=el("div",{flexShrink:"0",padding:"10px 0",background:"var(--sf)",borderBottom:"1px solid var(--brd)"});
+  var catScr=el("div",{display:"flex",gap:"8px",padding:"0 20px",overflowX:"auto"});
+  CAT.forEach(function(c){var a=aCat===c.id;var b=el("button",{display:"flex",alignItems:"center",gap:"6px",padding:"9px 16px",borderRadius:"9999px",border:"1.5px solid "+(a?"var(--pri)":"var(--brd)"),background:a?"var(--sel)":"var(--sf)",color:a?"var(--acc)":"var(--ts)",fontSize:"13px",fontWeight:"600",cursor:"pointer",whiteSpace:"nowrap",flexShrink:"0"},c.ic+" "+c.n);b.addEventListener("click",function(){aCat=c.id;render()});catScr.appendChild(b)});
+  catBar.appendChild(catScr);leftCol.appendChild(catBar);
+
+  // Grid
+  var ga=el("div",{flex:"1",overflowY:"auto",padding:"16px 20px"});
+  var gr=el("div",{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"12px"});
+  if(window.innerWidth>=1440)gr.style.gridTemplateColumns="repeat(4,1fr)";
+
+  var canAdd=ao&&ao.status==="active";
+  prods.forEach(function(p){
+    var ic=0;if(ao)ao.items.forEach(function(x){if(x.id===p.id)ic+=x.qty});
+    var cd=el("button",{position:"relative",background:"var(--sf)",border:"1px solid var(--brd)",borderRadius:"var(--rl)",cursor:canAdd?"pointer":"default",textAlign:"left",overflow:"hidden",display:"flex",flexDirection:"column",boxShadow:"var(--e1)",transition:"all .16s",fontFamily:"inherit",opacity:canAdd?"1":".5"});
+    cd.innerHTML=(ic?'<div style="position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;background:var(--acc);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;z-index:2">'+ic+'</div>':'')+'<div style="height:80px;display:flex;align-items:center;justify-content:center;background:var(--sfH);font-size:44px">'+p.ic+'</div><div style="padding:12px 14px;flex:1"><div style="font-size:14px;font-weight:700;line-height:1.2">'+esc(p.n)+'</div><div style="font-size:11px;color:var(--ts);margin-top:2px">'+esc(p.d)+'</div><div style="font-size:16px;font-weight:700;color:var(--acc);margin-top:6px">'+p.p+' kr</div></div>';
+    if(canAdd){
+      cd.addEventListener("click",function(){addProduct(p)});
+      cd.addEventListener("mouseenter",function(){cd.style.transform="translateY(-2px)";cd.style.boxShadow="var(--e2)"});
+      cd.addEventListener("mouseleave",function(){cd.style.transform="";cd.style.boxShadow="var(--e1)"});
+    }
+    gr.appendChild(cd);
+  });
+  ga.appendChild(gr);leftCol.appendChild(ga);
+  mainArea.appendChild(leftCol);
+
+  // ── RIGHT: Cart for active order ──
+  var rightCol=el("div",{width:"420px",display:"flex",flexDirection:"column",background:"var(--sf)",flexShrink:"0",position:"relative"});
+  if(window.innerWidth>=1440)rightCol.style.width="480px";
+
+  if(!ao){
+    rightCol.innerHTML='<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--tm);font-size:14px">Ingen aktiv ordre</div>';
+  } else {
+    // Cart header with order status
+    var ch=el("div",{padding:"16px 20px 12px",borderBottom:"1px solid var(--brd)",display:"flex",alignItems:"center",justifyContent:"space-between"});
+    var statusLabel={active:"Aktiv",pending:"Sendt til terminal",approved:"Godkjent",failed:"Avvist"};
+    var statusColor={active:"var(--ts)",pending:"var(--warn)",approved:"var(--ok)",failed:"var(--err)"};
+    ch.innerHTML='<div style="display:flex;align-items:center;gap:10px"><span style="font-family:Sora;font-size:18px;font-weight:700;color:var(--tp)">Ordre #'+ao.num+'</span>'+dot(ao.status,12)+'</div><span style="font-size:12px;font-weight:600;color:'+statusColor[ao.status]+'">'+statusLabel[ao.status]+'</span>';
+    rightCol.appendChild(ch);
+
+    if(ao.status==="active"){
+      // ── ACTIVE ORDER: show items + actions ──
+      var scr=el("div",{flex:"1",overflowY:"auto",padding:"4px 16px"});
+      if(!ao.items.length){
+        scr.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--tm)"><div style="font-size:40px;margin-bottom:12px">\uD83D\uDED2</div><div style="font-size:14px;font-weight:600">Tom bestilling</div><div style="font-size:12px;margin-top:4px">Velg produkter fra menyen</div></div>';
+      } else {
+        ao.items.forEach(function(it){
+          var lp=lprc(it),atS=fmtAt(it.at||{},it.c);
+          var row=el("div",{display:"flex",alignItems:"flex-start",justifyContent:"space-between",padding:"12px 4px",borderBottom:"1px solid var(--brd)",gap:"6px"});
+          row.innerHTML='<div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0"><div style="width:40px;height:40px;border-radius:var(--rm);background:var(--sfH);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">'+it.ic+'</div><div><div style="font-size:13px;font-weight:600">'+esc(it.n)+'</div>'+(atS?'<div style="font-size:10px;color:var(--sec);margin-top:1px">'+esc(atS)+'</div>':'')+'</div></div>';
+          var rc=el("div",{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:"5px",flexShrink:"0"});
+          // Stepper
+          var stp=el("div",{display:"flex",alignItems:"center",background:"var(--sfH)",borderRadius:"var(--rm)",overflow:"hidden",border:"1px solid var(--brd)"});
+          var dc=el("button",{width:"34px",height:"34px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"\u2212");
+          dc.addEventListener("click",(function(item){return function(){item.qty--;if(item.qty<=0)ao.items=ao.items.filter(function(x){return x.ck!==item.ck});render()}})(it));
+          var vl=el("span",{width:"22px",textAlign:"center",fontSize:"14px",fontWeight:"700"},String(it.qty));
+          var ic2=el("button",{width:"34px",height:"34px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"+");
+          ic2.addEventListener("click",(function(item){return function(){item.qty++;render()}})(it));
+          stp.appendChild(dc);stp.appendChild(vl);stp.appendChild(ic2);rc.appendChild(stp);
+          rc.appendChild(el("div",{fontSize:"14px",fontWeight:"700",color:"var(--acc)",minWidth:"50px",textAlign:"right"},lp+" kr"));
+          row.appendChild(rc);scr.appendChild(row);
+        });
+      }
+      rightCol.appendChild(scr);
+
+      // Summary + actions
+      if(ao.items.length){
+        var tot=oTotal(ao),vat=Math.round(tot*.25);
+        var sm=el("div",{padding:"14px 20px",borderTop:"1px solid var(--brd)"});
+        sm.innerHTML='<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ts);padding:2px 0"><span>Subtotal</span><span>'+tot+' kr</span></div><div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ts);padding:2px 0"><span>MVA (inkl.)</span><span>'+vat+' kr</span></div><div style="height:1px;background:var(--brd);margin:6px 0"></div><div style="display:flex;justify-content:space-between;font-family:Sora;font-size:20px;font-weight:700;color:var(--tp)"><span>Totalt</span><span>'+tot+' kr</span></div>';
+        rightCol.appendChild(sm);
+
+        // Terminal payment buttons
+        var payArea=el("div",{padding:"14px 20px 20px",borderTop:"1px solid var(--brd)"});
+        payArea.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.1em;margin-bottom:10px">Send til terminal</div>';
+        var termBtns=el("div",{display:"flex",gap:"10px",marginBottom:"10px"});
+        terminals.forEach(function(t){
+          var avail=t.status==="idle"||t.status==="done";
+          var btn=el("button",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",gap:"6px",padding:"18px 12px",borderRadius:"var(--rl)",border:"1.5px solid "+(avail?"var(--pri)":"var(--brd)"),background:avail?"var(--sel)":"var(--sfH)",cursor:avail?"pointer":"not-allowed",opacity:avail?"1":".5",transition:"all .16s"});
+          btn.innerHTML=termDot(t)+'<span style="font-size:15px;font-weight:700;color:'+(avail?"var(--acc)":"var(--ts)")+'">'+t.n+'</span><span style="font-size:11px;color:var(--ts)">'+(avail?"Ledig":t.status==="busy"?"Opptatt":"Opptatt")+'</span>';
+          if(avail){
+            btn.addEventListener("click",function(){sendToTerminal(ao,t)});
+            btn.addEventListener("mouseenter",function(){btn.style.borderColor="var(--acc)";btn.style.boxShadow="var(--e2)"});
+            btn.addEventListener("mouseleave",function(){btn.style.borderColor="var(--pri)";btn.style.boxShadow="none"});
+          }
+          termBtns.appendChild(btn);
+        });
+        payArea.appendChild(termBtns);
+
+        // Secondary actions
+        var secActs=el("div",{display:"flex",gap:"8px"});
+        secActs.appendChild(mkBtn("Avbryt",{padding:"12px",border:"1.5px solid rgba(218,107,107,.25)",background:"var(--errBg)",color:"var(--err)",fontSize:"12px",flex:"1"},function(){
+          orders=orders.filter(function(x){return x.id!==ao.id});
+          if(orders.length){activeOrderId=orders[orders.length-1].id}else{newOrder()}
+          render();
+        }));
+        secActs.appendChild(mkBtn("Park\u00e9r",{padding:"12px",border:"1.5px solid rgba(218,218,107,.35)",background:"var(--warnBg)",color:"var(--ambTx)",fontSize:"12px",flex:"1"},function(){
+          toast("\uD83C\uDD7F\uFE0F Ordre #"+ao.num+" parkert");
+          ao.status="parked";
+          orders=orders.filter(function(x){return x.id!==ao.id});
+          if(orders.length){activeOrderId=orders[orders.length-1].id}else{newOrder()}
+          render();
+        }));
+        payArea.appendChild(secActs);
+        rightCol.appendChild(payArea);
+      }
+    } else if(ao.status==="pending"){
+      // ── PENDING: waiting for terminal ──
+      var termName=terminals.find(function(t){return t.id===ao.terminal});
+      var pendDiv=el("div",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"20px",gap:"12px"});
+      pendDiv.innerHTML='<div style="width:80px;height:80px;border-radius:50%;background:var(--warnBg);display:flex;align-items:center;justify-content:center;font-size:36px;animation:pulseY 1.2s infinite">\uD83D\uDCB3</div><div style="font-family:Sora;font-size:20px;font-weight:700;color:var(--tp)">Venter p\u00e5 betaling</div><div style="font-size:14px;color:var(--ts)">'+oTotal(ao)+' kr sendt til '+(termName?termName.n:"terminal")+'</div><div style="font-size:12px;color:var(--tm)">Kunden betaler...</div>';
+      // Simulate buttons
+      var simBtns=el("div",{display:"flex",gap:"10px",marginTop:"16px"});
+      simBtns.appendChild(mkBtn("\u2713 Simuler godkjent",{padding:"12px 20px",background:"var(--ok)",color:"#fff",fontSize:"13px"},function(){completePayment(ao,"approved")}));
+      simBtns.appendChild(mkBtn("\u2717 Simuler avvist",{padding:"12px 20px",background:"var(--err)",color:"#fff",fontSize:"13px"},function(){completePayment(ao,"failed")}));
+      pendDiv.appendChild(simBtns);
+      rightCol.appendChild(pendDiv);
+
+    } else if(ao.status==="approved"){
+      // ── APPROVED ──
+      var appDiv=el("div",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"20px",gap:"12px"});
+      appDiv.innerHTML='<div style="width:80px;height:80px;border-radius:50%;background:var(--okBg);display:flex;align-items:center;justify-content:center;font-size:40px;animation:cP .4s">\u2705</div><div style="font-family:Sora;font-size:20px;font-weight:700;color:var(--tp)">Betaling godkjent!</div><div style="font-size:16px;font-weight:700;color:var(--ok)">'+oTotal(ao)+' kr</div>';
+      var appBtns=el("div",{display:"flex",gap:"10px",marginTop:"12px"});
+      appBtns.appendChild(mkBtn("\uD83D\uDDA8\uFE0F Kvittering",{padding:"12px 20px",background:"var(--acc)",color:"#fff",fontSize:"13px"},function(){toast("\uD83D\uDDA8\uFE0F Kvittering skrevet ut")}));
+      appBtns.appendChild(mkBtn("Lukk ordre",{padding:"12px 20px",border:"1.5px solid var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"13px"},function(){
+        orders=orders.filter(function(x){return x.id!==ao.id});
+        if(orders.length){activeOrderId=orders[orders.length-1].id}else{newOrder()}
+        render();
+      }));
+      appDiv.appendChild(appBtns);
+      rightCol.appendChild(appDiv);
+
+    } else if(ao.status==="failed"){
+      // ── FAILED ──
+      var failDiv=el("div",{flex:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"20px",gap:"12px"});
+      failDiv.innerHTML='<div style="width:80px;height:80px;border-radius:50%;background:var(--errBg);display:flex;align-items:center;justify-content:center;font-size:40px">\u274C</div><div style="font-family:Sora;font-size:20px;font-weight:700;color:var(--tp)">Betaling avvist</div><div style="font-size:14px;color:var(--ts)">'+oTotal(ao)+' kr ble ikke belastet</div>';
+      var failBtns=el("div",{display:"flex",gap:"10px",marginTop:"12px"});
+      failBtns.appendChild(mkBtn("Pr\u00f8v igjen",{padding:"12px 20px",background:"var(--acc)",color:"#fff",fontSize:"13px"},function(){ao.status="active";ao.terminal=null;render()}));
+      failBtns.appendChild(mkBtn("Avbryt ordre",{padding:"12px 20px",border:"1.5px solid rgba(218,107,107,.25)",background:"var(--errBg)",color:"var(--err)",fontSize:"13px"},function(){
+        orders=orders.filter(function(x){return x.id!==ao.id});
+        if(orders.length){activeOrderId=orders[orders.length-1].id}else{newOrder()}
+        render();
+      }));
+      failDiv.appendChild(failBtns);
+      rightCol.appendChild(failDiv);
+    }
+  }
+
+  mainArea.appendChild(rightCol);
+  $.appendChild(mainArea);
+}
+
+/* ═══ ADD PRODUCT ═══ */
+function addProduct(p){
+  var ao=activeOrder();if(!ao||ao.status!=="active")return;
+  var keys=PA[p.c]||[];
+  if(!keys.length){
+    ao.items.push({id:p.id,n:p.n,d:p.d,p:p.p,c:p.c,ic:p.ic,qty:1,at:defAt(p.c),ck:uid()});
+    render();return;
+  }
+  var at=defAt(p.c),qty=1,bd;
+  function ren(){
+    if(bd)bd.remove();
+    var up=p.p+pmod(at);
+    var m=el("div",{background:"var(--sf)",borderRadius:"var(--rx)",padding:"0",width:"calc(100% - 40px)",maxWidth:"440px",margin:"auto",animation:"sI .25s cubic-bezier(.16,1,.3,1)",boxShadow:"var(--e3)",overflow:"hidden",display:"flex",flexDirection:"column",maxHeight:"85vh"});
+    m.addEventListener("click",function(e){e.stopPropagation()});
+    m.innerHTML='<div style="padding:20px 20px 12px;border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:12px"><div style="width:48px;height:48px;border-radius:var(--rm);background:var(--sfH);display:flex;align-items:center;justify-content:center;font-size:26px">'+p.ic+'</div><div><div style="font-family:Sora;font-size:16px;font-weight:700">'+esc(p.n)+'</div><div style="font-size:12px;color:var(--ts)">'+esc(p.d)+'</div></div></div>';
+    var body=el("div",{flex:"1",overflowY:"auto",padding:"14px 20px"});
+    keys.forEach(function(k){
+      var def=ATTRS[k],grp=el("div",{marginBottom:"18px"});
+      grp.innerHTML='<div style="font-size:10px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px">'+def.l+(k==="extras"?" \u2013 velg antall":"")+'</div>';
+      var list=el("div",{display:"flex",flexDirection:"column",gap:"6px"});
+      if(k==="extras"){
+        def.o.forEach(function(o){
+          var cnt=(at.extras&&at.extras[o])||0;
+          var row=el("div",{display:"flex",alignItems:"center",padding:"11px 12px",borderRadius:"var(--rm)",border:"1.5px solid "+(cnt?"var(--pri)":"var(--brd)"),background:cnt?"var(--sel)":"var(--sf)",justifyContent:"space-between"});
+          row.innerHTML='<div style="flex:1;display:flex;align-items:center;gap:8px"><span>'+esc(o)+'</span><span style="font-size:12px;color:var(--ts)">+'+def.pe+'kr</span></div>';
+          var stp=el("div",{display:"flex",alignItems:"center",background:"var(--sfH)",borderRadius:"var(--r)",overflow:"hidden",border:"1px solid var(--brd)"});
+          var dc=el("button",{width:"30px",height:"30px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"14px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"\u2212");
+          dc.addEventListener("click",function(e){e.stopPropagation();if(!at.extras)at.extras={};at.extras[o]=Math.max(0,(at.extras[o]||0)-1);if(!at.extras[o])delete at.extras[o];ren()});
+          var vl=el("span",{width:"18px",textAlign:"center",fontSize:"13px",fontWeight:"700",color:cnt?"var(--acc)":"var(--ts)"},String(cnt));
+          var ic3=el("button",{width:"30px",height:"30px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"14px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"+");
+          ic3.addEventListener("click",function(e){e.stopPropagation();if(!at.extras)at.extras={};at.extras[o]=(at.extras[o]||0)+1;ren()});
+          stp.appendChild(dc);stp.appendChild(vl);stp.appendChild(ic3);row.appendChild(stp);list.appendChild(row)});
+      } else {
+        def.o.forEach(function(o){
+          var sel=at[k]===o,pr=k==="size"&&ATTRS.size.pm[o]!==0?(ATTRS.size.pm[o]>0?"+"+ATTRS.size.pm[o]+"kr":ATTRS.size.pm[o]+"kr"):"";
+          var btn=el("button",{display:"flex",alignItems:"center",gap:"8px",padding:"11px 12px",borderRadius:"var(--rm)",border:"1.5px solid "+(sel?"var(--pri)":"var(--brd)"),background:sel?"var(--sel)":"var(--sf)",color:sel?"var(--acc)":"var(--ts)",fontSize:"14px",fontWeight:"500",cursor:"pointer",width:"100%"});
+          btn.innerHTML='<span style="flex:1">'+esc(o)+'</span>'+(pr?'<span style="font-size:12px;color:var(--ts)">'+pr+'</span>':'')+(sel?'<span style="color:var(--acc);font-weight:700">\u2713</span>':'');
+          btn.addEventListener("click",function(){at[k]=o;ren()});list.appendChild(btn)});
+      }
+      grp.appendChild(list);body.appendChild(grp);
+    });
+    m.appendChild(body);
+    // Qty + price
+    var qf=el("div",{padding:"12px 20px",borderTop:"1px solid var(--brd)",background:"var(--sfH)"});
+    var qr=el("div",{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:"4px"});
+    qr.innerHTML='<span style="font-size:13px;font-weight:600;color:var(--ts)">Antall</span>';
+    var qs=el("div",{display:"flex",alignItems:"center",background:"var(--sfH)",borderRadius:"var(--rm)",overflow:"hidden",border:"1px solid var(--brd)"});
+    var qd=el("button",{width:"36px",height:"36px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"\u2212");
+    qd.addEventListener("click",function(){qty=Math.max(1,qty-1);ren()});
+    var qv=el("span",{width:"22px",textAlign:"center",fontSize:"14px",fontWeight:"700"},String(qty));
+    var qi=el("button",{width:"36px",height:"36px",border:"none",background:"transparent",color:"var(--ts)",fontSize:"16px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"},"+");
+    qi.addEventListener("click",function(){qty++;ren()});
+    qs.appendChild(qd);qs.appendChild(qv);qs.appendChild(qi);qr.appendChild(qs);qf.appendChild(qr);
+    qf.innerHTML+='<div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ts)"><span>'+qty+' \u00d7 '+up+' kr</span><span style="font-size:18px;font-weight:700;color:var(--acc)">'+up*qty+' kr</span></div>';
+    m.appendChild(qf);
+    var af=el("div",{display:"flex",gap:"10px",padding:"12px 20px 20px",borderTop:"1px solid var(--brd)"});
+    af.appendChild(mkBtn("Avbryt",{padding:"14px 16px",border:"1.5px solid var(--brd)",background:"var(--sf)",color:"var(--ts)",fontSize:"13px"},function(){bd.remove()}));
+    af.appendChild(mkBtn("Legg til \u2013 "+up*qty+" kr",{padding:"14px 20px",background:"var(--acc)",color:"#fff",fontSize:"14px",flex:"1"},function(){ao.items.push({id:p.id,n:p.n,d:p.d,p:p.p,c:p.c,ic:p.ic,qty:qty,at:JSON.parse(JSON.stringify(at)),ck:uid()});bd.remove();render()}));
+    m.appendChild(af);
+    // Backdrop
+    var bk=el("div",{position:"fixed",inset:"0",background:"var(--ov)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:"500",animation:"fI .16s"});
+    bk.appendChild(m);bk.addEventListener("click",function(e){if(e.target===bk)bk.remove()});
+    document.body.appendChild(bk);bd=bk;
+  }
+  ren();
+}
+
+/* ═══ TERMINAL PAYMENT ═══ */
+function sendToTerminal(order,terminal){
+  order.status="pending";
+  order.terminal=terminal.id;
+  terminal.status="busy";
+  terminal.orderId=order.id;
+
+  // Auto-switch to new order for next customer
+  var hasActive=orders.some(function(o){return o.status==="active"&&o.id!==order.id});
+  if(!hasActive){
+    // Create new order and switch to it
+    newOrder();
+    toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n+" \u2013 ny ordre startet");
+  } else {
+    toast("\uD83D\uDCB3 Ordre #"+order.num+" sendt til "+terminal.n);
+  }
+  render();
+
+  // Simulate timeout after 60s
+  setTimeout(function(){
+    if(order.status==="pending"){
+      completePayment(order,"failed");
+      toast("\u26A0\uFE0F Ordre #"+order.num+" \u2013 terminal timeout");
+    }
+  },60000);
+}
+
+function completePayment(order,result){
+  order.status=result; // "approved" or "failed"
+  var term=terminals.find(function(t){return t.id===order.terminal});
+  if(term){term.status=result==="approved"?"done":"idle";term.orderId=null}
+  // Free terminal after a moment for "done"
+  if(result==="approved"&&term){setTimeout(function(){if(term.status==="done")term.status="idle";render()},3000)}
+  render();
+}
+
+/* ═══ INIT ═══ */
+rPin();
+window.addEventListener("resize",function(){if(staff)render()});
+})();
+</script>
+</body>
+</html>
