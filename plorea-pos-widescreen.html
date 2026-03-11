@@ -105,9 +105,28 @@ function drBal(){var s=0;drLog.forEach(function(e){s+=e.a==="in"?e.v:-e.v});retu
 
 function el(tag,st,inner){var e=document.createElement(tag);if(st)Object.assign(e.style,st);if(inner!==undefined)e.innerHTML=inner;return e}
 function toast(m){var t=el("div",{position:"fixed",top:"20px",left:"50%",transform:"translateX(-50%)",background:"var(--tp)",color:"#fff",padding:"12px 24px",borderRadius:"var(--rm)",fontSize:"14px",fontWeight:"600",zIndex:"9999",animation:"tI .3s",whiteSpace:"nowrap",boxShadow:"var(--e2)"},m);document.body.appendChild(t);setTimeout(function(){t.remove()},2800)}
-function bdrop(content,center){var b=el("div",{position:"fixed",inset:"0",background:"var(--ov)",backdropFilter:"blur(6px)",display:"flex",alignItems:center?"center":"flex-end",justifyContent:"center",zIndex:"500",animation:"fI .16s"});b.appendChild(content);b.addEventListener("click",function(e){if(e.target===b)b.remove()});document.body.appendChild(b);return b}
-function mkSheet(){var s=el("div",{background:"var(--sf)",borderRadius:"var(--rx) var(--rx) 0 0",width:"100%",maxWidth:"520px",maxHeight:"90vh",display:"flex",flexDirection:"column",overflow:"hidden",animation:"sU .28s cubic-bezier(.16,1,.3,1)",boxShadow:"var(--e3)"});s.addEventListener("click",function(e){e.stopPropagation()});return s}
-function mkModal(){var m=el("div",{background:"var(--sf)",borderRadius:"var(--rx)",padding:"24px 22px",width:"calc(100% - 40px)",maxWidth:"420px",margin:"auto",animation:"sI .25s cubic-bezier(.16,1,.3,1)",boxShadow:"var(--e3)"});m.addEventListener("click",function(e){e.stopPropagation()});return m}
+function bdrop(content,center){
+  var wide=W();
+  var cartCol=wide?document.querySelector(".cart-col"):null;
+  var b=el("div",{position:wide?"absolute":"fixed",inset:"0",background:wide?"rgba(0,0,0,.25)":"var(--ov)",backdropFilter:wide?"blur(3px)":"blur(6px)",display:"flex",alignItems:center?"center":"flex-end",justifyContent:"center",zIndex:"500",animation:"fI .16s"});
+  if(wide){
+    // Inside cart col: sheets/modals fill the cart panel
+    content.style.maxWidth="100%";
+    content.style.width="100%";
+    if(!center){content.style.borderRadius="0";content.style.maxHeight="100%"}
+  }
+  b.appendChild(content);
+  b.addEventListener("click",function(e){if(e.target===b)b.remove()});
+  if(cartCol&&wide){
+    cartCol.style.position="relative";
+    cartCol.appendChild(b);
+  }else{
+    document.body.appendChild(b);
+  }
+  return b;
+}
+function mkSheet(){var wide=W();var s=el("div",{background:"var(--sf)",borderRadius:wide?"0":"var(--rx) var(--rx) 0 0",width:"100%",maxWidth:wide?"100%":"520px",maxHeight:wide?"100%":"90vh",display:"flex",flexDirection:"column",overflow:"hidden",animation:wide?"fI .16s":"sU .28s cubic-bezier(.16,1,.3,1)",boxShadow:wide?"none":"var(--e3)"});s.addEventListener("click",function(e){e.stopPropagation()});return s}
+function mkModal(){var wide=W();var m=el("div",{background:"var(--sf)",borderRadius:wide?"var(--rl)":"var(--rx)",padding:"24px 22px",width:wide?"calc(100% - 32px)":"calc(100% - 40px)",maxWidth:wide?"100%":"420px",margin:"auto",animation:"sI .25s cubic-bezier(.16,1,.3,1)",boxShadow:"var(--e3)"});m.addEventListener("click",function(e){e.stopPropagation()});return m}
 function mkBtn(label,style,onClick){var b=document.createElement("button");b.textContent=label;Object.assign(b.style,{borderRadius:"var(--rl)",cursor:"pointer",fontFamily:"'Plus Jakarta Sans',sans-serif",fontWeight:"700",border:"none"},style);b.addEventListener("click",onClick);return b}
 function mkPayHead(title){return '<div style="padding:16px 18px 10px;border-bottom:1px solid var(--brd);display:flex;align-items:center;justify-content:space-between"><div style="width:36px"></div><div style="font-family:Sora,sans-serif;font-size:17px;font-weight:700;color:var(--tp);flex:1;text-align:center">'+title+'</div><div style="width:36px"></div></div>'}
 
