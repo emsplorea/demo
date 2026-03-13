@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Easy Step — Smart Registrering v2 · Plorea</title>
+<title>Easy Step — Smart Registrering v2.1 · Plorea</title>
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -204,6 +204,77 @@ html.dark .order-lookup .ol-badge{background:rgba(107,184,218,.12);}
 .glass-option .go-conf{font-size:10px;color:var(--color-text-muted);font-weight:600;}
 .glass-option .go-vol{font-family:var(--font-mono);font-size:var(--text-xxs);font-weight:700;color:var(--color-accent);margin-top:var(--sp-1);}
 
+/* ── Glass fill gauge ── */
+.fill-gauge{
+  display:flex;align-items:center;gap:var(--sp-4);
+  padding:var(--sp-4);background:var(--color-surface-elevated);
+  border-radius:var(--r-xl);margin-bottom:var(--sp-4);
+}
+.fill-glass{
+  width:48px;height:80px;border-radius:2px 2px var(--r-md) var(--r-md);
+  border:2px solid var(--color-border);
+  position:relative;overflow:hidden;flex-shrink:0;
+  background:var(--color-surface);
+}
+.fill-glass .fill-liquid{
+  position:absolute;bottom:0;left:0;right:0;
+  transition:height .6s var(--ease-out);
+  border-radius:0 0 4px 4px;
+}
+.fill-info{flex:1;}
+.fill-info .fi-pct{font-family:var(--font-display);font-size:var(--text-2xl);font-weight:800;line-height:1;}
+.fill-info .fi-label{font-size:var(--text-tiny);color:var(--color-text-muted);margin-top:2px;}
+.fill-info .fi-vol{font-family:var(--font-mono);font-size:var(--text-xs);font-weight:700;color:var(--color-accent);margin-top:var(--sp-1);}
+.fill-slider{width:100%;}
+.fill-slider input[type="range"]{
+  -webkit-appearance:none;width:100%;height:6px;
+  background:var(--color-border);border-radius:3px;outline:none;
+}
+.fill-slider input[type="range"]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:24px;height:24px;border-radius:50%;
+  background:var(--blue);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);
+}
+
+/* ── Drink recipe breakdown ── */
+.drink-recipe{margin-top:var(--sp-4);}
+.drink-recipe .dr-row{
+  display:flex;align-items:center;gap:var(--sp-3);
+  padding:var(--sp-3) 0;border-bottom:1px solid var(--color-surface-elevated);
+}
+.drink-recipe .dr-row:last-child{border-bottom:none;}
+.drink-recipe .dr-icon{font-size:var(--text-md);width:24px;text-align:center;}
+.drink-recipe .dr-name{font-size:var(--text-xxs);color:var(--color-text-secondary);flex:1;}
+.drink-recipe .dr-full{font-size:10px;color:var(--color-text-muted);width:50px;text-align:right;}
+.drink-recipe .dr-bar{width:60px;height:6px;background:var(--color-surface-elevated);border-radius:3px;overflow:hidden;}
+.drink-recipe .dr-fill{height:100%;border-radius:3px;transition:width .5s var(--ease-out);}
+.drink-recipe .dr-remain{font-family:var(--font-mono);font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);width:48px;text-align:right;}
+.drink-recipe .dr-total{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:var(--sp-3) 0 0;margin-top:var(--sp-2);
+  border-top:2px solid var(--color-border);
+}
+.drink-recipe .dr-total .dt-label{font-size:var(--text-xxs);font-weight:700;color:var(--color-text-secondary);}
+.drink-recipe .dr-total .dt-val{font-family:var(--font-mono);font-size:var(--text-md);font-weight:800;color:var(--color-accent);}
+
+/* ── Order drink list (for glass flow) ── */
+.drink-list{margin-bottom:var(--sp-4);}
+.drink-item{
+  display:flex;align-items:center;gap:var(--sp-3);
+  padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-2);
+  border-radius:var(--r-md-plus);border:1.5px solid var(--color-border);
+  background:var(--color-surface);transition:all var(--dur-fast);
+  min-height:48px;cursor:pointer;
+}
+.drink-item:active{transform:scale(.98);}
+.drink-item.picked{border-color:var(--blue);background:var(--blue-50);box-shadow:var(--elevation-focus);}
+html.dark .drink-item.picked{background:rgba(107,184,218,.1);}
+.drink-item .di-icon{font-size:1.2rem;}
+.drink-item .di-info{flex:1;}
+.drink-item .di-name{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
+.drink-item .di-detail{font-size:10px;color:var(--color-text-muted);}
+.drink-item .di-pick{font-size:var(--text-md);color:var(--color-text-muted);transition:color var(--dur-fast);}
+.drink-item.picked .di-pick{color:var(--blue-800);}
+
 /* ── Breakage types ── */
 .break-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-2);margin-bottom:var(--sp-4);}
 .break-btn{padding:var(--sp-4);border-radius:var(--r-xl);border:1.5px solid var(--color-border);background:var(--color-surface);text-align:center;transition:all var(--dur-fast);min-height:48px;}
@@ -307,7 +378,7 @@ html.dark .toast{background:#F0EEF5;color:var(--sidebar-bg);}
 <body>
 
 <div class="topbar">
-  <div class="topbar-brand"><div class="topbar-logo">ES</div><div><h1>Easy Step</h1><div class="topbar-sub">Smart registrering v2</div></div></div>
+  <div class="topbar-brand"><div class="topbar-logo">ES</div><div><h1>Easy Step</h1><div class="topbar-sub">Smart registrering v2.1</div></div></div>
   <div class="topbar-right">
     <div class="topbar-status"><span class="dot"></span> POS</div>
     <button class="tb-btn" onclick="document.documentElement.classList.toggle('dark');this.textContent=document.documentElement.classList.contains('dark')?'☀️':'🌙'">🌙</button>
@@ -381,13 +452,25 @@ html.dark .toast{background:#F0EEF5;color:var(--sidebar-bg);}
       <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
-    <!-- ════ GLASS ANALYSIS FLOW ════ -->
+    <!-- ════ GLASS ANALYSIS FLOW (v2 — order→photo→AI→recipe) ════ -->
     <div id="f-glass" style="display:none;">
-      <div class="card cpad">
-        <div class="flabel">Glass-analyse — ta bilde av glasset</div>
-        <div class="cam" onclick="simGlass()"><div class="cam-corners"><span></span></div><div class="cam-vf"><span class="vi">🥃</span><span class="vt">Trykk for å fotografere glasset</span></div><button class="shutter"><div class="shutter-in"></div></button></div>
+
+      <!-- Step 0: optional order lookup -->
+      <button class="opt-link" onclick="toggleGlassOrder()">
+        <span class="opt-icon">🪧</span> Hent bordordre — vet hvilke drikker som er bestilt (valgfritt)
+      </button>
+      <div id="glassOrderArea" style="display:none;"></div>
+
+      <!-- Step 1: take photo -->
+      <div class="card cpad" id="glassPhotoCard">
+        <div class="flabel" id="glassPhotoLabel">Steg 1 — Ta bilde av glasset</div>
+        <div style="font-size:var(--text-xxs);color:var(--color-text-secondary);margin-bottom:var(--sp-3);">AI analyserer glasstype, farge på innhold og fyllnivå</div>
+        <div class="cam" onclick="simGlassCapture()"><div class="cam-corners"><span></span></div><div class="cam-vf"><span class="vi">🥃</span><span class="vt">Trykk for å fotografere glasset</span></div><button class="shutter"><div class="shutter-in"></div></button></div>
       </div>
+
+      <!-- Step 2: AI result (injected dynamically) -->
       <div id="glassResult" style="display:none;"></div>
+
       <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
@@ -452,7 +535,7 @@ html.dark .toast{background:#F0EEF5;color:var(--sidebar-bg);}
     </div>
     <div class="card">
       <div class="log-item"><div class="li-icon" style="background:var(--danger-bg)">💔</div><div class="li-info"><div class="li-t">Vinglass — knust med rødvin</div><div class="li-m">12:51 · Søl/knust · <span class="log-badge break">💔 Knust</span></div></div><div class="li-amt">0,15 L<span class="li-cause">Uhell</span></div></div>
-      <div class="log-item"><div class="li-icon" style="background:rgba(139,92,246,.1)">🥃</div><div class="li-info"><div class="li-t">Glass — hvitvin (AI: 92%)</div><div class="li-m">12:45 · Glass-analyse · <span class="log-badge glass">🥃 Glass-AI</span></div></div><div class="li-amt">0,12 L<span class="li-cause">Retur</span></div></div>
+      <div class="log-item"><div class="li-icon" style="background:rgba(139,92,246,.1)">🍹</div><div class="li-info"><div class="li-t">Vodka Red Bull — Bord 4, glass-analyse</div><div class="li-m">12:45 · 30% igjen · <span class="log-badge glass">🥃 Glass-AI</span></div><div style="font-size:10px;color:var(--color-accent);margin-top:2px;">📋 Resept: 75ml Red Bull + 12ml vodka + 12ml is</div></div><div class="li-amt">99 ml<span class="li-cause">Retur</span></div></div>
       <div class="log-item"><div class="li-icon" style="background:var(--blue-50)">🥩</div><div class="li-info"><div class="li-t">Laks m/grønnsaker — tallerken</div><div class="li-m">12:38 · Bord 7 · <span class="log-badge ai">📸 AI</span></div><div style="font-size:10px;color:var(--color-accent);margin-top:2px;">📋 Resept: 96g laks + 48g brokkoli + 30g gulrot</div></div><div class="li-amt">0,8 kg<span class="li-cause">For stor porsjon</span></div></div>
       <div class="log-item"><div class="li-icon" style="background:var(--success-bg)">🥦</div><div class="li-info"><div class="li-t">Brokkoli — tilberedning</div><div class="li-m">11:15 · <span class="log-badge voice">🎤 Stemme</span></div></div><div class="li-amt">0,5 kg</div></div>
       <div class="log-item"><div class="li-icon" style="background:var(--success-bg)">🥕</div><div class="li-info"><div class="li-t">Gulrot — prepstasjon</div><div class="li-m">10:50 · <span class="log-badge station">🏷️ Stasjon</span></div></div><div class="li-amt">0,3 kg</div></div>
@@ -558,28 +641,192 @@ function showAiResult(){
 
 function resetCam(){document.getElementById('camS2').style.display='none';document.getElementById('camS3').style.display='none';document.querySelectorAll('.grp').forEach(b=>b.classList.remove('sel'));}
 
-/* ══ GLASS ANALYSIS ══ */
-function simGlass(){
-  const res=document.getElementById('glassResult');res.style.display='block';res.scrollIntoView({behavior:'smooth',block:'center'});
-  res.innerHTML=`<div class="card cpad"><div class="ai-proc"><div class="ai-spin"></div><div class="ai-pt">AI analyserer glassets innhold...</div></div></div>`;
-  setTimeout(()=>{
-    res.innerHTML=`<div class="card cpad" style="animation:scaleIn var(--dur-slow) var(--ease-out);">
-      <div class="ai-card">
-        <div class="ai-det"><span class="ai-det-icon">🥃</span><div class="ai-det-info"><h3>Glass-analyse</h3><span class="ai-conf">AI identifiserte 3 sannsynlige innhold</span></div></div>
-        <div class="flabel" style="margin-top:var(--sp-3);">Velg hva glasset inneholdt</div>
-        <div class="glass-result">
-          <div class="glass-option sel" onclick="selGlassOpt(this)"><div class="go-icon">🍷</div><div class="go-name">Hvitvin</div><div class="go-conf">92% sannsynlig</div><div class="go-vol">~0,12 L</div></div>
-          <div class="glass-option" onclick="selGlassOpt(this)"><div class="go-icon">🥤</div><div class="go-name">Juice</div><div class="go-conf">6% sannsynlig</div><div class="go-vol">~0,15 L</div></div>
-          <div class="glass-option" onclick="selGlassOpt(this)"><div class="go-icon">💧</div><div class="go-name">Vann</div><div class="go-conf">2% sannsynlig</div><div class="go-vol">~0,18 L</div></div>
-        </div>
-        <div class="flabel">Hvor mye sto igjen?</div>
-        <div class="stepper" style="margin-bottom:var(--sp-4);"><button class="stepper-btn" onclick="this.nextElementSibling.value=Math.max(0,parseInt(this.nextElementSibling.value)-10)">−</button><input type="number" class="stepper-val" value="30" step="5" min="0" max="100"><button class="stepper-btn" onclick="this.previousElementSibling.value=Math.min(100,parseInt(this.previousElementSibling.value)+10)">+</button><span class="stepper-unit">%</span></div>
+/* ══ GLASS ANALYSIS (v2 — order→photo→AI→recipe pipeline) ══ */
+const drinkDB = {
+  'vodka_rb': { name:'Vodka Red Bull', icon:'🍹', glass:'Highball', vol:330, color:'#FFB347',
+    recipe:[{name:'Red Bull',icon:'⚡',ml:250,pct:75.8,color:'var(--warning)'},{name:'Vodka',icon:'🍸',ml:40,pct:12.1,color:'var(--blue)'},{name:'Is',icon:'🧊',ml:40,pct:12.1,color:'var(--gray-300)'}]},
+  'hvitvin': { name:'Sauvignon Blanc', icon:'🍷', glass:'Vinglass', vol:150, color:'#F5E6A3',
+    recipe:[{name:'Hvitvin',icon:'🍷',ml:150,pct:100,color:'var(--warning)'}]},
+  'rodvin': { name:'Cabernet Sauvignon', icon:'🍷', glass:'Vinglass', vol:150, color:'#722F37',
+    recipe:[{name:'Rødvin',icon:'🍷',ml:150,pct:100,color:'var(--danger)'}]},
+  'mojito': { name:'Mojito', icon:'🍸', glass:'Highball', vol:300, color:'#C8E6C0',
+    recipe:[{name:'Hvit rom',icon:'🍸',ml:50,pct:16.7,color:'var(--blue)'},{name:'Limejuice',icon:'🍋',ml:25,pct:8.3,color:'var(--success)'},{name:'Sukkerlake',icon:'🧊',ml:20,pct:6.7,color:'var(--warning)'},{name:'Sodavann',icon:'💧',ml:120,pct:40,color:'var(--gray-300)'},{name:'Is + mynte',icon:'🌿',ml:85,pct:28.3,color:'var(--success)'}]},
+  'ol': { name:'Hansa Pilsner', icon:'🍺', glass:'Ølglass', vol:400, color:'#F0C040',
+    recipe:[{name:'Øl',icon:'🍺',ml:400,pct:100,color:'var(--warning)'}]},
+  'cola': { name:'Coca-Cola', icon:'🥤', glass:'Vannglass', vol:250, color:'#3B1F0B',
+    recipe:[{name:'Cola',icon:'🥤',ml:210,pct:84,color:'var(--danger)'},{name:'Is',icon:'🧊',ml:40,pct:16,color:'var(--gray-300)'}]},
+};
+
+let glassOrderLoaded = false;
+let glassPickedDrink = null;
+
+function toggleGlassOrder(){
+  const area = document.getElementById('glassOrderArea');
+  if(area.style.display === 'none'){
+    area.style.display = 'block';
+    glassOrderLoaded = true;
+    area.innerHTML = `<div class="order-lookup" style="animation:fadeUp var(--dur-slow) var(--ease-out);">
+      <div class="ol-head"><span class="ol-badge">POS</span><div><div class="ol-title">Bord 4 — Ordre #4835</div><div style="font-size:10px;color:var(--color-text-muted);">Servert kl. 19:45 · 6 drikker</div></div></div>
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--color-text-muted);margin-bottom:var(--sp-2);">Velg hvilket glass du registrerer</div>
+      <div class="drink-list">
+        <div class="drink-item" onclick="pickDrink(this,'vodka_rb')"><span class="di-icon">🍹</span><div class="di-info"><div class="di-name">Vodka Red Bull</div><div class="di-detail">Highball · 330 ml · Resept: 3 ingredienser</div></div><span class="di-pick">→</span></div>
+        <div class="drink-item" onclick="pickDrink(this,'hvitvin')"><span class="di-icon">🍷</span><div class="di-info"><div class="di-name">Sauvignon Blanc</div><div class="di-detail">Vinglass · 150 ml</div></div><span class="di-pick">→</span></div>
+        <div class="drink-item" onclick="pickDrink(this,'rodvin')"><span class="di-icon">🍷</span><div class="di-info"><div class="di-name">Cabernet Sauvignon</div><div class="di-detail">Vinglass · 150 ml</div></div><span class="di-pick">→</span></div>
+        <div class="drink-item" onclick="pickDrink(this,'mojito')"><span class="di-icon">🍸</span><div class="di-info"><div class="di-name">Mojito</div><div class="di-detail">Highball · 300 ml · Resept: 5 ingredienser</div></div><span class="di-pick">→</span></div>
+        <div class="drink-item" onclick="pickDrink(this,'ol')"><span class="di-icon">🍺</span><div class="di-info"><div class="di-name">Hansa Pilsner</div><div class="di-detail">Ølglass · 400 ml</div></div><span class="di-pick">→</span></div>
+        <div class="drink-item" onclick="pickDrink(this,'cola')"><span class="di-icon">🥤</span><div class="di-info"><div class="di-name">Coca-Cola</div><div class="di-detail">Vannglass · 250 ml</div></div><span class="di-pick">→</span></div>
       </div>
-      <button class="btn-p" onclick="toast('🥃 Glass registrert — hvitvin 0,12 L via AI');document.getElementById('glassResult').style.display='none'">Bekreft glass-registrering</button>
     </div>`;
-  },1800);
+    area.scrollIntoView({behavior:'smooth',block:'center'});
+  } else {
+    area.style.display = 'none';
+    glassOrderLoaded = false;
+    glassPickedDrink = null;
+  }
 }
-function selGlassOpt(el){document.querySelectorAll('.glass-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+
+function pickDrink(el, drinkKey){
+  document.querySelectorAll('.drink-item').forEach(d=>{ d.classList.remove('picked'); d.querySelector('.di-pick').textContent='→'; });
+  el.classList.add('picked');
+  el.querySelector('.di-pick').textContent = '✓';
+  glassPickedDrink = drinkKey;
+  const drink = drinkDB[drinkKey];
+  document.getElementById('glassPhotoLabel').textContent = `Steg 2 — Ta bilde av glasset (${drink.name})`;
+  document.getElementById('glassPhotoCard').scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function simGlassCapture(){
+  const res = document.getElementById('glassResult');
+  res.style.display = 'block';
+  res.scrollIntoView({behavior:'smooth',block:'center'});
+
+  const hasDrink = glassPickedDrink && drinkDB[glassPickedDrink];
+  const drink = hasDrink ? drinkDB[glassPickedDrink] : drinkDB['hvitvin'];
+  const conf = hasDrink ? 97 : 78;
+  const matchText = hasDrink
+    ? `Ordre bekreftet: <strong>${drink.name}</strong>`
+    : `AI gjetter: <strong>${drink.name}</strong> (ingen ordre koblet)`;
+
+  res.innerHTML = `<div class="card cpad"><div class="ai-proc"><div class="ai-spin"></div><div class="ai-pt">AI analyserer glass...</div><div class="ai-steps">
+    <div class="ai-s done"><div class="sd">✓</div> Bilde mottatt</div>
+    <div class="ai-s act" id="gs2"><div class="sd"></div> Identifiserer glasstype</div>
+    <div class="ai-s" id="gs3"><div class="sd"></div> Analyserer farge/innhold</div>
+    <div class="ai-s" id="gs4"><div class="sd"></div> Måler fyllnivå</div>
+    <div class="ai-s" id="gs5"><div class="sd"></div> Kobler resept</div>
+  </div></div></div>`;
+
+  setTimeout(()=>{document.getElementById('gs2').className='ai-s done';document.getElementById('gs2').querySelector('.sd').textContent='✓';document.getElementById('gs3').className='ai-s act';},600);
+  setTimeout(()=>{document.getElementById('gs3').className='ai-s done';document.getElementById('gs3').querySelector('.sd').textContent='✓';document.getElementById('gs4').className='ai-s act';},1100);
+  setTimeout(()=>{document.getElementById('gs4').className='ai-s done';document.getElementById('gs4').querySelector('.sd').textContent='✓';document.getElementById('gs5').className='ai-s act';},1600);
+  setTimeout(()=>showGlassResult(drink, conf, matchText, hasDrink), 2200);
+}
+
+function showGlassResult(drink, conf, matchText, hasDrink){
+  const res = document.getElementById('glassResult');
+  const aiPct = 30; // AI estimated fill level from photo
+  const remainMl = Math.round(drink.vol * aiPct / 100);
+
+  let recipeHtml = '';
+  if(drink.recipe.length > 1){
+    recipeHtml = `<div class="drink-recipe">
+      <div class="flabel" style="margin-top:var(--sp-3);">Reseptnedbryting — nøyaktig svinn per ingrediens</div>
+      ${drink.recipe.map(r=>{
+        const fullMl = r.ml;
+        const wasteMl = Math.round(r.ml * aiPct / 100);
+        return `<div class="dr-row">
+          <span class="dr-icon">${r.icon}</span>
+          <span class="dr-name">${r.name}</span>
+          <span class="dr-full">${fullMl} ml full</span>
+          <div class="dr-bar"><div class="dr-fill" style="width:${aiPct}%;background:${r.color}"></div></div>
+          <span class="dr-remain">${wasteMl} ml</span>
+        </div>`;
+      }).join('')}
+      <div class="dr-total">
+        <span class="dt-label">Totalt igjen i glass</span>
+        <span class="dt-val">${remainMl} ml</span>
+      </div>
+    </div>`;
+  } else {
+    recipeHtml = `<div style="margin-top:var(--sp-3);padding:var(--sp-3) var(--sp-4);background:var(--color-surface-elevated);border-radius:var(--r-md-plus);display:flex;justify-content:space-between;align-items:center;">
+      <span style="font-size:var(--text-xxs);color:var(--color-text-secondary);">${drink.recipe[0].icon} ${drink.recipe[0].name} igjen</span>
+      <span style="font-family:var(--font-mono);font-size:var(--text-md);font-weight:700;color:var(--color-accent);">${remainMl} ml</span>
+    </div>`;
+  }
+
+  res.innerHTML = `<div class="card cpad" style="animation:scaleIn var(--dur-slow) var(--ease-out);">
+    <div class="ai-card">
+      <div class="ai-det">
+        <span class="ai-det-icon">${drink.icon}</span>
+        <div class="ai-det-info">
+          <h3>${drink.name}</h3>
+          <span class="ai-conf">🎯 ${conf}% sikker · ${drink.glass}</span>
+        </div>
+      </div>
+
+      <div style="font-size:var(--text-xxs);color:var(--color-text-secondary);margin-bottom:var(--sp-3);padding:var(--sp-2) var(--sp-3);background:${hasDrink?'var(--success-bg)':'var(--warning-bg)'};border-radius:var(--r-md);display:inline-block;">
+        ${hasDrink?'🪧':'🤖'} ${matchText}
+      </div>
+
+      <!-- Fill gauge -->
+      <div class="fill-gauge">
+        <div class="fill-glass">
+          <div class="fill-liquid" id="glassLiquid" style="height:${aiPct}%;background:${drink.color};"></div>
+        </div>
+        <div class="fill-info">
+          <div class="fi-pct" id="glassPctDisplay">${aiPct}%</div>
+          <div class="fi-label">igjen (AI-estimat fra bilde)</div>
+          <div class="fi-vol" id="glassVolDisplay">${remainMl} ml av ${drink.vol} ml</div>
+        </div>
+      </div>
+      <div class="fill-slider">
+        <input type="range" min="0" max="100" value="${aiPct}" id="glassPctSlider"
+          oninput="updateGlassPct(this.value, ${drink.vol}, '${drink.color}', ${JSON.stringify(drink.recipe).replace(/"/g,'&quot;')})">
+        <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--color-text-muted);margin-top:var(--sp-1);">
+          <span>Tomt</span><span>Juster om AI bommet</span><span>Fullt</span>
+        </div>
+      </div>
+
+      ${recipeHtml}
+    </div>
+
+    <button class="btn-p" onclick="confirmGlass('${drink.name}',document.getElementById('glassPctSlider').value,${drink.vol})">
+      Bekreft glass-registrering
+    </button>
+    <button class="btn-o" style="margin-top:var(--sp-2);" onclick="document.getElementById('glassResult').style.display='none'">
+      Forkast — prøv igjen
+    </button>
+  </div>`;
+}
+
+function updateGlassPct(pct, totalVol, color, recipe){
+  pct = parseInt(pct);
+  const remainMl = Math.round(totalVol * pct / 100);
+  document.getElementById('glassPctDisplay').textContent = pct + '%';
+  document.getElementById('glassVolDisplay').textContent = remainMl + ' ml av ' + totalVol + ' ml';
+  document.getElementById('glassLiquid').style.height = pct + '%';
+
+  // Update recipe breakdown if multi-ingredient
+  document.querySelectorAll('.dr-fill').forEach((el, i) => {
+    el.style.width = pct + '%';
+  });
+  document.querySelectorAll('.dr-remain').forEach((el, i) => {
+    if(recipe && recipe[i]){
+      el.textContent = Math.round(recipe[i].ml * pct / 100) + ' ml';
+    }
+  });
+  const totalEl = document.querySelector('.dt-val');
+  if(totalEl) totalEl.textContent = remainMl + ' ml';
+}
+
+function confirmGlass(name, pct, vol){
+  const ml = Math.round(vol * parseInt(pct) / 100);
+  toast(`🥃 ${name} — ${pct}% igjen (${ml} ml) · resept koblet`);
+  document.getElementById('glassResult').style.display = 'none';
+  document.getElementById('glassOrderArea').style.display = 'none';
+  glassPickedDrink = null;
+  glassOrderLoaded = false;
+  document.getElementById('glassPhotoLabel').textContent = 'Steg 1 — Ta bilde av glasset';
+}
 
 /* ══ BREAKAGE ══ */
 let breakType='';
