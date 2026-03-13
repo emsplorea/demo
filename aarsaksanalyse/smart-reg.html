@@ -3,980 +3,630 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Easy Step — Smart Registrering · Plorea</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Easy Step — Smart Registrering v2 · Plorea</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-/* ══════════════════════════════════════════════
-   PLOREA DESIGN TOKENS v1.1
-   ══════════════════════════════════════════════ */
-:root {
-  /* ── Blue primary ── */
-  --blue-50:#EBF6FB; --blue-100:#C7E7F3; --blue-200:#99D2E8;
-  --blue:#6BB8DA; --blue-600:#4FA3C8; --blue-700:#468DAC;
-  --blue-800:#2E6B87; --blue-900:#1D4A5F;
-
-  /* ── Semantic ── */
-  --success:#6BDAB2; --warning:#DADA6B; --danger:#DA6B6B;
-  --success-bg:#E8FBF4; --warning-bg:#FBFBE8; --danger-bg:#FBE8E8;
-
-  /* ── Gray ── */
-  --gray-50:#F7F8FA; --gray-100:#F1F2F4; --gray-200:#E9E9E9;
-  --gray-300:#D4D4D4; --gray-400:#C4C4C4; --gray-500:#999999;
-  --gray-600:#666666; --gray-700:#444444; --gray-800:#2A2A2A;
-  --gray-900:#1A1A1A;
-
-  /* ── Surface / Semantic tokens ── */
-  --color-bg-page:#F1F5F9;
-  --color-surface:#FFFFFF;
-  --color-surface-elevated:#F7F8FA;
-  --color-surface-hover:#F4F4F6;
-  --color-border:#E9E9E9;
-  --color-border-darker:#E3E3E4;
-  --color-text-primary:#1A1A1A;
-  --color-text-secondary:#666666;
-  --color-text-muted:#C4C4C4;
-  --color-primary:#6BB8DA;
-  --color-accent:#2E6B87;
-
-  /* ── Sidebar (always dark) ── */
+:root{
+  --blue-50:#EBF6FB;--blue-100:#C7E7F3;--blue-200:#99D2E8;
+  --blue:#6BB8DA;--blue-600:#4FA3C8;--blue-700:#468DAC;
+  --blue-800:#2E6B87;--blue-900:#1D4A5F;
+  --success:#6BDAB2;--warning:#DADA6B;--danger:#DA6B6B;
+  --success-bg:#E8FBF4;--warning-bg:#FBFBE8;--danger-bg:#FBE8E8;
+  --success-dark:#2D8B6F;--warning-dark:#8B8B2D;--danger-dark:#8B3A3A;
+  --gray-50:#F7F8FA;--gray-100:#F1F2F4;--gray-200:#E9E9E9;
+  --gray-300:#D4D4D4;--gray-400:#C4C4C4;--gray-500:#999999;
+  --gray-600:#666666;--gray-700:#444444;--gray-800:#2A2A2A;--gray-900:#1A1A1A;
+  --color-bg-page:#F1F5F9;--color-surface:#FFFFFF;--color-surface-elevated:#F7F8FA;
+  --color-surface-hover:#F4F4F6;--color-border:#E9E9E9;--color-border-darker:#E3E3E4;
+  --color-text-primary:#1A1A1A;--color-text-secondary:#666666;--color-text-muted:#C4C4C4;
+  --color-primary:#6BB8DA;--color-accent:#2E6B87;
   --sidebar-bg:#1A1825;
-
-  /* ── Elevation ── */
-  --elevation-0:none;
-  --elevation-1:0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --elevation-2:0 4px 12px rgba(0,0,0,.08);
-  --elevation-3:0 10px 30px rgba(0,0,0,.12);
+  --elevation-0:none;--elevation-1:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --elevation-2:0 4px 12px rgba(0,0,0,.08);--elevation-3:0 10px 30px rgba(0,0,0,.12);
   --elevation-focus:0 0 0 3px rgba(107,184,218,.35);
-
-  /* ── Radius (Plorea scale) ── */
-  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-md-plus:10px;
-  --r-xl:14px; --r-2xl:20px; --r-full:9999px;
-
-  /* ── Spacing (4px grid) ── */
-  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px;
-  --sp-5:20px; --sp-6:24px; --sp-8:32px; --sp-10:40px;
-  --sp-12:48px; --sp-16:64px;
-
-  /* ── Motion ── */
-  --dur-micro:80ms; --dur-fast:100ms; --dur:160ms;
-  --dur-slow:240ms; --dur-panel:320ms;
-  --ease-out:cubic-bezier(0.16,1,0.3,1);
-  --ease-in:cubic-bezier(0.4,0,1,1);
-  --ease:cubic-bezier(0.4,0,0.2,1);
-
-  /* ── Typography ── */
-  --font-display:'Sora', sans-serif;
-  --font-body:'Plus Jakarta Sans', sans-serif;
-  --font-mono:'JetBrains Mono', monospace;
-  --text-tiny:11px; --text-xxs:12px; --text-xs:13px;
-  --text-md:15px; --text-base:15px; --text-lg:16px;
-  --text-xl:20px; --text-2xl:26px; --text-display:38px;
-
-  /* ── Channel colors ── */
-  --ch-table:#362F4A; --ch-takeaway:#D1E7DD;
-  --ch-eatin:#E5C1B6; --ch-combo:#FFB3BA;
+  --r-sm:4px;--r-md:6px;--r-lg:8px;--r-md-plus:10px;--r-xl:14px;--r-2xl:20px;--r-full:9999px;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;--sp-8:32px;--sp-10:40px;
+  --dur-micro:80ms;--dur-fast:100ms;--dur:160ms;--dur-slow:240ms;--dur-panel:320ms;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);--ease-in:cubic-bezier(0.4,0,1,1);--ease:cubic-bezier(0.4,0,0.2,1);
+  --font-display:'Sora',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --text-tiny:11px;--text-xxs:12px;--text-xs:13px;--text-md:15px;--text-lg:16px;--text-xl:20px;--text-2xl:26px;
 }
-
-/* ── Dark mode ── */
-html.dark {
-  --color-bg-page:#16151A;
-  --color-surface:#1E1D24;
-  --color-surface-elevated:#26242E;
-  --color-surface-hover:#26242E;
-  --color-border:#2E2C38;
-  --color-border-darker:#2E2C38;
-  --color-text-primary:#F0EEF5;
-  --color-text-secondary:#9B98A8;
-  --color-text-muted:#5C5970;
-  --success:#4DB896; --warning:#C4C44A; --danger:#D45858;
-  --success-bg:rgba(77,184,150,.12); --warning-bg:rgba(196,196,74,.12); --danger-bg:rgba(212,88,88,.12);
-  --gray-50:#1E1D24; --gray-100:#26242E; --gray-200:#2E2C38;
-  --gray-800:#E0DEE8; --gray-900:#F0EEF5;
+html.dark{
+  --color-bg-page:#16151A;--color-surface:#1E1D24;--color-surface-elevated:#26242E;
+  --color-surface-hover:#26242E;--color-border:#2E2C38;--color-border-darker:#2E2C38;
+  --color-text-primary:#F0EEF5;--color-text-secondary:#9B98A8;--color-text-muted:#5C5970;
+  --success:#4DB896;--warning:#C4C44A;--danger:#D45858;
+  --success-bg:rgba(77,184,150,.1);--warning-bg:rgba(196,196,74,.1);--danger-bg:rgba(212,88,88,.1);
+  --success-dark:#6BDAB2;--warning-dark:#DADA6B;--danger-dark:#DA6B6B;
+  --gray-50:#1E1D24;--gray-100:#26242E;--gray-200:#2E2C38;--gray-800:#E0DEE8;--gray-900:#F0EEF5;
   --sidebar-bg:#12111A;
 }
-
-/* ══════════════════════════════════════════════
-   BASE
-   ══════════════════════════════════════════════ */
 *{margin:0;padding:0;box-sizing:border-box;}
 html{-webkit-tap-highlight-color:transparent;}
 body{
-  font-family:var(--font-body);
-  background:var(--color-bg-page);
-  color:var(--color-text-primary);
-  line-height:1.6;min-height:100vh;
-  max-width:480px;margin:0 auto;
-  position:relative;overflow-x:hidden;
-  font-size:var(--text-md);
+  font-family:var(--font-body);background:var(--color-bg-page);color:var(--color-text-primary);
+  line-height:1.6;min-height:100vh;max-width:480px;margin:0 auto;
+  font-size:var(--text-md);overflow-x:hidden;
 }
 @media(min-width:481px){body{border-left:1px solid var(--color-border);border-right:1px solid var(--color-border);}}
-
 h1,h2,h3,h4,h5{font-family:var(--font-display);line-height:1.25;}
 button{cursor:pointer;font-family:inherit;}
 
-/* ══════ ANIMATIONS (Plorea motion tokens) ══════ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
 @keyframes breathe{0%,100%{box-shadow:0 0 0 0 rgba(107,184,218,.3)}50%{box-shadow:0 0 0 12px rgba(107,184,218,0)}}
-@keyframes skeleton{0%{background-position:-200% 0}100%{background-position:200% 0}}
 
-/* ══════ TOPBAR ══════ */
-.topbar{
-  position:sticky;top:0;z-index:100;
-  background:var(--sidebar-bg);
-  padding:var(--sp-3) var(--sp-5);
-  display:flex;align-items:center;justify-content:space-between;
-}
+/* ══ TOPBAR ══ */
+.topbar{position:sticky;top:0;z-index:100;background:var(--sidebar-bg);padding:var(--sp-3) var(--sp-5);display:flex;align-items:center;justify-content:space-between;}
 .topbar-brand{display:flex;align-items:center;gap:var(--sp-3);}
-.topbar-logo{
-  width:32px;height:32px;border-radius:var(--r-lg);
-  background:linear-gradient(135deg,var(--blue),var(--blue-600));
-  display:flex;align-items:center;justify-content:center;
-  font-size:var(--text-xxs);font-weight:800;color:#fff;font-family:var(--font-display);
-}
+.topbar-logo{width:32px;height:32px;border-radius:var(--r-lg);background:linear-gradient(135deg,var(--blue),var(--blue-600));display:flex;align-items:center;justify-content:center;font-size:var(--text-xxs);font-weight:800;color:#fff;font-family:var(--font-display);}
 .topbar h1{font-size:var(--text-md);font-weight:700;color:#fff;}
 .topbar-sub{font-size:10px;color:var(--blue);font-weight:700;letter-spacing:.1em;text-transform:uppercase;}
 .topbar-right{display:flex;align-items:center;gap:var(--sp-3);}
 .topbar-status{display:flex;align-items:center;gap:5px;font-size:var(--text-tiny);color:var(--success);font-weight:600;}
 .topbar-status .dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 2s infinite;}
-.topbar-user{
-  width:30px;height:30px;border-radius:50%;
-  background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);
-  display:flex;align-items:center;justify-content:center;
-  font-size:var(--text-tiny);font-weight:700;color:var(--blue);
-}
-.topbar-theme{
-  width:28px;height:28px;border-radius:50%;border:none;
-  background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);
-  display:flex;align-items:center;justify-content:center;
-  font-size:14px;transition:all var(--dur) var(--ease);
-}
-.topbar-theme:active{transform:scale(.9);}
+.tb-btn{width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:rgba(255,255,255,.5);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all var(--dur-fast);}
+.tb-btn:active{transform:scale(.9);}
+.topbar-user{width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:var(--text-tiny);font-weight:700;color:var(--blue);}
 
-/* ══════ MODULE TABS ══════ */
-.module-tabs{
-  display:flex;background:var(--color-surface);border-bottom:1px solid var(--color-border);
-  overflow-x:auto;scrollbar-width:none;
-}
-.module-tabs::-webkit-scrollbar{display:none;}
-.mod-tab{
-  flex:1;min-width:0;
-  padding:var(--sp-3) var(--sp-2);border:none;background:transparent;
-  font-family:var(--font-body);font-size:var(--text-tiny);font-weight:700;
-  color:var(--color-text-muted);
-  display:flex;flex-direction:column;align-items:center;gap:3px;
-  position:relative;transition:color var(--dur-fast) var(--ease);
-}
-.mod-tab .tab-icon{font-size:1.15rem;}
-.mod-tab.active{color:var(--color-accent);}
-.mod-tab.active::after{
-  content:'';position:absolute;bottom:0;left:25%;right:25%;
-  height:3px;background:var(--color-primary);border-radius:3px 3px 0 0;
-}
-.mod-tab:active{transform:scale(.95);transition:transform var(--dur-micro);}
+/* ══ TABS ══ */
+.tabs{display:flex;background:var(--color-surface);border-bottom:1px solid var(--color-border);overflow-x:auto;scrollbar-width:none;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:0;padding:var(--sp-3) var(--sp-2);border:none;background:transparent;font-family:var(--font-body);font-size:var(--text-tiny);font-weight:700;color:var(--color-text-muted);display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;transition:color var(--dur-fast);}
+.tab .ti{font-size:1.15rem;}
+.tab.active{color:var(--color-accent);}
+.tab.active::after{content:'';position:absolute;bottom:0;left:25%;right:25%;height:3px;background:var(--color-primary);border-radius:3px 3px 0 0;}
+.tab:active{transform:scale(.95);transition:transform var(--dur-micro);}
 
-/* ══════ CONTENT ══════ */
-.content{padding:var(--sp-4) var(--sp-4) 100px;}
-.panel{display:none;}
-.panel.active{display:block;animation:fadeUp var(--dur-slow) var(--ease-out);}
+/* ══ CONTENT ══ */
+.cnt{padding:var(--sp-4) var(--sp-4) 100px;}
+.pnl{display:none;}.pnl.active{display:block;animation:fadeUp var(--dur-slow) var(--ease-out);}
 
-/* ══════ SECTION HEAD ══════ */
-.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4);}
-.sec-title{font-size:var(--text-lg);font-weight:700;color:var(--color-text-primary);}
+/* ══ SHARED ══ */
+.sec-title{font-size:var(--text-lg);font-weight:700;}
 .sec-sub{font-size:var(--text-xxs);color:var(--color-text-secondary);margin-top:2px;}
-
-.sec-label{
-  font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--color-text-muted);margin-bottom:var(--sp-2);display:block;
-}
-
-/* ══════ CARD (Plorea elevation-1) ══════ */
-.card{
-  background:var(--color-surface);
-  border:1px solid var(--color-border);
-  border-radius:var(--r-xl);
-  box-shadow:var(--elevation-1);
-  margin-bottom:var(--sp-4);
-  overflow:hidden;
-  transition:box-shadow var(--dur) var(--ease), border-color var(--dur) var(--ease);
-}
+.flabel{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--color-text-muted);margin-bottom:var(--sp-2);}
+.card{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);box-shadow:var(--elevation-1);margin-bottom:var(--sp-4);overflow:hidden;transition:box-shadow var(--dur) var(--ease);}
 .card:hover{box-shadow:var(--elevation-2);}
-.card-pad{padding:var(--sp-5);}
+.cpad{padding:var(--sp-5);}
 
-/* ══════ SUMMARY STRIP ══════ */
 .summary-strip{display:flex;gap:var(--sp-2);margin-bottom:var(--sp-4);}
-.summary-chip{
-  flex:1;text-align:center;padding:var(--sp-3) var(--sp-2);
-  border-radius:var(--r-md-plus);
-  background:var(--color-surface);border:1px solid var(--color-border);
-  box-shadow:var(--elevation-1);
-}
-.summary-chip .sc-val{font-family:var(--font-mono);font-size:var(--text-md);font-weight:700;}
-.summary-chip .sc-label{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-text-muted);margin-top:2px;}
-.summary-chip.blue .sc-val{color:var(--blue-800);}
-.summary-chip.green .sc-val{color:var(--success);}
-.summary-chip.warn .sc-val{color:var(--warning);}
-.summary-chip.red .sc-val{color:var(--danger);}
-.summary-chip.accent .sc-val{color:var(--color-accent);}
+.sc{flex:1;text-align:center;padding:var(--sp-3) var(--sp-2);border-radius:var(--r-md-plus);background:var(--color-surface);border:1px solid var(--color-border);box-shadow:var(--elevation-1);}
+.sc .v{font-family:var(--font-mono);font-size:var(--text-md);font-weight:700;}
+.sc .l{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--color-text-muted);margin-top:2px;}
+.sc.blue .v{color:var(--blue-800);}
+.sc.green .v{color:var(--success-dark);}
+.sc.warn .v{color:var(--warning-dark);}
+.sc.accent .v{color:var(--color-accent);}
 
-/* ══════ METHOD HERO ══════ */
-.method-hero{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);}
+/* ══ METHOD HERO ══ */
+.mhero{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-3);margin-bottom:var(--sp-4);}
+.mc{position:relative;overflow:hidden;padding:var(--sp-5) var(--sp-4);border-radius:var(--r-xl);border:1.5px solid var(--color-border);background:var(--color-surface);box-shadow:var(--elevation-1);display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);transition:all var(--dur) var(--ease);}
+.mc:active{transform:scale(.97);transition:transform var(--dur-micro);}
+.mc.pri{grid-column:1/-1;flex-direction:row;gap:var(--sp-4);padding:var(--sp-5);background:var(--blue-50);border-color:var(--blue-200);}
+html.dark .mc.pri{background:rgba(107,184,218,.06);border-color:rgba(107,184,218,.2);}
+.mc.pri .mi{font-size:2.2rem;}.mc.pri .mt{text-align:left;}
+.mi{font-size:1.5rem;}.ml{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
+.mh{font-size:var(--text-tiny);color:var(--color-text-secondary);text-align:center;}
+.mc.pri .mh{text-align:left;}
+.mb{position:absolute;top:var(--sp-2);right:var(--sp-2);font-size:10px;font-weight:700;padding:2px var(--sp-2);border-radius:var(--r-sm);letter-spacing:.04em;text-transform:uppercase;}
+.mb.ai{background:var(--blue-50);color:var(--blue-800);} html.dark .mb.ai{background:rgba(107,184,218,.12);}
+.mb.fast{background:var(--success-bg);color:var(--success-dark);}
+.mb.iot{background:var(--warning-bg);color:var(--warning-dark);}
+.mb.new{background:var(--danger-bg);color:var(--danger-dark);}
 
-.method-card{
-  position:relative;overflow:hidden;
-  padding:var(--sp-5) var(--sp-4);
-  border-radius:var(--r-xl);
-  border:1.5px solid var(--color-border);
-  background:var(--color-surface);
-  box-shadow:var(--elevation-1);
-  display:flex;flex-direction:column;align-items:center;gap:var(--sp-2);
-  transition:all var(--dur) var(--ease);
-}
-.method-card:active{transform:scale(.97);transition:transform var(--dur-micro);}
+/* ══ GROUP SELECTOR ══ */
+.grps{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-bottom:var(--sp-4);}
+.grp{padding:var(--sp-4) var(--sp-2);border-radius:var(--r-md-plus);border:1.5px solid var(--color-border);background:var(--color-surface);text-align:center;transition:all var(--dur-fast);min-height:44px;}
+.grp:active{transform:scale(.96);}
+.grp.sel{border-color:var(--blue);background:var(--blue-50);box-shadow:var(--elevation-focus);}
+html.dark .grp.sel{background:rgba(107,184,218,.1);}
+.grp .gi{font-size:1.3rem;margin-bottom:var(--sp-1);}.grp .gn{font-size:var(--text-xxs);font-weight:700;}
 
-.method-card.primary{
-  grid-column:1/-1;flex-direction:row;gap:var(--sp-4);
-  padding:var(--sp-5);
-  background:var(--blue-50);border-color:var(--blue-200);
-}
-.method-card.primary .m-icon{font-size:2.2rem;}
-.method-card.primary .m-text{text-align:left;}
+/* ══ CAMERA ══ */
+.cam{position:relative;border-radius:var(--r-xl);overflow:hidden;margin-bottom:var(--sp-4);aspect-ratio:4/3;background:var(--gray-900);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform var(--dur-fast);}
+.cam:active{transform:scale(.98);}
+.cam-corners{position:absolute;inset:var(--sp-3);pointer-events:none;}
+.cam-corners::before,.cam-corners::after,.cam-corners span::before,.cam-corners span::after{content:'';position:absolute;width:24px;height:24px;border-color:var(--blue);border-style:solid;border-width:0;}
+.cam-corners::before{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:var(--r-sm) 0 0 0;}
+.cam-corners::after{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 var(--r-sm) 0 0;}
+.cam-corners span::before{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 var(--r-sm);}
+.cam-corners span::after{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 var(--r-sm) 0;}
+.cam-vf{display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);}
+.cam-vf .vi{font-size:2.5rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4));}
+.cam-vf .vt{font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:500;}
+.shutter{position:absolute;bottom:var(--sp-4);left:50%;transform:translateX(-50%);width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);border:3px solid #fff;display:flex;align-items:center;justify-content:center;transition:transform var(--dur-micro);z-index:5;}
+.shutter:active{transform:translateX(-50%) scale(.88);}
+.shutter-in{width:48px;height:48px;border-radius:50%;background:#fff;}
 
-.m-icon{font-size:1.5rem;}
-.m-label{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
-.m-hint{font-size:var(--text-tiny);color:var(--color-text-secondary);text-align:center;}
-.method-card.primary .m-hint{text-align:left;}
-
-.m-badge{
-  position:absolute;top:var(--sp-2);right:var(--sp-2);
-  font-size:10px;font-weight:700;padding:2px var(--sp-2);
-  border-radius:var(--r-sm);letter-spacing:.04em;text-transform:uppercase;
-}
-.m-badge.ai{background:var(--blue-50);color:var(--blue-800);}
-.m-badge.fast{background:var(--success-bg);color:#2D8B6F;}
-.m-badge.iot{background:var(--warning-bg);color:#8B8B2D;}
-
-/* ══════ GROUP SELECTOR ══════ */
-.group-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--sp-2);margin-bottom:var(--sp-4);}
-.group-btn{
-  padding:var(--sp-4) var(--sp-2);border-radius:var(--r-md-plus);
-  border:1.5px solid var(--color-border);background:var(--color-surface);
-  text-align:center;transition:all var(--dur-fast) var(--ease);
-  min-height:44px;
-}
-.group-btn:active{transform:scale(.96);transition:transform var(--dur-micro);}
-.group-btn.selected{border-color:var(--blue);background:var(--blue-50);box-shadow:var(--elevation-focus);}
-.group-btn .g-icon{font-size:1.3rem;margin-bottom:var(--sp-1);}
-.group-btn .g-name{font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);}
-
-/* ══════ CAMERA CAPTURE ══════ */
-.camera-capture{
-  position:relative;border-radius:var(--r-xl);overflow:hidden;
-  margin-bottom:var(--sp-4);aspect-ratio:4/3;
-  background:var(--gray-900);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:transform var(--dur-fast);
-}
-.camera-capture:active{transform:scale(.98);}
-.camera-corners{position:absolute;inset:var(--sp-3);pointer-events:none;}
-.camera-corners::before,.camera-corners::after,
-.camera-corners span::before,.camera-corners span::after{
-  content:'';position:absolute;width:24px;height:24px;
-  border-color:var(--blue);border-style:solid;border-width:0;
-}
-.camera-corners::before{top:0;left:0;border-top-width:3px;border-left-width:3px;border-radius:var(--r-sm) 0 0 0;}
-.camera-corners::after{top:0;right:0;border-top-width:3px;border-right-width:3px;border-radius:0 var(--r-sm) 0 0;}
-.camera-corners span::before{bottom:0;left:0;border-bottom-width:3px;border-left-width:3px;border-radius:0 0 0 var(--r-sm);}
-.camera-corners span::after{bottom:0;right:0;border-bottom-width:3px;border-right-width:3px;border-radius:0 0 var(--r-sm) 0;}
-
-.camera-viewfinder{
-  display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);
-}
-.camera-viewfinder .vf-icon{font-size:2.5rem;filter:drop-shadow(0 2px 8px rgba(0,0,0,.4));}
-.camera-viewfinder .vf-text{font-size:var(--text-xs);color:rgba(255,255,255,.6);font-weight:500;}
-
-.shutter-btn{
-  position:absolute;bottom:var(--sp-4);left:50%;transform:translateX(-50%);
-  width:64px;height:64px;border-radius:50%;
-  background:rgba(255,255,255,.15);backdrop-filter:blur(8px);
-  border:3px solid #fff;display:flex;align-items:center;justify-content:center;
-  transition:transform var(--dur-micro);z-index:5;
-}
-.shutter-btn:active{transform:translateX(-50%) scale(.88);}
-.shutter-inner{width:48px;height:48px;border-radius:50%;background:#fff;}
-
-/* ══════ AI RESULT ══════ */
-.ai-result-card{
-  border:2px solid var(--blue-200);background:var(--blue-50);
-  border-radius:var(--r-xl);padding:var(--sp-5);margin-bottom:var(--sp-4);
-  position:relative;
-}
-html.dark .ai-result-card{background:rgba(107,184,218,.06);border-color:rgba(107,184,218,.2);}
-.ai-result-card::before{
-  content:'AI';position:absolute;top:-10px;right:var(--sp-4);
-  background:linear-gradient(135deg,var(--blue-800),var(--blue-700));
-  color:#fff;font-size:10px;font-weight:800;font-family:var(--font-display);
-  padding:3px 10px;border-radius:var(--r-sm);letter-spacing:.08em;
-}
-
-.ai-detected{display:flex;align-items:center;gap:var(--sp-4);margin-bottom:var(--sp-4);}
-.ai-detected-icon{font-size:2.2rem;}
-.ai-detected-info h3{font-family:var(--font-display);font-size:var(--text-xl);font-weight:700;color:var(--color-text-primary);}
-.ai-detected-info .ai-conf{
-  display:inline-flex;align-items:center;gap:4px;
-  font-size:var(--text-tiny);font-weight:700;color:var(--blue-800);
-  background:var(--blue-100);padding:3px var(--sp-2);border-radius:var(--r-sm);margin-top:3px;
-}
-
+/* ══ AI RESULT ══ */
+.ai-card{border:2px solid var(--blue-200);background:var(--blue-50);border-radius:var(--r-xl);padding:var(--sp-5);margin-bottom:var(--sp-4);position:relative;}
+html.dark .ai-card{background:rgba(107,184,218,.06);border-color:rgba(107,184,218,.2);}
+.ai-card::before{content:'AI';position:absolute;top:-10px;right:var(--sp-4);background:linear-gradient(135deg,var(--blue-800),var(--blue-700));color:#fff;font-size:10px;font-weight:800;font-family:var(--font-display);padding:3px 10px;border-radius:var(--r-sm);letter-spacing:.08em;}
+.ai-det{display:flex;align-items:center;gap:var(--sp-4);margin-bottom:var(--sp-4);}
+.ai-det-icon{font-size:2.2rem;}
+.ai-det-info h3{font-family:var(--font-display);font-size:var(--text-xl);font-weight:700;}
+.ai-conf{display:inline-flex;align-items:center;gap:4px;font-size:var(--text-tiny);font-weight:700;color:var(--blue-800);background:var(--blue-100);padding:3px var(--sp-2);border-radius:var(--r-sm);margin-top:3px;}
+html.dark .ai-conf{background:rgba(107,184,218,.15);color:var(--blue);}
 .ai-fields{display:flex;flex-direction:column;gap:var(--sp-3);}
-.ai-field{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:var(--sp-3) var(--sp-4);
-  background:var(--color-surface);border-radius:var(--r-lg);
-  border:1px solid var(--color-border);
-}
-.ai-field-label{font-size:var(--text-xxs);color:var(--color-text-secondary);font-weight:500;}
-.ai-field-val{
-  font-family:var(--font-mono);font-size:var(--text-md);font-weight:700;
-  color:var(--color-text-primary);display:flex;align-items:center;gap:var(--sp-2);
-}
-.ai-edit-btn{
-  width:28px;height:28px;border-radius:var(--r-md);
-  border:1px solid var(--color-border);background:var(--color-surface-elevated);
-  display:flex;align-items:center;justify-content:center;
-  font-size:var(--text-xxs);transition:all var(--dur-fast);
-}
-.ai-edit-btn:active{background:var(--color-surface-hover);}
+.ai-f{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-3) var(--sp-4);background:var(--color-surface);border-radius:var(--r-lg);border:1px solid var(--color-border);}
+.ai-fl{font-size:var(--text-xxs);color:var(--color-text-secondary);}
+.ai-fv{font-family:var(--font-mono);font-size:var(--text-md);font-weight:700;display:flex;align-items:center;gap:var(--sp-2);}
+.ai-edit{width:28px;height:28px;border-radius:var(--r-md);border:1px solid var(--color-border);background:var(--color-surface-elevated);display:flex;align-items:center;justify-content:center;font-size:var(--text-xxs);transition:all var(--dur-fast);}
+.ai-edit:active{background:var(--color-surface-hover);}
 
-/* ── Processing ── */
-.ai-processing{text-align:center;padding:var(--sp-10) var(--sp-5);}
-.ai-spinner{
-  width:44px;height:44px;
-  border:3px solid var(--color-border);border-top-color:var(--blue);
-  border-radius:50%;animation:spin .8s linear infinite;margin:0 auto var(--sp-4);
-}
-.ai-proc-text{font-size:var(--text-xs);color:var(--color-text-secondary);font-weight:500;}
-.ai-proc-steps{margin-top:var(--sp-3);text-align:left;display:inline-block;}
-.ai-step{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--text-xxs);color:var(--color-text-muted);padding:var(--sp-1) 0;}
-.ai-step.done{color:var(--success);}
-.ai-step .step-dot{
-  width:16px;height:16px;border-radius:50%;
-  border:2px solid var(--color-border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;flex-shrink:0;
-}
-.ai-step.done .step-dot{background:var(--success);border-color:var(--success);color:#fff;}
-.ai-step.active .step-dot{border-color:var(--blue);animation:breathe 1.5s infinite;}
+/* ── Recipe decomposition ── */
+.recipe-box{margin-top:var(--sp-4);border:1px solid var(--color-border);border-radius:var(--r-xl);overflow:hidden;}
+.recipe-head{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-3) var(--sp-4);background:var(--color-surface-elevated);border-bottom:1px solid var(--color-border);cursor:pointer;transition:background var(--dur-fast);}
+.recipe-head:active{background:var(--color-surface-hover);}
+.recipe-head .rh-left{display:flex;align-items:center;gap:var(--sp-2);}
+.recipe-head .rh-icon{font-size:var(--text-md);}
+.recipe-head .rh-title{font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);}
+.recipe-head .rh-sub{font-size:10px;color:var(--color-text-muted);}
+.recipe-head .rh-toggle{font-size:var(--text-xs);color:var(--color-text-muted);transition:transform var(--dur-fast);}
+.recipe-head .rh-toggle.open{transform:rotate(180deg);}
+.recipe-body{padding:var(--sp-3) var(--sp-4);display:none;}
+.recipe-body.show{display:block;animation:fadeUp var(--dur-slow) var(--ease-out);}
+.recipe-row{display:flex;align-items:center;justify-content:space-between;padding:var(--sp-2) 0;border-bottom:1px solid var(--color-surface-elevated);}
+.recipe-row:last-child{border-bottom:none;}
+.recipe-row .rr-name{font-size:var(--text-xxs);color:var(--color-text-secondary);display:flex;align-items:center;gap:var(--sp-2);}
+.recipe-row .rr-qty{font-family:var(--font-mono);font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);}
+.recipe-row .rr-bar{width:60px;height:4px;background:var(--color-surface-elevated);border-radius:2px;overflow:hidden;margin-left:var(--sp-2);}
+.recipe-row .rr-fill{height:100%;border-radius:2px;}
+.recipe-total{display:flex;justify-content:space-between;padding:var(--sp-3) 0 0;margin-top:var(--sp-2);border-top:2px solid var(--color-border);font-size:var(--text-xxs);font-weight:700;}
+.recipe-total .rt-label{color:var(--color-text-secondary);}
+.recipe-total .rt-val{font-family:var(--font-mono);color:var(--color-accent);}
 
-/* ══════ VOICE ══════ */
-.voice-area{text-align:center;padding:var(--sp-8) var(--sp-5);}
-.voice-btn{
-  width:96px;height:96px;border-radius:50%;
-  background:linear-gradient(135deg,var(--blue),var(--blue-600));
-  border:none;color:#fff;font-size:2rem;
-  box-shadow:0 6px 20px rgba(107,184,218,.3);
-  margin:0 auto var(--sp-4);display:flex;align-items:center;justify-content:center;
-  transition:all var(--dur-fast);
-}
-.voice-btn:active{transform:scale(.93);}
-.voice-btn.recording{animation:breathe 1s infinite;background:linear-gradient(135deg,var(--danger),#E88);box-shadow:0 6px 20px rgba(218,107,107,.3);}
-.voice-text{font-size:var(--text-xs);color:var(--color-text-secondary);font-weight:500;margin-bottom:var(--sp-2);}
-.voice-hint{font-size:var(--text-tiny);color:var(--color-text-muted);}
-.voice-transcript{
-  margin-top:var(--sp-4);padding:var(--sp-4);
-  background:var(--color-surface-elevated);border:1px solid var(--color-border);
-  border-radius:var(--r-md-plus);font-size:var(--text-xs);color:var(--color-text-secondary);
-  text-align:left;min-height:60px;font-style:italic;
-}
+/* ── Order lookup panel ── */
+.order-lookup{background:var(--color-surface-elevated);border:1px solid var(--color-border);border-radius:var(--r-xl);padding:var(--sp-4);margin-bottom:var(--sp-4);}
+.order-lookup .ol-head{display:flex;align-items:center;gap:var(--sp-3);margin-bottom:var(--sp-3);}
+.order-lookup .ol-badge{font-size:10px;font-weight:700;padding:3px var(--sp-2);border-radius:var(--r-sm);background:var(--blue-50);color:var(--blue-800);}
+html.dark .order-lookup .ol-badge{background:rgba(107,184,218,.12);}
+.order-lookup .ol-title{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
+.order-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;font-size:var(--text-xxs);}
+.order-item .oi-qty{font-family:var(--font-mono);font-weight:700;color:var(--color-accent);width:24px;}
+.order-item .oi-name{color:var(--color-text-secondary);flex:1;}
+.order-item .oi-mod{font-size:10px;color:var(--color-text-muted);font-style:italic;}
+.order-item .oi-pick{width:32px;height:32px;border-radius:var(--r-md);border:1.5px solid var(--color-border);background:var(--color-surface);display:flex;align-items:center;justify-content:center;font-size:var(--text-xxs);transition:all var(--dur-fast);flex-shrink:0;min-height:44px;min-width:44px;}
+.order-item .oi-pick:active{transform:scale(.94);}
+.order-item .oi-pick.picked{background:var(--blue-50);border-color:var(--blue);color:var(--blue-800);}
 
-/* ══════ SCALE ══════ */
-.scale-display{
-  text-align:center;padding:var(--sp-6);
-  background:var(--sidebar-bg);border-radius:var(--r-xl);
-  margin-bottom:var(--sp-4);color:#fff;
-}
-.scale-reading{
-  font-family:var(--font-mono);font-size:3rem;font-weight:800;
-  color:var(--blue);letter-spacing:-.02em;
-}
-.scale-unit{font-size:var(--text-lg);color:var(--color-text-muted);font-weight:600;margin-left:4px;}
-.scale-status{display:inline-flex;align-items:center;gap:6px;font-size:var(--text-xxs);color:var(--success);font-weight:600;margin-top:var(--sp-2);}
-.scale-status .dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:blink 1.5s infinite;}
+/* ── Glass analysis ── */
+.glass-result{display:flex;gap:var(--sp-3);flex-wrap:wrap;margin-bottom:var(--sp-4);}
+.glass-option{flex:1;min-width:100px;padding:var(--sp-4) var(--sp-3);border-radius:var(--r-xl);border:1.5px solid var(--color-border);background:var(--color-surface);text-align:center;transition:all var(--dur-fast);cursor:pointer;}
+.glass-option:active{transform:scale(.96);}
+.glass-option.sel{border-color:var(--blue);background:var(--blue-50);box-shadow:var(--elevation-focus);}
+.glass-option .go-icon{font-size:1.5rem;margin-bottom:var(--sp-1);}
+.glass-option .go-name{font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);}
+.glass-option .go-conf{font-size:10px;color:var(--color-text-muted);font-weight:600;}
+.glass-option .go-vol{font-family:var(--font-mono);font-size:var(--text-xxs);font-weight:700;color:var(--color-accent);margin-top:var(--sp-1);}
 
-/* ══════ STATION ══════ */
-.station-grid{display:flex;flex-direction:column;gap:var(--sp-2);}
-.station-card{
-  display:flex;align-items:center;gap:var(--sp-4);
-  padding:var(--sp-4);border-radius:var(--r-xl);
-  border:1.5px solid var(--color-border);background:var(--color-surface);
-  box-shadow:var(--elevation-1);
-  transition:all var(--dur-fast) var(--ease);
-  min-height:48px;
-}
-.station-card:active{transform:scale(.98);transition:transform var(--dur-micro);background:var(--color-surface-hover);}
-.station-icon{
-  width:48px;height:48px;border-radius:var(--r-md-plus);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.3rem;flex-shrink:0;
-}
-.station-info{flex:1;}
-.station-info .st-name{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
-.station-info .st-items{font-size:var(--text-tiny);color:var(--color-text-muted);}
-.station-arrow{font-size:1rem;color:var(--color-text-muted);}
+/* ── Breakage types ── */
+.break-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--sp-2);margin-bottom:var(--sp-4);}
+.break-btn{padding:var(--sp-4);border-radius:var(--r-xl);border:1.5px solid var(--color-border);background:var(--color-surface);text-align:center;transition:all var(--dur-fast);min-height:48px;}
+.break-btn:active{transform:scale(.96);}
+.break-btn.sel{border-color:var(--danger);background:var(--danger-bg);}
+.break-btn .bb-icon{font-size:1.5rem;margin-bottom:var(--sp-1);}
+.break-btn .bb-name{font-size:var(--text-xxs);font-weight:700;color:var(--color-text-primary);}
+.break-btn .bb-hint{font-size:10px;color:var(--color-text-muted);}
 
-/* ══════ BATCH ══════ */
-.batch-hero{
-  text-align:center;padding:var(--sp-6) var(--sp-5);
-  background:var(--warning-bg);border:2px dashed var(--warning);
-  border-radius:var(--r-xl);margin-bottom:var(--sp-4);
-  cursor:pointer;transition:transform var(--dur-fast);
-}
-.batch-hero:active{transform:scale(.98);}
-.batch-hero .batch-icon{font-size:2.5rem;margin-bottom:var(--sp-2);}
-.batch-hero h3{font-family:var(--font-display);font-size:var(--text-md);font-weight:700;margin-bottom:var(--sp-1);}
-.batch-hero p{font-size:var(--text-xxs);color:var(--color-text-secondary);}
+/* ══ BUTTONS ══ */
+.btn-p{width:100%;padding:var(--sp-4);border:none;border-radius:var(--r-md-plus);background:var(--blue);color:#fff;font-family:var(--font-body);font-size:var(--text-md);font-weight:700;display:flex;align-items:center;justify-content:center;gap:var(--sp-2);box-shadow:0 4px 14px rgba(107,184,218,.25);transition:all var(--dur-fast);min-height:48px;}
+.btn-p:active{transform:scale(.97);}
+.btn-p:disabled{opacity:.38;pointer-events:none;}
+.btn-p.danger{background:var(--danger);box-shadow:0 4px 14px rgba(218,107,107,.25);}
+.btn-o{width:100%;padding:var(--sp-3);border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);background:var(--color-surface);color:var(--color-text-primary);font-family:var(--font-body);font-size:var(--text-xs);font-weight:600;transition:all var(--dur-fast);min-height:44px;}
+.btn-o:active{transform:scale(.97);background:var(--color-surface-hover);}
+.btn-g{width:100%;padding:var(--sp-3);border:none;border-radius:var(--r-md-plus);background:transparent;color:var(--color-text-secondary);font-family:var(--font-body);font-size:var(--text-xs);font-weight:600;min-height:44px;}
+.btn-g:active{color:var(--color-text-primary);}
 
-/* ══════ BUTTONS (Plorea PButton) ══════ */
-.btn-primary{
-  width:100%;padding:var(--sp-4);border:none;border-radius:var(--r-md-plus);
-  background:var(--blue);color:#fff;
-  font-family:var(--font-body);font-size:var(--text-md);font-weight:700;
-  display:flex;align-items:center;justify-content:center;gap:var(--sp-2);
-  box-shadow:0 4px 14px rgba(107,184,218,.25);
-  transition:all var(--dur-fast) var(--ease);
-  min-height:48px;
-}
-.btn-primary:active{transform:scale(.97);transition:transform var(--dur-micro);}
-.btn-primary:disabled{opacity:.38;pointer-events:none;}
+/* ── Optional toggle link ── */
+.opt-link{display:flex;align-items:center;gap:var(--sp-2);padding:var(--sp-3) var(--sp-4);border-radius:var(--r-md-plus);border:1px dashed var(--color-border);background:transparent;font-size:var(--text-xxs);font-weight:600;color:var(--color-text-muted);transition:all var(--dur-fast);margin-bottom:var(--sp-4);width:100%;justify-content:center;}
+.opt-link:active{background:var(--color-surface-hover);color:var(--color-text-secondary);}
+.opt-link .opt-icon{font-size:var(--text-md);}
 
-.btn-outline{
-  width:100%;padding:var(--sp-3);
-  border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);
-  background:var(--color-surface);color:var(--color-text-primary);
-  font-family:var(--font-body);font-size:var(--text-xs);font-weight:600;
-  transition:all var(--dur-fast) var(--ease);min-height:44px;
-}
-.btn-outline:active{transform:scale(.97);background:var(--color-surface-hover);}
-
-.btn-ghost{
-  width:100%;padding:var(--sp-3);border:none;border-radius:var(--r-md-plus);
-  background:transparent;color:var(--color-text-secondary);
-  font-family:var(--font-body);font-size:var(--text-xs);font-weight:600;
-  transition:color var(--dur-fast);min-height:44px;
-}
-.btn-ghost:active{color:var(--color-text-primary);}
-
-/* ══════ STEPPER ══════ */
-.stepper{
-  display:flex;align-items:center;
-  border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);
-  overflow:hidden;background:var(--color-surface-elevated);
-}
-.stepper-btn{
-  width:52px;height:52px;border:none;background:transparent;
-  font-size:1.3rem;font-weight:700;color:var(--color-text-secondary);
-  display:flex;align-items:center;justify-content:center;
-  transition:all var(--dur-micro);min-height:48px;
-}
+/* ══ STEPPER ══ */
+.stepper{display:flex;align-items:center;border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);overflow:hidden;background:var(--color-surface-elevated);}
+.stepper-btn{width:52px;height:52px;border:none;background:transparent;font-size:1.3rem;font-weight:700;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;transition:all var(--dur-micro);min-height:48px;}
 .stepper-btn:active{background:var(--color-surface-hover);color:var(--color-text-primary);}
-.stepper-val{
-  flex:1;text-align:center;font-family:var(--font-mono);font-size:1.2rem;font-weight:700;
-  color:var(--color-text-primary);background:transparent;border:none;
-  border-left:1px solid var(--color-border);border-right:1px solid var(--color-border);height:52px;
-}
+.stepper-val{flex:1;text-align:center;font-family:var(--font-mono);font-size:1.2rem;font-weight:700;color:var(--color-text-primary);background:transparent;border:none;border-left:1px solid var(--color-border);border-right:1px solid var(--color-border);height:52px;}
 .stepper-val:focus{outline:none;background:var(--color-surface);box-shadow:var(--elevation-focus) inset;}
 .stepper-unit{padding:0 var(--sp-4);font-size:var(--text-xxs);font-weight:700;color:var(--color-text-muted);}
 
-/* ══════ CAUSE PILLS ══════ */
-.cause-grid{display:flex;flex-wrap:wrap;gap:var(--sp-2);}
-.cause-pill{
-  padding:var(--sp-3) var(--sp-4);border-radius:var(--r-full);
-  border:1.5px solid var(--color-border);background:var(--color-surface);
-  font-size:var(--text-xxs);font-weight:600;color:var(--color-text-secondary);
-  display:flex;align-items:center;gap:6px;
-  transition:all var(--dur-fast);white-space:nowrap;min-height:44px;
-}
-.cause-pill:active{transform:scale(.96);}
-.cause-pill.selected{border-color:var(--blue);background:var(--blue-50);color:var(--blue-800);}
+/* ══ CAUSE PILLS ══ */
+.pills{display:flex;flex-wrap:wrap;gap:var(--sp-2);}
+.pill{padding:var(--sp-3) var(--sp-4);border-radius:var(--r-full);border:1.5px solid var(--color-border);background:var(--color-surface);font-size:var(--text-xxs);font-weight:600;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px;transition:all var(--dur-fast);white-space:nowrap;min-height:44px;}
+.pill:active{transform:scale(.96);}.pill.sel{border-color:var(--blue);background:var(--blue-50);color:var(--blue-800);}
+html.dark .pill.sel{background:rgba(107,184,218,.1);}
 
-/* ══════ LOG ITEMS ══════ */
-.log-item{
-  display:flex;align-items:center;gap:var(--sp-3);
-  padding:var(--sp-4);border-bottom:1px solid var(--color-border);
-  transition:background var(--dur-fast);
-}
+/* ══ LOG ══ */
+.log-item{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-4);border-bottom:1px solid var(--color-border);transition:background var(--dur-fast);}
 .log-item:last-child{border-bottom:none;}
 .log-item:active{background:var(--color-surface-hover);}
-.log-icon{
-  width:40px;height:40px;border-radius:var(--r-md-plus);
-  display:flex;align-items:center;justify-content:center;
-  font-size:1.1rem;flex-shrink:0;
-}
-.log-info{flex:1;min-width:0;}
-.log-info .log-title{font-size:var(--text-xs);font-weight:700;color:var(--color-text-primary);}
-.log-info .log-meta{font-size:var(--text-tiny);color:var(--color-text-muted);}
-.log-amount{
-  font-family:var(--font-mono);font-size:var(--text-xs);font-weight:700;
-  color:var(--color-text-primary);text-align:right;
-}
-.log-amount .log-cause{
-  display:block;font-family:var(--font-body);
-  font-size:10px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.04em;
-}
-.log-method{
-  font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-sm);
-  display:inline-block;margin-top:2px;letter-spacing:.02em;
-}
-.log-method.ai{background:var(--blue-50);color:var(--blue-800);}
-.log-method.voice{background:var(--success-bg);color:#2D8B6F;}
-.log-method.scale{background:var(--warning-bg);color:#7A7A30;}
-.log-method.manual{background:var(--gray-100);color:var(--gray-600);}
-.log-method.station{background:var(--blue-50);color:var(--blue-700);}
+.li-icon{width:40px;height:40px;border-radius:var(--r-md-plus);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0;}
+.li-info{flex:1;min-width:0;}
+.li-info .li-t{font-size:var(--text-xs);font-weight:700;}
+.li-info .li-m{font-size:var(--text-tiny);color:var(--color-text-muted);}
+.li-amt{font-family:var(--font-mono);font-size:var(--text-xs);font-weight:700;text-align:right;}
+.li-amt .li-cause{display:block;font-family:var(--font-body);font-size:10px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.04em;}
+.log-badge{font-size:10px;font-weight:700;padding:2px 6px;border-radius:var(--r-sm);display:inline-block;margin-top:2px;letter-spacing:.02em;}
+.log-badge.ai{background:var(--blue-50);color:var(--blue-800);}
+.log-badge.voice{background:var(--success-bg);color:var(--success-dark);}
+.log-badge.scale{background:var(--warning-bg);color:var(--warning-dark);}
+.log-badge.manual{background:var(--gray-100);color:var(--gray-600);}
+.log-badge.station{background:var(--blue-50);color:var(--blue-700);}
+.log-badge.glass{background:rgba(139,92,246,.1);color:#7C3AED;}
+.log-badge.break{background:var(--danger-bg);color:var(--danger-dark);}
 
-/* ══════ TOAST (Plorea: auto-dismiss 3s) ══════ */
-.toast{
-  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);
-  background:var(--gray-900);color:#fff;
-  padding:var(--sp-4) var(--sp-6);border-radius:var(--r-xl);
-  font-size:var(--text-xs);font-weight:600;
-  display:flex;align-items:center;gap:var(--sp-3);
-  box-shadow:var(--elevation-3);z-index:1400;
-  transition:transform var(--dur-panel) var(--ease-out);
-  max-width:calc(100% - 32px);
-}
+/* ══ AI processing ══ */
+.ai-proc{text-align:center;padding:var(--sp-10) var(--sp-5);}
+.ai-spin{width:44px;height:44px;border:3px solid var(--color-border);border-top-color:var(--blue);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto var(--sp-4);}
+.ai-pt{font-size:var(--text-xs);color:var(--color-text-secondary);font-weight:500;}
+.ai-steps{margin-top:var(--sp-3);text-align:left;display:inline-block;}
+.ai-s{display:flex;align-items:center;gap:var(--sp-2);font-size:var(--text-xxs);color:var(--color-text-muted);padding:var(--sp-1) 0;}
+.ai-s.done{color:var(--success-dark);}.ai-s .sd{width:16px;height:16px;border-radius:50%;border:2px solid var(--color-border);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;}
+.ai-s.done .sd{background:var(--success);border-color:var(--success);color:#fff;}
+.ai-s.act .sd{border-color:var(--blue);animation:breathe 1.5s infinite;}
+
+/* ══ TOAST ══ */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--gray-900);color:#fff;padding:var(--sp-4) var(--sp-6);border-radius:var(--r-xl);font-size:var(--text-xs);font-weight:600;display:flex;align-items:center;gap:var(--sp-3);box-shadow:var(--elevation-3);z-index:1400;transition:transform var(--dur-panel) var(--ease-out);max-width:calc(100% - 32px);}
 html.dark .toast{background:#F0EEF5;color:var(--sidebar-bg);}
 .toast.show{transform:translateX(-50%) translateY(0);}
 
-/* ══════ MODAL (Plorea elevation-3, z-modal) ══════ */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);
-  z-index:1200;display:none;align-items:flex-end;justify-content:center;
-  backdrop-filter:blur(4px);
-}
-.modal-overlay.show{display:flex;}
-.modal-sheet{
-  background:var(--color-surface);width:100%;max-width:480px;
-  border-radius:var(--r-2xl) var(--r-2xl) 0 0;
-  padding:var(--sp-6) var(--sp-5) var(--sp-8);
-  max-height:92vh;overflow-y:auto;box-shadow:var(--elevation-3);
-  animation:slideUp var(--dur-panel) var(--ease-out);
-}
+/* ══ MODAL ══ */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1200;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px);}
+.modal.show{display:flex;}
+.modal-sheet{background:var(--color-surface);width:100%;max-width:480px;border-radius:var(--r-2xl) var(--r-2xl) 0 0;padding:var(--sp-6) var(--sp-5) var(--sp-8);max-height:92vh;overflow-y:auto;box-shadow:var(--elevation-3);animation:slideUp var(--dur-panel) var(--ease-out);}
 .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--color-border);margin:0 auto var(--sp-5);}
 .modal-title{font-family:var(--font-display);font-size:var(--text-xl);font-weight:700;margin-bottom:var(--sp-1);}
 .modal-sub{font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--sp-5);}
 
-/* ══════ FORM ══════ */
-.form-label{
-  display:block;font-size:10px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.1em;
-  color:var(--color-text-muted);margin-bottom:var(--sp-2);
-}
-.form-input{
-  width:100%;padding:var(--sp-4);
-  border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);
-  background:var(--color-surface-elevated);
-  font-family:var(--font-body);font-size:var(--text-md);
-  color:var(--color-text-primary);
-  transition:all var(--dur-fast);-webkit-appearance:none;
-}
-.form-input:focus{
-  outline:none;border-color:var(--blue);
-  background:var(--color-surface);
-  box-shadow:var(--elevation-focus);
-}
-.form-input::placeholder{color:var(--color-text-muted);}
+/* ══ Station ══ */
+.station-grid{display:flex;flex-direction:column;gap:var(--sp-2);}
+.station-card{display:flex;align-items:center;gap:var(--sp-4);padding:var(--sp-4);border-radius:var(--r-xl);border:1.5px solid var(--color-border);background:var(--color-surface);box-shadow:var(--elevation-1);transition:all var(--dur-fast);min-height:48px;}
+.station-card:active{transform:scale(.98);background:var(--color-surface-hover);}
+.station-icon{width:48px;height:48px;border-radius:var(--r-md-plus);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
+.station-info{flex:1;}
+.station-info .sn{font-size:var(--text-xs);font-weight:700;}
+.station-info .sd{font-size:var(--text-tiny);color:var(--color-text-muted);}
+.station-arrow{font-size:1rem;color:var(--color-text-muted);}
+
+/* ══ Voice ══ */
+.voice-area{text-align:center;padding:var(--sp-8) var(--sp-5);}
+.voice-btn{width:96px;height:96px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--blue-600));border:none;color:#fff;font-size:2rem;box-shadow:0 6px 20px rgba(107,184,218,.3);margin:0 auto var(--sp-4);display:flex;align-items:center;justify-content:center;transition:all var(--dur-fast);}
+.voice-btn:active{transform:scale(.93);}
+.voice-btn.rec{animation:breathe 1s infinite;background:linear-gradient(135deg,var(--danger),#E88);box-shadow:0 6px 20px rgba(218,107,107,.3);}
+.voice-text{font-size:var(--text-xs);color:var(--color-text-secondary);margin-bottom:var(--sp-2);}
+.voice-hint{font-size:var(--text-tiny);color:var(--color-text-muted);}
+.voice-tr{margin-top:var(--sp-4);padding:var(--sp-4);background:var(--color-surface-elevated);border:1px solid var(--color-border);border-radius:var(--r-md-plus);font-size:var(--text-xs);color:var(--color-text-secondary);text-align:left;min-height:60px;font-style:italic;}
 </style>
 </head>
 <body>
 
-<!-- ══════ TOPBAR ══════ -->
 <div class="topbar">
-  <div class="topbar-brand">
-    <div class="topbar-logo">ES</div>
-    <div><h1>Easy Step</h1><div class="topbar-sub">Smart registrering</div></div>
-  </div>
+  <div class="topbar-brand"><div class="topbar-logo">ES</div><div><h1>Easy Step</h1><div class="topbar-sub">Smart registrering v2</div></div></div>
   <div class="topbar-right">
     <div class="topbar-status"><span class="dot"></span> POS</div>
-    <button class="topbar-theme" onclick="toggleDark()" title="Bytt tema">🌙</button>
+    <button class="tb-btn" onclick="document.documentElement.classList.toggle('dark');this.textContent=document.documentElement.classList.contains('dark')?'☀️':'🌙'">🌙</button>
     <div class="topbar-user">KB</div>
   </div>
 </div>
 
-<!-- ══════ MODULE TABS ══════ -->
-<div class="module-tabs">
-  <button class="mod-tab active" onclick="switchMod('register',this)"><span class="tab-icon">📸</span>Registrer</button>
-  <button class="mod-tab" onclick="switchMod('log',this)"><span class="tab-icon">📋</span>Logg</button>
-  <button class="mod-tab" onclick="switchMod('delivery',this)"><span class="tab-icon">📦</span>Mottak</button>
-  <button class="mod-tab" onclick="switchMod('stock',this)"><span class="tab-icon">🏪</span>Lager</button>
-  <button class="mod-tab" onclick="switchMod('checklist',this)"><span class="tab-icon">✅</span>Sjekk</button>
+<div class="tabs">
+  <button class="tab active" onclick="sw('reg',this)"><span class="ti">📸</span>Registrer</button>
+  <button class="tab" onclick="sw('log',this)"><span class="ti">📋</span>Logg</button>
+  <button class="tab" onclick="sw('delivery',this)"><span class="ti">📦</span>Mottak</button>
+  <button class="tab" onclick="sw('stock',this)"><span class="ti">🏪</span>Lager</button>
+  <button class="tab" onclick="sw('check',this)"><span class="ti">✅</span>Sjekk</button>
 </div>
 
-<div class="content">
+<div class="cnt">
 
-  <!-- ══════ PANEL: REGISTER ══════ -->
-  <div class="panel active" id="p-register">
-    <div class="sec-head">
+  <!-- ══════════════════════════════════════════
+       REGISTER PANEL
+       ══════════════════════════════════════════ -->
+  <div class="pnl active" id="p-reg">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--sp-4);">
       <div><div class="sec-title">Registrer svinn</div><div class="sec-sub">Velg metode — AI gjør jobben</div></div>
     </div>
 
     <div class="summary-strip">
-      <div class="summary-chip green"><div class="sc-val">4,2 kg</div><div class="sc-label">I dag</div></div>
-      <div class="summary-chip accent"><div class="sc-val">8</div><div class="sc-label">Registreringer</div></div>
-      <div class="summary-chip blue"><div class="sc-val">6 AI</div><div class="sc-label">Auto</div></div>
-      <div class="summary-chip green"><div class="sc-val">↓18%</div><div class="sc-label">vs. uke</div></div>
+      <div class="sc green"><div class="v">4,2 kg</div><div class="l">I dag</div></div>
+      <div class="sc accent"><div class="v">8</div><div class="l">Reg.</div></div>
+      <div class="sc blue"><div class="v">6 AI</div><div class="l">Auto</div></div>
+      <div class="sc green"><div class="v">↓18%</div><div class="l">vs. uke</div></div>
     </div>
 
-    <!-- METHOD SELECTOR -->
-    <div id="methodSelector">
-      <div class="method-hero">
-        <div class="method-card primary" onclick="startFlow('camera')">
-          <span class="m-icon">📸</span>
-          <div class="m-text">
-            <div class="m-label">Ta bilde — AI gjenkjenner</div>
-            <div class="m-hint">Velg gruppe, ta bilde, ferdig. Under 5 sekunder.</div>
-          </div>
-          <span class="m-badge ai">AI</span>
-        </div>
-        <div class="method-card" onclick="startFlow('voice')">
-          <span class="m-icon">🎤</span>
-          <div><div class="m-label">Stemme</div><div class="m-hint">«Halv kilo laks»</div></div>
-          <span class="m-badge fast">Rask</span>
-        </div>
-        <div class="method-card" onclick="startFlow('scale')">
-          <span class="m-icon">⚖️</span>
-          <div><div class="m-label">Smartvekt</div><div class="m-hint">Auto-registrering</div></div>
-          <span class="m-badge iot">IoT</span>
-        </div>
-        <div class="method-card" onclick="startFlow('station')">
-          <span class="m-icon">🏷️</span>
-          <div><div class="m-label">Stasjon</div><div class="m-hint">Ett trykk</div></div>
-          <span class="m-badge fast">1-tap</span>
-        </div>
-        <div class="method-card" onclick="startFlow('batch')">
-          <span class="m-icon">📊</span>
-          <div><div class="m-label">Skiftbytte</div><div class="m-hint">Bilde av bøtter</div></div>
-          <span class="m-badge ai">AI</span>
-        </div>
-        <div class="method-card" onclick="startFlow('manual')">
-          <span class="m-icon">✏️</span>
-          <div><div class="m-label">Manuell</div><div class="m-hint">Søk og velg</div></div>
-        </div>
+    <div id="methodSel">
+      <div class="mhero">
+        <div class="mc pri" onclick="startFlow('camera')"><span class="mi">📸</span><div class="mt"><div class="ml">Ta bilde — AI gjenkjenner</div><div class="mh">Velg gruppe, ta bilde, ferdig. Under 5 sek.</div></div><span class="mb ai">AI</span></div>
+        <div class="mc" onclick="startFlow('voice')"><span class="mi">🎤</span><div><div class="ml">Stemme</div><div class="mh">«Halv kilo laks»</div></div><span class="mb fast">Rask</span></div>
+        <div class="mc" onclick="startFlow('scale')"><span class="mi">⚖️</span><div><div class="ml">Smartvekt</div><div class="mh">Auto-registrering</div></div><span class="mb iot">IoT</span></div>
+        <div class="mc" onclick="startFlow('station')"><span class="mi">🏷️</span><div><div class="ml">Stasjon</div><div class="mh">Ett trykk</div></div><span class="mb fast">1-tap</span></div>
+        <div class="mc" onclick="startFlow('glass')"><span class="mi">🥃</span><div><div class="ml">Glass-analyse</div><div class="mh">AI identifiserer innhold</div></div><span class="mb ai">AI</span></div>
+        <div class="mc" onclick="startFlow('breakage')"><span class="mi">💔</span><div><div class="ml">Knust / søl</div><div class="mh">Tallerken, glass, uhell</div></div><span class="mb new">Ny</span></div>
+        <div class="mc" onclick="startFlow('batch')"><span class="mi">📊</span><div><div class="ml">Skiftbytte</div><div class="mh">Bilde av bøtter</div></div><span class="mb ai">AI</span></div>
+        <div class="mc" onclick="startFlow('manual')"><span class="mi">✏️</span><div><div class="ml">Manuell</div><div class="mh">Søk og velg</div></div></div>
       </div>
     </div>
 
-    <!-- CAMERA FLOW -->
-    <div id="flow-camera" style="display:none;" class="camera-flow">
-      <div class="card card-pad">
-        <div class="form-label">Steg 1 — Velg svinngruppe</div>
-        <div class="group-selector">
-          <button class="group-btn" onclick="selGroup(this,'🥩','Kjøtt/Fisk')"><div class="g-icon">🥩</div><div class="g-name">Kjøtt/Fisk</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🥦','Grønnsaker')"><div class="g-icon">🥦</div><div class="g-name">Grønnsaker</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🧀','Meieri')"><div class="g-icon">🧀</div><div class="g-name">Meieri</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🍞','Bakeri')"><div class="g-icon">🍞</div><div class="g-name">Bakeri</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🍝','Tilberedt')"><div class="g-icon">🍝</div><div class="g-name">Tilberedt</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🍽️','Tallerken')"><div class="g-icon">🍽️</div><div class="g-name">Tallerken</div></button>
+    <!-- ════ CAMERA FLOW ════ -->
+    <div id="f-camera" style="display:none;">
+      <!-- Optional: order lookup -->
+      <button class="opt-link" onclick="toggleOrderLookup()">
+        <span class="opt-icon">🪧</span> Hent bordordre først? (valgfritt)
+      </button>
+      <div id="orderLookupArea" style="display:none;"></div>
+
+      <div class="card cpad">
+        <div class="flabel">Steg 1 — Velg svinngruppe</div>
+        <div class="grps">
+          <button class="grp" onclick="selGrp(this,'🥩','Kjøtt/Fisk')"><div class="gi">🥩</div><div class="gn">Kjøtt/Fisk</div></button>
+          <button class="grp" onclick="selGrp(this,'🥦','Grønnsaker')"><div class="gi">🥦</div><div class="gn">Grønnsaker</div></button>
+          <button class="grp" onclick="selGrp(this,'🧀','Meieri')"><div class="gi">🧀</div><div class="gn">Meieri</div></button>
+          <button class="grp" onclick="selGrp(this,'🍞','Bakeri')"><div class="gi">🍞</div><div class="gn">Bakeri</div></button>
+          <button class="grp" onclick="selGrp(this,'🍝','Tilberedt')"><div class="gi">🍝</div><div class="gn">Tilberedt</div></button>
+          <button class="grp" onclick="selGrp(this,'🍽️','Tallerken')"><div class="gi">🍽️</div><div class="gn">Tallerken</div></button>
         </div>
       </div>
-      <div id="camStep2" style="display:none;">
-        <div class="card card-pad">
-          <div class="form-label">Steg 2 — Ta bilde av svinnet</div>
-          <div class="camera-capture" onclick="simulateCapture()">
-            <div class="camera-corners"><span></span></div>
-            <div class="camera-viewfinder"><span class="vf-icon">📷</span><span class="vf-text">Trykk for å ta bilde</span></div>
-            <button class="shutter-btn"><div class="shutter-inner"></div></button>
-          </div>
+      <div id="camS2" style="display:none;">
+        <div class="card cpad"><div class="flabel">Steg 2 — Ta bilde av svinnet</div>
+          <div class="cam" onclick="simCapture()"><div class="cam-corners"><span></span></div><div class="cam-vf"><span class="vi">📷</span><span class="vt">Trykk for å ta bilde</span></div><button class="shutter"><div class="shutter-in"></div></button></div>
         </div>
       </div>
-      <div id="camStep3" style="display:none;"></div>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
+      <div id="camS3" style="display:none;"></div>
+      <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
-    <!-- VOICE FLOW -->
-    <div id="flow-voice" style="display:none;">
-      <div class="card card-pad">
-        <div class="voice-area">
-          <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
-          <div class="voice-text" id="voiceStatus">Trykk og snakk</div>
-          <div class="voice-hint">«Halv kilo laks, tilberedning» eller «300 gram brokkoli, for mye kuttet»</div>
-          <div class="voice-transcript" id="voiceTranscript" style="display:none;"></div>
-        </div>
+    <!-- ════ GLASS ANALYSIS FLOW ════ -->
+    <div id="f-glass" style="display:none;">
+      <div class="card cpad">
+        <div class="flabel">Glass-analyse — ta bilde av glasset</div>
+        <div class="cam" onclick="simGlass()"><div class="cam-corners"><span></span></div><div class="cam-vf"><span class="vi">🥃</span><span class="vt">Trykk for å fotografere glasset</span></div><button class="shutter"><div class="shutter-in"></div></button></div>
       </div>
-      <div id="voiceResult" style="display:none;"></div>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
+      <div id="glassResult" style="display:none;"></div>
+      <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
-    <!-- SCALE FLOW -->
-    <div id="flow-scale" style="display:none;">
-      <div class="card card-pad">
-        <div class="scale-display">
-          <div class="scale-status"><span class="dot"></span> Koblet til Bluetooth-vekt</div>
-          <div style="margin-top:var(--sp-4);"><span class="scale-reading" id="scaleReading">0.00</span><span class="scale-unit">kg</span></div>
-          <div style="font-size:var(--text-xxs);color:var(--color-text-muted);margin-top:var(--sp-2);">Legg svinn på vekta</div>
-        </div>
-        <div class="form-label">Hva veier du?</div>
-        <div class="group-selector" style="margin-bottom:0;">
-          <button class="group-btn" onclick="selGroup(this,'🥩','Kjøtt/Fisk')"><div class="g-icon">🥩</div><div class="g-name">Kjøtt/Fisk</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🥦','Grønnsaker')"><div class="g-icon">🥦</div><div class="g-name">Grønnsaker</div></button>
-          <button class="group-btn" onclick="selGroup(this,'🧀','Meieri')"><div class="g-icon">🧀</div><div class="g-name">Meieri</div></button>
+    <!-- ════ BREAKAGE FLOW ════ -->
+    <div id="f-breakage" style="display:none;">
+      <div class="card cpad">
+        <div class="flabel">Hva gikk i gulvet?</div>
+        <div class="break-grid">
+          <button class="break-btn" onclick="selBreak(this,'Vannglass')"><div class="bb-icon">🥛</div><div class="bb-name">Glass</div><div class="bb-hint">Vannglass, juiceglass</div></button>
+          <button class="break-btn" onclick="selBreak(this,'Vinglass')"><div class="bb-icon">🍷</div><div class="bb-name">Vinglass</div><div class="bb-hint">Vin, cocktailglass</div></button>
+          <button class="break-btn" onclick="selBreak(this,'Ølglass')"><div class="bb-icon">🍺</div><div class="bb-name">Ølglass</div><div class="bb-hint">Ølglass, pint</div></button>
+          <button class="break-btn" onclick="selBreak(this,'Tallerken')"><div class="bb-icon">🍽️</div><div class="bb-name">Tallerken</div><div class="bb-hint">Med eller uten mat</div></button>
+          <button class="break-btn" onclick="selBreak(this,'Skål/bolle')"><div class="bb-icon">🥣</div><div class="bb-name">Skål / bolle</div><div class="bb-hint">Suppebolle, salatskål</div></button>
+          <button class="break-btn" onclick="selBreak(this,'Kopp')"><div class="bb-icon">☕</div><div class="bb-name">Kopp</div><div class="bb-hint">Kaffekopp, tekopp</div></button>
         </div>
       </div>
-      <button class="btn-primary" style="margin-top:var(--sp-4);" onclick="showToast('⚖️ 0,52 kg registrert via smartvekt');backToMethods()">Registrer veiing</button>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
+      <div id="breakStep2" style="display:none;"></div>
+      <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
-    <!-- STATION FLOW -->
-    <div id="flow-station" style="display:none;">
-      <div class="card card-pad">
-        <div class="form-label">Velg stasjon — ett trykk registrerer</div>
+    <!-- ════ VOICE FLOW ════ -->
+    <div id="f-voice" style="display:none;">
+      <div class="card cpad"><div class="voice-area">
+        <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()">🎤</button>
+        <div class="voice-text" id="voiceSt">Trykk og snakk</div>
+        <div class="voice-hint">«Halv kilo laks, tilberedning» · «To glass rødvin sølt»</div>
+        <div class="voice-tr" id="voiceTr" style="display:none;"></div>
+      </div></div>
+      <div id="voiceRes" style="display:none;"></div>
+      <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
+    </div>
+
+    <!-- ════ STATION FLOW ════ -->
+    <div id="f-station" style="display:none;">
+      <div class="card cpad"><div class="flabel">Velg stasjon — ett trykk registrerer</div>
         <div class="station-grid">
-          <div class="station-card" onclick="quickStation('Prepstasjon',0.5)"><div class="station-icon" style="background:var(--success-bg)">🔪</div><div class="station-info"><div class="st-name">Prepstasjon</div><div class="st-items">Grønnsaker, kutting · Snitt: 0,5 kg</div></div><span class="station-arrow">→</span></div>
-          <div class="station-card" onclick="quickStation('Grillstasjon',0.3)"><div class="station-icon" style="background:var(--danger-bg)">🔥</div><div class="station-info"><div class="st-name">Grillstasjon</div><div class="st-items">Kjøtt, fisk · Snitt: 0,3 kg</div></div><span class="station-arrow">→</span></div>
-          <div class="station-card" onclick="quickStation('Sausstasjon',0.2)"><div class="station-icon" style="background:var(--warning-bg)">🍲</div><div class="station-info"><div class="st-name">Sausstasjon</div><div class="st-items">Sauser, fløte · Snitt: 0,2 L</div></div><span class="station-arrow">→</span></div>
-          <div class="station-card" onclick="quickStation('Kjølerom',0.4)"><div class="station-icon" style="background:var(--blue-50)">❄️</div><div class="station-info"><div class="st-name">Kjølerom</div><div class="st-items">Utgått holdbarhet · Snitt: 0,4 kg</div></div><span class="station-arrow">→</span></div>
-          <div class="station-card" onclick="quickStation('Servering',0.15)"><div class="station-icon" style="background:var(--blue-50)">🍽️</div><div class="station-info"><div class="st-name">Servering / oppvask</div><div class="st-items">Tallerkensvinn · Snitt: 0,15 kg</div></div><span class="station-arrow">→</span></div>
+          <div class="station-card" onclick="quickStation('Prepstasjon',0.5)"><div class="station-icon" style="background:var(--success-bg)">🔪</div><div class="station-info"><div class="sn">Prepstasjon</div><div class="sd">Grønnsaker, kutting · Snitt: 0,5 kg</div></div><span class="station-arrow">→</span></div>
+          <div class="station-card" onclick="quickStation('Grillstasjon',0.3)"><div class="station-icon" style="background:var(--danger-bg)">🔥</div><div class="station-info"><div class="sn">Grillstasjon</div><div class="sd">Kjøtt, fisk · Snitt: 0,3 kg</div></div><span class="station-arrow">→</span></div>
+          <div class="station-card" onclick="quickStation('Sausstasjon',0.2)"><div class="station-icon" style="background:var(--warning-bg)">🍲</div><div class="station-info"><div class="sn">Sausstasjon</div><div class="sd">Sauser, fløte · Snitt: 0,2 L</div></div><span class="station-arrow">→</span></div>
+          <div class="station-card" onclick="quickStation('Kjølerom',0.4)"><div class="station-icon" style="background:var(--blue-50)">❄️</div><div class="station-info"><div class="sn">Kjølerom</div><div class="sd">Utgått holdbarhet · Snitt: 0,4 kg</div></div><span class="station-arrow">→</span></div>
+          <div class="station-card" onclick="quickStation('Servering',0.15)"><div class="station-icon" style="background:var(--blue-50)">🍽️</div><div class="station-info"><div class="sn">Servering / oppvask</div><div class="sd">Tallerkensvinn · Snitt: 0,15 kg</div></div><span class="station-arrow">→</span></div>
         </div>
       </div>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
+      <button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button>
     </div>
 
-    <!-- BATCH FLOW -->
-    <div id="flow-batch" style="display:none;">
-      <div class="card card-pad">
-        <div class="batch-hero" onclick="simulateBatch()">
-          <div class="batch-icon">📸</div>
-          <h3>Ta bilde av svinn-bøttene</h3>
-          <p>AI estimerer innhold, type, mengde og årsak</p>
-        </div>
-        <div id="batchResult" style="display:none;"></div>
-      </div>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
-    </div>
+    <!-- ════ SCALE / BATCH / MANUAL (condensed) ════ -->
+    <div id="f-scale" style="display:none;"><div class="card cpad"><div style="text-align:center;padding:var(--sp-6);background:var(--sidebar-bg);border-radius:var(--r-xl);margin-bottom:var(--sp-4);color:#fff;"><div style="font-size:var(--text-xxs);color:var(--success);">⬤ Bluetooth-vekt tilkoblet</div><div style="font-family:var(--font-mono);font-size:3rem;font-weight:800;color:var(--blue);margin-top:var(--sp-3);" id="scaleR">0.00</div><div style="font-size:var(--text-xxs);color:var(--color-text-muted);margin-top:var(--sp-2);">Legg svinn på vekta</div></div><div class="grps" style="margin-bottom:0;"><button class="grp" onclick="selGrp(this,'🥩','Kjøtt/Fisk')"><div class="gi">🥩</div><div class="gn">Kjøtt/Fisk</div></button><button class="grp" onclick="selGrp(this,'🥦','Grønnsaker')"><div class="gi">🥦</div><div class="gn">Grønnsaker</div></button><button class="grp" onclick="selGrp(this,'🧀','Meieri')"><div class="gi">🧀</div><div class="gn">Meieri</div></button></div></div><button class="btn-p" style="margin-top:var(--sp-4);" onclick="toast('⚖️ 0,52 kg registrert via smartvekt');back()">Registrer veiing</button><button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button></div>
 
-    <!-- MANUAL FLOW -->
-    <div id="flow-manual" style="display:none;">
-      <div class="card card-pad">
-        <div class="form-label">Søk etter råvare</div>
-        <input type="text" class="form-input" placeholder="🔍 Søk etter råvare..." style="margin-bottom:var(--sp-4);">
-        <div class="form-label">Mengde</div>
-        <div class="stepper">
-          <button class="stepper-btn" onclick="this.nextElementSibling.value=Math.max(0,(parseFloat(this.nextElementSibling.value)-.1)).toFixed(1)">−</button>
-          <input type="number" class="stepper-val" value="0.5" step="0.1" min="0">
-          <button class="stepper-btn" onclick="this.previousElementSibling.value=(parseFloat(this.previousElementSibling.value)+.1).toFixed(1)">+</button>
-          <span class="stepper-unit">kg</span>
-        </div>
-        <div style="margin-top:var(--sp-4);"><div class="form-label">Årsak</div>
-          <div class="cause-grid">
-            <button class="cause-pill" onclick="this.classList.toggle('selected')">🔪 Tilberedning</button>
-            <button class="cause-pill" onclick="this.classList.toggle('selected')">📦 Overbestilling</button>
-            <button class="cause-pill" onclick="this.classList.toggle('selected')">⏰ Utgått</button>
-            <button class="cause-pill" onclick="this.classList.toggle('selected')">🍽️ Tallerken</button>
-          </div>
-        </div>
-        <button class="btn-primary" style="margin-top:var(--sp-4);" onclick="showToast('✅ Manuell registrering lagret');backToMethods()">Registrer svinn</button>
-      </div>
-      <button class="btn-ghost" style="margin-top:var(--sp-2);" onclick="backToMethods()">← Tilbake til metoder</button>
-    </div>
+    <div id="f-batch" style="display:none;"><div class="card cpad"><div style="text-align:center;padding:var(--sp-6);background:var(--warning-bg);border:2px dashed var(--warning);border-radius:var(--r-xl);margin-bottom:var(--sp-4);cursor:pointer;" onclick="simBatch()"><div style="font-size:2.5rem;margin-bottom:var(--sp-2);">📸</div><h3 style="font-size:var(--text-md);font-weight:700;margin-bottom:var(--sp-1);">Ta bilde av svinn-bøttene</h3><p style="font-size:var(--text-xxs);color:var(--color-text-secondary);">AI estimerer innhold, type og mengde</p></div><div id="batchRes" style="display:none;"></div></div><button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button></div>
+
+    <div id="f-manual" style="display:none;"><div class="card cpad"><div class="flabel">Søk etter råvare</div><input type="text" placeholder="🔍 Søk etter råvare..." style="width:100%;padding:var(--sp-4);border:1.5px solid var(--color-border);border-radius:var(--r-md-plus);background:var(--color-surface-elevated);font-family:var(--font-body);font-size:var(--text-md);color:var(--color-text-primary);margin-bottom:var(--sp-4);"><div class="flabel">Mengde</div><div class="stepper"><button class="stepper-btn" onclick="this.nextElementSibling.value=Math.max(0,(parseFloat(this.nextElementSibling.value)-.1)).toFixed(1)">−</button><input type="number" class="stepper-val" value="0.5" step="0.1" min="0"><button class="stepper-btn" onclick="this.previousElementSibling.value=(parseFloat(this.previousElementSibling.value)+.1).toFixed(1)">+</button><span class="stepper-unit">kg</span></div><div style="margin-top:var(--sp-4);"><div class="flabel">Årsak</div><div class="pills"><button class="pill" onclick="this.classList.toggle('sel')">🔪 Tilberedning</button><button class="pill" onclick="this.classList.toggle('sel')">📦 Overbestilling</button><button class="pill" onclick="this.classList.toggle('sel')">⏰ Utgått</button><button class="pill" onclick="this.classList.toggle('sel')">🍽️ Tallerken</button></div></div><button class="btn-p" style="margin-top:var(--sp-4);" onclick="toast('✅ Manuell registrering lagret');back()">Registrer svinn</button></div><button class="btn-g" style="margin-top:var(--sp-2);" onclick="back()">← Tilbake</button></div>
   </div>
 
-  <!-- ══════ PANEL: LOG ══════ -->
-  <div class="panel" id="p-log">
-    <div class="sec-head"><div><div class="sec-title">Dagens logg</div><div class="sec-sub">Alle registreringer — nyeste først</div></div></div>
+  <!-- ══════ LOG PANEL ══════ -->
+  <div class="pnl" id="p-log">
+    <div style="margin-bottom:var(--sp-4);"><div class="sec-title">Dagens logg</div><div class="sec-sub">Alle registreringer — nyeste først</div></div>
     <div class="summary-strip">
-      <div class="summary-chip green"><div class="sc-val">4,2 kg</div><div class="sc-label">Totalt</div></div>
-      <div class="summary-chip blue"><div class="sc-val">75%</div><div class="sc-label">AI-registrert</div></div>
-      <div class="summary-chip warn"><div class="sc-val">~950 kr</div><div class="sc-label">Verdi</div></div>
+      <div class="sc green"><div class="v">5,7 kg</div><div class="l">Totalt</div></div>
+      <div class="sc blue"><div class="v">70%</div><div class="l">AI-reg.</div></div>
+      <div class="sc warn"><div class="v">~1 280 kr</div><div class="l">Verdi</div></div>
     </div>
     <div class="card">
-      <div class="log-item"><div class="log-icon" style="background:var(--blue-50)">🥩</div><div class="log-info"><div class="log-title">Laks — tilberedning</div><div class="log-meta">11:42 · Feil porsjon · <span class="log-method ai">📸 AI</span></div></div><div class="log-amount">0,8 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--success-bg)">🥦</div><div class="log-info"><div class="log-title">Brokkoli — tilberedning</div><div class="log-meta">11:15 · For mye kuttet · <span class="log-method voice">🎤 Stemme</span></div></div><div class="log-amount">0,5 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--success-bg)">🥕</div><div class="log-info"><div class="log-title">Gulrot — tilberedning</div><div class="log-meta">10:50 · Prepstasjon · <span class="log-method station">🏷️ Stasjon</span></div></div><div class="log-amount">0,3 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--warning-bg)">🧅</div><div class="log-info"><div class="log-title">Løk — tilberedning</div><div class="log-meta">10:48 · Smartvekt · <span class="log-method scale">⚖️ Vekt</span></div></div><div class="log-amount">0,2 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--danger-bg)">🧀</div><div class="log-info"><div class="log-title">Mozzarella — utgått</div><div class="log-meta">09:15 · Holdbarhet · <span class="log-method ai">📸 AI</span></div></div><div class="log-amount">0,4 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--blue-50)">🍝</div><div class="log-info"><div class="log-title">Pasta (tilberedt) — overbestilling</div><div class="log-meta">09:00 · Skiftbytte · <span class="log-method ai">📸 Batch</span></div></div><div class="log-amount">1,2 kg</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--gray-100)">🥛</div><div class="log-info"><div class="log-title">Fløte — overbestilling</div><div class="log-meta">08:45 · <span class="log-method manual">✏️ Manuell</span></div></div><div class="log-amount">0,6 L</div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--warning-bg)">🍞</div><div class="log-info"><div class="log-title">Brød — utgått</div><div class="log-meta">08:10 · <span class="log-method station">🏷️ Stasjon</span></div></div><div class="log-amount">0,2 kg</div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--danger-bg)">💔</div><div class="li-info"><div class="li-t">Vinglass — knust med rødvin</div><div class="li-m">12:51 · Søl/knust · <span class="log-badge break">💔 Knust</span></div></div><div class="li-amt">0,15 L<span class="li-cause">Uhell</span></div></div>
+      <div class="log-item"><div class="li-icon" style="background:rgba(139,92,246,.1)">🥃</div><div class="li-info"><div class="li-t">Glass — hvitvin (AI: 92%)</div><div class="li-m">12:45 · Glass-analyse · <span class="log-badge glass">🥃 Glass-AI</span></div></div><div class="li-amt">0,12 L<span class="li-cause">Retur</span></div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--blue-50)">🥩</div><div class="li-info"><div class="li-t">Laks m/grønnsaker — tallerken</div><div class="li-m">12:38 · Bord 7 · <span class="log-badge ai">📸 AI</span></div><div style="font-size:10px;color:var(--color-accent);margin-top:2px;">📋 Resept: 96g laks + 48g brokkoli + 30g gulrot</div></div><div class="li-amt">0,8 kg<span class="li-cause">For stor porsjon</span></div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--success-bg)">🥦</div><div class="li-info"><div class="li-t">Brokkoli — tilberedning</div><div class="li-m">11:15 · <span class="log-badge voice">🎤 Stemme</span></div></div><div class="li-amt">0,5 kg</div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--success-bg)">🥕</div><div class="li-info"><div class="li-t">Gulrot — prepstasjon</div><div class="li-m">10:50 · <span class="log-badge station">🏷️ Stasjon</span></div></div><div class="li-amt">0,3 kg</div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--warning-bg)">🧅</div><div class="li-info"><div class="li-t">Løk — smartvekt</div><div class="li-m">10:48 · <span class="log-badge scale">⚖️ Vekt</span></div></div><div class="li-amt">0,2 kg</div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--blue-50)">🍝</div><div class="li-info"><div class="li-t">Pasta Carbonara — overbestilling</div><div class="li-m">09:00 · <span class="log-badge ai">📸 Batch</span></div><div style="font-size:10px;color:var(--color-accent);margin-top:2px;">📋 Resept: 180g pasta + 40g bacon + 30g ost + 25ml fløte</div></div><div class="li-amt">1,2 kg</div></div>
+      <div class="log-item"><div class="li-icon" style="background:var(--gray-100)">🥛</div><div class="li-info"><div class="li-t">Fløte — overbestilling</div><div class="li-m">08:45 · <span class="log-badge manual">✏️ Manuell</span></div></div><div class="li-amt">0,6 L</div></div>
     </div>
   </div>
 
-  <!-- ══════ PANEL: DELIVERY ══════ -->
-  <div class="panel" id="p-delivery">
-    <div class="sec-head"><div><div class="sec-title">Varemottak</div><div class="sec-sub">Skann eller ta bilde av leveransen</div></div></div>
-    <div class="method-hero" style="grid-template-columns:1fr 1fr;">
-      <div class="method-card primary" style="grid-column:1/-1;" onclick="showToast('📷 Kamera — skann følgeseddel')"><span class="m-icon">📄</span><div class="m-text"><div class="m-label">Skann følgeseddel</div><div class="m-hint">AI leser leveranse og sjekker mot bestilling</div></div><span class="m-badge ai">AI</span></div>
-      <div class="method-card" onclick="showToast('📷 Foto for kvalitetskontroll')"><span class="m-icon">📸</span><div><div class="m-label">Foto kvalitet</div><div class="m-hint">Dokumenter</div></div></div>
-      <div class="method-card" onclick="showToast('🌡️ Temperaturkontroll')"><span class="m-icon">🌡️</span><div><div class="m-label">Temp.kontroll</div><div class="m-hint">BT-sensor</div></div></div>
-    </div>
-    <div class="card">
-      <div style="padding:var(--sp-4) var(--sp-5) var(--sp-2);font-size:var(--text-xs);font-weight:700;">Forventede leveranser</div>
-      <div class="log-item"><div class="log-icon" style="background:var(--success-bg)">✅</div><div class="log-info"><div class="log-title">Fjord Sjømat — 27,8 kg</div><div class="log-meta">Mottatt 09:15 · Alt OK</div></div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--warning-bg)">⚠️</div><div class="log-info"><div class="log-title">Grønt & Godt — 18,0 kg</div><div class="log-meta">Mottatt 10:30 · Manko 2,5 kg</div></div></div>
-      <div class="log-item"><div class="log-icon" style="background:var(--gray-100)">🕐</div><div class="log-info"><div class="log-title">Tine — fløte, ost, smør</div><div class="log-meta">Forventet kl. 14:00</div></div></div>
-    </div>
-  </div>
-
-  <!-- ══════ PANEL: STOCK ══════ -->
-  <div class="panel" id="p-stock">
-    <div class="sec-head"><div><div class="sec-title">Lagertelling</div><div class="sec-sub">AI prioriterer basert på holdbarhet</div></div></div>
-    <div class="card card-pad" style="text-align:center;">
-      <span style="font-size:2rem;">📋</span>
-      <div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:var(--sp-2) 0 var(--sp-4);">3 varer trenger opptelling</div>
-      <button class="btn-primary" onclick="showToast('📋 Lagertelling startet')">Start smart telling</button>
-    </div>
-  </div>
-
-  <!-- ══════ PANEL: CHECKLIST ══════ -->
-  <div class="panel" id="p-checklist">
-    <div class="sec-head"><div><div class="sec-title">Daglig sjekkliste</div><div class="sec-sub">4 av 8 fullført</div></div></div>
-    <div class="card">
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--success-bg)">✅</div><div class="log-info"><div class="log-title">Temperaturkontroll kjølerom</div><div class="log-meta">Fullført 07:15</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--success-bg)">✅</div><div class="log-info"><div class="log-title">Sjekk holdbarhetsdatoer</div><div class="log-meta">Fullført 07:30</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--success-bg)">✅</div><div class="log-info"><div class="log-title">Varemottak morgen</div><div class="log-meta">Fullført 09:20</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--success-bg)">✅</div><div class="log-info"><div class="log-title">Morgenprep svinn logget</div><div class="log-meta">Fullført 10:50</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--gray-100)">⬜</div><div class="log-info"><div class="log-title">Tallerkenobservasjon lunsj</div><div class="log-meta">Min. 10 tallerkener</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--gray-100)">⬜</div><div class="log-info"><div class="log-title">Buffet-svinn registrert</div><div class="log-meta">Vei restavfall fra buffet</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--gray-100)">⬜</div><div class="log-info"><div class="log-title">Lagertelling kritiske varer</div><div class="log-meta">Kveldsstenging</div></div></div>
-      <div class="log-item" onclick="checkItem(this)"><div class="log-icon" style="background:var(--gray-100)">⬜</div><div class="log-info"><div class="log-title">Gjennomgå AI-innsikt</div><div class="log-meta">Dagens anbefalinger</div></div></div>
-    </div>
-  </div>
-
+  <!-- Stub panels -->
+  <div class="pnl" id="p-delivery"><div class="sec-title">Varemottak</div><div class="sec-sub">Skann følgeseddel eller ta bilde</div><div class="card cpad" style="margin-top:var(--sp-4);text-align:center;"><span style="font-size:2rem;">📄</span><div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:var(--sp-3) 0;">Identisk med forrige versjon</div></div></div>
+  <div class="pnl" id="p-stock"><div class="sec-title">Lagertelling</div><div class="sec-sub">AI prioriterer basert på holdbarhet</div><div class="card cpad" style="margin-top:var(--sp-4);text-align:center;"><span style="font-size:2rem;">📋</span><div style="font-size:var(--text-xs);color:var(--color-text-secondary);margin:var(--sp-3) 0;">3 varer trenger opptelling</div><button class="btn-p" onclick="toast('📋 Lagertelling startet')">Start smart telling</button></div></div>
+  <div class="pnl" id="p-check"><div class="sec-title">Daglig sjekkliste</div><div class="sec-sub">4 av 8 fullført</div><div class="card" style="margin-top:var(--sp-4);">
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--success-bg)">✅</div><div class="li-info"><div class="li-t">Temperaturkontroll kjølerom</div><div class="li-m">07:15</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--success-bg)">✅</div><div class="li-info"><div class="li-t">Sjekk holdbarhetsdatoer</div><div class="li-m">07:30</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--success-bg)">✅</div><div class="li-info"><div class="li-t">Varemottak morgen</div><div class="li-m">09:20</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--success-bg)">✅</div><div class="li-info"><div class="li-t">Prep-svinn logget</div><div class="li-m">10:50</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--gray-100)">⬜</div><div class="li-info"><div class="li-t">Tallerkenobservasjon lunsj</div><div class="li-m">—</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--gray-100)">⬜</div><div class="li-info"><div class="li-t">Buffet-svinn registrert</div><div class="li-m">—</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--gray-100)">⬜</div><div class="li-info"><div class="li-t">Lagertelling kritiske varer</div><div class="li-m">—</div></div></div>
+    <div class="log-item" onclick="chk(this)"><div class="li-icon" style="background:var(--gray-100)">⬜</div><div class="li-info"><div class="li-t">Gjennomgå AI-innsikt</div><div class="li-m">—</div></div></div>
+  </div></div>
 </div>
 
-<div class="toast" id="toast"><span id="toastText"></span></div>
+<div class="toast" id="toast"><span id="toastTxt"></span></div>
 
 <script>
-/* ══════ DARK MODE ══════ */
-function toggleDark(){
-  document.documentElement.classList.toggle('dark');
-  const btn = document.querySelector('.topbar-theme');
-  btn.textContent = document.documentElement.classList.contains('dark') ? '☀️' : '🌙';
+/* ══ NAV ══ */
+function sw(p,btn){document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.pnl').forEach(x=>x.classList.remove('active'));document.getElementById('p-'+p)?.classList.add('active');}
+function toast(m){const t=document.getElementById('toast');document.getElementById('toastTxt').textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function chk(el){const i=el.querySelector('.li-icon');if(i.textContent.trim()==='⬜'){i.textContent='✅';i.style.background='var(--success-bg)';toast('✓ Sjekket!');}}
+
+/* ══ FLOWS ══ */
+const flows=['camera','voice','scale','station','batch','manual','glass','breakage'];
+function startFlow(id){document.getElementById('methodSel').style.display='none';flows.forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.style.display='none';});document.getElementById('f-'+id).style.display='block';if(id==='scale')startScaleAnim();}
+function back(){flows.forEach(f=>{const el=document.getElementById('f-'+f);if(el)el.style.display='none';});document.getElementById('methodSel').style.display='block';document.getElementById('orderLookupArea').style.display='none';}
+
+/* ══ ORDER LOOKUP ══ */
+function toggleOrderLookup(){
+  const area=document.getElementById('orderLookupArea');
+  if(area.style.display==='none'){
+    area.style.display='block';
+    area.innerHTML=`<div class="order-lookup" style="animation:fadeUp var(--dur-slow) var(--ease-out);">
+      <div class="ol-head"><span class="ol-badge">POS</span><div><div class="ol-title">Bord 7 — Ordre #4821</div><div style="font-size:10px;color:var(--color-text-muted);">Servert kl. 12:15 · 3 retter</div></div></div>
+      <div class="order-item"><span class="oi-qty">2×</span><span class="oi-name">Laks m/grønnsaker<br><span class="oi-mod">+ Ekstra brokkoli</span></span><button class="oi-pick" onclick="this.classList.toggle('picked');this.textContent=this.classList.contains('picked')?'✓':'→'">→</button></div>
+      <div class="order-item"><span class="oi-qty">1×</span><span class="oi-name">Pasta Carbonara<br><span class="oi-mod">Uten hvitløk</span></span><button class="oi-pick" onclick="this.classList.toggle('picked');this.textContent=this.classList.contains('picked')?'✓':'→'">→</button></div>
+      <div class="order-item"><span class="oi-qty">1×</span><span class="oi-name">Sjokoladefondant</span><button class="oi-pick" onclick="this.classList.toggle('picked');this.textContent=this.classList.contains('picked')?'✓':'→'">→</button></div>
+      <div style="font-size:10px;color:var(--color-text-muted);margin-top:var(--sp-3);text-align:center;">Trykk → for å koble rett til svinnregistreringen</div>
+    </div>`;
+    area.scrollIntoView({behavior:'smooth',block:'center'});
+  } else { area.style.display='none'; }
 }
 
-/* ══════ NAV ══════ */
-function switchMod(mod,btn){
-  document.querySelectorAll('.mod-tab').forEach(t=>t.classList.remove('active'));
-  btn.classList.add('active');
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.getElementById('p-'+mod).classList.add('active');
-}
+/* ══ CAMERA ══ */
+let grpIcon='',grpName='';
+function selGrp(btn,icon,name){document.querySelectorAll('.grp').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');grpIcon=icon;grpName=name;const s2=document.getElementById('camS2');if(s2){s2.style.display='block';s2.scrollIntoView({behavior:'smooth',block:'center'});}}
 
-/* ══════ TOAST (3s per Plorea spec) ══════ */
-function showToast(msg){
-  const t=document.getElementById('toast');
-  document.getElementById('toastText').textContent=msg;
-  t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
+const recipes={
+  'Kjøtt/Fisk':{n:'Laks (filet)',i:'🐟',w:'0,7',c:'Feil porsjon',cf:94,
+    recipe:[{name:'Laks',icon:'🐟',g:160,pct:55,color:'var(--danger)'},{name:'Brokkoli',icon:'🥦',g:80,pct:28,color:'var(--success)'},{name:'Gulrot',icon:'🥕',g:50,pct:17,color:'var(--warning)'}]},
+  'Grønnsaker':{n:'Brokkoli (stilker)',i:'🥦',w:'0,4',c:'For mye kuttet',cf:91,recipe:null},
+  'Meieri':{n:'Fløte (rest)',i:'🥛',w:'0,3',c:'Ikke brukt opp',cf:87,recipe:null},
+  'Bakeri':{n:'Surdeigsbrød',i:'🍞',w:'0,2',c:'Utgått holdbarhet',cf:89,recipe:null},
+  'Tilberedt':{n:'Pasta Carbonara',i:'🍝',w:'0,6',c:'Overbestilling',cf:85,
+    recipe:[{name:'Pasta',icon:'🍝',g:180,pct:40,color:'var(--warning)'},{name:'Bacon',icon:'🥓',g:40,pct:22,color:'var(--danger)'},{name:'Parmesan',icon:'🧀',g:30,pct:17,color:'var(--blue)'},{name:'Fløte',icon:'🥛',g:25,pct:14,color:'var(--success)'},{name:'Egg',icon:'🥚',g:15,pct:7,color:'var(--gray-400)'}]},
+  'Tallerken':{n:'Laks m/grønnsaker (rest)',i:'🍽️',w:'0,15',c:'Tallerkensvinn',cf:82,
+    recipe:[{name:'Laks',icon:'🐟',g:96,pct:55,color:'var(--danger)'},{name:'Brokkoli',icon:'🥦',g:48,pct:28,color:'var(--success)'},{name:'Gulrot',icon:'🥕',g:30,pct:17,color:'var(--warning)'}]},
+};
 
-/* ══════ FLOW MANAGEMENT ══════ */
-const flows=['camera','voice','scale','station','batch','manual'];
-function startFlow(id){
-  document.getElementById('methodSelector').style.display='none';
-  flows.forEach(f=>{document.getElementById('flow-'+f).style.display='none';});
-  document.getElementById('flow-'+id).style.display='block';
-  if(id==='scale') startScaleAnim();
-}
-function backToMethods(){
-  flows.forEach(f=>{document.getElementById('flow-'+f).style.display='none';});
-  document.getElementById('methodSelector').style.display='block';
-}
-
-/* ══════ CAMERA AI ══════ */
-let selGroupIcon='',selGroupName='';
-function selGroup(btn,icon,name){
-  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('selected'));
-  btn.classList.add('selected');
-  selGroupIcon=icon;selGroupName=name;
-  const s2=document.getElementById('camStep2');
-  if(s2){s2.style.display='block';s2.scrollIntoView({behavior:'smooth',block:'center'});}
-}
-
-function simulateCapture(){
-  const s3=document.getElementById('camStep3');
-  s3.style.display='block';s3.scrollIntoView({behavior:'smooth',block:'center'});
-  s3.innerHTML=`<div class="card card-pad"><div class="ai-processing"><div class="ai-spinner"></div><div class="ai-proc-text">AI analyserer bildet...</div><div class="ai-proc-steps"><div class="ai-step done"><div class="step-dot">✓</div> Bilde mottatt</div><div class="ai-step active" id="as2"><div class="step-dot"></div> Identifiserer produkt</div><div class="ai-step" id="as3"><div class="step-dot"></div> Estimerer mengde</div><div class="ai-step" id="as4"><div class="step-dot"></div> Foreslår årsak</div></div></div></div>`;
-  setTimeout(()=>{document.getElementById('as2').className='ai-step done';document.getElementById('as2').querySelector('.step-dot').textContent='✓';document.getElementById('as3').className='ai-step active';},800);
-  setTimeout(()=>{document.getElementById('as3').className='ai-step done';document.getElementById('as3').querySelector('.step-dot').textContent='✓';document.getElementById('as4').className='ai-step active';},1400);
-  setTimeout(showAiResult,2000);
+function simCapture(){
+  const s3=document.getElementById('camS3');s3.style.display='block';s3.scrollIntoView({behavior:'smooth',block:'center'});
+  s3.innerHTML=`<div class="card cpad"><div class="ai-proc"><div class="ai-spin"></div><div class="ai-pt">AI analyserer bildet...</div><div class="ai-steps"><div class="ai-s done"><div class="sd">✓</div> Bilde mottatt</div><div class="ai-s act" id="as2"><div class="sd"></div> Identifiserer produkt</div><div class="ai-s" id="as3"><div class="sd"></div> Estimerer mengde</div><div class="ai-s" id="as4"><div class="sd"></div> Kobler resept</div></div></div></div>`;
+  setTimeout(()=>{document.getElementById('as2').className='ai-s done';document.getElementById('as2').querySelector('.sd').textContent='✓';document.getElementById('as3').className='ai-s act';},800);
+  setTimeout(()=>{document.getElementById('as3').className='ai-s done';document.getElementById('as3').querySelector('.sd').textContent='✓';document.getElementById('as4').className='ai-s act';},1400);
+  setTimeout(showAiResult,2100);
 }
 
 function showAiResult(){
-  const items={'Kjøtt/Fisk':{n:'Laks (filet)',i:'🐟',w:'0,7',c:'Feil porsjon',cf:94},'Grønnsaker':{n:'Brokkoli (stilker)',i:'🥦',w:'0,4',c:'For mye kuttet',cf:91},'Meieri':{n:'Fløte (rest)',i:'🥛',w:'0,3',c:'Ikke brukt opp',cf:87},'Bakeri':{n:'Surdeigsbrød',i:'🍞',w:'0,2',c:'Utgått holdbarhet',cf:89},'Tilberedt':{n:'Pasta Carbonara',i:'🍝',w:'0,6',c:'Overbestilling',cf:85},'Tallerken':{n:'Laks m/grønnsaker',i:'🍽️',w:'0,15',c:'Tallerkensvinn',cf:82}};
-  const it=items[selGroupName]||items['Grønnsaker'];
-  const s3=document.getElementById('camStep3');
+  const it=recipes[grpName]||recipes['Grønnsaker'];
+  const s3=document.getElementById('camS3');
   const time=new Date().toLocaleTimeString('no',{hour:'2-digit',minute:'2-digit'});
-  s3.innerHTML=`<div class="card card-pad" style="animation:scaleIn var(--dur-slow) var(--ease-out);">
-    <div class="ai-result-card">
-      <div class="ai-detected"><span class="ai-detected-icon">${it.i}</span><div class="ai-detected-info"><h3>${it.n}</h3><span class="ai-conf">🎯 ${it.cf}% sikker</span></div></div>
+  let recipeHtml='';
+  if(it.recipe){
+    const totalG=it.recipe.reduce((s,r)=>s+r.g,0);
+    recipeHtml=`<div class="recipe-box"><div class="recipe-head" onclick="this.querySelector('.rh-toggle').classList.toggle('open');this.nextElementSibling.classList.toggle('show')"><div class="rh-left"><span class="rh-icon">📋</span><div><div class="rh-title">Reseptnedbryting</div><div class="rh-sub">AI koblet — detaljnivå på råvarer</div></div></div><span class="rh-toggle">▼</span></div><div class="recipe-body show">${it.recipe.map(r=>`<div class="recipe-row"><span class="rr-name">${r.icon} ${r.name}</span><div style="display:flex;align-items:center;gap:var(--sp-2);"><div class="rr-bar"><div class="rr-fill" style="width:${r.pct}%;background:${r.color}"></div></div><span class="rr-qty">${r.g}g</span></div></div>`).join('')}<div class="recipe-total"><span class="rt-label">Totalt råvaresvinn</span><span class="rt-val">${totalG}g</span></div></div></div>`;
+  }
+
+  s3.innerHTML=`<div class="card cpad" style="animation:scaleIn var(--dur-slow) var(--ease-out);">
+    <div class="ai-card">
+      <div class="ai-det"><span class="ai-det-icon">${it.i}</span><div class="ai-det-info"><h3>${it.n}</h3><span class="ai-conf">🎯 ${it.cf}% sikker</span></div></div>
       <div class="ai-fields">
-        <div class="ai-field"><span class="ai-field-label">Mengde (estimert)</span><div class="ai-field-val">${it.w} kg <button class="ai-edit-btn">✏️</button></div></div>
-        <div class="ai-field"><span class="ai-field-label">Årsak (AI-forslag)</span><div class="ai-field-val" style="font-family:var(--font-body);font-size:var(--text-xs);">${it.c} <button class="ai-edit-btn">✏️</button></div></div>
-        <div class="ai-field"><span class="ai-field-label">Gruppe</span><div class="ai-field-val" style="font-family:var(--font-body);font-size:var(--text-xs);">${selGroupName}</div></div>
-        <div class="ai-field"><span class="ai-field-label">Tidspunkt</span><div class="ai-field-val" style="font-size:var(--text-xs);">${time}</div></div>
+        <div class="ai-f"><span class="ai-fl">Mengde (estimert)</span><div class="ai-fv">${it.w} kg <button class="ai-edit">✏️</button></div></div>
+        <div class="ai-f"><span class="ai-fl">Årsak (AI-forslag)</span><div class="ai-fv" style="font-family:var(--font-body);font-size:var(--text-xs);">${it.c} <button class="ai-edit">✏️</button></div></div>
+        <div class="ai-f"><span class="ai-fl">Gruppe</span><div class="ai-fv" style="font-family:var(--font-body);font-size:var(--text-xs);">${grpName}</div></div>
+        <div class="ai-f"><span class="ai-fl">Tidspunkt</span><div class="ai-fv" style="font-size:var(--text-xs);">${time}</div></div>
       </div>
+      ${recipeHtml}
     </div>
-    <button class="btn-primary" onclick="showToast('✅ ${it.w} kg ${it.n} registrert via AI');resetCam()">Bekreft registrering</button>
-    <button class="btn-outline" style="margin-top:var(--sp-2);" onclick="document.getElementById('camStep3').style.display='none'">Forkast — prøv igjen</button>
+    <button class="btn-p" onclick="toast('✅ ${it.w} kg ${it.n} registrert via AI${it.recipe?" · resept koblet":""}');resetCam()">Bekreft registrering</button>
+    <button class="btn-o" style="margin-top:var(--sp-2);" onclick="document.getElementById('camS3').style.display='none'">Forkast — prøv igjen</button>
   </div>`;
 }
 
-function resetCam(){
-  document.getElementById('camStep2').style.display='none';
-  document.getElementById('camStep3').style.display='none';
-  document.querySelectorAll('.group-btn').forEach(b=>b.classList.remove('selected'));
+function resetCam(){document.getElementById('camS2').style.display='none';document.getElementById('camS3').style.display='none';document.querySelectorAll('.grp').forEach(b=>b.classList.remove('sel'));}
+
+/* ══ GLASS ANALYSIS ══ */
+function simGlass(){
+  const res=document.getElementById('glassResult');res.style.display='block';res.scrollIntoView({behavior:'smooth',block:'center'});
+  res.innerHTML=`<div class="card cpad"><div class="ai-proc"><div class="ai-spin"></div><div class="ai-pt">AI analyserer glassets innhold...</div></div></div>`;
+  setTimeout(()=>{
+    res.innerHTML=`<div class="card cpad" style="animation:scaleIn var(--dur-slow) var(--ease-out);">
+      <div class="ai-card">
+        <div class="ai-det"><span class="ai-det-icon">🥃</span><div class="ai-det-info"><h3>Glass-analyse</h3><span class="ai-conf">AI identifiserte 3 sannsynlige innhold</span></div></div>
+        <div class="flabel" style="margin-top:var(--sp-3);">Velg hva glasset inneholdt</div>
+        <div class="glass-result">
+          <div class="glass-option sel" onclick="selGlassOpt(this)"><div class="go-icon">🍷</div><div class="go-name">Hvitvin</div><div class="go-conf">92% sannsynlig</div><div class="go-vol">~0,12 L</div></div>
+          <div class="glass-option" onclick="selGlassOpt(this)"><div class="go-icon">🥤</div><div class="go-name">Juice</div><div class="go-conf">6% sannsynlig</div><div class="go-vol">~0,15 L</div></div>
+          <div class="glass-option" onclick="selGlassOpt(this)"><div class="go-icon">💧</div><div class="go-name">Vann</div><div class="go-conf">2% sannsynlig</div><div class="go-vol">~0,18 L</div></div>
+        </div>
+        <div class="flabel">Hvor mye sto igjen?</div>
+        <div class="stepper" style="margin-bottom:var(--sp-4);"><button class="stepper-btn" onclick="this.nextElementSibling.value=Math.max(0,parseInt(this.nextElementSibling.value)-10)">−</button><input type="number" class="stepper-val" value="30" step="5" min="0" max="100"><button class="stepper-btn" onclick="this.previousElementSibling.value=Math.min(100,parseInt(this.previousElementSibling.value)+10)">+</button><span class="stepper-unit">%</span></div>
+      </div>
+      <button class="btn-p" onclick="toast('🥃 Glass registrert — hvitvin 0,12 L via AI');document.getElementById('glassResult').style.display='none'">Bekreft glass-registrering</button>
+    </div>`;
+  },1800);
+}
+function selGlassOpt(el){document.querySelectorAll('.glass-option').forEach(o=>o.classList.remove('sel'));el.classList.add('sel');}
+
+/* ══ BREAKAGE ══ */
+let breakType='';
+function selBreak(btn,type){
+  document.querySelectorAll('.break-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');breakType=type;
+  const s2=document.getElementById('breakStep2');s2.style.display='block';
+  s2.scrollIntoView({behavior:'smooth',block:'center'});
+  s2.innerHTML=`<div class="card cpad" style="animation:fadeUp var(--dur-slow) var(--ease-out);">
+    <div class="flabel">Inneholdt glasset/tallerkenen noe?</div>
+    <div class="pills" style="margin-bottom:var(--sp-4);">
+      <button class="pill" onclick="this.classList.toggle('sel')">🍷 Vin/drikke</button>
+      <button class="pill" onclick="this.classList.toggle('sel')">🍲 Mat/suppe</button>
+      <button class="pill" onclick="this.classList.toggle('sel')">💧 Vann</button>
+      <button class="pill" onclick="this.classList.toggle('sel')">🚫 Tomt</button>
+    </div>
+    <div class="flabel">Estimert mengde tapt</div>
+    <div class="stepper" style="margin-bottom:var(--sp-4);"><button class="stepper-btn" onclick="this.nextElementSibling.value=Math.max(0,(parseFloat(this.nextElementSibling.value)-.1)).toFixed(1)">−</button><input type="number" class="stepper-val" value="0.2" step="0.1" min="0"><button class="stepper-btn" onclick="this.previousElementSibling.value=(parseFloat(this.previousElementSibling.value)+.1).toFixed(1)">+</button><span class="stepper-unit">L/kg</span></div>
+    <button class="btn-p danger" onclick="toast('💔 ${breakType} registrert som knust/søl');back()">Registrer knust / søl</button>
+  </div>`;
 }
 
-/* ══════ VOICE ══════ */
+/* ══ VOICE ══ */
 let voiceOn=false;
 function toggleVoice(){
-  voiceOn=!voiceOn;
-  const btn=document.getElementById('voiceBtn'),st=document.getElementById('voiceStatus'),tr=document.getElementById('voiceTranscript');
-  if(voiceOn){
-    btn.classList.add('recording');btn.textContent='⏹️';st.textContent='Lytter...';tr.style.display='block';tr.textContent='';
+  voiceOn=!voiceOn;const btn=document.getElementById('voiceBtn'),st=document.getElementById('voiceSt'),tr=document.getElementById('voiceTr');
+  if(voiceOn){btn.classList.add('rec');btn.textContent='⏹️';st.textContent='Lytter...';tr.style.display='block';tr.textContent='';
     setTimeout(()=>{tr.textContent='«Halv kilo...';},600);
     setTimeout(()=>{tr.textContent='«Halv kilo laks...';},1200);
     setTimeout(()=>{tr.textContent='«Halv kilo laks, tilberedning»';},1800);
-    setTimeout(()=>{
-      toggleVoice();
-      const vr=document.getElementById('voiceResult');vr.style.display='block';
-      vr.innerHTML=`<div class="card card-pad" style="animation:scaleIn var(--dur-slow) var(--ease-out);"><div class="ai-result-card"><div class="ai-detected"><span class="ai-detected-icon">🐟</span><div class="ai-detected-info"><h3>Laks — 0,5 kg</h3><span class="ai-conf">🎤 Stemmegjenkjenning</span></div></div><div class="ai-fields"><div class="ai-field"><span class="ai-field-label">Mengde</span><div class="ai-field-val">0,5 kg <button class="ai-edit-btn">✏️</button></div></div><div class="ai-field"><span class="ai-field-label">Årsak</span><div class="ai-field-val" style="font-family:var(--font-body);font-size:var(--text-xs);">Tilberedning</div></div></div></div><button class="btn-primary" onclick="showToast('✅ 0,5 kg laks registrert via stemme');document.getElementById('voiceResult').style.display='none'">Bekreft registrering</button></div>`;
+    setTimeout(()=>{toggleVoice();const vr=document.getElementById('voiceRes');vr.style.display='block';
+      vr.innerHTML=`<div class="card cpad" style="animation:scaleIn var(--dur-slow) var(--ease-out);"><div class="ai-card"><div class="ai-det"><span class="ai-det-icon">🐟</span><div class="ai-det-info"><h3>Laks — 0,5 kg</h3><span class="ai-conf">🎤 Stemmegjenkjenning</span></div></div><div class="ai-fields"><div class="ai-f"><span class="ai-fl">Mengde</span><div class="ai-fv">0,5 kg <button class="ai-edit">✏️</button></div></div><div class="ai-f"><span class="ai-fl">Årsak</span><div class="ai-fv" style="font-family:var(--font-body);font-size:var(--text-xs);">Tilberedning</div></div></div></div><button class="btn-p" onclick="toast('✅ 0,5 kg laks via stemme');document.getElementById('voiceRes').style.display='none'">Bekreft</button></div>`;
     },2400);
-  } else {btn.classList.remove('recording');btn.textContent='🎤';st.textContent='Trykk og snakk';}
+  } else {btn.classList.remove('rec');btn.textContent='🎤';st.textContent='Trykk og snakk';}
 }
 
-/* ══════ SCALE ══════ */
-function startScaleAnim(){
-  let w=0;const el=document.getElementById('scaleReading');
-  const iv=setInterval(()=>{w+=Math.random()*.05;if(w>.52){w=.52;clearInterval(iv);}el.textContent=w.toFixed(2);},200);
-}
+/* ══ SCALE ══ */
+function startScaleAnim(){let w=0;const el=document.getElementById('scaleR');const iv=setInterval(()=>{w+=Math.random()*.05;if(w>.52){w=.52;clearInterval(iv);}el.textContent=w.toFixed(2);},200);}
 
-/* ══════ STATION ══════ */
-function quickStation(name,avg){showToast(`🏷️ ${avg} kg registrert fra ${name}`);}
+/* ══ STATION ══ */
+function quickStation(n,a){toast(`🏷️ ${a} kg registrert fra ${n}`);}
 
-/* ══════ BATCH ══════ */
-function simulateBatch(){
-  const r=document.getElementById('batchResult');r.style.display='block';
-  r.innerHTML=`<div class="ai-processing"><div class="ai-spinner"></div><div class="ai-proc-text">AI analyserer svinn-bøtter...</div></div>`;
-  setTimeout(()=>{
-    r.innerHTML=`<div class="ai-result-card" style="margin-bottom:var(--sp-3);"><div style="font-size:var(--text-xs);font-weight:700;margin-bottom:var(--sp-3);">AI identifiserte 4 poster:</div>
-      <div class="log-item" style="padding:var(--sp-3) 0;"><div class="log-icon" style="background:var(--success-bg)">🥦</div><div class="log-info"><div class="log-title">Grønnsakavskjær</div><div class="log-meta">Tilberedning</div></div><div class="log-amount">1,2 kg</div></div>
-      <div class="log-item" style="padding:var(--sp-3) 0;"><div class="log-icon" style="background:var(--danger-bg)">🥩</div><div class="log-info"><div class="log-title">Kjøtt/fisk-rester</div><div class="log-meta">Tilberedning</div></div><div class="log-amount">0,6 kg</div></div>
-      <div class="log-item" style="padding:var(--sp-3) 0;"><div class="log-icon" style="background:var(--blue-50)">🍝</div><div class="log-info"><div class="log-title">Tilberedt mat</div><div class="log-meta">Overbestilling</div></div><div class="log-amount">0,8 kg</div></div>
-      <div class="log-item" style="padding:var(--sp-3) 0;"><div class="log-icon" style="background:var(--warning-bg)">🍞</div><div class="log-info"><div class="log-title">Brødrester</div><div class="log-meta">Utgått</div></div><div class="log-amount">0,3 kg</div></div>
-      <div style="text-align:center;padding:var(--sp-3) 0;font-size:var(--text-xs);"><strong>Totalt: 2,9 kg</strong> · 4 poster</div></div>
-    <button class="btn-primary" onclick="showToast('✅ 2,9 kg batch-registrert via AI');document.getElementById('batchResult').style.display='none'">Bekreft alle 4 poster</button>`;
-  },2500);
-}
-
-/* ══════ CHECKLIST ══════ */
-function checkItem(el){
-  const icon=el.querySelector('.log-icon');
-  if(icon.textContent.trim()==='⬜'){
-    icon.textContent='✅';icon.style.background='var(--success-bg)';
-    showToast('✓ Sjekket!');
-  }
+/* ══ BATCH ══ */
+function simBatch(){
+  const r=document.getElementById('batchRes');r.style.display='block';
+  r.innerHTML=`<div class="ai-proc"><div class="ai-spin"></div><div class="ai-pt">AI analyserer bøtter...</div></div>`;
+  setTimeout(()=>{r.innerHTML=`<div class="ai-card" style="margin-bottom:var(--sp-3);"><div style="font-size:var(--text-xs);font-weight:700;margin-bottom:var(--sp-3);">AI identifiserte 4 poster:</div><div class="log-item" style="padding:var(--sp-3) 0;"><div class="li-icon" style="background:var(--success-bg)">🥦</div><div class="li-info"><div class="li-t">Grønnsakavskjær</div><div class="li-m">Tilberedning</div></div><div class="li-amt">1,2 kg</div></div><div class="log-item" style="padding:var(--sp-3) 0;"><div class="li-icon" style="background:var(--danger-bg)">🥩</div><div class="li-info"><div class="li-t">Kjøtt/fisk</div><div class="li-m">Tilberedning</div></div><div class="li-amt">0,6 kg</div></div><div class="log-item" style="padding:var(--sp-3) 0;"><div class="li-icon" style="background:var(--blue-50)">🍝</div><div class="li-info"><div class="li-t">Tilberedt mat</div><div class="li-m">Overbestilling</div></div><div class="li-amt">0,8 kg</div></div><div class="log-item" style="padding:var(--sp-3) 0;"><div class="li-icon" style="background:var(--warning-bg)">🍞</div><div class="li-info"><div class="li-t">Brødrester</div><div class="li-m">Utgått</div></div><div class="li-amt">0,3 kg</div></div><div style="text-align:center;padding:var(--sp-3) 0;font-size:var(--text-xs);"><strong>Totalt: 2,9 kg</strong></div></div><button class="btn-p" onclick="toast('✅ 2,9 kg batch-registrert');document.getElementById('batchRes').style.display='none'">Bekreft alle</button>`;},2500);
 }
 </script>
 </body>
