@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Easy Step — Smartklokke Demo v3 · Plorea</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue-50:#EBF6FB;--blue-100:#C7E7F3;--blue-200:#99D2E8;
+  --blue:#6BB8DA;--blue-600:#4FA3C8;--blue-700:#468DAC;
+  --blue-800:#2E6B87;--blue-900:#1D4A5F;
+  --success:#6BDAB2;--warning:#DADA6B;--danger:#DA6B6B;
+  --success-bg:#E8FBF4;--warning-bg:#FBFBE8;--danger-bg:#FBE8E8;
+  --success-dark:#2D8B6F;--warning-dark:#8B8B2D;--danger-dark:#8B3A3A;
+  --gray-50:#F7F8FA;--gray-100:#F1F2F4;--gray-200:#E9E9E9;
+  --gray-300:#D4D4D4;--gray-400:#C4C4C4;--gray-500:#999999;
+  --gray-600:#666666;--gray-800:#2A2A2A;--gray-900:#1A1A1A;
+  --color-bg-page:#F1F5F9;--color-surface:#FFFFFF;--color-surface-elevated:#F7F8FA;
+  --color-surface-hover:#F4F4F6;--color-border:#E9E9E9;
+  --color-text-primary:#1A1A1A;--color-text-secondary:#666666;--color-text-muted:#C4C4C4;
+  --color-primary:#6BB8DA;--color-accent:#2E6B87;
+  --sidebar-bg:#1A1825;
+  --elevation-1:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --elevation-2:0 4px 12px rgba(0,0,0,.08);--elevation-3:0 10px 30px rgba(0,0,0,.12);
+  --r-sm:4px;--r-md:6px;--r-lg:8px;--r-xl:14px;--r-2xl:20px;--r-full:9999px;
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:20px;--sp-6:24px;
+  --dur-micro:80ms;--dur-fast:100ms;--dur:160ms;--dur-slow:240ms;--dur-panel:320ms;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);--ease:cubic-bezier(0.4,0,0.2,1);
+  --font-display:'Sora',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{-webkit-tap-highlight-color:transparent;}
+body{
+  font-family:var(--font-body);
+  background:#1A1825;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:var(--sp-6);
+  gap:var(--sp-6);
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes ripple{0%{transform:scale(.5);opacity:.6}100%{transform:scale(2.5);opacity:0}}
+@keyframes checkmark{0%{stroke-dashoffset:30}100%{stroke-dashoffset:0}}
+@keyframes countdown{from{stroke-dashoffset:0}to{stroke-dashoffset:226}}
+
+/* ═══ PAGE LAYOUT ═══ */
+.page-header{text-align:center;max-width:500px;}
+.page-header h1{font-family:var(--font-display);font-size:24px;font-weight:800;color:#fff;margin-bottom:var(--sp-2);}
+.page-header .ph-sub{font-size:13px;color:rgba(255,255,255,.4);line-height:1.5;}
+.page-header .ph-badge{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--blue);background:rgba(107,184,218,.1);padding:4px 12px;border-radius:var(--r-full);margin-bottom:var(--sp-4);}
+
+.watch-row{display:flex;gap:var(--sp-8);flex-wrap:wrap;justify-content:center;align-items:flex-start;}
+
+/* ═══ WATCH FRAME ═══ */
+.watch-frame{
+  width:240px;
+  display:flex;flex-direction:column;align-items:center;gap:var(--sp-3);
+}
+.watch-label{
+  font-size:11px;font-weight:700;color:rgba(255,255,255,.35);
+  text-transform:uppercase;letter-spacing:.1em;
+  text-align:center;
+}
+
+.watch{
+  width:220px;height:220px;
+  border-radius:50%;
+  background:#0D0D12;
+  border:3px solid #2A2835;
+  box-shadow:
+    0 0 0 6px #1A1825,
+    0 0 0 8px #2A2835,
+    0 8px 32px rgba(0,0,0,.5),
+    inset 0 1px 2px rgba(255,255,255,.03);
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+}
+
+.watch-inner{
+  position:absolute;inset:12px;
+  border-radius:50%;
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* ═══ WATCH SCREENS ═══ */
+.w-screen{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:20px;
+  transition:opacity var(--dur-slow) var(--ease-out),transform var(--dur-slow) var(--ease-out);
+}
+.w-screen.hidden{opacity:0;transform:scale(.92);pointer-events:none;}
+
+/* ── Watch Face (home) ── */
+.wf-time{font-family:var(--font-mono);font-size:32px;font-weight:700;color:#fff;letter-spacing:-1px;}
+.wf-date{font-size:9px;color:rgba(255,255,255,.3);font-weight:600;margin-top:2px;letter-spacing:.04em;}
+.wf-status{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--success);font-weight:600;margin-top:var(--sp-2);}
+.wf-status .dot{width:5px;height:5px;border-radius:50%;background:var(--success);animation:blink 2s infinite;}
+.wf-kpi{
+  display:flex;gap:var(--sp-3);margin-top:var(--sp-3);
+}
+.wf-kpi-item{text-align:center;}
+.wf-kpi-item .kv{font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--blue);}
+.wf-kpi-item .kl{font-size:8px;color:rgba(255,255,255,.25);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.wf-hint{font-size:8px;color:rgba(255,255,255,.15);margin-top:var(--sp-3);text-align:center;}
+
+/* ── Action Grid ── */
+.w-action-grid{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;width:100%;
+}
+.w-act{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:4px;
+  padding:10px 4px;
+  border-radius:var(--r-xl);
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.06);
+  transition:all var(--dur-fast);
+  min-height:60px;
+}
+.w-act:active{transform:scale(.9);background:rgba(107,184,218,.15);transition:transform var(--dur-micro);}
+.w-act .wa-icon{font-size:22px;}
+.w-act .wa-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.7);text-align:center;}
+.w-act.hero{
+  grid-column:1/-1;
+  flex-direction:row;gap:var(--sp-2);
+  background:rgba(107,184,218,.1);
+  border-color:rgba(107,184,218,.2);
+  padding:12px;
+  min-height:50px;
+}
+.w-act.hero .wa-icon{font-size:20px;}
+.w-act.hero .wa-label{font-size:10px;color:var(--blue);}
+
+.w-back{
+  margin-top:var(--sp-2);
+  font-size:9px;color:rgba(255,255,255,.2);font-weight:600;
+  background:none;border:none;cursor:pointer;
+}
+.w-back:active{color:rgba(255,255,255,.5);}
+
+/* ── Stepper (watch-size) ── */
+.w-stepper{
+  display:flex;align-items:center;
+  background:rgba(255,255,255,.04);
+  border-radius:var(--r-full);
+  border:1px solid rgba(255,255,255,.08);
+  overflow:hidden;
+  margin:var(--sp-2) 0;
+}
+.w-stepper-btn{
+  width:44px;height:44px;border:none;background:none;
+  color:rgba(255,255,255,.5);font-size:20px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:color var(--dur-micro);
+}
+.w-stepper-btn:active{color:#fff;background:rgba(255,255,255,.08);}
+.w-stepper-val{
+  font-family:var(--font-mono);font-size:22px;font-weight:800;
+  color:#fff;min-width:50px;text-align:center;
+}
+.w-stepper-unit{font-size:11px;color:rgba(255,255,255,.3);font-weight:600;margin-left:2px;}
+
+/* ── Save button (watch) ── */
+.w-save{
+  width:100%;padding:10px;
+  border:none;border-radius:var(--r-full);
+  background:var(--blue);color:#fff;
+  font-family:var(--font-body);font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  transition:all var(--dur-fast);
+  margin-top:var(--sp-1);
+}
+.w-save:active{transform:scale(.94);}
+.w-save.danger{background:var(--danger);}
+
+/* ── Success screen ── */
+.w-success{text-align:center;}
+.w-check-ring{
+  width:72px;height:72px;margin:0 auto var(--sp-3);
+  position:relative;
+}
+.w-check-ring svg{width:100%;height:100%;}
+.w-check-ring .ring{fill:none;stroke:var(--success);stroke-width:3;stroke-linecap:round;}
+.w-check-ring .check{fill:none;stroke:var(--success);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:30;stroke-dashoffset:30;animation:checkmark .4s .2s var(--ease-out) forwards;}
+.w-success .ws-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:var(--success);margin-bottom:2px;}
+.w-success .ws-detail{font-size:10px;color:rgba(255,255,255,.35);}
+.w-success .ws-undo{
+  margin-top:var(--sp-3);font-size:10px;color:rgba(255,255,255,.2);
+  background:none;border:1px solid rgba(255,255,255,.1);
+  padding:6px 16px;border-radius:var(--r-full);cursor:pointer;
+}
+.w-success .ws-undo:active{background:rgba(255,255,255,.05);color:rgba(255,255,255,.5);}
+
+/* ── Countdown ring ── */
+.countdown-ring{
+  position:absolute;inset:0;
+}
+.countdown-ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+.countdown-ring .cd-track{fill:none;stroke:rgba(255,255,255,.05);stroke-width:2;}
+.countdown-ring .cd-fill{fill:none;stroke:var(--success);stroke-width:2;stroke-linecap:round;stroke-dasharray:226;animation:countdown 5s linear forwards;}
+
+/* ── Voice screen ── */
+.w-voice-btn{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--blue),var(--blue-600));
+  border:none;color:#fff;font-size:28px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 16px rgba(107,184,218,.3);
+  transition:all var(--dur-fast);
+  margin-bottom:var(--sp-2);
+}
+.w-voice-btn:active{transform:scale(.9);}
+.w-voice-btn.rec{background:linear-gradient(135deg,var(--danger),#E88);box-shadow:0 4px 16px rgba(218,107,107,.3);animation:pop 1s infinite;}
+
+.w-voice-text{font-size:10px;color:rgba(255,255,255,.4);text-align:center;}
+.w-voice-transcript{
+  font-size:11px;color:var(--blue);font-weight:600;
+  margin-top:var(--sp-2);text-align:center;font-style:italic;
+  min-height:16px;
+}
+
+/* ── NFC screen ── */
+.w-nfc-icon{font-size:48px;margin-bottom:var(--sp-2);animation:pop 2s infinite;}
+.w-nfc-text{font-size:11px;color:rgba(255,255,255,.4);text-align:center;line-height:1.4;}
+
+/* ── Scroll indicator dots ── */
+.w-dots{
+  display:flex;gap:6px;justify-content:center;
+  margin-top:var(--sp-3);
+}
+.w-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:rgba(255,255,255,.15);
+  transition:all var(--dur-fast);
+}
+.w-dot.active{background:var(--blue);width:18px;border-radius:3px;}
+
+/* ── Watch camera viewfinder ── */
+.w-cam{
+  width:100%;aspect-ratio:1;
+  border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, #1a2a20 0%, #0a0f0d 70%);
+  position:relative;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:var(--sp-2);
+  overflow:hidden;
+}
+.w-cam::before{
+  content:'';position:absolute;inset:4px;border-radius:50%;
+  border:1.5px solid rgba(107,184,218,.25);pointer-events:none;
+}
+.w-cam .wc-icon{font-size:32px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.5));}
+.w-cam .wc-hint{position:absolute;bottom:12px;font-size:9px;color:rgba(255,255,255,.4);font-weight:600;}
+.w-cam .wc-crosshair{
+  position:absolute;width:40px;height:40px;
+  border:1.5px solid rgba(107,184,218,.4);border-radius:50%;
+  animation:pop 3s infinite;
+}
+.w-cam-shutter{
+  width:48px;height:48px;border-radius:50%;
+  background:rgba(255,255,255,.12);border:2.5px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+  position:absolute;bottom:8px;
+}
+.w-cam-shutter:active{transform:scale(.85);}
+.w-cam-shutter-in{width:36px;height:36px;border-radius:50%;background:#fff;}
+
+/* ── AI dish prediction result (on watch) ── */
+.w-ai-result{text-align:center;width:100%;}
+.w-ai-dish{font-size:28px;margin-bottom:2px;}
+.w-ai-name{font-family:var(--font-display);font-size:13px;font-weight:700;color:#fff;}
+.w-ai-conf{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:9px;font-weight:700;color:var(--blue);
+  background:rgba(107,184,218,.12);
+  padding:2px 8px;border-radius:var(--r-full);
+  margin-top:3px;
+}
+.w-ai-ingredients{
+  display:flex;flex-direction:column;gap:3px;
+  margin-top:var(--sp-2);width:100%;
+}
+.w-ai-ing{
+  display:flex;align-items:center;gap:6px;
+  font-size:9px;color:rgba(255,255,255,.5);
+}
+.w-ai-ing .ing-icon{font-size:11px;width:16px;text-align:center;}
+.w-ai-ing .ing-name{flex:1;text-align:left;}
+.w-ai-ing .ing-bar{width:30px;height:3px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden;}
+.w-ai-ing .ing-fill{height:100%;border-radius:2px;}
+.w-ai-ing .ing-g{font-family:var(--font-mono);font-weight:700;color:rgba(255,255,255,.7);width:28px;text-align:right;}
+.w-ai-waste{
+  margin-top:var(--sp-2);padding:var(--sp-2);
+  background:rgba(218,107,107,.1);border-radius:var(--r-lg);
+  font-size:10px;font-weight:700;color:var(--danger);
+}
+.w-ai-actions{display:flex;gap:6px;margin-top:var(--sp-2);width:100%;}
+.w-ai-actions .w-save{flex:1;font-size:10px;padding:8px;}
+.w-ai-actions .w-edit{
+  padding:8px 12px;border-radius:var(--r-full);
+  border:1px solid rgba(255,255,255,.1);background:none;
+  color:rgba(255,255,255,.4);font-size:12px;
+}
+.w-ai-actions .w-edit:active{background:rgba(255,255,255,.05);}
+
+/* ── AI analyzing spinner (watch) ── */
+.w-analyzing{text-align:center;}
+.w-analyze-ring{
+  width:56px;height:56px;margin:0 auto var(--sp-2);
+  border:3px solid rgba(255,255,255,.06);border-top-color:var(--blue);
+  border-radius:50%;animation:spin .7s linear infinite;
+}
+.w-analyze-text{font-size:10px;color:rgba(255,255,255,.35);}
+.w-analyze-step{font-size:9px;color:var(--blue);margin-top:var(--sp-1);font-weight:600;}
+
+/* ── Table selector (watch) ── */
+.w-table-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:6px;width:100%;margin-bottom:var(--sp-2);
+}
+.w-table-btn{
+  padding:8px 4px;border-radius:var(--r-lg);
+  background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;align-items:center;gap:2px;
+  transition:all var(--dur-fast);min-height:40px;
+}
+.w-table-btn:active{transform:scale(.9);}
+.w-table-btn.sel{background:rgba(107,184,218,.15);border-color:var(--blue);}
+.w-table-btn .wt-num{font-family:var(--font-mono);font-size:16px;font-weight:800;color:#fff;}
+.w-table-btn .wt-status{font-size:7px;color:rgba(255,255,255,.25);font-weight:600;}
+.w-table-btn.sel .wt-status{color:var(--blue);}
+.w-table-btn.occupied .wt-status{color:var(--success);}
+
+/* ── Order preview on watch ── */
+.w-order-preview{width:100%;margin-bottom:var(--sp-2);}
+.w-order-item{
+  display:flex;align-items:center;gap:6px;
+  padding:4px 0;
+  font-size:9px;color:rgba(255,255,255,.4);
+}
+.w-order-item .wo-qty{font-family:var(--font-mono);font-weight:700;color:var(--blue);width:18px;}
+.w-order-item .wo-name{flex:1;}
+.w-order-match{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:8px;font-weight:700;padding:2px 6px;border-radius:var(--r-full);
+  margin-top:var(--sp-1);
+}
+.w-order-match.pos{background:rgba(107,184,218,.12);color:var(--blue);}
+.w-order-match.boost{background:rgba(107,218,178,.12);color:var(--success);}
+
+/* ═══ PHONE CONTEXT PANEL ═══ */
+.context-panel{
+  max-width:500px;width:100%;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:var(--r-xl);
+  padding:var(--sp-5);
+}
+.cp-title{font-family:var(--font-display);font-size:14px;font-weight:700;color:rgba(255,255,255,.6);margin-bottom:var(--sp-3);}
+.cp-row{display:flex;align-items:center;gap:var(--sp-3);padding:var(--sp-2) 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.cp-row:last-child{border-bottom:none;}
+.cp-row .cp-icon{font-size:16px;width:24px;text-align:center;}
+.cp-row .cp-text{font-size:12px;color:rgba(255,255,255,.35);flex:1;}
+.cp-row .cp-val{font-family:var(--font-mono);font-size:12px;font-weight:700;color:var(--blue);}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="page-header">
+  <div class="ph-badge">⌚ Smartklokke-integrasjon</div>
+  <h1>Easy Step Watch</h1>
+  <div class="ph-sub">Registrer matsvinn rett fra håndleddet — kamera, stemme, NFC og ett-trykk. AI gjenkjenner retten og bryter ned til ingrediensnivå. Trykk på klokkene for å prøve.</div>
+</div>
+
+<!-- Watch Row -->
+<div class="watch-row">
+
+  <!-- ═══════════════════════════
+       WATCH 1: MAIN FLOW
+       ═══════════════════════════ -->
+  <div class="watch-frame">
+    <div class="watch-label">Hovedflyt · Kamera + Kjøkken</div>
+    <div class="watch" onclick="cycleWatch1()">
+      <div class="watch-inner">
+
+        <!-- Screen 0: Watch face -->
+        <div class="w-screen" id="w1s0">
+          <div class="wf-time" id="w1time">12:34</div>
+          <div class="wf-date">TOR 13. MARS</div>
+          <div class="wf-status"><span class="dot"></span> Easy Step aktiv</div>
+          <div class="wf-kpi">
+            <div class="wf-kpi-item"><div class="kv">3,1</div><div class="kl">kg svinn</div></div>
+            <div class="wf-kpi-item"><div class="kv">5</div><div class="kl">reg.</div></div>
+            <div class="wf-kpi-item"><div class="kv">↓18%</div><div class="kl">vs. uke</div></div>
+          </div>
+          <div class="wf-hint">Trykk for å registrere ›</div>
+        </div>
+
+        <!-- Screen 1: Action picker -->
+        <div class="w-screen hidden" id="w1s1">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Registrer svinn</div>
+          <div class="w-action-grid">
+            <div class="w-act hero" onclick="event.stopPropagation();showW1Screen(6)"><span class="wa-icon">📸</span><span class="wa-label">Ta bilde → AI</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(2)"><span class="wa-icon">🔪</span><span class="wa-label">Prep</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(2)"><span class="wa-icon">🍽️</span><span class="wa-label">Tallerken</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(4)"><span class="wa-icon">💔</span><span class="wa-label">Knust</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(5)"><span class="wa-icon">🎤</span><span class="wa-label">Stemme</span></div>
+          </div>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(0)">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 2: Stepper (amount) -->
+        <div class="w-screen hidden" id="w1s2">
+          <div style="font-size:20px;margin-bottom:var(--sp-1);">🔪</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);">Prep-svinn</div>
+          <div class="w-stepper">
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW1(-0.1)">−</button>
+            <span class="w-stepper-val" id="w1amt">0.5</span><span class="w-stepper-unit">kg</span>
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW1(0.1)">+</button>
+          </div>
+          <button class="w-save" onclick="event.stopPropagation();showW1Screen(3)">Lagre svinn</button>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(1)">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 3: Success + undo -->
+        <div class="w-screen hidden" id="w1s3">
+          <div class="w-success">
+            <div class="w-check-ring">
+              <div class="countdown-ring"><svg viewBox="0 0 72 72"><circle class="cd-track" cx="36" cy="36" r="34"/><circle class="cd-fill" cx="36" cy="36" r="34"/></svg></div>
+              <svg viewBox="0 0 72 72" style="position:absolute;inset:0;"><polyline class="check" points="22,38 32,48 50,26"/></svg>
+            </div>
+            <div class="ws-title">Lagret!</div>
+            <div class="ws-detail">0,5 kg prep-svinn</div>
+            <button class="ws-undo" onclick="event.stopPropagation();showW1Screen(1);w1Toast('↩️ Angret')">↩️ Angre</button>
+          </div>
+        </div>
+
+        <!-- Screen 4: Knust quick-reg -->
+        <div class="w-screen hidden" id="w1s4">
+          <div style="font-size:28px;margin-bottom:var(--sp-2);">💔</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:var(--sp-2);">Hva knuste?</div>
+          <div class="w-action-grid">
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(3)"><span class="wa-icon">🥛</span><span class="wa-label">Glass</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(3)"><span class="wa-icon">🍷</span><span class="wa-label">Vinglass</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(3)"><span class="wa-icon">🍽️</span><span class="wa-label">Tallerken</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(3)"><span class="wa-icon">☕</span><span class="wa-label">Kopp</span></div>
+          </div>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(1)">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 5: Voice -->
+        <div class="w-screen hidden" id="w1s5">
+          <button class="w-voice-btn" id="w1voice" onclick="event.stopPropagation();toggleW1Voice()">🎤</button>
+          <div class="w-voice-text" id="w1vst">Trykk og snakk</div>
+          <div class="w-voice-transcript" id="w1vtr"></div>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(1)" style="margin-top:var(--sp-2);">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 6: Camera — choose path -->
+        <div class="w-screen hidden" id="w1s6">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:var(--sp-2);">Tallerken-foto</div>
+          <div class="w-action-grid">
+            <div class="w-act hero" onclick="event.stopPropagation();showW1Screen(9)"><span class="wa-icon">📸</span><span class="wa-label">Ta bilde direkte</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW1Screen(10)"><span class="wa-icon">🪧</span><span class="wa-label">Velg bord først</span></div>
+          </div>
+          <div style="font-size:8px;color:rgba(255,255,255,.12);text-align:center;margin-top:var(--sp-2);">Bordvalg gir +9% AI-nøyaktighet</div>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(1)">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 7: AI analyzing -->
+        <div class="w-screen hidden" id="w1s7">
+          <div class="w-analyzing">
+            <div class="w-analyze-ring"></div>
+            <div class="w-analyze-text">Analyserer tallerken...</div>
+            <div class="w-analyze-step" id="w1aiStep">Identifiserer rett</div>
+          </div>
+        </div>
+
+        <!-- Screen 8: AI dish result (no table — 88%) -->
+        <div class="w-screen hidden" id="w1s8">
+          <div class="w-ai-result">
+            <div class="w-ai-dish">🐟</div>
+            <div class="w-ai-name">Laks m/ grønnsaker</div>
+            <div class="w-ai-conf">🎯 88% sikker</div>
+            <div class="w-ai-ingredients">
+              <div class="w-ai-ing"><span class="ing-icon">🐟</span><span class="ing-name">Laks</span><div class="ing-bar"><div class="ing-fill" style="width:55%;background:var(--danger)"></div></div><span class="ing-g">96g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥦</span><span class="ing-name">Brokkoli</span><div class="ing-bar"><div class="ing-fill" style="width:28%;background:var(--success)"></div></div><span class="ing-g">48g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥕</span><span class="ing-name">Gulrot</span><div class="ing-bar"><div class="ing-fill" style="width:17%;background:var(--warning)"></div></div><span class="ing-g">30g</span></div>
+            </div>
+            <div class="w-ai-waste">~174g rest</div>
+            <div class="w-ai-actions">
+              <button class="w-save" onclick="event.stopPropagation();showW1Screen(3)">✓ Riktig</button>
+              <button class="w-edit" onclick="event.stopPropagation();showW1Screen(1)">✏️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 9: Direct camera (no table) -->
+        <div class="w-screen hidden" id="w1s9">
+          <div class="w-cam" onclick="event.stopPropagation();w1CamDirect=true;showW1Screen(7)">
+            <div class="wc-crosshair"></div>
+            <span class="wc-icon">🍽️</span>
+            <div class="wc-hint">Pek mot tallerkenen</div>
+            <div class="w-cam-shutter"><div class="w-cam-shutter-in"></div></div>
+          </div>
+          <div style="font-size:8px;color:rgba(255,255,255,.2);text-align:center;">Uten bordordre · AI gjetter fritt</div>
+        </div>
+
+        <!-- Screen 10: Table picker (for Watch 1) -->
+        <div class="w-screen hidden" id="w1s10">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Velg bord</div>
+          <div class="w-table-grid">
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();w1PickTable(1)"><span class="wt-num">1</span><span class="wt-status">3 retter</span></div>
+            <div class="w-table-btn" onclick="event.stopPropagation()"><span class="wt-num">2</span><span class="wt-status">ledig</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();w1PickTable(3)"><span class="wt-num">3</span><span class="wt-status">2 retter</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();w1PickTable(4)"><span class="wt-num">4</span><span class="wt-status">4 retter</span></div>
+            <div class="w-table-btn" onclick="event.stopPropagation()"><span class="wt-num">5</span><span class="wt-status">ledig</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();w1PickTable(7)"><span class="wt-num">7</span><span class="wt-status">3 retter</span></div>
+          </div>
+          <button class="w-back" onclick="event.stopPropagation();showW1Screen(6)">‹ Tilbake</button>
+        </div>
+
+        <!-- Screen 11: Camera with table context -->
+        <div class="w-screen hidden" id="w1s11">
+          <div class="w-cam" onclick="event.stopPropagation();w1CamDirect=false;showW1Screen(7)">
+            <div class="wc-crosshair"></div>
+            <span class="wc-icon">🍽️</span>
+            <div class="wc-hint">Pek mot tallerkenen</div>
+            <div class="w-cam-shutter"><div class="w-cam-shutter-in"></div></div>
+          </div>
+          <div style="font-size:8px;color:var(--blue);text-align:center;font-weight:600;" id="w1camCtx">Bord 7 · Matcher 3 retter</div>
+        </div>
+
+        <!-- Screen 12: Table-boosted AI result (97%) -->
+        <div class="w-screen hidden" id="w1s12">
+          <div class="w-ai-result">
+            <div class="w-ai-dish">🐟</div>
+            <div class="w-ai-name">Laks m/ grønnsaker</div>
+            <div class="w-ai-conf">🎯 97% · Bord <span id="w1tblNum">7</span></div>
+            <div class="w-order-match boost" style="margin-bottom:var(--sp-1);">✓ POS-match · +9% boost</div>
+            <div class="w-ai-ingredients">
+              <div class="w-ai-ing"><span class="ing-icon">🐟</span><span class="ing-name">Laks</span><div class="ing-bar"><div class="ing-fill" style="width:55%;background:var(--danger)"></div></div><span class="ing-g">96g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥦</span><span class="ing-name">Brokkoli</span><div class="ing-bar"><div class="ing-fill" style="width:28%;background:var(--success)"></div></div><span class="ing-g">48g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥕</span><span class="ing-name">Gulrot</span><div class="ing-bar"><div class="ing-fill" style="width:17%;background:var(--warning)"></div></div><span class="ing-g">30g</span></div>
+            </div>
+            <div class="w-ai-waste">~174g rest · Resept koblet</div>
+            <div class="w-ai-actions">
+              <button class="w-save" onclick="event.stopPropagation();showW1Screen(3)">✓ Riktig</button>
+              <button class="w-edit" onclick="event.stopPropagation();showW1Screen(1)">✏️</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="w-dots"><span class="w-dot active" id="w1d0"></span><span class="w-dot" id="w1d1"></span><span class="w-dot" id="w1d2"></span><span class="w-dot" id="w1d3"></span><span class="w-dot" id="w1d4"></span></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WATCH 2: BAR MODE
+       ═══════════════════════════ -->
+  <div class="watch-frame">
+    <div class="watch-label">Bar-modus</div>
+    <div class="watch" onclick="cycleWatch2()">
+      <div class="watch-inner">
+
+        <div class="w-screen" id="w2s0">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Bar · Drikkesvinn</div>
+          <div class="w-action-grid">
+            <div class="w-act hero" onclick="event.stopPropagation();showW2Screen(1)"><span class="wa-icon">🥃</span><span class="wa-label">Glass retur</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(2)"><span class="wa-icon">💔</span><span class="wa-label">Knust</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(3)"><span class="wa-icon">🎤</span><span class="wa-label">Stemme</span></div>
+          </div>
+          <div style="font-size:9px;color:rgba(255,255,255,.15);margin-top:var(--sp-2);text-align:center;">Vakt: 2,4 L drikkesvinn · 3 knust</div>
+        </div>
+
+        <div class="w-screen hidden" id="w2s1">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:var(--sp-2);">Glass retur — velg type</div>
+          <div class="w-action-grid">
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(4)"><span class="wa-icon">🍷</span><span class="wa-label">Vin</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(4)"><span class="wa-icon">🍺</span><span class="wa-label">Øl</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(4)"><span class="wa-icon">🍹</span><span class="wa-label">Cocktail</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(4)"><span class="wa-icon">🥤</span><span class="wa-label">Brus</span></div>
+          </div>
+          <button class="w-back" onclick="event.stopPropagation();showW2Screen(0)">‹ Tilbake</button>
+        </div>
+
+        <div class="w-screen hidden" id="w2s2">
+          <div style="font-size:28px;margin-bottom:var(--sp-2);">💔</div>
+          <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,.5);margin-bottom:var(--sp-2);">Knust glass</div>
+          <div class="w-action-grid">
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(5)"><span class="wa-icon">🍷</span><span class="wa-label">Vinglass</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(5)"><span class="wa-icon">🍺</span><span class="wa-label">Ølglass</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(5)"><span class="wa-icon">🥛</span><span class="wa-label">Vannglass</span></div>
+            <div class="w-act" onclick="event.stopPropagation();showW2Screen(5)"><span class="wa-icon">🍸</span><span class="wa-label">Cocktail</span></div>
+          </div>
+          <button class="w-back" onclick="event.stopPropagation();showW2Screen(0)">‹ Tilbake</button>
+        </div>
+
+        <div class="w-screen hidden" id="w2s3">
+          <button class="w-voice-btn" id="w2voice" onclick="event.stopPropagation();toggleW2Voice()">🎤</button>
+          <div class="w-voice-text" id="w2vst">Trykk og snakk</div>
+          <div class="w-voice-transcript" id="w2vtr"></div>
+          <button class="w-back" onclick="event.stopPropagation();showW2Screen(0)" style="margin-top:var(--sp-2);">‹ Tilbake</button>
+        </div>
+
+        <!-- Amount picker for glass retur -->
+        <div class="w-screen hidden" id="w2s4">
+          <div style="font-size:18px;margin-bottom:2px;">🍷</div>
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.4);">Hvor mye igjen?</div>
+          <div class="w-stepper">
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW2(-10)">−</button>
+            <span class="w-stepper-val" id="w2amt">30</span><span class="w-stepper-unit">%</span>
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW2(10)">+</button>
+          </div>
+          <div style="font-size:9px;color:rgba(255,255,255,.2);margin-bottom:var(--sp-1);">≈ 45 ml av 150 ml</div>
+          <button class="w-save" onclick="event.stopPropagation();showW2Screen(5)">Lagre</button>
+          <button class="w-back" onclick="event.stopPropagation();showW2Screen(1)">‹</button>
+        </div>
+
+        <!-- Success -->
+        <div class="w-screen hidden" id="w2s5">
+          <div class="w-success">
+            <div class="w-check-ring">
+              <div class="countdown-ring"><svg viewBox="0 0 72 72"><circle class="cd-track" cx="36" cy="36" r="34"/><circle class="cd-fill" cx="36" cy="36" r="34"/></svg></div>
+              <svg viewBox="0 0 72 72" style="position:absolute;inset:0;"><polyline class="check" points="22,38 32,48 50,26"/></svg>
+            </div>
+            <div class="ws-title">Lagret!</div>
+            <div class="ws-detail">Drikkesvinn registrert</div>
+            <button class="ws-undo" onclick="event.stopPropagation();showW2Screen(0)">↩️ Angre</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="w-dots"><span class="w-dot active" id="w2d0"></span><span class="w-dot" id="w2d1"></span><span class="w-dot" id="w2d2"></span></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WATCH 3: NFC TAP
+       ═══════════════════════════ -->
+  <div class="watch-frame">
+    <div class="watch-label">NFC-modus</div>
+    <div class="watch" onclick="cycleWatch3()">
+      <div class="watch-inner">
+
+        <div class="w-screen" id="w3s0">
+          <div class="w-nfc-icon">📡</div>
+          <div class="w-nfc-text">Hold klokken mot<br>NFC-taggen på bøtta</div>
+          <div style="font-size:8px;color:rgba(255,255,255,.15);margin-top:var(--sp-3);text-align:center;">Grønnsaker · Kjøtt · Bakeri · Meieri</div>
+        </div>
+
+        <div class="w-screen hidden" id="w3s1">
+          <div style="font-size:28px;margin-bottom:var(--sp-1);">🥦</div>
+          <div style="font-size:12px;font-weight:700;color:var(--success);">NFC: Grønnsaker</div>
+          <div style="font-size:9px;color:rgba(255,255,255,.3);margin-bottom:var(--sp-2);">Tag lest automatisk</div>
+          <div class="w-stepper">
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW3(-0.1)">−</button>
+            <span class="w-stepper-val" id="w3amt">0.3</span><span class="w-stepper-unit">kg</span>
+            <button class="w-stepper-btn" onclick="event.stopPropagation();stepW3(0.1)">+</button>
+          </div>
+          <button class="w-save" onclick="event.stopPropagation();showW3Screen(2)">Lagre</button>
+        </div>
+
+        <div class="w-screen hidden" id="w3s2">
+          <div class="w-success">
+            <div class="w-check-ring">
+              <div class="countdown-ring"><svg viewBox="0 0 72 72"><circle class="cd-track" cx="36" cy="36" r="34"/><circle class="cd-fill" cx="36" cy="36" r="34"/></svg></div>
+              <svg viewBox="0 0 72 72" style="position:absolute;inset:0;"><polyline class="check" points="22,38 32,48 50,26"/></svg>
+            </div>
+            <div class="ws-title">Lagret!</div>
+            <div class="ws-detail">0,3 kg grønnsaker via NFC</div>
+            <button class="ws-undo" onclick="event.stopPropagation();showW3Screen(0)">↩️ Angre</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="w-dots"><span class="w-dot active" id="w3d0"></span><span class="w-dot" id="w3d1"></span><span class="w-dot" id="w3d2"></span></div>
+  </div>
+
+  <!-- ═══════════════════════════
+       WATCH 4: TABLE → CAMERA AI
+       ═══════════════════════════ -->
+  <div class="watch-frame">
+    <div class="watch-label">Bord → Kamera → AI prediksjon</div>
+    <div class="watch" onclick="cycleWatch4()">
+      <div class="watch-inner">
+
+        <!-- Screen 0: Table selector -->
+        <div class="w-screen" id="w4s0">
+          <div style="font-size:10px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:var(--sp-2);">Velg bord</div>
+          <div class="w-table-grid">
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();pickTable(1)"><span class="wt-num">1</span><span class="wt-status">3 retter</span></div>
+            <div class="w-table-btn" onclick="event.stopPropagation()"><span class="wt-num">2</span><span class="wt-status">ledig</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();pickTable(3)"><span class="wt-num">3</span><span class="wt-status">2 retter</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();pickTable(4)"><span class="wt-num">4</span><span class="wt-status">4 retter</span></div>
+            <div class="w-table-btn" onclick="event.stopPropagation()"><span class="wt-num">5</span><span class="wt-status">ledig</span></div>
+            <div class="w-table-btn occupied" onclick="event.stopPropagation();pickTable(7)"><span class="wt-num">7</span><span class="wt-status">3 retter</span></div>
+          </div>
+          <div style="font-size:8px;color:rgba(255,255,255,.12);text-align:center;">Grønne = aktive ordrer fra POS</div>
+        </div>
+
+        <!-- Screen 1: Order preview for selected table -->
+        <div class="w-screen hidden" id="w4s1">
+          <div style="font-size:10px;font-weight:700;color:var(--blue);margin-bottom:2px;" id="w4tableTitle">Bord 7 · #4821</div>
+          <div style="font-size:8px;color:rgba(255,255,255,.2);margin-bottom:var(--sp-2);">AI vet hvilke retter som er servert</div>
+          <div class="w-order-preview" id="w4orderList">
+            <div class="w-order-item"><span class="wo-qty">2×</span><span class="wo-name">Laks m/ grønnsaker</span></div>
+            <div class="w-order-item"><span class="wo-qty">1×</span><span class="wo-name">Pasta Carbonara</span></div>
+            <div class="w-order-item"><span class="wo-qty">1×</span><span class="wo-name">Sjokoladefondant</span></div>
+          </div>
+          <div class="w-order-match pos">🪧 POS-data koblet</div>
+          <button class="w-save" style="margin-top:var(--sp-2);" onclick="event.stopPropagation();showW4Screen(2)">📸 Ta bilde av tallerken</button>
+          <button class="w-back" onclick="event.stopPropagation();showW4Screen(0)">‹ Annet bord</button>
+        </div>
+
+        <!-- Screen 2: Camera (with table context) -->
+        <div class="w-screen hidden" id="w4s2">
+          <div class="w-cam" onclick="event.stopPropagation();startW4Analysis()">
+            <div class="wc-crosshair"></div>
+            <span class="wc-icon">🍽️</span>
+            <div class="wc-hint">Pek mot tallerkenen</div>
+            <div class="w-cam-shutter"><div class="w-cam-shutter-in"></div></div>
+          </div>
+          <div style="font-size:8px;color:var(--blue);text-align:center;font-weight:600;" id="w4camHint">Bord 7 · Matcher mot 3 kjente retter</div>
+        </div>
+
+        <!-- Screen 3: AI analyzing -->
+        <div class="w-screen hidden" id="w4s3">
+          <div class="w-analyzing">
+            <div class="w-analyze-ring"></div>
+            <div class="w-analyze-text" id="w4aiText">Analyserer...</div>
+            <div class="w-analyze-step" id="w4aiStep">📷 Bilde tatt</div>
+          </div>
+        </div>
+
+        <!-- Screen 4: AI result — Laks (POS-boosted, 97%) -->
+        <div class="w-screen hidden" id="w4s4">
+          <div class="w-ai-result">
+            <div class="w-ai-dish">🐟</div>
+            <div class="w-ai-name" id="w4dishName">Laks m/ grønnsaker</div>
+            <div class="w-ai-conf" id="w4confBadge">🎯 97% · Bord 7</div>
+            <div class="w-order-match boost" style="margin-bottom:var(--sp-1);">✓ Matchet mot bordordre · +9% boost</div>
+            <div class="w-ai-ingredients" id="w4ingredients">
+              <div class="w-ai-ing"><span class="ing-icon">🐟</span><span class="ing-name">Laks</span><div class="ing-bar"><div class="ing-fill" style="width:55%;background:var(--danger)"></div></div><span class="ing-g">96g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥦</span><span class="ing-name">Brokkoli</span><div class="ing-bar"><div class="ing-fill" style="width:28%;background:var(--success)"></div></div><span class="ing-g">48g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥕</span><span class="ing-name">Gulrot</span><div class="ing-bar"><div class="ing-fill" style="width:17%;background:var(--warning)"></div></div><span class="ing-g">30g</span></div>
+            </div>
+            <div class="w-ai-waste" id="w4waste">~174g rest · Resept koblet</div>
+            <div class="w-ai-actions">
+              <button class="w-save" onclick="event.stopPropagation();showW4Screen(5)">✓ Riktig</button>
+              <button class="w-edit" onclick="event.stopPropagation();showW4Screen(1)">✏️</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen 5: Success -->
+        <div class="w-screen hidden" id="w4s5">
+          <div class="w-success">
+            <div class="w-check-ring">
+              <div class="countdown-ring"><svg viewBox="0 0 72 72"><circle class="cd-track" cx="36" cy="36" r="34"/><circle class="cd-fill" cx="36" cy="36" r="34"/></svg></div>
+              <svg viewBox="0 0 72 72" style="position:absolute;inset:0;"><polyline class="check" points="22,38 32,48 50,26"/></svg>
+            </div>
+            <div class="ws-title">Lagret!</div>
+            <div class="ws-detail" id="w4successDetail">Bord 7 · Laks · 174g<br><span style="font-size:8px;color:rgba(255,255,255,.2);">3 råvarer logget · POS-koblet</span></div>
+            <button class="ws-undo" onclick="event.stopPropagation();showW4Screen(0)">↩️ Angre</button>
+          </div>
+        </div>
+
+        <!-- Screen 6: Second dish — Pasta (for alternating) -->
+        <div class="w-screen hidden" id="w4s6">
+          <div class="w-ai-result">
+            <div class="w-ai-dish">🍝</div>
+            <div class="w-ai-name">Pasta Carbonara</div>
+            <div class="w-ai-conf">🎯 98% · Bord 7</div>
+            <div class="w-order-match boost" style="margin-bottom:var(--sp-1);">✓ Matchet mot bordordre · +13% boost</div>
+            <div class="w-ai-ingredients">
+              <div class="w-ai-ing"><span class="ing-icon">🍝</span><span class="ing-name">Pasta</span><div class="ing-bar"><div class="ing-fill" style="width:65%;background:var(--warning)"></div></div><span class="ing-g">117g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥓</span><span class="ing-name">Bacon</span><div class="ing-bar"><div class="ing-fill" style="width:36%;background:var(--danger)"></div></div><span class="ing-g">26g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🧀</span><span class="ing-name">Parmesan</span><div class="ing-bar"><div class="ing-fill" style="width:22%;background:var(--blue)"></div></div><span class="ing-g">20g</span></div>
+              <div class="w-ai-ing"><span class="ing-icon">🥛</span><span class="ing-name">Fløte</span><div class="ing-bar"><div class="ing-fill" style="width:14%;background:rgba(255,255,255,.2)"></div></div><span class="ing-g">16g</span></div>
+            </div>
+            <div class="w-ai-waste">~179g rest · Resept koblet</div>
+            <div class="w-ai-actions">
+              <button class="w-save" onclick="event.stopPropagation();showW4Screen(5)">✓ Riktig</button>
+              <button class="w-edit" onclick="event.stopPropagation();showW4Screen(1)">✏️</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="w-dots"><span class="w-dot active" id="w4d0"></span><span class="w-dot" id="w4d1"></span><span class="w-dot" id="w4d2"></span><span class="w-dot" id="w4d3"></span><span class="w-dot" id="w4d4"></span></div>
+  </div>
+
+</div>
+
+<!-- Context panel -->
+<div class="context-panel">
+  <div class="cp-title">⌚ Hvorfor smartklokke?</div>
+  <div class="cp-row"><span class="cp-icon">📸</span><span class="cp-text">Kamera gjenkjenner rett + ingredienser</span><span class="cp-val">AI resept</span></div>
+  <div class="cp-row"><span class="cp-icon">🧤</span><span class="cp-text">Fungerer med hansker og våte hender</span><span class="cp-val">0 friksjon</span></div>
+  <div class="cp-row"><span class="cp-icon">⏱️</span><span class="cp-text">Registrering under 2 sekunder</span><span class="cp-val">&lt; 2s</span></div>
+  <div class="cp-row"><span class="cp-icon">📱</span><span class="cp-text">Ingen telefon opp av lomma</span><span class="cp-val">Alltid klar</span></div>
+  <div class="cp-row"><span class="cp-icon">📡</span><span class="cp-text">NFC-tagger på svinn-bøtter</span><span class="cp-val">Auto-gruppe</span></div>
+  <div class="cp-row"><span class="cp-icon">🎤</span><span class="cp-text">Stemmekommando i støy</span><span class="cp-val">«Halv kilo laks»</span></div>
+  <div class="cp-row"><span class="cp-icon">🔄</span><span class="cp-text">Synkroniseres med telefon-appen</span><span class="cp-val">Sanntid</span></div>
+</div>
+
+<script>
+/* ═══ CLOCK ═══ */
+function updateClock(){
+  const now=new Date();
+  const h=String(now.getHours()).padStart(2,'0');
+  const m=String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('w1time').textContent=h+':'+m;
+}
+updateClock();setInterval(updateClock,10000);
+
+/* ═══ WATCH 1: Kitchen ═══ */
+let w1screen=0;
+const w1total=5;
+let w1CamDirect=true;
+let w1table=0;
+function showW1Screen(n){
+  w1screen=n;
+  for(let i=0;i<13;i++){const el=document.getElementById('w1s'+i);if(el)el.classList.add('hidden');}
+  document.getElementById('w1s'+n)?.classList.remove('hidden');
+  for(let i=0;i<w1total;i++){const d=document.getElementById('w1d'+i);if(d)d.classList.remove('active');}
+  const dotMap={0:0,1:1,2:2,3:3,4:2,5:2,6:4,7:4,8:4,9:4,10:4,11:4,12:4};
+  const dd=document.getElementById('w1d'+(dotMap[n]||0));if(dd)dd.classList.add('active');
+  if(n===3)setTimeout(()=>showW1Screen(0),5000);
+  if(n===7){
+    const step=document.getElementById('w1aiStep');
+    step.textContent='Identifiserer rett...';
+    if(!w1CamDirect&&w1table){
+      setTimeout(()=>{step.textContent='🪧 Sjekker bord '+w1table+'...';},600);
+      setTimeout(()=>{step.textContent='🔍 Matcher mot ordreliste...';},1000);
+    } else {
+      setTimeout(()=>{step.textContent='Analyserer bilde fritt...';},600);
+    }
+    setTimeout(()=>{step.textContent='📋 Kobler resept...';},1400);
+    setTimeout(()=>{
+      if(!w1CamDirect&&w1table) showW1Screen(12); // 97% with POS boost
+      else showW1Screen(8); // 88% without table
+    },2000);
+  }
+}
+function w1PickTable(num){
+  w1table=num;
+  const tbl=w4tables[num];
+  document.getElementById('w1camCtx').textContent='Bord '+num+' · Matcher '+tbl.dishes.length+' retter';
+  document.getElementById('w1tblNum').textContent=num;
+  showW1Screen(11);
+}
+function cycleWatch1(){
+  if(w1screen===0)showW1Screen(1);
+  else if(w1screen===3)showW1Screen(0);
+  else if(w1screen===8||w1screen===12)showW1Screen(3);
+}
+function stepW1(d){const el=document.getElementById('w1amt');el.textContent=Math.max(0.1,(parseFloat(el.textContent)+d)).toFixed(1);}
+
+let w1voiceOn=false;
+function toggleW1Voice(){
+  w1voiceOn=!w1voiceOn;
+  const btn=document.getElementById('w1voice'),st=document.getElementById('w1vst'),tr=document.getElementById('w1vtr');
+  if(w1voiceOn){
+    btn.classList.add('rec');btn.textContent='⏹️';st.textContent='Lytter...';tr.textContent='';
+    setTimeout(()=>{tr.textContent='«0,5 kg laks»';},1200);
+    setTimeout(()=>{w1voiceOn=false;btn.classList.remove('rec');btn.textContent='🎤';st.textContent='Gjenkjent!';showW1Screen(3);},2000);
+  }else{btn.classList.remove('rec');btn.textContent='🎤';st.textContent='Trykk og snakk';}
+}
+
+/* ═══ WATCH 4: Table → Camera → AI ═══ */
+let w4screen=0;
+let w4dishIdx=0;
+let w4selectedTable=7;
+
+const w4tables={
+  1:{name:'Bord 1 · #4818',dishes:['2× Burger m/ fries','1× Caesar salat','1× Cola']},
+  3:{name:'Bord 3 · #4820',dishes:['1× Fiskesuppe','1× Laks m/ grønnsaker']},
+  4:{name:'Bord 4 · #4822',dishes:['2× Pasta Carbonara','1× Kylling','1× Fondant']},
+  7:{name:'Bord 7 · #4821',dishes:['2× Laks m/ grønnsaker','1× Pasta Carbonara','1× Sjokoladefondant']},
+};
+
+function showW4Screen(n){
+  w4screen=n;
+  for(let i=0;i<7;i++){const el=document.getElementById('w4s'+i);if(el)el.classList.add('hidden');}
+  document.getElementById('w4s'+n)?.classList.remove('hidden');
+  for(let i=0;i<5;i++){const d=document.getElementById('w4d'+i);if(d)d.classList.remove('active');}
+  const dotMap={0:0,1:1,2:2,3:3,4:3,5:4,6:3};
+  document.getElementById('w4d'+(dotMap[n]||0))?.classList.add('active');
+  if(n===5)setTimeout(()=>showW4Screen(0),5000);
+}
+
+function pickTable(num){
+  w4selectedTable=num;
+  const tbl=w4tables[num];
+  document.querySelectorAll('.w-table-btn').forEach(b=>b.classList.remove('sel'));
+  event.target.closest('.w-table-btn').classList.add('sel');
+  // Update order preview
+  document.getElementById('w4tableTitle').textContent=tbl.name;
+  document.getElementById('w4orderList').innerHTML=tbl.dishes.map(d=>`<div class="w-order-item"><span class="wo-qty">${d.split('×')[0]}×</span><span class="wo-name">${d.split('× ')[1]}</span></div>`).join('');
+  document.getElementById('w4camHint').textContent=`Bord ${num} · Matcher mot ${tbl.dishes.length} kjente retter`;
+  showW4Screen(1);
+}
+
+function startW4Analysis(){
+  showW4Screen(3);
+  const stepEl=document.getElementById('w4aiStep');
+  const textEl=document.getElementById('w4aiText');
+  textEl.textContent='Analyserer tallerken...';
+  stepEl.textContent='📷 Bilde tatt';
+  setTimeout(()=>{stepEl.textContent='🪧 Sjekker bord '+w4selectedTable+'...';},500);
+  setTimeout(()=>{stepEl.textContent='🔍 Matcher mot ordreliste...';},1000);
+  setTimeout(()=>{stepEl.textContent='📋 Kobler resept...';},1500);
+  setTimeout(()=>{stepEl.textContent='⚖️ Estimerer mengder...';},2000);
+  setTimeout(()=>{
+    // Alternate between laks and pasta results
+    if(w4dishIdx%2===0) showW4Screen(4);
+    else showW4Screen(6);
+    w4dishIdx++;
+  },2500);
+}
+
+function cycleWatch4(){
+  if(w4screen===0) return; // Must pick table
+  else if(w4screen===4||w4screen===6) showW4Screen(5);
+  else if(w4screen===5) showW4Screen(0);
+}
+
+/* ═══ WATCH 2: Bar ═══ */
+let w2screen=0;
+function showW2Screen(n){
+  w2screen=n;
+  for(let i=0;i<6;i++){const el=document.getElementById('w2s'+i);if(el)el.classList.add('hidden');}
+  document.getElementById('w2s'+n).classList.remove('hidden');
+  for(let i=0;i<3;i++){const d=document.getElementById('w2d'+i);if(d)d.classList.remove('active');}
+  const dn=n>=4?2:Math.min(n,2);
+  const dd=document.getElementById('w2d'+dn);if(dd)dd.classList.add('active');
+  if(n===5)setTimeout(()=>showW2Screen(0),5000);
+}
+function cycleWatch2(){if(w2screen===0||w2screen===5)showW2Screen(w2screen===0?1:0);}
+function stepW2(d){const el=document.getElementById('w2amt');el.textContent=Math.max(0,Math.min(100,parseInt(el.textContent)+d));}
+let w2voiceOn=false;
+function toggleW2Voice(){
+  w2voiceOn=!w2voiceOn;
+  const btn=document.getElementById('w2voice'),st=document.getElementById('w2vst'),tr=document.getElementById('w2vtr');
+  if(w2voiceOn){btn.classList.add('rec');btn.textContent='⏹️';st.textContent='Lytter...';
+    setTimeout(()=>{tr.textContent='«Knust vinglass med rødvin»';},1200);
+    setTimeout(()=>{w2voiceOn=false;btn.classList.remove('rec');btn.textContent='🎤';st.textContent='Gjenkjent!';showW2Screen(5);},2000);
+  }else{btn.classList.remove('rec');btn.textContent='🎤';st.textContent='Trykk og snakk';}
+}
+
+/* ═══ WATCH 3: NFC ═══ */
+let w3screen=0;
+function showW3Screen(n){
+  w3screen=n;
+  for(let i=0;i<3;i++){const el=document.getElementById('w3s'+i);if(el)el.classList.add('hidden');}
+  document.getElementById('w3s'+n).classList.remove('hidden');
+  for(let i=0;i<3;i++){const d=document.getElementById('w3d'+i);if(d)d.classList.remove('active');}
+  document.getElementById('w3d'+n).classList.add('active');
+  if(n===2)setTimeout(()=>showW3Screen(0),5000);
+}
+function cycleWatch3(){showW3Screen((w3screen+1)%3);}
+function stepW3(d){const el=document.getElementById('w3amt');el.textContent=Math.max(0.1,(parseFloat(el.textContent)+d)).toFixed(1);}
+</script>
+</body>
+</html>
