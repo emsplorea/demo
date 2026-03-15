@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Table Tempo — Plorea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── Plorea Design Tokens ── */
+:root {
+  --bg-page: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-hover: #F1F5F9;
+  --overlay: rgba(0,0,0,0.48);
+  --text-primary: #1A1A1A;
+  --text-secondary: #666666;
+  --text-muted: #C4C4C4;
+  --text-link: #2E6B87;
+  --primary: #6BB8DA;
+  --primary-hover: #4FA3C8;
+  --accent: #2E6B87;
+  --secondary: #468DAC;
+  --border: #E9E9E9;
+  --border-strong: #D9D9D9;
+  --success: #6BDAB2;
+  --success-bg: #E8F7F1;
+  --warning: #DADA6B;
+  --warning-bg: #F7F7E0;
+  --error: #DA6B6B;
+  --error-bg: #FAEAEA;
+  --info: #6BB8DA;
+  --info-bg: #EBF6FB;
+  --selection-bg: #EBF6FB;
+  --selection-border: #99D2E8;
+  --selection-text: #1D4A5F;
+  --sidebar-bg: #1A1825;
+  --sidebar-border: #2E2C38;
+  --sidebar-muted: rgba(255,255,255,0.22);
+  --sidebar-text: rgba(255,255,255,0.48);
+  --sidebar-text-hover: rgba(255,255,255,0.82);
+  --sidebar-active-bg: rgba(107,184,218,0.06);
+  --channel-table-bg: #362F4A;
+  --channel-table-text: #B8A8D4;
+  --el-1: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --el-2: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --el-3: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --r-sm: 6px; --r: 8px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-full: 9999px;
+  --ease-out: cubic-bezier(0.16,1,0.3,1);
+  --dur: 160ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.6;
+  color: var(--text-primary);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden; height: 100vh;
+}
+.mono { font-family: 'JetBrains Mono', 'SFMono-Regular', monospace; }
+.sora { font-family: 'Sora', sans-serif; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 99px; }
+
+button { font-family: inherit; }
+button:hover { filter: brightness(1.06); }
+input::placeholder { color: var(--text-muted); }
+input:focus { outline: none; box-shadow: 0 0 0 3px rgba(107,184,218,0.30); }
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0; width: 220px;
+  background: var(--sidebar-bg); display: flex; flex-direction: column;
+  border-right: 1px solid var(--sidebar-border); z-index: 50;
+}
+.sidebar-logo {
+  padding: 24px 20px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.sidebar-logo .wordmark { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.sidebar-logo .wordmark span { color: var(--primary); }
+.sidebar-logo .sub { font-size: 10px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.28); margin-top: 3px; }
+.sidebar-logo .live-badge {
+  display: inline-block; margin-top: 8px;
+  background: rgba(107,184,218,0.15); border: 1px solid rgba(107,184,218,0.25);
+  border-radius: 99px; padding: 2px 8px;
+  font-size: 10px; font-weight: 600; color: var(--primary); letter-spacing: 0.04em;
+}
+.sidebar-inner { overflow-y: auto; flex: 1; padding-bottom: 16px; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+
+.nav-group { margin-bottom: 4px; }
+.nav-group-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--sidebar-muted); padding: 14px 20px 4px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 20px; font-size: 12.5px; font-weight: 400;
+  color: var(--sidebar-text); text-decoration: none; cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: color 100ms, background 100ms;
+}
+.nav-link:hover { color: var(--sidebar-text-hover); background: rgba(255,255,255,0.04); }
+.nav-link.active { color: var(--primary); border-left-color: var(--primary); background: var(--sidebar-active-bg); font-weight: 500; }
+.nav-link .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+
+.sidebar-footer { padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+
+/* ── Main ── */
+.main { margin-left: 220px; height: 100vh; display: flex; flex-direction: column; }
+.top-bar {
+  padding: 16px 28px; border-bottom: 1px solid var(--border);
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--surface); flex-shrink: 0;
+}
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--secondary);
+}
+.eyebrow::before { content: ''; display: block; width: 16px; height: 2px; background: var(--primary); border-radius: 99px; }
+.meta-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-full);
+  padding: 4px 10px; font-size: 11px; font-weight: 500; color: var(--text-secondary);
+  box-shadow: var(--el-1);
+}
+.meta-tag .pip { width: 6px; height: 6px; border-radius: 50%; }
+
+.content-area { flex: 1; overflow-y: auto; padding: 20px 28px; }
+
+/* ── Card pattern ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--r-lg); box-shadow: var(--el-1);
+}
+.card-label {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-muted);
+}
+
+/* ── Badge ── */
+.badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: var(--r-full);
+}
+.badge .pip { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.badge-success { background: rgba(107,218,178,0.15); color: #1A6B4A; }
+.badge-success .pip { background: var(--success); }
+.badge-warning { background: rgba(218,218,107,0.2); color: #5C5C00; }
+.badge-warning .pip { background: var(--warning); }
+.badge-error { background: var(--error-bg); color: #8B2020; }
+.badge-error .pip { background: var(--error); }
+.badge-info { background: var(--info-bg); color: var(--accent); }
+.badge-info .pip { background: var(--primary); }
+
+/* ── Callout ── */
+.callout {
+  border-radius: var(--r-md); padding: 14px 18px; font-size: 13px; line-height: 1.6;
+}
+.callout-info { background: var(--selection-bg); border-left: 3px solid var(--primary); color: var(--text-secondary); }
+.callout-info strong { display: block; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback, useRef } = React;
+
+// ═══════════════════════════════════════
+// DOMAIN CONSTANTS
+// ═══════════════════════════════════════
+const PHASES = [
+  { id:"arrival",   label:"Ankomst",   icon:"→",  color:"#6BB8DA", targetMin:2  },
+  { id:"seated",    label:"Plassert",  icon:"◉",  color:"#468DAC", targetMin:3  },
+  { id:"ordered",   label:"Bestilt",   icon:"📋", color:"#2E6B87", targetMin:5  },
+  { id:"appetizer", label:"Forrett",   icon:"🥗", color:"#C4A82B", targetMin:15 },
+  { id:"main",      label:"Hovedrett", icon:"🍽", color:"#DA946B", targetMin:25 },
+  { id:"dessert",   label:"Dessert",   icon:"🍰", color:"#B8A8D4", targetMin:15 },
+  { id:"bill",      label:"Regning",   icon:"💳", color:"#6BDAB2", targetMin:5  },
+  { id:"clearing",  label:"Rydding",   icon:"✓",  color:"#9B98A8", targetMin:5  },
+];
+
+const ZONES = {
+  bar:      { label:"Baren",    color:"#6BB8DA" },
+  vindu:    { label:"Vindu",    color:"#468DAC" },
+  hoved:    { label:"Hovedsal", color:"#DA946B" },
+  terrasse: { label:"Terrasse", color:"#6BDAB2" },
+  privat:   { label:"Privat",   color:"#B8A8D4" },
+};
+
+const TCOL = { fast:"#6BB8DA", good:"#6BDAB2", slow:"#C4A82B", critical:"#DA6B6B" };
+const TBG  = { fast:"#EBF6FB", good:"#E8F7F1", slow:"#F7F7E0", critical:"#FAEAEA" };
+const TTXT = { fast:"#2E6B87", good:"#1A6B4A", slow:"#5C5C00", critical:"#8B2020" };
+
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+function genPhases(now, idx, durs) {
+  const p = []; let t = now;
+  for (let i = durs.length - 1; i >= 0; i--) t -= durs[i] * 60000;
+  for (let i = 0; i < durs.length; i++) {
+    p.push({ phaseIdx: i, start: t, duration: durs[i] * 60000 });
+    t += durs[i] * 60000;
+  }
+  return p;
+}
+
+function initTables() {
+  const n = Date.now();
+  return [
+    {id:1, name:"B1",zone:"bar",seats:4,guests:2,phaseIdx:4,phaseStart:n-18*60000,phases:genPhases(n,4,[2,3,6,20,18]),vip:false,note:"",snooze:0,x:8,y:12,w:8,h:8,shape:"round"},
+    {id:2, name:"B2",zone:"bar",seats:4,guests:4,phaseIdx:2,phaseStart:n-4*60000,phases:genPhases(n,2,[1,2,4]),vip:false,note:"",snooze:0,x:20,y:12,w:9,h:6,shape:"rect"},
+    {id:3, name:"B3",zone:"bar",seats:4,guests:0,phaseIdx:-1,phaseStart:n,phases:[],vip:false,note:"",snooze:0,x:8,y:24,w:8,h:8,shape:"round"},
+    {id:4, name:"V1",zone:"vindu",seats:4,guests:2,phaseIdx:5,phaseStart:n-8*60000,phases:genPhases(n,5,[2,4,7,22,30,8]),vip:true,note:"Jubileum",snooze:0,x:36,y:4,w:9,h:6,shape:"rect"},
+    {id:5, name:"V2",zone:"vindu",seats:6,guests:5,phaseIdx:3,phaseStart:n-12*60000,phases:genPhases(n,3,[1,3,5,12]),vip:false,note:"",snooze:0,x:48,y:4,w:11,h:6,shape:"rect"},
+    {id:6, name:"V3",zone:"vindu",seats:4,guests:0,phaseIdx:-1,phaseStart:n,phases:[],vip:false,note:"",snooze:0,x:62,y:4,w:9,h:6,shape:"rect"},
+    {id:7, name:"H1",zone:"hoved",seats:6,guests:6,phaseIdx:6,phaseStart:n-2*60000,phases:genPhases(n,6,[2,3,8,18,28,12,2]),vip:false,note:"",snooze:0,x:36,y:18,w:11,h:6,shape:"rect"},
+    {id:8, name:"H2",zone:"hoved",seats:8,guests:7,phaseIdx:4,phaseStart:n-32*60000,phases:genPhases(n,4,[3,5,9,25,32]),vip:true,note:"Allergier: nøtter",snooze:0,x:50,y:18,w:13,h:7,shape:"rect"},
+    {id:9, name:"H3",zone:"hoved",seats:6,guests:4,phaseIdx:1,phaseStart:n-6*60000,phases:genPhases(n,1,[2,6]),vip:false,note:"",snooze:0,x:36,y:30,w:10,h:10,shape:"round"},
+    {id:10,name:"H4",zone:"hoved",seats:6,guests:0,phaseIdx:-1,phaseStart:n,phases:[],vip:false,note:"",snooze:0,x:50,y:30,w:11,h:6,shape:"rect"},
+    {id:11,name:"H5",zone:"hoved",seats:4,guests:3,phaseIdx:3,phaseStart:n-20*60000,phases:genPhases(n,3,[1,2,4,20]),vip:false,note:"Venter på gjest",snooze:0,x:65,y:18,w:8,h:8,shape:"round"},
+    {id:12,name:"T1",zone:"terrasse",seats:4,guests:2,phaseIdx:5,phaseStart:n-10*60000,phases:genPhases(n,5,[1,3,6,16,22,10]),vip:false,note:"",snooze:0,x:80,y:6,w:8,h:8,shape:"round"},
+    {id:13,name:"T2",zone:"terrasse",seats:4,guests:3,phaseIdx:2,phaseStart:n-8*60000,phases:genPhases(n,2,[2,4,8]),vip:false,note:"",snooze:0,x:80,y:18,w:9,h:6,shape:"rect"},
+    {id:14,name:"T3",zone:"terrasse",seats:6,guests:0,phaseIdx:-1,phaseStart:n,phases:[],vip:false,note:"",snooze:0,x:80,y:30,w:10,h:10,shape:"round"},
+    {id:15,name:"P1",zone:"privat",seats:8,guests:8,phaseIdx:3,phaseStart:n-28*60000,phases:genPhases(n,3,[5,8,12,28]),vip:true,note:"Firmamiddag",snooze:0,x:36,y:44,w:14,h:7,shape:"rect"},
+    {id:16,name:"P2",zone:"privat",seats:6,guests:0,phaseIdx:-1,phaseStart:n,phases:[],vip:false,note:"Reservert 20:30",snooze:0,x:54,y:44,w:11,h:6,shape:"rect"},
+  ];
+}
+
+const elMin = (s) => Math.max(0, (Date.now() - s) / 60000);
+const fmtT = (ms) => new Date(ms).toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit" });
+
+function getTempo(t) {
+  if (t.phaseIdx < 0) return null;
+  const r = elMin(t.phaseStart) / PHASES[t.phaseIdx].targetMin;
+  if (r <= 0.7) return { level: "fast", score: r, label: "Rask" };
+  if (r <= 1.1) return { level: "good", score: r, label: "I rute" };
+  if (r <= 1.5) return { level: "slow", score: r, label: "Treg" };
+  return { level: "critical", score: r, label: "Kritisk" };
+}
+
+function predictFree(t) {
+  if (t.phaseIdx < 0) return 0;
+  const rem = Math.max(0, PHASES[t.phaseIdx].targetMin - elMin(t.phaseStart));
+  return Math.round(rem + PHASES.slice(t.phaseIdx + 1).reduce((s, p) => s + p.targetMin, 0));
+}
+
+// ═══════════════════════════════════════
+// COMPONENTS
+// ═══════════════════════════════════════
+
+function TempoBadge({ tp }) {
+  if (!tp) return <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Ledig</span>;
+  return (
+    <span className="badge" style={{ background: TBG[tp.level], color: TTXT[tp.level] }}>
+      <span className="pip" style={{ background: TCOL[tp.level] }} />
+      {tp.label}
+    </span>
+  );
+}
+
+function PhasePill({ idx, sm }) {
+  if (idx < 0) return <span style={{ color: "var(--text-muted)", fontSize: sm ? 10 : 12 }}>—</span>;
+  const p = PHASES[idx];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, fontSize: sm ? 10 : 12, fontWeight: 500, color: p.color }}>
+      <span style={{ fontSize: sm ? 12 : 14 }}>{p.icon}</span>{p.label}
+    </span>
+  );
+}
+
+function MiniBar({ table }) {
+  if (table.phaseIdx < 0) return <div style={{ height: 4, background: "var(--surface-hover)", borderRadius: 3 }} />;
+  return (
+    <div style={{ display: "flex", gap: 1, height: 4, borderRadius: 3, overflow: "hidden" }}>
+      {table.phases.map((p, i) => {
+        const ph = PHASES[p.phaseIdx];
+        const dur = p.duration / 60000;
+        const over = dur > ph.targetMin * 1.3;
+        const cur = p.phaseIdx === table.phaseIdx;
+        return (
+          <div key={i} style={{
+            flex: Math.max(dur, 0.5),
+            background: over ? "var(--error)" : ph.color,
+            opacity: cur ? 1 : 0.4,
+            borderRadius: 1,
+            position: "relative",
+          }}>
+            {cur && <div style={{ position: "absolute", right: 0, top: -1, bottom: -1, width: 2, background: "var(--accent)", boxShadow: "0 0 4px rgba(46,107,135,0.6)", animation: "pulse 1.5s ease-in-out infinite" }} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Floor Plan ──
+function FloorPlan({ tables, selectedId, onSelect }) {
+  const zb = {
+    bar: { x:2, y:4, w:28, h:34 }, vindu: { x:32, y:0, w:42, h:14 },
+    hoved: { x:32, y:14, w:44, h:28 }, terrasse: { x:76, y:0, w:22, h:44 },
+    privat: { x:32, y:42, w:36, h:16 },
+  };
+  return (
+    <div className="card" style={{ padding: 16 }}>
+      <div className="card-label" style={{ marginBottom: 10 }}>Plantegning</div>
+      <svg viewBox="0 0 100 58" style={{ width: "100%" }}>
+        <defs>
+          <filter id="gl"><feGaussianBlur stdDeviation=".8" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter>
+        </defs>
+        {/* Zone backgrounds */}
+        {Object.entries(zb).map(([z, b]) => (
+          <g key={z}>
+            <rect x={b.x} y={b.y} width={b.w} height={b.h} rx="3" fill={ZONES[z].color + "0A"} stroke={ZONES[z].color + "25"} strokeWidth=".3" />
+            <text x={b.x + 1.5} y={b.y + 3} fontSize="2" fill={ZONES[z].color + "80"} fontWeight="700" fontFamily="'Sora',sans-serif" letterSpacing=".04em">{ZONES[z].label}</text>
+          </g>
+        ))}
+        {/* Structure */}
+        <line x1="32" y1="0" x2="32" y2="58" stroke="#E9E9E9" strokeWidth=".3" strokeDasharray="1,1" />
+        <line x1="76" y1="0" x2="76" y2="44" stroke="#E9E9E9" strokeWidth=".3" strokeDasharray="1,1" />
+        <rect x="0" y="18" width=".5" height="6" rx=".25" fill="#6BB8DA60" />
+        <text x=".3" y="17" fontSize="1.5" fill="#6BB8DA50" fontFamily="'Plus Jakarta Sans',sans-serif">Inngang</text>
+        <rect x="2" y="40" width="28" height="16" rx="3" fill="#DA6B6B06" stroke="#DA6B6B15" strokeWidth=".3" />
+        <text x="10" y="49" fontSize="2.4" fill="#DA6B6B30" fontWeight="700" fontFamily="'Sora',sans-serif">Kjøkken</text>
+
+        {/* Tables */}
+        {tables.map(t => {
+          const tp = getTempo(t);
+          const sel = selectedId === t.id;
+          const occ = t.phaseIdx >= 0;
+          const col = !occ ? "#C4C4C4" : tp ? TCOL[tp.level] : "#6BB8DA";
+          const al = tp && (tp.level === "slow" || tp.level === "critical");
+          const cx = t.x + t.w / 2, cy = t.y + t.h / 2;
+          return (
+            <g key={t.id} onClick={() => onSelect(t.id)} style={{ cursor: "pointer" }}>
+              {al && (
+                t.shape === "round"
+                  ? <circle cx={cx} cy={cy} r={t.w / 2 + 1.2} fill="none" stroke={col} strokeWidth=".25" opacity=".5">
+                      <animate attributeName="r" values={`${t.w/2+.8};${t.w/2+1.6};${t.w/2+.8}`} dur="2s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values=".5;.15;.5" dur="2s" repeatCount="indefinite" />
+                    </circle>
+                  : <rect x={t.x-1} y={t.y-1} width={t.w+2} height={t.h+2} rx="1.8" fill="none" stroke={col} strokeWidth=".25" opacity=".3">
+                      <animate attributeName="opacity" values=".3;.1;.3" dur="2s" repeatCount="indefinite" />
+                    </rect>
+              )}
+              {t.shape === "round"
+                ? <circle cx={cx} cy={cy} r={t.w/2} fill={occ ? col+"12" : "#F1F5F9"} stroke={sel ? "#2E6B87" : occ ? col+"50" : "#E9E9E9"} strokeWidth={sel ? ".6" : ".3"} filter={al ? "url(#gl)" : "none"} />
+                : <rect x={t.x} y={t.y} width={t.w} height={t.h} rx="1.2" fill={occ ? col+"12" : "#F1F5F9"} stroke={sel ? "#2E6B87" : occ ? col+"50" : "#E9E9E9"} strokeWidth={sel ? ".6" : ".3"} filter={al ? "url(#gl)" : "none"} />
+              }
+              <text x={cx} y={cy - 0.2} textAnchor="middle" fontSize="2.3" fontWeight="700" fill={occ ? "#1A1A1A" : "#C4C4C4"} fontFamily="'JetBrains Mono',monospace">{t.name}</text>
+              {occ && <text x={cx} y={cy + 2} textAnchor="middle" fontSize="1.5" fill={col} fontFamily="'Plus Jakarta Sans',sans-serif" fontWeight="500">{PHASES[t.phaseIdx].label}</text>}
+              {t.vip && <text x={t.x + t.w - .5} y={t.y + 2.2} textAnchor="end" fontSize="1.6" fill="#B8A8D4">★</text>}
+              {/* Seats */}
+              {Array.from({ length: Math.min(t.seats, 8) }).map((_, i) => {
+                const a = (i / t.seats) * Math.PI * 2 - Math.PI / 2;
+                const r = Math.max(t.w, t.h) / 2 + 1.5;
+                return <circle key={i} cx={cx + Math.cos(a) * r} cy={cy + Math.sin(a) * r} r=".6" fill={i < t.guests ? col + "70" : "#F1F5F9"} stroke={i < t.guests ? col + "40" : "#E9E9E9"} strokeWidth=".2" />;
+              })}
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+// ── Table Card ──
+function TableCard({ table, selected, onClick }) {
+  const tp = getTempo(table);
+  const occ = table.phaseIdx >= 0;
+  const el = occ ? Math.round(elMin(table.phaseStart)) : 0;
+  const alert = tp && (tp.level === "slow" || tp.level === "critical");
+  return (
+    <div onClick={onClick} className="card" style={{
+      padding: "12px 16px", cursor: "pointer",
+      borderColor: selected ? "var(--selection-border)" : alert ? TCOL[tp.level] + "50" : undefined,
+      boxShadow: selected ? "0 0 0 3px rgba(107,184,218,0.30)" : alert ? `inset 3px 0 0 ${TCOL[tp.level]}` : "var(--el-1)",
+      transition: "all 160ms cubic-bezier(0.16,1,0.3,1)",
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className="mono" style={{ fontSize: 14, fontWeight: 700, color: occ ? "var(--text-primary)" : "var(--text-muted)" }}>{table.name}</span>
+          {table.vip && <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: "var(--channel-table-bg)", padding: "1px 6px", borderRadius: "var(--r-full)", letterSpacing: ".8px" }}>VIP</span>}
+        </div>
+        <TempoBadge tp={tp} />
+      </div>
+      {occ ? (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <PhasePill idx={table.phaseIdx} sm />
+            <span className="mono" style={{ fontSize: 10, color: "var(--text-secondary)" }}>{el}m / {PHASES[table.phaseIdx].targetMin}m</span>
+          </div>
+          <MiniBar table={table} />
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 6 }}>
+            <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>{table.guests} gjester · {table.seats} plasser</span>
+            {table.note && <span style={{ fontSize: 9, color: "var(--channel-table-text)" }}>📌</span>}
+          </div>
+        </>
+      ) : (
+        <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{table.note || `${table.seats} plasser · Ledig`}</div>
+      )}
+    </div>
+  );
+}
+
+// ── Stats Bar ──
+function StatsBar({ tables }) {
+  const occ = tables.filter(t => t.phaseIdx >= 0);
+  const guests = occ.reduce((s, t) => s + t.guests, 0);
+  const ts = occ.map(t => getTempo(t)).filter(Boolean);
+  const avg = ts.length ? ts.reduce((s, t) => s + t.score, 0) / ts.length : 0;
+  const alerts = ts.filter(t => t.level === "slow" || t.level === "critical").length;
+  const crit = ts.filter(t => t.level === "critical").length;
+  const items = [
+    { l: "Bord i bruk", v: `${occ.length}/${tables.length}`, c: "var(--accent)" },
+    { l: "Gjester", v: guests, c: "var(--secondary)" },
+    { l: "Snitt tempo", v: avg.toFixed(1) + "x", c: avg > 1.2 ? "#C4A82B" : "var(--success)" },
+    { l: "Advarsler", v: alerts, c: alerts ? "#C4A82B" : "var(--text-muted)" },
+    { l: "Kritisk", v: crit, c: crit ? "var(--error)" : "var(--text-muted)" },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+      {items.map((s, i) => (
+        <div key={i} className="card" style={{ flex: 1, padding: "12px 14px", textAlign: "center" }}>
+          <div className="mono" style={{ fontSize: 20, fontWeight: 700, color: s.c, letterSpacing: "-0.02em" }}>{s.v}</div>
+          <div className="card-label" style={{ marginTop: 2 }}>{s.l}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Alert Panel ──
+function AlertPanel({ tables, onSnooze }) {
+  const now = Date.now();
+  const als = tables.map(t => ({ table: t, tp: getTempo(t) }))
+    .filter(a => a.tp && (a.tp.level === "slow" || a.tp.level === "critical") && a.table.snooze < now)
+    .sort((a, b) => b.tp.score - a.tp.score);
+
+  if (!als.length) return (
+    <div style={{ textAlign: "center", padding: 14, color: "var(--text-muted)", fontSize: 12 }}>
+      <div style={{ fontSize: 22, marginBottom: 4 }}>✓</div>Alle bord i rute
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      {als.map(({ table: t, tp }) => {
+        const ph = PHASES[t.phaseIdx];
+        const el = Math.round(elMin(t.phaseStart));
+        const ov = el - ph.targetMin;
+        return (
+          <div key={t.id} style={{
+            display: "flex", alignItems: "center", gap: 8, padding: "7px 12px",
+            borderRadius: "var(--r-sm)",
+            background: tp.level === "critical" ? "var(--error-bg)" : "var(--warning-bg)",
+            borderLeft: `3px solid ${TCOL[tp.level]}`,
+          }}>
+            <span className="mono" style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", minWidth: 26 }}>{t.name}</span>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{ph.label} — <span style={{ color: TCOL[tp.level], fontWeight: 600 }}>+{ov}m</span></div>
+            </div>
+            <button onClick={() => onSnooze(t.id)} style={{ fontSize: 8, padding: "2px 7px", background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", color: "var(--text-secondary)", cursor: "pointer", fontWeight: 600 }}>⏸ 5m</button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ── Phase Wave ──
+function PhaseWave({ tables }) {
+  const occ = tables.filter(t => t.phaseIdx >= 0);
+  const dist = PHASES.map((p, i) => ({ ...p, count: occ.filter(t => t.phaseIdx === i).length }));
+  const mx = Math.max(...dist.map(d => d.count), 1);
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 50 }}>
+      {dist.map((p, i) => (
+        <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+          <span className="mono" style={{ fontSize: 9, color: "var(--text-secondary)" }}>{p.count || ""}</span>
+          <div style={{ width: "100%", borderRadius: 3, height: p.count ? `${(p.count / mx) * 32}px` : "2px", background: p.count ? `linear-gradient(to top,${p.color}60,${p.color})` : "var(--surface-hover)", transition: "height .4s" }} />
+          <span style={{ fontSize: 7, color: "var(--text-muted)", textAlign: "center", lineHeight: 1 }}>{p.label.substring(0, 4)}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Prediction Panel ──
+function PredictionPanel({ tables }) {
+  const occ = tables.filter(t => t.phaseIdx >= 0);
+  const preds = occ.map(t => ({ table: t, freeIn: predictFree(t) })).sort((a, b) => a.freeIn - b.freeIn);
+
+  const needs = occ.map(t => {
+    const rem = Math.max(0, PHASES[t.phaseIdx].targetMin - elMin(t.phaseStart));
+    const next = t.phaseIdx < PHASES.length - 1 ? PHASES[t.phaseIdx + 1] : null;
+    return { table: t, remaining: Math.round(rem), nextPhase: next };
+  }).filter(s => s.remaining <= 8 && s.nextPhase).sort((a, b) => a.remaining - b.remaining);
+
+  const slots = [0, 5, 10, 15, 20, 25, 30];
+  const freeBase = tables.filter(t => t.phaseIdx < 0).length;
+  const freeAt = slots.map(m => freeBase + preds.filter(p => p.freeIn <= m).length);
+  const mx = Math.max(...freeAt, 1);
+
+  return (
+    <div className="card" style={{ padding: "16px 18px" }}>
+      <div className="card-label" style={{ marginBottom: 12 }}>Prognose — neste 30 min</div>
+
+      <div style={{ marginBottom: 14 }}>
+        <div style={{ fontSize: 10, color: "var(--text-secondary)", marginBottom: 6, fontWeight: 500 }}>Ledige bord</div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 3, height: 40 }}>
+          {slots.map((m, i) => (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <span className="mono" style={{ fontSize: 9, color: "var(--accent)", fontWeight: 600 }}>{freeAt[i]}</span>
+              <div style={{ width: "100%", borderRadius: 3, height: `${Math.max((freeAt[i] / mx) * 26, 2)}px`, background: "linear-gradient(to top,#6BB8DA50,#6BB8DA)", transition: "height .4s" }} />
+              <span className="mono" style={{ fontSize: 7, color: "var(--text-muted)" }}>+{m}m</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ fontSize: 10, color: "var(--text-secondary)", marginBottom: 6, fontWeight: 500 }}>Kommende handlinger</div>
+      {needs.length === 0 ? (
+        <div style={{ fontSize: 11, color: "var(--text-muted)", textAlign: "center", padding: 6 }}>Ingen umiddelbare behov</div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {needs.slice(0, 5).map(({ table: t, remaining: r, nextPhase: np }) => (
+            <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: "var(--surface-hover)", borderRadius: "var(--r-sm)", fontSize: 10 }}>
+              <span className="mono" style={{ fontWeight: 700, color: "var(--text-primary)", minWidth: 24 }}>{t.name}</span>
+              <span style={{ color: np.color, flex: 1, fontWeight: 500 }}>→ {np.label}</span>
+              <span className="mono" style={{ color: r <= 2 ? "var(--error)" : "#C4A82B", fontWeight: 600 }}>{r <= 0 ? "NÅ" : `~${r}m`}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div style={{ fontSize: 10, color: "var(--text-secondary)", marginBottom: 6, marginTop: 12, fontWeight: 500 }}>Neste bord ledig</div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        {preds.slice(0, 4).map(({ table: t, freeIn: f }) => (
+          <div key={t.id} style={{ display: "flex", alignItems: "center", gap: 8, padding: "5px 10px", background: "var(--surface-hover)", borderRadius: "var(--r-sm)", fontSize: 10 }}>
+            <span className="mono" style={{ fontWeight: 700, color: "var(--text-primary)", minWidth: 24 }}>{t.name}</span>
+            <span style={{ color: "var(--text-secondary)", flex: 1 }}>{t.seats} plasser</span>
+            <span className="mono" style={{ color: "var(--success)", fontWeight: 600 }}>~{f}m</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── Guest Counter ──
+function GuestCounter({ tables }) {
+  const g = tables.filter(t => t.phaseIdx >= 0).reduce((s, t) => s + t.guests, 0);
+  const hrs = ["17", "18", "19", "20", "21", "Nå"];
+  const vals = [8, 22, 34, 28, 18, g];
+  const mx = Math.max(...vals, 1);
+  return (
+    <div className="card" style={{ padding: "14px 16px" }}>
+      <div className="card-label" style={{ marginBottom: 8 }}>Gjester per time</div>
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 4, height: 44 }}>
+        {hrs.map((h, i) => {
+          const isNow = i === hrs.length - 1;
+          return (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2 }}>
+              <span className="mono" style={{ fontSize: 9, color: isNow ? "var(--accent)" : "var(--text-secondary)", fontWeight: isNow ? 700 : 400 }}>{vals[i]}</span>
+              <div style={{ width: "100%", borderRadius: 3, height: `${(vals[i] / mx) * 28}px`, background: isNow ? "linear-gradient(to top,#6BB8DA60,#6BB8DA)" : "linear-gradient(to top,#468DAC30,#468DAC70)", transition: "height .4s" }} />
+              <span style={{ fontSize: 8, color: isNow ? "var(--accent)" : "var(--text-muted)" }}>{h}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── Detail Panel ──
+function DetailPanel({ table, onAdvance, onReset, onClose, onNote, onSnooze }) {
+  const [ni, setNi] = useState(table.note);
+  useEffect(() => setNi(table.note), [table.id, table.note]);
+  const tp = getTempo(table);
+  const occ = table.phaseIdx >= 0;
+  const total = Math.round(table.phases.reduce((s, p) => s + p.duration / 60000, 0));
+  const free = predictFree(table);
+  const snoozed = table.snooze > Date.now();
+
+  const btnStyle = (c) => ({
+    fontSize: 11, padding: "6px 14px", fontWeight: 600,
+    background: c + "15", border: `1px solid ${c}40`,
+    borderRadius: "var(--r-sm)", color: c, cursor: "pointer",
+    letterSpacing: ".02em", transition: "all 160ms",
+  });
+
+  return (
+    <div className="card" style={{ padding: 18, borderColor: "var(--selection-border)", boxShadow: "0 0 0 3px rgba(107,184,218,0.12)", animation: "fadeIn .25s ease" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 10 }}>
+        <div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span className="sora" style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>{table.name}</span>
+            {table.vip && <span style={{ fontSize: 8, fontWeight: 700, color: "#fff", background: "var(--channel-table-bg)", padding: "1px 6px", borderRadius: "var(--r-full)" }}>VIP</span>}
+            <TempoBadge tp={tp} />
+          </div>
+          <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 3 }}>{ZONES[table.zone].label} · {table.guests}/{table.seats} plasser · Total: {total}m</div>
+          {occ && <div style={{ fontSize: 11, color: "var(--success)", marginTop: 2, fontWeight: 500 }}>Estimert ferdig: ~{free}m</div>}
+        </div>
+        <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 18, cursor: "pointer" }}>✕</button>
+      </div>
+
+      <div style={{ display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap" }}>
+        {!occ ? (
+          <button onClick={() => onAdvance(table.id)} style={btnStyle("#2E6B87")}>→ Plasser gjester</button>
+        ) : (
+          <>
+            {table.phaseIdx < PHASES.length - 1 && <button onClick={() => onAdvance(table.id)} style={btnStyle("#2E6B87")}>→ {PHASES[table.phaseIdx + 1].label}</button>}
+            <button onClick={() => onReset(table.id)} style={btnStyle("#666666")}>✕ Frigjør</button>
+            {tp && (tp.level === "slow" || tp.level === "critical") && !snoozed && <button onClick={() => onSnooze(table.id)} style={btnStyle("#C4A82B")}>⏸ Snooze 5m</button>}
+            {snoozed && <span style={{ fontSize: 10, color: "#C4A82B", alignSelf: "center", fontWeight: 500 }}>Snoozet til {fmtT(table.snooze)}</span>}
+          </>
+        )}
+      </div>
+
+      <div style={{ marginBottom: 14 }}>
+        <div className="card-label" style={{ marginBottom: 4 }}>Notat</div>
+        <div style={{ display: "flex", gap: 4 }}>
+          <input value={ni} onChange={e => setNi(e.target.value)} onKeyDown={e => { if (e.key === "Enter") onNote(table.id, ni); }} placeholder="Legg til notat..."
+            style={{ flex: 1, background: "var(--surface-hover)", border: "1px solid var(--border)", borderRadius: "var(--r-sm)", padding: "5px 10px", color: "var(--text-primary)", fontSize: 11, fontFamily: "'Plus Jakarta Sans',sans-serif" }} />
+          <button onClick={() => onNote(table.id, ni)} style={{ background: "var(--info-bg)", border: "1px solid var(--selection-border)", borderRadius: "var(--r-sm)", padding: "4px 12px", color: "var(--accent)", fontSize: 10, cursor: "pointer", fontWeight: 600 }}>Lagre</button>
+        </div>
+      </div>
+
+      {occ && (
+        <div>
+          <div className="card-label" style={{ marginBottom: 8 }}>Tidslinje</div>
+          <div style={{ position: "relative", paddingLeft: 20 }}>
+            <div style={{ position: "absolute", left: 6, top: 3, bottom: 3, width: 1, background: "var(--border)" }} />
+            {table.phases.map((p, i) => {
+              const ph = PHASES[p.phaseIdx];
+              const dur = Math.round(p.duration / 60000);
+              const over = dur > ph.targetMin * 1.3;
+              const cur = p.phaseIdx === table.phaseIdx;
+              return (
+                <div key={i} style={{ marginBottom: 10, position: "relative" }}>
+                  <div style={{ position: "absolute", left: -16, top: 3, width: 9, height: 9, borderRadius: "50%", background: cur ? ph.color : "var(--surface-hover)", border: `2px solid ${ph.color}`, boxShadow: cur ? `0 0 6px ${ph.color}40` : "none" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 12, fontWeight: cur ? 700 : 500, color: cur ? "var(--text-primary)" : "var(--text-secondary)" }}>{ph.icon} {ph.label}</span>
+                    <span className="mono" style={{ fontSize: 10, color: over ? "var(--error)" : cur ? ph.color : "var(--text-muted)" }}>{dur}m{over ? ` (+${dur - ph.targetMin}m)` : ""}</span>
+                  </div>
+                  <div style={{ fontSize: 9, color: "var(--text-muted)", marginTop: 1 }}>{fmtT(p.start)} — {cur ? "nå" : fmtT(p.start + p.duration)}</div>
+                  <div style={{ marginTop: 3, height: 3, background: "var(--surface-hover)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.min(100, (dur / ph.targetMin) * 100)}%`, background: over ? `linear-gradient(90deg,${ph.color},var(--error))` : ph.color, borderRadius: 2 }} />
+                  </div>
+                </div>
+              );
+            })}
+            {PHASES.slice(table.phaseIdx + 1).map((ph, i) => (
+              <div key={`f${i}`} style={{ marginBottom: 6, position: "relative", opacity: .35 }}>
+                <div style={{ position: "absolute", left: -16, top: 3, width: 9, height: 9, borderRadius: "50%", border: "1px dashed var(--border)" }} />
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{ph.icon} {ph.label}</span>
+                <span style={{ fontSize: 9, color: "var(--text-muted)", marginLeft: 6 }}>~{ph.targetMin}m</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Evening Summary ──
+function EveningSummary({ tables, onClose }) {
+  const occ = tables.filter(t => t.phaseIdx >= 0);
+  const guests = tables.reduce((s, t) => s + t.guests, 0);
+  const avgCycle = occ.length ? Math.round(occ.reduce((s, t) => s + t.phases.reduce((a, p) => a + p.duration / 60000, 0), 0) / occ.length) : 0;
+  const deadMin = occ.reduce((sum, t) => sum + t.phases.reduce((s, p) => { const ph = PHASES[p.phaseIdx]; return s + Math.max(0, p.duration / 60000 - ph.targetMin); }, 0), 0);
+  const lost = Math.round((deadMin / 60) * 450 * (guests / Math.max(occ.length, 1)));
+
+  const phaseStats = PHASES.map((ph, idx) => {
+    const durs = [];
+    occ.forEach(t => { const p = t.phases.find(p => p.phaseIdx === idx); if (p) durs.push(p.duration / 60000); });
+    const avg = durs.length ? durs.reduce((a, b) => a + b, 0) / durs.length : 0;
+    return { ...ph, idx, avg: Math.round(avg * 10) / 10, overCount: durs.filter(d => d > ph.targetMin * 1.2).length, total: durs.length };
+  });
+  const worst = phaseStats.filter(p => p.total > 0).reduce((w, p) => p.avg / p.targetMin > w.avg / w.targetMin ? p : w, phaseStats[0]);
+  const hrs = ["17:00", "18:00", "19:00", "20:00", "21:00", "22:00"];
+  const gf = [8, 22, 34, 28, 18, 6];
+  const mxG = Math.max(...gf);
+
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "var(--overlay)", backdropFilter: "blur(8px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", animation: "fadeIn .3s ease" }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: "var(--bg-page)", borderRadius: "var(--r-xl)", border: "1px solid var(--border)", width: 680, maxHeight: "85vh", overflow: "auto", padding: 32, boxShadow: "var(--el-3)" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 24 }}>
+          <div>
+            <div className="sora" style={{ fontSize: 22, fontWeight: 700, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>Kveldsoversikt</div>
+            <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 3 }}>{new Date().toLocaleDateString("nb-NO", { weekday: "long", day: "numeric", month: "long" })}</div>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", color: "var(--text-muted)", fontSize: 22, cursor: "pointer" }}>✕</button>
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 12, marginBottom: 24 }}>
+          {[
+            { l: "Gjester totalt", v: guests, c: "var(--accent)", s: "i kveld" },
+            { l: "Snitt syklus", v: `${avgCycle}m`, c: "var(--secondary)", s: "per bord" },
+            { l: "Dead time", v: `${Math.round(deadMin)}m`, c: deadMin > 30 ? "var(--error)" : "#C4A82B", s: "totalt" },
+            { l: "Tapt omsetning", v: `${lost} kr`, c: lost > 2000 ? "var(--error)" : "#C4A82B", s: "estimert" },
+          ].map((k, i) => (
+            <div key={i} className="card" style={{ padding: 16, textAlign: "center" }}>
+              <div className="mono" style={{ fontSize: 22, fontWeight: 700, color: k.c }}>{k.v}</div>
+              <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 3, fontWeight: 500 }}>{k.l}</div>
+              <div style={{ fontSize: 8, color: "var(--text-muted)", marginTop: 1 }}>{k.s}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginBottom: 24 }}>
+          <div className="card-label" style={{ marginBottom: 10 }}>Flaskehals-analyse</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {phaseStats.filter(p => p.total > 0).map(p => {
+              const r = p.avg / p.targetMin;
+              const isW = p.idx === worst.idx;
+              return (
+                <div key={p.idx} style={{
+                  display: "flex", alignItems: "center", gap: 10, padding: "8px 14px",
+                  background: isW ? "var(--error-bg)" : "var(--surface)",
+                  borderRadius: "var(--r-sm)", border: `1px solid ${isW ? "#DA6B6B40" : "var(--border)"}`,
+                  borderLeft: isW ? "3px solid var(--error)" : "3px solid transparent",
+                }}>
+                  <span style={{ fontSize: 14, width: 22 }}>{p.icon}</span>
+                  <span style={{ fontSize: 12, color: "var(--text-primary)", flex: 1, fontWeight: 600 }}>{p.label}</span>
+                  <div style={{ width: 100, height: 4, background: "var(--surface-hover)", borderRadius: 2, overflow: "hidden" }}>
+                    <div style={{ height: "100%", width: `${Math.min(r * 100, 100)}%`, background: r > 1.3 ? `linear-gradient(90deg,${p.color},var(--error))` : p.color, borderRadius: 2 }} />
+                  </div>
+                  <span className="mono" style={{ fontSize: 10, color: r > 1.2 ? "var(--error)" : "var(--text-secondary)", minWidth: 55, textAlign: "right" }}>{p.avg}m / {p.targetMin}m</span>
+                  {p.overCount > 0 && <span style={{ fontSize: 8, color: "var(--error)", background: "var(--error-bg)", padding: "1px 6px", borderRadius: "var(--r-full)", fontWeight: 600 }}>{p.overCount} over</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ marginBottom: 20 }}>
+          <div className="card-label" style={{ marginBottom: 10 }}>Gjester per time</div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 8, height: 80, padding: "0 4px" }}>
+            {hrs.map((h, i) => (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                <span className="mono" style={{ fontSize: 12, fontWeight: 600, color: "var(--accent)" }}>{gf[i]}</span>
+                <div style={{ width: "100%", borderRadius: 4, height: `${(gf[i] / mxG) * 50}px`, background: "linear-gradient(to top,#6BB8DA50,#6BB8DA)", transition: "height .4s" }} />
+                <span style={{ fontSize: 10, color: "var(--text-secondary)" }}>{h}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="callout callout-info">
+          <strong>Innsikt</strong>
+          <span><b style={{ color: "var(--text-primary)" }}>{worst.label}</b> er kveldens flaskehals med snitt {worst.avg}m vs mål {worst.targetMin}m.
+          {deadMin > 20 && <span> Totalt {Math.round(deadMin)} minutter dead time tilsvarer ca. <b style={{ color: "var(--error)" }}>{lost} kr</b> i tapt potensial.</span>}
+          {" "}Vurder å varsle kjøkkenet tidligere når bord nærmer seg denne fasen.</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════
+// MAIN APP
+// ═══════════════════════════════════════
+function App() {
+  const [tables, setTables] = useState(initTables);
+  const [selectedId, setSelectedId] = useState(null);
+  const [now, setNow] = useState(Date.now());
+  const [zone, setZone] = useState("all");
+  const [view, setView] = useState("floor");
+  const [showSummary, setShowSummary] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
+  const lastAlertRef = useRef(new Set());
+  const audioRef = useRef(null);
+
+  // Tick
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setNow(Date.now());
+      setTables(prev => prev.map(t => {
+        if (t.phaseIdx < 0 || !t.phases.length) return t;
+        const last = t.phases[t.phases.length - 1];
+        return { ...t, phases: [...t.phases.slice(0, -1), { ...last, duration: Date.now() - last.start }] };
+      }));
+    }, 1000);
+    return () => clearInterval(iv);
+  }, []);
+
+  // Sound alerts
+  useEffect(() => {
+    if (!soundOn) return;
+    const crits = tables.filter(t => { const tp = getTempo(t); return tp && tp.level === "critical" && t.snooze < Date.now(); });
+    const nw = crits.filter(t => !lastAlertRef.current.has(t.id));
+    if (nw.length > 0) {
+      try {
+        if (!audioRef.current) audioRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = audioRef.current;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(660, ctx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.06, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.start(ctx.currentTime); osc.stop(ctx.currentTime + 0.3);
+      } catch (e) {}
+    }
+    lastAlertRef.current = new Set(crits.map(t => t.id));
+  }, [tables, soundOn]);
+
+  const advance = useCallback(id => {
+    setTables(prev => prev.map(t => {
+      if (t.id !== id) return t;
+      const n = Date.now();
+      if (t.phaseIdx < 0) return { ...t, phaseIdx: 0, phaseStart: n, guests: Math.floor(Math.random() * (t.seats - 1)) + 2, phases: [{ phaseIdx: 0, start: n, duration: 0 }] };
+      if (t.phaseIdx >= PHASES.length - 1) return t;
+      const nx = t.phaseIdx + 1;
+      return { ...t, phaseIdx: nx, phaseStart: n, phases: [...t.phases, { phaseIdx: nx, start: n, duration: 0 }] };
+    }));
+  }, []);
+
+  const reset = useCallback(id => {
+    setTables(prev => prev.map(t => t.id === id ? { ...t, phaseIdx: -1, phaseStart: Date.now(), guests: 0, phases: [], snooze: 0 } : t));
+    setSelectedId(null);
+  }, []);
+
+  const updateNote = useCallback((id, n) => {
+    setTables(prev => prev.map(t => t.id === id ? { ...t, note: n } : t));
+  }, []);
+
+  const snooze = useCallback(id => {
+    setTables(prev => prev.map(t => t.id === id ? { ...t, snooze: Date.now() + 5 * 60000 } : t));
+  }, []);
+
+  const sel = tables.find(t => t.id === selectedId);
+  const filtered = zone === "all" ? tables : tables.filter(t => t.zone === zone);
+
+  return (
+    <>
+      {/* ═══ SIDEBAR ═══ */}
+      <nav className="sidebar">
+        <div className="sidebar-logo">
+          <div className="wordmark">Pl<span>or</span>ea</div>
+          <div className="sub">Table Tempo</div>
+          <div className="live-badge">● Live</div>
+        </div>
+        <div className="sidebar-inner">
+          <div className="nav-group">
+            <div className="nav-group-label">Oversikt</div>
+            {[
+              { id: "floor", label: "Plantegning" },
+              { id: "grid", label: "Bordkort" },
+              { id: "list", label: "Listevisning" },
+            ].map(it => (
+              <a key={it.id} className={`nav-link ${view === it.id ? "active" : ""}`} onClick={() => setView(it.id)}>
+                <span className="dot" />{it.label}
+              </a>
+            ))}
+          </div>
+          <div className="nav-group">
+            <div className="nav-group-label">Analyse</div>
+            <a className="nav-link" onClick={() => setShowSummary(true)}>
+              <span className="dot" />Kveldsoversikt
+            </a>
+          </div>
+          <div className="nav-group">
+            <div className="nav-group-label">Soner</div>
+            {["all", ...Object.keys(ZONES)].map(z => (
+              <a key={z} className={`nav-link ${zone === z ? "active" : ""}`} onClick={() => setZone(z)}>
+                <span className="dot" style={{ background: z === "all" ? undefined : ZONES[z].color, opacity: zone === z ? 1 : 0.5 }} />
+                {z === "all" ? "Alle soner" : ZONES[z].label}
+              </a>
+            ))}
+          </div>
+        </div>
+        <div className="sidebar-footer">
+          <button onClick={() => setSoundOn(!soundOn)} style={{
+            width: "100%", fontSize: 11, padding: "6px 12px",
+            background: soundOn ? "rgba(107,184,218,0.1)" : "rgba(218,107,107,0.1)",
+            border: `1px solid ${soundOn ? "rgba(107,184,218,0.25)" : "rgba(218,107,107,0.25)"}`,
+            borderRadius: "var(--r-sm)", color: soundOn ? "var(--primary)" : "var(--error)",
+            cursor: "pointer", fontWeight: 600,
+          }}>
+            {soundOn ? "🔔 Lydvarsler på" : "🔇 Lydvarsler av"}
+          </button>
+        </div>
+      </nav>
+
+      {/* ═══ MAIN ═══ */}
+      <div className="main">
+        <div className="top-bar">
+          <div>
+            <div className="eyebrow">Bordets rytme</div>
+            <div className="sora" style={{ fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginTop: 4 }}>Table Tempo</div>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+            <span className="meta-tag">
+              <span className="pip" style={{ background: "var(--success)", animation: "pulse 2s ease-in-out infinite" }} />
+              Live
+            </span>
+            <span className="mono" style={{ fontSize: 20, fontWeight: 700, color: "var(--accent)", letterSpacing: "-0.02em" }}>
+              {new Date(now).toLocaleTimeString("nb-NO", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}
+            </span>
+          </div>
+        </div>
+
+        <div className="content-area">
+          <StatsBar tables={tables} />
+
+          <div style={{ display: "flex", gap: 16 }}>
+            {/* Main view */}
+            <div style={{ flex: 1, minWidth: 0 }}>
+              {view === "floor" && <FloorPlan tables={filtered} selectedId={selectedId} onSelect={id => setSelectedId(selectedId === id ? null : id)} />}
+
+              {view === "grid" && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(210px,1fr))", gap: 10 }}>
+                  {filtered.map(t => (
+                    <div key={t.id} style={{ animation: "fadeIn .3s ease" }}>
+                      <TableCard table={t} selected={selectedId === t.id} onClick={() => setSelectedId(selectedId === t.id ? null : t.id)} />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {view === "list" && (
+                <div className="card" style={{ overflow: "hidden", borderRadius: "var(--r-lg)" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "50px 1fr 100px 70px 75px 55px 55px", gap: 8, padding: "10px 16px", fontSize: 9, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--text-muted)", borderBottom: "2px solid var(--border-strong)", background: "var(--surface-hover)" }}>
+                    <span>Bord</span><span>Fase</span><span>Tid i fase</span><span>Total</span><span>Tempo</span><span>Gjester</span><span>Ledig</span>
+                  </div>
+                  {filtered.map(t => {
+                    const tp = getTempo(t);
+                    const el = t.phaseIdx >= 0 ? Math.round(elMin(t.phaseStart)) : 0;
+                    const tot = Math.round(t.phases.reduce((s, p) => s + p.duration / 60000, 0));
+                    const f = predictFree(t);
+                    return (
+                      <div key={t.id} onClick={() => setSelectedId(selectedId === t.id ? null : t.id)} style={{
+                        display: "grid", gridTemplateColumns: "50px 1fr 100px 70px 75px 55px 55px",
+                        gap: 8, padding: "10px 16px", fontSize: 12, alignItems: "center", cursor: "pointer",
+                        borderBottom: "1px solid var(--border)",
+                        background: selectedId === t.id ? "var(--selection-bg)" : "var(--surface)",
+                        transition: "background 100ms",
+                      }}>
+                        <span className="mono" style={{ fontWeight: 700, color: t.phaseIdx >= 0 ? "var(--text-primary)" : "var(--text-muted)" }}>{t.name}{t.vip ? " ★" : ""}</span>
+                        <PhasePill idx={t.phaseIdx} sm />
+                        <span className="mono" style={{ fontSize: 11, color: "var(--text-secondary)" }}>{t.phaseIdx >= 0 ? `${el}m / ${PHASES[t.phaseIdx].targetMin}m` : "—"}</span>
+                        <span className="mono" style={{ fontSize: 11, color: "var(--text-muted)" }}>{tot > 0 ? `${tot}m` : "—"}</span>
+                        <TempoBadge tp={tp} />
+                        <span style={{ fontSize: 11, color: "var(--text-secondary)", textAlign: "center" }}>{t.guests || "—"}</span>
+                        <span className="mono" style={{ fontSize: 11, color: "var(--success)" }}>{t.phaseIdx >= 0 ? `~${f}m` : "—"}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Right sidebar */}
+            <div style={{ width: 280, flexShrink: 0, display: "flex", flexDirection: "column", gap: 12 }}>
+              <div className="card" style={{ padding: "14px 16px" }}>
+                <div className="card-label" style={{ marginBottom: 8 }}>Fasefordeling</div>
+                <PhaseWave tables={tables} />
+              </div>
+              <div className="card" style={{ padding: "14px 16px" }}>
+                <div className="card-label" style={{ marginBottom: 8 }}>Varsler</div>
+                <AlertPanel tables={tables} onSnooze={snooze} />
+              </div>
+              <PredictionPanel tables={tables} />
+              <GuestCounter tables={tables} />
+              {sel && <DetailPanel table={sel} onAdvance={advance} onReset={reset} onClose={() => setSelectedId(null)} onNote={updateNote} onSnooze={snooze} />}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {showSummary && <EveningSummary tables={tables} onClose={() => setShowSummary(false)} />}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
