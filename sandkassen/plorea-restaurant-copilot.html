@@ -1,0 +1,1338 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea — Restaurant Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Sora:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* ─────────────────────────────────────────
+   PLOREA DESIGN TOKENS
+───────────────────────────────────────── */
+:root {
+  --color-bg-page:        #F7F8FA;
+  --color-surface:        #FFFFFF;
+  --color-surface-hover:  #F1F5F9;
+  --color-overlay:        rgba(0,0,0,0.48);
+
+  --color-text-primary:   #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-text-muted:     #C4C4C4;
+  --color-text-link:      #2E6B87;
+
+  --color-primary:        #6BB8DA;
+  --color-primary-hover:  #4FA3C8;
+  --color-primary-text:   #FFFFFF;
+  --color-accent:         #2E6B87;
+  --color-secondary:      #468DAC;
+
+  --color-border:         #E9E9E9;
+  --color-border-strong:  #D9D9D9;
+
+  --color-success:        #6BDAB2;
+  --color-success-bg:     #E8F7F1;
+  --color-success-text:   #1A6B4A;
+  --color-warning:        #DADA6B;
+  --color-warning-bg:     #F7F7E0;
+  --color-warning-text:   #5C5C00;
+  --color-error:          #DA6B6B;
+  --color-error-bg:       #FAEAEA;
+  --color-error-text:     #8B2020;
+  --color-info:           #6BB8DA;
+  --color-info-bg:        #EBF6FB;
+
+  --color-selection:      #EBF6FB;
+  --color-selection-border:#99D2E8;
+  --color-selection-text: #1D4A5F;
+
+  --r-sm: 6px; --r: 8px; --r-md: 10px; --r-lg: 14px; --r-xl: 20px; --r-full: 9999px;
+
+  --elevation-0: none;
+  --elevation-1: 0 1px 4px rgba(0,0,0,0.07), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-2: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-3: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  --elevation-focus: 0 0 0 3px rgba(107,184,218,0.30);
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 100ms; --dur: 160ms; --dur-slow: 280ms;
+
+  /* Sidebar */
+  --sidebar-bg: #1A1825;
+  --sidebar-border: #2E2C38;
+  --sidebar-text: rgba(255,255,255,0.48);
+  --sidebar-text-hover: rgba(255,255,255,0.82);
+}
+
+/* ─── DARK MODE ─── */
+.dark {
+  --color-bg-page:        #16151A;
+  --color-surface:        #1E1D24;
+  --color-surface-hover:  #26242E;
+  --color-text-primary:   #F0EEF5;
+  --color-text-secondary: #9B98A8;
+  --color-text-muted:     #5C5970;
+  --color-border:         #2E2C38;
+  --color-border-strong:  #3D3A4A;
+  --color-info-bg:        rgba(107,184,218,0.12);
+  --color-selection:      #0D2030;
+  --color-selection-border:#2E6B87;
+  --color-success-bg:     #132B22;
+  --color-success-text:   #6BDAB2;
+  --color-warning-bg:     #282810;
+  --color-warning-text:   #DADA6B;
+  --color-error-bg:       #2E1212;
+  --color-error-text:     #DA6B6B;
+}
+
+/* ─── RESET ─── */
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  font-size: 15px; line-height: 1.6;
+  color: var(--color-text-primary);
+  background: var(--color-bg-page);
+  -webkit-font-smoothing: antialiased;
+}
+code, .mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85em;
+  background: var(--color-surface-hover);
+  padding: 1px 5px; border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+/* ─────────────────────────────────────────
+   SIDEBAR (from Plorea guidelines)
+───────────────────────────────────────── */
+.sidebar {
+  position: fixed; top: 0; left: 0; bottom: 0;
+  width: 220px;
+  background: var(--sidebar-bg);
+  display: flex; flex-direction: column;
+  overflow: hidden; z-index: 50;
+  border-right: 1px solid var(--sidebar-border);
+}
+.sidebar-inner { overflow-y: auto; flex: 1; padding-bottom: 20px; }
+.sidebar-inner::-webkit-scrollbar { width: 4px; }
+.sidebar-inner::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+.sidebar-logo {
+  padding: 22px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  margin-bottom: 6px; flex-shrink: 0;
+}
+.sidebar-logo .wordmark {
+  font-family: 'Sora', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: #fff; letter-spacing: -0.01em;
+}
+.sidebar-logo .wordmark span { color: var(--color-primary); }
+.sidebar-logo .sub {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: rgba(255,255,255,0.28); margin-top: 3px;
+}
+.sidebar-logo .version-badge {
+  display: inline-block; margin-top: 6px;
+  background: rgba(107,184,218,0.15);
+  border: 1px solid rgba(107,184,218,0.25);
+  border-radius: 99px; padding: 2px 8px;
+  font-size: 10px; font-weight: 600;
+  color: var(--color-primary); letter-spacing: 0.04em;
+}
+
+.nav-group { margin-bottom: 2px; }
+.nav-group-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: rgba(255,255,255,0.22);
+  padding: 14px 20px 4px;
+}
+.nav-link {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 20px; font-size: 12px; font-weight: 400;
+  color: var(--sidebar-text);
+  text-decoration: none;
+  transition: color var(--dur-fast), background var(--dur-fast);
+  border-left: 2px solid transparent; cursor: pointer;
+}
+.nav-link:hover { color: var(--sidebar-text-hover); background: rgba(255,255,255,0.04); }
+.nav-link.active { color: var(--color-primary); border-left-color: var(--color-primary); background: rgba(107,184,218,0.06); }
+.nav-link .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; opacity: 0.5; flex-shrink: 0; }
+
+/* Sidebar live status */
+.sidebar-status {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+  flex-shrink: 0;
+}
+.status-row {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: rgba(255,255,255,0.4);
+  margin-bottom: 4px;
+}
+.status-dot-live {
+  width: 6px; height: 6px; border-radius: 50%; background: #6BDAB2;
+  animation: pulseDot 2s infinite;
+}
+@keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.sidebar-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px; font-weight: 600;
+  color: #fff; letter-spacing: 0.02em;
+  margin-top: 2px;
+}
+.sidebar-date {
+  font-size: 10px; color: rgba(255,255,255,0.3);
+  margin-top: 1px;
+}
+
+/* Sidebar sim controls */
+.sim-controls {
+  display: flex; gap: 4px; margin-top: 10px;
+}
+.sim-btn {
+  flex: 1; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  padding: 4px 0; border-radius: var(--r-sm);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  cursor: pointer; transition: all var(--dur-fast);
+  text-align: center;
+}
+.sim-btn:hover { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.sim-btn.active { background: rgba(107,184,218,0.2); color: var(--color-primary); border-color: rgba(107,184,218,0.3); }
+
+/* ─────────────────────────────────────────
+   MAIN CONTENT
+───────────────────────────────────────── */
+.content { margin-left: 220px; min-height: 100vh; }
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 28px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: var(--elevation-1);
+  position: sticky; top: 0; z-index: 40;
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: -0.015em;
+}
+.venue-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-full);
+  padding: 4px 12px;
+  font-size: 11px; font-weight: 500; color: var(--color-text-secondary);
+}
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.role-selector {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 500;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-full); padding: 5px 12px;
+  cursor: pointer; outline: none;
+}
+.role-selector option { background: var(--color-surface); }
+#themeToggle {
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; box-shadow: var(--elevation-1);
+  transition: all var(--dur) var(--ease-out);
+}
+#themeToggle:hover { transform: scale(1.08); box-shadow: var(--elevation-2); }
+
+/* ─────────────────────────────────────────
+   PAGE LAYOUT
+───────────────────────────────────────── */
+.page-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  min-height: calc(100vh - 50px);
+}
+.left-col { padding: 20px 24px; overflow-y: auto; }
+.right-col {
+  border-left: 1px solid var(--color-border);
+  background: var(--color-surface);
+  overflow-y: auto;
+}
+
+/* ─────────────────────────────────────────
+   METRIC CARDS
+───────────────────────────────────────── */
+.metric-strip {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 10px; margin-bottom: 20px;
+}
+.metric-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 14px 16px;
+  box-shadow: var(--elevation-1);
+  position: relative; overflow: hidden;
+}
+.metric-header { display: flex; align-items: start; justify-content: space-between; }
+.metric-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-muted); margin-bottom: 4px;
+}
+.metric-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 22px; font-weight: 700;
+  letter-spacing: -0.03em; line-height: 1.1;
+  color: var(--color-text-primary);
+}
+.metric-sub {
+  font-size: 11px; color: var(--color-text-secondary);
+  margin-top: 3px; display: flex; align-items: center; gap: 4px;
+}
+.trend-up { color: var(--color-success-text); font-weight: 600; }
+.trend-down { color: var(--color-error-text); font-weight: 600; }
+.metric-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: var(--color-border);
+}
+.metric-bar-fill { height: 100%; border-radius: 0 2px 0 0; transition: width 0.8s var(--ease); }
+.sparkline-box { width: 48px; height: 20px; flex-shrink: 0; }
+.sparkline-box svg { display: block; }
+
+/* ─────────────────────────────────────────
+   FILTER BAR
+───────────────────────────────────────── */
+.filter-bar { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.filter-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600;
+  padding: 4px 11px; border-radius: var(--r-full);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer; transition: all var(--dur-fast);
+  box-shadow: var(--elevation-0);
+}
+.filter-chip:hover { border-color: var(--color-border-strong); }
+.filter-chip.active {
+  border-color: var(--color-selection-border);
+  background: var(--color-selection);
+  color: var(--color-selection-text);
+}
+.filter-chip .pip { width: 5px; height: 5px; border-radius: 50%; }
+.pip-red { background: var(--color-error); }
+.pip-amber { background: var(--color-warning); }
+.pip-blue { background: var(--color-primary); }
+
+/* ─────────────────────────────────────────
+   SECTION HEADERS
+───────────────────────────────────────── */
+.section-head {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.section-label {
+  font-family: 'Sora', sans-serif;
+  font-size: 14px; font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+.section-count {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 700;
+  padding: 2px 8px; border-radius: var(--r-full);
+  background: var(--color-error-bg);
+  color: var(--color-error-text);
+}
+.section-count .pip { width: 5px; height: 5px; border-radius: 50%; background: var(--color-error); }
+
+/* ─────────────────────────────────────────
+   ALERT CARDS
+───────────────────────────────────────── */
+.alert-stack { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
+
+.alert-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  box-shadow: var(--elevation-1);
+  display: grid; grid-template-columns: 36px 1fr auto;
+  gap: 12px; align-items: start;
+  position: relative; overflow: hidden;
+  animation: slideIn 0.35s var(--ease-out);
+  transition: all var(--dur);
+}
+.alert-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.alert-card.sev-critical::before { background: var(--color-error); }
+.alert-card.sev-warning::before { background: var(--color-warning); }
+.alert-card.sev-info::before { background: var(--color-primary); }
+.alert-card.sev-success::before { background: var(--color-success); }
+.alert-card:hover { box-shadow: var(--elevation-2); }
+.alert-card.dismissed { animation: dismissCard 0.35s var(--ease) forwards; }
+.alert-card.actioned { animation: actionCard 0.4s var(--ease-out) forwards; }
+
+@keyframes slideIn { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes dismissCard { to{opacity:0;transform:translateX(30px);max-height:0;padding:0;margin:0;overflow:hidden} }
+@keyframes actionCard { 0%{background:var(--color-success-bg)} 100%{opacity:0;transform:scale(0.98);max-height:0;padding:0;margin:0;overflow:hidden} }
+
+.alert-icon {
+  width: 36px; height: 36px; border-radius: var(--r-md);
+  display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
+}
+.alert-icon.ic-critical { background: var(--color-error-bg); }
+.alert-icon.ic-warning { background: var(--color-warning-bg); }
+.alert-icon.ic-info { background: var(--color-info-bg); }
+.alert-icon.ic-success { background: var(--color-success-bg); }
+
+.alert-title {
+  font-weight: 700; font-size: 13px; margin-bottom: 2px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.alert-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--color-text-muted); font-weight: 400;
+}
+.role-tag {
+  font-size: 9px; font-weight: 700; padding: 1px 7px;
+  border-radius: var(--r-full); letter-spacing: 0.04em;
+}
+.role-tag.rt-kitchen { background: var(--color-error-bg); color: var(--color-error-text); }
+.role-tag.rt-floor { background: var(--color-info-bg); color: var(--color-accent); }
+.role-tag.rt-manager { background: rgba(107,184,218,0.12); color: var(--color-accent); }
+
+.alert-desc {
+  font-size: 12.5px; color: var(--color-text-secondary);
+  line-height: 1.6; margin-bottom: 6px;
+}
+.trigger-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--color-text-muted);
+  padding: 2px 8px; background: var(--color-surface-hover);
+  border-radius: var(--r-full); border: 1px solid var(--color-border);
+  margin-bottom: 8px;
+}
+.alert-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Plorea-style buttons */
+.btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 600;
+  padding: 5px 14px; border-radius: var(--r);
+  border: 1px solid var(--color-border);
+  cursor: pointer; transition: all var(--dur-fast);
+}
+.btn-primary {
+  background: var(--color-primary); color: var(--color-primary-text);
+  border-color: var(--color-primary);
+}
+.btn-primary:hover { background: var(--color-primary-hover); }
+.btn-secondary { background: var(--color-surface); color: var(--color-text-secondary); }
+.btn-secondary:hover { background: var(--color-surface-hover); color: var(--color-text-primary); }
+.btn-danger { background: var(--color-error-bg); color: var(--color-error-text); border-color: transparent; }
+.btn-danger:hover { background: #F5D0D0; }
+
+.alert-dismiss {
+  background: none; border: none; color: var(--color-text-muted);
+  cursor: pointer; font-size: 14px; padding: 2px 4px;
+  transition: color var(--dur-fast); border-radius: var(--r-sm);
+}
+.alert-dismiss:hover { color: var(--color-text-secondary); background: var(--color-surface-hover); }
+
+/* ─── Dismissed log ─── */
+.dismissed-log { margin-bottom: 18px; }
+.dismissed-header {
+  font-size: 11px; color: var(--color-text-muted); cursor: pointer;
+  display: flex; align-items: center; gap: 5px; padding: 4px 0;
+  user-select: none; font-weight: 600;
+}
+.dismissed-header:hover { color: var(--color-text-secondary); }
+.dismissed-list { display: flex; flex-direction: column; gap: 3px; margin-top: 4px; }
+.dismissed-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 10px; border-radius: var(--r);
+  background: var(--color-surface);
+  font-size: 11px; color: var(--color-text-muted);
+  border: 1px solid var(--color-border); opacity: 0.6;
+}
+.d-title { flex: 1; }
+.d-time { font-family: 'JetBrains Mono', monospace; font-size: 9px; }
+.d-badge {
+  font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: var(--r-full);
+}
+.d-badge.was-actioned { background: var(--color-success-bg); color: var(--color-success-text); }
+.d-badge.was-dismissed { background: var(--color-surface-hover); color: var(--color-text-muted); }
+
+/* ─── Empty state ─── */
+.empty-state {
+  text-align: center; padding: 36px 20px;
+  color: var(--color-text-muted);
+}
+.empty-icon { font-size: 28px; margin-bottom: 8px; opacity: 0.5; }
+.empty-text { font-size: 13px; }
+
+/* ─────────────────────────────────────────
+   TIMELINE
+───────────────────────────────────────── */
+.timeline { position: relative; padding-left: 20px; margin-top: 4px; }
+.timeline::before {
+  content: ''; position: absolute; left: 6px; top: 4px; bottom: 4px;
+  width: 1px; background: var(--color-border);
+}
+.tl-item { position: relative; padding: 7px 0 7px 18px; font-size: 12.5px; }
+.tl-item::before {
+  content: ''; position: absolute; left: -17px; top: 11px;
+  width: 8px; height: 8px; border-radius: 50%;
+  border: 2px solid var(--color-border-strong);
+  background: var(--color-bg-page);
+}
+.tl-item.passed::before { background: var(--color-success); border-color: var(--color-success); }
+.tl-item.active::before {
+  background: var(--color-primary); border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(107,184,218,0.2);
+}
+.tl-item.future::before { border-color: var(--color-text-muted); }
+.tl-time { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--color-text-muted); }
+.tl-text { color: var(--color-text-secondary); }
+.tl-text strong { color: var(--color-text-primary); font-weight: 600; }
+
+/* ─────────────────────────────────────────
+   RIGHT PANEL SECTIONS
+───────────────────────────────────────── */
+.panel-section { padding: 16px 18px; border-bottom: 1px solid var(--color-border); }
+.panel-section:last-child { border-bottom: none; }
+.panel-title {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--color-text-muted); margin-bottom: 10px;
+}
+
+/* Kitchen heatmap */
+.kitchen-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.station-cell {
+  aspect-ratio: 1.3; border-radius: var(--r);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  transition: all var(--dur); cursor: default;
+  border: 1px solid transparent;
+}
+.station-name { font-size: 9px; color: var(--color-text-secondary); margin-bottom: 1px; }
+.station-load {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; font-weight: 700;
+}
+
+/* Revenue chart */
+.chart-box {
+  background: var(--color-surface-hover);
+  border-radius: var(--r-md);
+  padding: 12px; height: 130px;
+  position: relative; overflow: hidden;
+  border: 1px solid var(--color-border);
+}
+.chart-svg { width: 100%; height: 100%; }
+.chart-legend {
+  display: flex; gap: 12px; font-size: 10px; color: var(--color-text-muted);
+  margin-top: 6px; font-weight: 500;
+}
+.legend-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+
+/* Confidence */
+.conf-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+.conf-label { font-size: 12px; color: var(--color-text-secondary); min-width: 100px; }
+.conf-bar-bg { flex: 1; height: 5px; background: var(--color-border); border-radius: 3px; overflow: hidden; }
+.conf-bar-fill { height: 100%; border-radius: 3px; transition: width 1s var(--ease); }
+.conf-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px; color: var(--color-text-muted);
+  min-width: 30px; text-align: right;
+}
+
+/* Inventory */
+.inv-list { display: flex; flex-direction: column; gap: 4px; }
+.inv-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 10px; border-radius: var(--r);
+  background: var(--color-surface-hover); font-size: 12px;
+  border: 1px solid var(--color-border);
+}
+.inv-name { font-weight: 600; color: var(--color-text-primary); }
+.inv-status {
+  font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: var(--r-full);
+}
+.inv-ok { background: var(--color-success-bg); color: var(--color-success-text); }
+.inv-low { background: var(--color-warning-bg); color: var(--color-warning-text); }
+.inv-critical { background: var(--color-error-bg); color: var(--color-error-text); }
+
+/* Feed */
+.feed { display: flex; flex-direction: column; gap: 4px; max-height: 180px; overflow-y: auto; }
+.feed-item {
+  display: flex; align-items: center; gap: 7px;
+  padding: 5px 8px; border-radius: var(--r-sm);
+  background: var(--color-surface-hover); font-size: 11px;
+  animation: feedIn 0.3s ease;
+  border: 1px solid var(--color-border);
+}
+@keyframes feedIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+.feed-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+.feed-time {
+  font-family: 'JetBrains Mono', monospace; font-size: 9px;
+  color: var(--color-text-muted); margin-left: auto; white-space: nowrap;
+}
+
+/* ─── QR Menu Modal ─── */
+.modal-overlay {
+  position: fixed; inset: 0; background: var(--color-overlay);
+  backdrop-filter: blur(4px); z-index: 300;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.modal-phone {
+  width: 310px; height: 560px; background: #FAFAF8;
+  border-radius: 28px; overflow: hidden;
+  box-shadow: var(--elevation-3);
+  display: flex; flex-direction: column;
+  animation: phoneIn 0.4s var(--ease-out);
+}
+@keyframes phoneIn { from{opacity:0;transform:scale(0.92) translateY(16px)} to{opacity:1;transform:none} }
+.phone-notch { height: 28px; background: #000; display: flex; align-items: center; justify-content: center; }
+.phone-notch-bar { width: 70px; height: 4px; background: #333; border-radius: 2px; }
+.phone-head { padding: 12px 16px; background: #fff; border-bottom: 1px solid #E8E8E4; }
+.phone-venue { font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; color: #1A1A1A; }
+.phone-table { font-size: 10px; color: #888; margin-top: 2px; }
+.phone-body { flex: 1; overflow-y: auto; padding: 10px 14px; }
+.qr-cat { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #999; margin: 10px 0 6px; }
+.qr-item {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 10px; margin-bottom: 5px;
+  border-radius: var(--r); background: #fff;
+  border: 1px solid #EEEEEA;
+  transition: all 0.3s ease;
+}
+.qr-item.qr-disabled { opacity: 0.4; background: #F5F5F0; text-decoration: line-through; }
+.qr-item.qr-limited { background: #FFFBEB; border-color: #FDE68A; }
+.qr-item-name { font-size: 12.5px; font-weight: 500; color: #1A1A1A; }
+.qr-item-price { font-size: 12px; color: #666; font-weight: 500; }
+.qr-badge {
+  font-size: 8px; font-weight: 700; padding: 2px 6px;
+  border-radius: var(--r-sm); margin-left: 6px;
+}
+.qr-badge-out { background: #FEE2E2; color: #DC2626; }
+.qr-badge-last { background: #FEF3C7; color: #D97706; }
+.qr-badge-rec { background: #DCFCE7; color: #16A34A; }
+.phone-foot {
+  padding: 10px 16px; background: #fff; border-top: 1px solid #E8E8E4;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.phone-foot-text { font-size: 10px; color: #999; }
+.phone-close-btn {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 11px; font-weight: 700;
+  padding: 5px 14px; border-radius: var(--r-full);
+  background: #1A1A1A; color: #fff; border: none; cursor: pointer;
+}
+
+/* ─── Toast ─── */
+.toast-container {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  z-index: 200; display: flex; flex-direction: column; gap: 6px;
+  pointer-events: none; margin-left: 110px;
+}
+.toast {
+  padding: 9px 16px; border-radius: var(--r-md);
+  font-size: 12px; font-weight: 600;
+  box-shadow: var(--elevation-2);
+  animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+  pointer-events: auto; white-space: nowrap;
+}
+.toast.success { background: var(--color-success-bg); color: var(--color-success-text); border: 1px solid var(--color-success); }
+.toast.info { background: var(--color-info-bg); color: var(--color-accent); border: 1px solid var(--color-primary); }
+@keyframes toastIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+@keyframes toastOut { to{opacity:0;transform:translateY(-6px)} }
+
+/* Theme transition */
+html.theme-transition,
+html.theme-transition *,
+html.theme-transition *::before,
+html.theme-transition *::after {
+  transition: background-color 220ms var(--ease), border-color 220ms var(--ease), color 180ms var(--ease) !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--color-border-strong); border-radius: 99px; }
+</style>
+</head>
+<body>
+
+<!-- ──────────── SIDEBAR ──────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="wordmark">Pl<span>or</span>ea</div>
+    <div class="sub">Restaurant Copilot</div>
+    <div class="version-badge">Demo v3</div>
+  </div>
+  <div class="sidebar-inner">
+    <div class="nav-group">
+      <div class="nav-group-label">Oversikt</div>
+      <a class="nav-link active" data-section="alerts" onclick="navTo(this)"><span class="dot"></span>Aktive Varsler</a>
+      <a class="nav-link" data-section="timeline" onclick="navTo(this)"><span class="dot"></span>Tidslinje</a>
+      <a class="nav-link" data-section="dismissed" onclick="navTo(this)"><span class="dot"></span>Behandlede</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Sanntid</div>
+      <a class="nav-link" data-section="kitchen" onclick="navTo(this)"><span class="dot"></span>Kjøkkenstasjoner</a>
+      <a class="nav-link" data-section="revenue" onclick="navTo(this)"><span class="dot"></span>Omsetning</a>
+      <a class="nav-link" data-section="inventory" onclick="navTo(this)"><span class="dot"></span>Beholdning</a>
+      <a class="nav-link" data-section="feed" onclick="navTo(this)"><span class="dot"></span>Hendelseslogg</a>
+    </div>
+    <div class="nav-group">
+      <div class="nav-group-label">Modell</div>
+      <a class="nav-link" data-section="confidence" onclick="navTo(this)"><span class="dot"></span>Konfidens</a>
+    </div>
+  </div>
+  <div class="sidebar-status">
+    <div class="status-row"><div class="status-dot-live"></div> Prediktiv modus aktiv</div>
+    <div class="sidebar-clock" id="sidebar-clock">16:30</div>
+    <div class="sidebar-date">fredag 15. mars 2026</div>
+    <div class="sim-controls">
+      <button class="sim-btn" onclick="setSpeed(1)" id="speed-1x">1×</button>
+      <button class="sim-btn active" onclick="setSpeed(10)" id="speed-10x">10×</button>
+      <button class="sim-btn" onclick="setSpeed(60)" id="speed-60x">60×</button>
+      <button class="sim-btn" onclick="togglePause()" id="pause-btn">⏸</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ──────────── MAIN ──────────── -->
+<div class="content">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-title">⚡ Copilot</div>
+      <div class="venue-badge"><span class="pip" style="width:5px;height:5px;border-radius:50%;background:var(--color-success)"></span> Sjøboden Brasserie</div>
+    </div>
+    <div class="topbar-right">
+      <select class="role-selector" id="role-select" onchange="setRole(this.value)">
+        <option value="all">👁 Alle varsler</option>
+        <option value="manager" selected>👔 Daglig leder</option>
+        <option value="kitchen">👨‍🍳 Kjøkkensjef</option>
+        <option value="floor">🤵 Hovmester</option>
+      </select>
+      <button id="themeToggle" onclick="toggleTheme()" title="Bytt tema">🌙</button>
+    </div>
+  </div>
+
+  <div class="page-grid">
+    <!-- LEFT -->
+    <div class="left-col">
+      <div class="metric-strip" id="metric-strip"></div>
+      <div class="filter-bar" id="filter-bar"></div>
+
+      <div class="section-head" id="alerts">
+        <div class="section-label">Aktive Varsler <span class="section-count" id="alert-count"><span class="pip"></span>0</span></div>
+      </div>
+      <div class="alert-stack" id="alert-stack">
+        <div class="empty-state" id="empty-alerts">
+          <div class="empty-icon">🧘</div>
+          <div class="empty-text">Alt under kontroll. Varsler trigges av metrikkendringer.</div>
+        </div>
+      </div>
+
+      <div class="dismissed-log" id="dismissed-log" style="display:none">
+        <div class="dismissed-header" onclick="toggleDismissed()" id="dismissed">
+          <span id="dismissed-arrow">▸</span> Behandlede varsler <span id="dismissed-count" style="font-family:'JetBrains Mono',monospace;font-size:10px">(0)</span>
+        </div>
+        <div class="dismissed-list" id="dismissed-list" style="display:none"></div>
+      </div>
+
+      <div id="timeline" style="margin-top:8px">
+        <div class="section-head"><div class="section-label">Prediksjonstidslinje</div></div>
+        <div class="timeline" id="timeline-el"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-col">
+      <div class="panel-section" id="kitchen">
+        <div class="panel-title">🔥 Kjøkkenstasjoner</div>
+        <div class="kitchen-grid" id="kitchen-grid"></div>
+      </div>
+      <div class="panel-section" id="revenue">
+        <div class="panel-title">📈 Omsetning — i dag vs. forrige fredag</div>
+        <div class="chart-box"><svg class="chart-svg" id="rev-chart" viewBox="0 0 300 100" preserveAspectRatio="none"></svg></div>
+        <div class="chart-legend">
+          <span><span class="legend-dot" style="background:var(--color-primary)"></span>I dag</span>
+          <span><span class="legend-dot" style="background:var(--color-text-muted);opacity:0.5"></span>Forrige fredag</span>
+        </div>
+      </div>
+      <div class="panel-section" id="confidence">
+        <div class="panel-title">🧠 Modell-konfidens</div>
+        <div id="conf-meters"></div>
+      </div>
+      <div class="panel-section" id="inventory">
+        <div class="panel-title">📦 Beholdning</div>
+        <div class="inv-list" id="inv-list"></div>
+      </div>
+      <div class="panel-section" id="feed" style="flex:1">
+        <div class="panel-title">⚡ Hendelseslogg</div>
+        <div class="feed" id="live-feed"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+<div id="modal-root"></div>
+
+<script>
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+const S = {
+  time: 16*60+30, speed: 10, paused: false,
+  role: 'manager', filter: 'all',
+  covers: 47, kitchenLoad: 62, waitTime: 14, revenue: 38420, rotation: 1.8,
+  activeAlerts: 0, dismissedAlerts: [], alertsTriggered: new Set(),
+  revenueHistory: [],
+  modifiers: { klr: 0, wtr: 0, rb: 0, walkinPaused: false },
+  sparklines: { covers:[], kitchen:[], wait:[], revenue:[], rotation:[] },
+  lastFriday: {
+    covers:[42,44,45,48,55,62,68,74,78,76,72,65,58,52,48,44,40,38,42,50,58,64,70,68,62,55,48,42,38],
+    kitchen:[55,58,60,64,70,78,85,92,88,82,75,68,60,55,50,48,52,60,68,75,82,78,72,65,58,52,48,45,42],
+    revenue:Array.from({length:29},(_,i)=>20000+i*2800+Math.sin(i*0.5)*3000)
+  }
+};
+
+const stations=[
+  {id:'grill',name:'Grill',base:55,load:55,icon:'🥩'},
+  {id:'fisk',name:'Fisk',base:70,load:70,icon:'🐟'},
+  {id:'garni',name:'Garni',base:40,load:40,icon:'🥗'},
+  {id:'dessert',name:'Dessert',base:25,load:25,icon:'🍰'},
+  {id:'saus',name:'Saus',base:50,load:50,icon:'🫕'},
+  {id:'pasta',name:'Pasta',base:60,load:60,icon:'🍝'},
+  {id:'pizza',name:'Pizza',base:45,load:45,icon:'🍕'},
+  {id:'bar',name:'Bar',base:35,load:35,icon:'🍹'}
+];
+
+const inventory=[
+  {name:'Laks (fersk)',status:'ok',portions:18,rate:4,icon:'🐟'},
+  {name:'Entrecôte',status:'ok',portions:22,rate:2.5,icon:'🥩'},
+  {name:'Hvitvin (Chablis)',status:'ok',portions:12,rate:3,icon:'🍷'},
+  {name:'Pasta (fersk)',status:'ok',portions:30,rate:2,icon:'🍝'},
+  {name:'Sjokoladefondant',status:'ok',portions:9,rate:3.5,icon:'🍫'},
+  {name:'Brød (surdeg)',status:'ok',portions:18,rate:1.5,icon:'🍞'}
+];
+
+const confModels=[
+  {label:'Rushprediksjon',base:87,color:'var(--color-primary)'},
+  {label:'Bestillingsmønster',base:79,color:'var(--color-secondary)'},
+  {label:'Personalbehov',base:92,color:'var(--color-success)'},
+  {label:'Varebeholdning',base:71,color:'var(--color-warning)'}
+];
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+const fmt = m => `${String(Math.floor(m/60)).padStart(2,'0')}:${String(Math.floor(m%60)).padStart(2,'0')}`;
+const kitchenTrend = () => {
+  const h=S.sparklines.kitchen;
+  if(h.length<3) return 0;
+  const r=h.slice(-5);
+  return (r[r.length-1]-r[0])/r.length;
+};
+const clamp = (v,lo,hi) => Math.min(hi,Math.max(lo,v));
+
+// ═══════════════════════════════════════
+// THRESHOLD-BASED ALERTS
+// ═══════════════════════════════════════
+const alerts=[
+  { id:'rush-warning',
+    cond:()=>S.kitchenLoad>=70&&S.kitchenLoad<82&&kitchenTrend()>0.3,
+    sev:'warning',icon:'⏰',roles:['manager','kitchen'],
+    addr:{manager:'Lena',kitchen:'Thomas'},
+    title:'Rushbelastning bygger seg opp',
+    desc:()=>`Kjøkken ${S.kitchenLoad}% og stigende (+${kitchenTrend().toFixed(1)}%/min). 78% sjanse for ≥85% innen 20 min.`,
+    trig:()=>`kitchen ≥ 70% ∧ trend > 0.3`,
+    actions:[{l:'Åpne kasse 2',c:'btn-primary',a:'openRegister'},{l:'Varsle kjøkken',c:'btn-secondary',a:'notifyKitchen'},{l:'Ignorer',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'salmon-low',
+    cond:()=>inventory[0].portions<=8&&inventory[0].portions>0,
+    sev:'critical',icon:'🐟',roles:['manager','kitchen'],
+    addr:{manager:'Lena',kitchen:'Thomas — fisk'},
+    title:'Lav beholdning: Laks',
+    desc:()=>{const l=inventory[0],e=S.time+(l.portions/l.rate)*60;return `${l.portions} igjen. Rate ~${l.rate}/t. Tom kl. ${fmt(e)}. Deaktiver «Laks Teriyaki» og «Laks Tataki».`;},
+    trig:()=>`laks ≤ 8`,
+    actions:[{l:'Deaktiver 2 retter',c:'btn-danger',a:'disableSalmon'},{l:'Se QR-meny',c:'btn-secondary',a:'showQR_salmon'},{l:'Avvis',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'table-opt',
+    cond:()=>S.covers>=55&&S.waitTime>=12&&S.rotation<2.2,
+    sev:'info',icon:'🪑',roles:['manager','floor'],
+    addr:{manager:'Lena',floor:'Erik'},
+    title:'Bordoptimalisering mulig',
+    desc:()=>`${S.covers} kuverter, ventetid ${S.waitTime} min, rotasjon ${S.rotation}×. Bord 7 og 12 ledige.`,
+    trig:()=>`covers ≥ 55 ∧ wait ≥ 12 ∧ rot < 2.2`,
+    actions:[{l:'Tildel automatisk',c:'btn-primary',a:'autoAssign'},{l:'Avvis',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'dessert-crit',
+    cond:()=>inventory[4].portions<=3&&inventory[4].portions>0,
+    sev:'critical',icon:'🍫',roles:['manager','kitchen','floor'],
+    addr:{manager:'Lena',kitchen:'Lisa (dessert)',floor:'Erik'},
+    title:'Sjokoladefondant nesten utsolgt',
+    desc:()=>`Kun ${inventory[4].portions} igjen — mest bestilte dessert (37%).`,
+    trig:()=>`fondant ≤ 3`,
+    actions:[{l:'Marker begrenset',c:'btn-primary',a:'markLimited'},{l:'Se QR-meny',c:'btn-secondary',a:'showQR_dessert'},{l:'Push crème brûlée',c:'btn-secondary',a:'pushAlt'},{l:'Avvis',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'peak-load',
+    cond:()=>S.kitchenLoad>=88&&S.waitTime>=20,
+    sev:'critical',icon:'📈',roles:['manager','kitchen'],
+    addr:{manager:'Lena',kitchen:'Thomas'},
+    title:'Toppbelastning — kritisk nivå',
+    desc:()=>`Kjøkken ${S.kitchenLoad}%, ventetid ${S.waitTime} min. Pause walk-ins 10–15 min.`,
+    trig:()=>`kitchen ≥ 88 ∧ wait ≥ 20`,
+    actions:[{l:'Pause walk-in',c:'btn-danger',a:'pauseWalkin'},{l:'Forleng estimat',c:'btn-secondary',a:'extendEst'},{l:'Overvåker',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'wine-upsell',
+    cond:()=>S.covers>=60&&S.time>=17*60+15&&S.time<18*60,
+    sev:'info',icon:'🍷',roles:['manager','floor'],
+    addr:{manager:'Lena',floor:'Erik — bord 3, 9, 15'},
+    title:'Upsell: Vinpakke',
+    desc:()=>`3 bord med 3-retters. Historisk 62% konvertering. Estimert +kr 1.800.`,
+    trig:()=>`covers ≥ 60 ∧ dinner ∧ multiCourse`,
+    actions:[{l:'Varsle servitører',c:'btn-primary',a:'notifyWaiters'},{l:'Avvis',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'rush-decline',
+    cond:()=>S.kitchenLoad<70&&S.kitchenLoad>50&&kitchenTrend()<-0.2&&S.alertsTriggered.has('peak-load'),
+    sev:'success',icon:'✅',roles:['manager','kitchen','floor'],
+    addr:{manager:'Lena',kitchen:'Thomas',floor:'Erik'},
+    title:'Rush avtar — god håndtering',
+    desc:()=>`Kjøkken ${S.kitchenLoad}%, ventetid ${S.waitTime} min. Gjenåpne walk-in.`,
+    trig:()=>`kitchen < 70 ∧ trend ↓ ∧ post_peak`,
+    actions:[{l:'Gjenåpne alt',c:'btn-primary',a:'reopenAll'},{l:'Vent',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'staff-break',
+    cond:()=>S.kitchenLoad<60&&S.kitchenLoad>35&&kitchenTrend()<0&&S.time>=17*60+40,
+    sev:'info',icon:'👤',roles:['manager'],
+    addr:{manager:'Lena'},
+    title:'Pausevindu oppdaget',
+    desc:()=>`Belastning ${S.kitchenLoad}% og synkende. Send Jonas og Maria på pause.`,
+    trig:()=>`kitchen < 60 ∧ trend ↓ ∧ t > 17:40`,
+    actions:[{l:'Send pausevarsel',c:'btn-primary',a:'sendBreak'},{l:'Tilpass selv',c:'btn-secondary',a:'dismiss'}]
+  },
+  { id:'wine-low',
+    cond:()=>inventory[2].portions<=4,
+    sev:'warning',icon:'🍷',roles:['manager','floor'],
+    addr:{manager:'Lena',floor:'Erik — bar'},
+    title:'Hvitvin (Chablis) lav',
+    desc:()=>`${inventory[2].portions} glass igjen. Foreslå Sancerre som alternativ.`,
+    trig:()=>`chablis ≤ 4`,
+    actions:[{l:'Bytt anbefaling',c:'btn-primary',a:'swapWine'},{l:'Avvis',c:'btn-secondary',a:'dismiss'}]
+  }
+];
+
+// ═══════════════════════════════════════
+// ACTION EFFECTS (FEEDBACK LOOP)
+// ═══════════════════════════════════════
+const effects={
+  openRegister:   {msg:'Kasse 2 åpnet',                          fx:()=>{S.modifiers.wtr+=3;},                                     impact:'Ventetid ↓ ~3 min'},
+  notifyKitchen:  {msg:'Kjøkkenvarsel sendt til Thomas',          fx:()=>{S.modifiers.klr+=5;},                                     impact:'Belastning ↓ ~5%'},
+  disableSalmon:  {msg:'Laks Teriyaki & Tataki deaktivert',       fx:()=>{inventory[0].rate=0.5;showQR('salmon');},                  impact:'Lakseforbruk ↓ 87%'},
+  showQR_salmon:  {msg:null,                                       fx:()=>showQR('salmon')},
+  showQR_dessert: {msg:null,                                       fx:()=>showQR('dessert')},
+  autoAssign:     {msg:'Bord 7 → A, Bord 12 → C',                 fx:()=>{S.modifiers.wtr+=2;S.rotation+=0.1;},                     impact:'Rotasjon ↑ 0.1×'},
+  markLimited:    {msg:'Fondant markert «begrenset» i QR-meny',   fx:()=>{inventory[4].rate=1.5;showQR('dessert');},                 impact:'Salgsrate ↓ 57%'},
+  pushAlt:        {msg:'Crème brûlée promotert i QR-meny',        fx:()=>{S.modifiers.rb+=300;},                                    impact:'+kr 300'},
+  pauseWalkin:    {msg:'Walk-in på pause i 15 min',               fx:()=>{S.modifiers.walkinPaused=true;S.modifiers.klr+=8;S.modifiers.wtr+=4;setTimeout(()=>S.modifiers.walkinPaused=false,15000);}, impact:'Belastning ↓ ~8%'},
+  extendEst:      {msg:'Ventetidsestimat økt',                     fx:()=>{S.modifiers.wtr+=2;},                                    impact:'Færre skuffelser'},
+  notifyWaiters:  {msg:'Vinforslag sendt til Erik',                fx:()=>{S.modifiers.rb+=1800;},                                  impact:'+kr 1.800'},
+  reopenAll:      {msg:'Walk-in gjenåpnet, retter reaktivert',    fx:()=>{S.modifiers.walkinPaused=false;inventory[0].rate=4;},     impact:'Full kapasitet'},
+  sendBreak:      {msg:'Pausevarsel sendt til Jonas & Maria',      fx:()=>{},                                                       impact:'Tilbake ~18:40'},
+  swapWine:       {msg:'Sancerre erstattet Chablis',               fx:()=>{inventory[2].rate=0.5;},                                  impact:'Forbruk ↓ 83%'}
+};
+
+// ═══════════════════════════════════════
+// RENDER: METRICS
+// ═══════════════════════════════════════
+function renderMetrics(){
+  const t=S.time, rf=Math.max(0,Math.min(1,(t-(16*60+45))/25)),
+    df=Math.max(0,Math.min(1,(t-(17*60+35))/25)), nr=rf*(1-df*0.85);
+
+  S.kitchenLoad=clamp(Math.round(62+nr*34-df*22+(Math.random()-0.5)*3-S.modifiers.klr),28,98);
+  S.waitTime=clamp(Math.round(14+nr*14-df*9+(Math.random()-0.5)*2-S.modifiers.wtr),6,28);
+  S.covers=clamp(Math.round(47+nr*36-(S.modifiers.walkinPaused?12:0)+(Math.random()-0.5)*3),28,82);
+  S.revenue=Math.round(38420+(t-16*60-30)*88+nr*2200+S.modifiers.rb);
+  S.rotation=Math.round((1.8+(t-16*60-30)*0.009)*10)/10;
+
+  ['covers','kitchen','wait','revenue','rotation'].forEach(k=>{
+    const v={covers:S.covers,kitchen:S.kitchenLoad,wait:S.waitTime,revenue:S.revenue,rotation:S.rotation}[k];
+    S.sparklines[k].push(v); if(S.sparklines[k].length>40)S.sparklines[k].shift();
+  });
+
+  inventory.forEach(i=>{ if(Math.random()<0.02*S.speed/10)i.portions=Math.max(0,i.portions-1); i.status=i.portions<=3?'critical':i.portions<=8?'low':'ok'; });
+  S.modifiers.klr*=0.998; S.modifiers.wtr*=0.998;
+
+  const hi=Math.min(S.lastFriday.covers.length-1,Math.floor((t-16*60)/(120/S.lastFriday.covers.length)));
+  const lfCov=S.lastFriday.covers[hi]||0, cd=S.covers-lfCov;
+
+  const ms=[
+    {l:'Aktive Kuverter',v:S.covers,bar:S.covers/85*100,bc:'var(--color-primary)',
+     sub:`${cd>=0?'↑':'↓'} ${Math.abs(cd)} vs. forrige fredag`,sc:cd>=0?'trend-up':'trend-down',
+     sp:S.sparklines.covers, spC:'#6BB8DA'},
+    {l:'Kjøkkenbelastning',v:S.kitchenLoad+'%',bar:S.kitchenLoad,
+     bc:S.kitchenLoad>85?'var(--color-error)':S.kitchenLoad>70?'var(--color-warning)':'var(--color-success)',
+     sub:S.kitchenLoad>85?'⚠ Høy':S.kitchenLoad>70?'Forhøyet':'Normal',
+     sc:S.kitchenLoad>85?'trend-down':'',
+     sp:S.sparklines.kitchen, spC:S.kitchenLoad>85?'#DA6B6B':'#6BDAB2'},
+    {l:'Snitt Ventetid',v:S.waitTime+' min',bar:S.waitTime/30*100,
+     bc:S.waitTime>20?'var(--color-error)':S.waitTime>16?'var(--color-warning)':'var(--color-success)',
+     sub:'Kjøkken → bord',sc:'',
+     sp:S.sparklines.wait, spC:'#DADA6B'},
+    {l:'Omsetning',v:S.revenue.toLocaleString('nb-NO')+',-',
+     bar:Math.min(100,S.revenue/95000*100),bc:'var(--color-secondary)',
+     sub:`↑ ${Math.round((S.revenue/(S.lastFriday.revenue[hi]||S.revenue)-1)*100)}% vs. prognose`,sc:'trend-up',
+     sp:S.sparklines.revenue, spC:'#468DAC'},
+    {l:'Bordrotasjon',v:S.rotation+'×',bar:S.rotation/4*100,bc:'var(--color-primary)',
+     sub:'Gjennomsnitt i dag',sc:'',
+     sp:S.sparklines.rotation, spC:'#6BB8DA'}
+  ];
+
+  document.getElementById('metric-strip').innerHTML=ms.map(m=>`
+    <div class="metric-card">
+      <div class="metric-header">
+        <div>
+          <div class="metric-label">${m.l}</div>
+          <div class="metric-value">${m.v}</div>
+          <div class="metric-sub"><span class="${m.sc}">${m.sub}</span></div>
+        </div>
+        <div class="sparkline-box">${sparkSVG(m.sp,m.spC)}</div>
+      </div>
+      <div class="metric-bar"><div class="metric-bar-fill" style="width:${m.bar}%;background:${m.bc}"></div></div>
+    </div>`).join('');
+}
+
+function sparkSVG(data,color){
+  if(data.length<3)return'';
+  const w=48,h=20,min=Math.min(...data),max=Math.max(...data),r=max-min||1;
+  const pts=data.map((v,i)=>`${(i/(data.length-1))*w},${h-2-((v-min)/r)*(h-4)}`).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><polyline fill="none" stroke="${color}" stroke-width="1.5" points="${pts}" stroke-linejoin="round" opacity="0.65"/></svg>`;
+}
+
+// ═══════════════════════════════════════
+// RENDER: FILTER BAR
+// ═══════════════════════════════════════
+function renderFilters(){
+  const cs={all:0,critical:0,warning:0,info:0};
+  document.querySelectorAll('#alert-stack .alert-card').forEach(c=>{
+    cs.all++;
+    if(c.classList.contains('sev-critical'))cs.critical++;
+    if(c.classList.contains('sev-warning'))cs.warning++;
+    if(c.classList.contains('sev-info')||c.classList.contains('sev-success'))cs.info++;
+  });
+  document.getElementById('filter-bar').innerHTML=[
+    {k:'all',l:'Alle',cnt:cs.all,pip:''},
+    {k:'critical',l:'Kritisk',cnt:cs.critical,pip:'pip-red'},
+    {k:'warning',l:'Advarsel',cnt:cs.warning,pip:'pip-amber'},
+    {k:'info',l:'Info',cnt:cs.info,pip:'pip-blue'}
+  ].map(f=>`<button class="filter-chip ${S.filter===f.k?'active':''}" onclick="setFilter('${f.k}')">
+    ${f.pip?`<span class="pip ${f.pip}"></span>`:''}${f.l} <span class="mono" style="font-size:10px;background:none;border:none;padding:0">${f.cnt}</span>
+  </button>`).join('');
+}
+
+function setFilter(k){
+  S.filter=k;
+  document.querySelectorAll('#alert-stack .alert-card').forEach(c=>{
+    if(k==='all'){c.style.display='';return;}
+    const m=c.classList.contains(`sev-${k}`)||(k==='info'&&(c.classList.contains('sev-info')||c.classList.contains('sev-success')));
+    c.style.display=m?'':'none';
+  });
+  renderFilters();
+}
+
+// ═══════════════════════════════════════
+// RENDER: KITCHEN, CHART, CONF, INV, TIMELINE
+// ═══════════════════════════════════════
+function renderKitchen(){
+  const t=S.time,rf=Math.max(0,Math.min(1,(t-(16*60+45))/25)),
+    df=Math.max(0,Math.min(1,(t-(17*60+35))/25)),nr=rf*(1-df*0.85);
+  stations.forEach(s=>{s.load=clamp(Math.round(s.base+nr*30-S.modifiers.klr*0.5+(Math.random()-0.5)*6),12,99);});
+  document.getElementById('kitchen-grid').innerHTML=stations.map(s=>{
+    const hue=s.load>80?0:s.load>60?35:142, sat=Math.min(80,20+s.load*0.6);
+    const bg=`hsla(${hue},${sat}%,${50-s.load*0.15}%,0.2)`,bd=`hsla(${hue},${sat}%,50%,0.25)`;
+    return `<div class="station-cell" style="background:${bg};border-color:${bd}">
+      <div class="station-name">${s.icon} ${s.name}</div>
+      <div class="station-load" style="color:hsl(${hue},${sat}%,${55-s.load*0.1}%)">${s.load}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderChart(){
+  S.revenueHistory.push({t:S.time,v:S.revenue});
+  if(S.revenueHistory.length>80)S.revenueHistory.shift();
+  const d=S.revenueHistory,svg=document.getElementById('rev-chart');
+  if(d.length<2)return;
+  const W=300,H=100,lfr=S.lastFriday.revenue;
+  const all=[...d.map(x=>x.v),...lfr],mn=Math.min(...all)*0.95,mx=Math.max(...all)*1.05,rng=mx-mn||1;
+  const tp=d.map((x,i)=>`${(i/(d.length-1))*W},${H-4-((x.v-mn)/rng)*(H-8)}`).join(' ');
+  const hp=lfr.map((v,i)=>`${(i/(lfr.length-1))*W},${H-4-((v-mn)/rng)*(H-8)}`).join(' ');
+  const lp=tp.split(' ').pop().split(',');
+  svg.innerHTML=`
+    <defs><linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--color-primary)" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="var(--color-primary)" stop-opacity="0"/>
+    </linearGradient></defs>
+    <polyline fill="none" stroke="var(--color-text-muted)" stroke-width="1" points="${hp}" stroke-dasharray="3,3" opacity="0.3" stroke-linejoin="round"/>
+    <polyline fill="none" stroke="var(--color-primary)" stroke-width="2" points="${tp}" stroke-linejoin="round" stroke-linecap="round"/>
+    <polygon fill="url(#rg)" points="0,${H} ${tp} ${W},${H}"/>
+    <circle cx="${lp[0]}" cy="${lp[1]}" r="3" fill="var(--color-primary)"/>`;
+}
+
+function renderConf(){
+  document.getElementById('conf-meters').innerHTML=confModels.map(m=>{
+    const v=clamp(Math.round(m.base+(Math.random()-0.5)*5),40,99);
+    return `<div class="conf-row">
+      <div class="conf-label">${m.label}</div>
+      <div class="conf-bar-bg"><div class="conf-bar-fill" style="width:${v}%;background:${m.color}"></div></div>
+      <div class="conf-val">${v}%</div>
+    </div>`;
+  }).join('');
+}
+
+function renderInv(){
+  document.getElementById('inv-list').innerHTML=inventory.map(i=>{
+    const c=i.status==='critical'?'inv-critical':i.status==='low'?'inv-low':'inv-ok';
+    const l=i.status==='critical'?'Kritisk':i.status==='low'?'Lav':'OK';
+    return `<div class="inv-item"><span class="inv-name">${i.icon} ${i.name}</span><span class="inv-status ${c}">${i.portions} · ${l}</span></div>`;
+  }).join('');
+}
+
+const tlEvents=[
+  {time:16*60+30,text:'Ettermiddagsservice — jevn trafikk'},
+  {time:16*60+45,text:'<strong>Rushoppbygging</strong> — belastning stiger'},
+  {time:17*60,text:'Bordoptimalisering — walk-in peak'},
+  {time:17*60+15,text:'<strong>Toppbelastning</strong> — kritisk fase'},
+  {time:17*60+30,text:'Upsell-vindu — vinpakke'},
+  {time:17*60+45,text:'Rush avtar — normalisering'},
+  {time:18*60,text:'Pausevindu — personalrotasjon'},
+  {time:18*60+30,text:'Kveldsservice starter'}
+];
+function renderTimeline(){
+  document.getElementById('timeline-el').innerHTML=tlEvents.map(e=>{
+    const c=S.time>=e.time+15?'passed':S.time>=e.time-5?'active':'future';
+    return `<div class="tl-item ${c}"><div class="tl-time">${fmt(e.time)}</div><div class="tl-text">${e.text}</div></div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// ALERTS
+// ═══════════════════════════════════════
+function checkAlerts(){
+  alerts.forEach(al=>{
+    if(S.alertsTriggered.has(al.id))return;
+    if(S.role!=='all'&&!al.roles.includes(S.role))return;
+    if(!al.cond())return;
+    S.alertsTriggered.add(al.id); showAlert(al);
+  });
+}
+
+function showAlert(al){
+  const e=document.getElementById('empty-alerts'); if(e)e.style.display='none';
+  S.activeAlerts++;
+  document.getElementById('alert-count').innerHTML=`<span class="pip"></span>${S.activeAlerts}`;
+  const addr=al.addr[S.role]||al.addr.manager||'';
+  const rc=S.role==='kitchen'?'rt-kitchen':S.role==='floor'?'rt-floor':'rt-manager';
+  const card=document.createElement('div');
+  card.className=`alert-card sev-${al.sev}`; card.id=`al-${al.id}`;
+  card.innerHTML=`
+    <div class="alert-icon ic-${al.sev}">${al.icon}</div>
+    <div>
+      <div class="alert-title">
+        ${al.title}
+        <span class="role-tag ${rc}">${addr}</span>
+        <span class="alert-time">${fmt(S.time)}</span>
+      </div>
+      <div class="alert-desc">${al.desc()}</div>
+      <div class="trigger-tag">⚙ ${al.trig()}</div>
+      <div class="alert-actions">${al.actions.map(a=>`<button class="btn ${a.c}" onclick="doAction('${al.id}','${a.a}')">${a.l}</button>`).join('')}</div>
+    </div>
+    <button class="alert-dismiss" onclick="doAction('${al.id}','dismiss')">✕</button>`;
+  document.getElementById('alert-stack').prepend(card);
+  renderFilters();
+}
+
+function doAction(id,action){
+  const card=document.getElementById(`al-${id}`); if(!card)return;
+  const al=alerts.find(a=>a.id===id);
+  if(action==='dismiss'){
+    card.classList.add('dismissed'); toast('Varsel avvist','info');
+    addDismissed(al,false);
+  } else {
+    const fx=effects[action];
+    if(fx){
+      if(fx.fx)fx.fx();
+      if(fx.msg){card.classList.add('actioned');toast(fx.msg,'success');if(fx.impact)addFeed(`${fx.impact}`,'var(--color-success)',fmt(S.time));addDismissed(al,true,fx.impact);}
+      else return;
+    }
+  }
+  setTimeout(()=>{
+    if(card.parentNode)card.parentNode.removeChild(card);
+    S.activeAlerts=Math.max(0,S.activeAlerts-1);
+    document.getElementById('alert-count').innerHTML=`<span class="pip"></span>${S.activeAlerts}`;
+    renderFilters();
+  },400);
+}
+
+// ═══════════════════════════════════════
+// DISMISSED LOG
+// ═══════════════════════════════════════
+function addDismissed(al,actioned,impact){
+  document.getElementById('dismissed-log').style.display='';
+  S.dismissedAlerts.push({icon:al?.icon||'?',title:al?.title||'',time:fmt(S.time),actioned,impact});
+  document.getElementById('dismissed-count').textContent=`(${S.dismissedAlerts.length})`;
+  renderDismissedList();
+}
+function renderDismissedList(){
+  document.getElementById('dismissed-list').innerHTML=S.dismissedAlerts.map(d=>`
+    <div class="dismissed-item">
+      <span>${d.icon}</span><span class="d-title">${d.title}</span><span class="d-time">${d.time}</span>
+      <span class="d-badge ${d.actioned?'was-actioned':'was-dismissed'}">${d.actioned?'✓ Utført':'Avvist'}</span>
+      ${d.impact?`<span class="d-badge was-actioned">${d.impact}</span>`:''}
+    </div>`).join('');
+}
+function toggleDismissed(){
+  const l=document.getElementById('dismissed-list'),a=document.getElementById('dismissed-arrow');
+  const s=l.style.display!=='none'; l.style.display=s?'none':'flex'; a.textContent=s?'▸':'▾';
+}
+
+// ═══════════════════════════════════════
+// QR MENU MODAL
+// ═══════════════════════════════════════
+function showQR(ctx){
+  const items=[
+    {cat:'Forrett',items:[{n:'Laksetartar',p:'kr 149,-',s:ctx==='salmon'?'disabled':'ok'},
+      {n:'Bruschetta',p:'kr 119,-',s:'ok'},{n:'Løksuppe',p:'kr 109,-',s:'ok'}]},
+    {cat:'Hovedrett',items:[{n:'Laks Teriyaki',p:'kr 289,-',s:ctx==='salmon'?'disabled':'ok'},
+      {n:'Laks Tataki',p:'kr 269,-',s:ctx==='salmon'?'disabled':'ok'},
+      {n:'Entrecôte',p:'kr 329,-',s:'ok',b:ctx==='salmon'?'rec':null},
+      {n:'Pasta Carbonara',p:'kr 219,-',s:'ok'},{n:'Pizza Margherita',p:'kr 199,-',s:'ok'}]},
+    {cat:'Dessert',items:[{n:'Sjokoladefondant',p:'kr 139,-',s:ctx==='dessert'?'limited':'ok'},
+      {n:'Crème Brûlée',p:'kr 129,-',s:'ok',b:ctx==='dessert'?'rec':null},
+      {n:'Pannacotta',p:'kr 119,-',s:'ok'}]}
+  ];
+  const m=document.createElement('div'); m.className='modal-overlay';
+  m.onclick=e=>{if(e.target===m)m.remove();};
+  m.innerHTML=`<div class="modal-phone">
+    <div class="phone-notch"><div class="phone-notch-bar"></div></div>
+    <div class="phone-head"><div class="phone-venue">Sjøboden Brasserie</div>
+      <div class="phone-table">📱 QR-meny — Bord 5 — ${fmt(S.time)}</div></div>
+    <div class="phone-body">${items.map(c=>`<div class="qr-cat">${c.cat}</div>
+      ${c.items.map(i=>{
+        const cls=i.s==='disabled'?'qr-disabled':i.s==='limited'?'qr-limited':'';
+        let badge='';
+        if(i.s==='disabled')badge='<span class="qr-badge qr-badge-out">UTSOLGT</span>';
+        else if(i.s==='limited')badge='<span class="qr-badge qr-badge-last">SISTE</span>';
+        else if(i.b==='rec')badge='<span class="qr-badge qr-badge-rec">ANBEFALT</span>';
+        return `<div class="qr-item ${cls}"><span class="qr-item-name">${i.n}${badge}</span><span class="qr-item-price">${i.p}</span></div>`;
+      }).join('')}`).join('')}</div>
+    <div class="phone-foot"><span class="phone-foot-text">Plorea QR · Sanntid</span>
+      <button class="phone-close-btn" onclick="this.closest('.modal-overlay').remove()">Lukk</button></div>
+  </div>`;
+  document.getElementById('modal-root').appendChild(m);
+}
+
+// ═══════════════════════════════════════
+// FEED, TOAST, CONTROLS
+// ═══════════════════════════════════════
+const feedEvents=[
+  {t:16*60+32,x:'Ordre #247 — Bord 5 — 3 retter',c:'var(--color-primary)'},
+  {t:16*60+35,x:'QR Bord 11 — 2× Laks Teriyaki',c:'var(--color-info)'},
+  {t:16*60+38,x:'Walk-in: 4 pers → bord 14',c:'var(--color-success)'},
+  {t:16*60+42,x:'Bord 2 — betaling — kr 1.240',c:'var(--color-secondary)'},
+  {t:16*60+50,x:'Ordre #251 — Vinpakke bord 8',c:'var(--color-secondary)'},
+  {t:16*60+55,x:'QR Bord 3 — Fondant ×2',c:'var(--color-info)'},
+  {t:17*60+2,x:'Walk-in: 2 pers — 12 min estimat',c:'var(--color-warning)'},
+  {t:17*60+8,x:'Bord 6 — reklamasjon (temp)',c:'var(--color-error)'},
+  {t:17*60+14,x:'Ordre #258 — Bord 15 — 5 retter',c:'var(--color-primary)'},
+  {t:17*60+28,x:'Bord 9 — konvertert vinpakke',c:'var(--color-secondary)'},
+  {t:17*60+45,x:'Belastning normalisert',c:'var(--color-success)'},
+  {t:17*60+55,x:'Bord 12 — betaling — kr 2.880',c:'var(--color-secondary)'},
+  {t:18*60+15,x:'Walk-in gjenåpnet',c:'var(--color-success)'}
+];
+function checkFeed(){
+  feedEvents.forEach(e=>{
+    if(S.time>=e.t&&S.time<e.t+1&&!e.shown){e.shown=true;addFeed(e.x,e.c,fmt(e.t));}
+  });
+}
+function addFeed(txt,color,time){
+  const f=document.getElementById('live-feed'),el=document.createElement('div');
+  el.className='feed-item';
+  el.innerHTML=`<div class="feed-dot" style="background:${color}"></div><span>${txt}</span><span class="feed-time">${time}</span>`;
+  f.prepend(el); if(f.children.length>14)f.lastChild.remove();
+}
+
+function toast(txt,type){
+  const t=document.createElement('div');t.className=`toast ${type}`;t.textContent='✓ '+txt;
+  document.getElementById('toast-container').appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+
+function setSpeed(s){
+  S.speed=s;
+  document.querySelectorAll('.sim-btn:not(#pause-btn)').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`speed-${s}x`).classList.add('active');
+  if(S.paused)togglePause();
+}
+function togglePause(){
+  S.paused=!S.paused;
+  document.getElementById('pause-btn').textContent=S.paused?'▶':'⏸';
+  document.getElementById('pause-btn').classList.toggle('active',S.paused);
+}
+function setRole(r){
+  S.role=r;
+  toast(`Rolle: ${{manager:'Daglig leder',kitchen:'Kjøkkensjef',floor:'Hovmester',all:'Alle'}[r]}`,'info');
+}
+function toggleTheme(){
+  const h=document.documentElement;
+  h.classList.add('theme-transition');h.classList.toggle('dark');
+  document.getElementById('themeToggle').textContent=h.classList.contains('dark')?'☀️':'🌙';
+  setTimeout(()=>h.classList.remove('theme-transition'),300);
+}
+function navTo(el){
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+  el.classList.add('active');
+  const s=el.dataset.section;
+  const target=document.getElementById(s);
+  if(target)target.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+// ═══════════════════════════════════════
+// MAIN LOOP
+// ═══════════════════════════════════════
+function tick(){
+  if(!S.paused&&S.time<20*60) S.time+=S.speed/60;
+  document.getElementById('sidebar-clock').textContent=fmt(S.time);
+  renderMetrics(); renderKitchen(); renderTimeline(); renderChart();
+  renderConf(); renderInv(); checkAlerts(); checkFeed(); renderFilters();
+}
+
+addFeed('System startet — prediktiv modus aktiv','var(--color-success)',fmt(S.time));
+setInterval(tick,1000);
+</script>
+</body>
+</html>
