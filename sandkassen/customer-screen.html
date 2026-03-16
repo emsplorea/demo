@@ -346,6 +346,48 @@ function ScanToast({item}){
 }
 
 // ═══════════════════════════════════════════════════════
+// PROMO CARDS & BANNERS
+// ═══════════════════════════════════════════════════════
+
+function PromoCard({item,onAdd,pending}){
+  const isPending=pending===item.id;
+  return h("button",{onClick:()=>!isPending&&onAdd(item),style:{background:isPending?`linear-gradient(135deg,${T.successSoft},${T.surface})`:`linear-gradient(135deg,${T.surfaceAlt},${T.surface})`,border:`1.5px solid ${isPending?T.success:T.border}`,borderRadius:T.radius,padding:"18px",cursor:isPending?"default":"pointer",textAlign:"left",transition:"all .3s",transform:isPending?"scale(.97)":"scale(1)",position:"relative",overflow:"hidden",display:"flex",flexDirection:"column",gap:"8px"}},
+    h("div",{style:{display:"flex",alignItems:"center",gap:"6px",flexWrap:"wrap"}},
+      h("span",{style:{fontSize:"10px",fontWeight:700,textTransform:"uppercase",letterSpacing:".08em",color:isPending?T.success:T.promo,background:isPending?T.successSoft:T.promoSoft,padding:"3px 9px",borderRadius:"6px"}},isPending?"✓ Lagt til":item.tag),
+      h(PopBadge,{type:item.pop,sold:item.sold})),
+    h("div",{style:{display:"flex",alignItems:"center",gap:"12px",marginTop:"2px"}},
+      h("span",{style:{fontSize:"38px",lineHeight:1}},item.img),
+      h("div",null,
+        h("div",{style:{fontSize:"16px",fontWeight:700,color:T.text,lineHeight:1.2}},item.name),
+        h("div",{style:{fontSize:"12px",color:T.textMuted,marginTop:"3px"}},item.desc))),
+    h("div",{style:{marginTop:"auto",display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop:"4px"}},
+      h("span",{style:{fontSize:"20px",fontWeight:800,color:T.text,fontFamily:T.fontMono}},fmt(item.price)),
+      !isPending&&h("span",{style:{fontSize:"13px",fontWeight:700,color:"#FFF",background:T.accent,padding:"8px 18px",borderRadius:"10px"}},"+Legg til")),
+    isPending&&h("div",{style:{position:"absolute",inset:0,background:"linear-gradient(90deg,transparent 0%,rgba(52,211,153,.06) 50%,transparent 100%)",animation:"shimmer 1.5s infinite"}}));
+}
+
+function AdBanner({ad,onAdd,pending}){
+  const isPending=pending===ad.id;
+  return h("button",{onClick:()=>!isPending&&onAdd({id:ad.id,name:ad.name,price:ad.price,img:ad.emoji,tag:"Reklame",desc:ad.sub,pop:ad.pop,sold:ad.sold}),style:{position:"relative",overflow:"hidden",cursor:isPending?"default":"pointer",borderRadius:T.radius,border:isPending?`2px solid ${T.success}`:"2px solid rgba(255,255,255,.06)",background:ad.gradient,textAlign:"left",transition:"all .35s",transform:isPending?"scale(.98)":"scale(1)",minHeight:"165px",display:"flex",flexDirection:"column",justifyContent:"space-between",padding:"22px 24px"}},
+    h("div",{style:{position:"absolute",inset:0,background:ad.pattern,pointerEvents:"none"}}),
+    h("div",{style:{position:"relative",zIndex:1,display:"flex",alignItems:"center",gap:"6px",flexWrap:"wrap"}},
+      h("span",{style:{fontSize:"10px",fontWeight:800,textTransform:"uppercase",letterSpacing:".12em",color:ad.accent,background:`${ad.accent}18`,padding:"5px 12px",borderRadius:"7px",border:`1px solid ${ad.accent}30`}},isPending?"✓ LAGT TIL":ad.badge),
+      h(PopBadge,{type:ad.pop,sold:ad.sold})),
+    h("div",{style:{position:"relative",zIndex:1,marginTop:"12px"}},
+      h("div",{style:{display:"flex",alignItems:"flex-end",justifyContent:"space-between",gap:"14px"}},
+        h("div",{style:{flex:1}},
+          h("div",{style:{fontSize:"24px",fontWeight:800,color:"#FFF",lineHeight:1.1}},ad.headline),
+          h("div",{style:{fontSize:"13px",color:"rgba(255,255,255,.55)",marginTop:"5px"}},ad.sub)),
+        h("span",{style:{fontSize:"48px",lineHeight:1,filter:"drop-shadow(0 4px 16px rgba(0,0,0,.4))",flexShrink:0}},ad.emoji)),
+      !isPending&&h("div",{style:{marginTop:"14px",display:"flex",alignItems:"center",justifyContent:"space-between"}},
+        h("span",{style:{fontSize:"22px",fontWeight:800,color:ad.accent,fontFamily:T.fontMono}},fmt(ad.price)),
+        h("span",{style:{fontSize:"13px",fontWeight:700,color:"#FFF",background:"rgba(255,255,255,.18)",padding:"10px 20px",borderRadius:"10px",border:"1px solid rgba(255,255,255,.12)"}},"Trykk for å legge til →")),
+      isPending&&h("div",{style:{marginTop:"12px",display:"flex",alignItems:"center",gap:"8px"}},
+        h("div",{style:{width:"8px",height:"8px",borderRadius:"50%",background:T.success,animation:"pulse 1.5s infinite"}}),
+        h("span",{style:{fontSize:"13px",color:T.success,fontWeight:600}},"Venter på ekspedør..."))));
+}
+
+// ═══════════════════════════════════════════════════════
 // ANALYTICS DASHBOARD (in cashier panel)
 // ═══════════════════════════════════════════════════════
 
