@@ -86,6 +86,21 @@
   .chk:checked{background:var(--pri);border-color:var(--pri)}.chk:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#fff;font-weight:700}
   .chk-ok{border-color:var(--ok);background:rgba(77,184,150,.15)}.chk-ok::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:var(--ok);font-weight:700}
 
+  /* IMAGE THUMB */
+  .img-th{width:44px;height:44px;border-radius:var(--rm);background:var(--bh);border:1px solid var(--bd);overflow:hidden;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+  .img-th img{width:100%;height:100%;object-fit:cover}
+  .img-th .img-empty{font-size:18px;opacity:.5}
+  .img-th .img-fail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(212,88,88,.08);font-size:10px;color:var(--er)}
+  .img-status-dot{position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bs);font-size:6px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .img-status-dot.ok{background:var(--ok);color:#fff}.img-status-dot.fail{background:var(--er);color:#fff}.img-status-dot.none{background:var(--t3);color:#fff}
+  /* Image section in drawer */
+  .dr-img-wrap{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
+  .dr-img-preview{width:120px;height:90px;border-radius:var(--rl);background:var(--bh);border:1px solid var(--bd);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .dr-img-preview img{width:100%;height:100%;object-fit:cover}
+  .dr-img-info{flex:1;display:flex;flex-direction:column;gap:6px}
+  .dr-img-status{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
+  .dr-img-actions{display:flex;gap:4px;flex-wrap:wrap}
+
   /* BADGES */
   .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:var(--rs);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
   .b-alc{background:var(--alcb);color:var(--alc);border:1px solid rgba(192,132,252,.15)}
@@ -205,27 +220,27 @@ function aiHG(i){const s=[];for(const r of HR){if(r.t(i)){s.push({r:r.r,ok:true,
 function hl(d,det){if(!d)return'<span style="color:var(--t3);font-style:italic">Mangler</span>';let h=d;[...det].sort((a,b)=>b.tr.length-a.tr.length).forEach(x=>{h=h.replace(new RegExp(`(${x.tr})`,'gi'),`<span class="hl-w"><span class="hl-tip">→ ${x.a} (${x.c}%)</span>$1</span>`);});return h;}
 const cc=c=>c>=85?'ok':c>=70?'wn':'er';
 
-function mk(n,d,pi,pt,ma,tp,src,al,cn){const ai=aiAl(n,d);const all=[...(ma||[])];const det=[];(ma||[]).forEach(a=>det.push({a,s:'m',tr:null,c:100}));ai.forEach(x=>{if(!all.includes(x.a)){all.push(x.a);det.push({a:x.a,s:'t',tr:x.tr,c:x.c});}});const miss=ai.filter(x=>!(ma||[]).includes(x.a));const hg=aiHG({n,d,tp,al,cn});const iss=[];if(!d)iss.push({f:'desc',t:'w',x:'Beskrivelse mangler'});if(pi===null&&pt===null)iss.push({f:'price',t:'e',x:'Pris ikke gjenkjent'});if(miss.length)iss.push({f:'al',t:'w',x:`AI fant ${miss.length} allergen${miss.length>1?'er':''}`});return{n,d:d||'',pi,pt,als:all,det,aiAl:ai,miss,tp,iss,st:iss.some(x=>x.t==='e')?'ch':iss.length?'ch':'ok',src,chk:true,conf:false,al:!!al,hg:hg.res.h,hgC:hg.res.c,hgS:hg.s,cn};}
+function mk(n,d,pi,pt,ma,tp,src,al,cn,img){const ai=aiAl(n,d);const all=[...(ma||[])];const det=[];(ma||[]).forEach(a=>det.push({a,s:'m',tr:null,c:100}));ai.forEach(x=>{if(!all.includes(x.a)){all.push(x.a);det.push({a:x.a,s:'t',tr:x.tr,c:x.c});}});const miss=ai.filter(x=>!(ma||[]).includes(x.a));const hg=aiHG({n,d,tp,al,cn});const iss=[];if(!d)iss.push({f:'desc',t:'w',x:'Beskrivelse mangler'});if(pi===null&&pt===null)iss.push({f:'price',t:'e',x:'Pris ikke gjenkjent'});if(miss.length)iss.push({f:'al',t:'w',x:`AI fant ${miss.length} allergen${miss.length>1?'er':''}`});return{n,d:d||'',pi,pt,als:all,det,aiAl:ai,miss,tp,iss,st:iss.some(x=>x.t==='e')?'ch':iss.length?'ch':'ok',src,chk:true,conf:false,al:!!al,hg:hg.res.h,hgC:hg.res.c,hgS:hg.s,cn,img:img||null,imgSt:img?'found':'none'};}
 
 const M={
 'havet-restaurant.no':{nm:'Havet Restaurant',cats:[
-  {nm:'Forretter',its:[mk('Kamskjell fra Frøya','Grillet kamskjell med blomkålpuré, hasselnøtt og sitronsmør',189,179,['Bløtdyr','Melk'],'food','html',false,'Forretter'),mk('Fiskesuppe','Hjemmelaget fiskesuppe med aioli og urter',159,149,['Fisk'],'food','html',false,'Forretter'),mk('Tartar av okse','Med kapers, sennep, syltet rødløk og ristet brød',179,null,['Egg','Gluten'],'food','html',false,'Forretter')]},
-  {nm:'Hovedretter',its:[mk('Ovnsbakt torsk','Skrei med sandefjordsmør, gulrot og nypoteter',329,299,['Fisk'],'food','html',false,'Hovedretter'),mk('Grillet entrecôte','250g entrecôte med bearnaisesaus og pommes frites',389,null,[],'food','html',false,'Hovedretter'),mk('Pasta med blåskjell','Linguine med blåskjell, hvitvin, chili og persille',279,259,[],'food','html',false,'Hovedretter'),mk('Vegetar Wellington','Butterdeig fylt med sopp, spinat og chevre',289,269,[],'food','html',false,'Hovedretter')]},
-  {nm:'Desserter',its:[mk('Sjokoladefondant','Mørk sjokolade med vaniljeis og bringebærcoulis',149,139,[],'dessert','html',false,'Desserter'),mk('Crème brûlée','Klassisk med karamellisert sukkertopp',139,null,['Melk','Egg'],'dessert','html',false,'Desserter')]},
-  {nm:'Barnemeny',its:[mk('Fiskepinner','Med pommes frites og remulade',129,119,['Fisk','Gluten'],'food','html',false,'Barnemeny'),mk('Is med topping','Tre kuler med valgfri topping',79,69,[],'dessert','html',false,'Barnemeny')]},
-  {nm:'Vinliste',its:[mk('Husets hvitvin','Pinot Grigio, Italia',129,null,[],'drink','pdf',true,'Vinliste'),mk('Husets rødvin','Merlot, Frankrike',139,null,[],'drink','pdf',true,'Vinliste'),mk('Hansa Pilsner','Klassisk norsk pilsner 0,5l',89,null,[],'drink','pdf',true,'Vinliste'),mk('Nøgne Ø IPA','Håndbrygget IPA 0,33l',99,null,[],'drink','pdf',true,'Vinliste')]},
+  {nm:'Forretter',its:[mk('Kamskjell fra Frøya','Grillet kamskjell med blomkålpuré, hasselnøtt og sitronsmør',189,179,['Bløtdyr','Melk'],'food','html',false,'Forretter','https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=200&h=200&fit=crop'),mk('Fiskesuppe','Hjemmelaget fiskesuppe med aioli og urter',159,149,['Fisk'],'food','html',false,'Forretter','https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200&h=200&fit=crop'),mk('Tartar av okse','Med kapers, sennep, syltet rødløk og ristet brød',179,null,['Egg','Gluten'],'food','html',false,'Forretter',null)]},
+  {nm:'Hovedretter',its:[mk('Ovnsbakt torsk','Skrei med sandefjordsmør, gulrot og nypoteter',329,299,['Fisk'],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=200&h=200&fit=crop'),mk('Grillet entrecôte','250g entrecôte med bearnaisesaus og pommes frites',389,null,[],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1600891964092-4316c288032e?w=200&h=200&fit=crop'),mk('Pasta med blåskjell','Linguine med blåskjell, hvitvin, chili og persille',279,259,[],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1563379926898-05f4575a45d8?w=200&h=200&fit=crop'),mk('Vegetar Wellington','Butterdeig fylt med sopp, spinat og chevre',289,269,[],'food','html',false,'Hovedretter',null)]},
+  {nm:'Desserter',its:[mk('Sjokoladefondant','Mørk sjokolade med vaniljeis og bringebærcoulis',149,139,[],'dessert','html',false,'Desserter','https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=200&h=200&fit=crop'),mk('Crème brûlée','Klassisk med karamellisert sukkertopp',139,null,['Melk','Egg'],'dessert','html',false,'Desserter','https://images.unsplash.com/photo-1470124182917-cc6e71b22ecc?w=200&h=200&fit=crop')]},
+  {nm:'Barnemeny',its:[mk('Fiskepinner','Med pommes frites og remulade',129,119,['Fisk','Gluten'],'food','html',false,'Barnemeny',null),mk('Is med topping','Tre kuler med valgfri topping',79,69,[],'dessert','html',false,'Barnemeny','https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?w=200&h=200&fit=crop')]},
+  {nm:'Vinliste',its:[mk('Husets hvitvin','Pinot Grigio, Italia',129,null,[],'drink','pdf',true,'Vinliste',null),mk('Husets rødvin','Merlot, Frankrike',139,null,[],'drink','pdf',true,'Vinliste','https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=200&h=200&fit=crop'),mk('Hansa Pilsner','Klassisk norsk pilsner 0,5l',89,null,[],'drink','pdf',true,'Vinliste','https://images.unsplash.com/photo-1608270586620-248524c67de9?w=200&h=200&fit=crop'),mk('Nøgne Ø IPA','Håndbrygget IPA 0,33l',99,null,[],'drink','pdf',true,'Vinliste',null)]},
 ]},
 'pizzeria-napoli.no':{nm:'Pizzeria Napoli',cats:[
-  {nm:'Pizzaer',its:[mk('Margherita','San Marzano-tomat, fior di latte, basilikum og olivenolje',169,159,[],'food','pdf',false,'Pizzaer'),mk('Diavola','Tomat, mozzarella, spicy salami og chili',189,179,[],'food','pdf',false,'Pizzaer'),mk('Calzone','Fylt med skinke, mozzarella, ricotta og tomat',209,199,[],'food','pdf',false,'Pizzaer')]},
-  {nm:'Pasta',its:[mk('Carbonara','Guanciale, egg, pecorino og svart pepper',189,179,[],'food','pdf',false,'Pasta'),mk('Lasagne','Hjemmelaget med bolognese og béchamel',199,189,[],'food','pdf',false,'Pasta')]},
-  {nm:'Desserter',its:[mk('Tiramisu','Klassisk med mascarpone og espresso',119,109,[],'dessert','pdf',false,'Desserter'),mk('Panna Cotta','Med bringebærsaus',109,99,['Melk'],'dessert','pdf',false,'Desserter')]},
-  {nm:'Drikke',its:[mk('Peroni','Italiensk lager 0,5l',79,null,[],'drink','pdf',true,'Drikke'),mk('Chianti','Sangiovese, Toscana',449,null,[],'drink','pdf',true,'Drikke'),mk('Limoncello','Huslaget digestif',99,null,[],'drink','pdf',true,'Drikke')]},
+  {nm:'Pizzaer',its:[mk('Margherita','San Marzano-tomat, fior di latte, basilikum og olivenolje',169,159,[],'food','pdf',false,'Pizzaer','https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=200&h=200&fit=crop'),mk('Diavola','Tomat, mozzarella, spicy salami og chili',189,179,[],'food','pdf',false,'Pizzaer','https://images.unsplash.com/photo-1628840042765-356cda07504e?w=200&h=200&fit=crop'),mk('Calzone','Fylt med skinke, mozzarella, ricotta og tomat',209,199,[],'food','pdf',false,'Pizzaer',null)]},
+  {nm:'Pasta',its:[mk('Carbonara','Guanciale, egg, pecorino og svart pepper',189,179,[],'food','pdf',false,'Pasta','https://images.unsplash.com/photo-1612874742237-6526221588e3?w=200&h=200&fit=crop'),mk('Lasagne','Hjemmelaget med bolognese og béchamel',199,189,[],'food','pdf',false,'Pasta','https://images.unsplash.com/photo-1619895092538-128341789043?w=200&h=200&fit=crop')]},
+  {nm:'Desserter',its:[mk('Tiramisu','Klassisk med mascarpone og espresso',119,109,[],'dessert','pdf',false,'Desserter','https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=200&h=200&fit=crop'),mk('Panna Cotta','Med bringebærsaus',109,99,['Melk'],'dessert','pdf',false,'Desserter',null)]},
+  {nm:'Drikke',its:[mk('Peroni','Italiensk lager 0,5l',79,null,[],'drink','pdf',true,'Drikke',null),mk('Chianti','Sangiovese, Toscana',449,null,[],'drink','pdf',true,'Drikke','https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=200&h=200&fit=crop'),mk('Limoncello','Huslaget digestif',99,null,[],'drink','pdf',true,'Drikke',null)]},
 ]},
 'thai-garden.no':{nm:'Thai Garden',cats:[
-  {nm:'Supper',its:[mk('Tom Yum Kung','Thailandsk rekesuppe med sitrongress, galangal og lime',149,139,[],'food','html',false,'Supper'),mk('Tom Kha Gai','Kyllingsuppe med kokosmelk og thai-urter',139,129,[],'food','html',false,'Supper')]},
-  {nm:'Hovedretter',its:[mk('Pad Thai','Stekte risnudler med reker, egg, peanøtter og lime',189,179,[],'food','html',false,'Hovedretter'),mk('Massaman Curry','Biffcurry med poteter, peanøtter og kokosmelk',199,189,[],'food','html',false,'Hovedretter'),mk('Grønn Curry','Kylling, bambuskudd og basilikum i kokosmelk',185,175,[],'food','html',false,'Hovedretter')]},
-  {nm:'Tilbehør',its:[mk('Jasminris','Dampet thailandsk jasminris',39,35,[],'side','html',false,'Tilbehør'),mk('Vårrull (4 stk)','Sprø vårruller med kylling og grønnsaker',89,79,[],'side','html',false,'Tilbehør')]},
-  {nm:'Drikke',its:[mk('Thai iste','Søt iste med kondensert melk',59,49,[],'drink','html',false,'Drikke'),mk('Singha øl','Thailandsk lager 0,33l',79,null,[],'drink','html',true,'Drikke')]},
+  {nm:'Supper',its:[mk('Tom Yum Kung','Thailandsk rekesuppe med sitrongress, galangal og lime',149,139,[],'food','html',false,'Supper','https://images.unsplash.com/photo-1548943487-a2e4e43b4853?w=200&h=200&fit=crop'),mk('Tom Kha Gai','Kyllingsuppe med kokosmelk og thai-urter',139,129,[],'food','html',false,'Supper',null)]},
+  {nm:'Hovedretter',its:[mk('Pad Thai','Stekte risnudler med reker, egg, peanøtter og lime',189,179,[],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1559314809-0d155014e29e?w=200&h=200&fit=crop'),mk('Massaman Curry','Biffcurry med poteter, peanøtter og kokosmelk',199,189,[],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1455619452474-d2be8b1e70cd?w=200&h=200&fit=crop'),mk('Grønn Curry','Kylling, bambuskudd og basilikum i kokosmelk',185,175,[],'food','html',false,'Hovedretter','https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?w=200&h=200&fit=crop')]},
+  {nm:'Tilbehør',its:[mk('Jasminris','Dampet thailandsk jasminris',39,35,[],'side','html',false,'Tilbehør',null),mk('Vårrull (4 stk)','Sprø vårruller med kylling og grønnsaker',89,79,[],'side','html',false,'Tilbehør','https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=200&h=200&fit=crop')]},
+  {nm:'Drikke',its:[mk('Thai iste','Søt iste med kondensert melk',59,49,[],'drink','html',false,'Drikke',null),mk('Singha øl','Thailandsk lager 0,33l',79,null,[],'drink','html',true,'Drikke',null)]},
 ]},
 };
 
@@ -244,8 +259,9 @@ function rS1(){$('step1').innerHTML=`<div class="card"><h2 class="sora" style="f
 // S2 - FAST SCAN (2 sec)
 function scan(){const u=$('urlIn')?.value?.trim();if(!u)return;const h=u.replace(/https?:\/\//,'').split('/')[0];S.mk=M[h]?h:Object.keys(M)[0];S.m=JSON.parse(JSON.stringify(M[S.mk]));S.ec=0;S.sr='';S.af='all';S.tab='review';$('step1').classList.add('hidden');$('step2').classList.remove('hidden');
   const a=its();$('step2').innerHTML=`<div class="card"><div class="scan-wrap on"><div class="scan-spinner"></div><div class="sora" style="font-size:16px;font-weight:600" id="ss">Leser meny…</div><div style="font-size:12px;color:var(--t2);margin-top:4px" id="sd">Henter fra ${u}</div><div class="scan-found" id="sf"></div></div></div>`;
+  const imgOk=a.filter(i=>i.imgSt==='found').length;
   const tags=a.map(i=>i.n);let ti=0;
-  const iv=setInterval(()=>{if(ti>=tags.length){clearInterval(iv);$('ss').textContent=`${a.length} retter funnet`;$('sd').textContent=`${aiDN()} AI allergen-deteksjoner · ${a.filter(i=>i.al).length} alkohol`;setTimeout(()=>{$('step2').classList.add('hidden');$('step3').classList.remove('hidden');$('sticky').classList.add('on');rS3();},600);return;}
+  const iv=setInterval(()=>{if(ti>=tags.length){clearInterval(iv);$('ss').textContent=`${a.length} retter funnet`;$('sd').textContent=`${aiDN()} AI-deteksjoner · ${imgOk} bilder hentet · ${a.filter(i=>i.al).length} alkohol`;setTimeout(()=>{$('step2').classList.add('hidden');$('step3').classList.remove('hidden');$('sticky').classList.add('on');rS3();},600);return;}
     const tag=document.createElement('span');tag.className='scan-tag';tag.textContent=tags[ti];tag.style.animationDelay=ti*30+'ms';$('sf').appendChild(tag);ti++;},80);
 }
 
@@ -255,7 +271,8 @@ function rS3(){
   let h='';
 
   // AI BAR - compact
-  h+=`<div class="ai-bar"><span class="ai-bar-icon">✨</span><span class="ai-bar-text"><strong>${aiD} allergener</strong> auto-detektert · <strong>${new Set(a.map(i=>i.hg)).size} hovedgrupper</strong> klassifisert</span>${a.filter(i=>i.miss.length).length?`<button class="btn bai bsm" onclick="bulkAcceptAI()">🤖 Godta alle AI-forslag (${a.filter(i=>i.miss.length).length})</button>`:''}</div>`;
+  const imgOk=a.filter(i=>i.imgSt==='found').length,imgMiss=a.length-imgOk;
+  h+=`<div class="ai-bar"><span class="ai-bar-icon">✨</span><span class="ai-bar-text"><strong>${aiD} allergener</strong> detektert · <strong>${new Set(a.map(i=>i.hg)).size} hovedgrupper</strong> · <strong>${imgOk} bilder</strong> hentet${imgMiss?`, ${imgMiss} mangler`:''}</span>${a.filter(i=>i.miss.length).length?`<button class="btn bai bsm" onclick="bulkAcceptAI()">🤖 Godta alle AI-forslag (${a.filter(i=>i.miss.length).length})</button>`:''}</div>`;
 
   // Review progress
   const pct=tot?Math.round(cn/tot*100):0;
@@ -266,15 +283,18 @@ function rS3(){
 
   if(S.tab==='review'){
     // Toolbar
-    h+=`<div class="tb"><div class="srch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Søk…" value="${S.sr}" oninput="S.sr=this.value;rS3()" /></div><div class="fg"><button class="fb ${S.af==='all'?'on':''}" onclick="S.af='all';rS3()">Alle <span class="fc">${tot}</span></button><button class="fb ${S.af==='ai'?'on':''}" onclick="S.af='ai';rS3()">🤖 AI-funn <span class="fc">${a.filter(i=>i.miss.length).length}</span></button><button class="fb ${S.af==='uc'?'on':''}" onclick="S.af='uc';rS3()">Ubekreftet <span class="fc">${tot-cn}</span></button><button class="fb ${S.af==='alc'?'on':''}" onclick="S.af='alc';rS3()">Alkohol <span class="fc">${alcN}</span></button></div></div>`;
+    h+=`<div class="tb"><div class="srch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Søk…" value="${S.sr}" oninput="S.sr=this.value;rS3()" /></div><div class="fg"><button class="fb ${S.af==='all'?'on':''}" onclick="S.af='all';rS3()">Alle <span class="fc">${tot}</span></button><button class="fb ${S.af==='ai'?'on':''}" onclick="S.af='ai';rS3()">🤖 AI-funn <span class="fc">${a.filter(i=>i.miss.length).length}</span></button><button class="fb ${S.af==='noimg'?'on':''}" onclick="S.af='noimg';rS3()">📷 Uten bilde <span class="fc">${a.filter(i=>i.imgSt!=='found').length}</span></button><button class="fb ${S.af==='uc'?'on':''}" onclick="S.af='uc';rS3()">Ubekreftet <span class="fc">${tot-cn}</span></button><button class="fb ${S.af==='alc'?'on':''}" onclick="S.af='alc';rS3()">Alkohol <span class="fc">${alcN}</span></button></div></div>`;
 
     // FLAT TABLE (categories as inline rows)
-    h+=`<table class="mt"><thead><tr><th style="width:24px"></th><th>Produkt & allergener</th><th style="width:100px">Pris</th><th style="width:130px">Hovedgruppe</th></tr></thead><tbody>`;
+    const imgN=a.filter(i=>i.imgSt==='found').length;
+    h+=`<table class="mt"><thead><tr><th style="width:24px"></th><th style="width:50px">Bilde</th><th>Produkt & allergener</th><th style="width:100px">Pris</th><th style="width:130px">Hovedgruppe</th></tr></thead><tbody>`;
     S.m.cats.forEach((cat,ci)=>{
       const fi=cat.its.filter(filt);if(!fi.length)return;
-      h+=`<tr class="cat-row"><td colspan="4">${cat.nm} · ${fi.length} retter</td></tr>`;
+      h+=`<tr class="cat-row"><td colspan="5">${cat.nm} · ${fi.length} retter</td></tr>`;
       fi.forEach(it=>{const ri=cat.its.indexOf(it);const hg=HGD.find(g=>g.id===it.hg)||HGD[0];
         h+=`<tr class="${it.conf?'confirmed':''}" onclick="openDr(${ci},${ri})"><td onclick="event.stopPropagation()">${it.conf?'<div class="conf-icon">✓</div>':`<input type="checkbox" class="chk" ${it.chk?'checked':''} onchange="S.m.cats[${ci}].its[${ri}].chk=this.checked;updS()" />`}</td>`;
+        // Image thumbnail
+        h+=`<td><div class="img-th">${it.imgSt==='found'?`<img src="${it.img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<span class=img-empty>📷</span><div class=img-status-dot style=background:var(--er)>!</div>';S.m.cats[${ci}].its[${ri}].imgSt='failed'">`:`<span class="img-empty">📷</span>`}<div class="img-status-dot ${it.imgSt==='found'?'ok':it.imgSt==='failed'?'fail':'none'}">${it.imgSt==='found'?'✓':it.imgSt==='failed'?'!':'–'}</div></div></td>`;
         h+=`<td><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span class="sora" style="font-size:12px;font-weight:600">${it.n}</span>${it.al?'<span class="badge b-alc">🍷</span>':''}${it.miss.length?`<span class="badge b-ai">+${it.miss.length} AI</span>`:''}</div>`;
         h+=`<div class="hl-desc">${hl(it.d,it.aiAl)}</div>`;
         h+=`<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">${it.det.map(d=>`<span class="al-tag ${d.s==='t'?'ai':''}">${d.a} <span class="al-src ${d.s}">${d.s==='t'?'🤖':'📋'}</span></span>`).join('')}</div></td>`;
@@ -299,7 +319,7 @@ function rS3(){
   $('stickyR').innerHTML=`<button class="btn bok bsm" onclick="doImport()">✓ Importer ${selN()}</button>`;
 }
 
-function filt(i){if(S.sr&&!i.n.toLowerCase().includes(S.sr.toLowerCase())&&!i.d.toLowerCase().includes(S.sr.toLowerCase()))return false;if(S.af==='ai')return i.miss.length>0;if(S.af==='uc')return!i.conf;if(S.af==='alc')return i.al;return true;}
+function filt(i){if(S.sr&&!i.n.toLowerCase().includes(S.sr.toLowerCase())&&!i.d.toLowerCase().includes(S.sr.toLowerCase()))return false;if(S.af==='ai')return i.miss.length>0;if(S.af==='uc')return!i.conf;if(S.af==='alc')return i.al;if(S.af==='noimg')return i.imgSt!=='found';return true;}
 function iPr(ci,ri,f,v){const n=parseFloat(v.replace(/[^0-9.,]/g,'').replace(',','.'));S.m.cats[ci].its[ri][f]=isNaN(n)?null:n;S.ec++;}
 function bulkAcceptAI(){its().forEach(i=>{if(i.miss.length){i.miss.forEach(d=>{if(!i.als.includes(d.a)){i.als.push(d.a);i.det.push(d);}});i.miss=[];i.iss=i.iss.filter(x=>x.f!=='al');i.st=i.iss.length?'ch':'ok';}});S.ec++;rS3();}
 function eHG(id,f,v){const h=HGD.find(g=>g.id===id);if(h)h[f]=v;S.ec++;rS3();}
@@ -317,6 +337,25 @@ function renDr(){
   const dl=((it.d||'')+' '+it.n).toLowerCase();const sugs=[];AR.forEach(r=>{if(dl.includes(r.k)&&!it.als.includes(r.a)&&!sugs.includes(r.a))sugs.push(r.a);});
 
   let h='';
+  // IMAGE SECTION
+  h+=`<div class="drs"><div class="drst">🖼️ Produktbilde</div><div class="dr-img-wrap">`;
+  h+=`<div class="dr-img-preview">${it.imgSt==='found'?`<img src="${it.img}" alt="${it.n}">`:`<span style="font-size:28px;opacity:.3">📷</span>`}</div>`;
+  h+=`<div class="dr-img-info">`;
+  if(it.imgSt==='found'){
+    h+=`<div class="dr-img-status" style="color:var(--ok)">✓ Bilde hentet fra nettside</div>`;
+    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Automatisk lastet ned under skanning</div>`;
+    h+=`<div class="dr-img-actions"><button class="btn bxs bs" onclick="drImgClear()" style="margin-top:4px">✕ Fjern bilde</button></div>`;
+  } else if(it.imgSt==='failed'){
+    h+=`<div class="dr-img-status" style="color:var(--er)">✕ Kunne ikke hente bilde</div>`;
+    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Bildet var ikke tilgjengelig eller formatet støttes ikke</div>`;
+    h+=`<div class="dr-img-actions" style="margin-top:6px"><button class="btn bxs bp" onclick="drImgUpload()">📤 Last opp manuelt</button><button class="btn bxs bs" onclick="drImgSkip()">Legg til senere</button></div>`;
+  } else {
+    h+=`<div class="dr-img-status" style="color:var(--t3)">Ingen bilde funnet på nettsiden</div>`;
+    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Du kan laste opp et bilde nå eller gjøre det etter import</div>`;
+    h+=`<div class="dr-img-actions" style="margin-top:6px"><button class="btn bxs bp" onclick="drImgUpload()">📤 Last opp bilde</button><button class="btn bxs bs" onclick="drImgSkip()">Ta dette senere</button></div>`;
+  }
+  h+=`</div></div></div>`;
+
   // FIELDS - compact
   h+=`<div class="drs"><div class="drst">📦 Produkt</div><div class="drf"><div class="drl">Navn</div><input class="dri" value="${it.n}" onchange="drE('n',this.value)" /></div><div class="drf"><div class="drl">Beskrivelse</div><textarea class="drta" onchange="drE('d',this.value)">${it.d}</textarea></div><div style="display:flex;gap:8px"><div class="drf" style="flex:1"><div class="drl">Servering</div><input class="dri" value="${it.pi!==null?it.pi+',-':''}" placeholder="—" onchange="drEP('pi',this.value)" /></div><div class="drf" style="flex:1"><div class="drl">Takeaway</div><input class="dri" value="${it.pt!==null?it.pt+',-':''}" placeholder="—" onchange="drEP('pt',this.value)" /></div></div></div>`;
 
@@ -349,6 +388,12 @@ function drEP(f,v){const n=parseFloat((v||'').replace(/[^0-9.,]/g,'').replace(',
 function drTgAl(a){const it=S.m.cats[S.di.ci].its[S.di.ri];const x=it.als.indexOf(a);if(x>=0){it.als.splice(x,1);it.det=it.det.filter(d=>d.a!==a);}else{it.als.push(a);it.det.push({a,s:'manual',tr:null,c:100});}S.ec++;renDr();}
 function drAccAl(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.miss.forEach(d=>{if(!it.als.includes(d.a)){it.als.push(d.a);it.det.push(d);}});it.miss=[];it.iss=it.iss.filter(x=>x.f!=='al');it.st=it.iss.length?'ch':'ok';S.ec++;renDr();}
 function drHG(id){const it=S.m.cats[S.di.ci].its[S.di.ri];it.hg=id;it.hgC=100;it.hgS=[{r:'Manuelt valgt',ok:true,h:id,c:100}];S.ec++;renDr();}
+function drImgClear(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.img=null;it.imgSt='none';S.ec++;renDr();}
+function drImgUpload(){const it=S.m.cats[S.di.ci].its[S.di.ri];
+  // Simulate file picker with a placeholder
+  const fakeUrl='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop';
+  it.img=fakeUrl;it.imgSt='found';S.ec++;renDr();}
+function drImgSkip(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.imgSt='none';S.ec++;renDr();}
 function drConf(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.conf=true;it.iss=[];it.st='ok';S.ec++;
   // Auto-navigate to next unconfirmed
   const a=its(),idx=a.indexOf(it);const next=[...a.slice(idx+1),...a.slice(0,idx)].find(i=>!i.conf);
@@ -364,10 +409,11 @@ function doImport(){
   $('impFill').style.width='0%';
   let step=0;
   const steps=[
-    {t:'Oppretter kategorier…',s:`${S.m.cats.length} kategorier`,p:15},
-    {t:'Importerer produkter…',s:`0 av ${tot}`,p:30},
-    {t:'Importerer produkter…',s:`${Math.floor(tot*.4)} av ${tot}`,p:50},
-    {t:'Setter allergener…',s:`${sel.reduce((s,i)=>s+i.als.length,0)} allergener`,p:65},
+    {t:'Oppretter kategorier…',s:`${S.m.cats.length} kategorier`,p:12},
+    {t:'Importerer produkter…',s:`0 av ${tot}`,p:25},
+    {t:'Importerer produkter…',s:`${Math.floor(tot*.5)} av ${tot}`,p:42},
+    {t:'Setter allergener…',s:`${sel.reduce((s,i)=>s+i.als.length,0)} allergener`,p:55},
+    {t:'Overfører bilder…',s:`${sel.filter(i=>i.imgSt==='found').length} bilder`,p:68},
     {t:'Tilordner hovedgrupper…',s:`MVA og SAF-T koder`,p:78},
     {t:'Setter priser…',s:`Servering og takeaway`,p:88},
     {t:'Validerer…',s:`Kontrollerer data`,p:95},
@@ -396,6 +442,8 @@ function showSuccess(){
   const tot=sel.length;
   const alcN=sel.filter(i=>i.al).length;
   const aiD=sel.reduce((s,i)=>s+i.aiAl.length,0);
+  const imgOk=sel.filter(i=>i.imgSt==='found').length;
+  const imgMiss=tot-imgOk;
   const grps={};sel.forEach(i=>{if(!grps[i.hg])grps[i.hg]=0;grps[i.hg]++;});
   const hgN=Object.keys(grps).length;
   const catN=new Set(sel.map(i=>i.cn)).size;
@@ -404,15 +452,14 @@ function showSuccess(){
   $('step4').innerHTML=`<div class="suc">
     <div class="suc-check"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h2 class="suc-t">Meny importert!</h2>
-    <p class="suc-d">${tot} produkter fra <strong>${S.m.nm}</strong> er nå opprettet i Plorea med ${hgN} hovedgrupper, ${alN} allergenmerking${alcN?`, og ${alcN} alkohol-produkter flagget med rabattsperre`:''}.</p>
+    <p class="suc-d">${tot} produkter fra <strong>${S.m.nm}</strong> er opprettet i Plorea med ${hgN} hovedgrupper, ${alN} allergenmerking og ${imgOk} produktbilder.${imgMiss?` ${imgMiss} produkt${imgMiss>1?'er':''} mangler bilde – du kan legge disse til senere.`:''}${alcN?` ${alcN} alkohol-produkter er flagget med rabattsperre.`:''}</p>
     
     <div class="suc-stats">
       <div class="suc-st"><div class="suc-sv" style="color:var(--ok)">${tot}</div><div class="suc-sl">Produkter</div></div>
-      <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${catN}</div><div class="suc-sl">Kategorier</div></div>
+      <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${imgOk}</div><div class="suc-sl">Med bilde</div></div>
+      <div class="suc-st"><div class="suc-sv" style="color:${imgMiss?'var(--wn)':'var(--ok)'}">${imgMiss}</div><div class="suc-sl">Uten bilde</div></div>
       <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${hgN}</div><div class="suc-sl">Hovedgrupper</div></div>
-      <div class="suc-st"><div class="suc-sv" style="color:var(--ai)">${aiD}</div><div class="suc-sl">AI-deteksjoner</div></div>
       ${alcN?`<div class="suc-st"><div class="suc-sv" style="color:var(--alc)">${alcN}</div><div class="suc-sl">Alkohol</div></div>`:''}
-      <div class="suc-st"><div class="suc-sv" style="color:var(--t2)">${S.ec}</div><div class="suc-sl">Redigeringer</div></div>
     </div>
 
     <div class="suc-next">
@@ -424,7 +471,7 @@ function showSuccess(){
       </div>
       <div class="suc-ni" onclick="alert('Navigerer til Bilder…')">
         <div class="suc-ni-ico or">📷</div>
-        <div class="suc-ni-txt"><strong>Legg til produktbilder</strong><span>${tot} produkter mangler bilde</span></div>
+        <div class="suc-ni-txt"><strong>Legg til produktbilder</strong><span>${imgMiss} produkt${imgMiss>1?'er':''} mangler bilde</span></div>
         <span class="suc-ni-arr">→</span>
       </div>
       <div class="suc-ni" onclick="alert('Navigerer til Tilgjengelighet…')">
