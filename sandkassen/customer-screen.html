@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea CFD v8 — AI Analytics Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body,#root{width:100%;height:100%;overflow:hidden;font-family:'DM Sans',sans-serif}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:#2A2E3B;border-radius:3px}
+button{font-family:'DM Sans',sans-serif;cursor:pointer;border:none;background:none}
+button:active{transform:scale(0.97)!important}
+@keyframes shimmer{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+@keyframes fadeSlideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,.15)}50%{box-shadow:0 0 0 6px rgba(251,191,36,.05)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-12px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+@keyframes toastOut{from{opacity:1;transform:translateX(-50%) translateY(0)}to{opacity:0;transform:translateX(-50%) translateY(-12px)}}
+@keyframes spotlightIn{from{opacity:0;transform:scale(.92) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes spotlightEmoji{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+@keyframes nudgeHint{0%,100%{transform:translateX(0)}15%{transform:translateX(14px)}30%{transform:translateX(-14px)}45%{transform:translateX(0)}}
+@keyframes aiPulse{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,.2)}50%{box-shadow:0 0 0 8px rgba(139,92,246,.05)}}
+@keyframes barGrow{from{width:0}to{width:var(--target-width)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script type="text/babel">
+const{useState,useEffect,useCallback,useRef,useMemo}=React;
+
+// ═══════════════════════════════════════════════════════
+// ANALYTICS STORE — the learning loop
+// ═══════════════════════════════════════════════════════
+
+class AnalyticsStore{
+  constructor(){
+    this.events=[];        // raw event log
+    this.productStats={};  // aggregated per product
+    this.sessionStats={impressions:0,clicks:0,ignores:0,revenue:0,orders:0};
+    this.listeners=new Set();
+  }
+
+  subscribe(fn){this.listeners.add(fn);return()=>this.listeners.delete(fn);}
+  notify(){this.listeners.forEach(fn=>fn());}
+
+  _ensureProduct(id,name){
+    if(!this.productStats[id]){
+      this.productStats[id]={id,name,impressions:0,clicks:0,ignores:0,dwellMs:[],ctr:0,avgDwellSec:0,revenue:0,lastSeen:null,trend:0};
+    }
+  }
+
+  // Track: spotlight showed this product
+  trackImpression(productId,productName,context){
+    this._ensureProduct(productId,productName);
+    const ps=this.productStats[productId];
+    ps.impressions++;
+    ps.lastSeen=Date.now();
+    this.sessionStats.impressions++;
+    this.events.push({type:"impression",productId,productName,context,ts:Date.now()});
+    this._recalc(productId);
+    this.notify();
+  }
+
+  // Track: customer tapped "add"
+  trackClick(productId,productName,dwellMs,context){
+    this._ensureProduct(productId,productName);
+    const ps=this.productStats[productId];
+    ps.clicks++;
+    ps.dwellMs.push(dwellMs);
+    this.sessionStats.clicks++;
+    this.events.push({type:"click",productId,productName,dwellMs,context,ts:Date.now()});
+    this._recalc(productId);
+    this.notify();
+  }
+
+  // Track: customer swiped past (ignored)
+  trackIgnore(productId,productName,dwellMs,context){
+    this._ensureProduct(productId,productName);
+    const ps=this.productStats[productId];
+    ps.ignores++;
+    ps.dwellMs.push(dwellMs);
+    this.sessionStats.ignores++;
+    this.events.push({type:"ignore",productId,productName,dwellMs,context,ts:Date.now()});
+    this._recalc(productId);
+    this.notify();
+  }
+
+  // Track: item was approved and added to order
+  trackConversion(productId,productName,price){
+    this._ensureProduct(productId,productName);
+    const ps=this.productStats[productId];
+    ps.revenue+=price;
+    this.sessionStats.revenue+=price;
+    this.events.push({type:"conversion",productId,productName,price,ts:Date.now()});
+    this.notify();
+  }
+
+  trackOrderComplete(){
+    this.sessionStats.orders++;
+    this.events.push({type:"order_complete",ts:Date.now()});
+    this.notify();
+  }
+
+  _recalc(id){
+    const ps=this.productStats[id];
+    ps.ctr=ps.impressions>0?ps.clicks/ps.impressions:0;
+    ps.avgDwellSec=ps.dwellMs.length>0?(ps.dwellMs.reduce((a,b)=>a+b,0)/ps.dwellMs.length/1000):0;
+    // Trend: recent CTR vs overall — positive = improving
+    const recent=this.events.filter(e=>e.productId===id&&Date.now()-e.ts<60000);
+    const recentImps=recent.filter(e=>e.type==="impression").length;
+    const recentClicks=recent.filter(e=>e.type==="click").length;
+    const recentCTR=recentImps>0?recentClicks/recentImps:0;
+    ps.trend=recentCTR-ps.ctr;
+  }
+
+  // AI uses this to boost/penalize products
+  getLearningMultiplier(productId){
+    const ps=this.productStats[productId];
+    if(!ps||ps.impressions<2) return 1.0; // not enough data
+    // High CTR → boost, low CTR → penalize
+    let mult=1.0;
+    if(ps.ctr>0.4) mult=1.6;       // very high performer
+    else if(ps.ctr>0.25) mult=1.3;  // good performer
+    else if(ps.ctr>0.1) mult=1.0;   // average
+    else if(ps.ctr>0) mult=0.7;     // below average
+    else mult=0.5;                    // never clicked
+    // Short dwell = quick decision → boost
+    if(ps.avgDwellSec>0&&ps.avgDwellSec<3) mult*=1.15;
+    // Trending up → extra boost
+    if(ps.trend>0.1) mult*=1.2;
+    return mult;
+  }
+
+  getTopProducts(n=5){
+    return Object.values(this.productStats)
+      .filter(p=>p.impressions>0)
+      .sort((a,b)=>b.ctr-a.ctr)
+      .slice(0,n);
+  }
+
+  getRecentEvents(n=8){
+    return this.events.slice(-n).reverse();
+  }
+}
+
+const analytics=new AnalyticsStore();
+
+function useAnalytics(){
+  const[,setTick]=useState(0);
+  useEffect(()=>{
+    return analytics.subscribe(()=>setTick(t=>t+1));
+  },[]);
+  return analytics;
+}
+
+// ═══════════════════════════════════════════════════════
+// AI ENGINE — now with learning
+// ═══════════════════════════════════════════════════════
+
+function getTimeContext(){
+  const h=new Date().getHours();
+  if(h>=6&&h<11)return{period:"morgen",boost:["Kaffe","Frokost"],label:"God morgen",icon:"🌅",weight:1.5};
+  if(h>=11&&h<14)return{period:"lunsj",boost:["Suppe","Salat","Drikke"],label:"Lunsjtid",icon:"☀️",weight:1.2};
+  if(h>=14&&h<17)return{period:"ettermiddag",boost:["Dessert","Kaffe","Snacks"],label:"Ettermiddag",icon:"🌤",weight:1.0};
+  if(h>=17&&h<21)return{period:"middag",boost:["Vin","Drink","Dessert"],label:"Middagstid",icon:"🌆",weight:1.5};
+  return{period:"kveld",boost:["Drink","Dessert","Vin"],label:"God kveld",icon:"🌙",weight:1.3};
+}
+function getWeatherContext(){return{type:"warm",temp:24,boost:["Drikke","Gelato","Salat","Iskrem"],label:"Varm dag",icon:"☀️",weight:1.8};}
+function getInventoryStatus(){return{low:["p6"],out:[],promoted:["p2","p5"]};}
+function getHistoryContext(){return{conversionRate:{"p7":0.34,"p1":0.28,"p2":0.25,"p4":0.22,"p5":0.20}};}
+
+function getCartCategories(items){
+  return items.map(i=>{const n=i.name.toLowerCase();
+    if(n.includes("pizza"))return"Pizza";if(n.includes("pasta"))return"Pasta";
+    if(n.includes("vin"))return"Vin";if(n.includes("dessert")||n.includes("tiramisù")||n.includes("gelato"))return"Dessert";
+    if(n.includes("suppe"))return"Suppe";if(n.includes("burger"))return"Burger";
+    if(n.includes("kaffe")||n.includes("espresso"))return"Kaffe";return null;}).filter(Boolean);
+}
+
+function computeAIScore(item,cartKeys,time,weather,inventory,history,suggestedNames){
+  if(suggestedNames.has(item.name))return{score:-1,reasons:[]};
+  const reasons=[];let score=0;
+
+  let ctxHits=0;
+  cartKeys.forEach(k=>{if(item.cats.includes(k)){ctxHits++;score+=5;}});
+  if(ctxHits>0)reasons.push({icon:"🎯",text:`Passer til ${cartKeys.slice(0,2).join(" & ")}`,w:ctxHits*5});
+
+  let timeHit=false;
+  time.boost.forEach(b=>{if(item.cats.includes(b)||item.tag===b){score+=2*time.weight;timeHit=true;}});
+  if(timeHit)reasons.push({icon:time.icon,text:time.label,w:Math.round(2*time.weight)});
+
+  let wxHit=false;
+  weather.boost.forEach(b=>{if(item.cats.includes(b)||item.tag===b||item.name.toLowerCase().includes(b.toLowerCase())){score+=2.5*weather.weight;wxHit=true;}});
+  if(wxHit)reasons.push({icon:weather.icon,text:`${weather.label} (${weather.temp}°)`,w:Math.round(2.5*weather.weight)});
+
+  if(item.pop==="fire"){score+=3;reasons.push({icon:"🔥",text:`${item.sold} bestilt i dag`,w:3});}
+  else if(item.pop==="star"){score+=2;reasons.push({icon:"⭐",text:"Populær",w:2});}
+  else if(item.pop==="thumb"){score+=1.5;reasons.push({icon:"👍",text:"Andre velger denne",w:1.5});}
+  score+=(item.sold||0)/80;
+
+  if(inventory.promoted.includes(item.id)){score+=3;reasons.push({icon:"👨‍🍳",text:"Kokken anbefaler",w:3});}
+  if(inventory.low.includes(item.id)){score+=1;reasons.push({icon:"⏳",text:"Få igjen",w:1});}
+  if(inventory.out.includes(item.id))return{score:-1,reasons:[]};
+
+  const conv=history.conversionRate[item.id];
+  if(conv&&conv>0.2){score+=conv*8;reasons.push({icon:"📊",text:`${Math.round(conv*100)}% legger til`,w:Math.round(conv*8)});}
+
+  // ★ LEARNING MULTIPLIER from analytics
+  const learnMult=analytics.getLearningMultiplier(item.id);
+  if(learnMult!==1.0){
+    score*=learnMult;
+    if(learnMult>1.2)reasons.push({icon:"🧠",text:"AI-favoritt",w:2});
+    else if(learnMult<0.8)reasons.push({icon:"📉",text:"Lav respons",w:-1});
+  }
+
+  reasons.sort((a,b)=>b.w-a.w);
+  return{score,reasons:reasons.slice(0,3)};
+}
+
+function getAIRankedPromos(cartItems,allItems,suggestedNames,max){
+  const cartKeys=getCartCategories(cartItems);
+  const cartNameTokens=cartItems.map(c=>c.name.toLowerCase().split(" ")).flat();
+  const time=getTimeContext(),weather=getWeatherContext(),inventory=getInventoryStatus(),history=getHistoryContext();
+
+  const scored=allItems.map(item=>{
+    const nameTokens=item.name.toLowerCase().split(" ");
+    const isInCart=cartNameTokens.some(ct=>nameTokens.some(nt=>nt.length>3&&nt===ct));
+    if(isInCart)return{...item,aiScore:-1,aiReasons:[]};
+    const{score,reasons}=computeAIScore(item,cartKeys,time,weather,inventory,history,suggestedNames);
+    return{...item,aiScore:score,aiReasons:reasons};
+  });
+  return scored.filter(i=>i.aiScore>0).sort((a,b)=>b.aiScore-a.aiScore).slice(0,max);
+}
+
+function getContextHeadline(item,cart){
+  if(!item.contextLine)return item.desc;
+  const cats=getCartCategories(cart);
+  for(const c of cats){if(item.contextLine[c])return item.contextLine[c];}
+  return item.contextLine.default||item.desc;
+}
+
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const ALL_PROMOS=[
+  {id:"p1",name:"Hjemmelaget Focaccia",price:49,img:"🫓",tag:"Nybakt",desc:"Varm fra ovnen — med rosmarin & havsalt",pop:"fire",sold:76,cats:["Pasta","Vin","Suppe","default"],theme:{gradient:"linear-gradient(135deg,#2D1B0E,#5C3D2E,#3A2416)",glow:"rgba(212,165,116,.12)",accent:"#D4A574"},contextLine:{Pasta:"Perfekt ved siden av pastaen",Pizza:"Noe ekstra til pizzaen",Vin:"Passer perfekt til vinen",default:"Nybakt — rett fra ovnen"}},
+  {id:"p2",name:"Tiramisù",price:89,img:"🍰",tag:"Dessert",desc:"Klassisk italiensk — laget fra bunn av",pop:"star",sold:54,cats:["Pizza","Pasta","Dessert","default"],theme:{gradient:"linear-gradient(135deg,#2A1520,#4A2040,#1A0A15)",glow:"rgba(200,140,180,.10)",accent:"#D4A0C8"},contextLine:{Pizza:"Avslutt med noe søtt",Pasta:"Den perfekte avslutningen",default:"Laget fra bunn av — hver dag"}},
+  {id:"p3",name:"Bruschetta",price:69,img:"🥖",tag:"Forrett",desc:"Tomat, basilikum & hvitløk",pop:null,sold:31,cats:["Vin","default"],theme:{gradient:"linear-gradient(135deg,#1A2E1A,#2E4A28,#1A3020)",glow:"rgba(152,216,160,.10)",accent:"#98D8A0"},contextLine:{Vin:"Perfekt snacks til vinen",default:"Sprøstekt med ferske tomater"}},
+  {id:"p4",name:"Espresso Martini",price:139,img:"🍸",tag:"Drink",desc:"Shaken, not stirred",pop:"thumb",sold:42,cats:["Dessert","Pasta","Drink"],theme:{gradient:"linear-gradient(135deg,#1A1A2E,#16213E,#0F3460)",glow:"rgba(226,192,123,.10)",accent:"#E2C07B"},contextLine:{Dessert:"Perfekt ved siden av desserten",Pasta:"Den perfekte avslutningen",default:"Bartenders favoritt"}},
+  {id:"p5",name:"Gelato 3 kuler",price:79,img:"🍨",tag:"Dessert",desc:"Velg blant 12 smaker",pop:null,sold:63,cats:["Pizza","Dessert","Drikke","default"],theme:{gradient:"linear-gradient(135deg,#1B2838,#2A3F54,#1A2332)",glow:"rgba(168,216,234,.10)",accent:"#A8D8EA"},contextLine:{Pizza:"Noe søtt etter pizzaen?",default:"12 smaker — hjemmelaget daglig"}},
+  {id:"p6",name:"Dagens Suppe",price:99,img:"🍜",tag:"Suppe",desc:"Kremet tomatsuppe med focaccia",pop:"fire",sold:88,cats:["default","Suppe"],theme:{gradient:"linear-gradient(135deg,#2B0F0F,#5C1A1A,#3A1212)",glow:"rgba(244,132,95,.10)",accent:"#F4845F"},contextLine:{default:"Dagens anbefaling fra kjøkkenet"}},
+  {id:"p7",name:"Cola 0.5L",price:39,img:"🥤",tag:"Drikke",desc:"Iskald — perfekt til maten",pop:"fire",sold:124,cats:["Pizza","Burger","Drikke"],theme:{gradient:"linear-gradient(135deg,#1A0A0A,#4A1515,#2A0808)",glow:"rgba(248,113,113,.10)",accent:"#F87171"},contextLine:{Pizza:"Iskald til pizzaen",Burger:"Klassikeren til burgeren",default:"Iskald — rett fra kjøleskapet"}},
+  {id:"p8",name:"Hvitløksbrød",price:49,img:"🧄",tag:"Tilbehør",desc:"Med smeltet smør & urter",pop:"thumb",sold:67,cats:["Pizza","Pasta"],theme:{gradient:"linear-gradient(135deg,#1B2818,#2E4A28,#1A3018)",glow:"rgba(168,216,154,.10)",accent:"#A8D89A"},contextLine:{Pizza:"Ekstra godt ved siden av",Pasta:"Dipp i sausen — perfekt",default:"Sprøstekt med smør & urter"}},
+  {id:"p9",name:"Rødvin glass",price:119,img:"🍷",tag:"Vin",desc:"Husets anbefalte — fyldig & rund",pop:"star",sold:38,cats:["Pasta","Ost","Vin"],theme:{gradient:"linear-gradient(135deg,#2A0F1A,#4A1A2E,#1A0A12)",glow:"rgba(212,160,184,.12)",accent:"#D4A0B8"},contextLine:{Pasta:"Perfekt til din pasta",default:"Husets anbefalte"}},
+  {id:"p10",name:"Espresso",price:35,img:"☕",tag:"Kaffe",desc:"Dobbel shot — ekte italiensk",pop:null,sold:91,cats:["Dessert","Pasta","Kaffe"],theme:{gradient:"linear-gradient(135deg,#1A1008,#3A2816,#1A1008)",glow:"rgba(180,140,100,.10)",accent:"#B48C64"},contextLine:{Dessert:"Avslutt med en espresso",Pasta:"Perfekt etter maten",default:"Dobbel shot"}},
+  {id:"p11",name:"Affogato",price:69,img:"🍦",tag:"Dessert",desc:"Espresso over gelato",pop:"star",sold:29,cats:["Dessert","Kaffe"],theme:{gradient:"linear-gradient(135deg,#1A1520,#2E2040,#1A1020)",glow:"rgba(167,139,250,.10)",accent:"#A78BFA"},contextLine:{Dessert:"Oppgrader desserten",default:"Espresso møter gelato"}},
+  {id:"p12",name:"Oliven & Aioli",price:59,img:"🫒",tag:"Snacks",desc:"Marinerte oliven med aioli",pop:null,sold:45,cats:["Vin","default","Snacks"],theme:{gradient:"linear-gradient(135deg,#0F1A0F,#1A2E1A,#0F1A0F)",glow:"rgba(140,180,140,.10)",accent:"#8CB48C"},contextLine:{Vin:"Perfekt snacks til vinen",default:"Mens du venter"}},
+];
+
+const ALL_BANNERS=ALL_PROMOS.slice(0,6).map((p,i)=>{
+  const gradients=["linear-gradient(135deg,#3B1A0A,#6B3420,#2A1008)","linear-gradient(135deg,#1A1A2E,#16213E,#0F3460)","linear-gradient(135deg,#2D1B0E,#5C3D2E,#3A2416)","linear-gradient(135deg,#1A0A0A,#5C1A1A,#2A0808)","linear-gradient(135deg,#1B2818,#2E4A28,#1A3018)","linear-gradient(135deg,#2A0F1A,#4A1A2E,#1A0A12)"];
+  return{...p,id:`ad${i+1}`,headline:p.name,sub:p.desc,badge:p.tag.toUpperCase(),gradient:gradients[i],emoji:p.img,pattern:`radial-gradient(circle at ${30+i*10}% ${20+i*10}%,${p.theme.glow} 0%,transparent 50%)`};
+});
+
+const INITIAL_CART=[
+  {id:"c1",name:"Pasta Carbonara",qty:2,price:189},
+  {id:"c2",name:"Margherita Pizza",qty:1,price:169},
+  {id:"c3",name:"Mineralvann 0.5L",qty:2,price:39},
+  {id:"c4",name:"Hvitvin glass",qty:1,price:129},
+];
+
+const PMETHODS=[{key:"card",label:"Kort",icon:"💳",instruction:"Følg instruksene på terminalen",color:"#4F8CFF"},{key:"vipps",label:"Vipps",icon:"📱",instruction:"Sjekk Vipps på telefonen",color:"#FF5B24"},{key:"cash",label:"Kontant",icon:"💵",instruction:"Gi beløpet til ekspeditøren",color:"#34D399"}];
+const PSTEPS=[{label:"Starter betaling...",duration:1200},{label:"Venter på terminal...",duration:2500},{label:"Godkjenning...",duration:1500},{label:"Betaling godkjent!",duration:0}];
+const KSTATES=["Sendes til kjøkken","Mottatt av kjøkken","Under tilberedning","Snart klar"];
+
+const T={bg:"#0F1117",surface:"#181B23",surfaceAlt:"#1E2230",border:"#2A2E3B",text:"#E8E9ED",textMuted:"#8B8FA3",accent:"#4F8CFF",accentSoft:"rgba(79,140,255,.12)",success:"#34D399",successSoft:"rgba(52,211,153,.12)",warn:"#FBBF24",warnSoft:"rgba(251,191,36,.15)",danger:"#F87171",promo:"#A78BFA",promoSoft:"rgba(167,139,250,.10)",radius:"16px",radiusSm:"10px",font:"'DM Sans',sans-serif",fontMono:"'JetBrains Mono',monospace"};
+const fmt=n=>`${n.toLocaleString("nb-NO")} kr`;
+
+// ═══════════════════════════════════════════════════════
+// UI COMPONENTS
+// ═══════════════════════════════════════════════════════
+
+const h=React.createElement;
+
+function AnimNum({value,suffix=""}){
+  const[d,setD]=useState(value);const prev=useRef(value);
+  useEffect(()=>{if(value===prev.current)return;const f=prev.current,diff=value-f;let i=0;
+    const iv=setInterval(()=>{i++;setD(Math.round(f+diff*(i/14)));if(i>=14){clearInterval(iv);setD(value);}},22);
+    prev.current=value;return()=>clearInterval(iv);},[value]);
+  return h("span",null,d.toLocaleString("nb-NO"),suffix);
+}
+
+function PopBadge({type,sold}){
+  const B={fire:{e:"🔥",l:"Mest valgt",c:"#F97316",bg:"rgba(249,115,22,.14)"},star:{e:"⭐",l:"Populært",c:"#FBBF24",bg:"rgba(251,191,36,.14)"},thumb:{e:"👍",l:"Andre velger",c:"#60A5FA",bg:"rgba(96,165,250,.14)"}};
+  if(!type||!B[type])return null;const b=B[type];
+  return h("span",{style:{fontSize:"10px",fontWeight:700,color:b.c,background:b.bg,padding:"4px 10px",borderRadius:"8px",whiteSpace:"nowrap",display:"inline-flex",alignItems:"center",gap:"4px"}},b.e," ",b.l,sold?h("span",{style:{opacity:.7}}," · ",sold):null);
+}
+
+function SocialProofBadge({type,sold}){
+  const B={fire:{e:"🔥",c:"#F97316",bg:"rgba(249,115,22,.14)"},star:{e:"⭐",c:"#FBBF24",bg:"rgba(251,191,36,.14)"},thumb:{e:"👍",c:"#60A5FA",bg:"rgba(96,165,250,.14)"}};
+  if(!type||!B[type])return null;const b=B[type];
+  return h("div",{style:{display:"inline-flex",alignItems:"center",gap:"8px",padding:"6px 16px",borderRadius:"20px",background:b.bg,border:`1px solid ${b.c}22`}},h("span",{style:{fontSize:"14px"}},b.e),h("span",{style:{fontSize:"12px",fontWeight:700,color:b.c}},sold," bestilt i dag"));
+}
+
+function AIReasonChips({reasons,accent}){
+  if(!reasons||!reasons.length)return null;
+  return h("div",{style:{display:"flex",gap:"6px",flexWrap:"wrap",justifyContent:"center",marginTop:"8px"}},
+    reasons.map((r,i)=>h("span",{key:i,style:{fontSize:"10px",fontWeight:600,color:accent||T.promo,background:`${accent||T.promo}14`,padding:"4px 10px",borderRadius:"12px",border:`1px solid ${accent||T.promo}20`,display:"inline-flex",alignItems:"center",gap:"4px"}},r.icon," ",r.text)));
+}
+
+function TimerBar({duration,onComplete,active,accent}){
+  const[p,setP]=useState(0);
+  useEffect(()=>{if(!active){setP(0);return;}const s=Date.now();
+    const iv=setInterval(()=>{const pr=Math.min(1,(Date.now()-s)/duration);setP(pr);if(pr>=1){clearInterval(iv);onComplete();}},50);
+    return()=>clearInterval(iv);},[active,duration,onComplete]);
+  return h("div",{style:{position:"absolute",bottom:0,left:0,right:0,height:"3px",background:"rgba(255,255,255,.04)"}},
+    h("div",{style:{height:"100%",width:`${p*100}%`,background:accent||`linear-gradient(90deg,${T.accent},${T.promo})`,transition:"width .08s linear"}}));
+}
+
+function PaymentProgress({step}){
+  return h("div",{style:{display:"flex",flexDirection:"column",gap:"14px",width:"100%"}},
+    PSTEPS.map((s,i)=>{const done=i<step,act=i===step;
+      return h("div",{key:i,style:{display:"flex",alignItems:"center",gap:"14px",opacity:i>step?.2:1}},
+        h("div",{style:{width:"34px",height:"34px",borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:"14px",fontWeight:700,flexShrink:0,background:done?T.success:act?T.accent:T.surfaceAlt,color:done||act?"#FFF":T.textMuted,...(act?{boxShadow:`0 0 0 6px ${T.accentSoft}`,animation:"pulse 1.5s infinite"}:{})}},done?"✓":i+1),
+        h("span",{style:{fontSize:"16px",fontWeight:act?700:400,color:done?T.success:act?T.text:T.textMuted}},s.label));}));
+}
+
+function QR({label,size=80}){
+  const cells=useMemo(()=>{const g=[];for(let y=0;y<9;y++)for(let x=0;x<9;x++){const c=(x<3&&y<3)||(x>5&&y<3)||(x<3&&y>5);if(c||Math.random()>.55)g.push({x,y});}return g;},[]);
+  const cs=size/11;
+  return h("div",{style:{display:"flex",flexDirection:"column",alignItems:"center",gap:"6px"}},
+    h("svg",{width:size,height:size,viewBox:`0 0 ${size} ${size}`,style:{borderRadius:"8px",background:"#FFF",padding:`${cs}px`}},
+      cells.map((c,i)=>h("rect",{key:i,x:c.x*cs,y:c.y*cs,width:cs*.9,height:cs*.9,rx:1,fill:"#1A1D27"}))),
+    h("span",{style:{fontSize:"10px",color:T.textMuted,fontWeight:600,textTransform:"uppercase",letterSpacing:".06em"}},label));
+}
+
+function ScanToast({item}){
+  return h("div",{style:{position:"absolute",top:"14px",left:"50%",transform:"translateX(-50%)",zIndex:50,animation:"toastIn .35s cubic-bezier(.2,.8,.3,1),toastOut .4s 1.8s ease-in forwards",background:"rgba(52,211,153,.95)",color:"#FFF",padding:"12px 28px",borderRadius:"14px",fontSize:"16px",fontWeight:700,display:"flex",alignItems:"center",gap:"10px",boxShadow:"0 8px 32px rgba(52,211,153,.3)"}},"✓ ",item.name," lagt til");
+}
+
+// ═══════════════════════════════════════════════════════
+// ANALYTICS DASHBOARD (in cashier panel)
+// ═══════════════════════════════════════════════════════
+
+function AnalyticsDashboard(){
+  const a=useAnalytics();
+  const top=a.getTopProducts(5);
+  const recent=a.getRecentEvents(6);
+  const ss=a.sessionStats;
+  const overallCTR=ss.impressions>0?((ss.clicks/ss.impressions)*100).toFixed(1):"0.0";
+
+  const eventIcon={impression:"👁",click:"👆",ignore:"→",conversion:"✅",order_complete:"🎉"};
+  const eventColor={impression:"#8B8FA3",click:"#34D399",ignore:"#F87171",conversion:"#FBBF24",order_complete:"#4F8CFF"};
+
+  return h("div",{style:{display:"flex",flexDirection:"column",gap:"12px"}},
+    // Header
+    h("div",{style:{fontSize:"11px",fontWeight:600,color:"#8B8FA3",textTransform:"uppercase",letterSpacing:".06em",display:"flex",alignItems:"center",gap:"5px"}},
+      h("span",{style:{background:"linear-gradient(135deg,#8B5CF6,#3B82F6)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:800}},"AI")," Analytics Loop"),
+
+    // KPIs
+    h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:"6px"}},
+      [{label:"Visninger",value:ss.impressions,color:"#8B8FA3"},{label:"CTR",value:`${overallCTR}%`,color:parseFloat(overallCTR)>20?"#34D399":"#FBBF24"},{label:"Mersalg",value:fmt(ss.revenue),color:"#A78BFA"}].map((kpi,i)=>
+        h("div",{key:i,style:{background:"#F8F9FB",borderRadius:"8px",padding:"8px 10px",textAlign:"center"}},
+          h("div",{style:{fontSize:"16px",fontWeight:800,color:kpi.color,fontFamily:T.fontMono}},kpi.value),
+          h("div",{style:{fontSize:"9px",color:"#8B8FA3",marginTop:"2px",fontWeight:600,textTransform:"uppercase"}},kpi.label)))),
+
+    // Product performance bars
+    top.length>0&&h("div",{style:{display:"flex",flexDirection:"column",gap:"4px"}},
+      h("div",{style:{fontSize:"10px",fontWeight:600,color:"#8B8FA3",textTransform:"uppercase",marginBottom:"2px"}},"Produktytelse (CTR)"),
+      top.map(p=>{
+        const pct=Math.round(p.ctr*100);
+        const mult=analytics.getLearningMultiplier(p.id);
+        const isBoost=mult>1.2;const isPenalty=mult<0.8;
+        return h("div",{key:p.id,style:{display:"flex",alignItems:"center",gap:"8px",fontSize:"11px"}},
+          h("div",{style:{width:"80px",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontWeight:500,color:"#1A1D27"}},p.name),
+          h("div",{style:{flex:1,height:"14px",background:"#E8E9F0",borderRadius:"7px",overflow:"hidden",position:"relative"}},
+            h("div",{style:{height:"100%",width:`${Math.min(pct,100)}%`,background:isBoost?"linear-gradient(90deg,#34D399,#059669)":isPenalty?"linear-gradient(90deg,#F87171,#DC2626)":"linear-gradient(90deg,#4F8CFF,#6C5CE7)",borderRadius:"7px",transition:"width .5s ease"}})),
+          h("span",{style:{width:"36px",textAlign:"right",fontWeight:700,fontFamily:T.fontMono,fontSize:"10px",color:isBoost?"#059669":isPenalty?"#DC2626":"#4F8CFF"}},pct,"%"),
+          h("span",{style:{fontSize:"9px",color:isBoost?"#059669":isPenalty?"#DC2626":"#8B8FA3",width:"16px"}},
+            isBoost?"↑":isPenalty?"↓":"·"));})),
+
+    // Event feed
+    recent.length>0&&h("div",{style:{display:"flex",flexDirection:"column",gap:"3px"}},
+      h("div",{style:{fontSize:"10px",fontWeight:600,color:"#8B8FA3",textTransform:"uppercase",marginBottom:"2px"}},"Siste hendelser"),
+      recent.map((ev,i)=>h("div",{key:i,style:{display:"flex",alignItems:"center",gap:"6px",fontSize:"10px",color:"#8B8FA3",padding:"3px 6px",borderRadius:"6px",background:i===0?"rgba(79,140,255,.04)":"transparent"}},
+        h("span",{style:{fontSize:"12px"}},eventIcon[ev.type]||"·"),
+        h("span",{style:{fontWeight:500,color:eventColor[ev.type]||"#8B8FA3"}},
+          ev.type==="impression"?"Vist":ev.type==="click"?"Klikket":ev.type==="ignore"?"Ignorert":ev.type==="conversion"?"Konvertert":"Ordre ferdig"),
+        ev.productName&&h("span",{style:{color:"#1A1D27",fontWeight:600}},ev.productName),
+        ev.dwellMs&&h("span",{style:{fontFamily:T.fontMono,fontSize:"9px"}},(ev.dwellMs/1000).toFixed(1),"s")))));
+}
+
+// ═══════════════════════════════════════════════════════
+// SPOTLIGHT with analytics tracking
+// ═══════════════════════════════════════════════════════
+
+function SpotlightView({items,cart,current,onAdd,pending,onSwipe,onInteract}){
+  const item=items[current];if(!item)return null;
+  const isPending=pending===item.id;
+  const headline=getContextHeadline(item,cart);
+  const theme=item.theme||{gradient:T.bg,glow:"rgba(167,139,250,.06)",accent:T.promo};
+  const touchStart=useRef(null);
+  const[showHint,setShowHint]=useState(false);
+  const impressionTime=useRef(Date.now());
+  const time=getTimeContext(),weather=getWeatherContext();
+
+  // Track impression when product changes
+  useEffect(()=>{
+    if(!item)return;
+    impressionTime.current=Date.now();
+    analytics.trackImpression(item.id,item.name,{time:time.period,weather:weather.type});
+    setShowHint(false);
+    const t=setTimeout(()=>setShowHint(true),3000);
+    return()=>clearTimeout(t);
+  },[item?.id]);
+
+  const doSwipe=useCallback(dir=>{
+    // Track ignore (swiped away)
+    if(item&&!isPending){
+      const dwell=Date.now()-impressionTime.current;
+      analytics.trackIgnore(item.id,item.name,dwell,{time:time.period,weather:weather.type});
+    }
+    onSwipe(dir);onInteract();
+  },[onSwipe,onInteract,item,isPending]);
+
+  const handleAdd=useCallback(()=>{
+    if(!item)return;
+    const dwell=Date.now()-impressionTime.current;
+    analytics.trackClick(item.id,item.name,dwell,{time:time.period,weather:weather.type});
+    onAdd(item);onInteract();
+  },[item,onAdd,onInteract]);
+
+  const onTS=e=>{touchStart.current=e.touches[0].clientX;onInteract();};
+  const onTE=e=>{if(touchStart.current===null)return;const d=e.changedTouches[0].clientX-touchStart.current;if(Math.abs(d)>50)doSwipe(d>0?-1:1);touchStart.current=null;};
+  const onMD=e=>{touchStart.current=e.clientX;onInteract();};
+  const onMU=e=>{if(touchStart.current===null)return;const d=e.clientX-touchStart.current;if(Math.abs(d)>50){doSwipe(d>0?-1:1);touchStart.current=null;return;}touchStart.current=null;};
+
+  // AI learning indicator
+  const learnMult=analytics.getLearningMultiplier(item.id);
+  const ps=analytics.productStats[item.id];
+  const ctrPct=ps?Math.round(ps.ctr*100):null;
+
+  return h("div",{onTouchStart:onTS,onTouchEnd:onTE,onMouseDown:onMD,onMouseUp:onMU,style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",position:"relative",overflow:"hidden",userSelect:"none",cursor:"grab"}},
+    h("div",{style:{position:"absolute",inset:0,background:theme.gradient,transition:"background .6s"}}),
+    h("div",{style:{position:"absolute",inset:0,background:`radial-gradient(ellipse at 50% 35%,${theme.glow} 0%,transparent 70%)`,transition:"background .6s"}}),
+    h("div",{style:{position:"absolute",inset:0,opacity:.025,backgroundImage:"url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",pointerEvents:"none"}}),
+
+    // Top badges
+    h("div",{style:{position:"absolute",top:"14px",display:"flex",gap:"6px",zIndex:5}},
+      h("span",{style:{fontSize:"9px",fontWeight:700,textTransform:"uppercase",letterSpacing:".1em",color:theme.accent,background:`${theme.accent}18`,padding:"4px 12px",borderRadius:"12px",border:`1px solid ${theme.accent}20`}},weather.icon," ",weather.temp,"° · ",time.icon," ",time.label),
+      h("span",{style:{fontSize:"9px",fontWeight:800,textTransform:"uppercase",background:"linear-gradient(135deg,rgba(139,92,246,.15),rgba(59,130,246,.1))",color:"#A78BFA",padding:"4px 10px",borderRadius:"12px",border:"1px solid rgba(139,92,246,.2)",animation:"aiPulse 3s infinite"}},"AI anbefaling"),
+      ctrPct!==null&&ps.impressions>=2&&h("span",{style:{fontSize:"9px",fontWeight:700,color:learnMult>1.2?"#34D399":learnMult<.8?"#F87171":"#8B8FA3",background:learnMult>1.2?"rgba(52,211,153,.12)":learnMult<.8?"rgba(248,113,113,.12)":"rgba(139,139,163,.08)",padding:"4px 10px",borderRadius:"12px"}},
+        "CTR ",ctrPct,"% ",learnMult>1.2?"↑":learnMult<.8?"↓":"·")),
+
+    // Arrows
+    items.length>1&&h(React.Fragment,null,
+      h("button",{onClick:()=>doSwipe(-1),style:{position:"absolute",left:"10px",top:"50%",transform:"translateY(-50%)",width:"44px",height:"44px",borderRadius:"50%",border:"1px solid rgba(255,255,255,.1)",background:"rgba(255,255,255,.06)",color:"rgba(255,255,255,.5)",fontSize:"20px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:5,backdropFilter:"blur(8px)"}},"‹"),
+      h("button",{onClick:()=>doSwipe(1),style:{position:"absolute",right:"10px",top:"50%",transform:"translateY(-50%)",width:"44px",height:"44px",borderRadius:"50%",border:"1px solid rgba(255,255,255,.1)",background:"rgba(255,255,255,.06)",color:"rgba(255,255,255,.5)",fontSize:"20px",display:"flex",alignItems:"center",justifyContent:"center",zIndex:5,backdropFilter:"blur(8px)"}},"›")),
+
+    // Content
+    h("div",{key:item.id,style:{position:"relative",zIndex:1,textAlign:"center",maxWidth:"360px",width:"100%",animation:"spotlightIn .45s cubic-bezier(.2,.8,.3,1)",display:"flex",flexDirection:"column",alignItems:"center",gap:"4px"}},
+      h("div",{style:{fontSize:"13px",fontWeight:600,color:theme.accent,background:`${theme.accent}14`,padding:"7px 20px",borderRadius:"24px",border:`1px solid ${theme.accent}25`,marginBottom:"10px"}},headline),
+      h("div",{style:{fontSize:"110px",lineHeight:1,marginBottom:"6px",filter:`drop-shadow(0 8px 40px ${theme.glow})`,animation:`spotlightEmoji .5s cubic-bezier(.2,.8,.3,1)${showHint&&!isPending?",nudgeHint 2s ease-in-out 1":""}`}},item.img),
+      h("div",{style:{fontSize:"36px",fontWeight:800,color:"#FFF",lineHeight:1.1,letterSpacing:"-.02em",textShadow:`0 2px 20px ${theme.glow}`}},item.name),
+      h("div",{style:{fontSize:"15px",color:"rgba(255,255,255,.5)",marginTop:"6px",lineHeight:1.4,maxWidth:"300px"}},item.desc),
+      h(AIReasonChips,{reasons:item.aiReasons,accent:theme.accent}),
+      item.pop&&h("div",{style:{marginTop:"8px"}},h(SocialProofBadge,{type:item.pop,sold:item.sold})),
+      h("div",{style:{fontSize:"44px",fontWeight:800,fontFamily:T.fontMono,color:"#FFF",marginTop:"14px",letterSpacing:"-.03em",textShadow:`0 2px 16px ${theme.glow}`}},fmt(item.price)),
+      !isPending?h("button",{onClick:e=>{e.stopPropagation();handleAdd();},style:{marginTop:"16px",padding:"18px 52px",borderRadius:"16px",border:"none",background:`linear-gradient(135deg,${theme.accent},${T.accent})`,color:"#FFF",fontSize:"18px",fontWeight:800,fontFamily:T.font,boxShadow:`0 8px 32px ${theme.glow},0 2px 8px rgba(0,0,0,.3)`}},"Ja, legg til i bestillingen"):
+      h("div",{style:{marginTop:"16px",padding:"18px 40px",borderRadius:"16px",background:T.successSoft,border:`2px solid ${T.success}`,display:"flex",alignItems:"center",gap:"12px"}},
+        h("div",{style:{width:"10px",height:"10px",borderRadius:"50%",background:T.success,animation:"pulse 1.5s infinite"}}),h("span",{style:{fontSize:"16px",fontWeight:700,color:T.success}},"Venter på ekspedør..."))),
+    // Dots
+    h("div",{style:{position:"absolute",bottom:"14px",display:"flex",gap:"6px",zIndex:5}},
+      items.map((_,i)=>h("div",{key:i,onClick:()=>{doSwipe(i-current);},style:{width:i===current?"26px":"8px",height:"8px",borderRadius:"4px",background:i===current?theme.accent:"rgba(255,255,255,.15)",transition:"all .3s",cursor:"pointer"}}))));
+}
+
+// ═══════════════════════════════════════════════════════
+// PROMO ZONE
+// ═══════════════════════════════════════════════════════
+
+function PromoZone({variant,pendingPromo,onPromoTap,paymentPhase,orderLocked,contextItems,contextBanners,cart}){
+  const ROT=variant==="spotlight"?6000:8000;
+  const items=variant==="spotlight"?contextItems:variant==="cards"?contextItems:contextBanners;
+  const pp=variant==="cards"?3:variant==="banners"?2:1;
+  const tp=variant==="spotlight"?items.length:Math.ceil(items.length/pp);
+  const[page,setPage]=useState(0);const[timerKey,setTimerKey]=useState(0);const[timerActive,setTimerActive]=useState(true);
+  const nextPage=useCallback(()=>setPage(p=>(p+1)%tp),[tp]);
+  const handleInteract=useCallback(()=>{setTimerActive(false);setTimerKey(k=>k+1);setTimeout(()=>setTimerActive(true),100);},[]);
+  useEffect(()=>{setTimerActive(!pendingPromo&&!paymentPhase&&!orderLocked);},[pendingPromo,paymentPhase,orderLocked]);
+  useEffect(()=>{setPage(0);},[variant,items.length]);
+  const blocked=paymentPhase||orderLocked;
+  const handleSpotSwipe=useCallback(dir=>{setPage(p=>{const n=p+dir;if(n<0)return items.length-1;if(n>=items.length)return 0;return n;});},[items.length]);
+  const curTheme=variant==="spotlight"&&items[page]?.theme?items[page].theme:null;
+
+  return h("div",{style:{width:"42%",display:"flex",flexDirection:"column",padding:variant==="spotlight"?"0":"24px 18px 18px",position:"relative",overflow:"hidden"}},
+    variant!=="spotlight"&&h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"14px"}},
+      h("span",{style:{fontSize:"11px",fontWeight:600,textTransform:"uppercase",letterSpacing:".1em",color:T.textMuted}},variant==="cards"?"✨ Passer til din ordre":"📢 Tilbud for deg"),
+      tp>1&&h("div",{style:{display:"flex",gap:"4px"}},Array.from({length:tp},(_,i)=>h("div",{key:i,onClick:()=>{setPage(i);handleInteract();},style:{width:i===page?"20px":"6px",height:"6px",borderRadius:"3px",background:i===page?T.accent:T.border,transition:"all .3s",cursor:"pointer"}})))),
+    h("div",{style:{flex:1,overflow:"hidden",position:"relative",opacity:blocked?.15:1,pointerEvents:blocked?"none":"auto",transition:"opacity .4s",display:"flex",flexDirection:"column"}},
+      variant==="spotlight"?h(SpotlightView,{items,cart,current:page,onAdd:onPromoTap,pending:pendingPromo,onSwipe:handleSpotSwipe,onInteract:handleInteract}):
+      h("div",{key:`${variant}-${page}`,style:{flex:1,display:"flex",flexDirection:"column",gap:"12px",animation:"fadeSlideIn .35s ease-out"}},
+        variant==="cards"?items.slice(page*pp,(page+1)*pp).map(i=>h(PromoCard,{key:i.id,item:i,onAdd:onPromoTap,pending:pendingPromo})):
+        items.slice(page*pp,(page+1)*pp).map(b=>h(AdBanner,{key:b.id,ad:b,onAdd:onPromoTap,pending:pendingPromo})))),
+    !blocked&&tp>1&&h(TimerBar,{key:`t-${page}-${timerKey}`,duration:ROT,onComplete:nextPage,active:timerActive&&!pendingPromo,accent:curTheme?.accent}),
+    blocked&&h("div",{style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",background:"rgba(15,17,23,.8)",backdropFilter:"blur(8px)",zIndex:10}},
+      h("div",{style:{background:T.surface,padding:"28px 36px",borderRadius:T.radius,textAlign:"center",border:`1px solid ${T.border}`}},
+        h("div",{style:{fontSize:"40px",marginBottom:"10px"}},orderLocked&&!paymentPhase?"🔒":"💳"),
+        h("div",{style:{fontSize:"18px",fontWeight:700}},orderLocked&&!paymentPhase?"Ordre låst":"Betaling pågår"))));
+}
+
+// Idle + PaymentComplete (compact)
+function IdleScreen({onActivate}){
+  const[i,setI]=useState(0);
+  useEffect(()=>{const iv=setInterval(()=>setI(j=>(j+1)%ALL_BANNERS.length),5000);return()=>clearInterval(iv);},[]);
+  const ad=ALL_BANNERS[i];
+  return h("div",{onClick:onActivate,style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:T.bg,color:T.text,cursor:"pointer",position:"relative",overflow:"hidden"}},
+    h("div",{style:{position:"absolute",inset:0,background:ad.gradient,opacity:.6,transition:"background 1s"}}),
+    h("div",{style:{position:"absolute",inset:0,background:ad.pattern,transition:"background 1s"}}),
+    h("div",{style:{position:"absolute",inset:0,background:"radial-gradient(ellipse at center,transparent 30%,rgba(15,17,23,.85) 100%)"}}),
+    h("div",{style:{position:"absolute",top:"28px",zIndex:1}},h("span",{style:{fontSize:"26px",fontWeight:800,color:T.text}},"plorea")),
+    h("div",{key:i,style:{position:"relative",zIndex:1,textAlign:"center",maxWidth:"520px",animation:"fadeSlideIn .8s ease-out"}},
+      h("span",{style:{fontSize:"80px",display:"block",marginBottom:"16px",filter:"drop-shadow(0 8px 24px rgba(0,0,0,.4))"}},ad.emoji),
+      h("div",{style:{fontSize:"38px",fontWeight:800,lineHeight:1.1,marginBottom:"8px"}},ad.headline),
+      h("div",{style:{fontSize:"18px",color:"rgba(255,255,255,.55)",marginBottom:"20px"}},ad.sub),
+      h("span",{style:{display:"inline-block",fontSize:"30px",fontWeight:800,fontFamily:T.fontMono,color:ad.accent,background:`${ad.accent}18`,padding:"8px 28px",borderRadius:"14px"}},fmt(ad.price))),
+    h("div",{style:{position:"absolute",bottom:"24px",display:"flex",gap:"32px",zIndex:1}},h(QR,{label:"Scan for meny",size:64}),h(QR,{label:"Lojalitet",size:64})));
+}
+
+function PaymentCompleteScreen(){
+  return h("div",{style:{flex:1,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:T.bg,color:T.text,gap:"20px"}},
+    h("div",{style:{animation:"scaleIn .5s cubic-bezier(.2,.8,.3,1)"}},h("div",{style:{width:"100px",height:"100px",borderRadius:"50%",background:T.successSoft,display:"flex",alignItems:"center",justifyContent:"center",fontSize:"48px",boxShadow:"0 0 0 16px rgba(52,211,153,.06)"}},"✓")),
+    h("div",{style:{textAlign:"center"}},h("div",{style:{fontSize:"32px",fontWeight:800,color:T.success}},"Betaling godkjent"),h("div",{style:{fontSize:"18px",color:T.textMuted,marginTop:"8px"}},"Takk for besøket!")),
+    h("div",{style:{fontSize:"24px",fontWeight:800}},"plorea"),
+    h("div",{style:{display:"flex",gap:"28px",marginTop:"16px"}},h(QR,{label:"Kvittering",size:76}),h(QR,{label:"Lojalitet",size:76}),h(QR,{label:"Meny",size:76})));
+}
+
+// ═══════════════════════════════════════════════════════
+// CUSTOMER + CASHIER DISPLAYS
+// ═══════════════════════════════════════════════════════
+
+function CustomerDisplay(props){
+  if(props.paymentDone)return h(PaymentCompleteScreen);
+  const{cart,suggested,pendingPromo,onPromoTap,paymentPhase,paymentStep,paymentMethod,variant,scanToast,kitchenState,orderLocked,contextItems,contextBanners}=props;
+  const sub=cart.reduce((s,i)=>s+i.price*i.qty,0),til=suggested.reduce((s,i)=>s+i.price,0),tot=sub+til,mva=Math.round(tot*.2);
+
+  return h("div",{style:{flex:1,display:"flex",height:"100%",background:T.bg,fontFamily:T.font,color:T.text,overflow:"hidden",position:"relative"}},
+    scanToast&&h(ScanToast,{item:scanToast}),
+    h("div",{style:{width:"58%",display:"flex",flexDirection:"column",borderRight:`1px solid ${T.border}`,padding:"24px 22px 18px",position:"relative"}},
+      h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"16px"}},
+        h("div",null,h("div",{style:{fontSize:"10px",fontWeight:600,textTransform:"uppercase",letterSpacing:".1em",color:T.textMuted}},"Din bestilling"),h("div",{style:{fontSize:"20px",fontWeight:700,marginTop:"2px"}},"Ordre #2847")),
+        h("div",{style:{display:"flex",gap:"6px",alignItems:"center"}},
+          kitchenState!==null&&!paymentPhase&&h("div",{style:{padding:"5px 12px",borderRadius:"16px",fontSize:"11px",fontWeight:600,background:T.warnSoft,color:T.warn,display:"flex",alignItems:"center",gap:"5px"}},h("span",{style:{width:"5px",height:"5px",borderRadius:"50%",background:T.warn,animation:"pulse 1.5s infinite",display:"inline-block"}}),KSTATES[kitchenState]),
+          h("div",{style:{padding:"5px 12px",borderRadius:"16px",fontSize:"11px",fontWeight:600,background:orderLocked?"rgba(248,113,113,.1)":paymentPhase?T.warnSoft:T.accentSoft,color:orderLocked?T.danger:paymentPhase?T.warn:T.accent}},orderLocked?"🔒 Låst":paymentPhase?"⏳ Betaling...":"🛒 Aktiv"))),
+      h("div",{style:{flex:1,overflowY:"auto",display:"flex",flexDirection:"column",gap:"2px"}},
+        cart.map(item=>h("div",{key:item.id,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 13px",borderRadius:T.radiusSm,background:T.surface}},
+          h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},h("span",{style:{fontSize:"11px",fontWeight:600,color:T.textMuted,background:T.surfaceAlt,width:"26px",height:"26px",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:T.fontMono}},item.qty,"×"),h("span",{style:{fontSize:"14px",fontWeight:500}},item.name)),
+          h("span",{style:{fontSize:"14px",fontWeight:600,fontFamily:T.fontMono}},fmt(item.price*item.qty)))),
+        suggested.map((item,i)=>h("div",{key:`s-${i}`,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 13px",borderRadius:T.radiusSm,background:`linear-gradient(90deg,${T.promoSoft},${T.surface})`,border:"1px solid rgba(167,139,250,.2)",animation:"fadeSlideIn .4s ease-out"}},
+          h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},h("span",{style:{fontSize:"11px",fontWeight:600,color:T.promo,background:T.promoSoft,width:"26px",height:"26px",borderRadius:"7px",display:"flex",alignItems:"center",justifyContent:"center"}},"✦"),h("span",{style:{fontSize:"14px",fontWeight:500}},item.name," ",h("span",{style:{fontSize:"10px",color:T.promo}},"Tillegg"))),
+          h("span",{style:{fontSize:"14px",fontWeight:600,fontFamily:T.fontMono,color:T.promo}},fmt(item.price))))),
+      h("div",{style:{marginTop:"14px",borderTop:`1px solid ${T.border}`,paddingTop:"14px",display:"flex",flexDirection:"column",gap:"6px"}},
+        h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:"13px",color:T.textMuted}},h("span",null,"Subtotal"),h("span",{style:{fontFamily:T.fontMono}},fmt(sub))),
+        til>0&&h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:"13px",color:T.promo}},h("span",null,"+ Tillegg"),h("span",{style:{fontFamily:T.fontMono}},fmt(til))),
+        h("div",{style:{display:"flex",justifyContent:"space-between",fontSize:"13px",color:T.textMuted}},h("span",null,"Herav MVA"),h("span",{style:{fontFamily:T.fontMono}},fmt(mva))),
+        h("div",{style:{height:"1px",background:T.border,margin:"4px 0"}}),
+        h("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"baseline"}},h("span",{style:{fontSize:"20px",fontWeight:700}},"Totalt"),h("span",{style:{fontSize:"52px",fontWeight:800,fontFamily:T.fontMono,lineHeight:1,letterSpacing:"-.03em"}},h(AnimNum,{value:tot,suffix:" kr"})))),
+      paymentPhase&&h("div",{style:{position:"absolute",inset:0,background:"rgba(15,17,23,.9)",backdropFilter:"blur(16px)",zIndex:20,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"28px"}},
+        h("div",{style:{fontSize:"80px"}},paymentMethod?.icon||"💳"),
+        h("div",{style:{textAlign:"center"}},h("div",{style:{fontSize:"28px",fontWeight:800}},"Betaling med ",paymentMethod?.label||"kort"),h("div",{style:{fontSize:"16px",color:T.textMuted,marginTop:"8px"}},paymentMethod?.instruction)),
+        h("div",{style:{width:"260px"}},h(PaymentProgress,{step:paymentStep})),
+        h("div",{style:{fontSize:"44px",fontWeight:800,fontFamily:T.fontMono}},fmt(tot)))),
+    h(PromoZone,{variant,pendingPromo,onPromoTap,paymentPhase,orderLocked,contextItems,contextBanners,cart}));
+}
+
+function CashierView({cart,suggested,pendingItem,onApprove,onReject,onStartPayment,onCancelPayment,paymentPhase,smartSuggestions,onAddFromAI}){
+  const total=cart.reduce((s,i)=>s+i.price*i.qty,0)+suggested.reduce((s,i)=>s+i.price,0);
+  const[tab,setTab]=useState("ai"); // "ai" | "analytics"
+
+  return h("div",{style:{flex:1,display:"flex",flexDirection:"column",height:"100%",background:"#F5F6F8",fontFamily:T.font,color:"#1A1D27",overflow:"hidden"}},
+    h("div",{style:{padding:"14px 22px",background:"#FFF",borderBottom:"1px solid #E2E4EA",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+      h("div",null,h("div",{style:{fontSize:"10px",fontWeight:600,textTransform:"uppercase",color:"#8B8FA3"}},"Ekspedør"),h("div",{style:{fontSize:"17px",fontWeight:700}},"Ordre #2847")),
+      h("div",{style:{display:"flex",gap:"8px",alignItems:"center"}},
+        h("span",{style:{fontSize:"20px",fontWeight:800,fontFamily:T.fontMono}},fmt(total)),
+        !paymentPhase?h("div",{style:{display:"flex",gap:"4px"}},PMETHODS.map(m=>h("button",{key:m.key,onClick:()=>onStartPayment(m),style:{padding:"8px 14px",borderRadius:"8px",fontWeight:700,fontSize:"12px",background:m.color,color:"#FFF"}},m.icon," ",m.label))):
+        h("button",{onClick:onCancelPayment,style:{padding:"8px 16px",borderRadius:"8px",fontWeight:700,fontSize:"12px",background:"#F87171",color:"#FFF"}},"✕ Avbryt"))),
+    h("div",{style:{flex:1,display:"flex",overflow:"hidden"}},
+      h("div",{style:{flex:1,padding:"14px 18px",overflowY:"auto"}},
+        h("div",{style:{fontSize:"11px",fontWeight:600,color:"#8B8FA3",marginBottom:"8px",textTransform:"uppercase"}},"Varer"),
+        cart.map(item=>h("div",{key:item.id,style:{display:"flex",justifyContent:"space-between",padding:"10px 12px",background:"#FFF",borderRadius:"8px",marginBottom:"3px",border:"1px solid #E2E4EA"}},h("span",{style:{fontSize:"13px"}},item.qty,"× ",item.name),h("span",{style:{fontSize:"13px",fontWeight:600,fontFamily:T.fontMono}},fmt(item.price*item.qty)))),
+        suggested.map((item,i)=>h("div",{key:`sa-${i}`,style:{display:"flex",justifyContent:"space-between",padding:"10px 12px",background:"rgba(167,139,250,.08)",borderRadius:"8px",marginBottom:"3px",border:"1px solid rgba(167,139,250,.2)"}},h("span",{style:{fontSize:"13px"}},"✦ ",item.name),h("span",{style:{fontSize:"13px",fontWeight:600,fontFamily:T.fontMono}},fmt(item.price))))),
+      // Right panel with tabs
+      h("div",{style:{width:"320px",borderLeft:"1px solid #E2E4EA",background:"#FFF",display:"flex",flexDirection:"column",overflow:"hidden"}},
+        // Tab bar
+        h("div",{style:{display:"flex",borderBottom:"1px solid #E2E4EA"}},
+          [{k:"ai",l:"🧠 AI Mersalg"},{k:"analytics",l:"📊 Analytics"}].map(({k,l})=>h("button",{key:k,onClick:()=>setTab(k),style:{flex:1,padding:"10px",fontSize:"11px",fontWeight:600,color:tab===k?"#4F8CFF":"#8B8FA3",borderBottom:tab===k?"2px solid #4F8CFF":"2px solid transparent",transition:"all .2s"}},l))),
+        h("div",{style:{flex:1,padding:"14px 16px",overflowY:"auto",display:"flex",flexDirection:"column",gap:"14px"}},
+          tab==="ai"?h(React.Fragment,null,
+            // Pending
+            h("div",null,
+              h("div",{style:{fontSize:"11px",fontWeight:600,color:"#8B8FA3",marginBottom:"8px",textTransform:"uppercase"}},"Kundeforslag"),
+              pendingItem?h("div",{style:{background:"linear-gradient(135deg,rgba(251,191,36,.08),#FFF)",border:"2px solid rgba(251,191,36,.4)",borderRadius:"12px",padding:"16px",animation:"pulseGlow 2s infinite",display:"flex",flexDirection:"column",gap:"10px"}},
+                h("div",{style:{display:"flex",justifyContent:"space-between"}},
+                  h("div",null,h("div",{style:{fontSize:"9px",fontWeight:700,textTransform:"uppercase",color:"#D97706"}},"🔔 Kundeforslag"),h("div",{style:{fontSize:"16px",fontWeight:700,marginTop:"4px"}},pendingItem.img," ",pendingItem.name)),
+                  h("span",{style:{fontSize:"18px",fontWeight:800,fontFamily:T.fontMono}},fmt(pendingItem.price))),
+                h("div",{style:{display:"flex",gap:"6px"}},h("button",{onClick:onApprove,style:{flex:1,padding:"10px",borderRadius:"8px",background:"#34D399",color:"#FFF",fontWeight:700,fontSize:"13px"}},"✓ Godkjenn"),h("button",{onClick:onReject,style:{flex:1,padding:"10px",borderRadius:"8px",border:"2px solid #E2E4EA",background:"#FFF",color:"#F87171",fontWeight:700,fontSize:"13px"}},"✕ Avvis"))):
+              h("div",{style:{padding:"16px",textAlign:"center",color:"#C4C7D4",fontSize:"12px"}},"📱 Ingen ventende")),
+            // AI suggestions
+            h("div",null,
+              h("div",{style:{fontSize:"11px",fontWeight:600,color:"#8B8FA3",marginBottom:"8px",textTransform:"uppercase",display:"flex",alignItems:"center",gap:"5px"}},h("span",{style:{background:"linear-gradient(135deg,#8B5CF6,#3B82F6)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent",fontWeight:800}},"AI")," Forslag"),
+              h("div",{style:{background:"linear-gradient(135deg,rgba(139,92,246,.06),rgba(59,130,246,.04))",border:"1px solid rgba(139,92,246,.15)",borderRadius:"10px",padding:"10px",display:"flex",flexDirection:"column",gap:"5px"}},
+                smartSuggestions.map(item=>h("button",{key:item.id,onClick:()=>onAddFromAI(item),style:{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 12px",borderRadius:"8px",background:"#FFF",border:"1px solid #E8E9F0",width:"100%"}},
+                  h("div",{style:{display:"flex",alignItems:"center",gap:"8px"}},
+                    h("span",{style:{fontSize:"20px"}},item.img),
+                    h("div",{style:{textAlign:"left"}},h("div",{style:{fontSize:"13px",fontWeight:600}},item.name),
+                      h("div",{style:{fontSize:"10px",color:"#8B8FA3",display:"flex",gap:"3px",marginTop:"1px"}},
+                        item.aiReasons&&item.aiReasons.slice(0,2).map((r,i)=>h("span",{key:i},r.icon," ",r.text,i<1?" · ":""))))),
+                  h("span",{style:{fontSize:"12px",fontWeight:700,color:"#FFF",background:"linear-gradient(135deg,#8B5CF6,#3B82F6)",padding:"6px 14px",borderRadius:"7px",whiteSpace:"nowrap"}},"+Legg til")))))
+          ):h(AnalyticsDashboard)))));
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN
+// ═══════════════════════════════════════════════════════
+
+function App(){
+  const[view,setView]=useState("split");const[pv,setPv]=useState("spotlight");
+  const[mode,setMode]=useState("idle");const[cart]=useState(INITIAL_CART);
+  const[suggested,setSuggested]=useState([]);const[pp,setPP]=useState(null);
+  const[pi,setPI]=useState(null);const[pPhase,setPPhase]=useState(false);
+  const[pStep,setPStep]=useState(0);const[pMethod,setPMethod]=useState(null);
+  const[pDone,setPDone]=useState(false);const[oLocked,setOLocked]=useState(false);
+  const[toast,setToast]=useState(null);const[kitchen,setKitchen]=useState(null);
+  const a=useAnalytics();
+
+  const sNames=useMemo(()=>new Set(suggested.map(s=>s.name)),[suggested]);
+  const ctxItems=useMemo(()=>getAIRankedPromos(cart,ALL_PROMOS,sNames,9),[cart,sNames,a.sessionStats.impressions]);
+  const ctxBanners=useMemo(()=>getAIRankedPromos(cart,ALL_BANNERS,sNames,6),[cart,sNames,a.sessionStats.impressions]);
+  const smartSugg=useMemo(()=>ctxItems.slice(0,4),[ctxItems]);
+
+  useEffect(()=>{if(mode!=="active")return;let i=0;setKitchen(0);const iv=setInterval(()=>{i++;if(i<KSTATES.length)setKitchen(i);else clearInterval(iv);},4000);return()=>clearInterval(iv);},[mode]);
+
+  const showToast=useCallback(item=>{setToast(item);setTimeout(()=>setToast(null),2400);},[]);
+  const handlePromo=useCallback(item=>{if(pPhase||oLocked)return;setPP(item.id);setPI(item);},[pPhase,oLocked]);
+  const handleApprove=useCallback(()=>{if(!pi)return;const i={name:pi.name,price:pi.price};setSuggested(p=>[...p,i]);showToast(i);analytics.trackConversion(pi.id,pi.name,pi.price);setPP(null);setPI(null);},[pi,showToast]);
+  const handleReject=useCallback(()=>{setPP(null);setPI(null);},[]);
+  const handleAddAI=useCallback(item=>{const e={name:item.name,price:item.price};setSuggested(p=>[...p,e]);showToast(e);analytics.trackConversion(item.id,item.name,item.price);},[showToast]);
+  const handlePay=useCallback(method=>{
+    setPMethod(method);setPPhase(true);setOLocked(true);setPStep(0);
+    let step=0;const adv=()=>{step++;if(step<PSTEPS.length){setPStep(step);if(step<PSTEPS.length-1)setTimeout(adv,PSTEPS[step].duration);else setTimeout(()=>{setPPhase(false);setPDone(true);analytics.trackOrderComplete();setTimeout(()=>{setPDone(false);setMode("idle");setSuggested([]);setPP(null);setPI(null);setPMethod(null);setKitchen(null);setOLocked(false);},6500);},1200);}};
+    setTimeout(adv,PSTEPS[0].duration);},[]);
+  const handleCancel=useCallback(()=>{setPPhase(false);setPStep(0);setPMethod(null);setOLocked(false);},[]);
+
+  const renderC=()=>h(CustomerDisplay,{cart,suggested,pendingPromo:pp,onPromoTap:handlePromo,paymentPhase:pPhase,paymentStep:pStep,paymentMethod:pMethod,variant:pv,scanToast:toast,kitchenState:kitchen,paymentDone:pDone,orderLocked:oLocked,contextItems:ctxItems,contextBanners:ctxBanners});
+  const renderE=()=>h(CashierView,{cart,suggested,pendingItem:pi,onApprove:handleApprove,onReject:handleReject,onStartPayment:handlePay,onCancelPayment:handleCancel,paymentPhase:pPhase,smartSuggestions:smartSugg,onAddFromAI:handleAddAI});
+  const badge=(l,bg,c)=>h("div",{style:{position:"absolute",top:"6px",left:"50%",transform:"translateX(-50%)",zIndex:10,background:bg,color:c,fontSize:"9px",fontWeight:700,padding:"2px 10px",borderRadius:"5px",textTransform:"uppercase"}},l);
+
+  return h("div",{style:{width:"100%",height:"100vh",display:"flex",flexDirection:"column",background:"#0A0C12",fontFamily:T.font,overflow:"hidden"}},
+    h("div",{style:{height:"48px",minHeight:"48px",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 18px",background:"#14161E",borderBottom:`1px solid ${T.border}`}},
+      h("div",{style:{display:"flex",alignItems:"center",gap:"10px"}},
+        h("span",{style:{fontSize:"15px",fontWeight:800,color:T.text}},"plorea"),
+        h("span",{style:{fontSize:"10px",color:T.textMuted,background:T.surfaceAlt,padding:"3px 9px",borderRadius:"5px",fontWeight:500}},"CFD v8 · AI Analytics Loop"),
+        h("button",{onClick:()=>setMode(mode==="idle"?"active":"idle"),style:{padding:"4px 10px",borderRadius:"6px",border:`1px solid ${T.border}`,color:T.textMuted,fontSize:"10px",fontWeight:600}},mode==="idle"?"⏸ Idle":"▶ Aktiv")),
+      h("div",{style:{display:"flex",gap:"3px",alignItems:"center"}},
+        [{k:"customer",l:"👁 Kunde"},{k:"cashier",l:"🖥 Eksped."},{k:"split",l:"⬜ Split"}].map(({k,l})=>h("button",{key:k,onClick:()=>setView(k),style:{padding:"6px 12px",borderRadius:"7px",border:`1.5px solid ${view===k?T.accent:T.border}`,background:view===k?T.accentSoft:"transparent",color:view===k?T.accent:T.textMuted,fontSize:"11px",fontWeight:600}},l)),
+        h("div",{style:{width:"1px",height:"22px",background:T.border,margin:"0 6px"}}),
+        h("div",{style:{display:"flex",background:T.surfaceAlt,borderRadius:"7px",padding:"2px"}},
+          [{k:"cards",l:"✨ Kort"},{k:"banners",l:"📢 Banner"},{k:"spotlight",l:"🎯 Spotlight"}].map(({k,l})=>h("button",{key:k,onClick:()=>setPv(k),style:{padding:"5px 12px",borderRadius:"6px",background:pv===k?T.surface:"transparent",color:pv===k?T.text:T.textMuted,fontSize:"10px",fontWeight:600}},l))))),
+    h("div",{style:{flex:1,display:"flex",overflow:"hidden"}},
+      mode==="idle"&&view!=="cashier"?
+        view==="split"?h(React.Fragment,null,
+          h("div",{style:{flex:1,borderRight:`2px solid ${T.accent}`,position:"relative"}},badge("Kunde",T.accentSoft,T.accent),h(IdleScreen,{onActivate:()=>setMode("active")})),
+          h("div",{style:{flex:1,position:"relative"}},badge("Ekspedør","rgba(79,140,255,.15)","#4F8CFF"),renderE())):
+        h(IdleScreen,{onActivate:()=>setMode("active")}):
+      h(React.Fragment,null,
+        view==="customer"&&renderC(),view==="cashier"&&renderE(),
+        view==="split"&&h(React.Fragment,null,
+          h("div",{style:{flex:1,borderRight:`2px solid ${T.accent}`,position:"relative"}},badge("Kunde",T.accentSoft,T.accent),renderC()),
+          h("div",{style:{flex:1,position:"relative"}},badge("Ekspedør","rgba(79,140,255,.15)","#4F8CFF"),renderE())))),
+    h("div",{style:{height:"34px",minHeight:"34px",display:"flex",alignItems:"center",justifyContent:"center",gap:"14px",background:"#14161E",borderTop:`1px solid ${T.border}`,fontSize:"10px",color:T.textMuted}},
+      h("span",null,"🔄 ",h("b",{style:{color:T.text}},"Analytics Loop"),": visning → klikk/ignorer → lagre → AI lærer"),
+      h("span",{style:{color:T.border}},"·"),
+      h("span",null,"📊 CTR-tracking per produkt"),
+      h("span",{style:{color:T.border}},"·"),
+      h("span",null,"🧠 Læringsmultiplikator justerer score i sanntid")));
+}
+
+ReactDOM.render(h(App),document.getElementById("root"));
+</script>
+</body>
+</html>
