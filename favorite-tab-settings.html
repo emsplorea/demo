@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Plorea — Favorittgruppe</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root,[data-theme="light"]{
+  --bg-page:#F1F5F9;--bg-surface:#FFFFFF;--bg-hover:#F1F5F9;
+  --text-primary:#1A1A1A;--text-secondary:#666666;--text-muted:#C4C4C4;
+  --color-primary:#6BB8DA;--color-accent:#2E6B87;--color-primary-text:#FFFFFF;
+  --color-border:#E9E9E9;--color-border-strong:#D9D9D9;
+  --color-success:#6BDAB2;--color-success-bg:#E8F7F1;--color-warning:#DADA6B;--color-warning-bg:#F7F7E0;--color-error:#DA6B6B;--color-error-bg:#FAEAEA;
+  --color-selection:#EBF6FB;--color-selection-border:#99D2E8;--color-selection-text:#1D4A5F;
+  --elevation-1:0 1px 4px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04);--elevation-2:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);--elevation-3:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04);
+  --r-sm:6px;--r:8px;--r-md:10px;--r-lg:14px;--r-xl:20px;--logo-accent:#6BB8DA;
+}
+[data-theme="dark"]{
+  --bg-page:#16151A;--bg-surface:#1E1D24;--bg-hover:#26242E;
+  --text-primary:#F0EEF5;--text-secondary:#9B98A8;--text-muted:#5C5970;
+  --color-primary:#6BB8DA;--color-accent:#7EC8E3;--color-primary-text:#0D2A38;
+  --color-border:#2E2C38;--color-border-strong:#3D3A4A;
+  --color-success:#4DB896;--color-success-bg:#132B22;--color-warning:#C4C44A;--color-warning-bg:#282810;--color-error:#D45858;--color-error-bg:#2E1212;
+  --color-selection:#0D2030;--color-selection-border:#2E6B87;--color-selection-text:#7EC8E3;
+  --elevation-1:0 1px 4px rgba(0,0,0,.3),0 0 0 1px rgba(255,255,255,.03);--elevation-2:0 4px 16px rgba(0,0,0,.4),0 0 0 1px rgba(255,255,255,.03);--elevation-3:0 12px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.03);
+  --logo-accent:#7EC8E3;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;color:var(--text-primary);background:var(--bg-page);-webkit-font-smoothing:antialiased;display:flex;align-items:center;justify-content:center}
+button{-webkit-user-select:none;user-select:none;font-family:inherit}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:rgba(107,184,218,.2);border-radius:4px}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+var $=document.getElementById("app");
+var DEVICES=[
+  {id:"pos",n:"PC / Tablet",desc:"POS operat\u00f8r",small:[5,6,7],big:[3]},
+  {id:"mobile",n:"Mobile / POS Terminal / QR",desc:"Liten touch-skjerm",small:[2],big:[1]},
+  {id:"self",n:"Selvbetjent & Online Order",desc:"Kiosk, nettbestilling",small:[3,4,5,6,7,8],big:[3,4,5,6]}
+];
+var ITEMS=[
+  {id:1,n:"Pils 0.4L",p:89,ic:"\uD83C\uDF7A",img:null},
+  {id:2,n:"IPA 0.4L",p:99,ic:"\uD83C\uDF7A",img:null},
+  {id:3,n:"R\u00f8dvin",p:129,ic:"\uD83C\uDF77",img:null},
+  {id:4,n:"Hvitvin",p:119,ic:"\uD83E\uDD42",img:null},
+  {id:5,n:"Gin & Tonic",p:149,ic:"\uD83C\uDF78",img:null},
+  {id:6,n:"Mojito",p:159,ic:"\uD83C\uDF79",img:null},
+  {id:7,n:"Espresso M.",p:169,ic:"\uD83C\uDF78",img:null},
+  {id:8,n:"Aperol Spritz",p:149,ic:"\uD83C\uDF79",img:null},
+  {id:9,n:"Whisky",p:139,ic:"\uD83E\uDD43",img:null},
+  {id:10,n:"Vodka",p:89,ic:"\uD83E\uDD43",img:null},
+  {id:11,n:"Cola",p:49,ic:"\uD83E\uDD64",img:null},
+  {id:12,n:"Nachos",p:89,ic:"\uD83C\uDF2E",img:null}
+];
+var colNames={1:"En",2:"To",3:"Tre",4:"Fire",5:"Fem",6:"Seks",7:"Sju",8:"\u00c5tte"};
+
+var st={device:"pos",tabName:"MAT",style:"small",showImages:true,cols:5};
+
+function el(tag,css,html){var e=document.createElement(tag);if(css)Object.assign(e.style,css);if(html!==undefined)e.innerHTML=html;return e}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+
+/* ═══ RENDER ═══ */
+function render(){
+  $.innerHTML="";
+  var dev=DEVICES.find(function(d){return d.id===st.device});
+  var colOpts=st.style==="small"?dev.small:dev.big;
+  if(colOpts.indexOf(st.cols)<0)st.cols=colOpts[0];
+  var hasAnyImg=ITEMS.some(function(i){return i.img});
+
+  /* ── Popup container ── */
+  var popup=el("div",{width:"100%",maxWidth:"960px",maxHeight:"90vh",background:"var(--bg-surface)",borderRadius:"var(--r-xl)",boxShadow:"var(--elevation-3)",display:"flex",flexDirection:"column",overflow:"hidden",border:"1px solid var(--color-border)",margin:"24px"});
+
+  /* Header */
+  popup.appendChild(el("div",{padding:"20px 24px 16px",borderBottom:"1px solid var(--color-border)",display:"flex",alignItems:"center",justifyContent:"space-between"},
+    '<div><div style="font-family:Sora,sans-serif;font-size:20px;font-weight:700;letter-spacing:-.015em">'+esc(st.tabName||"Favorittgruppe")+'</div><div style="font-size:12px;color:var(--text-secondary);margin-top:2px">Innstillinger for favorittgruppe-tab</div></div><div style="display:flex;gap:6px" id="themeToggle"></div>'
+  ));
+  // Theme toggle
+  var thm=popup.querySelector("#themeToggle");
+  var curT=document.documentElement.getAttribute("data-theme")||"dark";
+  [["light","\u2600"],["dark","\uD83C\uDF19"]].forEach(function(t){
+    var b=el("button",{padding:"6px 10px",border:"none",borderRadius:"var(--r-sm)",background:curT===t[0]?"var(--color-accent)":"var(--bg-hover)",color:curT===t[0]?"var(--color-primary-text)":"var(--text-muted)",fontSize:"13px",cursor:"pointer"},t[1]);
+    b.addEventListener("click",function(){document.documentElement.setAttribute("data-theme",t[0]);render()});
+    thm.appendChild(b)
+  });
+
+  /* Body — two columns: settings + preview */
+  var body=el("div",{display:"flex",flex:"1",overflow:"hidden"});
+
+  /* ── LEFT: Settings ── */
+  var left=el("div",{width:"380px",flexShrink:"0",borderRight:"1px solid var(--color-border)",overflowY:"auto",padding:"20px 24px",display:"flex",flexDirection:"column",gap:"20px"});
+
+  /* Tab name */
+  var ng=el("div",{});
+  ng.innerHTML='<label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:6px">Tab-navn</label>';
+  var ni=document.createElement("input");ni.type="text";ni.value=st.tabName;
+  Object.assign(ni.style,{width:"100%",padding:"10px 14px",borderRadius:"var(--r)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-primary)",fontSize:"15px",fontWeight:"600",outline:"none"});
+  ni.addEventListener("input",function(){st.tabName=ni.value;render()});
+  ng.appendChild(ni);left.appendChild(ng);
+
+  /* Device type */
+  left.appendChild(fieldGroup("Enhetstype",DEVICES.map(function(d){
+    return{label:d.n,sub:d.desc,active:st.device===d.id,fn:function(){st.device=d.id;var opts=st.style==="small"?d.small:d.big;st.cols=opts[0];render()}}
+  })));
+
+  /* Button style */
+  left.appendChild(fieldGroup("Knappestil",[
+    {label:"Small Buttons (Grid)",active:st.style==="small",fn:function(){st.style="small";var d=DEVICES.find(function(x){return x.id===st.device});st.cols=d.small[0];render()}},
+    {label:"Big Buttons (List)",active:st.style==="big",fn:function(){st.style="big";var d=DEVICES.find(function(x){return x.id===st.device});st.cols=d.big[0];render()}}
+  ]));
+
+  /* Show images toggle */
+  left.appendChild(fieldGroup("Vis bilder",[
+    {label:"Uten bilder",active:!st.showImages,fn:function(){st.showImages=false;render()}},
+    {label:"Med bilder",active:st.showImages,fn:function(){st.showImages=true;render()}}
+  ]));
+
+  /* Columns */
+  left.appendChild(fieldGroup("Kolonner",colOpts.map(function(c){
+    return{label:c+" ("+colNames[c]+")",active:st.cols===c,fn:function(){st.cols=c;render()}}
+  })));
+
+  /* ── Image management section ── */
+  var imgSec=el("div",{});
+  imgSec.innerHTML='<label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:10px">Produktbilder</label>';
+  var imgInfo=el("div",{fontSize:"11px",color:"var(--text-secondary)",marginBottom:"12px",lineHeight:"1.5"});
+  var uploaded=ITEMS.filter(function(i){return i.img}).length;
+  imgInfo.innerHTML=uploaded+' av '+ITEMS.length+' produkter har bilde'+(uploaded<ITEMS.length?' \u2014 <span style="color:var(--color-warning)">'+( ITEMS.length-uploaded)+' mangler</span>':'');
+  imgSec.appendChild(imgInfo);
+
+  var imgGrid=el("div",{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"8px"});
+  ITEMS.forEach(function(item){
+    var card=el("div",{borderRadius:"var(--r)",border:"1px solid var(--color-border)",overflow:"hidden",cursor:"pointer",transition:"all 100ms",position:"relative"});
+    if(item.img){
+      card.innerHTML='<div style="height:52px;background-image:url('+item.img+');background-size:cover;background-position:center;position:relative"><div style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:var(--color-success);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">\u2713</div></div><div style="padding:6px 8px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(item.n)+'</div>';
+    } else {
+      card.innerHTML='<div style="height:52px;background:var(--bg-hover);display:flex;align-items:center;justify-content:center;font-size:22px">'+item.ic+'</div><div style="padding:6px 8px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary)">'+esc(item.n)+'</div>';
+    }
+    card.addEventListener("click",function(){triggerUpload(item)});
+    card.addEventListener("mouseenter",function(){card.style.borderColor="var(--color-primary)"});
+    card.addEventListener("mouseleave",function(){card.style.borderColor="var(--color-border)"});
+    imgGrid.appendChild(card);
+  });
+  imgSec.appendChild(imgGrid);
+
+  /* Upload all button */
+  var upAll=el("button",{width:"100%",padding:"10px",borderRadius:"var(--r)",border:"1.5px dashed var(--color-border)",background:"transparent",color:"var(--text-secondary)",fontSize:"12px",fontWeight:"600",cursor:"pointer",marginTop:"10px",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",transition:"all 100ms"});
+  upAll.innerHTML='\uD83D\uDCF7 Last opp bilder for alle produkter';
+  upAll.addEventListener("click",function(){triggerBulkUpload()});
+  upAll.addEventListener("mouseenter",function(){upAll.style.borderColor="var(--color-primary)";upAll.style.color="var(--color-accent)"});
+  upAll.addEventListener("mouseleave",function(){upAll.style.borderColor="var(--color-border)";upAll.style.color="var(--text-secondary)"});
+  imgSec.appendChild(upAll);
+
+  left.appendChild(imgSec);
+
+  /* Info callout */
+  left.appendChild(el("div",{padding:"12px 14px",borderRadius:"var(--r)",background:"var(--color-selection)",border:"1px solid var(--color-selection-border)",fontSize:"11px",color:"var(--color-selection-text)",lineHeight:"1.5"},
+    '<strong>'+dev.n+'</strong><br>'+(st.device==="pos"?"Operat\u00f8r kjenner menyen \u2013 hastighet og oversikt":st.device==="mobile"?"Liten skjerm \u2013 store touch-targets":"Kunde kjenner ikke menyen \u2013 bilder essensielt")
+  ));
+
+  body.appendChild(left);
+
+  /* ── RIGHT: Live preview ── */
+  var right=el("div",{flex:"1",display:"flex",flexDirection:"column",overflow:"hidden",background:"var(--bg-page)"});
+  right.appendChild(el("div",{padding:"12px 20px",borderBottom:"1px solid var(--color-border)",background:"var(--bg-surface)",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:"0"},
+    '<span style="font-size:13px;font-weight:700;color:var(--text-primary)">Preview</span><span style="font-size:11px;color:var(--text-secondary)">'+st.cols+' kol \u00b7 '+(st.style==="small"?"Grid":"List")+' \u00b7 '+(st.showImages?"Bilder":"Uten bilder")+'</span>'
+  ));
+
+  var pvWrap=el("div",{flex:"1",overflow:"auto",padding:"20px",display:"flex",justifyContent:"center"});
+  var pvFrame=el("div",{width:st.device==="mobile"?"390px":"100%",background:"var(--bg-surface)",borderRadius:"var(--r-lg)",boxShadow:"var(--elevation-1)",overflow:"hidden",border:"1px solid var(--color-border)"});
+
+  /* Device label */
+  pvFrame.appendChild(el("div",{padding:"8px 16px",borderBottom:"1px solid var(--color-border)",fontSize:"10px",fontWeight:"600",color:"var(--text-muted)",display:"flex",justifyContent:"space-between"},
+    '<span>'+esc(st.tabName)+'</span><span>'+dev.n+(st.device==="mobile"?" \u00b7 390px":"")+'</span>'
+  ));
+
+  /* Grid preview */
+  var isMob=st.device==="mobile";
+  var gGap=st.style==="small"?(isMob?"8px":"8px"):(isMob?"10px":"10px");
+  var grid=el("div",{padding:isMob?"12px":"16px",display:"grid",gap:gGap,gridTemplateColumns:"repeat("+st.cols+",1fr)"});
+
+  ITEMS.forEach(function(item){
+    var hasImg=item.img&&st.showImages;
+    var card=el("div",{background:"var(--bg-surface)",border:"1px solid var(--color-border)",borderRadius:"var(--r-lg)",overflow:"hidden",boxShadow:"var(--elevation-1)"});
+
+    if(st.style==="small"){
+      /* Small / Grid */
+      if(st.showImages){
+        var imgH=isMob?"56px":"44px";
+        card.innerHTML='<div style="height:'+imgH+';background:'+(hasImg?'url('+item.img+') center/cover':'var(--bg-hover)')+';display:flex;align-items:center;justify-content:center;font-size:'+(hasImg?"0":isMob?"24px":"20px")+'">'+(hasImg?"":item.ic)+'</div><div style="padding:'+(isMob?"8px":"6px")+';text-align:center"><div style="font-size:'+(isMob?"12px":"10px")+';font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2">'+esc(item.n)+'</div><div style="font-size:'+(isMob?"13px":"11px")+';font-weight:700;color:var(--color-accent);margin-top:2px">'+item.p+' kr</div></div>';
+      } else {
+        card.innerHTML='<div style="padding:'+(isMob?"12px 8px":"8px 6px")+';text-align:center"><div style="font-size:'+(isMob?"12px":"10px")+';font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2">'+esc(item.n)+'</div><div style="font-size:'+(isMob?"13px":"11px")+';font-weight:700;color:var(--color-accent);margin-top:2px">'+item.p+' kr</div></div>';
+      }
+    } else {
+      /* Big / List */
+      if(st.showImages){
+        var imgH2=isMob?"72px":"56px";
+        card.innerHTML='<div style="height:'+imgH2+';background:'+(hasImg?'url('+item.img+') center/cover':'var(--bg-hover)')+';display:flex;align-items:center;justify-content:center;font-size:'+(hasImg?"0":isMob?"32px":"26px")+'">'+(hasImg?"":item.ic)+'</div><div style="padding:'+(isMob?"12px 10px":"10px 8px")+'"><div style="font-size:'+(isMob?"14px":"13px")+';font-weight:700;line-height:1.2">'+esc(item.n)+'</div><div style="font-size:'+(isMob?"15px":"14px")+';font-weight:700;color:var(--color-accent);margin-top:4px">'+item.p+' kr</div></div>';
+      } else {
+        card.innerHTML='<div style="padding:'+(isMob?"16px 12px":"12px 10px")+';display:flex;align-items:center;justify-content:space-between"><span style="font-size:'+(isMob?"14px":"13px")+';font-weight:700">'+esc(item.n)+'</span><span style="font-size:'+(isMob?"15px":"14px")+';font-weight:700;color:var(--color-accent)">'+item.p+' kr</span></div>';
+      }
+    }
+    grid.appendChild(card);
+  });
+  pvFrame.appendChild(grid);
+  pvWrap.appendChild(pvFrame);right.appendChild(pvWrap);
+  body.appendChild(right);popup.appendChild(body);
+
+  /* Footer */
+  var foot=el("div",{padding:"16px 24px",borderTop:"1px solid var(--color-border)",display:"flex",gap:"12px",flexShrink:"0"});
+  var clBtn=el("button",{padding:"12px 24px",borderRadius:"var(--r-lg)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"14px",fontWeight:"700",cursor:"pointer"},"Lukk");
+  var svBtn=el("button",{padding:"12px 24px",borderRadius:"var(--r-lg)",border:"none",background:"var(--color-accent)",color:"var(--color-primary-text)",fontSize:"14px",fontWeight:"700",cursor:"pointer",marginLeft:"auto"},"Lagre endringer");
+  svBtn.addEventListener("click",function(){
+    var msg="Lagret!\n\n";
+    msg+="Tab: "+st.tabName+"\n";
+    msg+="Enhet: "+dev.n+"\n";
+    msg+="Stil: "+(st.style==="small"?"Small Grid":"Big List")+"\n";
+    msg+="Kolonner: "+st.cols+"\n";
+    msg+="Vis bilder: "+(st.showImages?"Ja":"Nei")+"\n";
+    var up=ITEMS.filter(function(i){return i.img}).length;
+    msg+="Bilder lastet opp: "+up+"/"+ITEMS.length;
+    alert(msg)
+  });
+  foot.appendChild(clBtn);foot.appendChild(svBtn);popup.appendChild(foot);
+  $.appendChild(popup);
+}
+
+/* ── Field group helper ── */
+function fieldGroup(label,options){
+  var grp=el("div",{});
+  grp.innerHTML='<label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:8px">'+label+'</label>';
+  var list=el("div",{display:"flex",flexDirection:"column",gap:"6px"});
+  options.forEach(function(o){
+    var row=el("button",{display:"flex",alignItems:"center",gap:"10px",width:"100%",padding:"10px 12px",borderRadius:"var(--r)",border:"1.5px solid "+(o.active?"var(--color-primary)":"var(--color-border)"),background:o.active?"var(--color-selection)":"var(--bg-surface)",cursor:"pointer",textAlign:"left",transition:"all 100ms"});
+    var radio='<div style="width:16px;height:16px;border-radius:50%;border:2px solid '+(o.active?"var(--color-accent)":"var(--color-border-strong)")+';display:flex;align-items:center;justify-content:center;flex-shrink:0">'+(o.active?'<div style="width:8px;height:8px;border-radius:50%;background:var(--color-accent)"></div>':'')+'</div>';
+    row.innerHTML=radio+'<div><div style="font-size:13px;font-weight:600;color:'+(o.active?"var(--color-selection-text)":"var(--text-primary)")+'">'+o.label+'</div>'+(o.sub?'<div style="font-size:11px;color:var(--text-secondary);margin-top:1px">'+o.sub+'</div>':'')+'</div>';
+    row.addEventListener("click",o.fn);
+    list.appendChild(row);
+  });
+  grp.appendChild(list);return grp;
+}
+
+/* ── Image upload (simulated with file picker) ── */
+function triggerUpload(item){
+  var inp=document.createElement("input");
+  inp.type="file";inp.accept="image/*";
+  inp.addEventListener("change",function(){
+    if(inp.files&&inp.files[0]){
+      var reader=new FileReader();
+      reader.onload=function(e){item.img=e.target.result;render()};
+      reader.readAsDataURL(inp.files[0])
+    }
+  });
+  inp.click()
+}
+
+function triggerBulkUpload(){
+  var inp=document.createElement("input");
+  inp.type="file";inp.accept="image/*";inp.multiple=true;
+  inp.addEventListener("change",function(){
+    if(inp.files){
+      var files=Array.from(inp.files);
+      files.forEach(function(file,i){
+        if(i<ITEMS.length&&!ITEMS[i].img){
+          var reader=new FileReader();
+          reader.onload=function(e){ITEMS[i].img=e.target.result;render()};
+          reader.readAsDataURL(file)
+        }
+      })
+    }
+  });
+  inp.click()
+}
+
+render();
+})();
+</script>
+</body>
+</html>
