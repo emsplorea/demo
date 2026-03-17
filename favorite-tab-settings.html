@@ -59,7 +59,7 @@ var ITEMS=[
 ];
 var colNames={1:"En",2:"To",3:"Tre",4:"Fire",5:"Fem",6:"Seks",7:"Sju",8:"\u00c5tte"};
 
-var st={device:"pos",tabName:"MAT",style:"small",showImages:true,cols:5};
+var st={device:"pos",tabName:"MAT",style:"small",showImages:true,cols:5,tabImg:null};
 
 function el(tag,css,html){var e=document.createElement(tag);if(css)Object.assign(e.style,css);if(html!==undefined)e.innerHTML=html;return e}
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
@@ -121,36 +121,35 @@ function render(){
     return{label:c+" ("+colNames[c]+")",active:st.cols===c,fn:function(){st.cols=c;render()}}
   })));
 
-  /* ── Image management section ── */
+  /* ── Tab image upload ── */
   var imgSec=el("div",{});
-  imgSec.innerHTML='<label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:10px">Produktbilder</label>';
-  var imgInfo=el("div",{fontSize:"11px",color:"var(--text-secondary)",marginBottom:"12px",lineHeight:"1.5"});
-  var uploaded=ITEMS.filter(function(i){return i.img}).length;
-  imgInfo.innerHTML=uploaded+' av '+ITEMS.length+' produkter har bilde'+(uploaded<ITEMS.length?' \u2014 <span style="color:var(--color-warning)">'+( ITEMS.length-uploaded)+' mangler</span>':'');
-  imgSec.appendChild(imgInfo);
+  imgSec.innerHTML='<label style="font-size:12px;font-weight:700;color:var(--text-secondary);display:block;margin-bottom:10px">Tab-bilde</label>';
+  var imgBox=el("div",{display:"flex",alignItems:"center",gap:"16px"});
+  var preview=el("div",{width:"80px",height:"80px",borderRadius:"var(--r-lg)",border:"1.5px dashed "+(st.tabImg?"var(--color-success)":"var(--color-border)"),background:st.tabImg?"transparent":"var(--bg-hover)",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",overflow:"hidden",flexShrink:"0",transition:"all 100ms"});
+  if(st.tabImg){
+    preview.style.border="1.5px solid var(--color-success)";
+    preview.innerHTML='<img src="'+st.tabImg+'" style="width:100%;height:100%;object-fit:cover">';
+  } else {
+    preview.innerHTML='<span style="font-size:28px;color:var(--text-muted)">\uD83D\uDDBC</span>';
+  }
+  preview.addEventListener("click",function(){triggerTabUpload()});
+  preview.addEventListener("mouseenter",function(){preview.style.borderColor="var(--color-primary)"});
+  preview.addEventListener("mouseleave",function(){preview.style.borderColor=st.tabImg?"var(--color-success)":"var(--color-border)"});
+  imgBox.appendChild(preview);
 
-  var imgGrid=el("div",{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"8px"});
-  ITEMS.forEach(function(item){
-    var card=el("div",{borderRadius:"var(--r)",border:"1px solid var(--color-border)",overflow:"hidden",cursor:"pointer",transition:"all 100ms",position:"relative"});
-    if(item.img){
-      card.innerHTML='<div style="height:52px;background-image:url('+item.img+');background-size:cover;background-position:center;position:relative"><div style="position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:var(--color-success);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff">\u2713</div></div><div style="padding:6px 8px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(item.n)+'</div>';
-    } else {
-      card.innerHTML='<div style="height:52px;background:var(--bg-hover);display:flex;align-items:center;justify-content:center;font-size:22px">'+item.ic+'</div><div style="padding:6px 8px;font-size:10px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-secondary)">'+esc(item.n)+'</div>';
-    }
-    card.addEventListener("click",function(){triggerUpload(item)});
-    card.addEventListener("mouseenter",function(){card.style.borderColor="var(--color-primary)"});
-    card.addEventListener("mouseleave",function(){card.style.borderColor="var(--color-border)"});
-    imgGrid.appendChild(card);
-  });
-  imgSec.appendChild(imgGrid);
-
-  /* Upload all button */
-  var upAll=el("button",{width:"100%",padding:"10px",borderRadius:"var(--r)",border:"1.5px dashed var(--color-border)",background:"transparent",color:"var(--text-secondary)",fontSize:"12px",fontWeight:"600",cursor:"pointer",marginTop:"10px",display:"flex",alignItems:"center",justifyContent:"center",gap:"6px",transition:"all 100ms"});
-  upAll.innerHTML='\uD83D\uDCF7 Last opp bilder for alle produkter';
-  upAll.addEventListener("click",function(){triggerBulkUpload()});
-  upAll.addEventListener("mouseenter",function(){upAll.style.borderColor="var(--color-primary)";upAll.style.color="var(--color-accent)"});
-  upAll.addEventListener("mouseleave",function(){upAll.style.borderColor="var(--color-border)";upAll.style.color="var(--text-secondary)"});
-  imgSec.appendChild(upAll);
+  var imgActions=el("div",{display:"flex",flexDirection:"column",gap:"8px",flex:"1"});
+  var upBtn=el("button",{padding:"10px 16px",borderRadius:"var(--r)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--text-secondary)",fontSize:"12px",fontWeight:"600",cursor:"pointer",display:"flex",alignItems:"center",gap:"6px",transition:"all 100ms"});
+  upBtn.innerHTML='\uD83D\uDCF7 '+(st.tabImg?"Bytt bilde":"Last opp bilde");
+  upBtn.addEventListener("click",function(){triggerTabUpload()});
+  imgActions.appendChild(upBtn);
+  if(st.tabImg){
+    var rmBtn=el("button",{padding:"10px 16px",borderRadius:"var(--r)",border:"1.5px solid var(--color-border)",background:"var(--bg-surface)",color:"var(--color-error)",fontSize:"12px",fontWeight:"600",cursor:"pointer",transition:"all 100ms"},"Fjern bilde");
+    rmBtn.addEventListener("click",function(){st.tabImg=null;render()});
+    imgActions.appendChild(rmBtn);
+  }
+  imgActions.appendChild(el("div",{fontSize:"11px",color:"var(--text-muted)",lineHeight:"1.4"},"Anbefalt: 200\u00d7200px, PNG eller JPG"));
+  imgBox.appendChild(imgActions);
+  imgSec.appendChild(imgBox);
 
   left.appendChild(imgSec);
 
@@ -172,8 +171,7 @@ function render(){
     msg+="Stil: "+(st.style==="small"?"Small Grid":"Big List")+"\n";
     msg+="Kolonner: "+st.cols+"\n";
     msg+="Vis bilder: "+(st.showImages?"Ja":"Nei")+"\n";
-    var up=ITEMS.filter(function(i){return i.img}).length;
-    msg+="Bilder lastet opp: "+up+"/"+ITEMS.length;
+    msg+="Tab-bilde: "+(st.tabImg?"Ja":"Nei");
     alert(msg)
   });
   foot.appendChild(clBtn);foot.appendChild(svBtn);popup.appendChild(foot);
@@ -195,33 +193,15 @@ function fieldGroup(label,options){
   grp.appendChild(list);return grp;
 }
 
-/* ── Image upload (simulated with file picker) ── */
-function triggerUpload(item){
+/* ── Tab image upload ── */
+function triggerTabUpload(){
   var inp=document.createElement("input");
   inp.type="file";inp.accept="image/*";
   inp.addEventListener("change",function(){
     if(inp.files&&inp.files[0]){
       var reader=new FileReader();
-      reader.onload=function(e){item.img=e.target.result;render()};
+      reader.onload=function(e){st.tabImg=e.target.result;render()};
       reader.readAsDataURL(inp.files[0])
-    }
-  });
-  inp.click()
-}
-
-function triggerBulkUpload(){
-  var inp=document.createElement("input");
-  inp.type="file";inp.accept="image/*";inp.multiple=true;
-  inp.addEventListener("change",function(){
-    if(inp.files){
-      var files=Array.from(inp.files);
-      files.forEach(function(file,i){
-        if(i<ITEMS.length&&!ITEMS[i].img){
-          var reader=new FileReader();
-          reader.onload=function(e){ITEMS[i].img=e.target.result;render()};
-          reader.readAsDataURL(file)
-        }
-      })
     }
   });
   inp.click()
