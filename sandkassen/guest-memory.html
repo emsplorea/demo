@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea · Gjestereise-minne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --purple-900:#240046;--purple-800:#3C096C;--purple-700:#5A189A;--purple-600:#6806C8;
+  --purple-500:#7B2FF2;--purple-400:#9D4EDD;--purple-300:#C77DFF;--purple-200:#E0AAFF;
+  --purple-100:#F3E8FF;--purple-50:#FAF5FF;
+  --green-600:#059669;--green-500:#10B981;--green-100:#D1FAE5;--green-50:#ECFDF5;
+  --amber-600:#D97706;--amber-500:#F59E0B;--amber-100:#FEF3C7;--amber-50:#FFFBEB;
+  --red-500:#EF4444;--red-100:#FEE2E2;--red-50:#FEF2F2;
+  --blue-500:#3B82F6;--blue-100:#DBEAFE;--blue-50:#EFF6FF;
+  --rose-500:#F43F5E;--rose-100:#FFE4E6;
+  --gray-50:#F9FAFB;--gray-100:#F3F4F6;--gray-200:#E5E7EB;--gray-300:#D1D5DB;
+  --gray-400:#9CA3AF;--gray-500:#6B7280;--gray-600:#4B5563;--gray-700:#374151;
+  --gray-800:#1F2937;--gray-900:#111827;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--radius-full:9999px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow-lg:0 8px 30px rgba(0,0,0,.12);--shadow-xl:0 20px 60px rgba(0,0,0,.15);
+  --shadow-purple:0 4px 20px rgba(104,6,200,.15);
+  --font-display:'Sora',sans-serif;--font-body:'Plus Jakarta Sans',sans-serif;--font-mono:'JetBrains Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-body);background:var(--gray-50);color:var(--gray-800);min-height:100vh;overflow-x:hidden}
+
+/* ── Topbar ── */
+.topbar{background:var(--purple-900);color:#fff;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:16px}
+.topbar-logo{font-family:var(--font-display);font-weight:700;font-size:18px;letter-spacing:-.5px}
+.topbar-logo span{color:var(--purple-300)}
+.topbar-divider{width:1px;height:24px;background:rgba(255,255,255,.15)}
+.topbar-feature{font-size:13px;font-weight:500;color:var(--purple-200);display:flex;align-items:center;gap:6px}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-restaurant{font-size:13px;color:var(--purple-200);font-weight:500}
+.topbar-badge{background:var(--purple-600);color:#fff;font-size:11px;font-weight:600;padding:4px 10px;border-radius:var(--radius-full);letter-spacing:.3px}
+
+/* ── Hero ── */
+.hero{background:linear-gradient(135deg,var(--purple-900) 0%,var(--purple-800) 40%,var(--purple-700) 100%);padding:48px 32px 40px;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60%;right:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(157,78,221,.25) 0%,transparent 70%)}
+.hero-inner{max-width:1200px;margin:0 auto;position:relative;z-index:1}
+.hero h1{font-family:var(--font-display);font-size:32px;font-weight:700;letter-spacing:-.8px;margin-bottom:10px}
+.hero p{font-size:15px;color:var(--purple-200);max-width:640px;line-height:1.6}
+.hero-stats{display:flex;gap:32px;margin-top:28px;flex-wrap:wrap}
+.hero-stat-value{font-family:var(--font-display);font-size:28px;font-weight:700}
+.hero-stat-label{font-size:12px;color:var(--purple-300);margin-top:2px;font-weight:500}
+
+/* ── Main ── */
+.main{max-width:1200px;margin:0 auto;padding:28px 32px 60px}
+
+/* ── Consent banner ── */
+.consent-banner{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:16px;box-shadow:var(--shadow-sm);animation:slideDown .4s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+.consent-icon{width:44px;height:44px;border-radius:var(--radius-md);background:var(--green-50);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.consent-text h3{font-size:14px;font-weight:600;margin-bottom:2px}
+.consent-text p{font-size:13px;color:var(--gray-500);line-height:1.5}
+.consent-badges{display:flex;gap:8px;margin-left:auto;flex-shrink:0}
+.consent-badge{font-size:11px;font-weight:600;padding:5px 12px;border-radius:var(--radius-full)}
+.consent-badge.gdpr{background:var(--blue-50);color:var(--blue-500)}
+.consent-badge.anon{background:var(--green-50);color:var(--green-500)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;margin-bottom:24px;background:var(--gray-100);border-radius:var(--radius-md);padding:4px;width:fit-content}
+.tab{font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 20px;border-radius:var(--radius-sm);border:none;background:transparent;color:var(--gray-500);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.tab:hover{color:var(--gray-700)}
+.tab.active{background:#fff;color:var(--purple-600);box-shadow:var(--shadow-sm)}
+
+.tab-content{display:none}
+.tab-content.active{display:block;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ── Live ── */
+.live-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.live-header h2{font-family:var(--font-display);font-size:18px;font-weight:600}
+.live-dot{width:8px;height:8px;background:var(--red-500);border-radius:50%;display:inline-block;margin-right:8px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{opacity:.8;box-shadow:0 0 0 6px rgba(239,68,68,0)}}
+.sim-bar{display:flex;align-items:center;gap:12px}
+.sim-btn{font-family:var(--font-body);font-size:13px;font-weight:600;padding:9px 18px;border-radius:var(--radius-sm);border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.sim-btn.primary{background:var(--purple-600);color:#fff}
+.sim-btn.primary:hover{background:var(--purple-700)}
+.sim-btn.secondary{background:var(--gray-100);color:var(--gray-600)}
+.sim-btn.secondary:hover{background:var(--gray-200)}
+
+.feed-grid{display:grid;grid-template-columns:1fr 400px;gap:24px}
+
+/* ── Event cards ── */
+.event-list{display:flex;flex-direction:column;gap:12px}
+.event-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);cursor:pointer;transition:all .25s;position:relative;overflow:hidden}
+.event-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--purple-400);opacity:0;transition:opacity .25s}
+.event-card:hover{box-shadow:var(--shadow-md);border-color:var(--purple-200)}
+.event-card:hover::before{opacity:1}
+.event-card.active{border-color:var(--purple-300);box-shadow:var(--shadow-purple)}
+.event-card.active::before{opacity:1;background:var(--purple-600)}
+.event-card.new-scan{animation:scanIn .5s ease}
+@keyframes scanIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+.event-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.event-guest{display:flex;align-items:center;gap:12px}
+.guest-avatar{width:42px;height:42px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:15px;color:#fff;flex-shrink:0}
+.guest-avatar.returning{background:linear-gradient(135deg,var(--purple-600),var(--purple-400))}
+.guest-avatar.new-guest{background:linear-gradient(135deg,var(--gray-500),var(--gray-400))}
+.guest-avatar.vip{background:linear-gradient(135deg,var(--amber-500),#F97316)}
+.guest-avatar.milestone{background:linear-gradient(135deg,#EC4899,#F43F5E)}
+.guest-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.guest-info p{font-size:12px;color:var(--gray-400)}
+.event-time{font-size:11px;font-family:var(--font-mono);color:var(--gray-400);font-weight:500}
+.event-tags{display:flex;gap:6px;flex-wrap:wrap}
+.event-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:var(--radius-full)}
+.event-tag.returning{background:var(--purple-100);color:var(--purple-600)}
+.event-tag.new{background:var(--gray-100);color:var(--gray-500)}
+.event-tag.vip{background:var(--amber-100);color:var(--amber-500)}
+.event-tag.preference{background:var(--blue-50);color:var(--blue-500)}
+.event-tag.tip{background:var(--green-50);color:var(--green-500)}
+.event-tag.milestone{background:var(--rose-100);color:var(--rose-500)}
+.event-tag.alert{background:var(--red-50);color:var(--red-500)}
+
+/* ── Detail panel ── */
+.detail-panel{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;position:sticky;top:80px;max-height:calc(100vh - 100px);overflow-y:auto}
+.detail-panel::-webkit-scrollbar{width:4px}
+.detail-panel::-webkit-scrollbar-thumb{background:var(--gray-300);border-radius:4px}
+.detail-header{background:linear-gradient(135deg,var(--purple-900),var(--purple-800));padding:24px;color:#fff;position:relative;overflow:hidden}
+.detail-header::after{content:'';position:absolute;top:-50%;right:-20%;width:200px;height:200px;background:radial-gradient(circle,rgba(157,78,221,.2) 0%,transparent 70%)}
+.detail-guest-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;position:relative;z-index:1}
+.detail-avatar{width:52px;height:52px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-weight:700;font-size:18px;color:var(--purple-900);background:#fff}
+.detail-name{font-family:var(--font-display);font-size:18px;font-weight:600}
+.detail-id{font-size:12px;color:var(--purple-300);font-family:var(--font-mono)}
+.detail-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;position:relative;z-index:1}
+.detail-metric{text-align:center}
+.detail-metric-value{font-family:var(--font-display);font-size:20px;font-weight:700}
+.detail-metric-label{font-size:11px;color:var(--purple-300);font-weight:500;margin-top:1px}
+.detail-body{padding:20px 24px}
+.detail-section{margin-bottom:20px}
+.detail-section:last-child{margin-bottom:0}
+.detail-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);margin-bottom:10px}
+
+/* ── Playbook ── */
+.playbook{border:2px solid var(--purple-100);border-radius:var(--radius-md);overflow:hidden;margin-bottom:20px}
+.playbook-header{background:linear-gradient(135deg,var(--purple-50),#F5F0FF);padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--purple-100)}
+.playbook-header-icon{width:30px;height:30px;border-radius:8px;background:var(--purple-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px}
+.playbook-header h3{font-family:var(--font-display);font-size:13px;font-weight:700;color:var(--purple-800)}
+.playbook-header span{font-size:11px;color:var(--purple-400);font-weight:500}
+.playbook-actions{display:flex;flex-direction:column}
+.playbook-action{padding:12px 16px;display:flex;align-items:flex-start;gap:12px;border-bottom:1px solid var(--gray-100);transition:background .15s}
+.playbook-action:last-child{border-bottom:none}
+.playbook-action:hover{background:var(--gray-50)}
+.action-priority{width:22px;height:22px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:1px}
+.action-priority.critical{background:var(--red-100);color:var(--red-500)}
+.action-priority.high{background:var(--amber-100);color:var(--amber-600)}
+.action-priority.medium{background:var(--blue-100);color:var(--blue-500)}
+.action-priority.delight{background:var(--purple-100);color:var(--purple-600)}
+.action-priority.celebrate{background:var(--rose-100);color:var(--rose-500)}
+.action-text{flex:1}
+.action-text strong{display:block;font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:2px}
+.action-text span{font-size:12px;color:var(--gray-500);line-height:1.4}
+.action-target{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 8px;border-radius:var(--radius-full);white-space:nowrap;margin-top:2px}
+.action-target.kitchen{background:var(--amber-100);color:var(--amber-600)}
+.action-target.server{background:var(--purple-100);color:var(--purple-600)}
+.action-target.bar{background:var(--blue-100);color:var(--blue-500)}
+.action-target.manager{background:var(--rose-100);color:var(--rose-500)}
+
+/* ── Milestone ── */
+.milestone-banner{background:linear-gradient(135deg,#FDF2F8,#FCE7F3);border:1px solid #FBCFE8;border-radius:var(--radius-md);padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:14px;animation:milestoneGlow 2s ease infinite}
+@keyframes milestoneGlow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.1)}50%{box-shadow:0 0 20px 4px rgba(244,63,94,.12)}}
+.milestone-icon{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#EC4899,#F43F5E);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.milestone-text h4{font-size:14px;font-weight:700;color:#9D174D;margin-bottom:2px}
+.milestone-text p{font-size:12px;color:#BE185D;line-height:1.5}
+
+/* ── Prediction ── */
+.prediction-bar{background:linear-gradient(135deg,var(--blue-50),#EEF2FF);border:1px solid var(--blue-100);border-radius:var(--radius-md);padding:14px 16px;margin-bottom:20px;display:flex;align-items:center;gap:12px}
+.prediction-icon{width:36px;height:36px;border-radius:8px;background:var(--blue-500);color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prediction-text h4{font-size:13px;font-weight:600;color:var(--gray-800);margin-bottom:1px}
+.prediction-text p{font-size:12px;color:var(--gray-500)}
+.prediction-conf{margin-left:auto;font-size:11px;font-weight:700;color:var(--blue-500);font-family:var(--font-mono)}
+
+/* ── Prefs ── */
+.pref-list{display:flex;flex-direction:column;gap:8px}
+.pref-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-50);border-radius:var(--radius-sm);font-size:13px;color:var(--gray-700);font-weight:500}
+.pref-icon{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.pref-icon.food{background:var(--red-100)}.pref-icon.drink{background:var(--blue-100)}
+.pref-icon.tip{background:var(--green-100)}.pref-icon.time{background:var(--amber-100)}
+.pref-icon.note{background:var(--purple-100)}
+
+/* ── Timeline ── */
+.visit-timeline{display:flex;flex-direction:column}
+.visit-entry{display:flex;align-items:flex-start;gap:12px;padding:10px 0;position:relative}
+.visit-entry:not(:last-child)::after{content:'';position:absolute;left:11px;top:32px;bottom:-2px;width:1px;background:var(--gray-200)}
+.visit-dot{width:24px;height:24px;border-radius:50%;border:2px solid var(--purple-300);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px}
+.visit-dot.current{background:var(--purple-600);border-color:var(--purple-600);color:#fff}
+.visit-info{flex:1}
+.visit-date{font-size:12px;font-weight:600;color:var(--gray-700)}
+.visit-detail{font-size:12px;color:var(--gray-400);margin-top:1px}
+.visit-amount{font-size:12px;font-family:var(--font-mono);font-weight:500;color:var(--gray-600)}
+
+.detail-empty{padding:40px 24px;text-align:center}
+.detail-empty-icon{width:56px;height:56px;border-radius:50%;background:var(--gray-100);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.detail-empty h4{font-size:14px;font-weight:600;color:var(--gray-600);margin-bottom:4px}
+.detail-empty p{font-size:13px;color:var(--gray-400)}
+
+/* ═══ TOAST ═══ */
+.toast-container{position:fixed;top:70px;right:24px;z-index:200;display:flex;flex-direction:column;gap:12px;pointer-events:none;width:380px}
+.toast{background:#fff;border-radius:var(--radius-lg);box-shadow:0 12px 40px rgba(0,0,0,.18),0 0 0 1px rgba(0,0,0,.05);overflow:hidden;pointer-events:auto;animation:toastIn .45s cubic-bezier(.16,1,.3,1);transform-origin:top right}
+.toast.exiting{animation:toastOut .35s ease forwards}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px) scale(.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes toastOut{to{opacity:0;transform:translateX(40px) scale(.95)}}
+.toast-accent{height:3px;background:linear-gradient(90deg,var(--purple-500),var(--purple-300))}
+.toast-accent.vip{background:linear-gradient(90deg,var(--amber-500),#F97316)}
+.toast-accent.milestone{background:linear-gradient(90deg,#EC4899,#F43F5E)}
+.toast-accent.new-guest{background:linear-gradient(90deg,var(--gray-400),var(--gray-300))}
+.toast-body{padding:16px 18px}
+.toast-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.toast-guest{display:flex;align-items:center;gap:10px}
+.toast-avatar{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff}
+.toast-avatar.returning{background:linear-gradient(135deg,var(--purple-600),var(--purple-400))}
+.toast-avatar.vip{background:linear-gradient(135deg,var(--amber-500),#F97316)}
+.toast-avatar.new-guest{background:linear-gradient(135deg,var(--gray-500),var(--gray-400))}
+.toast-avatar.milestone{background:linear-gradient(135deg,#EC4899,#F43F5E)}
+.toast-name{font-size:14px;font-weight:700;color:var(--gray-900);font-family:var(--font-display)}
+.toast-sub{font-size:11px;color:var(--gray-400)}
+.toast-time{font-size:10px;color:var(--gray-400);font-family:var(--font-mono)}
+.toast-close{width:24px;height:24px;border:none;background:var(--gray-100);border-radius:6px;cursor:pointer;color:var(--gray-400);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all .15s}
+.toast-close:hover{background:var(--gray-200);color:var(--gray-600)}
+.toast-actions-list{display:flex;flex-direction:column;gap:6px}
+.toast-action-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;font-size:12px;font-weight:500;color:var(--gray-700);background:var(--gray-50)}
+.toast-action-item.critical{background:var(--red-50);color:var(--red-500);font-weight:600}
+.toast-action-item .ta-icon{width:20px;height:20px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+.toast-action-item .ta-icon.crit{background:var(--red-100)}
+.toast-action-item .ta-icon.rec{background:var(--purple-100)}
+.toast-action-item .ta-icon.tip{background:var(--green-100)}
+.toast-action-item .ta-icon.celebrate{background:var(--rose-100)}
+.ta-target{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 6px;border-radius:var(--radius-full);margin-left:auto;flex-shrink:0}
+.ta-target.kitchen{background:var(--amber-100);color:var(--amber-600)}
+.ta-target.server{background:var(--purple-100);color:var(--purple-600)}
+.ta-target.bar{background:var(--blue-100);color:var(--blue-500)}
+.ta-target.manager{background:var(--rose-100);color:var(--rose-500)}
+.toast-milestone-line{display:flex;align-items:center;gap:8px;padding:10px 12px;background:linear-gradient(135deg,#FDF2F8,#FCE7F3);border-radius:8px;margin-bottom:8px;font-size:13px;font-weight:600;color:#9D174D}
+
+/* ── Scan overlay ── */
+.scan-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:1000;display:none;align-items:center;justify-content:center}
+.scan-overlay.show{display:flex}
+.scan-card{background:#fff;border-radius:var(--radius-xl);padding:40px;width:440px;text-align:center;box-shadow:var(--shadow-xl);animation:cardPop .4s ease}
+@keyframes cardPop{from{opacity:0;transform:scale(.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.scan-anim{width:80px;height:80px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;position:relative}
+.scan-anim.scanning{background:var(--purple-100)}
+.scan-anim.found{background:var(--green-50)}
+.scan-anim.found-vip{background:var(--amber-50)}
+.scan-anim.found-milestone{background:#FDF2F8}
+.scan-ring{position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--purple-300);animation:ringPulse 1.2s ease infinite}
+@keyframes ringPulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(1.4);opacity:0}}
+.scan-card h3{font-family:var(--font-display);font-size:20px;font-weight:700;margin-bottom:6px}
+.scan-card p{font-size:14px;color:var(--gray-500);margin-bottom:8px}
+.scan-fingerprint{font-family:var(--font-mono);font-size:12px;color:var(--gray-400);background:var(--gray-50);padding:6px 14px;border-radius:var(--radius-full);display:inline-block;margin-bottom:16px}
+.scan-insights{text-align:left;border-radius:var(--radius-md);padding:16px;margin-bottom:4px;background:var(--purple-50)}
+.scan-insights.vip-bg{background:var(--amber-50)}
+.scan-insights.milestone-bg{background:#FDF2F8}
+.scan-insights h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--purple-400);margin-bottom:8px}
+.scan-insights.vip-bg h4{color:var(--amber-600)}
+.scan-insights.milestone-bg h4{color:#BE185D}
+.scan-insight-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--gray-700);padding:4px 0}
+.scan-insight-dot{width:6px;height:6px;border-radius:50%;background:var(--purple-400);flex-shrink:0}
+
+/* ── Insights tab ── */
+.insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.insight-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm)}
+.insight-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.insight-card-title{font-size:13px;font-weight:600;color:var(--gray-500)}
+.insight-card-icon{width:36px;height:36px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center}
+.insight-value{font-family:var(--font-display);font-size:32px;font-weight:700;color:var(--gray-900);letter-spacing:-1px}
+.insight-change{font-size:12px;font-weight:600;margin-top:4px;display:flex;align-items:center;gap:4px}
+.insight-change.up{color:var(--green-500)}
+.preferences-chart{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:24px;box-shadow:var(--shadow-sm);margin-bottom:24px}
+.preferences-chart h3{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:20px}
+.pref-bars{display:flex;flex-direction:column;gap:14px}
+.pref-bar-row{display:flex;align-items:center;gap:12px}
+.pref-bar-label{width:140px;font-size:13px;font-weight:500;color:var(--gray-600);flex-shrink:0}
+.pref-bar-track{flex:1;height:28px;background:var(--gray-100);border-radius:var(--radius-full);overflow:hidden}
+.pref-bar-fill{height:100%;border-radius:var(--radius-full);transition:width 1s ease;display:flex;align-items:center;padding-right:10px;justify-content:flex-end}
+.pref-bar-value{font-size:11px;font-weight:700;color:#fff;font-family:var(--font-mono)}
+
+/* ── Consent tab ── */
+.consent-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.consent-card{background:#fff;border:1px solid var(--gray-200);border-radius:var(--radius-lg);padding:28px;box-shadow:var(--shadow-sm)}
+.consent-card h3{font-family:var(--font-display);font-size:16px;font-weight:600;margin-bottom:6px}
+.consent-card p{font-size:13px;color:var(--gray-500);line-height:1.5;margin-bottom:20px}
+.consent-flow{display:flex;flex-direction:column;gap:12px}
+.consent-step{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--gray-50);border-radius:var(--radius-sm)}
+.consent-step-num{width:24px;height:24px;border-radius:50%;background:var(--purple-600);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.consent-step-text{font-size:13px;color:var(--gray-700);line-height:1.5}
+.consent-step-text strong{color:var(--gray-900)}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray-400);padding:0 0 12px}
+.data-table td{padding:10px 0;font-size:13px;color:var(--gray-700);border-top:1px solid var(--gray-100)}
+.data-table .stored{color:var(--green-500);font-weight:600}
+.data-table .not-stored{color:var(--gray-400)}
+.data-table .hashed{color:var(--amber-500);font-weight:600}
+
+@media(max-width:900px){
+  .feed-grid{grid-template-columns:1fr}
+  .insights-grid{grid-template-columns:1fr}
+  .consent-grid{grid-template-columns:1fr}
+  .toast-container{width:calc(100% - 32px);right:16px}
+  .consent-banner{flex-wrap:wrap}
+  .consent-badges{margin-left:0}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">plorea<span>.</span></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-feature">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Gjestereise-minne
+    </div>
+  </div>
+  <div class="topbar-right">
+    <span class="topbar-restaurant">Havfruen Restaurant & Bar</span>
+    <span class="topbar-badge">BETA</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>Gjestereise-minne</h1>
+    <p>Anonymisert, samtykkebasert gjenkjenning som bygger gjesteprofiler fra bestillingsmønster og betalingsdata — uten app, kort eller innlogging.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="hero-stat-value">847</div><div class="hero-stat-label">Unike gjesteprofiler</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">34%</div><div class="hero-stat-label">Gjenkjenningsrate</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">2.8x</div><div class="hero-stat-label">Returfrekvens snitt</div></div>
+      <div class="hero-stat"><div class="hero-stat-value">+12%</div><div class="hero-stat-label">Snittordre returnerende</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="consent-banner">
+    <div class="consent-icon"><svg width="22" height="22" fill="none" stroke="#10B981" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <div class="consent-text">
+      <h3>Samtykkebasert datainnsamling aktivert</h3>
+      <p>Gjester gir eksplisitt samtykke ved første QR-skanning. All data er anonymisert og kryptert.</p>
+    </div>
+    <div class="consent-badges">
+      <span class="consent-badge gdpr">GDPR-KONFORM</span>
+      <span class="consent-badge anon">ANONYMISERT</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="live"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg> Sanntid</button>
+    <button class="tab" data-tab="insights"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg> Innsikt</button>
+    <button class="tab" data-tab="consent"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Samtykke & Personvern</button>
+  </div>
+
+  <div class="tab-content active" id="tab-live">
+    <div class="live-header">
+      <h2><span class="live-dot"></span>Aktive gjestehendelser</h2>
+      <div class="sim-bar">
+        <button class="sim-btn primary" onclick="simulateScan()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Simuler QR-skanning</button>
+        <button class="sim-btn secondary" onclick="clearFeed()">Nullstill</button>
+      </div>
+    </div>
+    <div class="feed-grid">
+      <div class="event-list" id="eventList"></div>
+      <div class="detail-panel" id="detailPanel">
+        <div class="detail-empty">
+          <div class="detail-empty-icon"><svg width="24" height="24" fill="none" stroke="#9CA3AF" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <h4>Velg en gjest</h4>
+          <p>Klikk på en hendelse for å se gjesteprofil og handlingsplan.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="tab-insights">
+    <div class="insights-grid">
+      <div class="insight-card">
+        <div class="insight-card-header"><span class="insight-card-title">Gjenkjente gjester i dag</span><div class="insight-card-icon" style="background:var(--purple-100)"><svg width="18" height="18" fill="none" stroke="var(--purple-600)" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div></div>
+        <div class="insight-value">23</div>
+        <div class="insight-change up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg> +18% vs. forrige uke</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-header"><span class="insight-card-title">Snitt tips returnerende</span><div class="insight-card-icon" style="background:var(--green-50)"><svg width="18" height="18" fill="none" stroke="var(--green-500)" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div></div>
+        <div class="insight-value">17.4%</div>
+        <div class="insight-change up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg> +2.1pp vs. nye gjester</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-card-header"><span class="insight-card-title">Snittordre returnerende</span><div class="insight-card-icon" style="background:var(--amber-100)"><svg width="18" height="18" fill="none" stroke="var(--amber-500)" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/></svg></div></div>
+        <div class="insight-value">kr 387</div>
+        <div class="insight-change up"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></svg> +12% vs. nye gjester</div>
+      </div>
+    </div>
+    <div class="preferences-chart"><h3>Topp gjenkjente preferanser</h3><div class="pref-bars">
+      <div class="pref-bar-row"><span class="pref-bar-label">Allergier / intoleranser</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:72%;background:linear-gradient(90deg,var(--red-500),#F97316)"><span class="pref-bar-value">72%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">Drikkepref.</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:58%;background:linear-gradient(90deg,var(--blue-500),#6366F1)"><span class="pref-bar-value">58%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">Tidspunkt-mønster</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:45%;background:linear-gradient(90deg,var(--amber-500),#F59E0B)"><span class="pref-bar-value">45%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">Tipping-mønster</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:89%;background:linear-gradient(90deg,var(--green-500),#34D399)"><span class="pref-bar-value">89%</span></div></div></div>
+    </div></div>
+    <div class="preferences-chart"><h3>Returfrekvens — kohorter</h3><div class="pref-bars">
+      <div class="pref-bar-row"><span class="pref-bar-label">1 besøk</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:66%;background:var(--gray-400)"><span class="pref-bar-value">66%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">2–3 besøk</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:22%;background:var(--purple-400)"><span class="pref-bar-value">22%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">4–6 besøk</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:8%;background:var(--purple-600)"><span class="pref-bar-value">8%</span></div></div></div>
+      <div class="pref-bar-row"><span class="pref-bar-label">7+ besøk (VIP)</span><div class="pref-bar-track"><div class="pref-bar-fill" style="width:4%;background:linear-gradient(90deg,var(--amber-500),#F97316)"><span class="pref-bar-value">4%</span></div></div></div>
+    </div></div>
+  </div>
+
+  <div class="tab-content" id="tab-consent">
+    <div class="consent-grid">
+      <div class="consent-card"><h3>Samtykkeflyt</h3><p>Gjesten blir informert og gir samtykke ved første QR-skanning.</p><div class="consent-flow">
+        <div class="consent-step"><div class="consent-step-num">1</div><div class="consent-step-text"><strong>QR-skanning:</strong> Gjest skanner bordets QR-kode for første gang.</div></div>
+        <div class="consent-step"><div class="consent-step-num">2</div><div class="consent-step-text"><strong>Informert samtykke:</strong> Enkel popup forklarer hva som lagres, hvorfor, og gir opt-in/opt-out.</div></div>
+        <div class="consent-step"><div class="consent-step-num">3</div><div class="consent-step-text"><strong>Anonym profil:</strong> Fingerprint genereres fra enhet + bestillingsmønster. Ingen PII lagres.</div></div>
+        <div class="consent-step"><div class="consent-step-num">4</div><div class="consent-step-text"><strong>Løpende kontroll:</strong> Gjesten kan se, eksportere, eller slette sin profil når som helst via QR-menyen.</div></div>
+      </div></div>
+      <div class="consent-card"><h3>Datamodell</h3><p>Oversikt over hva som lagres, hashes, eller aldri berøres.</p><table class="data-table"><thead><tr><th>Datapunkt</th><th>Status</th></tr></thead><tbody>
+        <tr><td>Enhetsfingerprint</td><td class="hashed">Kryptert hash</td></tr>
+        <tr><td>Bestillingshistorikk</td><td class="stored">Lagres anonymt</td></tr>
+        <tr><td>Betalingsbeløp & tips</td><td class="stored">Lagres anonymt</td></tr>
+        <tr><td>Tidspunkt & frekvens</td><td class="stored">Lagres anonymt</td></tr>
+        <tr><td>Modifikasjoner / allergier</td><td class="stored">Lagres anonymt</td></tr>
+        <tr><td>Navn / e-post / telefon</td><td class="not-stored">Lagres aldri</td></tr>
+        <tr><td>Betalingskortnummer</td><td class="not-stored">Lagres aldri</td></tr>
+        <tr><td>Eksakt lokasjon</td><td class="not-stored">Lagres aldri</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<div class="scan-overlay" id="scanOverlay"><div class="scan-card" id="scanCard"></div></div>
+
+<script>
+const G=[
+  {id:'vip1',hash:'fp_7f3a9c…d41b',avatar:'🍷',avatarClass:'vip',label:'Gjest #7F3A',
+   tagType:'vip',tagLabel:'VIP · 10. besøk!',visits:10,avgOrder:'kr 521',avgTip:'21%',
+   isMilestone:true,milestoneNum:10,
+   preferences:[
+     {icon:'🚫',iconClass:'food',text:'Alltid uten løk og koriander'},
+     {icon:'🍷',iconClass:'drink',text:'Foretrekker naturvin — bestiller alltid glass'},
+     {icon:'💰',iconClass:'tip',text:'Tipper konsekvent 20–22%'},
+     {icon:'🕐',iconClass:'time',text:'Besøker fredager 18:30–19:00'},
+     {icon:'📝',iconClass:'note',text:'Foretrekker vindusplass'},
+   ],
+   prediction:{text:'Forventet fredag 18:30',confidence:'87%',detail:'Basert på 8 av 9 besøk på fredag kveld'},
+   actions:[
+     {priority:'critical',pLabel:'!',target:'kitchen',tLabel:'Kjøkken',title:'Flagg allergitilpasning',desc:'Uten løk og koriander på alle retter — gjest bestiller alltid dette'},
+     {priority:'celebrate',pLabel:'★',target:'manager',tLabel:'Daglig leder',title:'10. besøk — milepæl!',desc:'Vurder en liten oppmerksomhet: et glass fra huset, en dessert, eller et personlig "velkommen tilbake"'},
+     {priority:'delight',pLabel:'♦',target:'bar',tLabel:'Bar',title:'Naturvin klar',desc:'Gjesten bestiller alltid naturvin som start. Ha anbefaling klar — vis at dere husker.'},
+     {priority:'medium',pLabel:'→',target:'server',tLabel:'Servitør',title:'Vindusplass foretrukket',desc:'Bord 7 (vindu) er ledig — tilby proaktivt uten å spørre.'},
+   ],
+   toastActions:[
+     {icon:'crit',text:'⚠ Uten løk og koriander — flagg kjøkken',critical:true,target:'kitchen',tLabel:'Kjøkken'},
+     {icon:'celebrate',text:'🎉 Besøk nr. 10 — vurder oppmerksomhet',target:'manager',tLabel:'Daglig leder'},
+     {icon:'rec',text:'🍷 Ha naturvin-anbefaling klar',target:'bar',tLabel:'Bar'},
+   ],
+   timeline:[
+     {date:'I dag, 18:42',detail:'QR · Bord 7',amount:'kr 489',current:true},
+     {date:'7. mar',detail:'QR · Bord 12',amount:'kr 534'},
+     {date:'28. feb',detail:'QR · Bord 7',amount:'kr 498'},
+     {date:'14. feb',detail:'QR · Bord 3',amount:'kr 612'},
+   ]},
+  {id:'ret1',hash:'fp_a2e1bc…8f72',avatar:'🔄',avatarClass:'returning',label:'Gjest #A2E1',
+   tagType:'returning',tagLabel:'Returnerende · 4 besøk',visits:4,avgOrder:'kr 342',avgTip:'18%',
+   preferences:[
+     {icon:'🥜',iconClass:'food',text:'Nøtteallergi — flagget ved bestilling'},
+     {icon:'🍺',iconClass:'drink',text:'Bestiller IPA hver gang'},
+     {icon:'💰',iconClass:'tip',text:'Tipper stabilt 17–19%'},
+     {icon:'🕐',iconClass:'time',text:'Lunsj-gjest, lørdag 12:00–13:00'},
+   ],
+   prediction:{text:'Forventet lørdag ~12:00',confidence:'72%',detail:'Basert på 3 av 4 besøk på lørdag lunsj'},
+   actions:[
+     {priority:'critical',pLabel:'!',target:'kitchen',tLabel:'Kjøkken',title:'Nøtteallergi — sikkerhetsflagg',desc:'Alvorlig allergi. Sjekk alle ingredienser, informér kjøkken umiddelbart.'},
+     {priority:'delight',pLabel:'♦',target:'bar',tLabel:'Bar',title:'IPA foretrukket',desc:'Gjesten bestiller alltid IPA. Foreslå dagens IPA proaktivt.'},
+     {priority:'medium',pLabel:'→',target:'server',tLabel:'Servitør',title:'Lojal lunsj-gjest',desc:'4. besøk — denne bygger seg. En varm velkomst gjør mye.'},
+   ],
+   toastActions:[
+     {icon:'crit',text:'🚨 Nøtteallergi — varsle kjøkken UMIDDELBART',critical:true,target:'kitchen',tLabel:'Kjøkken'},
+     {icon:'rec',text:'🍺 Foreslå dagens IPA',target:'bar',tLabel:'Bar'},
+   ],
+   timeline:[
+     {date:'I dag, 12:14',detail:'QR · Bord 4',amount:'kr 298',current:true},
+     {date:'8. mar',detail:'QR · Bord 9',amount:'kr 356'},
+     {date:'22. feb',detail:'QR · Bord 4',amount:'kr 378'},
+   ]},
+  {id:'new1',hash:'fp_c4d8e5…1a93',avatar:'✨',avatarClass:'new-guest',label:'Gjest #C4D8',
+   tagType:'new',tagLabel:'Ny gjest',visits:1,avgOrder:'kr 267',avgTip:'15%',
+   preferences:[{icon:'📝',iconClass:'note',text:'Første besøk — ingen preferanser ennå'}],
+   actions:[{priority:'medium',pLabel:'→',target:'server',tLabel:'Servitør',title:'Ny gjest — godt førsteinntrykk',desc:'Samtykke gitt. Profilen bygges fra dette besøket. Gi en spesielt god opplevelse.'}],
+   toastActions:[{icon:'tip',text:'Ny gjest — samtykke gitt, profil opprettes',target:'server',tLabel:'Servitør'}],
+   timeline:[{date:'I dag, 19:08',detail:'QR · Bord 2',amount:'kr 267',current:true}]},
+  {id:'ret2',hash:'fp_b9f2d7…e604',avatar:'🥗',avatarClass:'returning',label:'Gjest #B9F2',
+   tagType:'returning',tagLabel:'Returnerende · 3 besøk',visits:3,avgOrder:'kr 298',avgTip:'16%',
+   preferences:[
+     {icon:'🌱',iconClass:'food',text:'Vegetar — bestiller alltid plantebasert'},
+     {icon:'☕',iconClass:'drink',text:'Avslutter alltid med kaffe'},
+     {icon:'💰',iconClass:'tip',text:'Tipper 15–17%'},
+     {icon:'🕐',iconClass:'time',text:'Midtuke, onsdag 17:30–18:30'},
+   ],
+   prediction:{text:'Forventet onsdag ~18:00',confidence:'65%',detail:'Basert på 3 besøk onsdag ettermiddag'},
+   actions:[
+     {priority:'high',pLabel:'▲',target:'kitchen',tLabel:'Kjøkken',title:'Vegetar — kun plantebasert',desc:'Gjesten bestiller konsekvent plantebasert. Sørg for at vegetar-alternativ er tilgjengelig.'},
+     {priority:'delight',pLabel:'♦',target:'server',tLabel:'Servitør',title:'Kaffe som avslutning',desc:'Gjesten avslutter alltid med kaffe. Tilby proaktivt etter hovedrett — uten at gjesten trenger å spørre.'},
+     {priority:'medium',pLabel:'→',target:'server',tLabel:'Servitør',title:'Foretrekker bord 6',desc:'Gjesten har sittet ved bord 6 to av tre ganger. Tilby om ledig.'},
+   ],
+   toastActions:[
+     {icon:'rec',text:'🌱 Vegetar — plantebasert bestilling',target:'kitchen',tLabel:'Kjøkken'},
+     {icon:'tip',text:'☕ Tilby kaffe proaktivt etter hovedrett',target:'server',tLabel:'Servitør'},
+   ],
+   timeline:[
+     {date:'I dag, 17:55',detail:'QR · Bord 6',amount:'kr 312',current:true},
+     {date:'5. mar',detail:'QR · Bord 6',amount:'kr 278'},
+     {date:'19. feb',detail:'QR · Bord 8',amount:'kr 305'},
+   ]},
+  {id:'ret3',hash:'fp_e5a7f1…c328',avatar:'🍕',avatarClass:'returning',label:'Gjest #E5A7',
+   tagType:'returning',tagLabel:'Returnerende · 6 besøk',visits:6,avgOrder:'kr 445',avgTip:'20%',
+   preferences:[
+     {icon:'🚫',iconClass:'food',text:'Glutenintolerant — bestiller alltid GF'},
+     {icon:'🍸',iconClass:'drink',text:'Gin & tonic til forrett'},
+     {icon:'💰',iconClass:'tip',text:'Sjenerøs tipper: 19–22%'},
+     {icon:'🕐',iconClass:'time',text:'Helg, varierende tidspunkt'},
+     {icon:'📝',iconClass:'note',text:'Bestiller ofte for 2 — deling'},
+   ],
+   actions:[
+     {priority:'critical',pLabel:'!',target:'kitchen',tLabel:'Kjøkken',title:'Glutenintolerant — alle retter GF',desc:'Gjesten har konsekvent bestilt glutenfritt. Sikre at alt er GF-merket.'},
+     {priority:'delight',pLabel:'♦',target:'bar',tLabel:'Bar',title:'G&T som åpner',desc:'Gjesten starter alltid med gin & tonic. Ha klar til bestilling — eller foreslå som velkomstgest.'},
+     {priority:'medium',pLabel:'→',target:'server',tLabel:'Servitør',title:'Del-retter for 2',desc:'Gjesten bestiller ofte for deling. Foreslå delevenlige alternativer proaktivt.'},
+     {priority:'high',pLabel:'▲',target:'server',tLabel:'Servitør',title:'Verdifull gjest — snart VIP',desc:'6 besøk, kr 445 snitt, 20% tips. Enda 1-2 besøk og dette er VIP. Bygg relasjonen.'},
+   ],
+   toastActions:[
+     {icon:'crit',text:'⚠ Glutenintolerant — alle retter GF',critical:true,target:'kitchen',tLabel:'Kjøkken'},
+     {icon:'rec',text:'🍸 G&T klar — gjestens faste åpner',target:'bar',tLabel:'Bar'},
+     {icon:'tip',text:'Verdifull gjest (kr 445 snitt) — nært VIP',target:'server',tLabel:'Servitør'},
+   ],
+   timeline:[
+     {date:'I dag, 19:30',detail:'QR · Bord 1',amount:'kr 478',current:true},
+     {date:'9. mar',detail:'QR · Bord 5',amount:'kr 502'},
+     {date:'1. mar',detail:'QR · Bord 1',amount:'kr 412'},
+     {date:'15. feb',detail:'QR · Bord 10',amount:'kr 389'},
+   ]},
+];
+
+let feed=[],selected=null,scanIdx=0,toastId=0;
+
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById('tab-'+t.dataset.tab).classList.add('active');
+}));
+
+function cardHTML(g){
+  const tags=[`<span class="event-tag ${g.tagType}">${g.tagLabel}</span>`];
+  if(g.isMilestone)tags.push('<span class="event-tag milestone">🎉 Milepæl</span>');
+  const ft=g.preferences[0]?.text||'';
+  if(ft.includes('allergi')||ft.includes('uten')||ft.includes('Gluten')||ft.includes('Nøtte'))tags.push('<span class="event-tag alert">⚠ Allergi</span>');
+  if(g.visits>1)tags.push(`<span class="event-tag tip">Tips: ${g.avgTip}</span>`);
+  return`<div class="event-card new-scan ${selected===g.id?'active':''}" data-guest="${g.id}" onclick="sel('${g.id}')">
+    <div class="event-top"><div class="event-guest"><div class="guest-avatar ${g.isMilestone?'milestone':g.avatarClass}">${g.avatar}</div>
+    <div class="guest-info"><h4>${g.label}</h4><p>${g.hash}</p></div></div>
+    <span class="event-time">${g.timeline[0].date.split(', ')[1]||g.timeline[0].date}</span></div>
+    <div class="event-tags">${tags.join('')}</div></div>`;
+}
+
+function detailHTML(g){
+  let h=`<div class="detail-header"><div class="detail-guest-row">
+    <div class="detail-avatar">${g.avatar}</div>
+    <div><div class="detail-name">${g.label}</div><div class="detail-id">${g.hash}</div></div></div>
+    <div class="detail-metrics">
+      <div class="detail-metric"><div class="detail-metric-value">${g.visits}</div><div class="detail-metric-label">Besøk</div></div>
+      <div class="detail-metric"><div class="detail-metric-value">${g.avgOrder}</div><div class="detail-metric-label">Snittordre</div></div>
+      <div class="detail-metric"><div class="detail-metric-value">${g.avgTip}</div><div class="detail-metric-label">Snitt tips</div></div>
+    </div></div><div class="detail-body">`;
+  if(g.isMilestone)h+=`<div class="milestone-banner"><div class="milestone-icon">🎉</div><div class="milestone-text"><h4>Besøk nr. ${g.milestoneNum} — milepæl!</h4><p>Denne gjesten er en av deres mest lojale. En liten oppmerksomhet nå kan sementere relasjonen for lang tid.</p></div></div>`;
+  if(g.prediction)h+=`<div class="prediction-bar"><div class="prediction-icon"><svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div><div class="prediction-text"><h4>${g.prediction.text}</h4><p>${g.prediction.detail}</p></div><span class="prediction-conf">${g.prediction.confidence}</span></div>`;
+  h+=`<div class="playbook"><div class="playbook-header"><div class="playbook-header-icon">▶</div><div><h3>Handlingsplan</h3><span>Hva bør du gjøre nå?</span></div></div><div class="playbook-actions">${g.actions.map(a=>`<div class="playbook-action"><div class="action-priority ${a.priority}">${a.pLabel}</div><div class="action-text"><strong>${a.title}</strong><span>${a.desc}</span></div><span class="action-target ${a.target}">${a.tLabel}</span></div>`).join('')}</div></div>`;
+  h+=`<div class="detail-section"><div class="detail-section-title">Gjenkjente preferanser</div><div class="pref-list">${g.preferences.map(p=>`<div class="pref-item"><div class="pref-icon ${p.iconClass}">${p.icon}</div>${p.text}</div>`).join('')}</div></div>`;
+  h+=`<div class="detail-section"><div class="detail-section-title">Besøkshistorikk</div><div class="visit-timeline">${g.timeline.map(v=>`<div class="visit-entry"><div class="visit-dot ${v.current?'current':''}">${v.current?'●':''}</div><div class="visit-info"><div class="visit-date">${v.date}</div><div class="visit-detail">${v.detail}</div></div><div class="visit-amount">${v.amount}</div></div>`).join('')}</div></div></div>`;
+  return h;
+}
+
+function sel(id){
+  selected=id;const g=G.find(x=>x.id===id);if(!g)return;
+  document.querySelectorAll('.event-card').forEach(c=>c.classList.remove('active'));
+  document.querySelector(`.event-card[data-guest="${id}"]`)?.classList.add('active');
+  document.getElementById('detailPanel').innerHTML=detailHTML(g);
+}
+
+function renderFeed(){document.getElementById('eventList').innerHTML=feed.map(g=>cardHTML(g)).join('')}
+
+function showToast(g){
+  const tid=++toastId;
+  const ac=g.isMilestone?'milestone':g.tagType==='vip'?'vip':g.visits===1?'new-guest':'';
+  const av=g.isMilestone?'milestone':g.avatarClass;
+  let sub=`Besøk nr. ${g.visits}`;
+  if(g.visits===1)sub='Ny gjest — samtykke gitt';
+  if(g.isMilestone)sub=`🎉 Besøk nr. ${g.milestoneNum} — milepæl!`;
+  let c='';
+  if(g.isMilestone)c+=`<div class="toast-milestone-line">🎉 Besøk nr. ${g.milestoneNum}! Vurder en oppmerksomhet fra huset</div>`;
+  c+=`<div class="toast-actions-list">${g.toastActions.map(a=>`<div class="toast-action-item ${a.critical?'critical':''}"><span class="ta-icon ${a.icon}">${a.critical?'!':'→'}</span>${a.text}<span class="ta-target ${a.target}">${a.tLabel}</span></div>`).join('')}</div>`;
+  const el=document.createElement('div');el.className='toast';el.id='toast-'+tid;
+  el.innerHTML=`<div class="toast-accent ${ac}"></div><div class="toast-body"><div class="toast-top"><div class="toast-guest"><div class="toast-avatar ${av}">${g.avatar}</div><div><div class="toast-name">${g.label}</div><div class="toast-sub">${sub}</div></div></div><div style="display:flex;align-items:center;gap:8px"><span class="toast-time">Nå</span><button class="toast-close" onclick="dismissToast(${tid})">×</button></div></div>${c}</div>`;
+  document.getElementById('toastContainer').prepend(el);
+  setTimeout(()=>dismissToast(tid),8000);
+}
+
+function dismissToast(tid){
+  const el=document.getElementById('toast-'+tid);
+  if(!el||el.classList.contains('exiting'))return;
+  el.classList.add('exiting');setTimeout(()=>el.remove(),350);
+}
+
+function simulateScan(){
+  const g=G[scanIdx%G.length];scanIdx++;
+  const ov=document.getElementById('scanOverlay'),cd=document.getElementById('scanCard');
+  cd.innerHTML=`<div class="scan-anim scanning"><div class="scan-ring"></div><svg width="32" height="32" fill="none" stroke="var(--purple-600)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div><h3>QR-kode skannet</h3><p>Søker etter gjesteprofil…</p><div class="scan-fingerprint">${g.hash}</div>`;
+  ov.classList.add('show');
+  setTimeout(()=>{
+    const isN=g.visits===1,iC=g.isMilestone?'milestone-bg':g.tagType==='vip'?'vip-bg':'';
+    const aC=g.isMilestone?'found-milestone':g.tagType==='vip'?'found-vip':'found';
+    const sC=g.isMilestone?'#EC4899':g.tagType==='vip'?'var(--amber-500)':'var(--green-500)';
+    let tt=isN?'Ny gjest registrert':'Gjest gjenkjent!';if(g.isMilestone)tt='🎉 Stamgjest gjenkjent!';
+    let ss=isN?'Samtykke gitt — profil opprettet':`Besøk nr. ${g.visits} — velkommen tilbake`;if(g.isMilestone)ss=`Besøk nr. ${g.milestoneNum} — dette er en milepæl!`;
+    cd.innerHTML=`<div class="scan-anim ${aC}"><svg width="32" height="32" fill="none" stroke="${sC}" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><h3>${tt}</h3><p>${ss}</p><div class="scan-fingerprint">${g.hash}</div><div class="scan-insights ${iC}"><h4>Hurtighandlinger for personalet</h4>${g.toastActions.map(a=>`<div class="scan-insight-item"><div class="scan-insight-dot"></div>${a.text}</div>`).join('')}</div>`;
+    setTimeout(()=>{
+      ov.classList.remove('show');
+      feed.unshift(g);renderFeed();sel(g.id);
+      setTimeout(()=>showToast(g),300);
+    },2000);
+  },1400);
+}
+
+function clearFeed(){
+  feed=[];selected=null;scanIdx=0;
+  document.getElementById('eventList').innerHTML='';
+  document.getElementById('detailPanel').innerHTML=`<div class="detail-empty"><div class="detail-empty-icon"><svg width="24" height="24" fill="none" stroke="#9CA3AF" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><h4>Velg en gjest</h4><p>Klikk på en hendelse for å se gjesteprofil og handlingsplan.</p></div>`;
+  document.getElementById('toastContainer').innerHTML='';
+}
+
+document.getElementById('scanOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('show')});
+feed=[G[1]];renderFeed();
+</script>
+</body>
+</html>
