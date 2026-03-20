@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="no">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Inventory Client → Standalone Analyse</title>
+<title>Inventory Client → Standalone Migration Analysis</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -85,7 +85,6 @@
     margin: 0 auto;
   }
 
-  /* Status overview cards */
   .status-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -115,7 +114,6 @@
   .stat-card.moderate .num { color: var(--amber); }
   .stat-card.easy .num { color: var(--green); }
 
-  /* Section headers */
   .section-header {
     margin: 3.5rem 0 1.5rem;
     padding-bottom: 1rem;
@@ -141,7 +139,6 @@
     font-size: 0.95rem;
   }
 
-  /* Coupling blocks */
   .coupling-block {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -172,9 +169,7 @@
   .severity-dot.moderate { background: var(--amber); box-shadow: 0 0 8px var(--amber-dim); }
   .severity-dot.low { background: var(--green); box-shadow: 0 0 8px var(--green-dim); }
 
-  .coupling-title {
-    flex: 1;
-  }
+  .coupling-title { flex: 1; }
   .coupling-title h3 {
     font-size: 1rem;
     font-weight: 700;
@@ -223,10 +218,7 @@
     color: var(--text-muted);
     line-height: 1.7;
   }
-  .coupling-body ul {
-    list-style: none;
-    padding: 0;
-  }
+  .coupling-body ul { list-style: none; padding: 0; }
   .coupling-body li {
     padding: 0.3rem 0 0.3rem 1.2rem;
     position: relative;
@@ -265,7 +257,6 @@
   .code-block .string { color: var(--green); }
   .code-block .type { color: var(--amber); }
 
-  /* Architecture diagram */
   .arch-diagram {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -318,7 +309,6 @@
     font-weight: 700;
   }
 
-  /* Roadmap */
   .roadmap {
     position: relative;
     padding-left: 2rem;
@@ -369,7 +359,6 @@
     margin-top: 0.35rem;
   }
 
-  /* Tag */
   .tag {
     display: inline-block;
     font-size: 0.65rem;
@@ -386,7 +375,6 @@
   .tag.additive { background: var(--green-dim); color: var(--green); }
   .tag.config { background: var(--purple-dim); color: var(--purple); }
 
-  /* Comparison table */
   .compare-table {
     width: 100%;
     border-collapse: collapse;
@@ -424,23 +412,23 @@
 <div class="container">
 
   <div class="hero">
-    <div class="badge">Migrasjonsanalyse</div>
+    <div class="badge">Migration Analysis</div>
     <h1>RMSV Stock Control → Standalone Inventory Client</h1>
-    <p>Komplett analyse av koblinger mot RmsV-økosystemet, med konkrete endringsforslag for å gjøre appen gjenbrukbar som felles modul for Amendo og Plorea Systems.</p>
+    <p>Complete analysis of couplings to the RmsV ecosystem, with concrete proposals for making the app reusable as a shared module across Amendo and Plorea Systems.</p>
   </div>
 
   <div class="status-grid">
     <div class="stat-card critical">
       <div class="num">3</div>
-      <div class="label">Tunge koblinger</div>
+      <div class="label">Heavy couplings</div>
     </div>
     <div class="stat-card moderate">
       <div class="num">4</div>
-      <div class="label">Moderate koblinger</div>
+      <div class="label">Moderate couplings</div>
     </div>
     <div class="stat-card easy">
       <div class="num">2</div>
-      <div class="label">Lette endringer</div>
+      <div class="label">Light changes</div>
     </div>
   </div>
 
@@ -449,7 +437,7 @@
   <!-- ============================================= -->
 
   <div class="arch-diagram">
-    <div class="arch-label">Nåværende arkitektur — tett koblet til RmsV</div>
+    <div class="arch-label">Current architecture — tightly coupled to RmsV</div>
     <div class="arch-row">
       <div class="arch-box current">Next.js Frontend</div>
     </div>
@@ -464,7 +452,7 @@
       <div class="arch-box current">RmsV Identity Server</div>
     </div>
 
-    <div class="arch-label" style="margin-top:2.5rem">Målarkitektur — pluggbar og gjenbrukbar</div>
+    <div class="arch-label" style="margin-top:2.5rem">Target architecture — pluggable and reusable</div>
     <div class="arch-row">
       <div class="arch-box target">Inventory UI Shell (Next.js)</div>
     </div>
@@ -481,12 +469,12 @@
   </div>
 
   <!-- ============================================= -->
-  <!-- TUNGE KOBLINGER -->
+  <!-- HEAVY COUPLINGS -->
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--red-dim);color:var(--red);">⚠</span> Tunge koblinger — krever arkitekturendring</h2>
-    <p>Disse berører kjernefunksjonalitet og krever redesign av modulgrenser.</p>
+    <h2><span class="icon" style="background:var(--red-dim);color:var(--red);">⚠</span> Heavy couplings — require architectural changes</h2>
+    <p>These affect core functionality and require redesigning module boundaries.</p>
   </div>
 
   <!-- 1. AUTH -->
@@ -494,28 +482,28 @@
     <div class="coupling-header" onclick="toggle('auth')">
       <div class="severity-dot critical"></div>
       <div class="coupling-title">
-        <h3>1. Autentisering — BFF-kobling mot .NET OIDC <span class="tag breaking">breaking</span></h3>
+        <h3>1. Authentication — BFF coupling to .NET OIDC <span class="tag breaking">breaking</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~8</span>
-          <span>Estimat: 3–5 dager</span>
-          <span>Risiko: Høy</span>
+          <span>Affected files: ~8</span>
+          <span>Estimate: 3–5 days</span>
+          <span>Risk: High</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
-      <p>Hele auth-flyten er hardkodet mot et .NET BFF-mønster med spesifikke endepunkter:</p>
+      <h4>What is coupled</h4>
+      <p>The entire auth flow is hardcoded against a .NET BFF pattern with specific endpoints:</p>
       <ul>
-        <li><code>/bff/session</code> — sesjonssjekk</li>
-        <li><code>/bff/login?returnUrl=...</code> — innlogging via OIDC redirect</li>
-        <li><code>/bff/logout</code> — utlogging med cookie-sletting</li>
-        <li><code>window.__APP_CONFIG__.BACKEND_URI</code> — runtime config peker til BFF</li>
-        <li>Cookie-håndtering (SameSite, Secure, HttpOnly) styrt av .NET backend</li>
+        <li><code>/bff/session</code> — session check</li>
+        <li><code>/bff/login?returnUrl=...</code> — login via OIDC redirect</li>
+        <li><code>/bff/logout</code> — logout with cookie clearing</li>
+        <li><code>window.__APP_CONFIG__.BACKEND_URI</code> — runtime config points to BFF</li>
+        <li>Cookie handling (SameSite, Secure, HttpOnly) controlled by .NET backend</li>
       </ul>
 
-      <h4>Foreslått løsning — Auth Adapter Pattern</h4>
-      <p>Abstraher auth bak et interface som hver installasjon implementerer:</p>
+      <h4>Proposed solution — Auth Adapter Pattern</h4>
+      <p>Abstract auth behind an interface that each installation implements:</p>
       <div class="code-block"><span class="comment">// src/lib/auth/auth-adapter.ts</span>
 <span class="keyword">export interface</span> <span class="type">AuthAdapter</span> {
   checkSession(): <span class="type">Promise</span>&lt;<span class="type">AuthUser</span> | <span class="keyword">null</span>&gt;
@@ -524,18 +512,18 @@
   getAccessToken?(): <span class="type">Promise</span>&lt;<span class="type">string</span> | <span class="keyword">null</span>&gt;
 }
 
-<span class="comment">// Implementasjoner:</span>
+<span class="comment">// Implementations:</span>
 <span class="comment">// src/lib/auth/adapters/bff-adapter.ts    → RmsV/.NET BFF</span>
-<span class="comment">// src/lib/auth/adapters/plorea-adapter.ts  → Plorea auth (f.eks. Supabase/Auth0)</span>
+<span class="comment">// src/lib/auth/adapters/plorea-adapter.ts  → Plorea auth (e.g. Supabase/Auth0)</span>
 <span class="comment">// src/lib/auth/adapters/amendo-adapter.ts  → Amendo auth</span></div>
 
-      <h4>Konkrete steg</h4>
+      <h4>Concrete steps</h4>
       <ul>
-        <li>Definer <code>AuthAdapter</code> interface med session/login/logout</li>
-        <li>Flytt all BFF-logikk til <code>bff-adapter.ts</code> (bevarer nåværende funksjon)</li>
-        <li>Lag en <code>AuthProvider</code> React context som tar adapter via config</li>
-        <li>Erstatt alle direkte <code>/bff/*</code>-kall med adapter-kall</li>
-        <li>Fjern hardkodet <code>clearClientSession()</code> — la adapteren styre cleanup</li>
+        <li>Define <code>AuthAdapter</code> interface with session/login/logout</li>
+        <li>Move all BFF logic to <code>bff-adapter.ts</code> (preserves current functionality)</li>
+        <li>Create an <code>AuthProvider</code> React context that receives the adapter via config</li>
+        <li>Replace all direct <code>/bff/*</code> calls with adapter calls</li>
+        <li>Remove hardcoded <code>clearClientSession()</code> — let the adapter manage cleanup</li>
       </ul>
     </div>
   </div>
@@ -545,27 +533,27 @@
     <div class="coupling-header" onclick="toggle('api')">
       <div class="severity-dot critical"></div>
       <div class="coupling-title">
-        <h3>2. API-lag — Hardkodet mot RmsV-endepunkter <span class="tag breaking">breaking</span></h3>
+        <h3>2. API layer — Hardcoded to RmsV endpoints <span class="tag breaking">breaking</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~12</span>
-          <span>Estimat: 4–6 dager</span>
-          <span>Risiko: Høy</span>
+          <span>Affected files: ~12</span>
+          <span>Estimate: 4–6 days</span>
+          <span>Risk: High</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
+      <h4>What is coupled</h4>
       <ul>
-        <li>Direkte kall til <code>/api/Items/GetItemsEAN</code> for varekatalog</li>
-        <li>RmsV-spesifikke DTO-er: <code>InventoryListDto</code>, <code>InventoryDto</code>, <code>ItemEAN</code></li>
-        <li>IndexedDB-skjema er modellert direkte på RmsV-datastruktur</li>
-        <li>Hooks (<code>useItemEANs</code>, <code>useInventories</code>) har inline fetch-logikk</li>
-        <li>Backend types i <code>backend-types.ts</code> speiler .NET DTO-er 1:1</li>
+        <li>Direct calls to <code>/api/Items/GetItemsEAN</code> for item catalog</li>
+        <li>RmsV-specific DTOs: <code>InventoryListDto</code>, <code>InventoryDto</code>, <code>ItemEAN</code></li>
+        <li>IndexedDB schema is modeled directly on RmsV data structures</li>
+        <li>Hooks (<code>useItemEANs</code>, <code>useInventories</code>) contain inline fetch logic</li>
+        <li>Backend types in <code>backend-types.ts</code> mirror .NET DTOs 1:1</li>
       </ul>
 
-      <h4>Foreslått løsning — Repository Pattern med Domain Types</h4>
-      <div class="code-block"><span class="comment">// src/domain/inventory.ts — agnostiske typer</span>
+      <h4>Proposed solution — Repository Pattern with Domain Types</h4>
+      <div class="code-block"><span class="comment">// src/domain/inventory.ts — backend-agnostic types</span>
 <span class="keyword">export interface</span> <span class="type">InventoryItem</span> {
   id: <span class="type">number</span>
   itemCode: <span class="type">string</span>
@@ -582,19 +570,19 @@
   startInventory(params: <span class="type">StartParams</span>): <span class="type">Promise</span>&lt;<span class="type">Inventory</span>&gt;
 }
 
-<span class="comment">// Implementasjoner mapper mellom domene og backend:</span>
+<span class="comment">// Implementations map between domain and backend:</span>
 <span class="comment">// adapters/rmsv-api.ts   → /api/Items/GetItemsEAN etc.</span>
 <span class="comment">// adapters/plorea-api.ts → Plorea REST/GraphQL</span>
 <span class="comment">// adapters/amendo-api.ts → Amendo endpoints</span></div>
 
-      <h4>Konkrete steg</h4>
+      <h4>Concrete steps</h4>
       <ul>
-        <li>Definer domene-typer som er agnostiske for backend</li>
-        <li>Lag <code>InventoryApiAdapter</code> interface</li>
-        <li>Flytt eksisterende fetch-logikk til <code>rmsv-api.ts</code> adapter</li>
-        <li>Lag mapper-funksjoner: <code>RmsvDto → DomainType</code></li>
-        <li>Oppdater hooks til å bruke adapter fra context</li>
-        <li>Abstraher IndexedDB-skjema til domene-typer</li>
+        <li>Define domain types that are backend-agnostic</li>
+        <li>Create <code>InventoryApiAdapter</code> interface</li>
+        <li>Move existing fetch logic to <code>rmsv-api.ts</code> adapter</li>
+        <li>Create mapper functions: <code>RmsvDto → DomainType</code></li>
+        <li>Update hooks to consume the adapter from context</li>
+        <li>Abstract IndexedDB schema to domain types</li>
       </ul>
     </div>
   </div>
@@ -604,42 +592,42 @@
     <div class="coupling-header" onclick="toggle('i18n')">
       <div class="severity-dot critical"></div>
       <div class="coupling-title">
-        <h3>3. Oversettelser — Avhengighet til RmsVGlobalization <span class="tag breaking">breaking</span></h3>
+        <h3>3. Translations — Dependency on RmsVGlobalization <span class="tag breaking">breaking</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~6</span>
-          <span>Estimat: 2–3 dager</span>
-          <span>Risiko: Moderat</span>
+          <span>Affected files: ~6</span>
+          <span>Estimate: 2–3 days</span>
+          <span>Risk: Moderate</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
+      <h4>What is coupled</h4>
       <ul>
-        <li><code>generate-i18n.js</code> leser .resx fra RmsVGlobalization-prosjektet</li>
-        <li>Avhengig av .NET prosjektstruktur og filsti til <code>Stockcontrol*.resx</code></li>
-        <li>Build-prosessen (<code>npm run i18n</code>) feiler uten tilgang til .NET-prosjektet</li>
-        <li>Oversettelsesnøkler bruker <code>StockcontrolTexts</code> namespace</li>
+        <li><code>generate-i18n.js</code> reads .resx files from the RmsVGlobalization project</li>
+        <li>Depends on .NET project structure and file paths to <code>Stockcontrol*.resx</code></li>
+        <li>Build process (<code>npm run i18n</code>) fails without access to the .NET project</li>
+        <li>Translation keys use the <code>StockcontrolTexts</code> namespace</li>
       </ul>
 
-      <h4>Foreslått løsning — Self-contained i18n</h4>
+      <h4>Proposed solution — Self-contained i18n</h4>
       <ul>
-        <li>Flytt ferdiggenererte JSON-filer (<code>public/locales/</code>) inn i repoet som source of truth</li>
-        <li>Behold <code>generate-i18n.js</code> som valgfri dev-tool for RmsV-installasjon</li>
-        <li>Legg til en <code>i18n.config.ts</code> som definerer tilgjengelige språk per installasjon</li>
-        <li>Plorea kan legge til egne nøkler uten å berøre .resx-filer</li>
-        <li>Vurder å flytte til <code>next-intl</code> eller <code>i18next</code> med JSON-filer direkte</li>
+        <li>Move pre-generated JSON files (<code>public/locales/</code>) into the repo as source of truth</li>
+        <li>Keep <code>generate-i18n.js</code> as an optional dev tool for RmsV installations</li>
+        <li>Add an <code>i18n.config.ts</code> that defines available languages per installation</li>
+        <li>Plorea can add its own keys without touching .resx files</li>
+        <li>Consider migrating to <code>next-intl</code> or <code>i18next</code> with JSON files directly</li>
       </ul>
     </div>
   </div>
 
   <!-- ============================================= -->
-  <!-- MODERATE KOBLINGER -->
+  <!-- MODERATE COUPLINGS -->
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--amber-dim);color:var(--amber);">⚡</span> Moderate koblinger — krever refaktorering</h2>
-    <p>Disse kan løses uten å endre arkitekturen fundamentalt.</p>
+    <h2><span class="icon" style="background:var(--amber-dim);color:var(--amber);">⚡</span> Moderate couplings — require refactoring</h2>
+    <p>These can be resolved without fundamentally changing the architecture.</p>
   </div>
 
   <!-- 4. DEPLOYMENT -->
@@ -647,31 +635,31 @@
     <div class="coupling-header" onclick="toggle('deploy')">
       <div class="severity-dot moderate"></div>
       <div class="coupling-title">
-        <h3>4. Deployment — IIS-spesifikk med /StockControl basePath <span class="tag refactor">refactor</span></h3>
+        <h3>4. Deployment — IIS-specific with /StockControl basePath <span class="tag refactor">refactor</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~5</span>
-          <span>Estimat: 1–2 dager</span>
+          <span>Affected files: ~5</span>
+          <span>Estimate: 1–2 days</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
+      <h4>What is coupled</h4>
       <ul>
-        <li><code>basePath: '/StockControl'</code> hardkodet i next.config.js</li>
-        <li><code>getAssetPath()</code> utility returnerer <code>/StockControl/...</code></li>
-        <li><code>web.config</code> med IIS URL Rewrite-regler</li>
-        <li>Hele deployment-guiden forutsetter Windows Server + IIS</li>
-        <li>PowerShell copy-kommandoer i dokumentasjon</li>
+        <li><code>basePath: '/StockControl'</code> hardcoded in next.config.js</li>
+        <li><code>getAssetPath()</code> utility returns <code>/StockControl/...</code></li>
+        <li><code>web.config</code> with IIS URL Rewrite rules</li>
+        <li>Entire deployment guide assumes Windows Server + IIS</li>
+        <li>PowerShell copy commands in documentation</li>
       </ul>
 
-      <h4>Foreslått endring</h4>
+      <h4>Proposed changes</h4>
       <ul>
-        <li>Gjør <code>basePath</code> konfigurerbar via miljøvariabel: <code>NEXT_PUBLIC_BASE_PATH</code></li>
-        <li>Behold <code>web.config</code> som valgfri for IIS-deployment</li>
-        <li>Legg til <code>Dockerfile</code> og <code>docker-compose.yml</code> for containerisert deployment</li>
-        <li>Legg til Vercel/Netlify config som alternativ</li>
-        <li>Dokumenter deployment per plattform: IIS, Docker, Vercel</li>
+        <li>Make <code>basePath</code> configurable via environment variable: <code>NEXT_PUBLIC_BASE_PATH</code></li>
+        <li>Keep <code>web.config</code> as optional for IIS deployments</li>
+        <li>Add <code>Dockerfile</code> and <code>docker-compose.yml</code> for containerized deployment</li>
+        <li>Add Vercel/Netlify config as alternatives</li>
+        <li>Document deployment per platform: IIS, Docker, Vercel</li>
       </ul>
     </div>
   </div>
@@ -681,29 +669,29 @@
     <div class="coupling-header" onclick="toggle('brand')">
       <div class="severity-dot moderate"></div>
       <div class="coupling-title">
-        <h3>5. Branding — «RmsV» og «Plorea» hardkodet <span class="tag refactor">refactor</span></h3>
+        <h3>5. Branding — "RmsV" and "Plorea" hardcoded <span class="tag refactor">refactor</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~10</span>
-          <span>Estimat: 1 dag</span>
+          <span>Affected files: ~10</span>
+          <span>Estimate: 1 day</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
+      <h4>What is coupled</h4>
       <ul>
-        <li>App-navn «RMSV Stock Control» i manifest.json, titler, PWA-metadata</li>
-        <li>Plorea-logo referanser i Navbar og PWA-ikoner</li>
-        <li>Fargeskjema koblet til ett bestemt merke</li>
-        <li>Changelog, docs, kommentarer bruker «RmsV» gjennomgående</li>
+        <li>App name "RMSV Stock Control" in manifest.json, titles, PWA metadata</li>
+        <li>Plorea logo references in Navbar and PWA icons</li>
+        <li>Color scheme tied to one specific brand</li>
+        <li>Changelog, docs, and comments use "RmsV" throughout</li>
       </ul>
 
-      <h4>Foreslått endring — Theme/Brand Config</h4>
+      <h4>Proposed change — Theme/Brand Config</h4>
       <div class="code-block"><span class="comment">// src/config/brand.ts</span>
 <span class="keyword">export interface</span> <span class="type">BrandConfig</span> {
-  name: <span class="type">string</span>           <span class="comment">// "Plorea Inventory" | "Amendo Lager"</span>
+  name: <span class="type">string</span>           <span class="comment">// "Plorea Inventory" | "Amendo Stock"</span>
   shortName: <span class="type">string</span>      <span class="comment">// "Inventory"</span>
-  logo: <span class="type">string</span>           <span class="comment">// path til logo</span>
+  logo: <span class="type">string</span>           <span class="comment">// path to logo</span>
   themeColor: <span class="type">string</span>     <span class="comment">// PWA theme color</span>
   primaryColor: <span class="type">string</span>   <span class="comment">// CSS primary</span>
   favicon: <span class="type">string</span>        <span class="comment">// favicon path</span>
@@ -718,26 +706,26 @@
     <div class="coupling-header" onclick="toggle('config')">
       <div class="severity-dot moderate"></div>
       <div class="coupling-title">
-        <h3>6. Runtime Config — Kun BACKEND_URI og BASE_PATH <span class="tag config">config</span></h3>
+        <h3>6. Runtime Config — Only BACKEND_URI and BASE_PATH <span class="tag config">config</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~3</span>
-          <span>Estimat: 0.5 dag</span>
+          <span>Affected files: ~3</span>
+          <span>Estimate: 0.5 day</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
-      <p><code>window.__APP_CONFIG__</code> har kun to felter, noe som ikke er nok for en multi-tenant-løsning.</p>
+      <h4>What is coupled</h4>
+      <p><code>window.__APP_CONFIG__</code> only has two fields, which is insufficient for a multi-tenant solution.</p>
 
-      <h4>Foreslått utvidelse</h4>
-      <div class="code-block"><span class="comment">// public/config.js — utvidet</span>
+      <h4>Proposed extension</h4>
+      <div class="code-block"><span class="comment">// public/config.js — extended</span>
 window.__APP_CONFIG__ = {
-  <span class="comment">// Eksisterende</span>
+  <span class="comment">// Existing</span>
   BACKEND_URI: <span class="string">''</span>,
   BASE_PATH: <span class="string">''</span>,
 
-  <span class="comment">// Nye felter for standalone</span>
+  <span class="comment">// New fields for standalone</span>
   AUTH_ADAPTER: <span class="string">'plorea'</span>,       <span class="comment">// 'bff' | 'plorea' | 'amendo'</span>
   API_ADAPTER: <span class="string">'plorea'</span>,        <span class="comment">// 'rmsv' | 'plorea' | 'amendo'</span>
   BRAND: <span class="string">'plorea'</span>,              <span class="comment">// 'rmsv' | 'plorea' | 'amendo'</span>
@@ -756,55 +744,55 @@ window.__APP_CONFIG__ = {
     <div class="coupling-header" onclick="toggle('vs')">
       <div class="severity-dot moderate"></div>
       <div class="coupling-title">
-        <h3>7. Visual Studio-integrasjon — .esproj kobling <span class="tag refactor">refactor</span></h3>
+        <h3>7. Visual Studio integration — .esproj coupling <span class="tag refactor">refactor</span></h3>
         <div class="meta">
-          <span>Berørte filer: ~2</span>
-          <span>Estimat: 0.5 dag</span>
+          <span>Affected files: ~2</span>
+          <span>Estimate: 0.5 day</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
-      <h4>Hva er koblet</h4>
+      <h4>What is coupled</h4>
       <ul>
-        <li><code>Rmsv.Stockcontrol.App.esproj</code> binder prosjektet inn i VS-solution</li>
-        <li>Port 55828 hardkodet for dev-server</li>
-        <li>Launch.json konfigurert for VS debugging</li>
+        <li><code>Rmsv.Stockcontrol.App.esproj</code> binds the project into a VS solution</li>
+        <li>Port 55828 hardcoded for dev server</li>
+        <li>Launch.json configured for VS debugging</li>
       </ul>
 
-      <h4>Foreslått endring</h4>
+      <h4>Proposed changes</h4>
       <ul>
-        <li>Behold .esproj som valgfritt — flytt den til en <code>/integrations/vs/</code>-mappe</li>
-        <li>Gjør port konfigurerbar via <code>.env</code></li>
-        <li>Standalone-repoet skal fungere med bare <code>npm run dev</code></li>
+        <li>Keep .esproj as optional — move it to an <code>/integrations/vs/</code> folder</li>
+        <li>Make port configurable via <code>.env</code></li>
+        <li>The standalone repo should work with just <code>npm run dev</code></li>
       </ul>
     </div>
   </div>
 
   <!-- ============================================= -->
-  <!-- LETTE ENDRINGER -->
+  <!-- LIGHT CHANGES -->
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--green-dim);color:var(--green);">✓</span> Lette endringer — konfigurasjon og opprydding</h2>
+    <h2><span class="icon" style="background:var(--green-dim);color:var(--green);">✓</span> Light changes — configuration and cleanup</h2>
   </div>
 
   <div class="coupling-block" id="pwa">
     <div class="coupling-header" onclick="toggle('pwa')">
       <div class="severity-dot low"></div>
       <div class="coupling-title">
-        <h3>8. PWA — Manifest og ikoner er allerede generiske <span class="tag additive">additiv</span></h3>
+        <h3>8. PWA — Manifest and icons are already generic <span class="tag additive">additive</span></h3>
         <div class="meta">
-          <span>Estimat: 0.5 dag</span>
+          <span>Estimate: 0.5 day</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
       <ul>
-        <li>Generer ikoner per brand fra en SVG-kilde</li>
-        <li>Lag build-script som populerer manifest.json fra <code>BrandConfig</code></li>
-        <li>Service worker er allerede manuell og generisk — minimal endring nødvendig</li>
+        <li>Generate icons per brand from an SVG source</li>
+        <li>Create a build script that populates manifest.json from <code>BrandConfig</code></li>
+        <li>Service worker is already manual and generic — minimal changes needed</li>
       </ul>
     </div>
   </div>
@@ -813,19 +801,19 @@ window.__APP_CONFIG__ = {
     <div class="coupling-header" onclick="toggle('docs')">
       <div class="severity-dot low"></div>
       <div class="coupling-title">
-        <h3>9. Dokumentasjon — RmsV-spesifikk <span class="tag additive">additiv</span></h3>
+        <h3>9. Documentation — RmsV-specific <span class="tag additive">additive</span></h3>
         <div class="meta">
-          <span>Estimat: 0.5 dag</span>
+          <span>Estimate: 0.5 day</span>
         </div>
       </div>
       <div class="chevron">▶</div>
     </div>
     <div class="coupling-body">
       <ul>
-        <li>Lag en ny generisk <code>README.md</code> for standalone-repoet</li>
-        <li>Flytt RmsV-spesifikk dok til <code>/docs/rmsv/</code></li>
-        <li>Lag <code>/docs/adapters/</code> med guider for å lage nye adaptere</li>
-        <li>Legg til <code>CONTRIBUTING.md</code> for felles utviklingsprotokoll</li>
+        <li>Create a new generic <code>README.md</code> for the standalone repo</li>
+        <li>Move RmsV-specific docs to <code>/docs/rmsv/</code></li>
+        <li>Create <code>/docs/adapters/</code> with guides for building new adapters</li>
+        <li>Add <code>CONTRIBUTING.md</code> for shared development protocol</li>
       </ul>
     </div>
   </div>
@@ -835,57 +823,57 @@ window.__APP_CONFIG__ = {
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--primary-dim);color:var(--primary);">⇄</span> Før vs. etter — oversikt</h2>
+    <h2><span class="icon" style="background:var(--primary-dim);color:var(--primary);">⇄</span> Before vs. after — overview</h2>
   </div>
 
   <table class="compare-table">
     <thead>
       <tr>
-        <th>Aspekt</th>
-        <th>Nå (RmsV-koblet)</th>
-        <th>Etter (standalone)</th>
+        <th>Aspect</th>
+        <th>Current (RmsV-coupled)</th>
+        <th>After (standalone)</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>Auth</td>
-        <td>Hardkodet .NET BFF</td>
-        <td>Pluggbar AuthAdapter</td>
+        <td>Hardcoded .NET BFF</td>
+        <td>Pluggable AuthAdapter</td>
       </tr>
       <tr>
         <td>API</td>
-        <td>Direkte RmsV-endepunkter</td>
+        <td>Direct RmsV endpoints</td>
         <td>InventoryApiAdapter interface</td>
       </tr>
       <tr>
-        <td>Oversettelser</td>
-        <td>Krever RmsVGlobalization-prosjekt</td>
-        <td>Self-contained JSON + valgfri .resx-import</td>
+        <td>Translations</td>
+        <td>Requires RmsVGlobalization project</td>
+        <td>Self-contained JSON + optional .resx import</td>
       </tr>
       <tr>
         <td>Branding</td>
-        <td>«RMSV Stock Control»</td>
-        <td>Konfigurerbar BrandConfig</td>
+        <td>"RMSV Stock Control"</td>
+        <td>Configurable BrandConfig</td>
       </tr>
       <tr>
         <td>Deployment</td>
-        <td>Kun IIS + web.config</td>
+        <td>IIS + web.config only</td>
         <td>IIS / Docker / Vercel / Netlify</td>
       </tr>
       <tr>
         <td>Config</td>
-        <td>2 runtime-felter</td>
-        <td>Full runtime config med adapter-valg</td>
+        <td>2 runtime fields</td>
+        <td>Full runtime config with adapter selection</td>
       </tr>
       <tr>
         <td>Repo</td>
-        <td>Del av VS-solution</td>
-        <td>Frittstående npm-prosjekt</td>
+        <td>Part of VS solution</td>
+        <td>Standalone npm project</td>
       </tr>
       <tr>
-        <td>Backend-typer</td>
-        <td>Speiler .NET DTO-er</td>
-        <td>Egne domene-typer + mapper per adapter</td>
+        <td>Backend types</td>
+        <td>Mirrors .NET DTOs</td>
+        <td>Own domain types + mapper per adapter</td>
       </tr>
     </tbody>
   </table>
@@ -895,76 +883,76 @@ window.__APP_CONFIG__ = {
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--purple-dim);color:var(--purple);">◈</span> Foreslått gjennomføringsplan</h2>
-    <p>Fire faser, der fase 1–2 gir umiddelbar verdi uten å knekke eksisterende RmsV-funksjonalitet.</p>
+    <h2><span class="icon" style="background:var(--purple-dim);color:var(--purple);">◈</span> Proposed implementation plan</h2>
+    <p>Four phases, where phases 1–2 deliver immediate value without breaking existing RmsV functionality.</p>
   </div>
 
   <div class="roadmap">
     <div class="roadmap-step phase1">
-      <h4>Fase 1 — Abstraksjonslag <span class="est">Uke 1–2</span></h4>
-      <p>Definer interfaces: <code>AuthAdapter</code>, <code>InventoryApiAdapter</code>, <code>BrandConfig</code>. Flytt eksisterende logikk til RmsV-adaptere. Null funksjonalitetsendring — bare omstrukturering. Etter dette kompilerer og kjører appen identisk som før.</p>
+      <h4>Phase 1 — Abstraction layer <span class="est">Week 1–2</span></h4>
+      <p>Define interfaces: <code>AuthAdapter</code>, <code>InventoryApiAdapter</code>, <code>BrandConfig</code>. Move existing logic into RmsV adapters. Zero functionality change — pure restructuring. After this, the app compiles and runs identically to before.</p>
     </div>
     <div class="roadmap-step phase2">
-      <h4>Fase 2 — Self-contained i18n + Branding <span class="est">Uke 2–3</span></h4>
-      <p>Frigjør oversettelser fra .resx-avhengighet. Implementer BrandConfig med theme/logo/navn. Lag build-script for PWA-ikoner og manifest per brand. Appen kan nå deployes uten tilgang til .NET-prosjektet.</p>
+      <h4>Phase 2 — Self-contained i18n + Branding <span class="est">Week 2–3</span></h4>
+      <p>Free translations from .resx dependency. Implement BrandConfig with theme/logo/name. Create build script for PWA icons and manifest per brand. The app can now be deployed without access to the .NET project.</p>
     </div>
     <div class="roadmap-step phase3">
-      <h4>Fase 3 — Plorea/Amendo-adaptere <span class="est">Uke 3–5</span></h4>
-      <p>Implementer <code>plorea-auth-adapter</code> og <code>plorea-api-adapter</code>. Definer Plorea-spesifikke endepunkter og mapper dem til domene-typer. Test fullstendig inventarflyt mot Plorea backend. Gjenta for Amendo.</p>
+      <h4>Phase 3 — Plorea/Amendo adapters <span class="est">Week 3–5</span></h4>
+      <p>Implement <code>plorea-auth-adapter</code> and <code>plorea-api-adapter</code>. Define Plorea-specific endpoints and map them to domain types. Test the complete inventory flow against Plorea backend. Repeat for Amendo.</p>
     </div>
     <div class="roadmap-step phase4">
-      <h4>Fase 4 — Deployment-fleksibilitet <span class="est">Uke 5–6</span></h4>
-      <p>Legg til Dockerfile, Docker Compose, og CI/CD-pipeline. Dokumenter deployment for alle plattformer. Flytt VS-integrasjon til valgfri mappe. Publiser som intern npm-pakke eller git submodule.</p>
+      <h4>Phase 4 — Deployment flexibility <span class="est">Week 5–6</span></h4>
+      <p>Add Dockerfile, Docker Compose, and CI/CD pipeline. Document deployment for all platforms. Move VS integration to an optional folder. Publish as an internal npm package or git submodule.</p>
     </div>
   </div>
 
   <!-- ============================================= -->
-  <!-- FILSTRUKTUR -->
+  <!-- FILE STRUCTURE -->
   <!-- ============================================= -->
 
   <div class="section-header">
-    <h2><span class="icon" style="background:var(--surface-3);color:var(--text-muted);">📂</span> Foreslått ny filstruktur</h2>
+    <h2><span class="icon" style="background:var(--surface-3);color:var(--text-muted);">📂</span> Proposed new file structure</h2>
   </div>
 
   <div class="code-block">inventory-client/
 ├── src/
-│   ├── <span class="keyword">domain/</span>                    <span class="comment"># Backend-agnostiske typer</span>
+│   ├── <span class="keyword">domain/</span>                    <span class="comment"># Backend-agnostic types</span>
 │   │   ├── inventory.ts
 │   │   ├── catalog.ts
 │   │   └── count.ts
-│   ├── <span class="keyword">adapters/</span>                  <span class="comment"># Pluggbare implementasjoner</span>
+│   ├── <span class="keyword">adapters/</span>                  <span class="comment"># Pluggable implementations</span>
 │   │   ├── auth/
 │   │   │   ├── auth-adapter.ts     <span class="comment"># Interface</span>
-│   │   │   ├── bff-adapter.ts      <span class="comment"># RmsV (nåværende)</span>
+│   │   │   ├── bff-adapter.ts      <span class="comment"># RmsV (current)</span>
 │   │   │   ├── plorea-adapter.ts
 │   │   │   └── amendo-adapter.ts
 │   │   └── api/
 │   │       ├── api-adapter.ts      <span class="comment"># Interface</span>
-│   │       ├── rmsv-api.ts         <span class="comment"># RmsV (nåværende)</span>
+│   │       ├── rmsv-api.ts         <span class="comment"># RmsV (current)</span>
 │   │       ├── plorea-api.ts
 │   │       └── amendo-api.ts
 │   ├── <span class="keyword">config/</span>
 │   │   ├── brand.ts                <span class="comment"># Brand interface + brands/</span>
 │   │   ├── features.ts             <span class="comment"># Feature flags</span>
 │   │   └── runtime.ts              <span class="comment"># window.__APP_CONFIG__ parser</span>
-│   ├── components/                 <span class="comment"># UI-komponenter (uendret)</span>
-│   ├── hooks/                      <span class="comment"># Custom hooks (bruker adapters)</span>
+│   ├── components/                 <span class="comment"># UI components (unchanged)</span>
+│   ├── hooks/                      <span class="comment"># Custom hooks (use adapters)</span>
 │   └── lib/
 │       ├── i18n/                   <span class="comment"># Self-contained i18n</span>
 │       ├── offline/                <span class="comment"># IndexedDB + SW</span>
-│       └── barcode/                <span class="comment"># Strekkodeskanning</span>
+│       └── barcode/                <span class="comment"># Barcode scanning</span>
 ├── public/
-│   ├── locales/                    <span class="comment"># JSON-oversettelser (source of truth)</span>
-│   ├── brands/                     <span class="comment"># Logo/ikoner per brand</span>
+│   ├── locales/                    <span class="comment"># JSON translations (source of truth)</span>
+│   ├── brands/                     <span class="comment"># Logo/icons per brand</span>
 │   └── config.js                   <span class="comment"># Runtime config</span>
 ├── <span class="keyword">integrations/</span>
 │   ├── vs/                         <span class="comment"># .esproj + launch.json</span>
 │   └── iis/                        <span class="comment"># web.config + deployment docs</span>
 ├── <span class="keyword">tools/</span>
-│   └── generate-i18n.js            <span class="comment"># Valgfri .resx → JSON (for RmsV)</span>
+│   └── generate-i18n.js            <span class="comment"># Optional .resx → JSON (for RmsV)</span>
 ├── Dockerfile
 ├── docker-compose.yml
-└── next.config.js                  <span class="comment"># basePath fra env</span></div>
+└── next.config.js                  <span class="comment"># basePath from env</span></div>
 
 </div>
 
@@ -972,7 +960,6 @@ window.__APP_CONFIG__ = {
   function toggle(id) {
     document.getElementById(id).classList.toggle('open');
   }
-  // Open first block by default
   document.getElementById('auth').classList.add('open');
 </script>
 
