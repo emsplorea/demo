@@ -537,6 +537,76 @@ input, select, button { font-family: inherit; }
 /* ── Spinner ── */
 .spinner { display: inline-block; animation: spin 0.8s linear infinite; }
 
+/* ── Group Picker ── */
+.group-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.group-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 100px; cursor: pointer;
+  font-size: 12.5px; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif;
+  border: 1.5px solid var(--border); background: transparent;
+  color: var(--text-muted); transition: all 0.15s ease;
+}
+.group-chip:hover { border-color: color-mix(in srgb, var(--primary) 40%, transparent); color: var(--text); }
+.group-chip.selected {
+  font-weight: 600; border-style: solid;
+}
+.group-chip .gdot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+}
+.group-chip .remove-x {
+  width: 14px; height: 14px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 10px;
+  background: color-mix(in srgb, var(--danger) 15%, transparent);
+  color: var(--danger); font-weight: 700; margin-left: 2px;
+  opacity: 0; transition: opacity 0.15s;
+}
+.group-chip.selected:hover .remove-x { opacity: 1; }
+.group-selected-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.group-selected-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 100px;
+  font-size: 12px; font-weight: 600; font-family: 'Plus Jakarta Sans', sans-serif;
+  transition: all 0.15s ease;
+}
+.group-inline-create {
+  padding: 14px; border-radius: 10px; margin-top: 10px;
+  background: var(--bg-input); border: 1.5px dashed var(--border);
+  animation: slideIn 0.2s ease;
+}
+.group-inline-create.solid { border-style: solid; border-color: color-mix(in srgb, var(--primary) 30%, transparent); }
+.group-inline-row {
+  display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;
+}
+.group-inline-field { flex: 1; min-width: 140px; }
+.group-inline-field label {
+  display: block; font-size: 11px; font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px;
+}
+.group-inline-field input {
+  width: 100%; padding: 8px 12px; border-radius: 7px;
+  background: var(--bg-card); border: 1.5px solid var(--border);
+  color: var(--text); font-size: 13px; outline: none;
+  font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.2s;
+}
+.group-inline-field input:focus {
+  border-color: var(--border-focus); box-shadow: 0 0 0 3px var(--primary-dim);
+}
+.color-palette { display: flex; gap: 5px; margin-top: 4px; }
+.color-swatch {
+  width: 22px; height: 22px; border-radius: 50%; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+  display: flex; align-items: center; justify-content: center;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--bg-card); }
+.color-swatch .sw-check { display: none; color: #fff; font-size: 11px; }
+.color-swatch.active .sw-check { display: block; }
+.group-mini-badge {
+  display: inline-flex; align-items: center; gap: 3px;
+  padding: 2px 8px; border-radius: 100px;
+  font-size: 10px; font-weight: 600;
+}
+
 /* ── Confidence Badge ── */
 .confidence-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -852,15 +922,28 @@ const MOCK_DB = [
       {company_id:12,company_name:"Fjordkafeen AS",type:1,last_order:'2026-03-18',total_spent:4280,order_count:23,loyalty:'Gull'},
       {company_id:34,company_name:"Havets Perle",type:1,last_order:'2026-03-10',total_spent:1850,order_count:8,loyalty:'Sølv'},
     ],
-    addresses:[{tag:"Hjemme",street:"Storgata 12",zip:"7010",city:"Trondheim",isPrimary:true},{tag:"Jobb",street:"Kongens gate 30",zip:"7011",city:"Trondheim",isPrimary:false}] },
+    addresses:[{tag:"Hjemme",street:"Storgata 12",zip:"7010",city:"Trondheim",isPrimary:true},{tag:"Jobb",street:"Kongens gate 30",zip:"7011",city:"Trondheim",isPrimary:false}],
+    group_ids:[1,3] },
   { id:2, uuid:'a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d', name:"Ola Hansen", email:"ola.hansen@bedrift.no", phone:"+4741234567", birthdate:"1975-11-22",
     companies:[{company_id:12,company_name:"Fjordkafeen AS",type:2,last_order:'2026-03-20',total_spent:12400,order_count:45,loyalty:'Platina'}],
-    addresses:[{tag:"Kontor",street:"Industriveien 5",zip:"7020",city:"Trondheim",isPrimary:true}] },
+    addresses:[{tag:"Kontor",street:"Industriveien 5",zip:"7020",city:"Trondheim",isPrimary:true}],
+    group_ids:[2,4] },
   { id:3, uuid:'f8e7d6c5-b4a3-4291-80f1-e2d3c4b5a6f7', name:"Lise Johansen", email:"lise.j@gmail.com", phone:"+4792345678", birthdate:"1992-07-09",
     companies:[{company_id:34,company_name:"Havets Perle",type:1,last_order:'2026-02-28',total_spent:620,order_count:3,loyalty:null}],
-    addresses:[{tag:"Hjemme",street:"Munkegata 44",zip:"7011",city:"Trondheim",isPrimary:true},{tag:"Hos mamma",street:"Bakklandet 8",zip:"7013",city:"Trondheim",isPrimary:false}] },
+    addresses:[{tag:"Hjemme",street:"Munkegata 44",zip:"7011",city:"Trondheim",isPrimary:true},{tag:"Hos mamma",street:"Bakklandet 8",zip:"7013",city:"Trondheim",isPrimary:false}],
+    group_ids:[1] },
 ];
 const COMPANY = { id:56, name:"Brygga Bistro", address:"Nedre Bakklandet 3, 7014 Trondheim" };
+
+// ─── Customer Groups (company-scoped) ────────────────────────────────────────
+const GROUP_COLORS = ['#6BB8DA','#4ADE80','#FBBF24','#F87171','#A78BFA','#FB923C','#EC4899','#2DD4BF'];
+let MOCK_GROUPS = [
+  { id:1, name:'VIP', color:'#A78BFA', description:'Priority service and exclusive offers', active:true },
+  { id:2, name:'Bedriftskunde Premium', color:'#FBBF24', description:'Corporate accounts with invoice terms', active:true },
+  { id:3, name:'Stamkunde', color:'#4ADE80', description:'Regular customers, loyalty rewards', active:true },
+  { id:4, name:'Ansattrabatt', color:'#6BB8DA', description:'Staff discount program', active:true },
+  { id:5, name:'Allergiregister', color:'#F87171', description:'Customers with registered allergies', active:true },
+];
 
 // ─── Consent versioning ──────────────────────────────────────────────────────
 const CONSENT_VERSION = '2.1';
@@ -966,6 +1049,7 @@ const ICO = {
   merge: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M6 21V9a9 9 0 009 9"/></svg>`,
   retry: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>`,
   zap: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+  users: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>`,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -986,8 +1070,49 @@ const INIT_FORM = {
   name:'', email:'', phone:'', birthdate:'',
   orgNumber:'', companyName:'', invoiceEmail:'', invoiceRef:'',
   addresses: [],
+  selectedGroups: [],
   allowInvoice: false, externalPosNo:'', externalInvoiceCode:'',
 };
+
+// ─── Group management ────────────────────────────────────────────────────────
+let showGroupCreate = false;
+let newGroupName = '';
+let newGroupColor = GROUP_COLORS[0];
+let newGroupDesc = '';
+let newGroupError = '';
+
+function toggleGroup(groupId) {
+  const idx = state.form.selectedGroups.indexOf(groupId);
+  if (idx >= 0) state.form.selectedGroups.splice(idx, 1);
+  else state.form.selectedGroups.push(groupId);
+  render();
+}
+
+function openGroupCreate() {
+  showGroupCreate = true;
+  newGroupName = ''; newGroupColor = GROUP_COLORS[0]; newGroupDesc = ''; newGroupError = '';
+  render();
+}
+
+function cancelGroupCreate() {
+  showGroupCreate = false;
+  render();
+}
+
+function saveNewGroup() {
+  const name = newGroupName.trim();
+  if (!name) { newGroupError = 'Name is required'; render(); return; }
+  if (MOCK_GROUPS.some(g => g.name.toLowerCase() === name.toLowerCase())) {
+    newGroupError = 'Group already exists'; render(); return;
+  }
+  const newGroup = { id: Date.now(), name, color: newGroupColor, description: newGroupDesc.trim(), active: true };
+  MOCK_GROUPS.push(newGroup);
+  state.form.selectedGroups.push(newGroup.id);
+  EventTracker.track('customer_group.created', { name, color: newGroupColor });
+  showGroupCreate = false;
+  newGroupError = '';
+  render();
+}
 
 function addAddress() {
   const addr = newAddr();
@@ -1018,7 +1143,7 @@ function setAddrPrimary(idx) {
 }
 
 let lookupTimer = null;
-const cloneForm = () => ({...INIT_FORM, addresses: []});
+const cloneForm = () => ({...INIT_FORM, addresses: [], selectedGroups: []});
 
 let state = {
   tab: 'private',
@@ -1054,6 +1179,7 @@ function resetState() {
     forceNew:false, linkedCustomer:null, isLinkedMode:false, saving:false, consentData:null,
     consentMethod:'pos', form: cloneForm(), errors:{}, suggestionsOpen: state.suggestionsOpen,
   };
+  showGroupCreate = false; newGroupName = ''; newGroupColor = GROUP_COLORS[0]; newGroupDesc = ''; newGroupError = '';
   render();
 }
 
@@ -1298,6 +1424,7 @@ function confirmForceNew(prefill) {
       street: a.street||'', zip: a.zip||'', city: a.city||'',
       isPrimary: a.isPrimary || i===0
     }));
+    state.form.selectedGroups = [...(c.group_ids||[])];
   }
   state.forceNew = true;
   closeDialog();
@@ -1400,6 +1527,7 @@ function renderForm() {
       ${renderContactSection(f, e)}
       ${state.tab === 'business' ? renderBusinessSection(f, e) : ''}
       ${renderAddressSection(f, e)}
+      ${renderGroupSection(f)}
       ${renderLocationSettings(f, e)}
       ${renderActions()}
     </div>
@@ -1597,6 +1725,7 @@ function renderMatchCard(c, rank) {
         ${c.companies.length} lokasjon${c.companies.length>1?'er':''}</div>
       <div class="location-chips">${chips}</div>
     </div>
+    ${(c.group_ids && c.group_ids.length > 0) ? '<div style="margin-bottom:12px"><div style="font-size:10.5px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px">Groups</div><div style="display:flex;flex-wrap:wrap;gap:4px">'+c.group_ids.map(gid => { const g = MOCK_GROUPS.find(x=>x.id===gid); return g ? '<span class="group-mini-badge" style="background:'+g.color+'18;color:'+g.color+';border:1px solid '+g.color+'30"><span class="gdot" style="background:'+g.color+';width:7px;height:7px;border-radius:50%;display:inline-block"></span>'+g.name+'</span>' : ''; }).join('')+'</div></div>' : ''}
     ${actions}
   </div>`;
 }
@@ -1752,6 +1881,85 @@ function renderAddressSection(f, e) {
     <button class="addr-add-btn" onclick="addAddress()" style="margin-top:12px">
       ${ICO.plus} Legg til adresse
     </button>
+  </div>`;
+}
+
+function renderGroupSection(f) {
+  const selected = f.selectedGroups || [];
+  const groups = MOCK_GROUPS.filter(g => g.active);
+
+  // Selected groups as colored chips
+  const selectedChips = selected.map(gid => {
+    const g = MOCK_GROUPS.find(x => x.id === gid);
+    if (!g) return '';
+    return `<span class="group-selected-chip" style="background:${g.color}20;color:${g.color};border:1px solid ${g.color}40">
+      <span class="gdot" style="background:${g.color}"></span>${g.name}
+    </span>`;
+  }).join('');
+
+  // Group picker chips (all available groups)
+  const pickerChips = groups.map(g => {
+    const isSel = selected.includes(g.id);
+    return `<button class="group-chip ${isSel?'selected':''}" onclick="toggleGroup(${g.id})"
+      style="${isSel ? 'background:'+g.color+'15;color:'+g.color+';border-color:'+g.color+'50' : ''}">
+      <span class="gdot" style="background:${g.color}"></span>
+      ${g.name}
+      ${isSel ? '<span class="remove-x">✕</span>' : ''}
+    </button>`;
+  }).join('');
+
+  // Inline create form
+  let createHtml = '';
+  if (showGroupCreate) {
+    const swatches = GROUP_COLORS.map(c =>
+      `<div class="color-swatch ${newGroupColor===c?'active':''}" style="background:${c}" onclick="newGroupColor='${c}';render()">
+        <span class="sw-check">${ICO.check}</span>
+      </div>`
+    ).join('');
+    createHtml = `<div class="group-inline-create solid">
+      <div style="font-size:13px;font-weight:700;font-family:'Sora',sans-serif;margin-bottom:10px;display:flex;align-items:center;gap:6px">
+        ${ICO.plus} New Group
+      </div>
+      <div class="group-inline-row">
+        <div class="group-inline-field">
+          <label>Name *</label>
+          <input placeholder="e.g. VIP, Stamkunde..." value="${newGroupName}" oninput="newGroupName=this.value;newGroupError='';render()">
+          ${newGroupError ? '<div style="font-size:11px;color:var(--danger);margin-top:3px">'+newGroupError+'</div>' : ''}
+        </div>
+        <div class="group-inline-field" style="min-width:100px;flex:0.6">
+          <label>Description</label>
+          <input placeholder="Optional..." value="${newGroupDesc}" oninput="newGroupDesc=this.value;render()">
+        </div>
+      </div>
+      <div style="margin-top:10px">
+        <label style="display:block;font-size:11px;font-weight:600;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Color</label>
+        <div class="color-palette">${swatches}</div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="btn btn-primary btn-sm" onclick="saveNewGroup()">${ICO.check} Create</button>
+        <button class="btn btn-ghost btn-sm" onclick="cancelGroupCreate()">Cancel</button>
+      </div>
+    </div>`;
+  } else {
+    createHtml = `<button class="addr-add-btn" style="margin-top:10px" onclick="openGroupCreate()">
+      ${ICO.plus} Create new group
+    </button>`;
+  }
+
+  return `<div class="card-section">
+    <div class="section-header">
+      <span class="section-title">Customer Groups</span>
+      <span class="section-tag">customer_groups</span>
+      <span class="badge badge-primary" style="font-size:10px">${ICO.users} many-to-many</span>
+      <span class="section-optional">${selected.length > 0 ? selected.length + ' selected' : 'Optional'}</span>
+    </div>
+    <div class="info-box primary" style="margin-bottom:14px">
+      <span class="icon-inline" style="color:var(--primary)">${ICO.info}</span>
+      Assign customer to one or more groups for segmentation, discounts and loyalty. Groups are shared across all locations for this company.
+    </div>
+    ${selected.length > 0 ? '<div class="group-selected-list">'+selectedChips+'</div>' : ''}
+    <div class="group-picker">${pickerChips}</div>
+    ${createHtml}
   </div>`;
 }
 
