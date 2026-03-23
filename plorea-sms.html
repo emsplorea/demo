@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea – SMS-tjeneste</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6BB8DA;
+  --primary-hover: #5AA8CC;
+  --primary-subtle: #E8F4FA;
+  --primary-muted: #B5DBE9;
+  --bg-app: #F4F6F8;
+  --bg-surface: #FFFFFF;
+  --bg-surface-raised: #FFFFFF;
+  --bg-surface-hover: #F0F2F5;
+  --bg-surface-active: #E8EAED;
+  --border: #E2E5EA;
+  --border-subtle: #ECEEF1;
+  --text-primary: #1A1D23;
+  --text-secondary: #5F6775;
+  --text-tertiary: #8A919D;
+  --text-on-primary: #FFFFFF;
+  --success: #34A853;
+  --success-bg: #E6F4EA;
+  --warning: #F59E0B;
+  --warning-bg: #FEF3C7;
+  --danger: #EA4335;
+  --danger-bg: #FCE8E6;
+  --info: #6BB8DA;
+  --info-bg: #E8F4FA;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 2px 8px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.1);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --font-display: 'Sora', sans-serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+}
+[data-theme="dark"] {
+  --bg-app: #111318; --bg-surface: #1A1D24; --bg-surface-raised: #22262E;
+  --bg-surface-hover: #2A2E37; --bg-surface-active: #33383F;
+  --border: #2E333B; --border-subtle: #252930;
+  --text-primary: #F0F1F3; --text-secondary: #9BA1AD; --text-tertiary: #6B7280;
+  --primary-subtle: #1A2A35; --success-bg: #1A2E1F; --warning-bg: #2E2710;
+  --danger-bg: #2E1A18; --info-bg: #1A2A35;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.2); --shadow-md: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: var(--font-body); background: var(--bg-app); color: var(--text-primary); line-height: 1.5; min-height: 100vh; }
+
+/* ── Shell ── */
+.shell { max-width: 1140px; margin: 0 auto; padding: 24px 20px 60px; }
+.shell-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+.shell-brand { display: flex; align-items: center; gap: 12px; }
+.shell-logo { width: 36px; height: 36px; background: linear-gradient(135deg, var(--primary), #4A9DBF); border-radius: var(--radius-sm); display: grid; place-items: center; color: white; font-family: var(--font-display); font-weight: 700; font-size: 16px; }
+.shell-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; }
+.shell-subtitle { font-size: 12px; color: var(--text-tertiary); font-weight: 500; }
+.theme-toggle { display: flex; gap: 4px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 3px; }
+.theme-btn { border: none; background: transparent; padding: 6px 10px; border-radius: var(--radius-sm); font-size: 12px; cursor: pointer; color: var(--text-tertiary); font-family: var(--font-body); font-weight: 500; transition: all 0.2s; }
+.theme-btn.active { background: var(--primary); color: white; }
+
+/* ── Tabs ── */
+.tab-nav { display: flex; gap: 2px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 4px; margin-bottom: 24px; }
+.tab-btn { flex: 1; border: none; background: transparent; padding: 12px 20px; border-radius: var(--radius-md); font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.25s ease; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.tab-btn:hover { background: var(--bg-surface-hover); }
+.tab-btn.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
+.tab-btn svg { width: 18px; height: 18px; }
+.tab-panel { display: none; animation: fadeIn 0.3s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+/* ── Cards ── */
+.card { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.card-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; }
+.card-icon { width: 40px; height: 40px; border-radius: var(--radius-md); display: grid; place-items: center; }
+.card-icon.blue { background: var(--primary-subtle); color: var(--primary); }
+.card-icon.green { background: var(--success-bg); color: var(--success); }
+.card-icon.amber { background: var(--warning-bg); color: var(--warning); }
+.card-icon.red { background: var(--danger-bg); color: var(--danger); }
+
+/* ── Saldo Grid ── */
+.saldo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+@media (max-width: 700px) { .saldo-grid { grid-template-columns: 1fr; } }
+.saldo-value { font-family: var(--font-display); font-size: 34px; font-weight: 700; line-height: 1.1; margin-bottom: 2px; }
+.saldo-detail { font-size: 13px; color: var(--text-tertiary); }
+.saldo-trend { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 99px; margin-top: 8px; }
+.saldo-trend.up { background: var(--success-bg); color: var(--success); }
+.saldo-trend.down { background: var(--danger-bg); color: var(--danger); }
+.saldo-trend.neutral { background: var(--info-bg); color: var(--info); }
+
+/* Sparkline */
+.sparkline-wrap { margin-top: 10px; }
+.sparkline-wrap svg { display: block; }
+
+/* Low balance warning */
+.low-balance-banner { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--warning-bg); border: 1px solid var(--warning); border-radius: var(--radius-md); margin-bottom: 20px; font-size: 13px; font-weight: 600; color: var(--text-primary); }
+.low-balance-banner svg { width: 20px; height: 20px; color: var(--warning); flex-shrink: 0; }
+.low-balance-banner.hidden { display: none; }
+
+/* ── Topup ── */
+.topup-section { margin-bottom: 20px; }
+.topup-section .card { padding: 28px; }
+.topup-title { font-family: var(--font-display); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+.topup-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+.topup-amounts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+@media (max-width: 600px) { .topup-amounts { grid-template-columns: repeat(2, 1fr); } }
+.topup-amount { border: 2px solid var(--border); background: var(--bg-surface); border-radius: var(--radius-md); padding: 16px 12px; text-align: center; cursor: pointer; transition: all 0.2s; font-family: var(--font-body); }
+.topup-amount:hover { border-color: var(--primary-muted); background: var(--primary-subtle); }
+.topup-amount.selected { border-color: var(--primary); background: var(--primary-subtle); box-shadow: 0 0 0 3px rgba(107,184,218,0.15); }
+.topup-amount-value { font-family: var(--font-display); font-size: 20px; font-weight: 700; color: var(--text-primary); }
+.topup-amount-sms { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; font-weight: 500; }
+.topup-amount-tag { display: inline-block; font-size: 10px; font-weight: 700; color: var(--success); background: var(--success-bg); padding: 2px 8px; border-radius: 99px; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+.topup-custom { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.topup-custom label { font-size: 13px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+.topup-custom input { flex: 1; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body); font-size: 14px; font-weight: 600; outline: none; transition: border-color 0.2s; }
+.topup-custom input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(107,184,218,0.12); }
+.topup-custom input.invalid { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(234,67,53,0.12); }
+.validation-msg { font-size: 12px; color: var(--danger); margin-bottom: 16px; min-height: 18px; font-weight: 500; }
+.btn-primary { width: 100%; padding: 14px 24px; background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; border-radius: var(--radius-md); font-family: var(--font-body); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 2px 8px rgba(107,184,218,0.3); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(107,184,218,0.4); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.payment-note { display: flex; align-items: center; gap: 8px; margin-top: 14px; padding: 10px 14px; background: var(--info-bg); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); }
+.payment-note svg { width: 16px; height: 16px; color: var(--primary); flex-shrink: 0; }
+
+/* ── Transaction History ── */
+.tx-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.tx-filter-btns { display: flex; gap: 4px; }
+.tx-filter-btn { padding: 6px 12px; border: 1px solid var(--border); background: var(--bg-surface); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--text-tertiary); cursor: pointer; transition: all 0.15s; }
+.tx-filter-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.tx-filter-btn:hover:not(.active) { background: var(--bg-surface-hover); color: var(--text-secondary); }
+.tx-list { display: flex; flex-direction: column; }
+.tx-item { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.tx-item:last-child { border-bottom: none; }
+.tx-icon-wrap { width: 36px; height: 36px; border-radius: var(--radius-sm); display: grid; place-items: center; }
+.tx-icon-wrap.credit { background: var(--success-bg); color: var(--success); }
+.tx-icon-wrap.debit { background: var(--danger-bg); color: var(--danger); }
+.tx-label { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+.tx-date { font-size: 12px; color: var(--text-tertiary); }
+.tx-method { font-size: 11px; color: var(--text-tertiary); font-weight: 500; }
+.tx-amount { font-family: var(--font-display); font-size: 14px; font-weight: 700; text-align: right; }
+.tx-amount.credit { color: var(--success); }
+.tx-amount.debit { color: var(--text-secondary); }
+.tx-balance { font-size: 12px; color: var(--text-tertiary); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── History Stats ── */
+.history-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+@media (max-width: 700px) { .history-stats { grid-template-columns: repeat(2, 1fr); } }
+.stat-mini { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 14px 16px; }
+.stat-mini-label { font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.stat-mini-value { font-family: var(--font-display); font-size: 20px; font-weight: 700; }
+
+/* ── History Toolbar ── */
+.history-toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+.search-box { flex: 1; min-width: 180px; position: relative; }
+.search-box svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-tertiary); pointer-events: none; }
+.search-box input { width: 100%; padding: 10px 12px 10px 36px; border: 1.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body); font-size: 13px; outline: none; transition: border-color 0.2s; }
+.search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(107,184,218,0.12); }
+.filter-select { padding: 10px 32px 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A919D' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+.filter-select:focus { border-color: var(--primary); }
+.date-input { padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-md); background: var(--bg-surface); color: var(--text-primary); font-family: var(--font-body); font-size: 13px; font-weight: 500; outline: none; cursor: pointer; }
+.date-input:focus { border-color: var(--primary); }
+
+/* ── SMS Table ── */
+.sms-table-wrap { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+.sms-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.sms-table thead th { padding: 12px 14px; text-align: left; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-tertiary); background: var(--bg-surface-hover); border-bottom: 1px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; transition: color 0.2s; }
+.sms-table thead th:hover { color: var(--text-primary); }
+.sms-table thead th.sorted { color: var(--primary); }
+.sms-table tbody tr { border-bottom: 1px solid var(--border-subtle); transition: background 0.15s; }
+.sms-table tbody tr:last-child { border-bottom: none; }
+.sms-table tbody tr:hover { background: var(--bg-surface-hover); }
+.sms-table td { padding: 12px 14px; vertical-align: middle; }
+.sms-recipient { display: flex; flex-direction: column; }
+.sms-recipient-name { font-weight: 600; color: var(--text-primary); }
+.sms-recipient-phone { font-size: 12px; color: var(--text-tertiary); font-variant-numeric: tabular-nums; }
+.sms-message { max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary); cursor: pointer; }
+.sms-message:hover { color: var(--text-primary); }
+.sms-datetime { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.sms-date { font-weight: 600; color: var(--text-primary); }
+.sms-time { font-size: 12px; color: var(--text-tertiary); }
+.sms-badge { display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
+.sms-badge.delivered { background: var(--success-bg); color: var(--success); }
+.sms-badge.failed { background: var(--danger-bg); color: var(--danger); }
+.sms-badge.pending { background: var(--warning-bg); color: var(--warning); }
+.sms-badge.sent { background: var(--info-bg); color: var(--info); }
+.sms-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.sms-cost { font-variant-numeric: tabular-nums; font-weight: 600; color: var(--text-secondary); text-align: right; }
+
+/* ── Pagination ── */
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text-tertiary); }
+.pagination-btns { display: flex; gap: 4px; }
+.pg-btn { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid var(--border); background: var(--bg-surface); border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; }
+.pg-btn:hover { background: var(--bg-surface-hover); }
+.pg-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* ── Modals ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; place-items: center; z-index: 100; animation: fadeIn 0.2s; }
+.modal-overlay.open { display: grid; }
+.modal { background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); padding: 28px; max-width: 520px; width: calc(100% - 32px); box-shadow: var(--shadow-lg); animation: modalIn 0.3s ease; }
+@keyframes modalIn { from { opacity:0; transform:scale(0.95) translateY(10px); } to { opacity:1; transform:scale(1) translateY(0); } }
+.modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+.modal-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+.modal-close { width: 28px; height: 28px; display: grid; place-items: center; background: var(--bg-surface-hover); border: none; border-radius: var(--radius-sm); cursor: pointer; color: var(--text-secondary); transition: background 0.15s; }
+.modal-close:hover { background: var(--bg-surface-active); }
+.modal-field { margin-bottom: 16px; }
+.modal-field-label { font-size: 11px; font-weight: 600; color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.modal-field-value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.modal-message-body { padding: 14px 16px; background: var(--bg-surface-hover); border-radius: var(--radius-md); font-size: 14px; line-height: 1.6; color: var(--text-primary); }
+
+/* Pay modal */
+.pay-modal .pay-summary { display: flex; justify-content: space-between; align-items: center; padding: 16px; background: var(--primary-subtle); border-radius: var(--radius-md); margin-bottom: 16px; }
+.pay-summary-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.pay-summary-value { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--primary); }
+.pay-meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.pay-meta-item { padding: 10px 14px; background: var(--bg-surface-hover); border-radius: var(--radius-sm); }
+.pay-meta-item .modal-field-label { margin-bottom: 2px; }
+.pay-meta-item .modal-field-value { font-size: 13px; }
+.pay-link-box { display: flex; align-items: center; gap: 8px; padding: 10px 14px; background: var(--bg-surface-hover); border: 1px dashed var(--border); border-radius: var(--radius-md); margin-bottom: 12px; }
+.pay-link-box code { flex: 1; font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'SF Mono', 'Fira Code', monospace; }
+.pay-link-copy { padding: 6px 12px; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 12px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; font-family: var(--font-body); }
+.pay-link-copy:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+.pay-expiry { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-tertiary); margin-bottom: 16px; }
+.pay-expiry svg { width: 14px; height: 14px; }
+.pay-actions { display: flex; gap: 10px; }
+.pay-actions .btn-primary { flex: 1; }
+.btn-secondary { flex: 1; padding: 12px 20px; background: var(--bg-surface); border: 1.5px solid var(--border); border-radius: var(--radius-md); font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
+.btn-secondary:hover { background: var(--bg-surface-hover); color: var(--text-primary); }
+
+/* Success animation modal */
+.success-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(6px); display: none; place-items: center; z-index: 200; }
+.success-overlay.open { display: grid; }
+.success-modal { background: var(--bg-surface); border-radius: var(--radius-xl); padding: 40px 32px; text-align: center; max-width: 400px; width: calc(100% - 32px); box-shadow: var(--shadow-lg); animation: modalIn 0.4s ease; }
+.success-check { width: 64px; height: 64px; border-radius: 50%; background: var(--success-bg); display: grid; place-items: center; margin: 0 auto 16px; animation: popIn 0.5s ease 0.2s both; }
+@keyframes popIn { from { transform: scale(0); } 50% { transform: scale(1.2); } to { transform: scale(1); } }
+.success-check svg { width: 32px; height: 32px; color: var(--success); }
+.success-title { font-family: var(--font-display); font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+.success-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+.success-amount { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--success); margin-bottom: 8px; }
+.success-email { font-size: 12px; color: var(--text-tertiary); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.success-email svg { width: 14px; height: 14px; }
+.success-btn { padding: 12px 32px; background: var(--primary); color: white; border: none; border-radius: var(--radius-md); font-family: var(--font-body); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+.success-btn:hover { background: var(--primary-hover); }
+
+/* ── Toast ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--bg-surface-raised); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 12px 20px; font-size: 13px; font-weight: 600; color: var(--success); box-shadow: var(--shadow-lg); transform: translateY(80px); opacity: 0; transition: all 0.3s ease; z-index: 300; }
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* Responsive */
+@media (max-width: 800px) {
+  .sms-table { font-size: 12px; }
+  .sms-table td, .sms-table th { padding: 10px 8px; }
+  .sms-message { max-width: 140px; }
+  .pay-meta-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="shell-header">
+    <div class="shell-brand">
+      <div class="shell-logo">P</div>
+      <div>
+        <div class="shell-title">SMS-tjeneste</div>
+        <div class="shell-subtitle">Plorea Meldingsplattform</div>
+      </div>
+    </div>
+    <div class="theme-toggle">
+      <button class="theme-btn active" onclick="setTheme('light')">Lys</button>
+      <button class="theme-btn" onclick="setTheme('dark')">Mørk</button>
+    </div>
+  </div>
+
+  <div class="tab-nav">
+    <button class="tab-btn active" onclick="switchTab('saldo')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Saldo & Påfyll
+    </button>
+    <button class="tab-btn" onclick="switchTab('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+      SMS-historikk
+    </button>
+  </div>
+
+  <!-- ═══════ SALDO & PÅFYLL ═══════ -->
+  <div id="tab-saldo" class="tab-panel active">
+
+    <!-- Low balance warning -->
+    <div class="low-balance-banner hidden" id="low-balance-banner">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>Lav saldo! Du har mindre enn 100 SMS igjen. Lad opp for å sikre uavbrutt tjeneste.</span>
+    </div>
+
+    <!-- Balance cards -->
+    <div class="saldo-grid">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Gjeldende saldo</span>
+          <div class="card-icon blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v12M8 10h8M9 14h6"/></svg>
+          </div>
+        </div>
+        <div class="saldo-value" id="balance-display">kr 1 247</div>
+        <div class="saldo-detail" id="sms-remaining">≈ 1 558 SMS igjen</div>
+        <div class="saldo-trend up">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>
+          +12% fra forrige mnd
+        </div>
+        <div class="sparkline-wrap">
+          <svg width="100%" height="40" viewBox="0 0 200 40" preserveAspectRatio="none">
+            <polyline points="0,35 25,30 50,32 75,28 100,22 125,25 150,18 175,12 200,8" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="0,35 25,30 50,32 75,28 100,22 125,25 150,18 175,12 200,8 200,40 0,40" fill="var(--primary)" opacity="0.08"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-label">Forbruk denne mnd</span>
+          <div class="card-icon amber">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          </div>
+        </div>
+        <div class="saldo-value">kr 456</div>
+        <div class="saldo-detail">571 SMS sendt i mars</div>
+        <div class="saldo-trend neutral">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Tilsvarende forrige mnd
+        </div>
+        <div class="sparkline-wrap">
+          <svg width="100%" height="40" viewBox="0 0 200 40" preserveAspectRatio="none">
+            <polyline points="0,30 25,28 50,32 75,20 100,15 125,22 150,18 175,25 200,22" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="0,30 25,28 50,32 75,20 100,15 125,22 150,18 175,25 200,22 200,40 0,40" fill="var(--warning)" opacity="0.08"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top-up -->
+    <div class="topup-section">
+      <div class="card">
+        <div class="topup-title">Lad opp saldo</div>
+        <div class="topup-desc">Velg et beløp eller skriv inn ønsket sum. Betaling skjer via Adyen Pay by Link, låst til merchant account <strong>plorea</strong>.</div>
+        <div class="topup-amounts">
+          <div class="topup-amount" onclick="selectAmount(this, 200)">
+            <div class="topup-amount-value">kr 200</div>
+            <div class="topup-amount-sms">~250 SMS</div>
+          </div>
+          <div class="topup-amount" onclick="selectAmount(this, 500)">
+            <div class="topup-amount-value">kr 500</div>
+            <div class="topup-amount-sms">~625 SMS</div>
+          </div>
+          <div class="topup-amount selected" onclick="selectAmount(this, 1000)">
+            <div class="topup-amount-value">kr 1 000</div>
+            <div class="topup-amount-sms">~1 250 SMS</div>
+            <div class="topup-amount-tag">Populær</div>
+          </div>
+          <div class="topup-amount" onclick="selectAmount(this, 2500)">
+            <div class="topup-amount-value">kr 2 500</div>
+            <div class="topup-amount-sms">~3 125 SMS</div>
+            <div class="topup-amount-tag">Best verdi</div>
+          </div>
+        </div>
+        <div class="topup-custom">
+          <label>Egendefinert:</label>
+          <input type="number" id="custom-amount" placeholder="Min 50 · Maks 10 000" min="50" max="10000" oninput="customAmountChange()">
+        </div>
+        <div class="validation-msg" id="validation-msg"></div>
+        <button class="btn-primary" id="pay-btn" onclick="openPayModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Generer betalingslenke – Adyen Pay by Link
+        </button>
+        <div class="payment-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Saldo oppdateres automatisk når betaling er gjennomført via Adyen webhook. Du mottar bekreftelse på e-post.
+        </div>
+      </div>
+    </div>
+
+    <!-- Transaction History -->
+    <div class="card">
+      <div class="card-header">
+        <span class="card-label">Transaksjonshistorikk</span>
+      </div>
+      <div class="tx-toolbar">
+        <div class="tx-filter-btns">
+          <button class="tx-filter-btn active" onclick="filterTx('all', this)">Alle</button>
+          <button class="tx-filter-btn" onclick="filterTx('credit', this)">Påfyll</button>
+          <button class="tx-filter-btn" onclick="filterTx('debit', this)">Forbruk</button>
+        </div>
+      </div>
+      <div class="tx-list" id="tx-list"></div>
+    </div>
+  </div>
+
+  <!-- ═══════ SMS-HISTORIKK ═══════ -->
+  <div id="tab-history" class="tab-panel">
+    <div class="history-stats">
+      <div class="stat-mini"><div class="stat-mini-label">Sendt i dag</div><div class="stat-mini-value" id="stat-today">47</div></div>
+      <div class="stat-mini"><div class="stat-mini-label">Denne uken</div><div class="stat-mini-value" id="stat-week">312</div></div>
+      <div class="stat-mini"><div class="stat-mini-label">Leveringsrate</div><div class="stat-mini-value" style="color:var(--success)" id="stat-rate">98,4%</div></div>
+      <div class="stat-mini"><div class="stat-mini-label">Kostnad i mnd</div><div class="stat-mini-value" id="stat-cost">kr 456</div></div>
+    </div>
+    <div class="history-toolbar">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="sms-search" placeholder="Søk mottaker, telefon eller melding…" oninput="filterSMS()">
+      </div>
+      <select class="filter-select" id="status-filter" onchange="filterSMS()">
+        <option value="all">Alle statuser</option>
+        <option value="delivered">Levert</option>
+        <option value="sent">Sendt</option>
+        <option value="pending">Venter</option>
+        <option value="failed">Feilet</option>
+      </select>
+      <select class="filter-select" id="type-filter" onchange="filterSMS()">
+        <option value="all">Alle typer</option>
+        <option value="booking">Booking</option>
+        <option value="order">Bestilling</option>
+        <option value="marketing">Kampanje</option>
+        <option value="reminder">Påminnelse</option>
+      </select>
+      <input type="date" class="date-input" id="date-from" onchange="filterSMS()" title="Fra dato">
+      <input type="date" class="date-input" id="date-to" onchange="filterSMS()" title="Til dato">
+    </div>
+    <div class="sms-table-wrap">
+      <table class="sms-table">
+        <thead><tr>
+          <th>Mottaker</th>
+          <th>Melding</th>
+          <th onclick="sortSMSTable()" class="sorted" id="date-th">Dato & tid ↓</th>
+          <th>Status</th>
+          <th>Type</th>
+          <th style="text-align:right">Kostnad</th>
+        </tr></thead>
+        <tbody id="sms-tbody"></tbody>
+      </table>
+      <div class="pagination">
+        <span class="pagination-info" id="pagination-info"></span>
+        <div class="pagination-btns" id="pagination-btns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Message detail modal -->
+<div class="modal-overlay" id="msg-modal" onclick="if(event.target===this)closeModals()">
+  <div class="modal"><div class="modal-header"><div class="modal-title">Meldingsdetaljer</div><button class="modal-close" onclick="closeModals()">✕</button></div><div id="modal-body"></div></div>
+</div>
+
+<!-- Pay by Link modal -->
+<div class="modal-overlay" id="pay-modal" onclick="if(event.target===this)closeModals()">
+  <div class="modal pay-modal">
+    <div class="modal-header"><div class="modal-title">Adyen Pay by Link</div><button class="modal-close" onclick="closeModals()">✕</button></div>
+    <div class="pay-summary">
+      <span class="pay-summary-label">Beløp å lade opp</span>
+      <span class="pay-summary-value" id="pay-amount">kr 1 000</span>
+    </div>
+    <div class="pay-meta-grid">
+      <div class="pay-meta-item">
+        <div class="modal-field-label">Merchant Account</div>
+        <div class="modal-field-value"><strong>plorea</strong></div>
+      </div>
+      <div class="pay-meta-item">
+        <div class="modal-field-label">Tenant ID</div>
+        <div class="modal-field-value" id="pay-tenant">tenant_sjohuset_001</div>
+      </div>
+      <div class="pay-meta-item">
+        <div class="modal-field-label">Referanse</div>
+        <div class="modal-field-value" id="pay-ref">SMS-TOPUP-20260323-7f3a</div>
+      </div>
+      <div class="pay-meta-item">
+        <div class="modal-field-label">Intent</div>
+        <div class="modal-field-value">sms_balance_topup</div>
+      </div>
+    </div>
+    <div class="pay-link-box">
+      <code id="pay-link-url">https://pay.adyen.com/pl/plorea/sms-7f3a9b2c</code>
+      <button class="pay-link-copy" onclick="copyLink()">Kopier</button>
+    </div>
+    <div class="pay-expiry">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Lenken utløper: <strong id="pay-expiry-time"></strong> (24 timer)
+    </div>
+    <div class="pay-actions">
+      <button class="btn-secondary" onclick="closeModals()">Avbryt</button>
+      <button class="btn-primary" onclick="simulatePayment()" style="box-shadow:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+        Send lenke på e-post
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Payment success overlay -->
+<div class="success-overlay" id="success-overlay" onclick="if(event.target===this)closeSuccess()">
+  <div class="success-modal">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">Betaling mottatt!</div>
+    <div class="success-desc">Adyen AUTHORISATION webhook bekreftet</div>
+    <div class="success-amount" id="success-amount">+kr 1 000</div>
+    <div class="success-email">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Bekreftelse sendt til einar@sjohuset.no
+    </div>
+    <div class="success-desc" style="margin-bottom:16px">Ny saldo: <strong id="success-new-balance">kr 2 247</strong></div>
+    <button class="success-btn" onclick="closeSuccess()">Lukk</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ State ═══
+let currentBalance = 1247;
+let selectedAmount = 1000;
+let smsSortDir = 'desc';
+let currentPage = 1;
+const PAGE_SIZE = 10;
+const SMS_COST = 0.80;
+const MIN_TOPUP = 50;
+const MAX_TOPUP = 10000;
+
+// ═══ Transactions ═══
+const transactions = [
+  { type:'credit', label:'Påfyll – Adyen Pay by Link', date:'2026-03-18', time:'14:32', amount:1000, method:'Visa ****4821', balance:1247 },
+  { type:'debit',  label:'SMS-forbruk · 142 meldinger', date:'2026-03-17', time:'23:59', amount:113.60, method:'Automatisk', balance:247 },
+  { type:'debit',  label:'SMS-forbruk · 89 meldinger',  date:'2026-03-14', time:'23:59', amount:71.20, method:'Automatisk', balance:360.60 },
+  { type:'credit', label:'Påfyll – Adyen Pay by Link', date:'2026-03-05', time:'09:15', amount:500, method:'Vipps', balance:431.80 },
+  { type:'debit',  label:'SMS-forbruk · 198 meldinger', date:'2026-02-28', time:'23:59', amount:158.40, method:'Automatisk', balance:-68.20 },
+  { type:'credit', label:'Påfyll – Adyen Pay by Link', date:'2026-02-20', time:'11:04', amount:500, method:'Mastercard ****7712', balance:90.20 },
+  { type:'debit',  label:'SMS-forbruk · 164 meldinger', date:'2026-02-14', time:'23:59', amount:131.20, method:'Automatisk', balance:-409.80 },
+  { type:'credit', label:'Første påfyll – Adyen Pay by Link', date:'2026-02-01', time:'10:00', amount:500, method:'Visa ****4821', balance:-278.60 },
+];
+let txFilter = 'all';
+
+function filterTx(type, btn) {
+  txFilter = type;
+  document.querySelectorAll('.tx-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTransactions();
+}
+
+function renderTransactions() {
+  const filtered = txFilter === 'all' ? transactions : transactions.filter(t => t.type === txFilter);
+  const el = document.getElementById('tx-list');
+  el.innerHTML = filtered.map(t => {
+    const sign = t.type === 'credit' ? '+' : '−';
+    const icon = t.type === 'credit'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>';
+    return `<div class="tx-item">
+      <div class="tx-icon-wrap ${t.type}">${icon}</div>
+      <div>
+        <div class="tx-label">${t.label}</div>
+        <div class="tx-date">${formatDate(t.date)}${t.time !== '23:59' ? ', '+t.time : ''}</div>
+        <div class="tx-method">${t.method}</div>
+      </div>
+      <div>
+        <div class="tx-amount ${t.type}">${sign}kr ${t.amount.toLocaleString('no-NO', {minimumFractionDigits:2})}</div>
+      </div>
+      <div>
+        <div class="tx-balance">Saldo: kr ${t.balance.toLocaleString('no-NO', {minimumFractionDigits:2})}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ═══ SMS data ═══
+const smsData = [
+  { name:"Ola Nordmann", phone:"+47 901 23 456", message:"Hei Ola! Din reservasjon hos Sjøhuset er bekreftet for lørdag 22. mars kl. 19:00. 4 gjester. Velkommen!", date:"2026-03-23", time:"10:15", status:"delivered", type:"booking", cost:0.80 },
+  { name:"Kari Hansen", phone:"+47 412 55 678", message:"Bestilling #4521 er klar for henting. Vis denne SMS-en i kassen. Takk for handelen!", date:"2026-03-23", time:"09:48", status:"delivered", type:"order", cost:0.80 },
+  { name:"Per Johansen", phone:"+47 922 11 334", message:"Påminnelse: Du har en reservasjon i kveld kl. 20:00 hos Brasserie Blå. Send AVBESTILL for å kansellere.", date:"2026-03-23", time:"09:30", status:"delivered", type:"reminder", cost:0.80 },
+  { name:"Lise Berg", phone:"+47 977 44 201", message:"🎉 Fredagstilbud! 20% på hele menyen denne helgen. Bruk kode HELG20 ved bestilling. Gjelder t.o.m. søndag.", date:"2026-03-23", time:"09:00", status:"sent", type:"marketing", cost:0.80 },
+  { name:"Kristine Moe", phone:"+47 489 33 112", message:"Takk for reservasjonen! Bord for 2 er klart søndag 23. mars kl. 18:00. Ser frem til ditt besøk!", date:"2026-03-23", time:"08:45", status:"delivered", type:"booking", cost:0.80 },
+  { name:"Thomas Vik", phone:"+47 456 78 901", message:"Bestilling #4519 er mottatt og tilberedes nå. Estimert tid: 25 minutter. Takk!", date:"2026-03-22", time:"21:14", status:"delivered", type:"order", cost:0.80 },
+  { name:"Nina Strand", phone:"+47 911 22 445", message:"Din reservasjon for brunch søndag 23. mars kl. 11:30 er bekreftet. 2 gjester. Vi gleder oss!", date:"2026-03-22", time:"18:30", status:"delivered", type:"booking", cost:0.80 },
+  { name:"Erik Dahl", phone:"+47 488 99 012", message:"Hei Erik! Vi savner deg 😊 Her er 15% rabatt på neste besøk. Kode: VELKOMMEN15. Gyldig i 7 dager.", date:"2026-03-22", time:"14:00", status:"failed", type:"marketing", cost:0.00 },
+  { name:"Mona Lie", phone:"+47 933 66 778", message:"Bestilling #4515 er levert. Vi håper maten smaker! Gi oss gjerne en tilbakemelding.", date:"2026-03-22", time:"13:22", status:"delivered", type:"order", cost:0.80 },
+  { name:"Jonas Bakke", phone:"+47 476 33 889", message:"Påminnelse: Lunsj-reservasjon i morgen kl. 12:00 hos Havna Mat & Vin. 6 gjester.", date:"2026-03-22", time:"11:00", status:"delivered", type:"reminder", cost:0.80 },
+  { name:"Silje Aas", phone:"+47 905 44 112", message:"Din take-away bestilling #4512 er klar! Hent i utgangen til venstre. Bon appétit!", date:"2026-03-21", time:"19:45", status:"delivered", type:"order", cost:0.80 },
+  { name:"Martin Lund", phone:"+47 462 88 556", message:"Reservasjonen din for 8 personer lørdag 22. mars er bekreftet. Langbord er reservert.", date:"2026-03-21", time:"16:10", status:"delivered", type:"booking", cost:0.80 },
+  { name:"Hanna Moe", phone:"+47 918 77 334", message:"🍕 Ny meny lansert! Prøv våre sesongretter denne uken. Se menyen: bestill.sjohuset.no", date:"2026-03-21", time:"10:00", status:"pending", type:"marketing", cost:0.80 },
+  { name:"Anders Solberg", phone:"+47 491 22 667", message:"Bestilling #4508 er på vei! Estimert levering: 30-40 min. Følg med på sanntidsoppdateringer.", date:"2026-03-21", time:"20:33", status:"delivered", type:"order", cost:0.80 },
+  { name:"Ingrid Sæther", phone:"+47 944 55 889", message:"Påminnelse: Bursdagsmiddag i morgen kl. 18:30. Allergier er notert. Ring oss ved endringer.", date:"2026-03-20", time:"15:00", status:"delivered", type:"reminder", cost:0.80 },
+  { name:"Lars Haugen", phone:"+47 970 11 443", message:"Takk for besøket i dag, Lars! Vi setter pris på din tilbakemelding: anmeld.sjohuset.no/r/4501", date:"2026-03-20", time:"22:15", status:"delivered", type:"order", cost:0.80 },
+  { name:"Camilla Ødegård", phone:"+47 922 88 001", message:"Bestilling #4499 – mat under tilberedning. Forventet klar om 20 min. Takk for tålmodigheten!", date:"2026-03-20", time:"18:42", status:"delivered", type:"order", cost:0.80 },
+  { name:"Rune Tangen", phone:"+47 415 77 223", message:"Påminnelse: Firmamiddag fredag 21. mars kl. 19:00 for 12 gjester. Kontakt oss for menyjusteringer.", date:"2026-03-19", time:"10:00", status:"delivered", type:"reminder", cost:0.80 },
+  { name:"Sofie Wold", phone:"+47 955 44 330", message:"Din bestilling #4495 er kansellert som forespurt. Ingen belastning er foretatt. Ha en fin dag!", date:"2026-03-19", time:"14:20", status:"delivered", type:"order", cost:0.80 },
+  { name:"Henrik Berge", phone:"+47 481 22 990", message:"🌟 Nyhet: Vi har nå søndagsbrunch! Book nå og få 10% rabatt. Se menyen: sjohuset.no/brunch", date:"2026-03-18", time:"09:00", status:"delivered", type:"marketing", cost:0.80 },
+  { name:"Tone Fjeld", phone:"+47 936 11 445", message:"Reservasjon bekreftet: tirsdag 19. mars kl. 20:00, 4 gjester. Allergier: glutenfri. Velkommen!", date:"2026-03-18", time:"16:35", status:"delivered", type:"booking", cost:0.80 },
+  { name:"Pål Johansen", phone:"+47 909 66 778", message:"Bestilling #4490 levert til bordet. Smakfull middag! Gi oss gjerne en vurdering på Google.", date:"2026-03-18", time:"20:10", status:"failed", type:"order", cost:0.00 },
+  { name:"Ida Norheim", phone:"+47 472 33 556", message:"Påminnelse: Lunsj i morgen kl. 11:30. 3 gjester. Ring oss ved endringer: 74 12 34 56", date:"2026-03-17", time:"16:00", status:"delivered", type:"reminder", cost:0.80 },
+  { name:"Geir Andersen", phone:"+47 941 99 112", message:"Bestilling #4485 er mottatt! Estimert tid: 35 minutter. Takk for bestillingen!", date:"2026-03-17", time:"19:22", status:"delivered", type:"order", cost:0.80 },
+];
+
+const statusLabel = { delivered:'Levert', sent:'Sendt', pending:'Venter', failed:'Feilet' };
+const typeLabel = { booking:'Booking', order:'Bestilling', marketing:'Kampanje', reminder:'Påminnelse' };
+
+// ═══ Theme ═══
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : '');
+  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.target.closest('.tab-btn').classList.add('active');
+}
+
+// ═══ Balance helpers ═══
+function updateBalanceDisplay() {
+  document.getElementById('balance-display').textContent = 'kr ' + currentBalance.toLocaleString('no-NO');
+  const remaining = Math.floor(currentBalance / SMS_COST);
+  document.getElementById('sms-remaining').textContent = '≈ ' + remaining.toLocaleString('no-NO') + ' SMS igjen';
+  const banner = document.getElementById('low-balance-banner');
+  if (remaining < 100) banner.classList.remove('hidden');
+  else banner.classList.add('hidden');
+}
+
+// ═══ Top-up ═══
+function selectAmount(el, val) {
+  document.querySelectorAll('.topup-amount').forEach(a => a.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAmount = val;
+  document.getElementById('custom-amount').value = '';
+  document.getElementById('custom-amount').classList.remove('invalid');
+  document.getElementById('validation-msg').textContent = '';
+  document.getElementById('pay-btn').disabled = false;
+}
+
+function customAmountChange() {
+  const input = document.getElementById('custom-amount');
+  const v = parseInt(input.value);
+  const msg = document.getElementById('validation-msg');
+  const btn = document.getElementById('pay-btn');
+
+  if (!input.value) { msg.textContent = ''; btn.disabled = false; input.classList.remove('invalid'); return; }
+
+  if (isNaN(v) || v < MIN_TOPUP) {
+    msg.textContent = `Minimumsbeløp er kr ${MIN_TOPUP}`;
+    input.classList.add('invalid'); btn.disabled = true;
+  } else if (v > MAX_TOPUP) {
+    msg.textContent = `Maksimumsbeløp er kr ${MAX_TOPUP.toLocaleString('no-NO')}`;
+    input.classList.add('invalid'); btn.disabled = true;
+  } else {
+    msg.textContent = `≈ ${Math.floor(v / SMS_COST).toLocaleString('no-NO')} SMS`;
+    msg.style.color = 'var(--text-tertiary)';
+    input.classList.remove('invalid'); btn.disabled = false;
+    document.querySelectorAll('.topup-amount').forEach(a => a.classList.remove('selected'));
+    selectedAmount = v;
+  }
+}
+
+// ═══ Pay modal ═══
+function openPayModal() {
+  const ref = 'SMS-TOPUP-' + new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + Math.random().toString(36).substr(2, 4);
+  document.getElementById('pay-amount').textContent = 'kr ' + selectedAmount.toLocaleString('no-NO');
+  document.getElementById('pay-ref').textContent = ref;
+  document.getElementById('pay-link-url').textContent = 'https://pay.adyen.com/pl/plorea/' + ref.toLowerCase();
+
+  const expiry = new Date(Date.now() + 24*60*60*1000);
+  document.getElementById('pay-expiry-time').textContent = expiry.toLocaleString('no-NO', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+
+  document.getElementById('pay-modal').classList.add('open');
+}
+
+function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('open')); }
+
+function copyLink() {
+  navigator.clipboard?.writeText(document.getElementById('pay-link-url').textContent);
+  showToast('✓ Lenke kopiert til utklippstavlen');
+}
+
+function simulatePayment() {
+  closeModals();
+  // Simulate webhook delay
+  showToast('Venter på Adyen webhook…');
+  setTimeout(() => {
+    currentBalance += selectedAmount;
+    updateBalanceDisplay();
+
+    // Add to transaction list
+    transactions.unshift({
+      type: 'credit',
+      label: 'Påfyll – Adyen Pay by Link',
+      date: new Date().toISOString().slice(0,10),
+      time: new Date().toTimeString().slice(0,5),
+      amount: selectedAmount,
+      method: 'Visa ****4821',
+      balance: currentBalance
+    });
+    renderTransactions();
+
+    // Show success
+    document.getElementById('success-amount').textContent = '+kr ' + selectedAmount.toLocaleString('no-NO');
+    document.getElementById('success-new-balance').textContent = 'kr ' + currentBalance.toLocaleString('no-NO');
+    document.getElementById('success-overlay').classList.add('open');
+  }, 1500);
+}
+
+function closeSuccess() { document.getElementById('success-overlay').classList.remove('open'); }
+
+// ═══ SMS rendering ═══
+function getFilteredSMS() {
+  const q = document.getElementById('sms-search').value.toLowerCase();
+  const st = document.getElementById('status-filter').value;
+  const tp = document.getElementById('type-filter').value;
+  const df = document.getElementById('date-from').value;
+  const dt = document.getElementById('date-to').value;
+
+  return smsData.filter(s => {
+    const matchQ = !q || s.name.toLowerCase().includes(q) || s.phone.includes(q) || s.message.toLowerCase().includes(q);
+    const matchSt = st === 'all' || s.status === st;
+    const matchTp = tp === 'all' || s.type === tp;
+    const matchDf = !df || s.date >= df;
+    const matchDt = !dt || s.date <= dt;
+    return matchQ && matchSt && matchTp && matchDf && matchDt;
+  });
+}
+
+function renderSMS() {
+  const filtered = getFilteredSMS();
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  if (currentPage > totalPages) currentPage = totalPages;
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const page = filtered.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('sms-tbody');
+  tbody.innerHTML = page.map((s, i) => {
+    const globalIdx = start + i;
+    return `<tr>
+      <td><div class="sms-recipient"><span class="sms-recipient-name">${s.name}</span><span class="sms-recipient-phone">${s.phone}</span></div></td>
+      <td><div class="sms-message" onclick="showMessage(${globalIdx})" title="Klikk for å lese hele meldingen">${s.message}</div></td>
+      <td class="sms-datetime"><div class="sms-date">${formatDate(s.date)}</div><div class="sms-time">${s.time}</div></td>
+      <td><span class="sms-badge ${s.status}"><span class="sms-badge-dot"></span>${statusLabel[s.status]}</span></td>
+      <td style="color:var(--text-secondary);font-weight:500;font-size:12px">${typeLabel[s.type]}</td>
+      <td class="sms-cost">${s.cost > 0 ? 'kr ' + s.cost.toFixed(2) : '–'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('pagination-info').textContent = filtered.length ? `Viser ${start+1}–${Math.min(start+PAGE_SIZE, filtered.length)} av ${filtered.length}` : 'Ingen resultater';
+
+  const btnsEl = document.getElementById('pagination-btns');
+  btnsEl.innerHTML = '';
+  for (let p = 1; p <= totalPages; p++) {
+    const btn = document.createElement('button');
+    btn.className = 'pg-btn' + (p === currentPage ? ' active' : '');
+    btn.textContent = p;
+    btn.onclick = () => { currentPage = p; renderSMS(); };
+    btnsEl.appendChild(btn);
+  }
+
+  // Update stats
+  const today = smsData.filter(s => s.date === '2026-03-23');
+  const week = smsData.filter(s => s.date >= '2026-03-17');
+  const delivered = smsData.filter(s => s.status === 'delivered').length;
+  const total = smsData.filter(s => s.status !== 'pending').length;
+  document.getElementById('stat-today').textContent = today.length;
+  document.getElementById('stat-week').textContent = week.length;
+  document.getElementById('stat-rate').textContent = ((delivered / total) * 100).toFixed(1) + '%';
+  document.getElementById('stat-cost').textContent = 'kr ' + smsData.reduce((a, s) => a + s.cost, 0).toFixed(0);
+}
+
+function filterSMS() { currentPage = 1; renderSMS(); }
+
+function sortSMSTable() {
+  smsSortDir = smsSortDir === 'desc' ? 'asc' : 'desc';
+  smsData.sort((a, b) => {
+    const da = new Date(a.date + 'T' + a.time);
+    const db = new Date(b.date + 'T' + b.time);
+    return smsSortDir === 'desc' ? db - da : da - db;
+  });
+  document.getElementById('date-th').textContent = 'Dato & tid ' + (smsSortDir === 'desc' ? '↓' : '↑');
+  filterSMS();
+}
+
+function showMessage(i) {
+  const s = getFilteredSMS()[i];
+  if (!s) return;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="modal-field"><div class="modal-field-label">Mottaker</div><div class="modal-field-value">${s.name} · ${s.phone}</div></div>
+    <div class="modal-field"><div class="modal-field-label">Sendt</div><div class="modal-field-value">${formatDate(s.date)} kl. ${s.time}</div></div>
+    <div class="modal-field"><div class="modal-field-label">Status</div><div class="modal-field-value"><span class="sms-badge ${s.status}"><span class="sms-badge-dot"></span>${statusLabel[s.status]}</span></div></div>
+    <div class="modal-field"><div class="modal-field-label">Type</div><div class="modal-field-value">${typeLabel[s.type]}</div></div>
+    <div class="modal-field"><div class="modal-field-label">Kostnad</div><div class="modal-field-value">${s.cost > 0 ? 'kr ' + s.cost.toFixed(2) : 'Ingen (feilet levering)'}</div></div>
+    <div class="modal-field"><div class="modal-field-label">Melding</div><div class="modal-message-body">${s.message}</div></div>`;
+  document.getElementById('msg-modal').classList.add('open');
+}
+
+function formatDate(d) {
+  const [y, m, day] = d.split('-');
+  const months = ['jan','feb','mar','apr','mai','jun','jul','aug','sep','okt','nov','des'];
+  return `${parseInt(day)}. ${months[parseInt(m)-1]} ${y}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ═══ Init ═══
+updateBalanceDisplay();
+renderTransactions();
+renderSMS();
+</script>
+</body>
+</html>
