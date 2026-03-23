@@ -1435,10 +1435,27 @@ function confirmForceNew(prefill) {
 // RENDER
 // ═══════════════════════════════════════════════════════════════════════════════
 function render() {
+  // Save focus state before DOM replacement
+  const activeEl = document.activeElement;
+  const focusField = activeEl?.getAttribute('data-field') || activeEl?.id || null;
+  const cursorPos = activeEl?.selectionStart ?? null;
+  const cursorEnd = activeEl?.selectionEnd ?? null;
+
   const el = document.getElementById('content');
   if (state.step === 'success') { el.innerHTML = renderSuccess(); return; }
   if (state.step === 'consent') { el.innerHTML = renderConsent(); return; }
   el.innerHTML = renderForm();
+
+  // Restore focus after DOM replacement
+  if (focusField) {
+    const target = document.querySelector(`[data-field="${focusField}"]`) || document.getElementById(focusField);
+    if (target && typeof target.focus === 'function') {
+      target.focus();
+      if (cursorPos !== null && typeof target.setSelectionRange === 'function') {
+        try { target.setSelectionRange(cursorPos, cursorEnd ?? cursorPos); } catch(e) {}
+      }
+    }
+  }
 }
 
 function renderSuccess() {
@@ -1665,7 +1682,7 @@ function renderLookup() {
     </div>
     <div class="input-wrap">
       <input class="inp has-icon" placeholder="Søk telefon, e-post eller navn..."
-        value="${q}" oninput="onLookupInput(this.value)"
+        value="${q}" oninput="onLookupInput(this.value)" data-field="lookup"
         ${state.forceNew?'disabled':''} style="${state.forceNew?'opacity:0.4':''}">
       <span class="icon">${ICO.search}</span>
     </div>
@@ -1744,7 +1761,7 @@ function inputHtml(id, icon, placeholder, value, opts={}) {
   const handler = opts.handler || `state.form.${id}=this.value;delete state.errors['${id}'];render()`;
   return `<div class="input-wrap">
     ${icon ? `<span class="icon">${icon}</span>` : ''}
-    <input class="${cls}" type="${type}" placeholder="${placeholder}" value="${value}" oninput="${handler}">
+    <input class="${cls}" type="${type}" placeholder="${placeholder}" value="${value}" oninput="${handler}" data-field="${id}">
     ${err ? `<div class="field-error">${err}</div>` : ''}
   </div>`;
 }
@@ -1817,7 +1834,7 @@ function renderAddressSection(f, e) {
     ).join('');
     const customInput = a.tag === 'Annet'
       ? `<input class="tag-custom-input" placeholder="Skriv tag..." value="${a.customTag||''}"
-          oninput="setAddrField(${idx},'customTag',this.value)">`
+          oninput="setAddrField(${idx},'customTag',this.value)" data-field="addr-${idx}-customTag">`
       : '';
     const displayTag = a.tag === 'Annet' && a.customTag ? a.customTag : a.tag;
     const tagEmoji = ADDR_TAGS.find(t=>t.tag===a.tag)?.emoji || '📍';
@@ -1839,19 +1856,19 @@ function renderAddressSection(f, e) {
           <div class="field-label"><label>Gateadresse</label></div>
           <div class="input-wrap">
             <span class="icon">${ICO.mapPin}</span>
-            <input class="inp has-icon" placeholder="Storgata 12" value="${a.street}" oninput="setAddrField(${idx},'street',this.value)">
+            <input class="inp has-icon" placeholder="Storgata 12" value="${a.street}" oninput="setAddrField(${idx},'street',this.value)" data-field="addr-${idx}-street">
           </div>
         </div>
         <div>
           <div class="field-label"><label>Postnr.</label></div>
           <div class="input-wrap">
-            <input class="inp" placeholder="7010" value="${a.zip}" oninput="setAddrField(${idx},'zip',this.value)">
+            <input class="inp" placeholder="7010" value="${a.zip}" oninput="setAddrField(${idx},'zip',this.value)" data-field="addr-${idx}-zip">
           </div>
         </div>
         <div class="span-2">
           <div class="field-label"><label>By</label></div>
           <div class="input-wrap">
-            <input class="inp" placeholder="Trondheim" value="${a.city}" oninput="setAddrField(${idx},'city',this.value)">
+            <input class="inp" placeholder="Trondheim" value="${a.city}" oninput="setAddrField(${idx},'city',this.value)" data-field="addr-${idx}-city">
           </div>
         </div>
       </div>
@@ -1923,12 +1940,12 @@ function renderGroupSection(f) {
       <div class="group-inline-row">
         <div class="group-inline-field">
           <label>Name *</label>
-          <input placeholder="e.g. VIP, Stamkunde..." value="${newGroupName}" oninput="newGroupName=this.value;newGroupError='';render()">
+          <input placeholder="e.g. VIP, Stamkunde..." value="${newGroupName}" oninput="newGroupName=this.value;newGroupError='';render()" data-field="newGroupName">
           ${newGroupError ? '<div style="font-size:11px;color:var(--danger);margin-top:3px">'+newGroupError+'</div>' : ''}
         </div>
         <div class="group-inline-field" style="min-width:100px;flex:0.6">
           <label>Description</label>
-          <input placeholder="Optional..." value="${newGroupDesc}" oninput="newGroupDesc=this.value;render()">
+          <input placeholder="Optional..." value="${newGroupDesc}" oninput="newGroupDesc=this.value;render()" data-field="newGroupDesc">
         </div>
       </div>
       <div style="margin-top:10px">
