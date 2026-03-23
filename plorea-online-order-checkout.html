@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Plorea Online Order — Checkout Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+--bg-page:#FAFAFA;--bg-surface:#FFF;--bg-hover:#F1F5F9;--bg-raised:#FFF;--bg-overlay:rgba(0,0,0,.48);
+--text-primary:#1A1A1A;--text-secondary:#666;--text-muted:#C4C4C4;--text-link:#2E6B87;--text-inverted:#FFF;--text-on-primary:#FFF;
+--color-border:#E9E9E9;--color-border-strong:#D9D9D9;--color-border-focus:#6BB8DA;
+--color-accent:#2E6B87;--color-primary:#6BB8DA;--color-primary-hover:#4FA3C8;--color-secondary:#468DAC;
+--color-success:#6BDAB2;--color-success-bg:#D1FAE5;--color-warning:#DADA6B;--color-error:#DA6B6B;--color-error-bg:#FEE2E2;
+--color-selection:#EBF6FB;--color-selection-border:#99D2E8;
+--elevation-1:0 1px 4px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04);
+--elevation-2:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);
+--elevation-3:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04);
+--r-sm:6px;--r:8px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+--ease-out:cubic-bezier(.16,1,.3,1);--dur:160ms;--dur-slow:240ms;--dur-panel:320ms;
+--warm:#FFF8F0;--vipps:#FF5B24
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:#16151A;color:var(--text-primary);height:100vh;display:flex;flex-direction:column;overflow:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none}input,textarea{font-family:inherit}
+::-webkit-scrollbar{width:0;height:0}
+
+/* Mode bar */
+#mb{background:#16151A;padding:6px 10px;display:flex;align-items:center;gap:4px;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.07);overflow-x:auto}
+#mb button{padding:5px 10px;border:none;border-radius:var(--r);background:rgba(255,255,255,.08);color:rgba(255,255,255,.48);font-size:10px;font-weight:600;white-space:nowrap;transition:all var(--dur)}
+#mb button.on{background:var(--color-accent);color:#fff}
+
+/* Wrapper */
+#w{flex:1;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden}
+#d{background:var(--bg-page);overflow:hidden;box-shadow:var(--elevation-3);display:flex;flex-direction:column;position:relative}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes scaleIn{0%{transform:scale(0);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+@keyframes checkDraw{0%{stroke-dashoffset:50}100%{stroke-dashoffset:0}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(300px) rotate(720deg);opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.fade-up{animation:fadeUp .35s var(--ease-out) both}
+.slide-up{animation:slideUp var(--dur-slow) var(--ease-out)}
+.confetti-wrap{position:absolute;top:0;left:0;right:0;height:200px;overflow:hidden;pointer-events:none;z-index:5}
+.conf{position:absolute;top:-10px;opacity:0;animation:confetti ease-in forwards}
+
+/* Pill buttons */
+.pl{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:var(--r-xl);border:1.5px solid transparent;font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0;transition:all var(--dur) var(--ease-out)}
+.pl.on{background:var(--color-accent);color:#fff;border-color:var(--color-accent)}
+.pl.off{background:#fff;color:var(--text-secondary);border-color:var(--color-border-strong)}
+
+/* Primary button */
+.bp{width:100%;padding:13px;border:none;border-radius:var(--r-lg);font-size:14px;font-weight:700;color:#fff;transition:all var(--dur) var(--ease-out)}
+.bp.ac{background:var(--color-accent)}.bp.ac:hover{background:#1D4A5F}
+.bp.tl{background:var(--color-primary)}.bp.tl:hover{background:var(--color-primary-hover)}
+.bp:disabled{background:#E2E8F0;color:#94A3B8;cursor:default}
+.bp:active:not(:disabled){transform:scale(.98)}
+
+/* Overlay */
+.mo{position:absolute;inset:0;z-index:1300;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5)}
+.md{position:relative;background:#fff;border-radius:var(--r-xl);max-height:85%;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--elevation-3)}
+
+/* Bottom sheet */
+.so{position:absolute;inset:0;z-index:1200;display:flex;flex-direction:column;justify-content:flex-end}
+.sbg{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.sh{position:relative;background:#fff;border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:90%;display:flex;flex-direction:column;box-shadow:var(--elevation-3)}
+
+/* Toggle */
+.tt{display:flex;background:#E2E8F0;border-radius:var(--r-lg);padding:3px;gap:3px}
+.ttb{flex:1;padding:10px;border:none;border-radius:var(--r-md);font-size:12px;font-weight:700;background:transparent;color:#94A3B8;text-align:center;transition:all var(--dur)}
+.ttb.on{background:#fff;color:var(--text-primary);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+
+/* Small label */
+.sl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#94A3B8}
+
+/* Bottom bar */
+.bb{position:absolute;bottom:0;left:0;right:0;height:56px;border:none;background:var(--color-accent);display:flex;align-items:center;justify-content:space-between;padding:0 14px;color:#fff;font-weight:700;font-size:13px;z-index:10;transition:background var(--dur)}
+.bb:hover{background:#1D4A5F}
+
+/* Cart item */
+.ci{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #F1F5F9}
+.ci img{width:40px;height:40px;border-radius:var(--r);object-fit:cover;flex-shrink:0}
+
+/* Country selector */
+.cs-btn{display:flex;align-items:center;gap:4px;padding:10px 8px;border:2px solid var(--color-border);border-right:none;border-radius:8px 0 0 8px;background:var(--bg-page);font-size:13px;font-weight:600;cursor:pointer;flex-shrink:0}
+.cs-input{flex:1;padding:10px 12px;border:2px solid var(--color-border);border-radius:0 8px 8px 0;font-size:13px;outline:none;background:var(--bg-page)}
+.cs-input:focus{border-color:var(--color-border-focus)}
+
+/* OTP */
+.otp-box{display:flex;gap:6px;justify-content:center;margin:16px 0}
+.otp-box input{width:44px;height:52px;text-align:center;font-size:20px;font-weight:700;border:2px solid var(--color-border);border-radius:var(--r-md);outline:none;background:var(--bg-page)}
+.otp-box input:focus{border-color:var(--color-accent)}
+
+/* Kitchen bar */
+.kb{display:flex;align-items:center;gap:10px;padding:8px 14px;background:rgba(107,218,178,.15);font-size:11px;font-weight:600;color:var(--color-success);flex-shrink:0;border-bottom:1px solid var(--color-border)}
+</style>
+</head>
+<body>
+<div id="mb"></div>
+<div id="w"><div id="d"></div></div>
+
+<script>
+/* ========== HELPERS ========== */
+const f=n=>`${n.toLocaleString("nb-NO")} kr`;
+const mv=n=>Math.round(n*.25/(1+.25));
+function pImg(emoji,bg1,bg2){return"data:image/svg+xml,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="'+bg1+'"/><stop offset="100%" stop-color="'+bg2+'"/></linearGradient></defs><rect width="400" height="400" fill="url(#g)"/><text x="200" y="220" text-anchor="middle" font-size="120">'+emoji+'</text></svg>')}
+
+/* ========== DATA ========== */
+const C=[{id:1,n:"Mat",e:"🍔"},{id:2,n:"Tilbehør",e:"🍟"},{id:3,n:"Drikke",e:"🥤"},{id:4,n:"Dessert",e:"🍰"}];
+const P=[
+{id:1,c:1,n:"HOT BURGER",p:99,d:"Saftig burger med friske grønnsaker",i:pImg("🍔","#FFF3E0","#FFE0B2"),a:[{g:"Størrelse",r:1,t:"radio",o:[{n:"300G",p:60},{n:"250G",p:40},{n:"160G",p:0}]},{g:"Ekstra",t:"checkbox",o:[{n:"Cheese",p:10},{n:"Jalapeños",p:10},{n:"Bacon",p:10}]}]},
+{id:2,c:1,n:"Chili Burger",p:150,d:"Med jalapeño og sriracha",i:pImg("🌶️","#FFEBEE","#FFCDD2"),a:[{g:"Størrelse",r:1,t:"radio",o:[{n:"300G",p:60},{n:"250G",p:40},{n:"160G",p:0}]}]},
+{id:3,c:1,n:"BACON BURGER",p:150,d:"Dobbelt bacon og cheddar",i:pImg("🥓","#FBE9E7","#FFCCBC")},
+{id:4,c:1,n:"Kylling Pasta",p:150,d:"Penne i fløtesaus",i:pImg("🍝","#FFF8E1","#FFECB3")},
+{id:5,c:1,n:"Skinke Pizza",p:200,d:"Mozzarella og oregano",i:pImg("🍕","#FFF3E0","#FFE0B2")},
+{id:6,c:1,n:"Veggie Burger",p:130,d:"Plantebasert",i:pImg("🥬","#E8F5E9","#C8E6C9")},
+{id:7,c:2,n:"Pommes Frites",p:49,d:"Sprøstekte",i:pImg("🍟","#FFF8E1","#FFECB3")},
+{id:8,c:2,n:"Løkringer",p:59,d:"Crispy med aioli",i:pImg("🧅","#FFF3E0","#FFE0B2")},
+{id:9,c:2,n:"Coleslaw",p:39,d:"Hjemmelaget",i:pImg("🥗","#E8F5E9","#C8E6C9")},
+{id:10,c:3,n:"Coca-Cola",p:35,d:"0.5L",i:pImg("🥤","#FFEBEE","#FFCDD2")},
+{id:11,c:3,n:"Kaffe",p:25,d:"Nybrygget",i:pImg("☕","#EFEBE9","#D7CCC8")},
+{id:12,c:3,n:"Mineralvann",p:25,d:"0.5L",i:pImg("💧","#E3F2FD","#BBDEFB")},
+{id:13,c:4,n:"Brownie",p:65,d:"Med sjokoladesaus",i:pImg("🍫","#EFEBE9","#D7CCC8")},
+{id:14,c:4,n:"Iskrem",p:45,d:"3 kuler",i:pImg("🍦","#FCE4EC","#F8BBD0")}
+];
+const TMS=["18:15","18:30","18:45","19:00","19:15","19:30"];
+const COUNTRIES=[
+{f:"🇳🇴",n:"Norway",c:"+47",len:8},{f:"🇧🇷",n:"Brazil",c:"+55",len:11},{f:"🇸🇪",n:"Sweden",c:"+46",len:9},
+{f:"🇩🇰",n:"Denmark",c:"+45",len:8},{f:"🇬🇧",n:"United Kingdom",c:"+44",len:10},{f:"🇺🇸",n:"United States",c:"+1",len:10},
+{f:"🇩🇪",n:"Germany",c:"+49",len:11},{f:"🇫🇷",n:"France",c:"+33",len:9},{f:"🇪🇸",n:"Spain",c:"+34",len:9},
+{f:"🇵🇹",n:"Portugal",c:"+351",len:9},{f:"🇮🇹",n:"Italy",c:"+39",len:10},{f:"🇳🇱",n:"Netherlands",c:"+31",len:9},
+{f:"🇵🇱",n:"Poland",c:"+48",len:9},{f:"🇫🇮",n:"Finland",c:"+358",len:9},{f:"🇯🇵",n:"Japan",c:"+81",len:10}
+];
+
+/* ========== STORE ========== */
+const Z={_l:[],_s:{
+m:"online-landscape",ac:1,cart:[],co:false,sp:null,ei:null,ld:false,
+/* Auth */
+authScreen:null,/* 'welcome','login','register','reset','otp','country-pick' */
+loggedIn:false,otpSent:false,otpCode:"",otpFor:"login",
+user:{name:"",phone:"",email:"",country:COUNTRIES[0]},
+/* Checkout */
+cs:0,sv:"pickup",pt:"asap",cm:"",dn:false,addr:""
+},
+g(k){return this._s[k]},a(){return{...this._s}},
+s(u){Object.assign(this._s,u);this._l.forEach(f=>f(this._s))},
+on(f){this._l.push(f)},
+aC(p,q,sl){const ex=(sl||[]).reduce((a,o)=>a+(o.p||0),0);this.s({cart:[...this._s.cart,{uid:Math.random().toString(36).slice(2),pr:p,qty:q,sl:sl||[],tp:(p.p+ex)*q}]})},
+rC(id){this.s({cart:this._s.cart.filter(i=>i.uid!==id)})},
+uC(id,d){this.s({cart:this._s.cart.map(i=>{if(i.uid!==id)return i;const nq=i.qty+d;if(nq<=0)return null;const ex=(i.sl||[]).reduce((a,o)=>a+(o.p||0),0);return{...i,qty:nq,tp:(i.pr.p+ex)*nq}}).filter(Boolean)})},
+cc(){this.s({cart:[],co:false,cs:0,dn:false,cm:"",addr:""})},
+ct(){return this._s.cart.reduce((s,i)=>s+i.tp,0)},
+cn(){return this._s.cart.reduce((s,i)=>s+i.qty,0)}
+};
+
+let mS={},mQ=1;
+
+/* ========== RENDER ========== */
+function R(){
+const s=Z.a(),d=document.getElementById("d");
+const modes=[{k:"online-landscape",l:"🌐 Online L"},{k:"online-mobile",l:"🌐 Online M"}];
+document.getElementById("mb").innerHTML=modes.map(x=>`<button class="${s.m===x.k?'on':''}" onclick="Z.s({m:'${x.k}',co:false,cs:0,dn:false,sp:null,authScreen:null})">${x.l}</button>`).join("")+
+`<button style="margin-left:auto;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7)" onclick="Z.s({authScreen:'welcome',loggedIn:false})">🔄 Reset auth</button>`;
+const isMobile=s.m==="online-mobile";
+d.style.width=isMobile?"375px":"100%";d.style.maxWidth="100%";d.style.height="100%";
+d.style.maxHeight=isMobile?"720px":"100%";d.style.borderRadius=isMobile?"16px":"8px";
+d.style.border="1px solid var(--color-border)";
+d.innerHTML=isMobile?renderMobile(s):renderLandscape(s);
+/* Preserve input values */
+requestAnimationFrame(()=>{
+const cn=document.getElementById('cn'),cp=document.getElementById('cp'),ce=document.getElementById('ce');
+if(cn)cn.value=s.user.name;if(cp)cp.value=s.user.phone;if(ce)ce.value=s.user.email;
+const ra=document.getElementById('reg-name'),rp=document.getElementById('reg-phone'),re=document.getElementById('reg-email');
+if(ra)ra.value=s.user.name;if(rp)rp.value=s.user.phone;if(re)re.value=s.user.email;
+const lp=document.getElementById('login-phone');if(lp)lp.value=s.user.phone;
+})
+}
+Z.on(()=>R());
+
+/* ========== AUTH SCREENS ========== */
+function authOverlay(s){
+const scr=s.authScreen;
+if(!scr)return"";
+if(scr==="welcome")return welcomePopup();
+if(scr==="login")return loginScreen(s);
+if(scr==="register")return registerScreen(s);
+if(scr==="reset")return resetScreen(s);
+if(scr==="otp")return otpScreen(s);
+if(scr==="country-pick")return countryPicker(s);
+if(scr==="profile")return profileScreen(s);
+if(scr==="order-history")return orderHistoryScreen(s);
+if(scr&&scr.startsWith("order-detail-"))return orderDetailScreen(s,scr.replace("order-detail-",""));
+return""
+}
+
+function welcomePopup(){
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:340px;max-width:90%;padding:28px;text-align:center">
+<div style="font-size:36px;margin-bottom:10px;animation:scaleIn .5s ease forwards">👋</div>
+<h2 style="font-size:20px;font-weight:800">Welcome!</h2>
+<p style="font-size:13px;color:var(--text-secondary);margin-top:6px">Log in for faster checkout</p>
+<button class="bp ac" style="margin-top:20px" onclick="Z.s({authScreen:'login'})">Log in</button>
+<button class="bp" style="margin-top:8px;background:var(--bg-page);color:var(--text-primary);border:1px solid var(--color-border)" onclick="Z.s({authScreen:null,loggedIn:false})">Continue as guest</button>
+</div></div>`
+}
+
+function loginScreen(s){
+const co=s.user.country;
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:400px;max-width:92%;padding:0">
+<div style="padding:20px 24px 0">
+<button onclick="Z.s({authScreen:'welcome'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Back</button>
+</div>
+<div style="padding:20px 24px;text-align:center">
+<div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:.05em">Demo Burger</div>
+<h2 style="font-size:18px;font-weight:800;margin-top:8px">Log in to your account</h2>
+<button onclick="Z.s({loggedIn:true,authScreen:null,user:{...Z.g('user'),name:'Einar Dykk',phone:'91234567',email:'einar@demo.no',country:COUNTRIES[0]}})" style="width:100%;padding:14px;border-radius:var(--r-lg);background:var(--vipps);color:#fff;font-weight:800;font-size:15px;margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px">
+<span style="font-size:11px;background:rgba(255,255,255,.25);padding:2px 6px;border-radius:4px;font-weight:900">Vipps</span> Log in with Vipps</button>
+<div style="display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text-muted);font-size:12px"><div style="flex:1;height:1px;background:var(--color-border)"></div>or<div style="flex:1;height:1px;background:var(--color-border)"></div></div>
+<div style="text-align:left;margin-bottom:6px"><span class="sl">Phone number</span></div>
+<div style="display:flex">
+<button class="cs-btn" onclick="Z.s({authScreen:'country-pick',otpFor:'login'})">${co.f} ${co.c}</button>
+<input id="login-phone" class="cs-input" placeholder="Phone number" inputmode="tel" oninput="Z._s.user.phone=this.value">
+</div>
+<button class="bp ac" style="margin-top:12px" onclick="Z.s({authScreen:'otp',otpSent:true,otpFor:'login'})">Send code</button>
+<div style="margin-top:16px;font-size:12px;color:var(--text-secondary)">
+<a href="#" onclick="event.preventDefault();Z.s({authScreen:'reset'})" style="color:var(--color-accent);text-decoration:none">Can't log in?</a>
+</div>
+<div style="margin-top:10px;font-size:12px;color:var(--text-secondary)">
+Don't have an account? <a href="#" onclick="event.preventDefault();Z.s({authScreen:'register'})" style="color:var(--color-accent);text-decoration:none;font-weight:600">Register</a>
+</div>
+<div style="margin-top:8px"><a href="#" onclick="event.preventDefault();Z.s({authScreen:null,loggedIn:false})" style="font-size:11px;color:var(--text-muted);text-decoration:none">Continue as guest</a></div>
+</div></div></div>`
+}
+
+function registerScreen(s){
+const co=s.user.country;
+const nameOk=s.user.name.length>=2,phoneOk=s.user.phone.length>=6;
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:400px;max-width:92%;padding:0">
+<div style="padding:20px 24px 0">
+<button onclick="Z.s({authScreen:'login'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Back</button>
+</div>
+<div style="padding:16px 24px 24px">
+<h2 style="font-size:18px;font-weight:800;text-align:center">Create your account</h2>
+<p style="font-size:13px;color:var(--text-secondary);text-align:center;margin-top:4px">Order faster next time</p>
+<div style="margin-top:16px">
+<div class="sl" style="margin-bottom:3px">Full name *</div>
+<input id="reg-name" placeholder="Your name" oninput="Z._s.user.name=this.value;R()" style="width:100%;padding:10px 12px;border:2px solid var(--color-border);border-radius:8px;font-size:13px;outline:none;background:var(--bg-page)">
+</div>
+<div style="margin-top:10px">
+<div class="sl" style="margin-bottom:3px">Phone number *</div>
+<div style="display:flex">
+<button class="cs-btn" onclick="Z.s({authScreen:'country-pick',otpFor:'register'})">${co.f} ${co.c}</button>
+<input id="reg-phone" placeholder="Phone number" inputmode="tel" class="cs-input" oninput="Z._s.user.phone=this.value;R()">
+</div>
+${co.c!=="+47"?'<div style="font-size:10px;color:var(--color-warning);margin-top:4px;background:#FFFDE7;padding:4px 8px;border-radius:4px">⚠️ SMS delivery to international numbers may be delayed</div>':""}
+</div>
+<div style="margin-top:10px">
+<div class="sl" style="margin-bottom:3px">Email (optional)</div>
+<input id="reg-email" placeholder="your@email.com" inputmode="email" oninput="Z._s.user.email=this.value" style="width:100%;padding:10px 12px;border:2px solid var(--color-border);border-radius:8px;font-size:13px;outline:none;background:var(--bg-page)">
+</div>
+<button class="bp ac" style="margin-top:16px" onclick="Z.s({authScreen:'otp',otpSent:true,otpFor:'register'})" ${nameOk&&phoneOk?"":"disabled"}>Create account</button>
+<div style="text-align:center;margin-top:10px;font-size:12px;color:var(--text-secondary)">
+Already have an account? <a href="#" onclick="event.preventDefault();Z.s({authScreen:'login'})" style="color:var(--color-accent);text-decoration:none;font-weight:600">Log in</a>
+</div>
+</div></div></div>`
+}
+
+function resetScreen(s){
+const co=s.user.country;
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:400px;max-width:92%;padding:0">
+<div style="padding:20px 24px 0">
+<button onclick="Z.s({authScreen:'login'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Back</button>
+</div>
+<div style="padding:16px 24px 24px;text-align:center">
+<h2 style="font-size:18px;font-weight:800">Can't log in?</h2>
+<p style="font-size:13px;color:var(--text-secondary);margin-top:4px">We'll send a verification code to your phone</p>
+<div style="display:flex;margin-top:16px">
+<button class="cs-btn" onclick="Z.s({authScreen:'country-pick',otpFor:'reset'})">${co.f} ${co.c}</button>
+<input class="cs-input" placeholder="Phone number" inputmode="tel" oninput="Z._s.user.phone=this.value">
+</div>
+<button class="bp ac" style="margin-top:12px" onclick="Z.s({authScreen:'otp',otpSent:true,otpFor:'reset'})">Send code</button>
+</div></div></div>`
+}
+
+function otpScreen(s){
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:400px;max-width:92%;padding:0">
+<div style="padding:20px 24px 0">
+<button onclick="Z.s({authScreen:s.otpFor==='register'?'register':s.otpFor==='reset'?'reset':'login'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Back</button>
+</div>
+<div style="padding:20px 24px 24px;text-align:center">
+<div style="font-size:36px;margin-bottom:8px">📱</div>
+<h2 style="font-size:18px;font-weight:800">Enter verification code</h2>
+<p style="font-size:13px;color:var(--text-secondary);margin-top:4px">Sent to ${s.user.country.f} ${s.user.country.c} ${s.user.phone||"***"}</p>
+<div class="otp-box">
+${[0,1,2,3,4,5].map(i=>`<input maxlength="1" inputmode="numeric" onfocus="this.select()" oninput="otpNav(this,${i})">`).join("")}
+</div>
+<button class="bp ac" onclick="Z.s({loggedIn:true,authScreen:null,user:{...Z.g('user'),name:Z.g('user').name||'Demo User'}})">Verify & continue</button>
+<div style="margin-top:12px;font-size:12px;color:var(--text-muted)">
+<span id="otp-timer">Resend in 0:59</span>
+</div>
+${s.user.country.c!=="+47"?'<div style="font-size:10px;color:var(--text-secondary);margin-top:8px;background:#FFFDE7;padding:6px 10px;border-radius:6px">SMS delivery to international numbers may be delayed. If you don\'t receive a code, try Vipps login.</div>':""}
+</div></div></div>`
+}
+
+function otpNav(el,idx){
+if(el.value&&idx<5){const next=el.parentElement.children[idx+1];if(next)next.focus()}
+}
+
+function countryPicker(s){
+return`<div class="mo" style="z-index:1500"><div class="md" style="width:360px;max-width:90%;max-height:70%">
+<div style="padding:14px 16px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between">
+<h3 style="font-size:15px;font-weight:700">Select country</h3>
+<button onclick="Z.s({authScreen:Z.g('otpFor')==='register'?'register':Z.g('otpFor')==='reset'?'reset':'login'})" style="background:var(--bg-hover);border-radius:50%;width:28px;height:28px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">✕</button>
+</div>
+<div style="padding:8px 16px;border-bottom:1px solid var(--color-border)">
+<input id="cs-search" placeholder="Search countries..." oninput="filterCountries(this.value)" style="width:100%;padding:8px 10px;border:1.5px solid var(--color-border);border-radius:var(--r);font-size:13px;outline:none;background:var(--bg-page)">
+</div>
+<div id="cs-list" style="flex:1;overflow-y:auto;padding:4px 0">
+${COUNTRIES.map((c,i)=>`<button onclick="pickCountry(${i})" style="width:100%;padding:12px 16px;background:${c.c===s.user.country.c?'var(--color-selection)':'transparent'};border:none;display:flex;align-items:center;gap:10px;font-size:13px;text-align:left;font-family:inherit;transition:background .1s">
+<span style="font-size:20px">${c.f}</span><span style="flex:1;font-weight:500">${c.n}</span><span style="color:var(--text-secondary);font-weight:600">${c.c}</span>
+</button>`).join("")}
+</div></div></div>`
+}
+
+function pickCountry(idx){
+const u={...Z.g('user'),country:COUNTRIES[idx]};
+const otpFor=Z.g('otpFor');
+Z.s({user:u,authScreen:otpFor==='register'?'register':otpFor==='reset'?'reset':'login'})
+}
+function filterCountries(q){
+const list=document.getElementById('cs-list');if(!list)return;
+const btns=list.querySelectorAll('button');
+btns.forEach((b,i)=>{b.style.display=COUNTRIES[i].n.toLowerCase().includes(q.toLowerCase())||COUNTRIES[i].c.includes(q)?'':'none'})
+}
+
+function profileScreen(s){
+const u=s.user;
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:420px;max-width:92%;padding:0;max-height:80%">
+<div style="padding:16px 20px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between">
+<h3 style="font-size:15px;font-weight:700">Profile</h3>
+<button onclick="Z.s({authScreen:null})" style="background:var(--bg-hover);border-radius:50%;width:28px;height:28px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">✕</button>
+</div>
+<div style="flex:1;overflow-y:auto;padding:20px">
+<div style="text-align:center;margin-bottom:20px">
+<div style="width:56px;height:56px;border-radius:50%;background:var(--color-accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;margin:0 auto">${u.name?u.name[0].toUpperCase():"?"}</div>
+<div style="font-weight:700;font-size:16px;margin-top:8px">${u.name}</div>
+</div>
+<div style="background:var(--bg-page);border-radius:var(--r-lg);padding:14px;margin-bottom:12px">
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border)">
+<span style="font-size:12px;color:var(--text-secondary)">Name</span><span style="font-size:13px;font-weight:600">${u.name}</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--color-border)">
+<span style="font-size:12px;color:var(--text-secondary)">Phone</span><span style="font-size:13px;font-weight:600">${u.country.f} ${u.country.c} ${u.phone}</span>
+</div>
+<div style="display:flex;justify-content:space-between;padding:8px 0">
+<span style="font-size:12px;color:var(--text-secondary)">Email</span><span style="font-size:13px;font-weight:600">${u.email||"—"} ${u.email?'<span style="font-size:9px;background:var(--color-success-bg);color:var(--color-success);padding:1px 5px;border-radius:3px;font-weight:700">✓ Verified</span>':""}</span>
+</div>
+</div>
+<button onclick="Z.s({authScreen:'order-history'})" class="bp" style="background:var(--bg-page);color:var(--text-primary);border:1px solid var(--color-border);margin-bottom:8px">Order history</button>
+<button onclick="Z.s({loggedIn:false,authScreen:'welcome',user:{name:'',phone:'',email:'',country:COUNTRIES[0]}})" class="bp" style="background:var(--bg-page);color:var(--color-error);border:1px solid var(--color-error)">Log out</button>
+<div style="text-align:center;margin-top:12px"><a href="#" onclick="event.preventDefault()" style="font-size:11px;color:var(--color-error);text-decoration:none">Delete account</a></div>
+</div></div></div>`
+}
+
+/* ========== ORDER HISTORY ========== */
+const PAST_ORDERS=[
+{id:"4821",date:"22. mar 2026, 18:45",items:[{n:"HOT BURGER",q:2,attr:"300G, Cheese",p:338},{n:"Pommes Frites",q:2,p:98},{n:"Coca-Cola",q:2,p:70}],total:506,fee:5,delivery:0,status:"completed",method:"Vipps",type:"pickup",time:"19:02"},
+{id:"4798",date:"19. mar 2026, 12:20",items:[{n:"Skinke Pizza",q:1,p:200},{n:"Mineralvann",q:1,p:25}],total:225,fee:5,delivery:59,status:"completed",method:"Card",type:"delivery",time:"13:05",addr:"Storgata 14"},
+{id:"4756",date:"15. mar 2026, 19:30",items:[{n:"Chili Burger",q:1,attr:"250G",p:190},{n:"Løkringer",q:1,p:59},{n:"Kaffe",q:1,p:25}],total:274,fee:5,delivery:0,status:"completed",method:"Vipps",type:"pickup",time:"19:42"},
+{id:"4701",date:"10. mar 2026, 11:15",items:[{n:"Veggie Burger",q:1,p:130},{n:"Coleslaw",q:1,p:39},{n:"Mineralvann",q:1,p:25}],total:194,fee:5,delivery:0,status:"cancelled",method:"—",type:"pickup",time:"—"},
+{id:"4683",date:"7. mar 2026, 20:00",items:[{n:"BACON BURGER",q:2,p:300},{n:"Pommes Frites",q:2,p:98},{n:"Brownie",q:1,p:65},{n:"Iskrem",q:2,p:90},{n:"Coca-Cola",q:3,p:105}],total:658,fee:5,delivery:59,status:"completed",method:"Vipps",type:"delivery",time:"20:48",addr:"Fjordveien 7"}
+];
+
+function orderHistoryScreen(s){
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:440px;max-width:92%;padding:0;max-height:85%">
+<div style="padding:14px 20px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;gap:10px">
+<button onclick="Z.s({authScreen:'profile'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Profile</button>
+<h3 style="font-size:15px;font-weight:700;flex:1;text-align:center">Order history</h3>
+<button onclick="Z.s({authScreen:null})" style="background:var(--bg-hover);border-radius:50%;width:28px;height:28px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">✕</button>
+</div>
+<div style="flex:1;overflow-y:auto;padding:12px 16px">
+${PAST_ORDERS.map(o=>{
+const statusColor=o.status==='completed'?'var(--color-success)':o.status==='cancelled'?'var(--color-error)':'var(--color-warning)';
+const statusBg=o.status==='completed'?'var(--color-success-bg)':o.status==='cancelled'?'var(--color-error-bg)':'#FFFDE7';
+const statusLabel=o.status==='completed'?'Completed':o.status==='cancelled'?'Cancelled':'Refunded';
+const itemsSummary=o.items.slice(0,2).map(i=>i.n).join(', ')+(o.items.length>2?' +${o.items.length-2} more':'');
+return`<button onclick="Z.s({authScreen:'order-detail-${o.id}'})" style="width:100%;background:#fff;border:1px solid var(--color-border);border-radius:var(--r-lg);padding:14px;margin-bottom:8px;text-align:left;font-family:inherit;transition:all .15s;cursor:pointer" onmouseenter="this.style.borderColor='var(--color-primary)'" onmouseleave="this.style.borderColor='var(--color-border)'">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+<span style="font-weight:700;font-size:14px">#${o.id}</span>
+<span style="font-size:10px;font-weight:700;color:${statusColor};background:${statusBg};padding:2px 8px;border-radius:var(--r-sm)">${statusLabel}</span>
+</div>
+<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px">${o.date}</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${o.items.slice(0,3).map(i=>i.n).join(', ')}${o.items.length>3?' <span style="color:var(--text-muted)">+${o.items.length-3} more</span>':''}</div>
+<div style="display:flex;justify-content:space-between;align-items:center">
+<span style="font-size:11px;color:var(--text-muted)">${o.type==='delivery'?'🚗 Delivery':'🏪 Pickup'}</span>
+<span style="font-size:15px;font-weight:800">${f(o.total+o.fee+o.delivery)}</span>
+</div>
+</button>`}).join('')}
+</div></div></div>`
+}
+
+function orderDetailScreen(s,orderId){
+const o=PAST_ORDERS.find(x=>x.id===orderId);
+if(!o)return'';
+const g=o.total+o.fee+o.delivery,m=mv(g);
+const isCompleted=o.status==='completed';
+return`<div class="mo" style="z-index:1400"><div class="md" style="width:440px;max-width:92%;padding:0;max-height:85%">
+<div style="padding:14px 20px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;gap:10px">
+<button onclick="Z.s({authScreen:'order-history'})" style="background:var(--bg-hover);border-radius:var(--r);padding:4px 10px;font-size:12px;color:var(--text-secondary)">← Back</button>
+<h3 style="font-size:15px;font-weight:700;flex:1;text-align:center">Order #${o.id}</h3>
+<button onclick="Z.s({authScreen:null})" style="background:var(--bg-hover);border-radius:50%;width:28px;height:28px;font-size:12px;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">✕</button>
+</div>
+<div style="flex:1;overflow-y:auto;padding:16px">
+<div style="text-align:center;margin-bottom:16px">
+<div style="font-size:11px;color:var(--text-secondary)">${o.date}</div>
+<div style="font-size:10px;font-weight:700;color:${o.status==='completed'?'var(--color-success)':'var(--color-error)'};background:${o.status==='completed'?'var(--color-success-bg)':'var(--color-error-bg)'};display:inline-block;padding:2px 10px;border-radius:var(--r-sm);margin-top:4px">${o.status==='completed'?'Completed':'Cancelled'}</div>
+</div>
+<div style="background:#fff;border-radius:var(--r-lg);border:1px solid var(--color-border);padding:14px;margin-bottom:10px">
+<div class="sl" style="margin-bottom:8px">Items</div>
+${o.items.map(i=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f8fafc;font-size:13px">
+<div><span style="font-weight:600">${i.n}</span>${i.q>1?' <span style="color:var(--text-secondary)">×${i.q}</span>':''}${i.attr?'<div style="font-size:10px;color:var(--text-muted)">'+i.attr+'</div>':''}</div>
+<span style="font-weight:700;flex-shrink:0;margin-left:12px">${f(i.p)}</span>
+</div>`).join('')}
+<div style="border-top:2px solid var(--color-border);margin-top:6px;padding-top:10px">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:3px"><span>Food subtotal</span><span>${f(o.total)}</span></div>
+${o.delivery>0?`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:3px"><span>Delivery fee</span><span>${f(o.delivery)}</span></div>`:''}
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:3px"><span>Service fee</span><span>${f(o.fee)}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);margin-bottom:3px"><span>VAT (incl.)</span><span>${f(m)}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding-top:6px;border-top:2px solid var(--color-border)"><span>Total</span><span>${f(g)}</span></div>
+</div>
+</div>
+<div style="background:#fff;border-radius:var(--r-lg);border:1px solid var(--color-border);padding:14px;margin-bottom:10px">
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f8fafc"><span style="color:var(--text-secondary)">${o.type==='delivery'?'🚗 Delivered to':'🏪 Picked up at'}</span><span style="font-weight:600">${o.type==='delivery'?(o.addr||'Address'):'Demo Burger'}</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px;border-bottom:1px solid #f8fafc"><span style="color:var(--text-secondary)">Time</span><span style="font-weight:600">${o.time}</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:12px"><span style="color:var(--text-secondary)">Payment</span><span style="font-weight:600">${o.method}</span></div>
+</div>
+${isCompleted?`<button class="bp ac" style="margin-bottom:8px" onclick="reorder('${o.id}')">🔄 Reorder</button>`:''}
+${isCompleted?`<button class="bp" style="background:var(--bg-page);color:var(--text-primary);border:1px solid var(--color-border)">📥 Download receipt</button>`:''}
+</div></div></div>`
+}
+
+function reorder(orderId){
+const o=PAST_ORDERS.find(x=>x.id===orderId);
+if(!o)return;
+let added=0,skipped=0;
+o.items.forEach(oi=>{
+const prod=P.find(p=>p.n===oi.n);
+if(prod){Z.aC(prod,oi.q,[]);added+=oi.q}
+else skipped++
+});
+Z.s({authScreen:null,co:false});
+/* Show toast-like feedback via alert for demo */
+if(skipped>0)setTimeout(()=>alert(added+' items added to cart. '+skipped+' item(s) no longer available.'),100);
+}
+
+/* ========== MENU ========== */
+function pills(s){return'<div style="position:sticky;top:0;z-index:10;display:flex;gap:6px;overflow-x:auto;padding:8px 14px;background:#fff;border-bottom:1px solid var(--color-border)">'+C.map(c=>'<button class="pl '+(s.ac===c.id?'on':'off')+'" onclick="Z.s({ac:'+c.id+'})"><span style="font-size:15px">'+c.e+'</span>'+c.n+'</button>').join('')+'</div>'}
+
+function prods(s,isMobile){
+const ps=P;let h='<div style="flex:1;overflow-y:auto;padding:0 14px;padding-bottom:80px">';
+C.forEach(cat=>{const cp=ps.filter(p=>p.c===cat.id);if(!cp.length)return;
+h+=`<div style="margin-bottom:16px"><h2 style="font-size:${isMobile?16:15}px;font-weight:700;margin:12px 0 8px">${cat.n}</h2>`;
+if(isMobile){
+h+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">';
+cp.forEach(p=>{h+=`<div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eef0f2;cursor:pointer" onclick="oP(${p.id})"><div style="aspect-ratio:1;overflow:hidden"><img src="${p.i}" style="width:100%;height:100%;object-fit:cover;display:block"></div><div style="padding:8px 10px"><div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.n}</div><div style="font-size:12px;font-weight:700;margin-top:2px">${p.p} kr</div></div></div>`});
+h+='</div>'
+}else{
+h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">';
+cp.forEach(p=>{h+=`<div style="background:#fff;border-radius:12px;overflow:hidden;border:1px solid #eef0f2;cursor:pointer" onclick="oP(${p.id})"><div style="aspect-ratio:1;overflow:hidden"><img src="${p.i}" style="width:100%;height:100%;object-fit:cover;display:block"></div><div style="padding:7px 9px"><div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.n}</div><div style="font-size:11px;font-weight:700;color:var(--color-accent);margin-top:1px">${p.p} kr</div></div></div>`});
+h+='</div>'
+}
+h+='</div>'});
+return h+'</div>'
+}
+
+function oP(id){Z.s({sp:P.find(x=>x.id===id),ei:null});mS={};mQ=1}
+
+/* ========== PRODUCT MODAL ========== */
+function pM(s){
+const p=s.sp,ha=p.a?.length>0,w=s.m==="online-landscape";
+const aS=Object.values(mS).flat(),ex=aS.reduce((s,o)=>s+(o.p||0),0),tp=(p.p+ex)*mQ;
+const ok=(p.a||[]).filter(a=>a.r).every(a=>mS[a.g]?.length>0);
+let ah='';
+if(ha)p.a.forEach(a=>{ah+=`<div style="margin-bottom:14px"><div style="font-size:13px;font-weight:700;margin-bottom:6px">${a.g}${a.r?'<span style="color:var(--color-error)"> *</span>':''}</div>`;
+a.o.forEach(o=>{const sl=(mS[a.g]||[]).find(x=>x.n===o.n);
+ah+=`<div onclick="mSl('${a.g}','${o.n}',${o.p||0},'${a.t}')" style="display:flex;align-items:center;justify-content:space-between;padding:9px 11px;margin-bottom:3px;border-radius:7px;border:1px solid ${sl?'var(--color-accent)':'var(--color-border)'};background:${sl?'rgba(107,184,218,.06)':'#fff'};cursor:pointer"><div style="display:flex;align-items:center;gap:8px"><div style="width:18px;height:18px;border-radius:${a.t==='radio'?'50%':'3px'};border:2px solid ${sl?'var(--color-accent)':'#cbd5e1'};background:${sl?'var(--color-accent)':'#fff'};display:flex;align-items:center;justify-content:center;flex-shrink:0">${sl?'<span style="color:#fff;font-size:10px;font-weight:700">✓</span>':''}</div><span style="font-size:13px">${o.n}</span></div>${(o.p||0)>0?`<span style="font-size:12px;color:var(--text-secondary)">+${o.p} kr</span>`:''}</div>`});
+ah+='</div>'});
+return`<div class="mo" style="z-index:1300" onclick="if(event.target===this)cPM()"><div class="md" style="width:${w?'460px':'90%'};max-width:480px"><div style="position:relative;flex-shrink:0"><img src="${p.i}" style="width:100%;height:${w?200:170}px;object-fit:cover;display:block"><div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.6));padding:20px 16px 10px"><h2 style="margin:0;color:#fff;font-size:18px;font-weight:700">${p.n}</h2></div><button onclick="cPM()" style="position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;background:var(--color-error);color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center">✕</button></div><div style="flex:1;overflow-y:auto;padding:10px 16px">${p.d?`<p style="font-size:12px;color:var(--text-secondary);margin:0 0 12px">${p.d}</p>`:''}${ah}</div><div style="padding:10px 16px 14px;border-top:1px solid #f1f5f9;flex-shrink:0"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:var(--text-secondary)">Quantity</span><div style="display:flex;align-items:center"><button onclick="mQ=Math.max(1,mQ-1);R()" style="width:32px;height:32px;border-radius:7px;background:#e2e8f0;font-size:15px;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">−</button><span style="min-width:32px;text-align:center;font-weight:700;font-size:15px">${mQ}</span><button onclick="mQ++;R()" style="width:32px;height:32px;border-radius:7px;background:var(--color-accent);font-size:15px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center">+</button></div></div><div style="display:flex;justify-content:space-between;margin-bottom:10px"><span style="font-size:12px;color:var(--text-secondary)">Total</span><span style="font-size:18px;font-weight:700">${f(tp)}</span></div><button class="bp ${ha&&!ok?'':'ac'}" onclick="cfPM()" ${ha&&!ok?'disabled':''}>Add to cart</button></div></div></div>`
+}
+function mSl(g,n,p,t){if(t==='radio')mS[g]=[{n,p:p||0}];else{const c=mS[g]||[];mS[g]=c.find(o=>o.n===n)?c.filter(o=>o.n!==n):[...c,{n,p:p||0}]}R()}
+function cPM(){mS={};mQ=1;Z.s({sp:null,ei:null})}
+function cfPM(){const p=Z.g('sp'),sl=Object.values(mS).flat();Z.aC(p,mQ,sl);cPM()}
+
+/* ========== CART ========== */
+function cIt(i){return`<div class="ci"><img src="${i.pr.i}"><div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600">${i.pr.n}</div><div style="font-size:11px;color:var(--text-secondary)">${f(i.tp)}</div>${i.sl.length?`<div style="font-size:9px;color:var(--text-muted)">${i.sl.map(s=>s.n).join(', ')}</div>`:''}</div><div style="display:flex;align-items:center;gap:2px;flex-shrink:0"><button onclick="Z.uC('${i.uid}',-1)" style="width:28px;height:28px;border-radius:6px;background:var(--bg-hover);font-size:13px;font-weight:700;color:var(--text-secondary);display:flex;align-items:center;justify-content:center">−</button><span style="min-width:22px;text-align:center;font-weight:700;font-size:12px">${i.qty}</span><button onclick="Z.uC('${i.uid}',1)" style="width:28px;height:28px;border-radius:6px;background:var(--color-accent);color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center">+</button></div></div>`}
+
+/* ========== CHECKOUT PANEL ========== */
+function checkoutPanel(s,isMobile){
+const step=s.cs,it=s.cart,t=Z.ct(),c=Z.cn(),df=s.sv==="delivery"?59:0,sf=5,g=t+df+sf,m=mv(g),u=s.user;
+const ST=s.loggedIn?["Cart","Details","Summary","Payment"]:["Cart","Details","Contact","Summary","Payment"];
+const st=s.dn?"Confirmed":ST[step]||"Cart";
+
+/* Header */
+let h=`<div style="padding:10px 14px;border-bottom:1px solid var(--color-border);display:flex;align-items:center;gap:10px;flex-shrink:0;background:#1A1A1A;color:#fff">`;
+if(step>0&&!s.dn)h+=`<button onclick="Z.s({cs:${step-1}})" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:8px;font-size:14px;display:flex;align-items:center;justify-content:center">←</button>`;
+h+=`<span style="flex:1;font-weight:700;font-size:13px;text-align:${step>0?'center':'left'}">${st}</span>`;
+if(step===0&&!s.dn&&isMobile)h+=`<button onclick="Z.s({co:false})" style="background:rgba(255,255,255,.1);border:none;color:#fff;width:28px;height:28px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:center">✕</button>`;
+if(!isMobile&&s.loggedIn)h+=`<button onclick="Z.s({authScreen:'profile'})" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">${u.name?u.name[0].toUpperCase():"?"}</button>`;
+h+='</div>';
+
+/* Confirmation */
+if(s.dn)return h+confirmationView(s,g,m);
+
+let b='<div style="flex:1;overflow-y:auto;padding:14px">';
+
+/* Step 0: Cart */
+if(st==="Cart"){
+if(c===0)b+='<div style="text-align:center;padding:30px 0;color:var(--text-muted)"><div style="font-size:40px;margin-bottom:8px;opacity:.5">🛒</div><div style="font-weight:600;font-size:14px">Your cart is empty</div><div style="font-size:12px;margin-top:4px">Add something tasty from the menu</div></div>';
+else{b+=`<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px">${it.map(i=>cIt(i)).join('')}</div>`;
+if(isMobile)b+='<button style="display:flex;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--color-border-strong);border-radius:var(--r-lg);padding:12px;width:100%;background:none;font-size:13px;font-weight:600;color:var(--color-accent);margin-top:10px" onclick="Z.s({co:false})">+ Add more</button>';
+b+=`<div style="margin-top:14px"><div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:4px"><span>Subtotal</span><span>${f(t)}</span></div><div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary)"><span>Est. total</span><span style="font-weight:700">${f(t+59+5)}</span></div></div>
+<button class="bp ac" style="margin-top:12px" onclick="Z.s({cs:1})">Go to checkout • ${f(t)}</button>
+<div style="text-align:center;margin-top:8px"><button onclick="Z.cc()" style="background:transparent;color:var(--color-error);font-size:11px">Cancel order</button></div>`}}
+
+/* Step 1: Details */
+if(st==="Details"){
+const nextStep=s.loggedIn?2:2;
+b+=`<div class="tt" style="margin-bottom:14px"><button class="ttb ${s.sv==='pickup'?'on':''}" onclick="Z.s({sv:'pickup'})">🏪 Pickup</button><button class="ttb ${s.sv==='delivery'?'on':''}" onclick="Z.s({sv:'delivery'})">🚗 Delivery</button></div>`;
+if(s.sv==="pickup"){
+b+=`<div class="sl" style="margin-bottom:8px">Pickup time</div>
+<button onclick="Z.s({pt:'asap',cs:${nextStep}})" style="width:100%;padding:12px 14px;border:2px solid ${s.pt==='asap'?'var(--color-accent)':'var(--color-border)'};border-radius:12px;background:${s.pt==='asap'?'var(--warm)':'#fff'};text-align:left;margin-bottom:8px;font-family:inherit">
+<div style="font-weight:700;font-size:13px">As soon as possible <span style="background:var(--color-accent);color:#fff;font-size:9px;padding:2px 5px;border-radius:4px;margin-left:4px">Recommended</span></div>
+<div style="font-size:11px;color:var(--text-secondary);margin-top:2px">Ready in ~15 min</div></button>
+<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin:8px 0 6px">Or choose a time</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">`;
+TMS.forEach(tm=>{b+=`<button onclick="Z.s({pt:'${tm}',cs:${nextStep}})" style="padding:10px;border:2px solid ${s.pt===tm?'var(--color-accent)':'var(--color-border)'};border-radius:8px;background:${s.pt===tm?'var(--warm)':'#fff'};font-weight:700;font-size:13px;text-align:center;font-family:inherit">${tm}</button>`});
+b+='</div>'
+}else{
+b+=`<div class="sl" style="margin-bottom:6px">Delivery address</div>
+<input placeholder="Enter your address..." value="${s.addr}" oninput="Z._s.addr=this.value;document.getElementById('dnb').disabled=this.value.length<5" style="width:100%;padding:11px 13px;border:2px solid var(--color-border);border-radius:10px;font-size:13px;outline:none;background:var(--bg-page)">
+<div style="font-size:12px;color:var(--text-secondary);margin-top:8px">🚗 Estimated delivery: 35–45 min</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:4px">Delivery fee: 59 kr</div>
+<button class="bp ac" id="dnb" style="margin-top:12px" onclick="Z.s({cs:${nextStep}})" ${s.addr.length>=5?'':'disabled'}>Next</button>`
+}}
+
+/* Step 2: Contact (guest only) */
+if(st==="Contact"){
+const co=s.user.country;
+b+=`<div style="font-size:16px;font-weight:800;margin-bottom:4px">Contact information</div>
+<p style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">So we can send you order updates</p>
+<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px">
+<div style="margin-bottom:10px"><div class="sl" style="margin-bottom:3px">Name *</div>
+<input id="cn" placeholder="Your name" oninput="Z._s.user.name=this.value;chkContact()" style="width:100%;padding:10px 12px;border:2px solid var(--color-border);border-radius:8px;font-size:13px;outline:none;background:var(--bg-page)"></div>
+<div style="margin-bottom:10px"><div class="sl" style="margin-bottom:3px">Phone *</div>
+<div style="display:flex">
+<button class="cs-btn" onclick="Z.s({authScreen:'country-pick',otpFor:'login'})">${co.f} ${co.c}</button>
+<input id="cp" placeholder="Phone number" inputmode="tel" class="cs-input" oninput="Z._s.user.phone=this.value;chkContact()">
+</div></div>
+<div><div class="sl" style="margin-bottom:3px">Email</div>
+<input id="ce" placeholder="your@email.com" inputmode="email" oninput="Z._s.user.email=this.value" style="width:100%;padding:10px 12px;border:2px solid var(--color-border);border-radius:8px;font-size:13px;outline:none;background:var(--bg-page)"></div>
+</div>
+<button class="bp ac" style="margin-top:12px" id="nb" onclick="Z.s({cs:${s.loggedIn?2:3}})" ${u.name.trim().length>=2&&u.phone.length>=6?'':'disabled'}>Next</button>`
+}
+
+/* Step 3 (or 2 for logged-in): Summary */
+if(st==="Summary"){
+const payStep=s.loggedIn?3:4;
+b+=`<div style="font-size:16px;font-weight:800;margin-bottom:12px">Your order</div>
+<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><span class="sl">Items</span><button onclick="Z.s({cs:0})" style="background:none;color:var(--color-accent);font-size:12px;font-weight:600">Edit</button></div>`;
+it.forEach(i=>{b+=`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f8fafc"><img src="${i.pr.i}" style="width:36px;height:36px;border-radius:var(--r);object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${i.pr.n}${i.qty>1?' ×'+i.qty:''}</div>${i.sl.length?'<div style="font-size:10px;color:var(--text-muted)">'+i.sl.map(x=>x.n).join(', ')+'</div>':''}</div><span style="font-size:13px;font-weight:700;flex-shrink:0">${f(i.tp)}</span></div>`});
+b+=`<div style="border-top:2px solid var(--color-border);margin-top:6px;padding-top:10px">
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px"><span>Food subtotal</span><span>${f(t)}</span></div>
+${s.sv==='delivery'?`<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px"><span>Delivery fee</span><span>59 kr</span></div>`:''}
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary);margin-bottom:4px"><span>Service fee</span><span>5 kr</span></div>
+<div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text-muted);margin-bottom:4px"><span>VAT (incl.)</span><span>${f(m)}</span></div>
+<div style="display:flex;justify-content:space-between;font-size:15px;font-weight:800;padding-top:6px;border-top:2px solid var(--color-border)"><span>Total</span><span>${f(g)}</span></div>
+</div></div>`;
+/* Delivery/contact card */
+b+=`<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px;margin-top:10px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><span class="sl">${s.sv==='delivery'?'🚗 Delivered to':'🏪 Pickup at'}</span><button onclick="Z.s({cs:1})" style="background:none;color:var(--color-accent);font-size:12px;font-weight:600">Edit</button></div>
+<div style="font-weight:700;font-size:13px">${s.sv==='delivery'?(s.addr||'Your address'):'Demo Burger'}</div>
+<div style="font-size:12px;color:var(--text-secondary);margin-top:2px">${s.sv==='delivery'?'Estimated 35–45 min':'Ready '+(s.pt==='asap'?'~15 min':s.pt)}</div>
+<div style="border-top:1px solid var(--color-border);margin-top:10px;padding-top:8px">
+<span class="sl" style="display:block;margin-bottom:4px">Contact</span>
+<div style="font-weight:700;font-size:13px">${u.name}</div>
+<div style="font-size:12px;color:var(--text-secondary)">${u.country.f} ${u.country.c} ${u.phone}${u.email?' · '+u.email:''}</div>
+</div></div>`;
+/* Comment */
+b+=`<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px;margin-top:10px">
+<span class="sl" style="display:block;margin-bottom:6px">Comment to restaurant</span>
+<textarea oninput="Z._s.cm=this.value" placeholder="E.g. no onions, ring the doorbell..." rows="2" style="width:100%;padding:8px 10px;border:1.5px solid var(--color-border-strong);border-radius:var(--r);font-size:12px;outline:none;resize:vertical;background:var(--bg-page);font-family:inherit">${s.cm}</textarea>
+</div>
+<button class="bp ac" style="margin-top:12px" onclick="Z.s({cs:${payStep}})">Choose payment • ${f(g)}</button>`;
+}
+
+/* Step 4 (or 3): Payment */
+if(st==="Payment"){
+b+=`<div style="text-align:center;padding:12px 0 16px;border-bottom:1px solid var(--color-border);margin-bottom:16px">
+<div class="sl">Total to pay</div><div style="font-size:28px;font-weight:800;margin-top:2px">${f(g)}</div></div>
+<div style="text-align:left;font-size:15px;font-weight:700;margin-bottom:12px">Choose payment method</div>
+<button onclick="Z.s({dn:true})" style="width:100%;padding:14px 16px;border:2px solid var(--color-border);border-radius:var(--r-lg);background:#fff;text-align:left;margin-bottom:8px;font-family:inherit">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:var(--r-md);background:var(--vipps);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:11px">Vipps</div><div style="flex:1"><div style="font-weight:700;font-size:15px">Vipps</div><div style="font-size:12px;color:var(--text-secondary)">Pay with Vipps app</div></div><span style="font-size:16px;color:var(--text-muted)">›</span></div></button>
+<button onclick="Z.s({dn:true})" style="width:100%;padding:14px 16px;border:2px solid var(--color-border);border-radius:var(--r-lg);background:#fff;text-align:left;margin-bottom:8px;font-family:inherit">
+<div style="display:flex;align-items:center;gap:12px"><div style="width:44px;height:44px;border-radius:var(--r-md);background:#1A1A1A;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px">💳</div><div style="flex:1"><div style="font-weight:700;font-size:15px">Card</div><div style="font-size:12px;color:var(--text-secondary)">Visa, Mastercard</div></div><span style="font-size:16px;color:var(--text-muted)">›</span></div></button>
+<div style="font-size:11px;color:var(--text-muted);text-align:center;margin-top:8px">🔒 Secure payment</div>`
+}
+
+return h+b+'</div>'
+}
+
+function chkContact(){const u=Z.g('user'),btn=document.getElementById('nb');if(btn)btn.disabled=!(u.name.trim().length>=2&&u.phone.length>=6)}
+
+/* ========== CONFIRMATION ========== */
+function confirmationView(s,g,m){
+const it=s.cart,u=s.user;
+const cols=['#6BB8DA','#6BDAB2','#DA6B6B','#DADA6B','#FFB3BA','#E5C1B6'];
+let conf='<div class="confetti-wrap">';for(let i=0;i<30;i++){const c=cols[i%cols.length],l=(Math.random()*100).toFixed(1),d=(Math.random()*.5).toFixed(2),dur=(1.2+Math.random()*1.5).toFixed(2),sz=(5+Math.random()*5).toFixed(0),r=Math.random()>.5;conf+=`<div class="conf" style="left:${l}%;width:${sz}px;height:${r?sz:sz*1.5}px;border-radius:${r?'50%':'2px'};background:${c};animation-duration:${dur}s;animation-delay:${d}s"></div>`}conf+='</div>';
+
+return`<div style="flex:1;overflow-y:auto;padding:20px;text-align:center;position:relative;overflow:hidden">
+${conf}
+<div style="animation:scaleIn .5s ease forwards;margin-bottom:12px"><svg viewBox="0 0 80 80" width="64" height="64"><circle cx="40" cy="40" r="38" fill="rgba(107,218,178,.15)" stroke="var(--color-success)" stroke-width="2"/><path d="M24 42 L35 53 L56 28" fill="none" stroke="var(--color-success)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:50;stroke-dashoffset:50;animation:checkDraw .5s ease .3s forwards"/></svg></div>
+<h2 style="font-size:18px;font-weight:800" class="fade-up">Thank you for your order!</h2>
+<p style="color:var(--text-secondary);font-size:13px;margin-top:4px" class="fade-up">Order #${Math.floor(3000+Math.random()*1000)}</p>
+<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:14px;margin-top:16px;text-align:left" class="fade-up">
+<div style="display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--color-border)"><span style="font-size:22px">${s.sv==='delivery'?'🚗':'🏪'}</span><div><div style="font-weight:700;font-size:14px">${s.sv==='delivery'?'Delivered in ~35–45 min':'Ready for pickup'}</div><div style="font-size:13px;color:var(--text-secondary);margin-top:2px">${s.sv==='delivery'?'':'~15 min'}</div></div></div>
+${it.map(i=>`<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-bottom:1px solid #f8fafc"><span>${i.pr.n}${i.qty>1?' ×'+i.qty:''}</span><span style="font-weight:600">${f(i.tp)}</span></div>`).join('')}
+<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-secondary);margin-top:6px"><span>VAT (incl.)</span><span>${f(m)}</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:15px;padding-top:6px;margin-top:4px;border-top:2px solid var(--color-border)"><span>Total</span><span>${f(g)}</span></div>
+</div>
+<div style="background:#fff;border-radius:14px;border:1px solid var(--color-border);padding:12px;margin-top:10px;text-align:left;font-size:12px;color:var(--text-secondary)" class="fade-up">
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">📍 <strong>${s.sv==='delivery'?'Delivering to: '+(s.addr||'Your address'):'Pickup: Demo Burger, Storgata 1'}</strong></div>
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-top:8px;border-top:1px solid var(--color-border)">💬 ${s.sv==='delivery'?'Driver will call on arrival':'Show this screen at the counter'}</div>
+<div style="display:flex;align-items:center;gap:8px;padding-top:8px;border-top:1px solid var(--color-border)">📱 SMS updates to ${u.country.f} ${u.country.c} ${u.phone}</div>
+</div>
+<button class="bp ac" style="margin-top:14px" onclick="Z.cc()">New order</button>
+</div>`
+}
+
+/* ========== LAYOUTS ========== */
+function kitchenBar(){return`<div class="kb"><span style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;border-radius:50%;background:var(--color-success);animation:pulse 2s infinite"></span> 🟢 Kitchen open</span><span style="color:var(--color-border)">|</span><span>🏪 15 min</span><span style="color:var(--color-border)">|</span><span>🚗 35–45 min</span></div>`}
+
+function headerBar(s,isMobile){
+let h=`<div style="background:#1A1A1A;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;color:#fff">
+<span style="font-family:'Sora',sans-serif;font-weight:700;font-size:14px">Demo Burger</span><div style="display:flex;align-items:center;gap:8px">`;
+if(s.loggedIn)h+=`<button onclick="Z.s({authScreen:'profile'})" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:28px;height:28px;border-radius:50%;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center">${s.user.name?s.user.name[0].toUpperCase():"?"}</button>`;
+else h+=`<button onclick="Z.s({authScreen:'login'})" style="background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.7);border-radius:var(--r);padding:4px 10px;font-size:11px;font-weight:600">Log in</button>`;
+if(isMobile){const cn=Z.cn();h+=`<button onclick="${cn>0?"Z.s({co:true})":''}" style="position:relative;background:transparent;color:#fff;font-size:18px">🛒${cn>0?`<div style="position:absolute;top:-3px;right:-5px;width:16px;height:16px;border-radius:50%;background:var(--color-error);color:#fff;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center">${cn}</div>`:''}</button>`}
+h+='</div></div>';return h
+}
+
+function bottomBar(s){
+if(Z.cn()===0||s.co)return'';
+return`<button class="bb" onclick="Z.s({co:true})"><div style="display:flex;align-items:center;gap:8px"><div style="width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px">${Z.cn()}</div><span>View order</span></div><span style="font-weight:700;font-size:14px">${f(Z.ct())}</span></button>`
+}
+
+function renderLandscape(s){
+return`${authOverlay(s)}<div style="flex:1;display:flex;overflow:hidden">
+<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+${headerBar(s,false)}${kitchenBar()}${pills(s)}${prods(s,false)}
+</div>
+<div style="width:330px;background:var(--bg-page);border-left:1px solid var(--color-border);display:flex;flex-direction:column;flex-shrink:0;overflow:hidden">
+${checkoutPanel(s,false)}
+</div>
+${s.sp?pM(s):''}
+</div>`
+}
+
+function renderMobile(s){
+return`${authOverlay(s)}<div style="flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff">
+${headerBar(s,true)}${kitchenBar()}${pills(s)}${prods(s,true)}
+${bottomBar(s)}
+${s.co?`<div class="so"><div class="sbg" onclick="Z.s({co:false})"></div><div class="sh slide-up" style="max-height:90%;height:90%">${checkoutPanel(s,true)}</div></div>`:''}
+${s.sp?pM(s):''}
+</div>`
+}
+
+/* ========== INIT ========== */
+R();
+setTimeout(()=>Z.s({authScreen:'welcome'}),500);
+</script>
+</body>
+</html>
