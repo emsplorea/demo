@@ -1759,9 +1759,10 @@ function inputHtml(id, icon, placeholder, value, opts={}) {
   const cls = 'inp' + (icon ? ' has-icon' : '') + (err ? ' error' : '');
   const type = opts.type || 'text';
   const handler = opts.handler || `state.form.${id}=this.value;delete state.errors['${id}'];render()`;
+  const blur = opts.onblur ? ` onblur="${opts.onblur}"` : '';
   return `<div class="input-wrap">
     ${icon ? `<span class="icon">${icon}</span>` : ''}
-    <input class="${cls}" type="${type}" placeholder="${placeholder}" value="${value}" oninput="${handler}" data-field="${id}">
+    <input class="${cls}" type="${type}" placeholder="${placeholder}" value="${value}" oninput="${handler}"${blur} data-field="${id}">
     ${err ? `<div class="field-error">${err}</div>` : ''}
   </div>`;
 }
@@ -1778,9 +1779,10 @@ function renderContactSection(f, e) {
         ${inputHtml('name', ICO.user, 'Kari Nordmann', f.name)}
       </div>
       <div>
-        <div class="field-label"><label>Telefon</label><span class="req">*</span><span class="hint">auto-format</span></div>
-        ${inputHtml('phone', ICO.phone, '+47 999 88 776', f.phone, {
-          handler: "const r=this.value.replace(/[^\\d+]/g,'');state.form.phone=formatPhone(r.replace('+47','').replace('+',''));delete state.errors['phone'];render()"
+        <div class="field-label"><label>Telefon</label><span class="req">*</span><span class="hint">+47 legges til automatisk</span></div>
+        ${inputHtml('phone', ICO.phone, '45802787', f.phone, {
+          handler: "state.form.phone=this.value;delete state.errors['phone']",
+          onblur: "state.form.phone=formatPhone(this.value.replace(/[^\\d]/g,''));render()"
         })}
       </div>
       <div>
@@ -1807,9 +1809,10 @@ function renderBusinessSection(f, e) {
         ${inputHtml('companyName', ICO.building, 'Hansen Bygg AS', f.companyName)}
       </div>
       <div>
-        <div class="field-label"><label>Org.nummer</label><span class="req">*</span><span class="hint">auto-format</span></div>
-        ${inputHtml('orgNumber', null, '923 456 789', f.orgNumber, {
-          handler: "state.form.orgNumber=formatOrgNr(this.value);delete state.errors['orgNumber'];render()"
+        <div class="field-label"><label>Org.nummer</label><span class="req">*</span><span class="hint">9 siffer</span></div>
+        ${inputHtml('orgNumber', null, '923456789', f.orgNumber, {
+          handler: "state.form.orgNumber=this.value;delete state.errors['orgNumber']",
+          onblur: "state.form.orgNumber=formatOrgNr(this.value);render()"
         })}
       </div>
       <div>
