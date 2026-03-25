@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea POS — Bookibud Event-pakkeflyt</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --p-blue: #6BB8DA;
+    --p-blue-light: #8ECBE6;
+    --p-blue-dark: #4A9EC4;
+    --p-blue-glow: rgba(107, 184, 218, 0.15);
+    --p-blue-glow-strong: rgba(107, 184, 218, 0.3);
+
+    --bg-primary: #1A1D23;
+    --bg-secondary: #22262E;
+    --bg-tertiary: #2A2F38;
+    --bg-elevated: #313742;
+    --bg-hover: #383E4A;
+    --border-primary: #3A3F4A;
+    --border-subtle: #2E333D;
+    --text-primary: #F0F2F5;
+    --text-secondary: #A0A8B8;
+    --text-tertiary: #6B7280;
+    --text-inverse: #1A1D23;
+
+    --success: #34D399;
+    --success-bg: rgba(52, 211, 153, 0.12);
+    --success-border: rgba(52, 211, 153, 0.25);
+    --warning: #FBBF24;
+    --warning-bg: rgba(251, 191, 36, 0.12);
+    --danger: #F87171;
+    --danger-bg: rgba(248, 113, 113, 0.12);
+    --orange: #FB923C;
+    --orange-bg: rgba(251, 146, 60, 0.12);
+    --purple: #A78BFA;
+    --purple-bg: rgba(167, 139, 250, 0.12);
+    --purple-border: rgba(167, 139, 250, 0.25);
+
+    --bb-coral: #FF6B6B;
+    --bb-coral-bg: rgba(255, 107, 107, 0.1);
+    --bb-coral-border: rgba(255, 107, 107, 0.25);
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.35);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.45);
+    --shadow-glow: 0 0 20px rgba(107,184,218,0.15);
+
+    --font-display: 'Sora', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    height: 56px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+    flex-shrink: 0;
+  }
+  .topbar-left { display: flex; align-items: center; gap: 16px; }
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--p-blue);
+    letter-spacing: -0.5px;
+  }
+  .logo span { color: var(--text-tertiary); font-weight: 400; font-size: 13px; margin-left: 8px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .bb-badge {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px; border-radius: var(--radius-sm);
+    background: var(--bb-coral-bg); border: 1px solid var(--bb-coral-border);
+    font-size: 12px; font-weight: 600; color: var(--bb-coral);
+  }
+  .bb-badge .dot {
+    width: 7px; height: 7px; background: var(--bb-coral);
+    border-radius: 50%; animation: pulse-dot 2s infinite;
+  }
+  @keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .clock { font-size: 14px; font-weight: 600; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+  /* ─── STEP NAVIGATION ─── */
+  .step-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 16px 32px;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-primary);
+    flex-shrink: 0;
+  }
+  .step {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 18px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+  }
+  .step:hover { background: var(--bg-hover); }
+  .step.active { background: var(--p-blue-glow); }
+  .step.completed .step-num { background: var(--success); color: var(--text-inverse); }
+  .step.active .step-num { background: var(--p-blue); color: var(--text-inverse); box-shadow: 0 0 12px rgba(107,184,218,0.3); }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: var(--bg-elevated); color: var(--text-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-size: 12px; font-weight: 700;
+    transition: all 0.25s;
+  }
+  .step-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); transition: color 0.2s; }
+  .step.active .step-label { color: var(--text-primary); font-weight: 600; }
+  .step.completed .step-label { color: var(--success); }
+  .step-arrow {
+    color: var(--text-tertiary); margin: 0 4px; font-size: 14px;
+    display: flex; align-items: center;
+  }
+
+  /* ─── VIEWS ─── */
+  .view-container {
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+  }
+  .view {
+    position: absolute;
+    inset: 0;
+    padding: 28px 32px;
+    overflow-y: auto;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(20px);
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .view.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+
+  /* ─── CARDS / PANELS ─── */
+  .card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .card:hover { border-color: var(--border-primary); }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .card-header h3 {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-body { padding: 20px; }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  /* ─── STEP 1: EVENT OVERSIKT ─── */
+  .events-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .event-card {
+    background: var(--bg-secondary);
+    border: 1.5px solid var(--border-primary);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+  .event-card:hover { border-color: var(--p-blue); transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+  .event-card.selected { border-color: var(--p-blue); box-shadow: var(--shadow-glow), 0 0 0 1px var(--p-blue); }
+  .event-banner {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .event-banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.12;
+  }
+  .event-banner.wine::before { background: linear-gradient(135deg, #722F37, #C2185B); opacity: 0.2; }
+  .event-banner.jazz::before { background: linear-gradient(135deg, #1565C0, #7B1FA2); opacity: 0.2; }
+  .event-banner.chef::before { background: linear-gradient(135deg, #E65100, #F57F17); opacity: 0.2; }
+  .event-emoji { font-size: 36px; position: relative; z-index: 1; }
+  .event-banner-text { position: relative; z-index: 1; }
+  .event-banner-text h4 {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .event-banner-text p { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .event-body { padding: 16px 20px; }
+  .event-stats {
+    display: flex; gap: 16px; margin-bottom: 12px;
+  }
+  .event-stat {
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .event-stat .val {
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .event-stat .lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-tertiary); }
+  .event-progress {
+    height: 4px;
+    background: var(--bg-elevated);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .event-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s;
+  }
+  .event-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
+  .etag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 4px;
+  }
+  .etag.bb { background: var(--bb-coral-bg); color: var(--bb-coral); }
+  .etag.menu { background: var(--purple-bg); color: var(--purple); }
+  .etag.live { background: var(--success-bg); color: var(--success); }
+  .etag.upcoming { background: var(--warning-bg); color: var(--warning); }
+
+  /* ─── STEP 2: INNSJEKK ─── */
+  .checkin-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    height: 100%;
+  }
+  .guest-list-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--bg-tertiary); border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md); padding: 8px 14px;
+    width: 280px;
+  }
+  .search-box input {
+    background: none; border: none; outline: none;
+    font-family: var(--font-body); font-size: 13px;
+    color: var(--text-primary); width: 100%;
+  }
+  .search-box input::placeholder { color: var(--text-tertiary); }
+
+  .guest-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .guest-table th {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-primary);
+  }
+  .guest-table td {
+    padding: 12px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid var(--border-subtle);
+    vertical-align: middle;
+  }
+  .guest-table tr { transition: background 0.15s; cursor: pointer; }
+  .guest-table tbody tr:hover { background: var(--bg-hover); }
+  .guest-name-cell {
+    font-weight: 600;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .guest-avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--p-blue);
+  }
+  .ticket-id {
+    font-family: monospace;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    background: var(--bg-tertiary);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .checkin-status {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+  }
+  .checkin-status.checked { background: var(--success-bg); color: var(--success); }
+  .checkin-status.pending { background: var(--warning-bg); color: var(--warning); }
+  .checkin-status.noshow { background: var(--danger-bg); color: var(--danger); }
+
+  .checkin-btn {
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    padding: 5px 12px; border: none; border-radius: var(--radius-sm);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .checkin-btn.do { background: var(--p-blue); color: var(--text-inverse); }
+  .checkin-btn.do:hover { background: var(--p-blue-dark); }
+  .checkin-btn.done { background: var(--success-bg); color: var(--success); cursor: default; }
+
+  /* Scan panel */
+  .scan-panel { display: flex; flex-direction: column; gap: 16px; }
+  .scan-area {
+    background: var(--bg-tertiary);
+    border: 2px dashed var(--border-primary);
+    border-radius: var(--radius-lg);
+    padding: 32px;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    transition: all 0.3s;
+    min-height: 180px;
+    justify-content: center;
+  }
+  .scan-area.scanning {
+    border-color: var(--p-blue);
+    background: var(--p-blue-glow);
+    animation: scan-pulse 1.5s infinite;
+  }
+  .scan-area.success {
+    border-color: var(--success);
+    border-style: solid;
+    background: var(--success-bg);
+  }
+  @keyframes scan-pulse {
+    0%,100% { box-shadow: 0 0 0 0 rgba(107,184,218,0.2); }
+    50% { box-shadow: 0 0 0 12px rgba(107,184,218,0); }
+  }
+  .scan-icon { font-size: 40px; }
+  .scan-text { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+  .scan-sub { font-size: 11px; color: var(--text-tertiary); }
+
+  .scan-result {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .scan-result-row {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .scan-result-row .label { font-size: 12px; color: var(--text-tertiary); }
+  .scan-result-row .value { font-size: 13px; font-weight: 600; }
+
+  /* ─── STEP 3: PAKKE & MENY ─── */
+  .package-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .menu-course {
+    margin-bottom: 4px;
+  }
+  .course-header {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 0;
+    font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-tertiary);
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .course-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+  .course-item:last-child { border-bottom: none; }
+  .course-item-name {
+    font-size: 14px; font-weight: 600; color: var(--text-primary);
+    margin-bottom: 3px;
+  }
+  .course-item-desc { font-size: 12px; color: var(--text-tertiary); line-height: 1.4; }
+  .course-item-price {
+    font-family: var(--font-display);
+    font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  .included-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600;
+    background: var(--success-bg); color: var(--success);
+    padding: 2px 7px; border-radius: 3px;
+    margin-left: 6px;
+  }
+  .wine-pairing-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600;
+    background: var(--purple-bg); color: var(--purple);
+    padding: 2px 7px; border-radius: 3px;
+    margin-left: 6px;
+  }
+
+  /* Kitchen order */
+  .kitchen-order {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .ko-header {
+    padding: 14px 16px;
+    background: var(--bg-elevated);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .ko-header h4 {
+    font-family: var(--font-display); font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .ko-status {
+    font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 4px;
+  }
+  .ko-status.queued { background: var(--warning-bg); color: var(--warning); }
+  .ko-status.firing { background: var(--orange-bg); color: var(--orange); }
+  .ko-status.plated { background: var(--success-bg); color: var(--success); }
+  .ko-body { padding: 14px 16px; }
+  .ko-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 0;
+  }
+  .ko-item:not(:last-child) { border-bottom: 1px solid var(--border-subtle); }
+  .ko-item-left { display: flex; align-items: center; gap: 10px; }
+  .ko-qty {
+    width: 24px; height: 24px; border-radius: var(--radius-sm);
+    background: var(--bg-elevated); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: var(--p-blue);
+  }
+  .ko-item-name { font-size: 13px; font-weight: 500; }
+  .ko-item-note { font-size: 11px; color: var(--text-tertiary); }
+  .ko-allergy {
+    font-size: 10px; font-weight: 600;
+    background: var(--danger-bg); color: var(--danger);
+    padding: 2px 6px; border-radius: 3px;
+  }
+
+  /* ─── STEP 4: BETALING ─── */
+  .payment-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+  }
+  .receipt-line {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 0;
+  }
+  .receipt-line:not(:last-child) { border-bottom: 1px solid var(--border-subtle); }
+  .receipt-line .name { font-size: 13px; }
+  .receipt-line .price { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .receipt-line.included .name { color: var(--text-secondary); }
+  .receipt-line.included .price { color: var(--success); text-decoration: line-through; font-weight: 400; }
+  .receipt-section-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-tertiary);
+    padding: 12px 0 6px;
+  }
+  .receipt-divider {
+    border: none; border-top: 2px solid var(--border-primary); margin: 8px 0;
+  }
+  .receipt-total {
+    display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0;
+  }
+  .receipt-total .label { font-size: 14px; font-weight: 600; }
+  .receipt-total .amount {
+    font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--success);
+  }
+  .receipt-deposit {
+    display: flex; justify-content: space-between; align-items: center; padding: 8px 0;
+    color: var(--text-secondary);
+  }
+  .receipt-deposit .tag {
+    font-size: 10px; font-weight: 600;
+    background: var(--bb-coral-bg); color: var(--bb-coral);
+    padding: 2px 6px; border-radius: 3px;
+    margin-left: 6px;
+  }
+  .receipt-remaining {
+    display: flex; justify-content: space-between; align-items: center; padding: 12px 0;
+    background: var(--p-blue-glow);
+    margin: 8px -20px;
+    padding: 14px 20px;
+    border-radius: var(--radius-md);
+  }
+  .receipt-remaining .label { font-size: 14px; font-weight: 600; color: var(--p-blue-light); }
+  .receipt-remaining .amount { font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--p-blue); }
+
+  .payment-methods {
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .pay-method {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px;
+    background: var(--bg-tertiary);
+    border: 1.5px solid var(--border-primary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pay-method:hover { border-color: var(--p-blue); background: var(--bg-hover); }
+  .pay-method .icon { font-size: 22px; }
+  .pay-method .text { flex: 1; }
+  .pay-method .text h4 { font-size: 14px; font-weight: 600; }
+  .pay-method .text p { font-size: 11px; color: var(--text-tertiary); margin-top: 1px; }
+  .pay-method .arrow { color: var(--text-tertiary); font-size: 18px; }
+
+  /* ─── STEP 5: OPPSUMMERING ─── */
+  .summary-layout {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+  .summary-hero {
+    text-align: center;
+    padding: 40px 0;
+  }
+  .summary-hero .emoji { font-size: 56px; margin-bottom: 16px; }
+  .summary-hero h2 {
+    font-family: var(--font-display); font-size: 24px; font-weight: 700;
+  }
+  .summary-hero p { color: var(--text-secondary); margin-top: 6px; font-size: 14px; }
+  .summary-stats {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin: 24px 0;
+  }
+  .summary-stat {
+    background: var(--bg-secondary); border: 1px solid var(--border-primary);
+    border-radius: var(--radius-md); padding: 18px; text-align: center;
+  }
+  .summary-stat .val {
+    font-family: var(--font-display); font-size: 22px; font-weight: 700;
+  }
+  .summary-stat .lbl {
+    font-size: 11px; color: var(--text-tertiary); margin-top: 4px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .insight-card {
+    background: var(--bg-secondary); border: 1px solid var(--border-primary);
+    border-radius: var(--radius-lg); padding: 20px;
+    margin-top: 16px;
+  }
+  .insight-card h4 {
+    font-family: var(--font-display); font-size: 14px; font-weight: 600;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .insight-bar-row {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .insight-bar-label { font-size: 12px; color: var(--text-secondary); width: 110px; }
+  .insight-bar {
+    flex: 1; height: 8px; background: var(--bg-elevated); border-radius: 4px; overflow: hidden;
+  }
+  .insight-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease-out; }
+  .insight-bar-val { font-size: 12px; font-weight: 600; width: 60px; text-align: right; }
+
+  /* ─── BUTTONS ─── */
+  .btn {
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 10px 18px; border: none; border-radius: var(--radius-md);
+    cursor: pointer; transition: all 0.2s; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--p-blue); color: var(--text-inverse); }
+  .btn-primary:hover { background: var(--p-blue-dark); box-shadow: var(--shadow-glow); }
+  .btn-secondary { background: var(--bg-elevated); color: var(--text-primary); border: 1px solid var(--border-primary); }
+  .btn-secondary:hover { background: var(--bg-hover); }
+  .btn-success { background: var(--success); color: var(--text-inverse); }
+  .btn-success:hover { filter: brightness(1.1); }
+  .btn-bb { background: var(--bb-coral); color: white; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-lg { padding: 14px 28px; font-size: 15px; border-radius: var(--radius-lg); }
+  .btn-full { width: 100%; justify-content: center; }
+
+  /* ─── UPSELL BANNER ─── */
+  .upsell-banner {
+    background: linear-gradient(135deg, rgba(167,139,250,0.08), rgba(107,184,218,0.08));
+    border: 1px solid var(--purple-border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .upsell-icon { font-size: 28px; }
+  .upsell-text { flex: 1; }
+  .upsell-text h4 { font-size: 14px; font-weight: 600; color: var(--purple); }
+  .upsell-text p { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.4; }
+
+  /* Info callout */
+  .info-callout {
+    border-radius: var(--radius-md);
+    padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 12px; line-height: 1.5;
+  }
+  .info-callout.bb { background: var(--bb-coral-bg); border: 1px solid var(--bb-coral-border); color: var(--bb-coral); }
+  .info-callout.blue { background: var(--p-blue-glow); border: 1px solid rgba(107,184,218,0.2); color: var(--p-blue-light); }
+  .info-callout.green { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
+  .info-callout .icon { font-size: 16px; flex-shrink: 0; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 3px; }
+
+  /* Action bar at bottom */
+  .action-bar {
+    padding: 14px 32px;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-primary);
+    display: flex; justify-content: space-between; align-items: center;
+    flex-shrink: 0;
+  }
+  .action-bar-info { font-size: 12px; color: var(--text-tertiary); }
+  .action-bar-info b { color: var(--text-secondary); }
+  .action-bar-btns { display: flex; gap: 10px; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="logo">Plorea<span>POS Terminal</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="bb-badge"><div class="dot"></div>Bookibud Events</div>
+    <div class="clock" id="clock">19:42</div>
+  </div>
+</div>
+
+<!-- STEP NAV -->
+<div class="step-nav" id="stepNav"></div>
+
+<!-- VIEWS -->
+<div class="view-container">
+
+  <!-- STEP 1: EVENT OVERSIKT -->
+  <div class="view active" id="view-1">
+    <div class="section-title">📅 Kveldens events</div>
+    <div class="section-desc">Events synkronisert fra Bookibud. Velg et event for å starte innsjekk og håndtering.</div>
+
+    <div class="events-grid">
+      <!-- Wine tasting -->
+      <div class="event-card selected" onclick="selectEvent(0)">
+        <div class="event-banner wine">
+          <div class="event-emoji">🍷</div>
+          <div class="event-banner-text">
+            <h4>Vinkveld: Piemonte-spesial</h4>
+            <p>I kveld kl. 19:30 — 22:30 · Sal 2</p>
+          </div>
+        </div>
+        <div class="event-body">
+          <div class="event-stats">
+            <div class="event-stat"><span class="val" style="color:var(--bb-coral)">24</span><span class="lbl">Billetter solgt</span></div>
+            <div class="event-stat"><span class="val">18</span><span class="lbl">Sjekket inn</span></div>
+            <div class="event-stat"><span class="val" style="color:var(--success)">kr 895</span><span class="lbl">Per person</span></div>
+          </div>
+          <div class="event-progress"><div class="event-progress-fill" style="width:75%;background:var(--success)"></div></div>
+          <div class="event-tags">
+            <span class="etag bb">Bookibud</span>
+            <span class="etag menu">3-retters + vinpakke</span>
+            <span class="etag live">● Pågår</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jazz -->
+      <div class="event-card" onclick="selectEvent(1)">
+        <div class="event-banner jazz">
+          <div class="event-emoji">🎷</div>
+          <div class="event-banner-text">
+            <h4>Trondheim Jazz Lounge</h4>
+            <p>I kveld kl. 21:00 — 00:00 · Baren</p>
+          </div>
+        </div>
+        <div class="event-body">
+          <div class="event-stats">
+            <div class="event-stat"><span class="val" style="color:var(--bb-coral)">42</span><span class="lbl">Billetter solgt</span></div>
+            <div class="event-stat"><span class="val">0</span><span class="lbl">Sjekket inn</span></div>
+            <div class="event-stat"><span class="val" style="color:var(--success)">kr 350</span><span class="lbl">Per person</span></div>
+          </div>
+          <div class="event-progress"><div class="event-progress-fill" style="width:0%;background:var(--p-blue)"></div></div>
+          <div class="event-tags">
+            <span class="etag bb">Bookibud</span>
+            <span class="etag menu">Velkomstdrink inkl.</span>
+            <span class="etag upcoming">Kommer kl. 21</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chef's table -->
+      <div class="event-card" onclick="selectEvent(2)">
+        <div class="event-banner chef">
+          <div class="event-emoji">👨‍🍳</div>
+          <div class="event-banner-text">
+            <h4>Chef's Table: Sjømat-omakase</h4>
+            <p>Lørdag 29. mars kl. 19:00 · Privat rom</p>
+          </div>
+        </div>
+        <div class="event-body">
+          <div class="event-stats">
+            <div class="event-stat"><span class="val" style="color:var(--bb-coral)">8</span><span class="lbl">Billetter solgt</span></div>
+            <div class="event-stat"><span class="val">8</span><span class="lbl">Maks kapasitet</span></div>
+            <div class="event-stat"><span class="val" style="color:var(--success)">kr 1 995</span><span class="lbl">Per person</span></div>
+          </div>
+          <div class="event-progress"><div class="event-progress-fill" style="width:100%;background:var(--bb-coral)"></div></div>
+          <div class="event-tags">
+            <span class="etag bb">Bookibud</span>
+            <span class="etag menu">7-retters + premium vin</span>
+            <span class="etag" style="background:var(--danger-bg);color:var(--danger)">Utsolgt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary card -->
+      <div class="card" style="display:flex;flex-direction:column;justify-content:center">
+        <div class="card-body" style="text-align:center">
+          <div style="font-size:32px;margin-bottom:12px">📊</div>
+          <div style="font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--success)">kr 35 430</div>
+          <div style="font-size:12px;color:var(--text-tertiary);margin-top:4px">Total event-omsetning i kveld</div>
+          <div style="margin-top:16px;display:flex;gap:8px;justify-content:center">
+            <div style="font-size:12px;color:var(--text-secondary)"><b style="color:var(--bb-coral)">74</b> billetter</div>
+            <div style="font-size:12px;color:var(--text-tertiary)">·</div>
+            <div style="font-size:12px;color:var(--text-secondary)"><b style="color:var(--p-blue)">3</b> events</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-callout bb">
+      <span class="icon">📲</span>
+      <div>
+        <b>Bookibud-synkronisering:</b> Alle billetter, gjestelister og pakkedetaljer synkroniseres automatisk til Plorea. 
+        Nye billettkjøp oppdateres i sanntid via webhook. Sist synk: 2 min siden.
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 2: INNSJEKK -->
+  <div class="view" id="view-2">
+    <div class="section-title">🎫 Innsjekk — Vinkveld: Piemonte-spesial</div>
+    <div class="section-desc">Skann billett-QR eller søk etter gjest for å sjekke inn. Plorea oppretter automatisk sesjon med riktig meny.</div>
+
+    <div class="checkin-layout">
+      <div>
+        <div class="guest-list-header">
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Søk gjest, billett-ID eller telefon..." id="guestSearch" oninput="filterGuests()">
+          </div>
+          <span style="font-size:12px;color:var(--text-tertiary)"><b id="checkedCount">18</b> / 24 sjekket inn</span>
+        </div>
+        <div class="card">
+          <table class="guest-table" id="guestTable">
+            <thead>
+              <tr>
+                <th>Gjest</th>
+                <th>Billett</th>
+                <th>Pakke</th>
+                <th>Bord</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="guestTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="scan-panel">
+        <div class="card">
+          <div class="card-header"><h3>📷 Skann billett</h3></div>
+          <div class="card-body">
+            <div class="scan-area" id="scanArea">
+              <div class="scan-icon">📱</div>
+              <div class="scan-text">Klar til å skanne</div>
+              <div class="scan-sub">Hold billett-QR foran skanneren</div>
+            </div>
+            <div style="text-align:center;margin-top:12px">
+              <button class="btn btn-primary btn-sm" onclick="simulateScan()">⚡ Demo: Simuler skanning</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="scanResultCard" style="display:none">
+          <div class="card-header"><h3>✅ Billett validert</h3></div>
+          <div class="card-body">
+            <div class="scan-result" id="scanResult"></div>
+          </div>
+        </div>
+
+        <div class="info-callout blue">
+          <span class="icon">💡</span>
+          <div>
+            <b>Auto-sesjon:</b> Ved innsjekk oppretter Plorea automatisk en kasse-sesjon med riktig event-meny, 
+            bordtildeling og allergi-varsler til kjøkkenet.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: PAKKE & MENY + KJØKKEN -->
+  <div class="view" id="view-3">
+    <div class="section-title">🍽️ Pakke-meny & Kjøkkenordre</div>
+    <div class="section-desc">Plorea laster automatisk riktig event-meny fra Bookibud-pakken. Kjøkkenet får en samlet produksjonsordre.</div>
+
+    <div class="package-layout">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <h3>🍷 Vinkveld: Piemonte-spesial — 3-retters + vinpakke</h3>
+            <span class="etag bb" style="font-size:11px;padding:4px 10px">kr 895 / pers.</span>
+          </div>
+          <div class="card-body">
+            <div class="menu-course">
+              <div class="course-header"><span>1</span> Forrett</div>
+              <div class="course-item">
+                <div class="course-item-name">Vitello Tonnato <span class="included-badge">✓ Inkludert</span></div>
+                <div class="course-item-desc">Tynt skivet kalvekjøtt med tunfiskcreme, kapers og rucola</div>
+                <div class="course-item-price">Verdi: kr 185,- <span class="wine-pairing-badge">🍷 Gavi di Gavi 2022</span></div>
+              </div>
+            </div>
+            <div class="menu-course">
+              <div class="course-header"><span>2</span> Hovedrett</div>
+              <div class="course-item">
+                <div class="course-item-name">Brasato al Barolo <span class="included-badge">✓ Inkludert</span></div>
+                <div class="course-item-desc">Langtidsbraisert okseskank i Barolo-vin, polenta og grillet grønnsaker</div>
+                <div class="course-item-price">Verdi: kr 345,- <span class="wine-pairing-badge">🍷 Barolo DOCG 2018</span></div>
+              </div>
+            </div>
+            <div class="menu-course">
+              <div class="course-header"><span>3</span> Dessert</div>
+              <div class="course-item">
+                <div class="course-item-name">Panna Cotta al Moscato <span class="included-badge">✓ Inkludert</span></div>
+                <div class="course-item-desc">Klassisk panna cotta med Moscato-gelé og friske bær</div>
+                <div class="course-item-price">Verdi: kr 145,- <span class="wine-pairing-badge">🍷 Moscato d'Asti</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="upsell-banner">
+          <div class="upsell-icon">✨</div>
+          <div class="upsell-text">
+            <h4>Mersalg-muligheter utenom pakken</h4>
+            <p>Gjester kan bestille ekstra drikke, småretter og kaffe via servitør eller QR. 
+              Alt utenom pakken faktureres separat og vises tydelig på kvitteringen.</p>
+          </div>
+          <button class="btn btn-sm btn-secondary" onclick="goToStep(4)">Se betaling →</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header">
+            <h3>👨‍🍳 Samlet kjøkkenordre</h3>
+            <span style="font-size:11px;color:var(--text-tertiary)">Auto-generert fra Bookibud-data</span>
+          </div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+
+            <div class="kitchen-order">
+              <div class="ko-header">
+                <h4>🥗 Kurs 1 — Forrett</h4>
+                <span class="ko-status firing">🔥 Firing nå</span>
+              </div>
+              <div class="ko-body">
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty">22</span>
+                    <div>
+                      <div class="ko-item-name">Vitello Tonnato</div>
+                      <div class="ko-item-note">Standard</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty" style="color:var(--danger)">2</span>
+                    <div>
+                      <div class="ko-item-name">Vitello Tonnato</div>
+                      <div class="ko-item-note">Modifisert — ingen kapers</div>
+                    </div>
+                  </div>
+                  <span class="ko-allergy">⚠️ Allergi</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="kitchen-order">
+              <div class="ko-header">
+                <h4>🥩 Kurs 2 — Hovedrett</h4>
+                <span class="ko-status queued">⏳ I kø</span>
+              </div>
+              <div class="ko-body">
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty">20</span>
+                    <div>
+                      <div class="ko-item-name">Brasato al Barolo</div>
+                      <div class="ko-item-note">Standard</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty" style="color:var(--danger)">3</span>
+                    <div>
+                      <div class="ko-item-name">Brasato al Barolo</div>
+                      <div class="ko-item-note">Glutenfri polenta</div>
+                    </div>
+                  </div>
+                  <span class="ko-allergy">⚠️ Gluten</span>
+                </div>
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty" style="color:var(--warning)">1</span>
+                    <div>
+                      <div class="ko-item-name">Vegetar-alternativ</div>
+                      <div class="ko-item-note">Risotto ai funghi (spesialtilpasset)</div>
+                    </div>
+                  </div>
+                  <span class="ko-allergy">🌱 Veg</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="kitchen-order">
+              <div class="ko-header">
+                <h4>🍮 Kurs 3 — Dessert</h4>
+                <span class="ko-status queued">⏳ I kø</span>
+              </div>
+              <div class="ko-body">
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty">21</span>
+                    <div>
+                      <div class="ko-item-name">Panna Cotta al Moscato</div>
+                      <div class="ko-item-note">Standard</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="ko-item">
+                  <div class="ko-item-left">
+                    <span class="ko-qty" style="color:var(--danger)">3</span>
+                    <div>
+                      <div class="ko-item-name">Panna Cotta al Moscato</div>
+                      <div class="ko-item-note">Laktosefri krem</div>
+                    </div>
+                  </div>
+                  <span class="ko-allergy">⚠️ Laktose</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-callout green">
+          <span class="icon">🔗</span>
+          <div>
+            <b>Automatisk allergi-mapping:</b> Plorea henter allergi-info fra Bookibud-bookingen og 
+            merker kjøkkenordren automatisk. Kjøkkenet ser én samlet produksjonsordre — ikke 24 enkeltbestillinger.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 4: BETALING -->
+  <div class="view" id="view-4">
+    <div class="section-title">💳 Betaling — Bord 12 · Henrik & Marte</div>
+    <div class="section-desc">Event-pakken er forhåndsbetalt via Bookibud. Extras faktureres separat med automatisk depositum-avstemming.</div>
+
+    <div class="payment-layout">
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><h3>🧾 Kvittering</h3></div>
+          <div class="card-body">
+            <div class="receipt-section-label">Event-pakke (forhåndsbetalt via Bookibud)</div>
+            <div class="receipt-line included">
+              <span class="name">Vitello Tonnato × 2</span>
+              <span class="price">kr 370,-</span>
+            </div>
+            <div class="receipt-line included">
+              <span class="name">Brasato al Barolo × 2</span>
+              <span class="price">kr 690,-</span>
+            </div>
+            <div class="receipt-line included">
+              <span class="name">Panna Cotta al Moscato × 2</span>
+              <span class="price">kr 290,-</span>
+            </div>
+            <div class="receipt-line included">
+              <span class="name">Vinpakke (3 glass) × 2</span>
+              <span class="price">kr 440,-</span>
+            </div>
+
+            <div class="receipt-section-label" style="margin-top:8px">Tilleggsbestillinger (betales nå)</div>
+            <div class="receipt-line">
+              <span class="name">Aperol Spritz × 2</span>
+              <span class="price">kr 238,-</span>
+            </div>
+            <div class="receipt-line">
+              <span class="name">Ekstra glass Barolo</span>
+              <span class="price">kr 195,-</span>
+            </div>
+            <div class="receipt-line">
+              <span class="name">Espresso × 2</span>
+              <span class="price">kr 78,-</span>
+            </div>
+            <div class="receipt-line">
+              <span class="name">Digestif — Grappa di Barolo</span>
+              <span class="price">kr 145,-</span>
+            </div>
+
+            <hr class="receipt-divider">
+
+            <div class="receipt-total">
+              <span class="label">Total kveld</span>
+              <span class="amount">kr 2 446,-</span>
+            </div>
+
+            <div class="receipt-deposit">
+              <span style="font-size:13px">Forhåndsbetalt via Bookibud <span class="tag">BB-EVT-4821</span></span>
+              <span style="font-size:13px;font-weight:600;color:var(--success)">− kr 1 790,-</span>
+            </div>
+
+            <div class="receipt-remaining">
+              <span class="label">Gjenstår å betale</span>
+              <span class="amount">kr 656,-</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-callout blue">
+          <span class="icon">🔄</span>
+          <div>
+            <b>Automatisk avstemming:</b> Plorea trekker fra event-pakkebeløpet (kr 1 790,-) betalt via Bookibud. 
+            Gjesten betaler kun tilleggsbestillingene. Begge transaksjoner logges for regnskapsmessig sporbarhet.
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><h3>💳 Velg betalingsmåte</h3></div>
+          <div class="card-body">
+            <div class="payment-methods">
+              <div class="pay-method" onclick="completePay(this)">
+                <span class="icon">💳</span>
+                <div class="text">
+                  <h4>Kort — terminal</h4>
+                  <p>Venter på tap/dipp på terminal</p>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="pay-method" onclick="completePay(this)">
+                <span class="icon">📱</span>
+                <div class="text">
+                  <h4>Vipps</h4>
+                  <p>Send betalingsforespørsel til gjestens telefon</p>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+              <div class="pay-method" onclick="completePay(this)">
+                <span class="icon">🧾</span>
+                <div class="text">
+                  <h4>Splitt betaling</h4>
+                  <p>Del kr 656,- mellom gjestene</p>
+                </div>
+                <span class="arrow">→</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header"><h3>📊 Gjestehistorikk</h3><span class="etag bb">Bookibud-data</span></div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.7">
+              <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-subtle)">
+                <span>Besøk via Bookibud</span>
+                <b style="color:var(--text-primary)">3. gang</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-subtle)">
+                <span>Gjennomsnittlig nota</span>
+                <b style="color:var(--text-primary)">kr 1 240,-</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--border-subtle)">
+                <span>Vinpreferanse</span>
+                <b style="color:var(--text-primary)">Rødvin, Piemonte</b>
+              </div>
+              <div style="display:flex;justify-content:space-between;padding:4px 0;">
+                <span>Allergier</span>
+                <b style="color:var(--danger)">Ingen registrert</b>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 5: OPPSUMMERING -->
+  <div class="view" id="view-5">
+    <div class="summary-layout">
+      <div class="summary-hero">
+        <div class="emoji">🎉</div>
+        <h2>Event fullført — Vinkveld: Piemonte-spesial</h2>
+        <p>Alle gjester betjent, betaling avsluttet, data synkronisert tilbake til Bookibud</p>
+      </div>
+
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="val" style="color:var(--success)">kr 21 480</div>
+          <div class="lbl">Total omsetning</div>
+        </div>
+        <div class="summary-stat">
+          <div class="val" style="color:var(--bb-coral)">kr 17 910</div>
+          <div class="lbl">Via Bookibud</div>
+        </div>
+        <div class="summary-stat">
+          <div class="val" style="color:var(--p-blue)">kr 3 570</div>
+          <div class="lbl">Mersalg i kassen</div>
+        </div>
+        <div class="summary-stat">
+          <div class="val">24 / 24</div>
+          <div class="lbl">Gjester sjekket inn</div>
+        </div>
+      </div>
+
+      <div class="insight-card">
+        <h4>📈 Event-innsikt (delt med Bookibud)</h4>
+        <div class="insight-bar-row">
+          <span class="insight-bar-label">Innsjekk-rate</span>
+          <div class="insight-bar"><div class="insight-bar-fill" style="width:100%;background:var(--success)"></div></div>
+          <span class="insight-bar-val" style="color:var(--success)">100%</span>
+        </div>
+        <div class="insight-bar-row">
+          <span class="insight-bar-label">Mersalg-rate</span>
+          <div class="insight-bar"><div class="insight-bar-fill" style="width:83%;background:var(--p-blue)"></div></div>
+          <span class="insight-bar-val" style="color:var(--p-blue)">83%</span>
+        </div>
+        <div class="insight-bar-row">
+          <span class="insight-bar-label">Gjeste-tilfredshet</span>
+          <div class="insight-bar"><div class="insight-bar-fill" style="width:92%;background:var(--purple)"></div></div>
+          <span class="insight-bar-val" style="color:var(--purple)">4.6 / 5</span>
+        </div>
+        <div class="insight-bar-row">
+          <span class="insight-bar-label">Snitt ekstra/pers.</span>
+          <div class="insight-bar"><div class="insight-bar-fill" style="width:60%;background:var(--orange)"></div></div>
+          <span class="insight-bar-val" style="color:var(--orange)">kr 149,-</span>
+        </div>
+      </div>
+
+      <div class="insight-card" style="margin-top:16px">
+        <h4>🔄 Synkronisert til Bookibud</h4>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="info-callout green" style="margin:0">
+            <span class="icon">✅</span>
+            <div><b>Regnskapsdata:</b> Alle transaksjoner (forhåndsbetaling + mersalg) synkronisert</div>
+          </div>
+          <div class="info-callout green" style="margin:0">
+            <span class="icon">✅</span>
+            <div><b>Gjeste-feedback:</b> Automatisk NPS-spørring sendt via Bookibud 30 min etter event</div>
+          </div>
+          <div class="info-callout green" style="margin:0">
+            <span class="icon">✅</span>
+            <div><b>Innsiktsrapport:</b> Mersalg-data, populære tillegg og allergi-statistikk delt med restauranteier</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ACTION BAR -->
+<div class="action-bar">
+  <div class="action-bar-info">
+    <b>Vinkveld: Piemonte-spesial</b> · 24 gjester · Sal 2 · <span style="color:var(--bb-coral)">Bookibud-event</span>
+  </div>
+  <div class="action-bar-btns">
+    <button class="btn btn-secondary" id="prevBtn" onclick="prevStep()" style="display:none">← Forrige</button>
+    <button class="btn btn-primary" id="nextBtn" onclick="nextStep()">Neste steg →</button>
+  </div>
+</div>
+
+<script>
+// ─── STEP MANAGEMENT ───
+const steps = [
+  { num: 1, label: 'Event-oversikt', icon: '📅' },
+  { num: 2, label: 'Innsjekk', icon: '🎫' },
+  { num: 3, label: 'Pakke & Kjøkken', icon: '🍽️' },
+  { num: 4, label: 'Betaling', icon: '💳' },
+  { num: 5, label: 'Oppsummering', icon: '📊' },
+];
+let currentStep = 1;
+
+function renderStepNav() {
+  const nav = document.getElementById('stepNav');
+  nav.innerHTML = steps.map((s, i) => {
+    const state = s.num < currentStep ? 'completed' : s.num === currentStep ? 'active' : '';
+    return `
+      <div class="step ${state}" onclick="goToStep(${s.num})">
+        <div class="step-num">${s.num < currentStep ? '✓' : s.num}</div>
+        <span class="step-label">${s.label}</span>
+      </div>
+      ${i < steps.length - 1 ? '<div class="step-arrow">›</div>' : ''}
+    `;
+  }).join('');
+}
+
+function goToStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(`view-${n}`).classList.add('active');
+  renderStepNav();
+  
+  document.getElementById('prevBtn').style.display = n > 1 ? '' : 'none';
+  document.getElementById('nextBtn').textContent = n < 5 ? 'Neste steg →' : '✅ Ferdig';
+  document.getElementById('nextBtn').className = n < 5 ? 'btn btn-primary' : 'btn btn-success';
+}
+
+function nextStep() {
+  if (currentStep < 5) goToStep(currentStep + 1);
+}
+function prevStep() {
+  if (currentStep > 1) goToStep(currentStep - 1);
+}
+
+// ─── GUEST DATA ───
+const guests = [
+  { name: 'Henrik Bakken', ticket: 'BB-T-4821', pkg: '3-retters + vin', table: 12, status: 'checked', allergies: null },
+  { name: 'Marte Solberg', ticket: 'BB-T-4822', pkg: '3-retters + vin', table: 12, status: 'checked', allergies: null },
+  { name: 'Lars Eriksen', ticket: 'BB-T-4823', pkg: '3-retters + vin', table: 13, status: 'checked', allergies: ['Gluten'] },
+  { name: 'Ingrid Haugen', ticket: 'BB-T-4824', pkg: '3-retters + vin', table: 13, status: 'checked', allergies: null },
+  { name: 'Thomas Vik', ticket: 'BB-T-4825', pkg: '3-retters + vin', table: 14, status: 'checked', allergies: null },
+  { name: 'Silje Nygaard', ticket: 'BB-T-4826', pkg: '3-retters + vin', table: 14, status: 'checked', allergies: ['Laktose'] },
+  { name: 'Erik Dahl', ticket: 'BB-T-4827', pkg: '3-retters + vin', table: 15, status: 'checked', allergies: null },
+  { name: 'Kari Olsen', ticket: 'BB-T-4828', pkg: '3-retters + vin', table: 15, status: 'checked', allergies: null },
+  { name: 'Petter Strand', ticket: 'BB-T-4829', pkg: '3-retters + vin', table: 16, status: 'checked', allergies: null },
+  { name: 'Anna Berge', ticket: 'BB-T-4830', pkg: '3-retters + vin', table: 16, status: 'checked', allergies: ['Nøtter'] },
+  { name: 'Kristian Moe', ticket: 'BB-T-4831', pkg: '3-retters + vin', table: 17, status: 'checked', allergies: null },
+  { name: 'Hanna Lund', ticket: 'BB-T-4832', pkg: '3-retters + vin', table: 17, status: 'checked', allergies: null },
+  { name: 'Magnus Holm', ticket: 'BB-T-4833', pkg: '3-retters + vin', table: 18, status: 'checked', allergies: null },
+  { name: 'Julie Aas', ticket: 'BB-T-4834', pkg: '3-retters + vin', table: 18, status: 'checked', allergies: null },
+  { name: 'Sondre Lie', ticket: 'BB-T-4835', pkg: '3-retters + vin', table: 19, status: 'checked', allergies: ['Gluten','Laktose'] },
+  { name: 'Ida Fossum', ticket: 'BB-T-4836', pkg: '3-retters + vin', table: 19, status: 'checked', allergies: null },
+  { name: 'Vetle Rønning', ticket: 'BB-T-4837', pkg: '3-retters + vin', table: 20, status: 'checked', allergies: null },
+  { name: 'Thea Iversen', ticket: 'BB-T-4838', pkg: '3-retters + vin', table: 20, status: 'checked', allergies: null },
+  { name: 'Jonas Berg', ticket: 'BB-T-4839', pkg: '3-retters + vin', table: 21, status: 'pending', allergies: null },
+  { name: 'Camilla Elstad', ticket: 'BB-T-4840', pkg: '3-retters + vin', table: 21, status: 'pending', allergies: null },
+  { name: 'Ola Viken', ticket: 'BB-T-4841', pkg: '3-retters + vin', table: 22, status: 'pending', allergies: ['Skalldyr'] },
+  { name: 'Mari Kvam', ticket: 'BB-T-4842', pkg: '3-retters + vin', table: 22, status: 'pending', allergies: null },
+  { name: 'Bjørn Aune', ticket: 'BB-T-4843', pkg: '3-retters + vin', table: 23, status: 'pending', allergies: null },
+  { name: 'Lena Grønn', ticket: 'BB-T-4844', pkg: '3-retters + vin', table: 23, status: 'pending', allergies: null },
+];
+
+function renderGuestTable(filter = '') {
+  const tbody = document.getElementById('guestTableBody');
+  const filtered = filter 
+    ? guests.filter(g => g.name.toLowerCase().includes(filter) || g.ticket.toLowerCase().includes(filter))
+    : guests;
+  
+  tbody.innerHTML = filtered.map((g, i) => `
+    <tr>
+      <td>
+        <div class="guest-name-cell">
+          <div class="guest-avatar">${g.name.split(' ').map(n=>n[0]).join('')}</div>
+          <div>
+            ${g.name}
+            ${g.allergies ? `<div style="margin-top:2px">${g.allergies.map(a=>`<span style="font-size:10px;color:var(--danger);background:var(--danger-bg);padding:1px 5px;border-radius:3px;margin-right:3px">⚠️ ${a}</span>`).join('')}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td><span class="ticket-id">${g.ticket}</span></td>
+      <td style="font-size:12px">${g.pkg}</td>
+      <td style="font-weight:600">${g.table}</td>
+      <td><span class="checkin-status ${g.status}">${g.status === 'checked' ? '✓ Inne' : g.status === 'pending' ? '⏳ Venter' : '✗ No-show'}</span></td>
+      <td>
+        ${g.status === 'pending' 
+          ? `<button class="checkin-btn do" onclick="checkinGuest(${guests.indexOf(g)})">Sjekk inn</button>` 
+          : `<button class="checkin-btn done">✓</button>`}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterGuests() {
+  renderGuestTable(document.getElementById('guestSearch').value.toLowerCase());
+}
+
+function checkinGuest(idx) {
+  guests[idx].status = 'checked';
+  renderGuestTable(document.getElementById('guestSearch').value.toLowerCase());
+  updateCheckedCount();
+}
+
+function updateCheckedCount() {
+  document.getElementById('checkedCount').textContent = guests.filter(g => g.status === 'checked').length;
+}
+
+function simulateScan() {
+  const area = document.getElementById('scanArea');
+  area.className = 'scan-area scanning';
+  area.innerHTML = `
+    <div class="scan-icon">🔄</div>
+    <div class="scan-text" style="color:var(--p-blue)">Skanner...</div>
+  `;
+  
+  setTimeout(() => {
+    // Find first pending guest
+    const pending = guests.find(g => g.status === 'pending');
+    if (pending) {
+      pending.status = 'checked';
+      area.className = 'scan-area success';
+      area.innerHTML = `
+        <div class="scan-icon">✅</div>
+        <div class="scan-text" style="color:var(--success)">${pending.name}</div>
+        <div class="scan-sub" style="color:var(--success)">Billett validert — sesjon opprettet</div>
+      `;
+      
+      document.getElementById('scanResultCard').style.display = '';
+      document.getElementById('scanResult').innerHTML = `
+        <div class="scan-result-row">
+          <span class="label">Gjest</span>
+          <span class="value">${pending.name}</span>
+        </div>
+        <div class="scan-result-row">
+          <span class="label">Billett</span>
+          <span class="value"><span class="ticket-id">${pending.ticket}</span></span>
+        </div>
+        <div class="scan-result-row">
+          <span class="label">Pakke</span>
+          <span class="value">${pending.pkg}</span>
+        </div>
+        <div class="scan-result-row">
+          <span class="label">Tildelt bord</span>
+          <span class="value" style="color:var(--p-blue)">Bord ${pending.table}</span>
+        </div>
+        ${pending.allergies ? `
+        <div class="scan-result-row">
+          <span class="label">Allergier</span>
+          <span class="value" style="color:var(--danger)">⚠️ ${pending.allergies.join(', ')}</span>
+        </div>` : ''}
+        <div class="scan-result-row">
+          <span class="label">POS-sesjon</span>
+          <span class="value" style="color:var(--success)">✓ Automatisk opprettet</span>
+        </div>
+      `;
+      
+      renderGuestTable(document.getElementById('guestSearch').value.toLowerCase());
+      updateCheckedCount();
+    }
+
+    setTimeout(() => {
+      area.className = 'scan-area';
+      area.innerHTML = `
+        <div class="scan-icon">📱</div>
+        <div class="scan-text">Klar til å skanne</div>
+        <div class="scan-sub">Hold billett-QR foran skanneren</div>
+      `;
+    }, 3000);
+  }, 1500);
+}
+
+function selectEvent(idx) {
+  document.querySelectorAll('.event-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.event-card')[idx].classList.add('selected');
+}
+
+function completePay(el) {
+  el.style.borderColor = 'var(--success)';
+  el.style.background = 'var(--success-bg)';
+  el.querySelector('.arrow').textContent = '✓';
+  el.querySelector('.text p').textContent = 'Betaling fullført!';
+  el.querySelector('.text p').style.color = 'var(--success)';
+  setTimeout(() => goToStep(5), 1200);
+}
+
+// ─── CLOCK ───
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = 
+    now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── INIT ───
+renderStepNav();
+renderGuestTable();
+</script>
+</body>
+</html>
