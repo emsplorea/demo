@@ -1260,6 +1260,7 @@
     <button class="btn btn-bb btn-sm" onclick="triggerNewBooking()">📲 Ny Bookibud-reservasjon</button>
     <button class="btn btn-secondary btn-sm" onclick="triggerQROrder()">📱 QR-bestilling fra gjest</button>
     <button class="btn btn-secondary btn-sm" onclick="triggerEventCheckin()">🎫 Event-innsjekk</button>
+    <button class="btn btn-secondary btn-sm" onclick="triggerHoldTable()">🔒 Hold bordet (QR-signal)</button>
     <button class="btn btn-success btn-sm" onclick="openPaymentModal(5)">💳 Depositum-betaling</button>
   </div>
 </div>
@@ -1500,39 +1501,28 @@ function renderBookibudActive(t) {
         </div>
       </div>` : ''}
 
+      ${t.bbHeld ? `
+      <div class="preorder-banner" style="background:var(--bb-coral-bg);border-color:var(--bb-coral-border);color:var(--bb-coral)">
+        <span class="icon">🔒</span>
+        <div>
+          <div style="font-weight:600;margin-bottom:1px">Bookibud: Bord holdes</div>
+          Aktiv ordre varslet — Bookibud holder reservasjonen og justerer ikke bordstatus
+        </div>
+      </div>` : ''}
+
       <div class="section">
         <div class="section-header"><span class="icon">🛒</span> Bestillinger</div>
         <div class="section-body">
+          ${(orderItems[t.id] || []).map(i => `
           <div class="order-item">
             <div class="order-item-left">
-              <span class="order-qty">2</span>
-              <span class="order-name">Husets aperitif</span>
+              <span class="order-qty">${i.qty}</span>
+              <span class="order-name">${i.name}</span>
+              ${i.qr ? '<span class="order-source-qr">QR</span>' : ''}
             </div>
-            <span class="order-price">kr 198,-</span>
+            <span class="order-price">kr ${i.price.toLocaleString('nb-NO')},-</span>
           </div>
-          <div class="order-item">
-            <div class="order-item-left">
-              <span class="order-qty">1</span>
-              <span class="order-name">Tartar av reinsdyr</span>
-              ${t.preorder ? '<span class="order-source-qr">QR</span>' : ''}
-            </div>
-            <span class="order-price">kr 189,-</span>
-          </div>
-          <div class="order-item">
-            <div class="order-item-left">
-              <span class="order-qty">1</span>
-              <span class="order-name">Blåskjell i hvitvin</span>
-              ${t.preorder ? '<span class="order-source-qr">QR</span>' : ''}
-            </div>
-            <span class="order-price">kr 175,-</span>
-          </div>
-          <div class="order-item">
-            <div class="order-item-left">
-              <span class="order-qty">1</span>
-              <span class="order-name">Flaske Sancerre 2023</span>
-            </div>
-            <span class="order-price">kr 598,-</span>
-          </div>
+          `).join('')}
           <div class="order-total">
             <span class="order-total-label">Foreløpig total</span>
             <span class="order-total-value">kr ${t.amount.toLocaleString('nb-NO')},-</span>
@@ -1571,9 +1561,9 @@ function renderBookibudActive(t) {
       </div>
     </div>
     <div class="detail-footer">
-      <button class="btn btn-primary btn-full">➕ Legg til bestilling</button>
+      <button class="btn btn-primary btn-full" onclick="openAddOrderModal(${t.id})">➕ Legg til bestilling</button>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" style="flex:1">🧾 Splitt</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="openPaymentModal(${t.id}, true)">🧾 Splitt</button>
         <button class="btn btn-success" style="flex:1" onclick="openPaymentModal(${t.id})">💳 Betal</button>
       </div>
     </div>
@@ -1610,10 +1600,10 @@ function renderOccupied(t) {
       </div>
     </div>
     <div class="detail-footer">
-      <button class="btn btn-primary btn-full">➕ Legg til bestilling</button>
+      <button class="btn btn-primary btn-full" onclick="openAddOrderModal(${t.id})">➕ Legg til bestilling</button>
       <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary" style="flex:1">🧾 Splitt</button>
-        <button class="btn btn-success" style="flex:1">💳 Betal</button>
+        <button class="btn btn-secondary" style="flex:1" onclick="openPaymentModal(${t.id}, true)">🧾 Splitt</button>
+        <button class="btn btn-success" style="flex:1" onclick="openPaymentModal(${t.id})">💳 Betal</button>
       </div>
     </div>
   `;
@@ -1669,7 +1659,7 @@ function renderFinishing(t) {
       </div>
     </div>
     <div class="detail-footer">
-      <button class="btn btn-success btn-full">💳 Avslutt & Betal</button>
+      <button class="btn btn-success btn-full" onclick="openPaymentModal(${t.id})">💳 Avslutt & Betal</button>
     </div>
   `;
 }
@@ -1985,12 +1975,6 @@ function acceptBooking() {
   showToast('bb', 'Reservasjon bekreftet', 'Bord 4 → Ola Nordmann kl. 21:00 via Bookibud');
 }
 
-function triggerQROrder() {
-  showToast('qr', 'QR-bestilling mottatt', 'Bord 5 (Sara & Knut) · 2x Crème brûlée, 1x Espresso via Bookibud QR-link');
-  const t = tables.find(x => x.id === 5);
-  t.amount += 378;
-}
-
 function triggerEventCheckin() {
   showToast('bb', 'Event-innsjekk', 'Bord 8 · Trondheim JK · 8 gjester · Event-billett validert ✓ · 3-retters meny forhåndslastet');
 }
@@ -2041,13 +2025,50 @@ setTimeout(() => {
 
 // ─── PAYMENT MODAL ───
 const orderItems = {
+  1: [
+    { name: 'Blåskjell i hvitvin', qty: 1, price: 175 },
+    { name: 'Glass Chablis', qty: 1, price: 135 },
+    { name: 'Sjokoladefondant', qty: 1, price: 155 },
+    { name: 'Cappuccino', qty: 2, price: 98 },
+    { name: 'Husets aperitif', qty: 1, price: 99 },
+    { name: 'Branzino al forno', qty: 1, price: 325 },
+  ],
+  3: [
+    { name: 'Velkomstpakke 6 pers', qty: 1, price: 894 },
+    { name: 'Kylling Caesar', qty: 3, price: 675 },
+    { name: 'Pasta carbonara', qty: 2, price: 470 },
+    { name: 'Husets burger', qty: 1, price: 245 },
+    { name: 'Pilsner 0.5l', qty: 6, price: 654 },
+    { name: 'Nachos grande', qty: 1, price: 189 },
+  ],
   5: [
     { name: 'Husets aperitif', qty: 2, price: 198 },
     { name: 'Tartar av reinsdyr', qty: 1, price: 189, qr: true },
     { name: 'Blåskjell i hvitvin', qty: 1, price: 175, qr: true },
     { name: 'Flaske Sancerre 2023', qty: 1, price: 598 },
-    { name: 'Crème brûlée', qty: 2, price: 238 },
+    { name: 'Creme brulee', qty: 2, price: 238 },
     { name: 'Espresso', qty: 1, price: 49 },
+  ],
+  6: [
+    { name: 'Risotto ai funghi', qty: 1, price: 285 },
+    { name: 'Glass Pinot Grigio', qty: 2, price: 230 },
+    { name: 'Espresso', qty: 1, price: 39 },
+    { name: 'Tiramisu', qty: 1, price: 145 },
+  ],
+  10: [
+    { name: 'Carpaccio di manzo', qty: 1, price: 165 },
+    { name: 'Tartar av reinsdyr', qty: 1, price: 189 },
+    { name: 'Flaske Barolo 2019', qty: 1, price: 695 },
+    { name: 'Cappuccino', qty: 2, price: 98 },
+  ],
+  12: [
+    { name: 'Antipasto misto', qty: 5, price: 545 },
+    { name: 'Barne-pasta', qty: 2, price: 198 },
+    { name: 'Lemonade', qty: 2, price: 98 },
+    { name: 'Branzino al forno', qty: 2, price: 650 },
+    { name: 'Risotto ai funghi', qty: 1, price: 285 },
+    { name: 'Husets burger', qty: 1, price: 245 },
+    { name: 'Flaske Chianti Classico', qty: 1, price: 495 },
   ],
   2: [
     { name: 'Carpaccio di manzo', qty: 2, price: 278 },
@@ -2059,7 +2080,7 @@ const orderItems = {
   ]
 };
 
-function openPaymentModal(tableId) {
+function openPaymentModal(tableId, splitMode) {
   const t = tables.find(x => x.id === tableId);
   if (!t) return;
   
@@ -2073,16 +2094,22 @@ function openPaymentModal(tableId) {
   const deposit = t.deposit || 0;
   const hasDeposit = deposit > 0 && t.source === 'bookibud';
   const remaining = hasDeposit ? subtotal - deposit : subtotal;
+  const isBB = t.source === 'bookibud';
+  const splitCount = splitMode ? (t.pax || 2) : 1;
+  const perPerson = splitMode ? Math.ceil(remaining / splitCount) : remaining;
 
   const modal = document.getElementById('modalOverlay');
   document.getElementById('modalContent').innerHTML = `
     <div class="pay-modal">
       <div class="pay-header">
-        <h3>💳 Betaling · Bord ${t.id}</h3>
+        <h3>${splitMode ? '🧾 Splitt betaling' : '💳 Betaling'} · Bord ${t.id}</h3>
+        ${isBB ? `
         <span class="bb-source" style="font-size:12px;padding:4px 10px">
           <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><circle cx="8" cy="8" r="7"/></svg>
-          ${t.bookingId || 'BB-' + t.id}
-        </span>
+          ${t.bookingId}
+        </span>` : `
+        <span style="font-size:12px;color:var(--text-tertiary);font-weight:500">${t.guest}</span>
+        `}
       </div>
       <div class="pay-body" id="payBody">
         <!-- Guest info -->
@@ -2090,7 +2117,7 @@ function openPaymentModal(tableId) {
           <div style="width:36px;height:36px;border-radius:50%;background:var(--bg-elevated);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--p-blue)">${(t.guest||'G').split(' ').map(n=>n[0]).join('').substring(0,2)}</div>
           <div>
             <div style="font-weight:600;font-size:14px">${t.guest}</div>
-            <div style="font-size:11px;color:var(--text-tertiary)">Bord ${t.id} · ${t.timer || '—'} · ${t.source === 'bookibud' ? 'Bookibud' : t.source}</div>
+            <div style="font-size:11px;color:var(--text-tertiary)">Bord ${t.id} · ${t.timer || ''} · ${isBB ? 'Bookibud' : t.source}</div>
           </div>
         </div>
 
@@ -2099,7 +2126,7 @@ function openPaymentModal(tableId) {
           <div class="rcpt-section-label">Bestillinger denne kvelden</div>
           ${items.map(i => `
             <div class="rcpt-line">
-              <span class="name">${i.qty > 1 ? i.qty + '× ' : ''}${i.name}${i.qr ? ' <span style="font-size:9px;font-weight:600;color:var(--purple);background:var(--purple-bg);padding:1px 5px;border-radius:3px;margin-left:4px">QR</span>' : ''}</span>
+              <span class="name">${i.qty > 1 ? i.qty + 'x ' : ''}${i.name}${i.qr ? ' <span style="font-size:9px;font-weight:600;color:var(--purple);background:var(--purple-bg);padding:1px 5px;border-radius:3px;margin-left:4px">QR</span>' : ''}</span>
               <span class="price">kr ${i.price.toLocaleString('nb-NO')},-</span>
             </div>
           `).join('')}
@@ -2121,27 +2148,38 @@ function openPaymentModal(tableId) {
               Forhåndsbetalt depositum
               <span class="tag">${t.bookingId}</span>
             </span>
-            <span class="amount">− kr ${deposit.toLocaleString('nb-NO')},-</span>
+            <span class="amount">- kr ${deposit.toLocaleString('nb-NO')},-</span>
           </div>
           <div class="rcpt-deposit-detail">
-            ✓ Betalt via Bookibud Checkout · ${new Date().toLocaleDateString('nb-NO')} kl. 14:23 · Vipps ****87
+            Betalt via Bookibud Checkout · ${new Date().toLocaleDateString('nb-NO')} kl. 14:23 · Vipps ****87
           </div>
         </div>
+        ` : ''}
+
+        ${splitMode ? `
+        <!-- Split info -->
+        <div style="background:var(--purple-bg);border:1px solid rgba(167,139,250,0.2);border-radius:var(--radius-md);padding:14px 16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:13px;font-weight:600;color:var(--purple)">👥 Splitt på ${splitCount} gjester</span>
+            <span style="font-size:11px;color:var(--text-tertiary)">kr ${remaining.toLocaleString('nb-NO')},- / ${splitCount}</span>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            ${Array.from({length: splitCount}, (_, i) => `
+              <div style="flex:1;min-width:80px;background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px;text-align:center">
+                <div style="font-size:10px;color:var(--text-tertiary)">Gjest ${i+1}</div>
+                <div style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--purple);margin-top:2px">kr ${perPerson},-</div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
 
         <!-- Remaining -->
         <div class="rcpt-remaining-box">
-          <span class="label">Gjenstår å betale</span>
-          <span class="amount">kr ${remaining.toLocaleString('nb-NO')},-</span>
+          <span class="label">${splitMode ? 'Per gjest' : (hasDeposit ? 'Gjenstår å betale' : 'Å betale')}</span>
+          <span class="amount">kr ${splitMode ? perPerson.toLocaleString('nb-NO') : remaining.toLocaleString('nb-NO')},-</span>
         </div>
-        ` : `
-        <!-- No deposit -->
-        <div class="rcpt-remaining-box">
-          <span class="label">Å betale</span>
-          <span class="amount">kr ${subtotal.toLocaleString('nb-NO')},-</span>
-        </div>
-        `}
 
-        <!-- Info callout -->
         ${hasDeposit ? `
         <div style="background:var(--p-blue-glow);border:1px solid rgba(107,184,218,0.2);border-radius:var(--radius-md);padding:12px 14px;font-size:12px;color:var(--p-blue-light);display:flex;align-items:flex-start;gap:8px">
           <span style="font-size:14px">🔄</span>
@@ -2153,24 +2191,25 @@ function openPaymentModal(tableId) {
         ` : ''}
       </div>
       <div class="pay-footer" id="payFooter">
-        <div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:4px">Velg betalingsmåte for ${hasDeposit ? 'restbeløp' : 'total'}</div>
+        <div style="font-size:11px;color:var(--text-tertiary);text-align:center;margin-bottom:4px">Velg betalingsmåte${splitMode ? ' (betales per gjest)' : ''}</div>
         <div class="pay-methods">
-          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Kort', ${remaining}, ${deposit}, ${subtotal})">
+          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Kort', ${splitMode ? perPerson : remaining}, ${deposit}, ${subtotal}, ${splitMode ? splitCount : 1})">
             <span class="icon">💳</span>
             <span class="text">Kort</span>
           </div>
-          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Vipps', ${remaining}, ${deposit}, ${subtotal})">
+          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Vipps', ${splitMode ? perPerson : remaining}, ${deposit}, ${subtotal}, ${splitMode ? splitCount : 1})">
             <span class="icon">📱</span>
             <span class="text">Vipps</span>
           </div>
-          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Kontant', ${remaining}, ${deposit}, ${subtotal})">
+          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Kontant', ${splitMode ? perPerson : remaining}, ${deposit}, ${subtotal}, ${splitMode ? splitCount : 1})">
             <span class="icon">💵</span>
             <span class="text">Kontant</span>
           </div>
-          <div class="pay-method-btn" onclick="processPayment(${tableId}, 'Splitt', ${remaining}, ${deposit}, ${subtotal})">
+          ${!splitMode ? `
+          <div class="pay-method-btn" onclick="closeModal();openPaymentModal(${tableId}, true)">
             <span class="icon">👥</span>
             <span class="text">Splitt</span>
-          </div>
+          </div>` : ''}
         </div>
         <button class="btn btn-secondary btn-full btn-sm" onclick="closeModal()" style="margin-top:4px">Avbryt</button>
       </div>
@@ -2179,9 +2218,10 @@ function openPaymentModal(tableId) {
   modal.classList.add('visible');
 }
 
-function processPayment(tableId, method, remaining, deposit, subtotal) {
+function processPayment(tableId, method, remaining, deposit, subtotal, splitCount) {
   const t = tables.find(x => x.id === tableId);
   const hasDeposit = deposit > 0;
+  const isSplit = splitCount > 1;
   const now = new Date();
   const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
 
@@ -2191,7 +2231,7 @@ function processPayment(tableId, method, remaining, deposit, subtotal) {
     <div style="text-align:center;padding:12px 0">
       <div style="font-size:24px;margin-bottom:8px;animation:pulse-dot 1s infinite">💳</div>
       <div style="font-size:14px;font-weight:600">Behandler ${method}-betaling...</div>
-      <div style="font-size:12px;color:var(--text-tertiary)">kr ${remaining.toLocaleString('nb-NO')},- via ${method}</div>
+      <div style="font-size:12px;color:var(--text-tertiary)">kr ${remaining.toLocaleString('nb-NO')},- via ${method}${isSplit ? ' (per gjest, ' + splitCount + ' stk)' : ''}</div>
     </div>
   `;
 
@@ -2202,7 +2242,7 @@ function processPayment(tableId, method, remaining, deposit, subtotal) {
       <div class="pay-success">
         <div class="emoji">✅</div>
         <h3>Betaling fullført!</h3>
-        <p>Bord ${tableId} · ${t?.guest || 'Gjest'} · ${timeStr}</p>
+        <p>Bord ${tableId} · ${t?.guest || 'Gjest'} · ${timeStr}${isSplit ? ' · Splittet på ' + splitCount + ' gjester' : ''}</p>
       </div>
 
       <!-- Final receipt showing both transactions -->
@@ -2222,21 +2262,23 @@ function processPayment(tableId, method, remaining, deposit, subtotal) {
           <span>·</span>
           <span style="color:var(--bb-coral)">${t?.bookingId || 'BB-'}</span>
         </div>
+        ` : ''}
+        ${isSplit ? `
+        ${Array.from({length: splitCount}, (_, i) => `
         <div class="rcpt-final-row">
-          <span>Transaksjon 2 · ${method} i kassen</span>
+          <span>Gjest ${i+1} · ${method}</span>
           <b>kr ${remaining.toLocaleString('nb-NO')},-</b>
         </div>
         <div style="font-size:10px;color:var(--text-tertiary);padding:0 0 4px;display:flex;gap:8px">
-          <span>${method}${method === 'Kort' ? ' ****42' : ''}</span>
+          <span>${method}${method === 'Kort' ? ' ****' + (40 + i) : ''}</span>
           <span>·</span>
           <span>kl. ${timeStr}</span>
-          <span>·</span>
-          <span>Plorea POS</span>
         </div>
+        `).join('')}
         ` : `
         <div class="rcpt-final-row">
-          <span>Transaksjon · ${method} i kassen</span>
-          <b>kr ${subtotal.toLocaleString('nb-NO')},-</b>
+          <span>Transaksjon${hasDeposit ? ' 2' : ''} · ${method} i kassen</span>
+          <b>kr ${(isSplit ? remaining * splitCount : remaining).toLocaleString('nb-NO')},-</b>
         </div>
         <div style="font-size:10px;color:var(--text-tertiary);padding:0 0 4px;display:flex;gap:8px">
           <span>${method}${method === 'Kort' ? ' ****42' : ''}</span>
@@ -2296,6 +2338,230 @@ function finalizePayment(tableId) {
   renderFloor();
   renderDetail();
   showToast('success', `Bord ${tableId} frigjort`, `Betaling fullført — kvittering skrevet ut. Bord er nå ledig.`);
+}
+
+// ─── ADD ORDER MODAL ───
+const quickMenu = [
+  { cat: 'Forretter', items: [
+    { name: 'Tartar av reinsdyr', price: 189 },
+    { name: 'Blåskjell i hvitvin', price: 175 },
+    { name: 'Carpaccio di manzo', price: 165 },
+    { name: 'Vitello Tonnato', price: 185 },
+  ]},
+  { cat: 'Hovedretter', items: [
+    { name: 'Brasato al Barolo', price: 345 },
+    { name: 'Branzino al forno', price: 325 },
+    { name: 'Risotto ai funghi', price: 285 },
+    { name: 'Husets burger', price: 245 },
+    { name: 'Pasta carbonara', price: 235 },
+    { name: 'Kylling Caesar', price: 225 },
+  ]},
+  { cat: 'Desserter', items: [
+    { name: 'Panna Cotta', price: 145 },
+    { name: 'Sjokoladefondant', price: 155 },
+    { name: 'Creme brulee', price: 135 },
+  ]},
+  { cat: 'Drikke', items: [
+    { name: 'Husets aperitif', price: 99 },
+    { name: 'Cappuccino', price: 49 },
+    { name: 'Espresso', price: 39 },
+    { name: 'Glass Chablis', price: 135 },
+    { name: 'Flaske Sancerre 2023', price: 598 },
+    { name: 'Flaske Barolo 2019', price: 695 },
+    { name: 'Pilsner 0.5l', price: 109 },
+  ]},
+];
+
+let addOrderCart = [];
+
+function openAddOrderModal(tableId) {
+  const t = tables.find(x => x.id === tableId);
+  if (!t) return;
+  addOrderCart = [];
+
+  selectedTable = tableId;
+  renderFloor();
+  renderDetail();
+
+  const isBB = t.source === 'bookibud';
+  const modal = document.getElementById('modalOverlay');
+  document.getElementById('modalContent').innerHTML = `
+    <div class="pay-modal">
+      <div class="pay-header">
+        <h3>➕ Legg til bestilling · Bord ${t.id}</h3>
+        ${isBB ? `
+        <span class="bb-source" style="font-size:12px;padding:4px 10px">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><circle cx="8" cy="8" r="7"/></svg>
+          ${t.bookingId}
+        </span>` : `
+        <span style="font-size:12px;color:var(--text-tertiary)">${t.guest}</span>
+        `}
+      </div>
+      <div class="pay-body" id="addOrderBody" style="max-height:55vh">
+        ${quickMenu.map(cat => `
+          <div>
+            <div class="rcpt-section-label">${cat.cat}</div>
+            <div style="display:grid;grid-template-columns:repeat(2, 1fr);gap:6px">
+              ${cat.items.map(item => `
+                <div class="add-item-btn" onclick="addToCart('${item.name.replace(/'/g, "\\'")}', ${item.price}, this)" 
+                     style="background:var(--bg-tertiary);border:1.5px solid var(--border-primary);border-radius:var(--radius-sm);padding:10px 12px;cursor:pointer;transition:all 0.15s;display:flex;justify-content:space-between;align-items:center"
+                     onmouseover="this.style.borderColor='var(--p-blue)'" onmouseout="if(!this.classList.contains('added'))this.style.borderColor='var(--border-primary)'">
+                  <div>
+                    <div style="font-size:13px;font-weight:600">${item.name}</div>
+                  </div>
+                  <div style="font-family:var(--font-display);font-size:12px;font-weight:600;color:var(--text-secondary)">kr ${item.price},-</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div id="addOrderFooter">
+        <div id="cartSummary" style="padding:12px 24px;border-top:1px solid var(--border-primary);display:none">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:13px;color:var(--text-secondary)"><span id="cartCount">0</span> valgt</span>
+            <span style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--success)" id="cartTotal">kr 0,-</span>
+          </div>
+        </div>
+        <div style="padding:12px 24px 16px;display:flex;gap:8px">
+          <button class="btn btn-secondary" style="flex:1" onclick="closeModal()">Avbryt</button>
+          <button class="btn btn-primary" style="flex:2" id="sendOrderBtn" onclick="sendOrder(${tableId})" disabled>
+            🍽 Send til kjøkken
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+  modal.classList.add('visible');
+}
+
+function addToCart(name, price, el) {
+  const existing = addOrderCart.find(i => i.name === name);
+  if (existing) {
+    existing.qty++;
+  } else {
+    addOrderCart.push({ name, price, qty: 1 });
+  }
+  el.style.borderColor = 'var(--success)';
+  el.style.background = 'var(--success-bg)';
+  el.classList.add('added');
+  updateCartDisplay();
+}
+
+function updateCartDisplay() {
+  const count = addOrderCart.reduce((s, i) => s + i.qty, 0);
+  const total = addOrderCart.reduce((s, i) => s + (i.price * i.qty), 0);
+  document.getElementById('cartCount').textContent = count;
+  document.getElementById('cartTotal').textContent = 'kr ' + total.toLocaleString('nb-NO') + ',-';
+  document.getElementById('cartSummary').style.display = count > 0 ? '' : 'none';
+  document.getElementById('sendOrderBtn').disabled = count === 0;
+}
+
+function sendOrder(tableId) {
+  const t = tables.find(x => x.id === tableId);
+  if (!t) return;
+
+  const total = addOrderCart.reduce((s, i) => s + (i.price * i.qty), 0);
+  const count = addOrderCart.reduce((s, i) => s + i.qty, 0);
+  const itemNames = addOrderCart.map(i => (i.qty > 1 ? i.qty + 'x ' : '') + i.name).join(', ');
+
+  // Add to table orderItems
+  if (!orderItems[tableId]) orderItems[tableId] = [];
+  addOrderCart.forEach(i => {
+    orderItems[tableId].push({ name: i.name, qty: i.qty, price: i.price * i.qty });
+  });
+
+  // Update table amount
+  t.amount = (t.amount || 0) + total;
+
+  closeModal();
+  renderFloor();
+  renderDetail();
+
+  showToast('success', `Bestilling sendt · Bord ${tableId}`, `${count} varer · ${itemNames} · kr ${total},-`);
+
+  // If this is a Bookibud table, trigger hold notification
+  if (t.source === 'bookibud') {
+    t.bbHeld = true;
+    setTimeout(() => {
+      notifyBookibudTableHeld(t);
+    }, 800);
+  }
+}
+
+// ─── BOOKIBUD TABLE HOLD NOTIFICATION ───
+function notifyBookibudTableHeld(t) {
+  showToast('bb', 'Bookibud: Bord holdes', 
+    `Bord ${t.id} (${t.guest}) — aktiv ordre varslet til Bookibud. Reservasjonen forlenges automatisk.`);
+}
+
+// ─── BOOKIBUD HOLD TABLE ───
+function triggerHoldTable() {
+  // Simulate a QR scan on table 7 (reserved, Kristin Dahl) — 
+  // show that when a Bookibud-booked table has any order activity,
+  // Bookibud gets a "hold" signal so they don't release the reservation
+  const t = tables.find(x => x.id === 7);
+  if (!t) return;
+
+  // Change table 7 from reserved to occupied as if the guest just sat down and scanned QR
+  t.status = 'occupied';
+  t.amount = 0;
+  t.timer = '0:00';
+  t.bbHeld = true;
+
+  selectedTable = 7;
+  renderFloor();
+  renderDetail();
+
+  showToast('bb', '📱 QR-skann registrert · Bord 7',
+    'Kristin Dahl skannet QR-koden. Bookibud varslet: ordre pågår, hold bordet.');
+
+  setTimeout(() => {
+    showToast('bb', '🔒 Bookibud: Reservasjon holdes',
+      'Bord 7 (BB-4823) — Bookibud har registrert aktiv sesjon. Bordet fjernes fra tilgjengelighetslisten. Neste gjest vil ikke bli tilbudt dette bordet.');
+  }, 1800);
+
+  // Simulate first QR order coming in
+  setTimeout(() => {
+    if (!orderItems[7]) orderItems[7] = [];
+    orderItems[7].push({ name: 'Husets aperitif', qty: 2, price: 198, qr: true });
+    t.amount = 198;
+    if (selectedTable === 7) renderDetail();
+    renderFloor();
+    showToast('qr', 'QR-bestilling · Bord 7', '2x Husets aperitif via Bookibud QR-meny');
+  }, 3500);
+}
+
+// Override triggerQROrder to include hold notification  
+function triggerQROrder() {
+  const t = tables.find(x => x.id === 5);
+  const newItems = [
+    { name: 'Creme brulee', qty: 2, price: 270 },
+    { name: 'Espresso', qty: 1, price: 39 },
+  ];
+
+  // Add to order items
+  if (!orderItems[5]) orderItems[5] = [];
+  newItems.forEach(i => orderItems[5].push(i));
+  t.amount = (t.amount || 0) + 309;
+  t.bbHeld = true;
+
+  renderFloor();
+  if (selectedTable === 5) renderDetail();
+
+  showToast('qr', 'QR-bestilling mottatt', 
+    'Bord 5 (Sara & Knut) · 2x Creme brulee, 1x Espresso via Bookibud QR-link');
+
+  // Bookibud hold notification
+  setTimeout(() => {
+    showToast('bb', '🔒 Bookibud: Bord 5 holdes',
+      'QR-ordre registrert — Bookibud varslet om at bordet er aktivt. Neste reservasjon (Kristin Dahl, 20:30) justeres ikke.');
+  }, 1500);
+
+  // Show the hold status in table detail if selected
+  setTimeout(() => {
+    if (selectedTable === 5) renderDetail();
+  }, 2000);
 }
 </script>
 </body>
