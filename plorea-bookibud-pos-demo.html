@@ -1009,10 +1009,10 @@
     <div class="logo">Plorea<span>POS Terminal</span></div>
   </div>
   <div class="topbar-center">
-    <button class="tab-btn active" onclick="setTab(this)">Bordoversikt</button>
-    <button class="tab-btn" onclick="setTab(this)">Bestillinger</button>
-    <button class="tab-btn" onclick="setTab(this)">Meny</button>
-    <button class="tab-btn" onclick="setTab(this)">Rapporter</button>
+    <button class="tab-btn active" onclick="setTab(this, 'bordoversikt')">Bordoversikt</button>
+    <button class="tab-btn" onclick="setTab(this, 'bestillinger')">Bestillinger</button>
+    <button class="tab-btn" onclick="setTab(this, 'meny')">Meny</button>
+    <button class="tab-btn" onclick="setTab(this, 'rapporter')">Rapporter</button>
   </div>
   <div class="topbar-right">
     <div class="bb-badge"><div class="dot"></div>Bookibud Koblet</div>
@@ -1021,7 +1021,7 @@
 </div>
 
 <!-- MAIN -->
-<div class="main">
+<div class="main" id="view-bordoversikt">
   <!-- FLOOR PLAN -->
   <div class="floor-panel">
     <div class="floor-header">
@@ -1045,6 +1045,211 @@
   <!-- DETAIL PANEL -->
   <div class="detail-panel" id="detailPanel">
     <div id="detailContent"></div>
+  </div>
+</div>
+
+<!-- BESTILLINGER VIEW -->
+<div class="main" id="view-bestillinger" style="display:none">
+  <div style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
+    <!-- Header -->
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:18px;font-weight:700">📋 Ordrekø</h2>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:2px">Sanntids-oversikt over alle bestillinger — POS, QR og Bookibud-forhåndsordre</p>
+      </div>
+      <div style="display:flex;gap:6px" id="orderFilterBtns">
+        <button class="btn btn-sm btn-primary" onclick="filterOrders('all', this)">Alle (14)</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterOrders('new', this)">🔴 Nye (4)</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterOrders('cooking', this)">🟠 Tilberedes (5)</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterOrders('ready', this)">🟢 Klar (3)</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterOrders('served', this)">✅ Servert (2)</button>
+      </div>
+    </div>
+
+    <!-- Order queue -->
+    <div id="orderQueue" style="display:flex;flex-direction:column;gap:10px"></div>
+  </div>
+
+  <!-- Right: Live stats -->
+  <div style="width:320px;background:var(--bg-secondary);border-left:1px solid var(--border-primary);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex-shrink:0">
+    <h3 style="font-family:var(--font-display);font-size:15px;font-weight:600">⚡ Live statistikk</h3>
+
+    <div style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--p-blue)">14</div>
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">Aktive ordrer</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--success)">8 min</div>
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">Snitt ventetid</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--bb-coral)">6</div>
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">Fra Bookibud</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:24px;font-weight:800;color:var(--purple)">3</div>
+          <div style="font-size:10px;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:0.5px">QR-bestillinger</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:16px">
+      <h4 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-tertiary);margin-bottom:12px">Bestillinger per kilde</h4>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span style="color:var(--text-secondary)">POS (servitør)</span><b>5</b>
+          </div>
+          <div style="height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:36%;background:var(--p-blue);border-radius:3px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span style="color:var(--text-secondary)">Bookibud QR</span><b style="color:var(--bb-coral)">6</b>
+          </div>
+          <div style="height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:43%;background:var(--bb-coral);border-radius:3px"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+            <span style="color:var(--text-secondary)">Forhåndsbestilling</span><b style="color:var(--purple)">3</b>
+          </div>
+          <div style="height:6px;background:var(--bg-elevated);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:21%;background:var(--purple);border-radius:3px"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:16px">
+      <h4 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-tertiary);margin-bottom:12px">🔥 Populært i kveld</h4>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border-subtle)">
+          <span>Blåskjell i hvitvin</span><span style="font-weight:700;color:var(--success)">×8</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border-subtle)">
+          <span>Husets aperitif</span><span style="font-weight:700;color:var(--success)">×7</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;border-bottom:1px solid var(--border-subtle)">
+          <span>Tartar av reinsdyr</span><span style="font-weight:700;color:var(--success)">×6</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;padding:6px 0;">
+          <span>Flaske Sancerre 2023</span><span style="font-weight:700;color:var(--success)">×5</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bb-coral-bg);border:1px solid var(--bb-coral-border);border-radius:var(--radius-md);padding:14px;font-size:12px;color:var(--bb-coral);display:flex;align-items:flex-start;gap:8px">
+      <span style="font-size:14px">📲</span>
+      <div>
+        <b>Bookibud-innsikt:</b> QR-bestillinger har 28% høyere snittnota enn servitør-bestillinger. Gjester som forhåndsbestiller legger til flere tillegg.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MENY VIEW -->
+<div class="main" id="view-meny" style="display:none">
+  <div style="flex:1;padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <h2 style="font-family:var(--font-display);font-size:18px;font-weight:700">🍽️ Meny & Tilgjengelighet</h2>
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:2px">Administrer menyen og synkroniser tilgjengelighet med Bookibud QR-meny og event-pakker</p>
+      </div>
+      <div style="display:flex;gap:6px" id="menuCatBtns">
+        <button class="btn btn-sm btn-primary" onclick="filterMenu('all', this)">Alle</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterMenu('forretter', this)">Forretter</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterMenu('hovedretter', this)">Hovedretter</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterMenu('desserter', this)">Desserter</button>
+        <button class="btn btn-sm btn-secondary" onclick="filterMenu('drikke', this)">Drikke</button>
+      </div>
+    </div>
+
+    <div id="menuGrid" style="display:flex;flex-direction:column;gap:8px"></div>
+  </div>
+
+  <!-- Right: Bookibud sync panel -->
+  <div style="width:340px;background:var(--bg-secondary);border-left:1px solid var(--border-primary);padding:20px;overflow-y:auto;display:flex;flex-direction:column;gap:16px;flex-shrink:0">
+    <h3 style="font-family:var(--font-display);font-size:15px;font-weight:600">🔗 Bookibud Meny-synk</h3>
+
+    <div style="background:var(--success-bg);border:1px solid rgba(52,211,153,0.2);border-radius:var(--radius-md);padding:14px;display:flex;align-items:center;gap:10px">
+      <span style="font-size:20px">✅</span>
+      <div>
+        <div style="font-size:13px;font-weight:600;color:var(--success)">Synkronisert</div>
+        <div style="font-size:11px;color:var(--text-tertiary)">Sist oppdatert: 2 min siden</div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:16px">
+      <h4 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-tertiary);margin-bottom:12px">QR-meny status</h4>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--text-secondary)">Aktive retter</span>
+          <b style="color:var(--success)">18 / 22</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--text-secondary)">86 (utilgjengelig)</span>
+          <b style="color:var(--danger)">4</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--text-secondary)">I event-pakker</span>
+          <b style="color:var(--purple)">6</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
+          <span style="color:var(--text-secondary)">Synlig på Bookibud</span>
+          <b style="color:var(--bb-coral)">15</b>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--bg-tertiary);border-radius:var(--radius-md);padding:16px">
+      <h4 style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-tertiary);margin-bottom:12px">📦 Event-pakker aktive</h4>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px 12px">
+          <div style="font-size:13px;font-weight:600">🍷 Vinkveld: Piemonte</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">3 retter + vinpakke · kr 895,-</div>
+          <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+            <span style="font-size:9px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px">Vitello Tonnato</span>
+            <span style="font-size:9px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px">Brasato al Barolo</span>
+            <span style="font-size:9px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px">Panna Cotta</span>
+          </div>
+        </div>
+        <div style="background:var(--bg-elevated);border-radius:var(--radius-sm);padding:10px 12px">
+          <div style="font-size:13px;font-weight:600">🎷 Jazz Lounge</div>
+          <div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">Velkomstdrink inkl. · kr 350,-</div>
+          <div style="display:flex;gap:4px;margin-top:6px">
+            <span style="font-size:9px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px">Husets aperitif</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--warning-bg);border:1px solid rgba(251,191,36,0.2);border-radius:var(--radius-md);padding:14px;font-size:12px;color:var(--warning);display:flex;align-items:flex-start;gap:8px">
+      <span style="font-size:14px">⚠️</span>
+      <div>
+        <b>Auto-86:</b> Når du markerer en rett som utilgjengelig her, oppdateres Bookibud QR-menyen og event-pakker automatisk. Gjester som allerede har forhåndsbestilt varsles via SMS.
+      </div>
+    </div>
+
+    <div style="background:var(--p-blue-glow);border:1px solid rgba(107,184,218,0.2);border-radius:var(--radius-md);padding:14px;font-size:12px;color:var(--p-blue-light);display:flex;align-items:flex-start;gap:8px">
+      <span style="font-size:14px">💡</span>
+      <div>
+        <b>Dynamisk meny:</b> Retter som er i event-pakker kan ikke 86's uten at kjøkkensjefen godkjenner erstatning. Dette sikrer at Bookibud-gjester alltid får det de har betalt for.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- RAPPORTER VIEW (placeholder) -->
+<div class="main" id="view-rapporter" style="display:none">
+  <div style="flex:1;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--text-tertiary)">
+    <div style="font-size:48px">📊</div>
+    <div style="font-size:16px;font-weight:600;color:var(--text-secondary)">Rapporter</div>
+    <div style="font-size:13px">Kommer snart — Omsetning per kanal, Bookibud vs. walk-in, event-ytelse og mersalg-analyse</div>
   </div>
 </div>
 
@@ -1480,9 +1685,245 @@ function seatGuest(id) {
   showToast('success', `Bord ${id} aktivert`, `${t.guest} er satt — sesjon startet med Bookibud-kontekst`);
 }
 
-function setTab(el) {
+function setTab(el, viewName) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
+  ['bordoversikt','bestillinger','meny','rapporter'].forEach(v => {
+    document.getElementById('view-' + v).style.display = v === viewName ? '' : 'none';
+  });
+  if (viewName === 'bestillinger') renderOrderQueue();
+  if (viewName === 'meny') renderMenu();
+}
+
+// ─── ORDER QUEUE DATA & RENDERING ───
+const orders = [
+  { id: 'O-201', table: 5, guest: 'Sara & Knut', items: ['Crème brûlée ×2', 'Espresso'], source: 'qr', status: 'new', time: '19:41', amount: 287, bb: 'BB-4819' },
+  { id: 'O-200', table: 3, guest: 'Bedrift (NTH)', items: ['Øl 0.5l ×4', 'Nachos grande'], source: 'pos', status: 'new', time: '19:39', amount: 476 },
+  { id: 'O-199', table: 1, guest: 'Maria L.', items: ['Sjokoladefondant', 'Cappuccino'], source: 'pos', status: 'new', time: '19:38', amount: 198 },
+  { id: 'O-198', table: 10, guest: 'Tone & Emil', items: ['Flaske Barolo 2019'], source: 'qr', status: 'new', time: '19:36', amount: 695, bb: 'BB-QR' },
+  { id: 'O-197', table: 5, guest: 'Sara & Knut', items: ['Flaske Sancerre 2023'], source: 'preorder', status: 'cooking', time: '19:30', amount: 598, bb: 'BB-4819' },
+  { id: 'O-196', table: 12, guest: 'Johansen fam.', items: ['Barne-pasta ×2', 'Lemonade ×2'], source: 'pos', status: 'cooking', time: '19:28', amount: 396 },
+  { id: 'O-195', table: 3, guest: 'Bedrift (NTH)', items: ['Kylling Caesar ×3', 'Pasta carbonara ×2', 'Husets burger'], source: 'pos', status: 'cooking', time: '19:25', amount: 1580 },
+  { id: 'O-194', table: 1, guest: 'Maria L.', items: ['Blåskjell i hvitvin', 'Glass Chablis'], source: 'pos', status: 'cooking', time: '19:22', amount: 310 },
+  { id: 'O-193', table: 5, guest: 'Sara & Knut', items: ['Tartar av reinsdyr', 'Blåskjell i hvitvin'], source: 'preorder', status: 'cooking', time: '19:10', amount: 364, bb: 'BB-4819' },
+  { id: 'O-192', table: 10, guest: 'Tone & Emil', items: ['Risotto ai funghi', 'Branzino al forno'], source: 'qr', status: 'ready', time: '19:15', amount: 610, bb: 'BB-QR' },
+  { id: 'O-191', table: 12, guest: 'Johansen fam.', items: ['Antipasto ×5'], source: 'pos', status: 'ready', time: '19:12', amount: 545 },
+  { id: 'O-190', table: 5, guest: 'Sara & Knut', items: ['Husets aperitif ×2'], source: 'preorder', status: 'ready', time: '19:08', amount: 198, bb: 'BB-4819' },
+  { id: 'O-189', table: 3, guest: 'Bedrift (NTH)', items: ['Velkomstpakke — 6 pers'], source: 'pos', status: 'served', time: '19:02', amount: 894 },
+  { id: 'O-188', table: 1, guest: 'Maria L.', items: ['Husets aperitif'], source: 'pos', status: 'served', time: '18:58', amount: 99 },
+];
+
+let orderFilter = 'all';
+
+function filterOrders(filter, el) {
+  orderFilter = filter;
+  document.querySelectorAll('#orderFilterBtns .btn').forEach(b => { b.className = 'btn btn-sm btn-secondary'; });
+  el.className = 'btn btn-sm btn-primary';
+  renderOrderQueue();
+}
+
+function renderOrderQueue() {
+  const container = document.getElementById('orderQueue');
+  if (!container) return;
+  const filtered = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter);
+
+  container.innerHTML = filtered.map(o => {
+    const statusColors = { new: 'var(--danger)', cooking: 'var(--orange)', ready: 'var(--success)', served: 'var(--text-tertiary)' };
+    const statusLabels = { new: '🔴 Ny', cooking: '🟠 Tilberedes', ready: '🟢 Klar', served: '✅ Servert' };
+    const sourceLabels = { pos: 'POS', qr: 'Bookibud QR', preorder: 'Forhåndsbestilling' };
+    const sourceColors = { pos: 'var(--p-blue)', qr: 'var(--bb-coral)', preorder: 'var(--purple)' };
+    const sourceBgs = { pos: 'var(--p-blue-glow)', qr: 'var(--bb-coral-bg)', preorder: 'var(--purple-bg)' };
+
+    return `
+      <div style="background:var(--bg-secondary);border:1px solid var(--border-primary);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:16px;border-left:3px solid ${statusColors[o.status]};transition:all 0.2s;cursor:pointer" 
+           onmouseover="this.style.borderColor='var(--p-blue)'" onmouseout="this.style.borderColor='var(--border-primary)';this.style.borderLeftColor='${statusColors[o.status]}'">
+        <!-- Order ID + time -->
+        <div style="width:70px;flex-shrink:0">
+          <div style="font-family:var(--font-display);font-size:13px;font-weight:700">${o.id}</div>
+          <div style="font-size:11px;color:var(--text-tertiary)">${o.time}</div>
+        </div>
+
+        <!-- Table + guest -->
+        <div style="width:130px;flex-shrink:0">
+          <div style="font-size:14px;font-weight:600">Bord ${o.table}</div>
+          <div style="font-size:11px;color:var(--text-tertiary)">${o.guest}</div>
+        </div>
+
+        <!-- Items -->
+        <div style="flex:1">
+          <div style="font-size:13px;color:var(--text-primary)">${o.items.join(' · ')}</div>
+        </div>
+
+        <!-- Source -->
+        <div style="flex-shrink:0">
+          <span style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:4px;background:${sourceBgs[o.source]};color:${sourceColors[o.source]}">
+            ${sourceLabels[o.source]}
+          </span>
+          ${o.bb ? `<div style="font-size:9px;color:var(--text-tertiary);text-align:center;margin-top:2px">${o.bb}</div>` : ''}
+        </div>
+
+        <!-- Amount -->
+        <div style="width:80px;text-align:right;flex-shrink:0">
+          <div style="font-family:var(--font-display);font-size:14px;font-weight:700">kr ${o.amount},-</div>
+        </div>
+
+        <!-- Status -->
+        <div style="width:100px;text-align:center;flex-shrink:0">
+          <span style="font-size:11px;font-weight:600;color:${statusColors[o.status]}">${statusLabels[o.status]}</span>
+        </div>
+
+        <!-- Action -->
+        <div style="width:90px;flex-shrink:0;text-align:right">
+          ${o.status === 'new' ? `<button class="btn btn-sm btn-primary" onclick="advanceOrder('${o.id}', event)" style="font-size:11px">▶ Start</button>` : ''}
+          ${o.status === 'cooking' ? `<button class="btn btn-sm btn-success" onclick="advanceOrder('${o.id}', event)" style="font-size:11px">✓ Klar</button>` : ''}
+          ${o.status === 'ready' ? `<button class="btn btn-sm btn-secondary" onclick="advanceOrder('${o.id}', event)" style="font-size:11px">🍽 Server</button>` : ''}
+          ${o.status === 'served' ? '<span style="font-size:11px;color:var(--text-tertiary)">Levert</span>' : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function advanceOrder(orderId, event) {
+  event.stopPropagation();
+  const o = orders.find(x => x.id === orderId);
+  if (!o) return;
+  const transitions = { new: 'cooking', cooking: 'ready', ready: 'served' };
+  o.status = transitions[o.status] || o.status;
+  renderOrderQueue();
+  const statusMsg = { cooking: 'sendt til kjøkken', ready: 'klar til servering', served: 'servert' };
+  showToast('success', `${orderId} — ${statusMsg[o.status]}`, `Bord ${o.table} · ${o.items[0]}${o.items.length > 1 ? ' +' + (o.items.length-1) : ''}`);
+}
+
+// ─── MENU DATA & RENDERING ───
+const menuItems = [
+  { name: 'Husets aperitif', cat: 'drikke', price: 99, available: true, qr: true, bb: true, event: 'Jazz Lounge', popular: true },
+  { name: 'Vitello Tonnato', cat: 'forretter', price: 185, available: true, qr: true, bb: true, event: 'Vinkveld Piemonte' },
+  { name: 'Tartar av reinsdyr', cat: 'forretter', price: 189, available: true, qr: true, bb: true, popular: true },
+  { name: 'Blåskjell i hvitvin', cat: 'forretter', price: 175, available: true, qr: true, bb: true, popular: true },
+  { name: 'Carpaccio di manzo', cat: 'forretter', price: 165, available: true, qr: true, bb: true },
+  { name: 'Antipasto misto', cat: 'forretter', price: 145, available: false, qr: false, bb: false, note: '86 — råvare utsolgt' },
+  { name: 'Brasato al Barolo', cat: 'hovedretter', price: 345, available: true, qr: true, bb: true, event: 'Vinkveld Piemonte' },
+  { name: 'Branzino al forno', cat: 'hovedretter', price: 325, available: true, qr: true, bb: true },
+  { name: 'Risotto ai funghi', cat: 'hovedretter', price: 285, available: true, qr: true, bb: true },
+  { name: 'Husets burger', cat: 'hovedretter', price: 245, available: true, qr: true, bb: true },
+  { name: 'Pasta carbonara', cat: 'hovedretter', price: 235, available: true, qr: true, bb: false },
+  { name: 'Kylling Caesar', cat: 'hovedretter', price: 225, available: true, qr: false, bb: false },
+  { name: 'Helstekt piggvar', cat: 'hovedretter', price: 445, available: false, qr: false, bb: false, note: '86 — 2 igjen, reservert for event' },
+  { name: 'Panna Cotta al Moscato', cat: 'desserter', price: 145, available: true, qr: true, bb: true, event: 'Vinkveld Piemonte' },
+  { name: 'Sjokoladefondant', cat: 'desserter', price: 155, available: true, qr: true, bb: true },
+  { name: 'Crème brûlée', cat: 'desserter', price: 135, available: true, qr: true, bb: true },
+  { name: 'Husets dessert', cat: 'desserter', price: 125, available: false, qr: false, bb: false, note: '86 — ostekake tom' },
+  { name: 'Flaske Sancerre 2023', cat: 'drikke', price: 598, available: true, qr: true, bb: true },
+  { name: 'Flaske Barolo 2019', cat: 'drikke', price: 695, available: true, qr: true, bb: true },
+  { name: 'Flaske Chianti Classico', cat: 'drikke', price: 495, available: true, qr: true, bb: true },
+  { name: 'Cappuccino', cat: 'drikke', price: 49, available: true, qr: true, bb: false },
+  { name: 'Espresso', cat: 'drikke', price: 39, available: true, qr: true, bb: false },
+];
+
+let menuFilter = 'all';
+
+function filterMenu(cat, el) {
+  menuFilter = cat;
+  document.querySelectorAll('#menuCatBtns .btn').forEach(b => { b.className = 'btn btn-sm btn-secondary'; });
+  el.className = 'btn btn-sm btn-primary';
+  renderMenu();
+}
+
+function renderMenu() {
+  const container = document.getElementById('menuGrid');
+  if (!container) return;
+  const filtered = menuFilter === 'all' ? menuItems : menuItems.filter(m => m.cat === menuFilter);
+
+  // Group by category
+  const cats = { forretter: 'Forretter', hovedretter: 'Hovedretter', desserter: 'Desserter', drikke: 'Drikke' };
+  const grouped = {};
+  filtered.forEach(m => {
+    if (!grouped[m.cat]) grouped[m.cat] = [];
+    grouped[m.cat].push(m);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, items]) => {
+    html += `<div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-tertiary);padding:12px 0 4px;border-bottom:1px solid var(--border-primary)">${cats[cat] || cat}</div>`;
+    items.forEach(m => {
+      const opacity = m.available ? '1' : '0.5';
+      html += `
+        <div style="background:var(--bg-secondary);border:1px solid ${m.available ? 'var(--border-primary)' : 'rgba(248,113,113,0.2)'};border-radius:var(--radius-md);padding:14px 18px;display:flex;align-items:center;gap:14px;opacity:${opacity};transition:all 0.2s" 
+             ${m.available ? 'onmouseover="this.style.borderColor=\'var(--p-blue)\'" onmouseout="this.style.borderColor=\'var(--border-primary)\'"' : ''}>
+          
+          <!-- Name + tags -->
+          <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:14px;font-weight:600">${m.name}</span>
+              ${m.popular ? '<span style="font-size:9px;font-weight:600;background:var(--success-bg);color:var(--success);padding:2px 6px;border-radius:3px">🔥 Populær</span>' : ''}
+              ${m.event ? `<span style="font-size:9px;font-weight:600;background:var(--purple-bg);color:var(--purple);padding:2px 6px;border-radius:3px">📦 ${m.event}</span>` : ''}
+              ${!m.available ? `<span style="font-size:9px;font-weight:600;background:var(--danger-bg);color:var(--danger);padding:2px 6px;border-radius:3px">86</span>` : ''}
+            </div>
+            ${m.note ? `<div style="font-size:11px;color:var(--danger);margin-top:3px">${m.note}</div>` : ''}
+          </div>
+
+          <!-- Price -->
+          <div style="width:80px;text-align:right;font-family:var(--font-display);font-size:14px;font-weight:600">
+            kr ${m.price},-
+          </div>
+
+          <!-- QR toggle -->
+          <div style="width:60px;text-align:center;flex-shrink:0" title="Tilgjengelig på QR-meny">
+            <div style="font-size:9px;color:var(--text-tertiary);margin-bottom:3px">QR</div>
+            <div style="width:36px;height:20px;border-radius:10px;background:${m.qr ? 'var(--success)' : 'var(--bg-elevated)'};margin:0 auto;position:relative;cursor:pointer;transition:background 0.2s" onclick="toggleMenuFlag(${menuItems.indexOf(m)}, 'qr', event)">
+              <div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;${m.qr ? 'right:2px' : 'left:2px'};transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>
+            </div>
+          </div>
+
+          <!-- Bookibud toggle -->
+          <div style="width:70px;text-align:center;flex-shrink:0" title="Synlig på Bookibud">
+            <div style="font-size:9px;color:var(--text-tertiary);margin-bottom:3px">Bookibud</div>
+            <div style="width:36px;height:20px;border-radius:10px;background:${m.bb ? 'var(--bb-coral)' : 'var(--bg-elevated)'};margin:0 auto;position:relative;cursor:pointer;transition:background 0.2s" onclick="toggleMenuFlag(${menuItems.indexOf(m)}, 'bb', event)">
+              <div style="width:16px;height:16px;border-radius:50%;background:white;position:absolute;top:2px;${m.bb ? 'right:2px' : 'left:2px'};transition:all 0.2s;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></div>
+            </div>
+          </div>
+
+          <!-- 86 button -->
+          <div style="width:50px;flex-shrink:0;text-align:center">
+            ${m.available 
+              ? `<button class="btn btn-sm" style="font-size:10px;padding:4px 8px;background:var(--danger-bg);color:var(--danger);border:1px solid rgba(248,113,113,0.2)" onclick="toggle86(${menuItems.indexOf(m)}, event)">86</button>`
+              : `<button class="btn btn-sm" style="font-size:10px;padding:4px 8px;background:var(--success-bg);color:var(--success);border:1px solid rgba(52,211,153,0.2)" onclick="toggle86(${menuItems.indexOf(m)}, event)">↩ Tilbake</button>`
+            }
+          </div>
+        </div>
+      `;
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleMenuFlag(idx, flag, event) {
+  event.stopPropagation();
+  menuItems[idx][flag] = !menuItems[idx][flag];
+  renderMenu();
+  const state = menuItems[idx][flag] ? 'aktivert' : 'deaktivert';
+  const label = flag === 'qr' ? 'QR-meny' : 'Bookibud';
+  showToast('info', `${label} ${state}`, `${menuItems[idx].name} — synkronisert til ${label}`);
+}
+
+function toggle86(idx, event) {
+  event.stopPropagation();
+  const m = menuItems[idx];
+  m.available = !m.available;
+  if (!m.available) {
+    m.qr = false;
+    m.bb = false;
+    m.note = m.note || '86 — markert utilgjengelig av servitør';
+    showToast('bb', `86: ${m.name}`, 'Fjernet fra QR-meny og Bookibud. Gjester med forhåndsbestilling varsles.');
+  } else {
+    m.qr = true;
+    m.bb = true;
+    m.note = '';
+    showToast('success', `Tilbake: ${m.name}`, 'Lagt tilbake på QR-meny og Bookibud.');
+  }
+  renderMenu();
 }
 
 // ─── SCENARIO TRIGGERS ───
