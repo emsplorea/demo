@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plorea Inventory v2 - Komplett Demo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Plorea Blue Palette */
+            --blue-50: #EBF6FB;
+            --blue-100: #C7E7F3;
+            --blue-default: #6BB8DA;
+            --blue-700: #468DAC;
+            --blue-800: #2E6B87;
+            
+            /* Plorea Gray Palette */
+            --gray-50: #F8F9FA;
+            --gray-100: #F1F3F5;
+            --gray-200: #E9ECEF;
+            --gray-300: #DEE2E6;
+            --gray-500: #ADB5BD;
+            --gray-600: #868E96;
+            --gray-700: #495057;
+            --gray-900: #212529;
+            
+            /* Semantic Colors */
+            --success: #6BDAB2;
+            --warning: #DADA6B;
+            --danger: #DA6B6B;
+            
+            /* Base colors */
+            --bg-main: var(--gray-50);
+            --bg-card: #FFFFFF;
+            --bg-hover: var(--gray-100);
+            --border: var(--gray-300);
+            --border-light: var(--gray-200);
+            
+            --text-primary: var(--gray-900);
+            --text-secondary: var(--gray-700);
+            --text-muted: var(--gray-600);
+            
+            /* Accent colors */
+            --accent-primary: var(--blue-default);
+            
+            /* Elevation */
+            --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1600px; margin: 0 auto; padding: 2rem; }
+        
+        /* Header */
+        .header { margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--border); }
+        
+        .logo {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--accent-primary), var(--blue-700));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        /* Navigation tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .nav-tab:hover {
+            border-color: var(--accent-primary);
+            background: var(--bg-hover);
+        }
+        
+        .nav-tab.active {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+            color: white;
+        }
+        
+        /* Page sections */
+        .page-section { display: none; }
+        .page-section.active { display: block; animation: fadeIn 0.3s ease; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Two column layout */
+        .two-column {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            height: fit-content;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar-title { font-weight: 700; }
+        
+        .dg-list { display: flex; flex-direction: column; gap: 0.5rem; }
+        
+        .dg-item {
+            padding: 1rem;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .dg-item:hover { border-color: var(--accent-primary); background: var(--bg-hover); }
+        .dg-item.selected { background: var(--blue-50); border-color: var(--accent-primary); }
+        
+        .dg-name { font-weight: 600; margin-bottom: 0.5rem; }
+        .dg-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        
+        /* Main content */
+        .main-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .content-header { margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border-light); }
+        
+        .content-title {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+        
+        .content-subtitle { font-size: 0.875rem; color: var(--text-secondary); }
+        
+        /* Content tabs */
+        .content-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-light);
+            padding-bottom: 1rem;
+        }
+        
+        .content-tab {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .content-tab:hover { background: var(--bg-hover); color: var(--text-primary); }
+        .content-tab.active { color: var(--accent-primary); }
+        
+        .content-tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-primary);
+        }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        /* Form elements */
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-main);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+        }
+        
+        .section-title { font-weight: 700; margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1.5rem; }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s ease;
+        }
+        
+        .form-input:focus { outline: none; border-color: var(--accent-primary); }
+        
+        /* Buttons */
+        .btn-primary, .btn-secondary, .btn-success, .btn-danger {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary {
+            background: var(--accent-primary);
+            color: white;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .btn-primary:hover { background: var(--blue-700); }
+        .btn-primary:disabled { background: var(--gray-300); cursor: not-allowed; }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-secondary:hover { border-color: var(--accent-primary); background: var(--bg-hover); }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+            box-shadow: var(--elevation-1);
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            box-shadow: var(--elevation-1);
+        }
+        
+        /* Badges */
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .badge-status {
+            background: var(--gray-100);
+            color: var(--text-secondary);
+        }
+        
+        .badge-status.active {
+            background: rgba(107, 218, 178, 0.15);
+            color: var(--success);
+        }
+        
+        .badge-status.open {
+            background: rgba(107, 184, 218, 0.15);
+            color: var(--accent-primary);
+        }
+        
+        .badge-status.closed {
+            background: var(--gray-100);
+            color: var(--gray-600);
+        }
+        
+        /* Tables */
+        .stock-table, .excel-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.875rem;
+        }
+        
+        .stock-table th, .excel-table th {
+            background: var(--gray-100);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 700;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+        
+        .stock-table td, .excel-table td {
+            padding: 0.75rem;
+            border: 1px solid var(--border-light);
+            border-top: none;
+            background: white;
+        }
+        
+        .excel-table tbody tr:hover td { background: var(--blue-50); }
+        
+        .col-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            text-align: right;
+        }
+        
+        .col-number.suggested { color: var(--success); }
+        
+        .table-input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-align: right;
+            transition: all 0.2s ease;
+        }
+        
+        .table-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            background: var(--blue-50);
+        }
+        
+        /* Alerts */
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.75rem;
+        }
+        
+        .alert-info {
+            background: rgba(107, 184, 218, 0.1);
+            border: 1px solid rgba(107, 184, 218, 0.3);
+            color: var(--blue-800);
+        }
+        
+        .alert-success {
+            background: rgba(107, 218, 178, 0.1);
+            border: 1px solid rgba(107, 218, 178, 0.3);
+            color: #2E8770;
+        }
+        
+        .alert-icon { font-size: 1.25rem; }
+        .alert-content { flex: 1; }
+        .alert-title { font-weight: 700; margin-bottom: 0.25rem; }
+        .alert-text { font-size: 0.875rem; line-height: 1.5; }
+        
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Health indicators */
+        .health-ok {
+            background: rgba(107, 218, 178, 0.15);
+            color: var(--success);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .health-low {
+            background: rgba(218, 218, 107, 0.15);
+            color: var(--warning);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .health-critical {
+            background: rgba(218, 107, 107, 0.15);
+            color: var(--danger);
+            padding: 0.25rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <span>plorea</span> Inventory v2 - Komplett Demo
+            </div>
+            
+            <!-- Main navigation -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="switchPage('device-groups')">
+                    📱 Enhetsgrupper
+                </button>
+                <button class="nav-tab" onclick="switchPage('warehouse')">
+                    🏭 Hovedlager
+                </button>
+                <button class="nav-tab" onclick="switchPage('event-management')">
+                    📅 Event Management
+                </button>
+                <button class="nav-tab" onclick="switchPage('live-monitoring')">
+                    📊 Live Monitoring
+                </button>
+            </div>
+        </div>
+        
+        <!-- DEVICE GROUPS PAGE -->
+        <div class="page-section active" id="device-groups">
+            <div class="two-column">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Enhetsgrupper</div>
+                        <button class="btn-primary" onclick="alert('Ny enhetsgruppe (demo)')">+ Ny</button>
+                    </div>
+                    <div class="dg-list">
+                        <div class="dg-item selected">
+                            <div class="dg-name">Kiosk Nord</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status active">ACTIVE</span>
+                            </div>
+                        </div>
+                        <div class="dg-item">
+                            <div class="dg-name">Kiosk Sør</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status open">OPEN</span>
+                            </div>
+                        </div>
+                        <div class="dg-item">
+                            <div class="dg-name">Kiosk Øst</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status closed">CLOSED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="content-header">
+                        <div class="content-title">Kiosk Nord</div>
+                        <div class="content-subtitle">Device Group Management & Lagerstyring</div>
+                    </div>
+                    
+                    <div class="content-tabs">
+                        <button class="content-tab active" onclick="switchDGTab('overview')">
+                            📊 Oversikt / Oppsett
+                        </button>
+                        <button class="content-tab" onclick="switchDGTab('stock')">
+                            🔄 Lagerjusteringer
+                        </button>
+                    </div>
+                    
+                    <!-- Overview Tab -->
+                    <div class="tab-content active" id="dg-overview">
+                        <div class="form-section">
+                            <div class="section-title">ℹ️ Grunnleggende informasjon</div>
+                            <div class="form-group">
+                                <label class="form-label">Navn på enhetsgruppe</label>
+                                <input type="text" class="form-input" value="Kiosk Nord">
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="section-title">📦 Nåværende lagerstatus</div>
+                            <div class="alert alert-info">
+                                <div class="alert-icon">💡</div>
+                                <div class="alert-content">
+                                    <div class="alert-text">
+                                        For å justere lageret, gå til <strong>"Lagerjusteringer"</strong> fanen.
+                                    </div>
+                                </div>
+                            </div>
+                            <table class="stock-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produkt</th>
+                                        <th>Physical Stock</th>
+                                        <th>Helse</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Coca-Cola 0.5L</td>
+                                        <td class="col-number">156</td>
+                                        <td><span class="health-ok">OK</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Red Bull 0.25L</td>
+                                        <td class="col-number">42</td>
+                                        <td><span class="health-low">LAV</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Stock Tab -->
+                    <div class="tab-content" id="dg-stock">
+                        <div class="alert alert-success">
+                            <div class="alert-icon">✅</div>
+                            <div class="alert-content">
+                                <div class="alert-title">Pre-Event Påfylling Aktivert</div>
+                                <div class="alert-text">
+                                    Du kan hente varer fra hovedlageret <strong>uten å starte et event</strong>.
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-section">
+                            <div class="section-title">📊 Lagerjusteringer (Excel-style)</div>
+                            <table class="excel-table">
+                                <thead>
+                                    <tr>
+                                        <th>Produkt</th>
+                                        <th>Hovedlager<br>Tilgjengelig</th>
+                                        <th>Nåværende<br>Lager (DG)</th>
+                                        <th>Forrige Event<br>Start</th>
+                                        <th>Foreslått<br>Påfyll</th>
+                                        <th>Antall å hente</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>🥤 Coca-Cola 0.5L</td>
+                                        <td class="col-number">450</td>
+                                        <td class="col-number">156</td>
+                                        <td class="col-number">200</td>
+                                        <td class="col-number suggested">+44</td>
+                                        <td><input type="number" class="table-input" value="44" min="0" max="450"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>⚡ Red Bull 0.25L</td>
+                                        <td class="col-number">320</td>
+                                        <td class="col-number">42</td>
+                                        <td class="col-number">100</td>
+                                        <td class="col-number suggested">+58</td>
+                                        <td><input type="number" class="table-input" value="58" min="0" max="320"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div style="margin-top: 1.5rem; text-align: right;">
+                                <button class="btn-primary" onclick="alert('Lager hentet fra hovedlager!')">
+                                    📦 Hent fra hovedlager
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- WAREHOUSE PAGE -->
+        <div class="page-section" id="warehouse">
+            <div class="content-header">
+                <div class="content-title">🏭 Hovedlager - Oslo Sentrum</div>
+                <div class="content-subtitle">Sentralt lager for påfylling av alle enhetsgrupper</div>
+            </div>
+            
+            <div style="margin-bottom: 2rem;">
+                <button class="btn-success" onclick="alert('Registrer varemottak (demo)')">
+                    📥 Registrer varemottak
+                </button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Totalt produkter</div>
+                    <div class="stat-value" style="color: var(--accent-primary);">5</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Fysisk lager</div>
+                    <div class="stat-value">2450</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Allokert til events</div>
+                    <div class="stat-value" style="color: var(--warning);">0</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-title">📦 Lagerbeholdning</div>
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Fysisk lager</th>
+                            <th>Allokert</th>
+                            <th>Tilgjengelig</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Coca-Cola 0.5L</td>
+                            <td class="col-number">450</td>
+                            <td class="col-number">0</td>
+                            <td class="col-number">450</td>
+                        </tr>
+                        <tr>
+                            <td>Pepsi Max 0.5L</td>
+                            <td class="col-number">380</td>
+                            <td class="col-number">0</td>
+                            <td class="col-number">380</td>
+                        </tr>
+                        <tr>
+                            <td>Vann 0.5L</td>
+                            <td class="col-number">520</td>
+                            <td class="col-number">0</td>
+                            <td class="col-number">520</td>
+                        </tr>
+                        <tr>
+                            <td>Red Bull 0.25L</td>
+                            <td class="col-number">320</td>
+                            <td class="col-number">0</td>
+                            <td class="col-number">320</td>
+                        </tr>
+                        <tr>
+                            <td>Monster Energy 0.5L</td>
+                            <td class="col-number">280</td>
+                            <td class="col-number">0</td>
+                            <td class="col-number">280</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- EVENT MANAGEMENT PAGE -->
+        <div class="page-section" id="event-management">
+            <div class="two-column">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="sidebar-title">Velg enhetsgruppe</div>
+                    </div>
+                    <div class="dg-list">
+                        <div class="dg-item selected">
+                            <div class="dg-name">Kiosk Nord</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status active">ACTIVE</span>
+                            </div>
+                        </div>
+                        <div class="dg-item">
+                            <div class="dg-name">Kiosk Sør</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status open">OPEN</span>
+                            </div>
+                        </div>
+                        <div class="dg-item">
+                            <div class="dg-name">Kiosk Øst</div>
+                            <div class="dg-meta">
+                                <span class="badge badge-status closed">CLOSED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="main-content">
+                    <div class="content-header">
+                        <div class="content-title">Event Management - Kiosk Nord</div>
+                        <div class="content-subtitle">Administrer event-livssyklus og lagerbekreftelse</div>
+                    </div>
+                    
+                    <div class="alert alert-success">
+                        <div class="alert-icon">✅</div>
+                        <div class="alert-content">
+                            <div class="alert-title">Event ACTIVE</div>
+                            <div class="alert-text">
+                                Startet 14:15 av Admin • POS og QR-salg er aktivt
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-section">
+                        <div class="section-title">📊 Nåværende lagerstatus</div>
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th>Produkt</th>
+                                    <th>På lager</th>
+                                    <th>Reservert (QR)</th>
+                                    <th>Tilgjengelig</th>
+                                    <th>Helse</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Coca-Cola 0.5L</td>
+                                    <td class="col-number">156</td>
+                                    <td class="col-number">14</td>
+                                    <td class="col-number">142</td>
+                                    <td><span class="health-ok">OK</span></td>
+                                </tr>
+                                <tr>
+                                    <td>Red Bull 0.25L</td>
+                                    <td class="col-number">42</td>
+                                    <td class="col-number">14</td>
+                                    <td class="col-number">28</td>
+                                    <td><span class="health-low">LAV</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <button class="btn-danger" onclick="alert('Avslutt event (demo)')">
+                            Avslutt Event
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- LIVE MONITORING PAGE -->
+        <div class="page-section" id="live-monitoring">
+            <div class="content-header">
+                <div class="content-title">📊 Live Monitoring Dashboard</div>
+                <div class="content-subtitle">Sanntidsovervåkning av flere enhetsgrupper</div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Aktive enhetsgrupper</div>
+                    <div class="stat-value" style="color: var(--success);">1</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Totalt salg (i dag)</div>
+                    <div class="stat-value">kr 12,450</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Kritiske produkter</div>
+                    <div class="stat-value" style="color: var(--danger);">2</div>
+                </div>
+            </div>
+            
+            <div class="form-section">
+                <div class="section-title">🎯 Kiosk Nord (ACTIVE)</div>
+                <table class="stock-table">
+                    <thead>
+                        <tr>
+                            <th>Produkt</th>
+                            <th>Tilgjengelig</th>
+                            <th>Stop-%</th>
+                            <th>Helse</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Coca-Cola 0.5L</td>
+                            <td class="col-number">142</td>
+                            <td class="col-number">80%</td>
+                            <td><span class="health-ok">OK</span></td>
+                        </tr>
+                        <tr>
+                            <td>Red Bull 0.25L</td>
+                            <td class="col-number">28</td>
+                            <td class="col-number">80%</td>
+                            <td><span class="health-low">LAV</span></td>
+                        </tr>
+                        <tr>
+                            <td>Monster Energy 0.5L</td>
+                            <td class="col-number">5</td>
+                            <td class="col-number">80%</td>
+                            <td><span class="health-critical">KRITISK</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Page navigation
+        function switchPage(pageName) {
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Update page sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(pageName).classList.add('active');
+        }
+        
+        // DG content tabs
+        function switchDGTab(tabName) {
+            document.querySelectorAll('.content-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById('dg-' + tabName).classList.add('active');
+        }
+    </script>
+</body>
+</html>
