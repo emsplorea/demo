@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea Order Platform – V1 Scope</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Plorea Dark Dim palette */
+    --bg-base: #1a1d23;
+    --bg-surface: #22262e;
+    --bg-elevated: #2a2f38;
+    --bg-hover: #323843;
+    --border-subtle: #2f3540;
+    --border-default: #3a4150;
+    --text-primary: #e4e6eb;
+    --text-secondary: #a8aeb9;
+    --text-muted: #6e7582;
+    --accent: #4a90e2;
+    --accent-soft: #5ba3f5;
+    --accent-bg: rgba(74, 144, 226, 0.1);
+    --success: #5dbb77;
+    --warning: #e5a947;
+    --danger: #e57373;
+    --danger-bg: rgba(229, 115, 115, 0.08);
+    --success-bg: rgba(93, 187, 119, 0.08);
+    --code-bg: #1e2128;
+
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-heading: 'Sora', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.65;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 64px 48px 120px;
+  }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 32px;
+    margin-bottom: 48px;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .brand-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    margin-bottom: 28px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .meta-chip.status {
+    background: var(--accent-bg);
+    border-color: rgba(74, 144, 226, 0.3);
+    color: var(--accent-soft);
+  }
+
+  /* Sections */
+  h2 {
+    font-family: var(--font-heading);
+    font-size: 26px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 64px;
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 19px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 36px;
+    margin-bottom: 14px;
+  }
+
+  h4 {
+    font-family: var(--font-heading);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent-soft);
+    margin-top: 24px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  p {
+    margin-bottom: 16px;
+    color: var(--text-primary);
+  }
+
+  p.lead {
+    color: var(--text-secondary);
+    font-size: 16px;
+  }
+
+  ul {
+    list-style: none;
+    margin-bottom: 16px;
+    padding-left: 0;
+  }
+
+  ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+  }
+
+  ul li::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 11px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  ul ul {
+    margin-top: 8px;
+    margin-bottom: 0;
+  }
+
+  ul ul li::before {
+    background: var(--text-muted);
+  }
+
+  strong {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  em {
+    color: var(--text-secondary);
+    font-style: italic;
+  }
+
+  code {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--border-subtle);
+    color: var(--accent-soft);
+  }
+
+  /* Callout cards */
+  .callout {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius-md);
+    padding: 18px 22px;
+    margin: 20px 0;
+  }
+
+  .callout.principle {
+    border-left-color: var(--accent);
+  }
+
+  .callout.critical {
+    border-left-color: var(--warning);
+    background: rgba(229, 169, 71, 0.05);
+  }
+
+  .callout.not-included {
+    border-left-color: var(--danger);
+    background: var(--danger-bg);
+  }
+
+  .callout-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .callout.critical .callout-label { color: var(--warning); }
+  .callout.not-included .callout-label { color: var(--danger); }
+  .callout.principle .callout-label { color: var(--accent-soft); }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  /* Grid for paired lists */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+
+  .card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 20px 22px;
+  }
+
+  .card h4 {
+    margin-top: 0;
+    margin-bottom: 14px;
+  }
+
+  .card ul { margin-bottom: 0; }
+
+  /* Tag list for out of scope */
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .tag {
+    padding: 8px 14px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .tag .v2 {
+    color: var(--accent-soft);
+    font-weight: 500;
+    margin-left: 6px;
+  }
+
+  /* Quality criteria */
+  .quality-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-top: 20px;
+  }
+
+  .quality-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .quality-check {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--success-bg);
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    margin-top: 1px;
+  }
+
+  .quality-item span {
+    font-size: 14px;
+    color: var(--text-primary);
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 80px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+    font-family: var(--font-mono);
+  }
+
+  @media (max-width: 720px) {
+    .page { padding: 40px 24px 80px; }
+    h1 { font-size: 30px; }
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <div class="brand-row">
+      <div class="brand-dot"></div>
+      <div class="brand-name">Plorea · Order Platform</div>
+    </div>
+    <h1>V1 Scope</h1>
+    <p class="subtitle">Settings, Frontend &amp; System Integrations</p>
+    <div class="meta">
+      <span class="meta-chip">v1.6</span>
+      <span class="meta-chip status">● Draft</span>
+      <span class="meta-chip">Owner: Einar Morten Slapgård</span>
+      <span class="meta-chip">GraphQL partner integration</span>
+    </div>
+  </header>
+
+  <section>
+    <h2>Executive Summary</h2>
+
+    <h4>Objective</h4>
+    <p class="lead">Deliver a stable, simple and production-ready V1 of the Plorea Order Platform covering Settings, Frontend functionality and required integrations with RMSV and Amendo.</p>
+
+    <div class="callout principle">
+      <div class="callout-label">Core Principle</div>
+      <p>One Order Core. No duplicated business logic. Availability is computed. Operations override configuration. No channel-specific engines.</p>
+    </div>
+
+    <div class="callout critical">
+      <div class="callout-label">Integration Principle (Critical)</div>
+      <p>When RMSV or Amendo integration is active, Plorea acts strictly as the Order Platform. Financial reporting, accounting, end-of-day settlement and statistics remain fully owned by the 3rd-party system.</p>
+    </div>
+
+    <div class="callout principle">
+      <div class="callout-label">Architecture Boundary</div>
+      <p>Master data ownership remains in the 3rd-party system. Channel configuration and runtime control remain in Plorea. Partner frontends integrate with Plorea via a dedicated <strong>GraphQL API</strong> — Plorea does not host configuration UIs for partner users in V1, and no REST endpoints are exposed to partners.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>System Integrations – RMSV &amp; Amendo</h2>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Inbound → Plorea</h4>
+        <ul>
+          <li>Company data (ID, Name, Org number)</li>
+          <li>Location data</li>
+          <li>Employee data with role permissions</li>
+          <li>Product master data
+            <ul>
+              <li>Main groups</li>
+              <li>Product groups</li>
+              <li>Products</li>
+              <li>Attribute data / modifiers</li>
+            </ul>
+          </li>
+          <li>Service activation state</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Outbound → 3rd-Party</h4>
+        <ul>
+          <li>Full order payload (WebSocket / Webhook)</li>
+          <li>Order lifecycle events</li>
+          <li>Payment status</li>
+          <li>Line-level product data with attributes</li>
+          <li>Device / channel metadata</li>
+          <li>Timestamp data</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>3rd-Party Owns</h4>
+        <ul>
+          <li>Kitchen ticket / bong printing</li>
+          <li>Financial accounting</li>
+          <li>End-of-day settlement</li>
+          <li>Revenue reporting</li>
+          <li>Statistics and bookkeeping</li>
+          <li>Tax handling</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Plorea Owns</h4>
+        <ul>
+          <li>Order creation &amp; lifecycle management</li>
+          <li>Availability calculation</li>
+          <li>Customer receipt (email / SMS)</li>
+          <li>Channel UI (QR / Online / Kiosk)</li>
+          <li>Order API contract compliance</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="callout not-included">
+      <div class="callout-label">Plorea must NOT provide when integration is active</div>
+      <ul>
+        <li>End-of-day settlement reporting</li>
+        <li>Accounting exports</li>
+        <li>Financial statistics dashboards</li>
+        <li>Revenue reconciliation tools</li>
+      </ul>
+    </div>
+
+    <h4>Communication Method</h4>
+    <ul>
+      <li><strong>Partner → Plorea</strong> (queries &amp; mutations): GraphQL over <code>POST /graphql/{partner}</code>, authenticated via Sanctum bearer token</li>
+      <li><strong>Plorea → Partner</strong> (order events &amp; lifecycle push): WebSocket (real-time) or Webhook (event-driven HTTP callback)</li>
+    </ul>
+    <p><em>GraphQL foundation work is tracked in <code>PLBR-1152</code> (Amendo endpoint, login mutation, companies query, updateCompany mutation). Additional partner types and mutations are added incrementally per integration.</em></p>
+
+    <div class="callout critical">
+      <div class="callout-label">Governance Rule</div>
+      <p>No parallel reporting logic may be introduced in Plorea when 3rd-party integration is active. All financial ownership remains in RMSV or Amendo.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Partner Integration Model</h2>
+
+    <p>When RMSV or Amendo integration is active, partner systems integrate with Plorea through <strong>partner-native frontends calling a dedicated Plorea GraphQL API</strong>. Configuration and operational surfaces are built and owned inside the partner system's own UI, consuming Plorea GraphQL queries and mutations.</p>
+
+    <p>Plorea does <strong>not</strong> host Direct Link / SSO configuration pages for partner users in V1. Plorea-hosted surfaces are used by Plorea-native customers and during internal operations, not embedded into partner workflows.</p>
+
+    <div class="callout principle">
+      <div class="callout-label">GraphQL Foundation · PLBR-1152</div>
+      <p>Each partner gets a dedicated GraphQL endpoint (e.g. <code>POST /graphql/amendo</code>) with its own schema namespace under <code>app/GraphQL/{Partner}/</code>. Authentication uses Sanctum personal access tokens via <code>Authorization: Bearer &lt;token&gt;</code>, with short-lived tokens (30 min for Amendo). The existing Plorea POS <code>/graphql</code> endpoint is unaffected. No REST endpoints are exposed to partners.</p>
+    </div>
+
+    <h4>First endpoints (Amendo · PLBR-1152)</h4>
+    <ul>
+      <li><code>login(email, password): LoginPayload</code> — mutation, returns token + expiry + user</li>
+      <li><code>companies(id, limit, offset): [CompanyType]</code> — query, scoped to authenticated user</li>
+      <li><code>updateCompany(id, input: CompanyInput): CompanyType</code> — mutation, authorization enforced per company</li>
+    </ul>
+
+    <h3>Surfaces Owned by Plorea (Plorea-native customers)</h3>
+
+    <div class="grid-2">
+      <div class="card">
+        <h4>Favorite Setup</h4>
+        <p>Catalog visibility per device and time window. Product master data originates from 3rd-party when integration is active; visibility configuration is managed in Plorea.</p>
+      </div>
+      <div class="card">
+        <h4>Device Page</h4>
+        <p>Channel configuration (QR / Online / Kiosk / Catering).</p>
+      </div>
+      <div class="card">
+        <h4>Ops Console</h4>
+        <p>Runtime operational control: temp close, busy mode, product disable, preorder approval. Ops overrides exist only in Plorea and override configuration.</p>
+      </div>
+      <div class="card">
+        <h4>Order Overview</h4>
+        <p>Unified order inbox for operational visibility. Plorea provides operational visibility; 3rd-party system owns financial reporting. Does <strong>not</strong> replace accounting or settlement reporting.</p>
+      </div>
+    </div>
+
+    <div class="callout principle">
+      <div class="callout-label">Governance – Partner Integration</div>
+      <ul>
+        <li>Partner API access authenticates via Sanctum bearer tokens with short-lived expiry</li>
+        <li>Each partner has an isolated GraphQL schema namespace; no shared mutations across partners</li>
+        <li>Must respect role permissions received from 3rd-party</li>
+        <li>Authorization checks enforced at resolver level (e.g. user must belong to the company being mutated)</li>
+        <li>Must not introduce financial reporting logic</li>
+        <li>Must not duplicate master data ownership</li>
+        <li>No REST endpoints exposed to partners</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Settings – V1</h2>
+
+    <h3>Brand / Global</h3>
+    <ul>
+      <li>Default payment methods — Card (POS terminal), Adyen eCom (Online, Plorea's merchant account), Invoice (Catering)</li>
+      <li>Default checkout texts</li>
+      <li>Default policy matrix (within defined governance limits)</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Not included</div>
+      <p>Split payments · Multi-location checkout · Advanced B2B credit management</p>
+    </div>
+
+    <h3>Location</h3>
+    <ul>
+      <li>Delivery zones (polygon-based)</li>
+      <li>Delivery pricing per zone</li>
+      <li>Opening hours</li>
+      <li>Closed days</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Not included</div>
+      <p>Capacity management · Slot throttling · Dynamic staffing logic</p>
+    </div>
+
+    <h3>Device (QR / Online / Kiosk / Catering)</h3>
+    <p>V1 takes an <strong>incremental approach</strong>: the Device page is extended per module/service as each channel (QR, Self-service, Online Order, etc.) is added. Fastest path to a working product; unified advanced device management moves to V2.</p>
+
+    <h4>Baseline V1</h4>
+    <ul>
+      <li>Enable / disable</li>
+      <li>Opening hours override</li>
+      <li>Active services (Pickup / Delivery)</li>
+      <li>ASAP / Preorder toggle</li>
+      <li>Mapping to Favorite Group</li>
+      <li>Basic messaging (closed / info message)</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Deferred to V2 · PLBR-1148</div>
+      <p>Tabbed navigation · QR-specific features · POS templates · Split payment · Multi-device management · Reset to default · Copy configuration · Live preview · Setup progress wizard</p>
+    </div>
+
+    <h3>Catalog / Favorite Setup</h3>
+    <ul>
+      <li>Central product list</li>
+      <li>Variants and addons</li>
+      <li>Allergens</li>
+      <li>Favorite Groups (controls visibility)</li>
+    </ul>
+    <div class="callout principle">
+      <div class="callout-label">Key Principle</div>
+      <p>Favorite Groups control <strong>visibility</strong>. Availability determines if <strong>ordering is allowed</strong>.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Frontend Capabilities – V1</h2>
+
+    <h3>Ordering Flow</h3>
+    <ul>
+      <li>Product list</li>
+      <li>Product detail</li>
+      <li>Addons / variants</li>
+      <li>Cart</li>
+      <li>Checkout</li>
+      <li>Payment</li>
+      <li>Order confirmation</li>
+    </ul>
+
+    <h3>Availability Engine <span style="font-size:13px;color:var(--warning);font-family:var(--font-mono);">· Mandatory</span></h3>
+    <ul>
+      <li>Frontend must always query the Availability &amp; Pricing Engine</li>
+      <li>Must respect Closed, Busy mode, Product disabled, Outside delivery zone</li>
+      <li>Display correct lead time and available windows</li>
+      <li>POS must use the same engine</li>
+    </ul>
+
+    <h3>Order Core Integration</h3>
+    <ul>
+      <li>All order creation via Order Core</li>
+      <li>Idempotency enforced</li>
+      <li>No UI-based order state logic</li>
+      <li>Status transitions handled in backend only</li>
+    </ul>
+
+    <h3>Delivery</h3>
+    <ul>
+      <li>Address input</li>
+      <li>Zone matching</li>
+      <li>Automatic delivery fee calculation</li>
+      <li>Minimum order validation</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Not included</div>
+      <p>Multi-location cart · Food court logic · Advanced per-product delivery logic</p>
+    </div>
+
+    <h3>Payments</h3>
+    <ul>
+      <li>Card – Terminal (POS)</li>
+      <li>Adyen eCom (Online) — locked to Plorea's merchant account</li>
+      <li>Invoice (Catering)</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Not included</div>
+      <p>Split payments · Partial payments · Credit limits · Prepayment · Adyen Pay by Link / balance top-up <em>(V2)</em></p>
+    </div>
+
+    <h3>Order Overview — Simplified</h3>
+    <p>V1 delivers a minimal operational inbox focused on getting orders visible and actionable. Ship fast; advanced operational tooling moves to V2.</p>
+
+    <h4>V1 includes</h4>
+    <ul>
+      <li>Unified list of incoming orders across channels</li>
+      <li>Basic status view (new / in progress / completed)</li>
+      <li>Manual status transition</li>
+      <li>Order detail view</li>
+    </ul>
+
+    <div class="callout not-included">
+      <div class="callout-label">Deferred to V2</div>
+      <p>Inline status buttons · Overdue banner · Live countdown · Allergy badges · Channel color stripes · Filter persistence · Advanced filtering and search</p>
+    </div>
+
+    <p><em>Related Jira tickets to be linked:</em> <code>PLBR-1077</code> through <code>PLBR-1085</code> — to be triaged into V1 minimal set vs. V2 advanced set.</p>
+
+    <h3>Ops — Runtime Controls</h3>
+    <ul>
+      <li>Temporary close device</li>
+      <li>Busy mode (extra lead time)</li>
+      <li>Disable product</li>
+      <li>Approve catering preorder</li>
+    </ul>
+    <div class="callout not-included">
+      <div class="callout-label">Not included</div>
+      <p>Advanced approval workflows · Granular role-based override matrix</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Out of Scope for V1</h2>
+    <div class="tag-list">
+      <span class="tag">Setup Progress</span>
+      <span class="tag">Reset to default</span>
+      <span class="tag">Copy device configuration</span>
+      <span class="tag">Live preview</span>
+      <span class="tag">Capacity throttling</span>
+      <span class="tag">Advanced BI / reporting</span>
+      <span class="tag">Food court / multi-location</span>
+      <span class="tag">Split payments</span>
+      <span class="tag">Enterprise B2B flows</span>
+      <span class="tag">Adyen Pay by Link<span class="v2">→ V2</span></span>
+      <span class="tag">SMS balance top-up<span class="v2">→ V2</span></span>
+      <span class="tag">Advanced Order Overview<span class="v2">→ V2</span></span>
+      <span class="tag">GDPR consent / cookies / export / anonymization<span class="v2">→ V2</span></span>
+      <span class="tag">Customer Registration<span class="v2">→ V2</span></span>
+      <span class="tag">Advanced Device Page<span class="v2">→ PLBR-1148</span></span>
+    </div>
+  </section>
+
+  <section>
+    <h2>V1 Quality Criteria</h2>
+    <div class="quality-grid">
+      <div class="quality-item"><div class="quality-check">✓</div><span>One Order Core</span></div>
+      <div class="quality-item"><div class="quality-check">✓</div><span>No channel-specific order logic</span></div>
+      <div class="quality-item"><div class="quality-check">✓</div><span>Availability always computed</span></div>
+      <div class="quality-item"><div class="quality-check">✓</div><span>Ops overrides precedence respected</span></div>
+      <div class="quality-item"><div class="quality-check">✓</div><span>POS uses same Order Core API contract as virtual channels</span></div>
+    </div>
+  </section>
+
+  <footer class="doc-footer">
+    Plorea Order Platform · V1 Scope · v1.6 · Dark Dim
+  </footer>
+
+</div>
+</body>
+</html>
