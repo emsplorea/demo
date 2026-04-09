@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea · V1 Demo Index</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-base: #1a1d23;
+    --bg-surface: #22262e;
+    --bg-elevated: #2a2f38;
+    --bg-hover: #323843;
+    --border-subtle: #2f3540;
+    --border-default: #3a4150;
+    --text-primary: #e4e6eb;
+    --text-secondary: #a8aeb9;
+    --text-muted: #6e7582;
+    --accent: #4a90e2;
+    --accent-soft: #5ba3f5;
+    --accent-bg: rgba(74, 144, 226, 0.1);
+    --success: #5dbb77;
+    --warning: #e5a947;
+    --danger: #e57373;
+
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-heading: 'Sora', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    line-height: 1.6;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 64px 48px 120px;
+  }
+
+  /* Header */
+  .doc-header {
+    border-bottom: 1px solid var(--border-subtle);
+    padding-bottom: 32px;
+    margin-bottom: 40px;
+  }
+
+  .brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .brand-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent);
+  }
+
+  .brand-name {
+    font-family: var(--font-heading);
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+  }
+
+  h1 {
+    font-family: var(--font-heading);
+    font-size: 40px;
+    font-weight: 700;
+    line-height: 1.15;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    letter-spacing: -0.02em;
+  }
+
+  .subtitle {
+    font-size: 17px;
+    color: var(--text-secondary);
+    margin-bottom: 22px;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .meta-chip.live {
+    background: rgba(93, 187, 119, 0.08);
+    border-color: rgba(93, 187, 119, 0.3);
+    color: var(--success);
+  }
+
+  .meta-chip.live::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Toolbar */
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    align-items: center;
+  }
+
+  .search-box {
+    flex: 1;
+    position: relative;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 12px 16px 12px 42px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-primary);
+    font-family: var(--font-body);
+    font-size: 14px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .search-box input::placeholder { color: var(--text-muted); }
+
+  .search-box input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--bg-elevated);
+  }
+
+  .search-box svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+    pointer-events: none;
+  }
+
+  .refresh-btn {
+    padding: 12px 18px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.15s;
+  }
+
+  .refresh-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border-color: var(--border-default);
+  }
+
+  .refresh-btn svg {
+    width: 15px;
+    height: 15px;
+  }
+
+  .refresh-btn.spinning svg {
+    animation: spin 0.8s linear;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* File list */
+  .section-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .file-count {
+    color: var(--accent-soft);
+  }
+
+  .file-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .file-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.15s;
+    position: relative;
+  }
+
+  .file-card:hover {
+    background: var(--bg-elevated);
+    border-color: var(--accent);
+    transform: translateX(2px);
+  }
+
+  .file-card:hover .file-arrow {
+    color: var(--accent);
+    transform: translateX(4px);
+  }
+
+  .file-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--accent-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-soft);
+  }
+
+  .file-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .file-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .file-name {
+    font-family: var(--font-heading);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 3px;
+    display: block;
+  }
+
+  .file-path {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .file-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+
+  .file-size {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .file-arrow {
+    color: var(--text-muted);
+    transition: all 0.15s;
+  }
+
+  .file-arrow svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* States */
+  .state {
+    padding: 60px 24px;
+    text-align: center;
+    background: var(--bg-surface);
+    border: 1px dashed var(--border-default);
+    border-radius: var(--radius-lg);
+  }
+
+  .state svg {
+    width: 42px;
+    height: 42px;
+    color: var(--text-muted);
+    margin-bottom: 16px;
+  }
+
+  .state-title {
+    font-family: var(--font-heading);
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+
+  .state-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  .state.error {
+    border-color: rgba(229, 115, 115, 0.3);
+    background: rgba(229, 115, 115, 0.05);
+  }
+
+  .state.error svg { color: var(--danger); }
+
+  .loading-shimmer {
+    padding: 18px 22px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    display: flex;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .shimmer-icon,
+  .shimmer-line {
+    background: linear-gradient(90deg, var(--bg-elevated) 0%, var(--bg-hover) 50%, var(--bg-elevated) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  .shimmer-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); flex-shrink: 0; }
+  .shimmer-content { flex: 1; }
+  .shimmer-line { height: 14px; margin-bottom: 8px; }
+  .shimmer-line.short { width: 40%; height: 11px; margin-bottom: 0; }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Footer */
+  .doc-footer {
+    margin-top: 60px;
+    padding-top: 28px;
+    border-top: 1px solid var(--border-subtle);
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+  }
+
+  .doc-footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--border-default);
+  }
+
+  .doc-footer a:hover { color: var(--accent-soft); border-color: var(--accent); }
+
+  @media (max-width: 720px) {
+    .page { padding: 40px 20px 80px; }
+    h1 { font-size: 30px; }
+    .file-card { padding: 14px 16px; gap: 12px; }
+    .file-icon { width: 36px; height: 36px; }
+    .file-size { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="doc-header">
+    <div class="brand-row">
+      <div class="brand-dot"></div>
+      <div class="brand-name">Plorea · Demo Index</div>
+    </div>
+    <h1>V1 Demos</h1>
+    <p class="subtitle">Interactive HTML prototypes and specs for the Plorea Order Platform</p>
+    <div class="meta">
+      <span class="meta-chip live">Auto-updating</span>
+      <span class="meta-chip">emsplorea/demo · v1</span>
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/>
+      </svg>
+      <input type="text" id="search" placeholder="Filter files…" autocomplete="off">
+    </div>
+    <button class="refresh-btn" id="refresh">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582M20 20v-5h-.581M19.418 9A7.5 7.5 0 005.635 6.635L4 9m0 0V4m16 11a7.5 7.5 0 01-13.783 2.365L20 15m0 0v5"/>
+      </svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="section-label">
+    <span>Files</span>
+    <span class="file-count" id="count"></span>
+  </div>
+
+  <div class="file-grid" id="file-list">
+    <div class="loading-shimmer">
+      <div class="shimmer-icon"></div>
+      <div class="shimmer-content">
+        <div class="shimmer-line"></div>
+        <div class="shimmer-line short"></div>
+      </div>
+    </div>
+    <div class="loading-shimmer">
+      <div class="shimmer-icon"></div>
+      <div class="shimmer-content">
+        <div class="shimmer-line"></div>
+        <div class="shimmer-line short"></div>
+      </div>
+    </div>
+    <div class="loading-shimmer">
+      <div class="shimmer-icon"></div>
+      <div class="shimmer-content">
+        <div class="shimmer-line"></div>
+        <div class="shimmer-line short"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="doc-footer">
+    Plorea · Dark Dim · Powered by <a href="https://api.github.com/repos/emsplorea/demo/contents/v1" target="_blank" rel="noopener">GitHub API</a>
+  </footer>
+
+</div>
+
+<script>
+  const REPO_OWNER = 'emsplorea';
+  const REPO_NAME = 'demo';
+  const FOLDER_PATH = 'v1';
+  const API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${FOLDER_PATH}`;
+
+  const fileList = document.getElementById('file-list');
+  const countEl = document.getElementById('count');
+  const searchInput = document.getElementById('search');
+  const refreshBtn = document.getElementById('refresh');
+
+  let allFiles = [];
+
+  // Format bytes → readable
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  // Turn filename into a friendly title
+  function prettify(name) {
+    return name
+      .replace(/\.html$/, '')
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  }
+
+  const FILE_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>`;
+  const ARROW_ICON = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>`;
+
+  function renderFiles(files) {
+    if (files.length === 0) {
+      fileList.innerHTML = `
+        <div class="state">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <div class="state-title">No files match</div>
+          <div class="state-desc">Try a different search term or clear the filter.</div>
+        </div>
+      `;
+      countEl.textContent = '';
+      return;
+    }
+
+    countEl.textContent = files.length + (files.length === 1 ? ' file' : ' files');
+
+    fileList.innerHTML = files.map(file => `
+      <a class="file-card" href="${file.name}">
+        <div class="file-icon">${FILE_ICON}</div>
+        <div class="file-info">
+          <span class="file-name">${prettify(file.name)}</span>
+          <span class="file-path">${file.name}</span>
+        </div>
+        <div class="file-meta">
+          <span class="file-size">${formatSize(file.size)}</span>
+          <span class="file-arrow">${ARROW_ICON}</span>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  function filterFiles() {
+    const q = searchInput.value.toLowerCase().trim();
+    if (!q) { renderFiles(allFiles); return; }
+    const filtered = allFiles.filter(f =>
+      f.name.toLowerCase().includes(q) || prettify(f.name).toLowerCase().includes(q)
+    );
+    renderFiles(filtered);
+  }
+
+  async function loadFiles() {
+    try {
+      const res = await fetch(API_URL, {
+        headers: { 'Accept': 'application/vnd.github.v3+json' }
+      });
+
+      if (!res.ok) throw new Error(`GitHub API returned ${res.status}`);
+
+      const data = await res.json();
+
+      allFiles = data
+        .filter(item => item.type === 'file')
+        .filter(item => item.name.endsWith('.html'))
+        .filter(item => item.name !== 'index.html')
+        .sort((a, b) => a.name.localeCompare(b.name));
+
+      renderFiles(allFiles);
+    } catch (err) {
+      fileList.innerHTML = `
+        <div class="state error">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          </svg>
+          <div class="state-title">Could not load file list</div>
+          <div class="state-desc">${err.message}. GitHub API is rate-limited to 60 requests/hour per IP for unauthenticated calls.</div>
+        </div>
+      `;
+      countEl.textContent = '';
+    }
+  }
+
+  searchInput.addEventListener('input', filterFiles);
+
+  refreshBtn.addEventListener('click', () => {
+    refreshBtn.classList.add('spinning');
+    loadFiles().finally(() => {
+      setTimeout(() => refreshBtn.classList.remove('spinning'), 800);
+    });
+  });
+
+  loadFiles();
+</script>
+</body>
+</html>
