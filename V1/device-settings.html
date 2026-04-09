@@ -1,0 +1,4384 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Settings - Plorea Design System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Plorea Design System - Light Theme (default) */
+            --color-bg-page: #F8FAFC;
+            --color-bg-surface: #FFFFFF;
+            --color-bg-hover: #F4F4F6;
+            --color-bg-overlay: #FFFFFF;
+            
+            --color-text-primary: #1E293B;
+            --color-text-secondary: #64748B;
+            --color-text-muted: #94A3B8;
+            
+            --color-primary: #6BB8DA;
+            --color-primary-hover: #4FA3C8;
+            --color-accent: #468DAC;
+            --color-accent-hover: #2E6B87;
+            
+            --color-border-default: #E2E8F0;
+            --color-border-light: #F1F5F9;
+            
+            --color-success: #6BDAB2;
+            --color-warning: #DADA6B;
+            --color-error: #DA6B6B;
+            
+            /* Shadows */
+            --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+            --shadow-focus: 0 0 0 3px rgba(107, 184, 218, 0.2);
+            
+            /* Spacing Scale */
+            --space-xs: 0.25rem;
+            --space-sm: 0.5rem;
+            --space-md: 1rem;
+            --space-lg: 1.5rem;
+            --space-xl: 2rem;
+            --space-2xl: 3rem;
+            
+            /* Border Radius */
+            --radius-sm: 0.375rem;
+            --radius-md: 0.5rem;
+            --radius-lg: 0.75rem;
+            --radius-xl: 1rem;
+        }
+
+        /* Dark Theme (Warm purple undertone) */
+        html.theme-dark {
+            --color-bg-page: #16151A;
+            --color-bg-surface: #1E1D24;
+            --color-bg-hover: #26242E;
+            --color-bg-overlay: #2E2C38;
+            
+            --color-text-primary: #F0EEF5;
+            --color-text-secondary: #9B98A8;
+            --color-text-muted: #5C5970;
+            
+            --color-primary: #6BB8DA;
+            --color-primary-hover: #7EC8E3;
+            --color-accent: #468DAC;
+            --color-accent-hover: #6BB8DA;
+            
+            --color-border-default: #2E2C38;
+            --color-border-light: #26242E;
+            
+            --color-success: #4DB896;
+            --color-warning: #C4C44A;
+            --color-error: #D45858;
+        }
+
+        /* Dark Dim Theme (Neutral slate) */
+        html.theme-dark-dim {
+            --color-bg-page: #1C1C21;
+            --color-bg-surface: #242428;
+            --color-bg-hover: #2C2C32;
+            --color-bg-overlay: #303038;
+            
+            --color-text-primary: #E8E6F0;
+            --color-text-secondary: #9490A8;
+            --color-text-muted: #56525E;
+            
+            --color-primary: #8BA0C4;
+            --color-primary-hover: #9DB2D4;
+            --color-accent: #6B7A98;
+            --color-accent-hover: #8BA0C4;
+            
+            --color-border-default: #303038;
+            --color-border-light: #2C2C32;
+            
+            --color-success: #5AAA8A;
+            --color-warning: #B0A84A;
+            --color-error: #C05050;
+        }
+
+        /* Dark Neon Theme (Deep black with violet/teal) */
+        html.theme-dark-neon {
+            --color-bg-page: #0E0E12;
+            --color-bg-surface: #14141A;
+            --color-bg-hover: #1C1C24;
+            --color-bg-overlay: #201E2C;
+            
+            --color-text-primary: #F0EEFF;
+            --color-text-secondary: #A09AB8;
+            --color-text-muted: #504A65;
+            
+            --color-primary: #9B6AFF;
+            --color-primary-hover: #B088FF;
+            --color-accent: #7E4FE8;
+            --color-accent-hover: #9B6AFF;
+            
+            --color-border-default: #201E2C;
+            --color-border-light: #1C1C24;
+            
+            --color-success: #3ADBA8;
+            --color-warning: #F0C040;
+            --color-error: #FF5070;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--color-bg-page);
+            color: var(--color-text-primary);
+            line-height: 1.6;
+            font-size: 0.875rem;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        /* Token Aliases - map old names to new system */
+        :root, html.theme-dark, html.theme-dark-dim, html.theme-dark-neon {
+            --bg: var(--color-bg-page);
+            --card-bg: var(--color-bg-surface);
+            --bg-secondary: var(--color-bg-hover);
+            --text-primary: var(--color-text-primary);
+            --text-secondary: var(--color-text-secondary);
+            --text-tertiary: var(--color-text-muted);
+            --border: var(--color-border-default);
+            --border-light: var(--color-border-light);
+            --accent: var(--color-primary);
+            --accent-hover: var(--color-primary-hover);
+            --primary: var(--color-accent);
+            --primary-light: var(--color-accent-hover);
+            --danger: var(--color-error);
+            --warning: var(--color-warning);
+            --success: var(--color-success);
+        }
+
+        h1, h2, h3 {
+            font-family: 'Sora', sans-serif;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        /* Theme Picker */
+        .theme-picker {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            background: var(--color-bg-surface);
+            padding: 0.5rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 9999;
+            border: 1px solid var(--color-border-default);
+        }
+
+        .theme-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-md);
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .theme-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .theme-btn.active {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 3px rgba(107, 184, 218, 0.2);
+        }
+
+        .theme-btn[data-theme="light"] {
+            background: linear-gradient(135deg, #F8FAFC 0%, #E2E8F0 100%);
+        }
+
+        .theme-btn[data-theme="dark"] {
+            background: linear-gradient(135deg, #16151A 0%, #2E2C38 100%);
+        }
+
+        .theme-btn[data-theme="dark-dim"] {
+            background: linear-gradient(135deg, #1C1C21 0%, #303038 100%);
+        }
+
+        .theme-btn[data-theme="dark-neon"] {
+            background: linear-gradient(135deg, #0E0E12 0%, #201E2C 100%);
+        }
+
+        /* Unsaved Changes Banner */
+        .unsaved-banner {
+            background: linear-gradient(135deg, #FFA502 0%, #FF6348 100%);
+            color: white;
+            padding: 0.75rem 2rem;
+            text-align: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+        }
+
+        .unsaved-banner.show {
+            display: flex;
+        }
+
+        /* Header */
+        .page-header {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .header-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .device-name-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .device-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            border: none;
+            background: transparent;
+            padding: 0.25rem 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .device-name:hover {
+            border-bottom-color: var(--accent);
+        }
+
+        .device-name:focus {
+            outline: none;
+            border-bottom-color: var(--accent);
+        }
+
+        .device-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .device-selector select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 0.375rem 2rem 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            cursor: pointer;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--radius-md);
+            font-size: 0.75rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 0.025em;
+            text-transform: uppercase;
+        }
+
+        .badge-qr {
+            background: #EDE7F6;
+            color: #5E35B1;
+        }
+
+        .badge-kiosk {
+            background: #E1F5FE;
+            color: #0277BD;
+        }
+
+        .badge-online {
+            background: #E0F2F1;
+            color: #00695C;
+        }
+
+        .badge-pos-simple {
+            background: #FFF3E0;
+            color: #E65100;
+        }
+
+        .badge-pos-advanced {
+            background: #FCE4EC;
+            color: #C2185B;
+        }
+
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            font-weight: 600;
+        }
+
+        .status-item.active {
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--success);
+        }
+
+        .status-item.paused {
+            background: rgba(255, 71, 87, 0.1);
+            color: var(--danger);
+        }
+
+        .status-item.open {
+            background: rgba(46, 213, 115, 0.1);
+            color: var(--success);
+        }
+
+        .status-item.closed {
+            background: rgba(255, 165, 2, 0.1);
+            color: var(--warning);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .status-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .status-toggle span {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 44px;
+            height: 24px;
+            background: var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent);
+        }
+
+        .toggle-switch.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch.active::after {
+            left: 22px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: var(--shadow-sm);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-sm);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--accent-hover);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-primary.loading {
+            position: relative;
+            color: transparent;
+        }
+
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.625rem 1.25rem;
+            border-radius: var(--radius-md);
+            font-weight: 500;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg);
+            border-color: var(--text-tertiary);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(1px);
+        }
+
+        .btn-icon {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.625rem;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.15s ease;
+            color: var(--text-secondary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-icon:hover {
+            background: var(--bg);
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-icon:active {
+            transform: translateY(1px);
+        }
+
+        /* Sections Navigation - MUST BE STICKY */
+        .sections-nav {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            position: -webkit-sticky; /* Safari */
+            position: sticky;
+            top: 0; /* Sticks right below header */
+            z-index: 95; /* Between header (100) and content (90) */
+            box-shadow: var(--shadow-md);
+            margin-bottom: 0; /* Remove any margin that might affect sticky */
+        }
+
+        .sections-nav-content {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+
+        .sections-nav-content::-webkit-scrollbar {
+            height: 3px;
+        }
+
+        .sections-nav-content::-webkit-scrollbar-track {
+            background: var(--bg);
+        }
+
+        .sections-nav-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .nav-tab {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .nav-tab:hover {
+            color: var(--text-primary);
+            background: var(--bg);
+        }
+
+        .nav-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-tab.hidden {
+            display: none;
+        }
+
+        .nav-tab .error-indicator {
+            width: 8px;
+            height: 8px;
+            background: var(--danger);
+            border-radius: 50%;
+            position: absolute;
+            top: 0.75rem;
+            right: 0.75rem;
+        }
+
+        .nav-icon {
+            font-size: 1rem;
+        }
+
+        /* Main Layout */
+        .main-container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 2rem;
+            min-height: calc(100vh - 180px);
+            width: 100%;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+
+        /* Content Area */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* Setup Checklist */
+        .setup-checklist {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .checklist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .checklist-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .checklist-progress {
+            font-size: 0.875rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.375rem 0.875rem;
+            border-radius: 6px;
+        }
+
+        .checklist-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .check-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            flex-shrink: 0;
+        }
+
+        .check-icon.complete {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .check-icon.incomplete {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* Suggestion Banner */
+        .suggestion-banner {
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+            border-left: 3px solid var(--info);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+        }
+
+        .suggestion-banner .icon {
+            font-size: 1.5rem;
+        }
+
+        .suggestion-content {
+            flex: 1;
+        }
+
+        .suggestion-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .suggestion-text {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .suggestion-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            scroll-margin-top: 70px;
+            transition: all 0.15s ease;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .section-card.has-error {
+            border-color: var(--danger);
+            box-shadow: 0 0 0 3px var(--danger-light);
+        }
+
+        .section-card.hidden {
+            display: none;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-lg);
+            padding-bottom: var(--space-md);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .section-subtitle {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: var(--space-xs);
+            font-weight: 400;
+        }
+
+        .section-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.has-error .form-input,
+        .form-group.has-error select,
+        .form-group.has-error textarea {
+            border-color: var(--danger);
+        }
+
+        .form-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required {
+            color: var(--danger);
+        }
+
+        .tooltip-icon {
+            cursor: help;
+            color: var(--text-secondary);
+            position: relative;
+        }
+
+        .tooltip-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            z-index: 1000;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, select, textarea {
+            background: white;
+            border: 1px solid var(--border);
+            padding: 0.625rem 0.875rem;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.15s ease;
+            width: 100%;
+        }
+
+        .form-input:hover, select:hover, textarea:hover {
+            border-color: var(--text-tertiary);
+        }
+
+        .form-input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-light);
+        }
+
+        .form-input:disabled, select:disabled, textarea:disabled {
+            background: var(--bg-secondary);
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        textarea.form-input {
+            min-height: 100px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+        .help-text {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .error-text {
+            font-size: 0.8125rem;
+            color: var(--danger);
+            display: none;
+        }
+
+        .form-group.has-error .error-text {
+            display: block;
+        }
+
+        .select-wrapper {
+            position: relative;
+        }
+
+        select {
+            appearance: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .select-wrapper::after {
+            content: '▾';
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--text-secondary);
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-wrapper input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+        }
+
+        .radio-option input[type="radio"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--accent);
+        }
+
+        .segmented-control {
+            display: inline-flex;
+            background: var(--bg);
+            border-radius: 8px;
+            padding: 0.25rem;
+            border: 1px solid var(--border);
+        }
+
+        .segmented-option {
+            padding: 0.5rem 1.25rem;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+        }
+
+        .segmented-option.active {
+            background: white;
+            color: var(--accent);
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .info-box {
+            background: var(--accent-light);
+            border-left: 3px solid var(--accent);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: var(--warning-light);
+            border-left: 3px solid var(--warning);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .danger-box {
+            background: var(--danger-light);
+            border-left: 3px solid var(--danger);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .success-box {
+            background: var(--success-light);
+            border-left: 3px solid var(--success);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .url-display {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: var(--bg);
+            padding: 1rem 1.25rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+
+        .url-text {
+            flex: 1;
+            color: var(--text-primary);
+            user-select: all;
+            pointer-events: none; /* Prevent Claude from detecting as clickable link */
+            font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+            font-size: 0.8125rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.375rem;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+            border-radius: 4px;
+        }
+
+        .icon-btn:hover {
+            background: var(--border);
+            color: var(--accent);
+        }
+
+        /* Schedule Editor */
+        .schedule-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 2fr 2fr auto;
+            gap: 1rem;
+            align-items: end;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+            transition: all 0.2s;
+        }
+
+        .schedule-row:hover {
+            background: #f3f4f6;
+        }
+
+        .schedule-row.dragging {
+            opacity: 0.5;
+        }
+
+        .drag-handle {
+            cursor: grab;
+            color: var(--text-secondary);
+            padding: 0.5rem;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        /* Hours Editor */
+        .hours-editor {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .hours-day {
+            display: grid;
+            grid-template-columns: 120px 1fr auto auto;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+            align-items: center;
+        }
+
+        .hours-day:last-child {
+            border-bottom: none;
+        }
+
+        .day-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .time-input {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            width: 100px;
+        }
+
+        .quick-fill-btn {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .quick-fill-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* Timeline Visualization */
+        .timeline-viz {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .timeline-day {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1rem;
+            margin-bottom: 0.5rem;
+            align-items: center;
+        }
+
+        .timeline-day-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .timeline-bar {
+            height: 24px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .timeline-segment {
+            position: absolute;
+            height: 100%;
+            background: var(--success);
+            border-radius: 4px;
+        }
+
+        .timeline-segment.closed {
+            background: var(--danger);
+        }
+
+        /* Preview Panel */
+        .preview-panel {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100vh;
+            background: var(--card-bg);
+            box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            transition: right 0.3s;
+            overflow-y: auto;
+        }
+
+        .preview-panel.show {
+            right: 0;
+        }
+
+        .preview-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: var(--card-bg);
+            z-index: 10;
+        }
+
+        .preview-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        .preview-content {
+            padding: 1.5rem;
+        }
+
+        .preview-mode-selector {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview-mode-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .preview-mode-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .phone-mockup {
+            width: 100%;
+            aspect-ratio: 9/19.5;
+            border: 12px solid #1a1f3a;
+            border-radius: 32px;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 24px;
+            background: #1a1f3a;
+            border-radius: 0 0 12px 12px;
+        }
+
+        .phone-content {
+            padding: 2rem 1rem 1rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .kiosk-mockup {
+            width: 100%;
+            aspect-ratio: 16/9;
+            border: 8px solid #1a1f3a;
+            border-radius: 12px;
+            background: white;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+        }
+
+        .kiosk-content {
+            padding: 2rem;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: var(--shadow-lg);
+            animation: modalSlideIn 0.3s;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .modal-body {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #e84050;
+            transform: translateY(-1px);
+        }
+
+        /* Templates */
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .template-card {
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .template-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .template-icon {
+            font-size: 2rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .template-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-desc {
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            animation: toastSlideIn 0.3s;
+            z-index: 1001;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        .toast.success {
+            background: var(--success);
+        }
+
+        .toast.error {
+            background: var(--danger);
+        }
+
+        .toast.warning {
+            background: var(--warning);
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: rgba(0, 217, 184, 0.02);
+        }
+
+        .upload-zone.has-file {
+            border-color: var(--success);
+            background: rgba(46, 213, 115, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .file-preview {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 6px;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .file-preview.show {
+            display: flex;
+        }
+
+        .file-preview img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .header-content {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .header-center,
+            .header-right {
+                justify-content: flex-start;
+            }
+
+            .sections-nav-content {
+                padding: 0 1rem;
+            }
+
+            .main-container {
+                padding: 1rem;
+            }
+
+            .schedule-row {
+                grid-template-columns: 1fr;
+            }
+
+            .preview-panel {
+                width: 100%;
+                right: -100%;
+            }
+
+            .template-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Conflict Indicator */
+        .conflict-indicator {
+            background: var(--warning);
+            color: white;
+            padding: 0.375rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        /* Current Time Indicator */
+        .current-time-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            background: var(--bg);
+            border-radius: 6px;
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+        }
+
+        .current-time-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Picker -->
+    <div class="theme-picker">
+        <button class="theme-btn active" data-theme="light" onclick="setTheme('light')" title="Light Theme">☀️</button>
+        <button class="theme-btn" data-theme="dark" onclick="setTheme('dark')" title="Dark Theme">🌙</button>
+        <button class="theme-btn" data-theme="dark-dim" onclick="setTheme('dark-dim')" title="Dark Dim Theme">🌫️</button>
+        <button class="theme-btn" data-theme="dark-neon" onclick="setTheme('dark-neon')" title="Dark Neon Theme">⚡</button>
+    </div>
+
+    <!-- Unsaved Changes Banner -->
+    <div class="unsaved-banner" id="unsavedBanner">
+        <span>⚠️ You have unsaved changes</span>
+        <div style="display: flex; gap: 0.5rem;">
+            <button onclick="saveSettings()" style="background: white; color: var(--primary); border: none; padding: 0.375rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600;">Save Now</button>
+            <button onclick="discardChanges()" style="background: transparent; color: white; border: 1px solid white; padding: 0.375rem 1rem; border-radius: 6px; cursor: pointer;">Discard</button>
+        </div>
+    </div>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="header-content">
+            <div class="header-left">
+                <div class="device-selector">
+                    <span>Viewing:</span>
+                    <select onchange="loadDevice(this.value)">
+                        <option value="main-dining">Main Dining QR</option>
+                        <option value="pickup-counter">Pickup Counter QR</option>
+                        <option value="entrance-kiosk">Entrance Kiosk</option>
+                        <option value="online-store">Online Store</option>
+                        <option value="pos-1">POS Terminal 1</option>
+                    </select>
+                    <button class="btn-icon" onclick="showNewDeviceModal()" title="Create New Device" style="margin-left: 0.5rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="device-name-wrapper">
+                    <input type="text" class="device-name" value="Main Dining QR" id="deviceName" oninput="markUnsaved()">
+                    <span class="badge badge-qr" id="deviceTypeBadge">QR</span>
+                </div>
+                <div class="header-status">
+                    <div class="status-item active" id="statusDisplay">
+                        <span class="status-dot"></span>
+                        <span>Active</span>
+                    </div>
+                    <div class="status-item open" id="orderingStatus">
+                        <span>Ordering Now: Open</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="header-center">
+                <div class="status-toggle">
+                    <span>Status:</span>
+                    <div class="toggle-switch active" id="statusToggle" onclick="toggleStatus()"></div>
+                </div>
+            </div>
+
+            <div class="header-right">
+                <div class="btn-group">
+                    <button class="btn-icon" onclick="openTemplates()" title="Load Template">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="12" y1="18" x2="12" y2="12"></line>
+                            <line x1="9" y1="15" x2="15" y2="15"></line>
+                        </svg>
+                    </button>
+                    <button class="btn-icon" onclick="exportConfig()" title="Export Config">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7 10 12 15 17 10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                    </button>
+                    <button class="btn-icon" onclick="togglePreview()" title="Preview">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
+                <button class="btn-primary" id="saveBtn" onclick="saveSettings()" disabled>
+                    <span>Save Changes</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sections Navigation -->
+    <nav class="sections-nav">
+        <div class="sections-nav-content">
+            <a href="#core" class="nav-tab active" data-section="core">
+                <span class="nav-icon">⚙️</span>
+                Core
+            </a>
+            <a href="#catalog" class="nav-tab" data-section="catalog">
+                <span class="nav-icon">📋</span>
+                Catalog
+                <span class="error-indicator" style="display: none;"></span>
+            </a>
+            <a href="#availability" class="nav-tab" data-section="availability" data-channel-only="true">
+                <span class="nav-icon">🕐</span>
+                Availability
+            </a>
+            <a href="#leadtime" class="nav-tab" data-section="leadtime" data-channel-only="true">
+                <span class="nav-icon">⏱️</span>
+                Lead Time
+            </a>
+            <a href="#behavior" class="nav-tab" data-section="behavior">
+                <span class="nav-icon">🎯</span>
+                Behavior
+            </a>
+            <a href="#pos-template" class="nav-tab" data-section="pos-template" data-pos-only="true">
+                <span class="nav-icon">📄</span>
+                POS Template
+            </a>
+            <a href="#payments" class="nav-tab" data-section="payments">
+                <span class="nav-icon">💳</span>
+                Payment Devices
+            </a>
+            <a href="#messaging" class="nav-tab" data-section="messaging" data-channel-only="true">
+                <span class="nav-icon">💬</span>
+                Messaging
+            </a>
+            <a href="#pos-settings" class="nav-tab" data-section="pos-settings" data-pos-only="true">
+                <span class="nav-icon">🖥️</span>
+                POS Settings
+            </a>
+            <a href="#printing" class="nav-tab" data-section="printing">
+                <span class="nav-icon">🖨️</span>
+                Printing
+            </a>
+            <a href="#operations" class="nav-tab" data-section="operations">
+                <span class="nav-icon">⚡</span>
+                Operations
+            </a>
+            <a href="#advanced" class="nav-tab" data-section="advanced">
+                <span class="nav-icon">🔧</span>
+                Advanced
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <main class="content-area">
+            <!-- Setup Checklist - Collapsible -->
+            <div class="setup-checklist" style="cursor: pointer;" onclick="toggleSetupChecklist()">
+                <div class="checklist-header">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <span id="checklistToggleIcon">▼</span>
+                        <div class="checklist-title">⚡ Setup Progress</div>
+                    </div>
+                    <div class="checklist-progress" id="checklistProgress">3 of 5 complete</div>
+                </div>
+                <div class="checklist-items" id="checklistItems">
+                    <div class="checklist-item">
+                        <div class="check-icon complete" id="check-device">✓</div>
+                        <span>Device Identity</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="check-icon complete" id="check-catalog">✓</div>
+                        <span>Favorite Group</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="check-icon complete" id="check-availability">✓</div>
+                        <span>Availability</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="check-icon incomplete" id="check-behavior">○</div>
+                        <span>Order Behavior</span>
+                    </div>
+                    <div class="checklist-item">
+                        <div class="check-icon incomplete" id="check-payments">○</div>
+                        <span>Payment Config</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggestion Banner -->
+            <div class="suggestion-banner" id="suggestionBanner">
+                <div class="icon">💡</div>
+                <div class="suggestion-content">
+                    <div class="suggestion-title">Quick Setup Available</div>
+                    <div class="suggestion-text">Based on your device type (QR Table), we recommend enabling "Pay at Counter" and "Allow Order Comment". Most restaurants use these settings.</div>
+                    <div class="suggestion-actions">
+                        <button class="btn-secondary" onclick="applySuggestion()">Apply Suggestion</button>
+                        <button class="btn-secondary" onclick="dismissSuggestion()">Dismiss</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Core -->
+            <section class="section-card" id="core" data-section="core">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Core Settings</h2>
+                        <p class="section-subtitle">Basic device identity and configuration</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group" id="deviceNameGroup">
+                        <label class="form-label">
+                            Device Name <span class="required">*</span>
+                            <span class="tooltip-icon" data-tooltip="Unique name to identify this device">ⓘ</span>
+                        </label>
+                        <input type="text" class="form-input" value="Main Dining QR" placeholder="Enter device name" oninput="markUnsaved(); validateField(this)">
+                        <span class="error-text">Device name is required</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            Device Type <span class="required">*</span>
+                        </label>
+                        <div class="select-wrapper">
+                            <select class="form-input" id="deviceTypeSelect" onchange="handleDeviceTypeChange()">
+                                <option value="qr">QR</option>
+                                <option value="kiosk">Self-Service</option>
+                                <option value="online">Online Ordering</option>
+                                <option value="pos-simple">Simple POS</option>
+                                <option value="pos-advanced">Advanced POS</option>
+                            </select>
+                        </div>
+                        <span class="help-text">Changing this will generate a new Public URL (for channel devices)</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="status" value="active" checked onchange="updateStatusFromRadio()">
+                                <span>Active</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="status" value="paused" onchange="updateStatusFromRadio()">
+                                <span>Paused</span>
+                            </label>
+                        </div>
+                        <span class="help-text">Paused status overrides Availability</span>
+                    </div>
+                </div>
+
+                <!-- Public URL -->
+                <div id="publicUrlSection" style="margin-top: 1.5rem;">
+                    <div class="form-label" style="margin-bottom: 0.75rem;">Public URL</div>
+                    <div class="url-display">
+                        <span class="url-text">https://order.acme.com/d/a8k9x2</span>
+                        <button class="icon-btn" onclick="copyUrl()" title="Copy URL">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                        <button class="icon-btn" onclick="openUrl()" title="Open link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="info-box" style="margin-top: 0.75rem;">
+                        <strong>🔒 System generated and locked.</strong> URL does not change on rename. URL regenerates only when Device Type changes.
+                    </div>
+                </div>
+
+                <!-- NEW: Admin Access Section -->
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                    <div class="form-label" style="margin-bottom: 0.75rem;">Admin Access</div>
+                    <div class="url-display">
+                        <span class="url-text">https://admin.plorea.no/device/abc123?token=xyz</span>
+                        <button class="icon-btn" onclick="copyAdminUrl()" title="Copy Admin Link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <span class="help-text">This link is generated via API and may be time-limited.</span>
+                </div>
+            </section>
+
+            <!-- NEW: POS Template (MOVED HERE - right after Core for early decision) -->
+            <section class="section-card" id="pos-template" data-section="pos-template" data-pos-only="true">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">POS Template</h2>
+                        <p class="section-subtitle">Choose between template-based or manual device configuration</p>
+                    </div>
+                </div>
+
+                <!-- Master Switch -->
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="useTemplate" onchange="toggleTemplateMode(); markUnsaved()">
+                        <label for="useTemplate" class="form-label" style="margin: 0;">
+                            Use Template-Based Setup
+                            <span class="tooltip-icon" data-tooltip="Enable automatic device binding via templates">ⓘ</span>
+                        </label>
+                    </div>
+                    <span class="help-text" style="display: block; margin-top: 0.5rem;">
+                        When enabled, payment devices are managed by template. Disable for manual configuration.
+                    </span>
+                </div>
+
+                <!-- Template Mode Content -->
+                <div id="templateModeContent" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Template <span class="required">*</span></label>
+                            <div class="select-wrapper">
+                                <select class="form-input" onchange="markUnsaved()">
+                                    <option value="">— Select Template —</option>
+                                    <option>Event Template</option>
+                                    <option>Standard Retail Template</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn-secondary" onclick="saveAsTemplate()">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                                    <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                                    <polyline points="7 3 7 8 15 8"></polyline>
+                                </svg>
+                                Save Current Settings as Template
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <div class="form-label" style="margin-bottom: 1rem;">Auto-Binding Configuration</div>
+                        
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="autoBindTerminal" checked onchange="markUnsaved()">
+                            <label for="autoBindTerminal" class="form-label" style="margin: 0;">
+                                Auto-bind Terminal on Login
+                                <span class="tooltip-icon" data-tooltip="Terminal ID will be detected automatically">ⓘ</span>
+                            </label>
+                        </div>
+                        <span class="help-text" style="display: block; margin-top: 0.5rem;">
+                            Terminal ID (TID) will be detected automatically during terminal login. Template does not store hardware identifiers.
+                        </span>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1.5rem;">
+                        <strong>⚠️ Important:</strong> Templates do NOT contain TID or provider device IDs. These are bound dynamically during login.
+                    </div>
+                </div>
+
+                <!-- Manual Mode Message -->
+                <div id="manualModeMessage">
+                    <div class="info-box">
+                        <strong>📝 Manual Configuration Mode</strong><br>
+                        Payment devices are configured manually in the Payment Devices section below.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Catalog -->
+            <section class="section-card" id="catalog" data-section="catalog">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Catalog Mapping</h2>
+                        <p class="section-subtitle">Control what menu items are visible on this device</p>
+                    </div>
+                    <div class="section-actions">
+                        <div class="current-time-indicator">
+                            <div class="current-time-dot"></div>
+                            <span id="currentMenu">Showing: Main Menu</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <div class="checkbox-wrapper">
+                        <input type="checkbox" id="useSchedule" onchange="toggleSchedule(); markUnsaved()">
+                        <label for="useSchedule" class="form-label" style="margin: 0;">
+                            Use Schedule
+                            <span class="tooltip-icon" data-tooltip="Show different menus based on time of day">ⓘ</span>
+                        </label>
+                    </div>
+                    <span class="help-text">Show different menus based on time of day</span>
+                </div>
+
+                <div id="defaultCatalog">
+                    <div class="form-grid">
+                        <div class="form-group" id="favoriteGroupGroup">
+                            <label class="form-label">
+                                Favorite Group <span class="required">*</span>
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-input" id="favoriteGroup" onchange="markUnsaved(); validateCatalog()">
+                                    <option value="">— Select Menu —</option>
+                                    <option value="main" selected>Main Menu</option>
+                                    <option value="breakfast">Breakfast Menu</option>
+                                    <option value="lunch">Lunch Special</option>
+                                    <option value="brunch">Weekend Brunch</option>
+                                </select>
+                            </div>
+                            <span class="error-text">Favorite Group is required to activate device</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Default Favorite Tab (Optional)</label>
+                            <div class="select-wrapper">
+                                <select class="form-input" onchange="markUnsaved()">
+                                    <option value="">— None —</option>
+                                    <option>Appetizers</option>
+                                    <option>Main Courses</option>
+                                    <option>Desserts</option>
+                                    <option>Drinks</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="scheduledCatalog" style="display: none; margin-top: 1.5rem;">
+                    <div class="form-label" style="margin-bottom: 1rem;">Scheduled Menus</div>
+                    
+                    <div class="schedule-row" id="schedule1">
+                        <div class="form-group">
+                            <label class="form-label">Days</label>
+                            <select class="form-input" multiple style="height: 80px;" onchange="markUnsaved(); detectConflicts()">
+                                <option selected>Monday</option>
+                                <option selected>Tuesday</option>
+                                <option selected>Wednesday</option>
+                                <option selected>Thursday</option>
+                                <option selected>Friday</option>
+                                <option>Saturday</option>
+                                <option>Sunday</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">From</label>
+                            <input type="time" class="form-input" value="06:00" onchange="markUnsaved(); detectConflicts()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">To</label>
+                            <input type="time" class="form-input" value="11:00" onchange="markUnsaved(); detectConflicts()">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Favorite Group</label>
+                            <select class="form-input" onchange="markUnsaved()">
+                                <option>Breakfast Menu</option>
+                                <option>Main Menu</option>
+                                <option>Lunch Special</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Tab</label>
+                            <select class="form-input" onchange="markUnsaved()">
+                                <option value="">— None —</option>
+                                <option>Hot Dishes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" style="visibility: hidden;">Action</label>
+                            <button class="icon-btn" onclick="removeScheduleRow('schedule1')">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="conflictWarning" style="display: none; margin-bottom: 1rem;">
+                        <div class="warning-box">
+                            <strong>⚠️ Schedule Conflict Detected!</strong> Multiple schedules overlap on the same days and times. First matching schedule will be used.
+                        </div>
+                    </div>
+
+                    <button class="btn-secondary" onclick="addScheduleRow()">+ Add Time Window</button>
+
+                    <div class="info-box" style="margin-top: 1rem;">
+                        <strong>First matching schedule wins.</strong> If no schedule matches, fallback to default Favorite Group above.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Availability -->
+            <section class="section-card" id="availability" data-section="availability" data-channel-only="true">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Availability</h2>
+                        <p class="section-subtitle">Control when customers can order from this device</p>
+                    </div>
+                    <div class="section-actions">
+                        <button class="btn-secondary" onclick="showQuickHoursPresets()">⚡ Quick Presets</button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="availability" value="inherit" checked onchange="toggleAvailabilityMode(); markUnsaved()">
+                            <span>Inherit from Location</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="availability" value="override" onchange="toggleAvailabilityMode(); markUnsaved()">
+                            <span>Override on Device</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="info-box" id="inheritedHours">
+                    <strong>Currently inheriting from:</strong> Downtown Restaurant<br>
+                    Mon-Thu: 11:00-22:00 | Fri-Sat: 11:00-23:00 | Sun: 12:00-21:00
+                </div>
+
+                <div id="hoursOverride" style="display: none; margin-top: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <div class="form-label">Weekly Opening Hours</div>
+                        <button class="btn-secondary" onclick="showCopyHoursModal()">📋 Copy to Days</button>
+                    </div>
+                    
+                    <div class="hours-editor">
+                        <div class="hours-day" data-day="monday">
+                            <div class="day-name">Monday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="22:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('monday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="mon-closed" onchange="markUnsaved()">
+                                <label for="mon-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="tuesday">
+                            <div class="day-name">Tuesday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="22:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('tuesday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="tue-closed" onchange="markUnsaved()">
+                                <label for="tue-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="wednesday">
+                            <div class="day-name">Wednesday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="22:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('wednesday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="wed-closed" onchange="markUnsaved()">
+                                <label for="wed-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="thursday">
+                            <div class="day-name">Thursday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="22:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('thursday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="thu-closed" onchange="markUnsaved()">
+                                <label for="thu-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="friday">
+                            <div class="day-name">Friday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="23:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('friday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="fri-closed" onchange="markUnsaved()">
+                                <label for="fri-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="saturday">
+                            <div class="day-name">Saturday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="11:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="23:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('saturday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="sat-closed" onchange="markUnsaved()">
+                                <label for="sat-closed">Closed</label>
+                            </div>
+                        </div>
+                        <div class="hours-day" data-day="sunday">
+                            <div class="day-name">Sunday</div>
+                            <div class="time-inputs">
+                                <input type="time" class="time-input" value="12:00" onchange="markUnsaved()">
+                                <span>—</span>
+                                <input type="time" class="time-input" value="21:00" onchange="markUnsaved()">
+                            </div>
+                            <button class="quick-fill-btn" onclick="addInterval('sunday')">+ Interval</button>
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="sun-closed" onchange="markUnsaved()">
+                                <label for="sun-closed">Closed</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline Visualization -->
+                    <div class="timeline-viz">
+                        <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.75rem;">Weekly Timeline</div>
+                        <div class="timeline-day">
+                            <div class="timeline-day-name">Mon-Thu</div>
+                            <div class="timeline-bar">
+                                <div class="timeline-segment" style="left: 45.8%; width: 45.8%;"></div>
+                            </div>
+                        </div>
+                        <div class="timeline-day">
+                            <div class="timeline-day-name">Fri-Sat</div>
+                            <div class="timeline-bar">
+                                <div class="timeline-segment" style="left: 45.8%; width: 50%;"></div>
+                            </div>
+                        </div>
+                        <div class="timeline-day">
+                            <div class="timeline-day-name">Sunday</div>
+                            <div class="timeline-bar">
+                                <div class="timeline-segment" style="left: 50%; width: 37.5%;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <div class="form-label" style="margin-bottom: 1rem;">Closed Dates</div>
+                        <button class="btn-secondary" onclick="addClosedDate()">+ Add Closed Date Range</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <div class="checkbox-wrapper" style="margin-bottom: 0.75rem;">
+                        <input type="checkbox" id="tempClosed" onchange="markUnsaved()">
+                        <label for="tempClosed" class="form-label" style="margin: 0;">Temporarily Closed</label>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Closed Message</label>
+                        <input type="text" class="form-input" placeholder="We're temporarily closed. Check back soon!" onchange="markUnsaved()">
+                    </div>
+                </div>
+
+                <div class="warning-box" style="margin-top: 1.5rem;">
+                    <strong>⚠️ Note:</strong> Paused status in header overrides Availability. Closed is never stored as Status.
+                </div>
+            </section>
+
+            <!-- Section: Lead Time -->
+            <section class="section-card" id="leadtime" data-section="leadtime" data-channel-only="true">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Lead Time</h2>
+                        <p class="section-subtitle">Determines estimated ready time for orders</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">
+                            Base Preparation Time (minutes) <span class="required">*</span>
+                        </label>
+                        <input type="number" class="form-input" value="15" min="0" step="1" id="baseTime" oninput="markUnsaved(); updateLeadTimePreview()">
+                        <span class="help-text">Standard time needed to prepare orders</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Additional Buffer (minutes)</label>
+                        <input type="number" class="form-input" placeholder="0" min="0" step="1" id="bufferTime" oninput="markUnsaved(); updateLeadTimePreview()">
+                        <span class="help-text">Optional extra time for busy periods</span>
+                    </div>
+                </div>
+
+                <div class="success-box" style="margin-top: 1.5rem;">
+                    <strong>📊 Ready Time Preview:</strong><br>
+                    If customer orders now (<span id="currentTime">14:30</span>), their order will be ready at: <strong id="readyTime">14:45</strong>
+                </div>
+
+                <div class="info-box" style="margin-top: 1rem;">
+                    <strong>Calculation:</strong> Current time + Base time + Buffer<br>
+                    <strong>Note:</strong> Lead time does NOT affect Availability (when you can order).
+                </div>
+            </section>
+
+            <!-- Section: Behavior -->
+            <section class="section-card" id="behavior" data-section="behavior">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Order Behavior</h2>
+                        <p class="section-subtitle" id="behaviorSubtitle">Configure device-specific ordering behavior</p>
+                    </div>
+                </div>
+
+                <!-- QR Behavior -->
+                <div id="behaviorQR">
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <label class="form-label">QR Mode</label>
+                        <div class="segmented-control">
+                            <button class="segmented-option" onclick="setQRMode('standard')">Standard</button>
+                            <button class="segmented-option active" onclick="setQRMode('table')">Table</button>
+                        </div>
+                    </div>
+
+                    <div id="qrTableOptions">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="tableFromQR" checked onchange="markUnsaved()">
+                                    <label for="tableFromQR" class="form-label" style="margin: 0;">Table Number from QR</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="allowManualTable" onchange="markUnsaved()">
+                                    <label for="allowManualTable" class="form-label" style="margin: 0;">Allow Manual Table Input</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="payCounter" checked onchange="markUnsaved()">
+                                    <label for="payCounter" class="form-label" style="margin: 0;">Pay at Counter</label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="allowComment" checked onchange="markUnsaved()">
+                                    <label for="allowComment" class="form-label" style="margin: 0;">Allow Order Comment</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Parker ordre (Park Order) -->
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                        <div class="form-label" style="margin-bottom: 1rem;">Parker ordre (Park Order)</div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="enableParkOrder" onchange="toggleParkOrder(); markUnsaved()">
+                                <label for="enableParkOrder" class="form-label" style="margin: 0;">
+                                    Enable Park Order
+                                    <span class="tooltip-icon" data-tooltip="Allow customers to save orders for later">ⓘ</span>
+                                </label>
+                            </div>
+                            <span class="help-text">Customers can park their order and retrieve it later</span>
+                        </div>
+
+                        <div id="parkOrderOptions" style="display: none;">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="parkBord" checked onchange="markUnsaved()">
+                                        <label for="parkBord" class="form-label" style="margin: 0;">
+                                            <span style="margin-right: 0.5rem;">🍽️</span> Bord (Table)
+                                        </label>
+                                    </div>
+                                    <span class="help-text">Park order to specific table</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="checkbox-wrapper">
+                                        <input type="checkbox" id="parkNavnTlf" checked onchange="markUnsaved()">
+                                        <label for="parkNavnTlf" class="form-label" style="margin: 0;">
+                                            <span style="margin-right: 0.5rem;">👤</span> Navn / Tlf (Name / Phone)
+                                        </label>
+                                    </div>
+                                    <span class="help-text">Park order with customer name or phone</span>
+                                </div>
+                            </div>
+
+                            <div class="info-box" style="margin-top: 1rem;">
+                                <strong>ℹ️ Note:</strong> "Rask" (Quick) variant is not available for QR devices. Available on POS only.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- QR Receipt Pickup -->
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                        <div class="form-label" style="margin-bottom: 1rem;">QR Receipt Pickup</div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="enableReceiptPickup" onchange="toggleReceiptPickup(); markUnsaved()">
+                                <label for="enableReceiptPickup" class="form-label" style="margin: 0;">Enable Receipt QR Pickup</label>
+                            </div>
+                            <span class="help-text">Allow staff to mark orders as delivered by scanning receipt QR</span>
+                        </div>
+
+                        <div id="receiptPickupOptions" style="display: none;">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Staff Screen Target (Optional)</label>
+                                    <div class="select-wrapper">
+                                        <select class="form-input" onchange="markUnsaved()">
+                                            <option value="">— Default —</option>
+                                            <option>Kitchen Display</option>
+                                            <option>Pickup Counter</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Delivered Button Label</label>
+                                    <input type="text" class="form-input" value="Delivered" placeholder="Delivered" oninput="markUnsaved()">
+                                </div>
+                            </div>
+
+                            <div class="info-box" style="margin-top: 1rem;">
+                                <strong>🔒 Locked Behavior:</strong><br>
+                                • QR token is one-time use<br>
+                                • After "Delivered": token invalidated, re-scan blocked<br>
+                                • Re-scan shows: "Already delivered"
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- NEW: QR Appearance (Branding) -->
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                        <div class="form-label" style="margin-bottom: 1rem;">Appearance (Branding)</div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label class="form-label">QR Appearance Mode</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="qrAppearanceMode" value="standard" checked onchange="toggleQRAppearanceMode(); markUnsaved()">
+                                    <span>Standard</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="qrAppearanceMode" value="custom" onchange="toggleQRAppearanceMode(); markUnsaved()">
+                                    <span>Custom</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="qrStandardMode">
+                            <div class="info-box">
+                                <strong>📱 Standard Mode</strong><br>
+                                Ready to use — no customization needed, delivered directly by us.<br>
+                                • Simple and informative layout<br>
+                                • Space for customer logo<br>
+                                • Default illustration
+                            </div>
+                        </div>
+
+                        <div id="qrCustomMode" style="display: none;">
+                            <div class="info-box" style="background: linear-gradient(135deg, rgba(15, 158, 213, 0.05) 0%, rgba(15, 158, 213, 0.02) 100%); margin-bottom: 1.5rem;">
+                                <strong>🎨 Custom Branding</strong><br>
+                                Personalize your QR ordering with custom branding.<br>
+                                • Upload custom logo<br>
+                                • Upload cover image
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Upload Logo</label>
+                                    <div class="upload-zone">
+                                        <div class="upload-icon">📸</div>
+                                        <div>Velg fil eller dra og slipp</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">PNG, JPG (max 2MB)</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Upload Cover Image</label>
+                                    <div class="upload-zone">
+                                        <div class="upload-icon">🖼️</div>
+                                        <div>Velg fil eller dra og slipp</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">PNG, JPG (max 5MB)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kiosk Behavior -->
+                <div id="behaviorKiosk" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="requireName" onchange="markUnsaved()">
+                                <label for="requireName" class="form-label" style="margin: 0;">Require Customer Name</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="requirePhone" onchange="markUnsaved()">
+                                <label for="requirePhone" class="form-label" style="margin: 0;">Require Phone Number</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Idle Timeout (seconds)</label>
+                            <input type="number" class="form-input" value="60" min="30" max="300" oninput="markUnsaved()">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="autoReset" checked onchange="markUnsaved()">
+                                <label for="autoReset" class="form-label" style="margin: 0;">Auto Reset After Payment</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <div class="form-label" style="margin-bottom: 1rem;">Post-Payment Display</div>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="postPayment" value="order-number" checked onchange="markUnsaved()">
+                                <span>Show Order Number</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="postPayment" value="qr-receipt" onchange="markUnsaved()">
+                                <span>Show QR Receipt</span>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="postPayment" value="thank-you" onchange="markUnsaved()">
+                                <span>Thank You Screen</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- NEW: Kiosk Appearance -->
+                    <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                        <div class="form-label" style="margin-bottom: 1rem;">Kiosk Appearance</div>
+                        
+                        <div class="form-group" style="margin-bottom: 1.5rem;">
+                            <label class="form-label">Kiosk Mode</label>
+                            <div class="radio-group">
+                                <label class="radio-option">
+                                    <input type="radio" name="kioskMode" value="standard" checked onchange="toggleKioskMode(); markUnsaved()">
+                                    <span>Standard</span>
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="kioskMode" value="custom" onchange="toggleKioskMode(); markUnsaved()">
+                                    <span>Custom</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div id="kioskStandardMode">
+                            <div class="info-box">
+                                <strong>🖥️ Standard Mode</strong><br>
+                                Ready to use — no customization needed, delivered directly by us.<br>
+                                • Simple and informative layout<br>
+                                • Space for customer logo<br>
+                                • Default illustration
+                            </div>
+                        </div>
+
+                        <div id="kioskCustomMode" style="display: none;">
+                            <div class="info-box" style="background: linear-gradient(135deg, rgba(15, 158, 213, 0.05) 0%, rgba(15, 158, 213, 0.02) 100%); margin-bottom: 1.5rem;">
+                                <strong>🎨 Custom Branding</strong><br>
+                                Personalize your kiosk with custom branding.<br>
+                                • Upload custom logo<br>
+                                • Upload cover image
+                            </div>
+
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label class="form-label">Upload Logo</label>
+                                    <div class="upload-zone">
+                                        <div class="upload-icon">📸</div>
+                                        <div>Velg fil eller dra og slipp</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">PNG, JPG (max 2MB)</div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Upload Cover Image</label>
+                                    <div class="upload-zone">
+                                        <div class="upload-icon">🖼️</div>
+                                        <div>Velg fil eller dra og slipp</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">PNG, JPG (max 5MB)</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online Behavior -->
+                <div id="behaviorOnline" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="enablePickup" checked onchange="markUnsaved()">
+                                <label for="enablePickup" class="form-label" style="margin: 0;">Enable Pickup</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="enableDelivery" checked onchange="markUnsaved()">
+                                <label for="enableDelivery" class="form-label" style="margin: 0;">Enable Delivery</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Minimum Order Amount</label>
+                            <input type="number" class="form-input" placeholder="0" min="0" step="10" oninput="markUnsaved()">
+                            <span class="help-text">Minimum order for delivery (optional)</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Delivery Radius (km)</label>
+                            <input type="number" class="form-input" value="5" min="1" max="50" oninput="markUnsaved()">
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="requireAccount" onchange="markUnsaved()">
+                                <label for="requireAccount" class="form-label" style="margin: 0;">Require Customer Account</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="enableScheduledOrders" onchange="markUnsaved()">
+                                <label for="enableScheduledOrders" class="form-label" style="margin: 0;">Enable Scheduled Orders</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- POS Behavior -->
+                    <div class="info-box">
+                        No specific order behavior settings for POS devices. See POS Settings section.
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Section F - Payment Devices -->
+            <section class="section-card" id="payments" data-section="payments">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Payment Devices</h2>
+                        <p class="section-subtitle">Configure payment terminals and ecommerce processors</p>
+                    </div>
+                </div>
+
+                <!-- Template-Managed Message (shown when POS template is enabled) -->
+                <div id="templateManagedMessage" style="display: none;">
+                    <div class="info-box">
+                        <strong>🔒 Managed by POS Template</strong><br>
+                        Payment devices are automatically configured via the selected template. To configure manually, disable "Use Template-Based Setup" in the POS Template section above.
+                    </div>
+                </div>
+
+                <!-- Manual Payment Devices Configuration -->
+                <div id="manualPaymentDevices">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="background: var(--bg);">
+                                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Name</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Type</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Provider</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Status</th>
+                                    <th style="padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.875rem;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="paymentDevicesTable">
+                                <!-- Populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <button class="btn-secondary" style="margin-top: 1rem;" onclick="showAddPaymentDevice()" id="addPaymentDeviceBtn">+ Add Payment Device</button>
+
+                    <div class="info-box" style="margin-top: 1.5rem;">
+                        <strong>💳 Multi-Device Support:</strong> You can configure multiple in-person terminals and combine them with ecommerce processors. Provider configuration determines available payment methods.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section G: Messaging -->
+            <section class="section-card" id="messaging" data-section="messaging" data-channel-only="true">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Messaging</h2>
+                        <p class="section-subtitle">Customize messages shown to customers</p>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="grid-template-columns: 1fr;">
+                    <div class="form-group">
+                        <label class="form-label">Welcome Message</label>
+                        <textarea class="form-input" placeholder="Shown when customers first access the ordering page" oninput="markUnsaved()">Welcome to our restaurant! Browse our menu and place your order.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Closed Message</label>
+                        <textarea class="form-input" placeholder="Shown when ordering is not available" oninput="markUnsaved()">Sorry, we're currently closed. Our hours are Mon-Thu 11:00-22:00.</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Post-Order Message</label>
+                        <textarea class="form-input" placeholder="Shown after order is completed" oninput="markUnsaved()">Thank you for your order! We'll have it ready for you shortly.</textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section H: POS Settings -->
+            <section class="section-card" id="pos-settings" data-section="pos-settings" data-pos-only="true">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">POS Settings</h2>
+                        <p class="section-subtitle">Point of sale specific configuration</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Default Cashier Amount</label>
+                        <input type="number" class="form-input" placeholder="0.00" step="0.01" oninput="markUnsaved()">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Cash Handling Type</label>
+                        <div class="select-wrapper">
+                            <select class="form-input" onchange="markUnsaved()">
+                                <option>Standard</option>
+                                <option>Quick Cash</option>
+                                <option>No Cash</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Standard Tax Level</label>
+                        <div class="select-wrapper">
+                            <select class="form-input" onchange="markUnsaved()">
+                                <option>25% (High)</option>
+                                <option>15% (Low)</option>
+                                <option>12% (Food)</option>
+                                <option>0% (Exempt)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Auto Logout Time (minutes)</label>
+                        <input type="number" class="form-input" value="30" min="0" oninput="markUnsaved()">
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="logoutAfterSale" checked onchange="markUnsaved()">
+                            <label for="logoutAfterSale" class="form-label" style="margin: 0;">Logout After Sale</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="searchInMenu" checked onchange="markUnsaved()">
+                            <label for="searchInMenu" class="form-label" style="margin: 0;">Search in Menu</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="onlyCardPayments" onchange="markUnsaved()">
+                            <label for="onlyCardPayments" class="form-label" style="margin: 0;">Allow Only Card Payments</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="showFavoriteTabs" checked onchange="markUnsaved()">
+                            <label for="showFavoriteTabs" class="form-label" style="margin: 0;">Show Favorite Tabs</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="enableReceiptModal" onchange="markUnsaved()">
+                            <label for="enableReceiptModal" class="form-label" style="margin: 0;">Enable Receipt Modal</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Parker ordre (POS - all 3 variants) -->
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                    <div class="form-label" style="margin-bottom: 1rem;">Parker ordre (Park Order)</div>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="enableParkOrderPOS" onchange="toggleParkOrderPOS(); markUnsaved()">
+                            <label for="enableParkOrderPOS" class="form-label" style="margin: 0;">
+                                Enable Park Order
+                                <span class="tooltip-icon" data-tooltip="Allow staff to park orders">ⓘ</span>
+                            </label>
+                        </div>
+                        <span class="help-text">Staff can park orders for later completion</span>
+                    </div>
+
+                    <div id="parkOrderPOSOptions" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="parkBordPOS" checked onchange="markUnsaved()">
+                                    <label for="parkBordPOS" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">🍽️</span> Bord (Table)
+                                    </label>
+                                </div>
+                                <span class="help-text">Park order to specific table</span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="parkNavnTlfPOS" checked onchange="markUnsaved()">
+                                    <label for="parkNavnTlfPOS" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">👤</span> Navn / Tlf (Name / Phone)
+                                    </label>
+                                </div>
+                                <span class="help-text">Park order with customer name or phone</span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="parkRask" checked onchange="markUnsaved()">
+                                    <label for="parkRask" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">⚡</span> Rask (Quick)
+                                    </label>
+                                </div>
+                                <span class="help-text">Quick park without additional details</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: Split betaling (Split Payment) -->
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                    <div class="form-label" style="margin-bottom: 1rem;">Betaling (Payment Options)</div>
+                    
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="enableSplitPayment" onchange="toggleSplitPayment(); markUnsaved()">
+                            <label for="enableSplitPayment" class="form-label" style="margin: 0;">
+                                Enable Split Payment
+                                <span class="tooltip-icon" data-tooltip="Allow customers to split payments">ⓘ</span>
+                            </label>
+                        </div>
+                        <span class="help-text">Customers can split payment in different ways</span>
+                    </div>
+
+                    <div id="splitPaymentOptions" style="display: none;">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="splitHeleBelopet" checked onchange="markUnsaved()">
+                                    <label for="splitHeleBelopet" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">💳</span> Hele beløpet (Full amount)
+                                    </label>
+                                </div>
+                                <span class="help-text">Pay full amount in one transaction</span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="splitPersoner" checked onchange="markUnsaved()">
+                                    <label for="splitPersoner" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">👥</span> Splitt på personer (Split by people)
+                                    </label>
+                                </div>
+                                <span class="help-text">Divide payment equally among people</span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="checkbox-wrapper">
+                                    <input type="checkbox" id="splitVare" checked onchange="markUnsaved()">
+                                    <label for="splitVare" class="form-label" style="margin: 0;">
+                                        <span style="margin-right: 0.5rem;">📋</span> Splitt per vare (Split by item)
+                                    </label>
+                                </div>
+                                <span class="help-text">Pay for individual items separately</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Section J - Printing (Updated with Printer Mode) -->
+            <section class="section-card" id="printing" data-section="printing">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Printing Configuration</h2>
+                        <p class="section-subtitle">Configure printers and print routing</p>
+                    </div>
+                </div>
+
+                <!-- NEW: Printer Mode Selector -->
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label class="form-label">Printer Mode</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="printerMode" value="cloud" checked onchange="togglePrinterMode(); markUnsaved()">
+                            <span>Use Plorea Cloud Print</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="printerMode" value="external" onchange="togglePrinterMode(); markUnsaved()">
+                            <span>Use External Printer System</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Cloud Print Mode -->
+                <div id="cloudPrintMode">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">Receipt Printer (POS only)</label>
+                            <div class="select-wrapper">
+                                <select class="form-input" onchange="markUnsaved()">
+                                    <option value="">— None —</option>
+                                    <option>Front Desk Printer (MAC: A4:5E:60:E7:91:2F)</option>
+                                    <option>Receipt Printer 1 (MAC: B8:27:EB:4C:D1:8A)</option>
+                                    <option>Back Office (MAC: DC:A6:32:1F:45:B3)</option>
+                                </select>
+                            </div>
+                            <span class="help-text">Printer for customer receipts</span>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" id="advancedBongPrint" onchange="toggleGroupPrinting(); markUnsaved()">
+                                <label for="advancedBongPrint" class="form-label" style="margin: 0;">
+                                    Advanced Bong Print
+                                    <span class="tooltip-icon" data-tooltip="Route different items to different printers">ⓘ</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Group Printing (shown when Advanced Bong Print enabled) -->
+                    <div id="groupPrintingSection" style="display: none; margin-top: 1.5rem;">
+                        <div class="form-label" style="margin-bottom: 1rem;">Group Printing</div>
+                        
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; align-items: center;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">Kitchen</div>
+                                <div class="select-wrapper">
+                                    <select class="form-input" onchange="markUnsaved()">
+                                        <option value="">— None —</option>
+                                        <option>Kitchen Printer 1 (MAC: A4:5E:60:E7:91:2F)</option>
+                                        <option>Kitchen Printer 2 (MAC: B8:27:EB:4C:D1:8A)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; align-items: center;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">Bar</div>
+                                <div class="select-wrapper">
+                                    <select class="form-input" onchange="markUnsaved()">
+                                        <option value="">— None —</option>
+                                        <option>Bar Printer (MAC: DC:A6:32:1F:45:B3)</option>
+                                        <option>Service Bar (MAC: E1:2F:8A:6D:C4:9B)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 1rem; align-items: center;">
+                                <div style="font-weight: 600; font-size: 0.875rem;">Dessert</div>
+                                <div class="select-wrapper">
+                                    <select class="form-input" onchange="markUnsaved()">
+                                        <option value="">— None —</option>
+                                        <option>Pastry Station (MAC: F3:4A:7B:2E:D8:C1)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 1.5rem;">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="printerPerCategory" onchange="markUnsaved()">
+                            <label for="printerPerCategory" class="form-label" style="margin: 0;">Printer per Category</label>
+                        </div>
+                        <span class="help-text">Route items to different printers by category</span>
+                    </div>
+
+                    <div class="form-grid" style="margin-top: 1.5rem;">
+                        <div class="form-group" id="screenSizeGroup">
+                            <label class="form-label">Screen Size (POS only)</label>
+                            <div class="select-wrapper">
+                                <select class="form-input" onchange="markUnsaved()">
+                                    <option>Standard (1920x1080)</option>
+                                    <option>Compact (1366x768)</option>
+                                    <option>Large (2560x1440)</option>
+                                </select>
+                            </div>
+                            <span class="help-text">POS screen resolution</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- External Printer System Mode -->
+                <div id="externalPrintMode" style="display: none;">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label class="form-label">External System Name <span class="required">*</span></label>
+                            <input type="text" class="form-input" placeholder="e.g., Legacy Print Server" oninput="markUnsaved()">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Callback URL (Optional)</label>
+                            <input type="text" class="form-input" placeholder="https://printserver.acme.com/webhook" oninput="markUnsaved()">
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1rem;">
+                        <strong>ℹ️ External Mode:</strong> Order routing will be handled externally. Plorea will only emit order events.
+                    </div>
+                </div>
+            </section>
+
+            <!-- NEW: Section K - Operations (Runtime Controls) -->
+            <section class="section-card" id="operations" data-section="operations">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;" onclick="toggleOperations()">
+                            <span id="operationsToggleIcon">▼</span>
+                            Operations (Runtime Controls)
+                        </h2>
+                        <p class="section-subtitle">Temporary operational overrides - not persisted as stable configuration</p>
+                    </div>
+                </div>
+
+                <div class="warning-box" style="margin-bottom: 1.5rem;">
+                    <strong>⚠️ Runtime Controls:</strong> These controls override configuration temporarily. They are not persisted as stable device configuration.
+                </div>
+
+                <div id="operationsContent">
+                    <div class="form-group" style="margin-bottom: 1.5rem;">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="tempClosed" onchange="markUnsaved()">
+                            <label for="tempClosed" class="form-label" style="margin: 0;">
+                                Temporarily Closed
+                                <span class="tooltip-icon" data-tooltip="Quick toggle to stop accepting orders">ⓘ</span>
+                            </label>
+                        </div>
+                        <span class="help-text" style="display: block; margin-top: 0.5rem;">Emergency stop for order acceptance</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Temporary Closure Message</label>
+                        <input type="text" class="form-input" placeholder="We're temporarily closed. Check back soon!" oninput="markUnsaved()">
+                        <span class="help-text">Message shown to customers during temporary closure</span>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 1.5rem;">
+                        <strong>💡 Tip:</strong> Use the Status toggle in the header for pausing device operations. These controls are for emergency situations only.
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Advanced -->
+            <section class="section-card" id="advanced" data-section="advanced">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Advanced Settings</h2>
+                        <p class="section-subtitle">Technical information and configuration</p>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Device ID</label>
+                        <input type="text" class="form-input" value="dev_a8k9x2m3n4p5" readonly>
+                        <span class="help-text">Internal system identifier</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Public Token</label>
+                        <input type="text" class="form-input" value="a8k9x2" readonly>
+                        <span class="help-text">URL token for channel devices</span>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid var(--bg);">
+                    <div class="form-label" style="margin-bottom: 1rem;">Config Management</div>
+                    <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                        <button class="btn-secondary" onclick="resetToDefaults()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+                            </svg>
+                            Reset to Defaults
+                        </button>
+                        <button class="btn-secondary" onclick="duplicateDevice()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Duplicate Device
+                        </button>
+                        <button class="btn-secondary" onclick="copyFromDevice()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                                <polyline points="16 18 22 12 16 6"></polyline>
+                                <polyline points="8 6 2 12 8 18"></polyline>
+                            </svg>
+                            Copy from Another Device
+                        </button>
+                    </div>
+                </div>
+
+                <div class="danger-box" style="margin-top: 2rem;">
+                    <strong>⚠️ Danger Zone</strong>
+                </div>
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn-danger" onclick="showDeleteModal()">Delete Device</button>
+                    <p class="help-text" style="margin-top: 0.5rem;">This action cannot be undone. The public URL will be permanently invalidated.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Preview Panel -->
+    <div class="preview-panel" id="previewPanel">
+        <div class="preview-header">
+            <div class="preview-title">Live Preview</div>
+            <button class="icon-btn" onclick="togglePreview()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+        </div>
+        <div class="preview-content">
+            <div class="preview-mode-selector">
+                <button class="preview-mode-btn active" onclick="setPreviewMode('mobile')">📱 Mobile</button>
+                <button class="preview-mode-btn" onclick="setPreviewMode('kiosk')">🖥️ Kiosk</button>
+            </div>
+
+            <div id="mobilePreview">
+                <div class="phone-mockup">
+                    <div class="phone-notch"></div>
+                    <div class="phone-content">
+                        <h3 style="text-align: center; margin-bottom: 1rem;">Main Dining QR</h3>
+                        <p style="text-align: center; color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 2rem;">Welcome to our restaurant! Browse our menu and place your order.</p>
+                        
+                        <div style="background: var(--bg); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="font-weight: 600; margin-bottom: 0.5rem;">Table 12</div>
+                            <div style="font-size: 0.875rem; color: var(--text-secondary);">Ready time: ~15 min</div>
+                        </div>
+
+                        <div style="background: var(--bg); padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: 600; margin-bottom: 0.75rem;">Main Menu</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">Appetizers</div>
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">Main Courses</div>
+                                <div style="padding: 0.75rem; background: white; border-radius: 6px;">Desserts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kioskPreview" style="display: none;">
+                <div class="kiosk-mockup">
+                    <div class="kiosk-content">
+                        <h2 style="text-align: center; margin-bottom: 1.5rem;">Welcome!</h2>
+                        <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Touch to start your order</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="background: var(--bg); padding: 2rem; border-radius: 8px; text-align: center; font-weight: 600;">Main Menu</div>
+                            <div style="background: var(--bg); padding: 2rem; border-radius: 8px; text-align: center; font-weight: 600;">Drinks</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Templates Modal - Categorized by Device Type -->
+    <div class="modal-overlay" id="templatesModal">
+        <div class="modal" style="max-width: 800px;">
+            <div class="modal-header">📋 Load Quick Start Template</div>
+            <div class="modal-body">
+                <div class="info-box" style="margin-bottom: 1.5rem;">
+                    <strong>ℹ️ Quick Start Templates</strong><br>
+                    These are pre-configured templates provided by Plorea. Apply one to quickly configure your device with industry best practices.
+                </div>
+
+                <!-- QR Templates -->
+                <div id="qrTemplates" style="display: none;">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">📱 QR Templates</h3>
+                    <div class="template-grid" style="margin-bottom: 2rem;">
+                        <div class="template-card" onclick="applyTemplate('qr-table-service')">
+                            <div class="template-icon">🍽️</div>
+                            <div class="template-name">Table Service</div>
+                            <div class="template-desc">QR table ordering, pay at counter, order comments</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('qr-coffee-shop')">
+                            <div class="template-icon">☕</div>
+                            <div class="template-name">Coffee Shop</div>
+                            <div class="template-desc">Quick service, minimal lead time, simple flow</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('qr-fine-dining')">
+                            <div class="template-icon">🥂</div>
+                            <div class="template-name">Fine Dining</div>
+                            <div class="template-desc">Premium experience, detailed descriptions, wine pairings</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kiosk Templates -->
+                <div id="kioskTemplates" style="display: none;">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">🖥️ Kiosk Templates</h3>
+                    <div class="template-grid" style="margin-bottom: 2rem;">
+                        <div class="template-card" onclick="applyTemplate('kiosk-fast-food')">
+                            <div class="template-icon">🍔</div>
+                            <div class="template-name">Fast Food</div>
+                            <div class="template-desc">High volume, quick checkout, meal combos</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('kiosk-cinema')">
+                            <div class="template-icon">🍿</div>
+                            <div class="template-name">Cinema</div>
+                            <div class="template-desc">Snacks & drinks, combo deals, fast service</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('kiosk-event')">
+                            <div class="template-icon">🎫</div>
+                            <div class="template-name">Event</div>
+                            <div class="template-desc">Festival/arena setup, limited menu, speed focus</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Online Templates -->
+                <div id="onlineTemplates" style="display: none;">
+                    <h3 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">🌐 Online Templates</h3>
+                    <div class="template-grid" style="margin-bottom: 2rem;">
+                        <div class="template-card" onclick="applyTemplate('online-delivery')">
+                            <div class="template-icon">🚗</div>
+                            <div class="template-name">Delivery Restaurant</div>
+                            <div class="template-desc">Delivery zones, min order, scheduled orders</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('online-pickup')">
+                            <div class="template-icon">🏪</div>
+                            <div class="template-name">Pickup Only</div>
+                            <div class="template-desc">Click & collect, time slots, ready notifications</div>
+                        </div>
+                        <div class="template-card" onclick="applyTemplate('online-catering')">
+                            <div class="template-icon">🎉</div>
+                            <div class="template-name">Catering Service</div>
+                            <div class="template-desc">Pre-orders, large quantities, delivery scheduling</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <strong>⚠️ Note:</strong> Templates are read-only quick start configurations. You can modify settings after applying a template.
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeTemplates()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals from v2 (Device Type Change, etc.) -->
+    <div class="modal-overlay" id="deviceTypeModal">
+        <div class="modal">
+            <div class="modal-header" style="color: var(--danger);">⚠️ Change Device Type?</div>
+            <div class="modal-body">
+                Changing Device Type will generate a new Public URL for channel devices. All existing QR codes and shared links will stop working.
+                <br><br>
+                <strong>Are you sure you want to continue?</strong>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="cancelDeviceTypeChange()">Cancel</button>
+                <button class="btn-danger" onclick="confirmDeviceTypeChange()">Confirm Change</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: Payment Device Modal -->
+    <div class="modal-overlay" id="paymentDeviceModal">
+        <div class="modal">
+            <div class="modal-header">Add Payment Device</div>
+            <div class="modal-body">
+                <form id="paymentDeviceForm">
+                    <input type="hidden" id="paymentDeviceIndex">
+                    
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Device Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="pdName" required placeholder="e.g., Main Terminal">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Type <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select class="form-input" id="pdType" required>
+                                <option value="In-Person">In-Person Terminal</option>
+                                <option value="Ecom">Ecommerce</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Provider <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select class="form-input" id="pdProvider" required>
+                                <option value="Adyen">Adyen</option>
+                            </select>
+                        </div>
+                        <span class="help-text">Provider configuration determines available payment methods</span>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="pdActive" checked>
+                            <label for="pdActive" class="form-label" style="margin: 0;">Active</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closePaymentDeviceModal()">Cancel</button>
+                <button class="btn-primary" onclick="savePaymentDevice()">Save Device</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW: New Device Modal -->
+    <div class="modal-overlay" id="newDeviceModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-header">Create New Device</div>
+            <div class="modal-body">
+                <form id="newDeviceForm" onsubmit="event.preventDefault(); createNewDevice();">
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Device Name <span class="required">*</span></label>
+                        <input type="text" class="form-input" id="newDeviceName" required placeholder="e.g., Entrance Kiosk" autofocus>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Device Type <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select class="form-input" id="newDeviceType" required onchange="updateTemplateOptions()">
+                                <option value="qr">QR</option>
+                                <option value="kiosk">Self-Service</option>
+                                <option value="online">Online Ordering</option>
+                                <option value="pos-simple">Simple POS</option>
+                                <option value="pos-advanced">Advanced POS</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 1rem;">
+                        <label class="form-label">Location <span class="required">*</span></label>
+                        <div class="select-wrapper">
+                            <select class="form-input" id="newDeviceLocation" required>
+                                <option>Downtown Restaurant</option>
+                                <option>Westside Café</option>
+                                <option>Airport Terminal</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Template Selection -->
+                    <div style="margin: 1.5rem 0; padding: 1.5rem 0; border-top: 2px solid var(--bg); border-bottom: 2px solid var(--bg);">
+                        <div class="form-group" style="margin-bottom: 1rem;">
+                            <label class="form-label">
+                                Load Template (Optional)
+                                <span class="tooltip-icon" data-tooltip="Start with a pre-configured template">ⓘ</span>
+                            </label>
+                            <div class="select-wrapper">
+                                <select class="form-input" id="newDeviceTemplate">
+                                    <option value="">— Start from scratch —</option>
+                                    <optgroup label="📱 QR Templates" id="qrTemplateGroup">
+                                        <option value="qr-table-service">🍽️ Table Service</option>
+                                        <option value="qr-coffee-shop">☕ Coffee Shop</option>
+                                        <option value="qr-fine-dining">🥂 Fine Dining</option>
+                                    </optgroup>
+                                    <optgroup label="🖥️ Kiosk Templates" id="kioskTemplateGroup" style="display: none;">
+                                        <option value="kiosk-fast-food">🍔 Fast Food</option>
+                                        <option value="kiosk-cinema">🍿 Cinema</option>
+                                        <option value="kiosk-event">🎫 Event</option>
+                                    </optgroup>
+                                    <optgroup label="🌐 Online Templates" id="onlineTemplateGroup" style="display: none;">
+                                        <option value="online-delivery">🚗 Delivery Restaurant</option>
+                                        <option value="online-pickup">🏪 Pickup Only</option>
+                                        <option value="online-catering">🎉 Catering Service</option>
+                                    </optgroup>
+                                    <optgroup label="🖥️ POS Templates" id="posTemplateGroup" style="display: none;">
+                                        <option value="pos-retail">🏬 Retail Store</option>
+                                        <option value="pos-event">🎪 Event/Festival</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                            <span class="help-text">Templates are pre-configured with industry best practices</span>
+                        </div>
+
+                        <div id="templatePreview" style="display: none;">
+                            <div class="info-box" style="background: linear-gradient(135deg, rgba(15, 158, 213, 0.05) 0%, rgba(15, 158, 213, 0.02) 100%);">
+                                <strong id="templatePreviewTitle">Template Preview</strong><br>
+                                <span id="templatePreviewDesc">Description here</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>💡 Next steps:</strong> After creation, you'll be taken to the device settings page to complete the setup.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-secondary" onclick="closeNewDeviceModal()">Cancel</button>
+                <button class="btn-primary" onclick="createNewDevice()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Create & Edit
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span id="toastIcon">✓</span>
+        <span id="toastMessage">Changes saved successfully!</span>
+    </div>
+
+    <script>
+        // State management
+        let hasUnsavedChanges = false;
+        let previousDeviceType = 'qr';
+        let currentQRMode = 'table';
+        let scheduleCounter = 1;
+
+        // Device configurations
+        const deviceTypeConfig = {
+            'qr': { badge: 'badge-qr', text: 'QR', isChannel: true, isPOS: false },
+            'kiosk': { badge: 'badge-kiosk', text: 'Self-Service', isChannel: true, isPOS: false },
+            'online': { badge: 'badge-online', text: 'Online Ordering', isChannel: true, isPOS: false },
+            'pos-simple': { badge: 'badge-pos-simple', text: 'Simple POS', isChannel: false, isPOS: true },
+            'pos-advanced': { badge: 'badge-pos-advanced', text: 'Advanced POS', isChannel: false, isPOS: true }
+        };
+
+        const deviceTemplates = {
+            'main-dining': {
+                name: 'Main Dining QR',
+                type: 'qr',
+                favoriteGroup: 'main',
+                leadTime: 15,
+                payAtCounter: true,
+                allowComments: true
+            },
+            'pickup-counter': {
+                name: 'Pickup Counter QR',
+                type: 'qr',
+                favoriteGroup: 'main',
+                leadTime: 10,
+                payAtCounter: false,
+                allowComments: false
+            },
+            'entrance-kiosk': {
+                name: 'Entrance Kiosk',
+                type: 'kiosk',
+                favoriteGroup: 'main',
+                leadTime: 8,
+                requireName: false,
+                autoReset: true
+            },
+            'online-store': {
+                name: 'Online Store',
+                type: 'online',
+                favoriteGroup: 'main',
+                leadTime: 30,
+                enablePickup: true,
+                enableDelivery: true
+            },
+            'pos-1': {
+                name: 'POS Terminal 1',
+                type: 'pos-simple',
+                favoriteGroup: 'main',
+                logoutAfterSale: true
+            }
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDeviceTypeUI('qr');
+            updateChecklistProgress();
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); // Update time every minute
+            renderPaymentDevices(); // NEW: Initialize payment devices table
+            
+            // Warn before leaving with unsaved changes
+            window.addEventListener('beforeunload', function(e) {
+                if (hasUnsavedChanges) {
+                    e.preventDefault();
+                    e.returnValue = '';
+                }
+            });
+        });
+
+        // Unsaved changes management
+        function markUnsaved() {
+            hasUnsavedChanges = true;
+            document.getElementById('unsavedBanner').classList.add('show');
+            document.getElementById('saveBtn').disabled = false;
+            updateChecklistProgress();
+        }
+
+        function discardChanges() {
+            if (confirm('Are you sure you want to discard all unsaved changes?')) {
+                hasUnsavedChanges = false;
+                document.getElementById('unsavedBanner').classList.remove('show');
+                document.getElementById('saveBtn').disabled = true;
+                location.reload();
+            }
+        }
+
+        // Save settings
+        function saveSettings() {
+            const btn = document.getElementById('saveBtn');
+            btn.classList.add('loading');
+            btn.disabled = true;
+
+            // Simulate save delay
+            setTimeout(() => {
+                btn.classList.remove('loading');
+                hasUnsavedChanges = false;
+                document.getElementById('unsavedBanner').classList.remove('show');
+                
+                // Save to localStorage
+                saveToLocalStorage();
+                
+                showToast('Changes saved successfully!', 'success');
+                updateChecklistProgress();
+            }, 1500);
+        }
+
+        // LocalStorage persistence
+        function saveToLocalStorage() {
+            const config = {
+                deviceName: document.getElementById('deviceName').value,
+                deviceType: document.getElementById('deviceTypeSelect').value,
+                // ... collect all form values
+                timestamp: new Date().toISOString()
+            };
+            localStorage.setItem('deviceConfig', JSON.stringify(config));
+        }
+
+        function loadFromLocalStorage() {
+            const saved = localStorage.getItem('deviceConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                // ... populate form fields
+                showToast('Previous configuration loaded', 'info');
+            }
+        }
+
+        // Device loading
+        function loadDevice(deviceId) {
+            const device = deviceTemplates[deviceId];
+            if (device) {
+                document.getElementById('deviceName').value = device.name;
+                document.getElementById('deviceTypeSelect').value = device.type;
+                updateDeviceTypeUI(device.type);
+                // ... load other settings
+                showToast(`Loaded: ${device.name}`, 'info');
+            }
+        }
+
+        // Navigation
+        document.querySelectorAll('.nav-tab').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.nav-tab').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+                const target = this.getAttribute('href');
+                document.querySelector(target).scrollIntoView({ behavior: 'smooth' });
+            });
+        });
+
+        // Status toggle
+        function toggleStatus() {
+            const toggle = document.getElementById('statusToggle');
+            const canActivate = validateCanActivate();
+            
+            if (!canActivate && !toggle.classList.contains('active')) {
+                showToast('Cannot activate: Missing required configuration', 'error');
+                return;
+            }
+            
+            toggle.classList.toggle('active');
+            updateStatusDisplay();
+            markUnsaved();
+        }
+
+        function updateStatusFromRadio() {
+            const active = document.querySelector('input[name="status"]:checked').value === 'active';
+            const toggle = document.getElementById('statusToggle');
+            
+            if (active) {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+            
+            updateStatusDisplay();
+            markUnsaved();
+        }
+
+        function updateStatusDisplay() {
+            const toggle = document.getElementById('statusToggle');
+            const statusDisplay = document.getElementById('statusDisplay');
+            const isActive = toggle.classList.contains('active');
+            
+            if (isActive) {
+                statusDisplay.classList.remove('paused');
+                statusDisplay.classList.add('active');
+                statusDisplay.querySelector('span:last-child').textContent = 'Active';
+                document.querySelector('input[name="status"][value="active"]').checked = true;
+            } else {
+                statusDisplay.classList.remove('active');
+                statusDisplay.classList.add('paused');
+                statusDisplay.querySelector('span:last-child').textContent = 'Paused';
+                document.querySelector('input[name="status"][value="paused"]').checked = true;
+            }
+        }
+
+        // Validation
+        function validateCanActivate() {
+            const favoriteGroup = document.getElementById('favoriteGroup').value;
+            const hasAvailability = true; // Simplified - check if inherit or override is set
+            
+            return favoriteGroup && hasAvailability;
+        }
+
+        function validateField(input) {
+            const group = input.closest('.form-group');
+            if (!input.value.trim()) {
+                group.classList.add('has-error');
+                return false;
+            } else {
+                group.classList.remove('has-error');
+                return true;
+            }
+        }
+
+        function validateCatalog() {
+            const favoriteGroup = document.getElementById('favoriteGroup');
+            const group = document.getElementById('favoriteGroupGroup');
+            
+            if (!favoriteGroup.value) {
+                group.classList.add('has-error');
+                // Show error indicator on tab
+                document.querySelector('[href="#catalog"] .error-indicator').style.display = 'block';
+                return false;
+            } else {
+                group.classList.remove('has-error');
+                document.querySelector('[href="#catalog"] .error-indicator').style.display = 'none';
+                return true;
+            }
+        }
+
+        // Checklist management
+        function updateChecklistProgress() {
+            const checks = {
+                device: !!document.getElementById('deviceName').value,
+                catalog: !!document.getElementById('favoriteGroup').value,
+                availability: true, // Simplified
+                behavior: document.getElementById('payCounter').checked,
+                payments: true // Simplified
+            };
+
+            Object.keys(checks).forEach(key => {
+                const icon = document.getElementById(`check-${key}`);
+                if (checks[key]) {
+                    icon.classList.add('complete');
+                    icon.classList.remove('incomplete');
+                    icon.textContent = '✓';
+                } else {
+                    icon.classList.remove('complete');
+                    icon.classList.add('incomplete');
+                    icon.textContent = '○';
+                }
+            });
+
+            const completed = Object.values(checks).filter(Boolean).length;
+            const total = Object.keys(checks).length;
+            document.getElementById('checklistProgress').textContent = `${completed} of ${total} complete`;
+        }
+
+        // Device Type handling
+        function handleDeviceTypeChange() {
+            document.getElementById('deviceTypeModal').classList.add('show');
+        }
+
+        function cancelDeviceTypeChange() {
+            document.getElementById('deviceTypeSelect').value = previousDeviceType;
+            document.getElementById('deviceTypeModal').classList.remove('show');
+        }
+
+        function confirmDeviceTypeChange() {
+            const newType = document.getElementById('deviceTypeSelect').value;
+            previousDeviceType = newType;
+            updateDeviceTypeUI(newType);
+            document.getElementById('deviceTypeModal').classList.remove('show');
+            markUnsaved();
+            showToast('Device type changed. New URL generated for channel devices.', 'warning');
+        }
+
+        function updateDeviceTypeUI(type) {
+            const config = deviceTypeConfig[type];
+            const badge = document.getElementById('deviceTypeBadge');
+            if (badge) {
+                badge.className = 'badge ' + config.badge;
+                badge.textContent = config.text;
+            }
+
+            const isChannel = config.isChannel;
+            const isPOS = config.isPOS;
+
+            // Show/hide tabs and sections
+            document.querySelectorAll('.nav-tab, .section-card').forEach(el => {
+                const channelOnly = el.dataset.channelOnly === 'true';
+                const posOnly = el.dataset.posOnly === 'true';
+                
+                if (channelOnly && !isChannel) {
+                    el.classList.add('hidden');
+                } else if (posOnly && !isPOS) {
+                    el.classList.add('hidden');
+                } else {
+                    el.classList.remove('hidden');
+                }
+            });
+
+            // Show/hide Public URL (with null check)
+            const publicUrlSection = document.getElementById('publicUrlSection');
+            if (publicUrlSection) {
+                publicUrlSection.style.display = isChannel ? 'block' : 'none';
+            }
+
+            // Show/hide behavior sections (with null checks)
+            const behaviorQR = document.getElementById('behaviorQR');
+            const behaviorKiosk = document.getElementById('behaviorKiosk');
+            const behaviorOnline = document.getElementById('behaviorOnline');
+            const behaviorPOS = document.getElementById('behaviorPOS');
+            
+            if (behaviorQR) behaviorQR.style.display = type === 'qr' ? 'block' : 'none';
+            if (behaviorKiosk) behaviorKiosk.style.display = type === 'kiosk' ? 'block' : 'none';
+            if (behaviorOnline) behaviorOnline.style.display = type === 'online' ? 'block' : 'none';
+            if (behaviorPOS) behaviorPOS.style.display = isPOS ? 'block' : 'none';
+
+            updateChecklistProgress();
+        }
+
+        // Schedule management
+        function toggleSchedule() {
+            const useSchedule = document.getElementById('useSchedule');
+            const defaultCatalog = document.getElementById('defaultCatalog');
+            const scheduledCatalog = document.getElementById('scheduledCatalog');
+            
+            if (useSchedule && defaultCatalog && scheduledCatalog) {
+                const checked = useSchedule.checked;
+                defaultCatalog.style.display = checked ? 'none' : 'block';
+                scheduledCatalog.style.display = checked ? 'block' : 'none';
+            }
+        }
+
+        function addScheduleRow() {
+            scheduleCounter++;
+            const html = `
+                <div class="schedule-row" id="schedule${scheduleCounter}">
+                    <div class="form-group">
+                        <label class="form-label">Days</label>
+                        <select class="form-input" multiple style="height: 80px;" onchange="markUnsaved(); detectConflicts()">
+                            <option>Monday</option>
+                            <option>Tuesday</option>
+                            <option>Wednesday</option>
+                            <option>Thursday</option>
+                            <option>Friday</option>
+                            <option>Saturday</option>
+                            <option>Sunday</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">From</label>
+                        <input type="time" class="form-input" value="11:00" onchange="markUnsaved(); detectConflicts()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">To</label>
+                        <input type="time" class="form-input" value="14:00" onchange="markUnsaved(); detectConflicts()">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Favorite Group</label>
+                        <select class="form-input" onchange="markUnsaved()">
+                            <option>Lunch Special</option>
+                            <option>Main Menu</option>
+                            <option>Breakfast Menu</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Default Tab</label>
+                        <select class="form-input" onchange="markUnsaved()">
+                            <option value="">— None —</option>
+                            <option>Quick Bites</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" style="visibility: hidden;">Action</label>
+                        <button class="icon-btn" onclick="removeScheduleRow('schedule${scheduleCounter}')">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.querySelector('#scheduledCatalog .btn-secondary').insertAdjacentHTML('beforebegin', html);
+            markUnsaved();
+        }
+
+        function removeScheduleRow(id) {
+            document.getElementById(id).remove();
+            detectConflicts();
+            markUnsaved();
+        }
+
+        function detectConflicts() {
+            // Simplified conflict detection
+            const rows = document.querySelectorAll('.schedule-row');
+            const hasConflict = rows.length > 2; // Simplified logic
+            document.getElementById('conflictWarning').style.display = hasConflict ? 'block' : 'none';
+        }
+
+        // Availability
+        function toggleAvailabilityMode() {
+            const override = document.querySelector('input[name="availability"]:checked')?.value === 'override';
+            const inheritedHours = document.getElementById('inheritedHours');
+            const hoursOverride = document.getElementById('hoursOverride');
+            
+            if (inheritedHours) inheritedHours.style.display = override ? 'none' : 'block';
+            if (hoursOverride) hoursOverride.style.display = override ? 'block' : 'none';
+        }
+
+        function showQuickHoursPresets() {
+            const presets = {
+                'standard': { name: 'Standard (11-22)', hours: [11, 22] },
+                '24-7': { name: '24/7', hours: [0, 24] },
+                'weekends': { name: 'Weekends Only', days: ['saturday', 'sunday'] }
+            };
+            
+            const choice = prompt('Choose preset:\n1. Standard (11-22)\n2. 24/7\n3. Weekends Only\n\nEnter number:');
+            if (choice === '1') {
+                applyStandardHours();
+                showToast('Standard hours applied', 'success');
+            }
+        }
+
+        function applyStandardHours() {
+            document.querySelectorAll('.time-input').forEach((input, i) => {
+                if (i % 2 === 0) input.value = '11:00';
+                else input.value = '22:00';
+            });
+            markUnsaved();
+        }
+
+        function showCopyHoursModal() {
+            const day = prompt('Copy hours from which day?\n(monday, tuesday, etc.)');
+            if (day) {
+                // Simplified - would copy hours from selected day to all days
+                showToast(`Hours copied from ${day}`, 'success');
+                markUnsaved();
+            }
+        }
+
+        function addInterval(day) {
+            showToast('Multiple intervals coming soon!', 'info');
+        }
+
+        function addClosedDate() {
+            showToast('Closed date picker coming soon!', 'info');
+        }
+
+        // Lead Time
+        function updateLeadTimePreview() {
+            const base = parseInt(document.getElementById('baseTime').value) || 0;
+            const buffer = parseInt(document.getElementById('bufferTime').value) || 0;
+            const total = base + buffer;
+            
+            const now = new Date();
+            const ready = new Date(now.getTime() + total * 60000);
+            
+            document.getElementById('readyTime').textContent = ready.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = now.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+            updateLeadTimePreview();
+        }
+
+        // QR Mode
+        function setQRMode(mode) {
+            currentQRMode = mode;
+            document.querySelectorAll('#behaviorQR .segmented-option').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            markUnsaved();
+        }
+
+        function toggleReceiptPickup() {
+            const enabled = document.getElementById('enableReceiptPickup').checked;
+            document.getElementById('receiptPickupOptions').style.display = enabled ? 'block' : 'none';
+        }
+
+        // Preview
+        function togglePreview() {
+            const panel = document.getElementById('previewPanel');
+            panel.classList.toggle('show');
+        }
+
+        function setPreviewMode(mode) {
+            document.querySelectorAll('.preview-mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.getElementById('mobilePreview').style.display = mode === 'mobile' ? 'block' : 'none';
+            document.getElementById('kioskPreview').style.display = mode === 'kiosk' ? 'block' : 'none';
+        }
+
+        // Templates
+        function openTemplates() {
+            // Deprecated - templates now in Create New Device modal
+            showNewDeviceModal();
+        }
+
+        function showLoadTemplateModal() {
+            // Deprecated - templates now in Create New Device modal
+            showNewDeviceModal();
+        }
+
+        function closeTemplates() {
+            const modal = document.getElementById('templatesModal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+        }
+
+        function applyTemplate(template) {
+            const templates = {
+                // QR Templates
+                'qr-table-service': {
+                    name: 'Table Service',
+                    leadTime: 15,
+                    payAtCounter: true,
+                    allowComments: true,
+                    qrMode: 'table'
+                },
+                'qr-coffee-shop': {
+                    name: 'Coffee Shop',
+                    leadTime: 5,
+                    payAtCounter: false,
+                    allowComments: false,
+                    qrMode: 'standard'
+                },
+                'qr-fine-dining': {
+                    name: 'Fine Dining',
+                    leadTime: 25,
+                    payAtCounter: true,
+                    allowComments: true,
+                    qrMode: 'table'
+                },
+                // Kiosk Templates
+                'kiosk-fast-food': {
+                    name: 'Fast Food',
+                    leadTime: 8,
+                    requireName: false,
+                    autoReset: true
+                },
+                'kiosk-cinema': {
+                    name: 'Cinema',
+                    leadTime: 5,
+                    requireName: false,
+                    autoReset: true
+                },
+                'kiosk-event': {
+                    name: 'Event',
+                    leadTime: 10,
+                    requireName: false,
+                    autoReset: true
+                },
+                // Online Templates
+                'online-delivery': {
+                    name: 'Delivery Restaurant',
+                    leadTime: 30,
+                    enablePickup: true,
+                    enableDelivery: true,
+                    minOrderAmount: 150
+                },
+                'online-pickup': {
+                    name: 'Pickup Only',
+                    leadTime: 20,
+                    enablePickup: true,
+                    enableDelivery: false
+                },
+                'online-catering': {
+                    name: 'Catering Service',
+                    leadTime: 60,
+                    enablePickup: true,
+                    enableDelivery: true,
+                    enableScheduledOrders: true
+                }
+            };
+            
+            closeTemplates();
+            const templateName = templates[template]?.name || template;
+            showToast(`Applied ${templateName} template`, 'success');
+            markUnsaved();
+        }
+
+        function applySuggestion() {
+            document.getElementById('payCounter').checked = true;
+            document.getElementById('allowComment').checked = true;
+            document.getElementById('suggestionBanner').style.display = 'none';
+            showToast('Suggestions applied!', 'success');
+            markUnsaved();
+            updateChecklistProgress();
+        }
+
+        function dismissSuggestion() {
+            document.getElementById('suggestionBanner').style.display = 'none';
+        }
+
+        // Advanced functions
+        function exportConfig() {
+            const config = {
+                deviceName: document.getElementById('deviceName').value,
+                deviceType: document.getElementById('deviceTypeSelect').value,
+                exported: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'device-config.json';
+            a.click();
+            
+            showToast('Configuration exported', 'success');
+        }
+
+        function resetToDefaults() {
+            if (confirm('Reset all settings to defaults? This cannot be undone.')) {
+                // Reset logic here
+                showToast('Settings reset to defaults', 'success');
+                markUnsaved();
+            }
+        }
+
+        function duplicateDevice() {
+            showToast('Device duplicated as "Main Dining QR (Copy)"', 'success');
+        }
+
+        function copyFromDevice() {
+            const device = prompt('Copy settings from device:\n1. Pickup Counter QR\n2. Entrance Kiosk\n3. Online Store\n\nEnter number:');
+            if (device) {
+                showToast('Settings copied successfully', 'success');
+                markUnsaved();
+            }
+        }
+
+        function showDeleteModal() {
+            if (confirm('Are you sure you want to delete this device? This action cannot be undone.')) {
+                showToast('Device would be deleted (demo mode)', 'warning');
+            }
+        }
+
+        // Utilities
+        function copyUrl() {
+            const url = document.querySelector('.url-text').textContent;
+            navigator.clipboard.writeText(url);
+            showToast('URL copied to clipboard!', 'success');
+        }
+
+        // NEW: Copy Admin URL
+        function copyAdminUrl() {
+            const adminUrl = document.querySelectorAll('.url-text')[1].textContent;
+            navigator.clipboard.writeText(adminUrl);
+            showToast('Admin link copied to clipboard!', 'success');
+        }
+
+        // NEW: Printer Mode Toggle
+        function togglePrinterMode() {
+            const cloudMode = document.querySelector('input[name="printerMode"]:checked').value === 'cloud';
+            document.getElementById('cloudPrintMode').style.display = cloudMode ? 'block' : 'none';
+            document.getElementById('externalPrintMode').style.display = cloudMode ? 'none' : 'block';
+        }
+
+        // NEW: Group Printing Toggle
+        function toggleGroupPrinting() {
+            const enabled = document.getElementById('advancedBongPrint').checked;
+            document.getElementById('groupPrintingSection').style.display = enabled ? 'block' : 'none';
+        }
+
+        // NEW: Payment Devices Management
+        let paymentDevices = [
+            { name: 'Bar Terminal', type: 'In-Person', provider: 'Adyen', active: true },
+            { name: 'Online Ecom', type: 'Ecom', provider: 'Adyen', active: true }
+        ];
+
+        function renderPaymentDevices() {
+            const tbody = document.getElementById('paymentDevicesTable');
+            tbody.innerHTML = paymentDevices.map((device, index) => `
+                <tr>
+                    <td style="padding: 0.75rem; border-bottom: 1px solid var(--border);">${device.name}</td>
+                    <td style="padding: 0.75rem; border-bottom: 1px solid var(--border);">${device.type}</td>
+                    <td style="padding: 0.75rem; border-bottom: 1px solid var(--border);">${device.provider}</td>
+                    <td style="padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                        ${device.active ? '<span style="color: var(--success);">✓ Active</span>' : '<span style="color: var(--text-secondary);">Inactive</span>'}
+                    </td>
+                    <td style="padding: 0.75rem; border-bottom: 1px solid var(--border);">
+                        <button class="btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;" onclick="editPaymentDevice(${index})">Edit</button>
+                        <button class="btn-secondary" style="padding: 0.375rem 0.75rem; font-size: 0.75rem; margin-left: 0.5rem;" onclick="removePaymentDevice(${index})">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showAddPaymentDevice() {
+            document.getElementById('paymentDeviceModal').classList.add('show');
+            document.getElementById('paymentDeviceForm').reset();
+            document.getElementById('paymentDeviceIndex').value = '';
+        }
+
+        function closePaymentDeviceModal() {
+            document.getElementById('paymentDeviceModal').classList.remove('show');
+        }
+
+        function savePaymentDevice() {
+            const index = document.getElementById('paymentDeviceIndex').value;
+            const device = {
+                name: document.getElementById('pdName').value,
+                type: document.getElementById('pdType').value,
+                provider: document.getElementById('pdProvider').value,
+                active: document.getElementById('pdActive').checked
+            };
+
+            if (index === '') {
+                paymentDevices.push(device);
+                showToast('Payment device added', 'success');
+            } else {
+                paymentDevices[index] = device;
+                showToast('Payment device updated', 'success');
+            }
+
+            renderPaymentDevices();
+            closePaymentDeviceModal();
+            markUnsaved();
+        }
+
+        function editPaymentDevice(index) {
+            const device = paymentDevices[index];
+            document.getElementById('pdName').value = device.name;
+            document.getElementById('pdType').value = device.type;
+            document.getElementById('pdProvider').value = device.provider;
+            document.getElementById('pdActive').checked = device.active;
+            document.getElementById('paymentDeviceIndex').value = index;
+            document.getElementById('paymentDeviceModal').classList.add('show');
+        }
+
+        function removePaymentDevice(index) {
+            if (confirm('Remove this payment device?')) {
+                paymentDevices.splice(index, 1);
+                renderPaymentDevices();
+                showToast('Payment device removed', 'warning');
+                markUnsaved();
+            }
+        }
+
+        // NEW: POS Template Functions
+        function saveAsTemplate() {
+            const templateName = prompt('Enter template name:');
+            if (templateName) {
+                showToast(`Settings saved as template: ${templateName}`, 'success');
+                markUnsaved();
+            }
+        }
+
+        // NEW: Template Mode Toggle
+        function toggleTemplateMode() {
+            const useTemplate = document.getElementById('useTemplate').checked;
+            
+            // Show/hide template content
+            document.getElementById('templateModeContent').style.display = useTemplate ? 'block' : 'none';
+            document.getElementById('manualModeMessage').style.display = useTemplate ? 'none' : 'block';
+            
+            // Show/hide payment devices manual config
+            const templateManagedMsg = document.getElementById('templateManagedMessage');
+            const manualPaymentDevices = document.getElementById('manualPaymentDevices');
+            
+            if (templateManagedMsg && manualPaymentDevices) {
+                templateManagedMsg.style.display = useTemplate ? 'block' : 'none';
+                manualPaymentDevices.style.display = useTemplate ? 'none' : 'block';
+            }
+        }
+
+        // NEW: Show New Device Modal
+        function showNewDeviceModal() {
+            document.getElementById('newDeviceModal').classList.add('show');
+            updateTemplateOptions(); // Initialize template options
+        }
+
+        function closeNewDeviceModal() {
+            document.getElementById('newDeviceModal').classList.remove('show');
+        }
+
+        // NEW: Update template options based on device type
+        function updateTemplateOptions() {
+            const deviceType = document.getElementById('newDeviceType').value;
+            
+            // Hide all template groups
+            document.getElementById('qrTemplateGroup').style.display = 'none';
+            document.getElementById('kioskTemplateGroup').style.display = 'none';
+            document.getElementById('onlineTemplateGroup').style.display = 'none';
+            document.getElementById('posTemplateGroup').style.display = 'none';
+            
+            // Show relevant template group
+            if (deviceType === 'qr') {
+                document.getElementById('qrTemplateGroup').style.display = 'block';
+            } else if (deviceType === 'kiosk') {
+                document.getElementById('kioskTemplateGroup').style.display = 'block';
+            } else if (deviceType === 'online') {
+                document.getElementById('onlineTemplateGroup').style.display = 'block';
+            } else if (deviceType === 'pos-simple' || deviceType === 'pos-advanced') {
+                document.getElementById('posTemplateGroup').style.display = 'block';
+            }
+            
+            // Reset template selection
+            document.getElementById('newDeviceTemplate').value = '';
+            document.getElementById('templatePreview').style.display = 'none';
+        }
+
+        function createNewDevice() {
+            const name = document.getElementById('newDeviceName').value;
+            const type = document.getElementById('newDeviceType').value;
+            const location = document.getElementById('newDeviceLocation').value;
+            const template = document.getElementById('newDeviceTemplate').value;
+            
+            if (!name.trim()) {
+                showToast('Device name is required', 'error');
+                return;
+            }
+            
+            closeNewDeviceModal();
+            
+            let message = `Device "${name}" created!`;
+            if (template) {
+                const templateNames = {
+                    'qr-table-service': 'Table Service',
+                    'qr-coffee-shop': 'Coffee Shop',
+                    'qr-fine-dining': 'Fine Dining',
+                    'kiosk-fast-food': 'Fast Food',
+                    'kiosk-cinema': 'Cinema',
+                    'kiosk-event': 'Event',
+                    'online-delivery': 'Delivery Restaurant',
+                    'online-pickup': 'Pickup Only',
+                    'online-catering': 'Catering Service',
+                    'pos-retail': 'Retail Store',
+                    'pos-event': 'Event/Festival'
+                };
+                message += ` Template "${templateNames[template]}" applied.`;
+            }
+            
+            showToast(message, 'success');
+            
+            // Simulate navigation to new device
+            setTimeout(() => {
+                document.getElementById('deviceName').value = name;
+                document.getElementById('deviceTypeSelect').value = type;
+                updateDeviceTypeUI(type);
+                markUnsaved();
+            }, 500);
+        }
+
+        // NEW: Operations Section Toggle
+        function toggleOperations() {
+            const section = document.getElementById('operationsContent');
+            const icon = document.getElementById('operationsToggleIcon');
+            const isHidden = section.style.display === 'none';
+            section.style.display = isHidden ? 'block' : 'none';
+            icon.textContent = isHidden ? '▼' : '▶';
+        }
+
+        // NEW: Setup Checklist Toggle
+        function toggleSetupChecklist() {
+            const items = document.getElementById('checklistItems');
+            const icon = document.getElementById('checklistToggleIcon');
+            const isHidden = items.style.display === 'none';
+            items.style.display = isHidden ? 'grid' : 'none';
+            icon.textContent = isHidden ? '▼' : '▶';
+        }
+
+        // NEW: Park Order Toggle (QR)
+        function toggleParkOrder() {
+            const enabled = document.getElementById('enableParkOrder').checked;
+            document.getElementById('parkOrderOptions').style.display = enabled ? 'block' : 'none';
+        }
+
+        // NEW: Park Order Toggle (POS)
+        function toggleParkOrderPOS() {
+            const enabled = document.getElementById('enableParkOrderPOS').checked;
+            document.getElementById('parkOrderPOSOptions').style.display = enabled ? 'block' : 'none';
+        }
+
+        // NEW: Split Payment Toggle
+        function toggleSplitPayment() {
+            const enabled = document.getElementById('enableSplitPayment').checked;
+            document.getElementById('splitPaymentOptions').style.display = enabled ? 'block' : 'none';
+        }
+
+        // NEW: QR Appearance Mode Toggle
+        function toggleQRAppearanceMode() {
+            const customMode = document.querySelector('input[name="qrAppearanceMode"]:checked').value === 'custom';
+            document.getElementById('qrStandardMode').style.display = customMode ? 'none' : 'block';
+            document.getElementById('qrCustomMode').style.display = customMode ? 'block' : 'none';
+        }
+
+        // NEW: Kiosk Appearance Mode Toggle
+        function toggleKioskMode() {
+            const customMode = document.querySelector('input[name="kioskMode"]:checked').value === 'custom';
+            document.getElementById('kioskStandardMode').style.display = customMode ? 'none' : 'block';
+            document.getElementById('kioskCustomMode').style.display = customMode ? 'block' : 'none';
+        }
+
+        function openUrl() {
+            window.open('https://order.acme.com/d/a8k9x2', '_blank');
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+            toastIcon.textContent = icons[type] || '✓';
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        // Theme Management
+        function setTheme(theme) {
+            const html = document.documentElement;
+            
+            // Remove all theme classes
+            html.classList.remove('theme-dark', 'theme-dark-dim', 'theme-dark-neon');
+            
+            // Add new theme class (except for light which is default)
+            if (theme !== 'light') {
+                html.classList.add(`theme-${theme}`);
+            }
+            
+            // Update active button
+            document.querySelectorAll('.theme-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`.theme-btn[data-theme="${theme}"]`).classList.add('active');
+            
+            // Save preference
+            localStorage.setItem('plorea-theme', theme);
+        }
+
+        // Load saved theme on page load
+        function loadSavedTheme() {
+            const saved = localStorage.getItem('plorea-theme');
+            if (saved) {
+                setTheme(saved);
+            }
+        }
+
+        // Initialize theme on load
+        loadSavedTheme();
+    </script>
+</body>
+</html>
