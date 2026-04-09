@@ -380,10 +380,10 @@
     <h1>V1 Scope</h1>
     <p class="subtitle">Settings, Frontend &amp; System Integrations</p>
     <div class="meta">
-      <span class="meta-chip">v1.5</span>
+      <span class="meta-chip">v1.6</span>
       <span class="meta-chip status">● Draft</span>
       <span class="meta-chip">Owner: Einar Morten Slapgård</span>
-      <span class="meta-chip">Partner-native integration model</span>
+      <span class="meta-chip">GraphQL partner integration</span>
     </div>
   </header>
 
@@ -405,7 +405,7 @@
 
     <div class="callout principle">
       <div class="callout-label">Architecture Boundary</div>
-      <p>Master data ownership remains in the 3rd-party system. Channel configuration and runtime control remain in Plorea. Partner frontends integrate with Plorea via REST API — Plorea does not host configuration UIs for partner users in V1.</p>
+      <p>Master data ownership remains in the 3rd-party system. Channel configuration and runtime control remain in Plorea. Partner frontends integrate with Plorea via a dedicated <strong>GraphQL API</strong> — Plorea does not host configuration UIs for partner users in V1, and no REST endpoints are exposed to partners.</p>
     </div>
   </section>
 
@@ -479,9 +479,10 @@
 
     <h4>Communication Method</h4>
     <ul>
-      <li>WebSocket (real-time push), <strong>or</strong></li>
-      <li>Webhook (event-driven HTTP callback)</li>
+      <li><strong>Partner → Plorea</strong> (queries &amp; mutations): GraphQL over <code>POST /graphql/{partner}</code>, authenticated via Sanctum bearer token</li>
+      <li><strong>Plorea → Partner</strong> (order events &amp; lifecycle push): WebSocket (real-time) or Webhook (event-driven HTTP callback)</li>
     </ul>
+    <p><em>GraphQL foundation work is tracked in <code>PLBR-1152</code> (Amendo endpoint, login mutation, companies query, updateCompany mutation). Additional partner types and mutations are added incrementally per integration.</em></p>
 
     <div class="callout critical">
       <div class="callout-label">Governance Rule</div>
@@ -492,9 +493,21 @@
   <section>
     <h2>Partner Integration Model</h2>
 
-    <p>When RMSV or Amendo integration is active, partner systems integrate with Plorea through <strong>partner-native frontends calling the Plorea REST API</strong>. Configuration and operational surfaces are built and owned inside the partner system's own UI, consuming Plorea endpoints.</p>
+    <p>When RMSV or Amendo integration is active, partner systems integrate with Plorea through <strong>partner-native frontends calling a dedicated Plorea GraphQL API</strong>. Configuration and operational surfaces are built and owned inside the partner system's own UI, consuming Plorea GraphQL queries and mutations.</p>
 
     <p>Plorea does <strong>not</strong> host Direct Link / SSO configuration pages for partner users in V1. Plorea-hosted surfaces are used by Plorea-native customers and during internal operations, not embedded into partner workflows.</p>
+
+    <div class="callout principle">
+      <div class="callout-label">GraphQL Foundation · PLBR-1152</div>
+      <p>Each partner gets a dedicated GraphQL endpoint (e.g. <code>POST /graphql/amendo</code>) with its own schema namespace under <code>app/GraphQL/{Partner}/</code>. Authentication uses Sanctum personal access tokens via <code>Authorization: Bearer &lt;token&gt;</code>, with short-lived tokens (30 min for Amendo). The existing Plorea POS <code>/graphql</code> endpoint is unaffected. No REST endpoints are exposed to partners.</p>
+    </div>
+
+    <h4>First endpoints (Amendo · PLBR-1152)</h4>
+    <ul>
+      <li><code>login(email, password): LoginPayload</code> — mutation, returns token + expiry + user</li>
+      <li><code>companies(id, limit, offset): [CompanyType]</code> — query, scoped to authenticated user</li>
+      <li><code>updateCompany(id, input: CompanyInput): CompanyType</code> — mutation, authorization enforced per company</li>
+    </ul>
 
     <h3>Surfaces Owned by Plorea (Plorea-native customers)</h3>
 
@@ -520,10 +533,13 @@
     <div class="callout principle">
       <div class="callout-label">Governance – Partner Integration</div>
       <ul>
-        <li>Partner API access must authenticate via secure token</li>
+        <li>Partner API access authenticates via Sanctum bearer tokens with short-lived expiry</li>
+        <li>Each partner has an isolated GraphQL schema namespace; no shared mutations across partners</li>
         <li>Must respect role permissions received from 3rd-party</li>
+        <li>Authorization checks enforced at resolver level (e.g. user must belong to the company being mutated)</li>
         <li>Must not introduce financial reporting logic</li>
         <li>Must not duplicate master data ownership</li>
+        <li>No REST endpoints exposed to partners</li>
       </ul>
     </div>
   </section>
@@ -701,7 +717,7 @@
   </section>
 
   <footer class="doc-footer">
-    Plorea Order Platform · V1 Scope · v1.5 · Dark Dim
+    Plorea Order Platform · V1 Scope · v1.6 · Dark Dim
   </footer>
 
 </div>
