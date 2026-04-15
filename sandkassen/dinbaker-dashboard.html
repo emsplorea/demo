@@ -635,6 +635,316 @@ button { cursor: pointer; font-family: inherit; }
 .mb-20 { margin-bottom: 20px; }
 .mt-12 { margin-top: 12px; }
 
+/* ─── Filter section ────────────────────────────────────────────── */
+@keyframes slideDown {
+  from { opacity:0; transform:translateY(-12px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.filters-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  animation: slideDown .35s ease-out;
+}
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.filter-group { position: relative; }
+.filter-label {
+  display: block;
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.flt-select, .flt-input {
+  width: 100%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .84rem;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+}
+.flt-select:hover, .flt-input:hover { border-color: var(--accent); }
+.flt-select:focus, .flt-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.flt-select option { background: var(--bg-surface); }
+
+/* Custom multi-select dropdown */
+.custom-dropdown { position: relative; width: 100%; }
+.dropdown-trigger {
+  width: 100%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: .84rem;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.dropdown-trigger:hover { border-color: var(--accent); }
+.dropdown-trigger.open {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px;
+  z-index: 1000;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: var(--shadow-md);
+}
+.dropdown-menu.show {
+  display: block;
+  animation: slideDown .18s ease-out;
+}
+.dropdown-search {
+  width: 100%;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: .8rem;
+  margin-bottom: 6px;
+  transition: border-color .15s;
+}
+.dropdown-search:focus { outline: none; border-color: var(--accent); }
+.dropdown-option {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background .12s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: .82rem;
+}
+.dropdown-option:hover { background: var(--bg-hover); }
+.dropdown-option input[type="checkbox"] { width:16px; height:16px; cursor:pointer; accent-color: var(--accent); }
+.dropdown-option.selected {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  color: var(--accent);
+}
+
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  min-height: 20px;
+  flex: 1;
+  align-items: center;
+}
+.selected-tag {
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: .75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.selected-tag button {
+  background: none; border: none;
+  color: #fff; cursor: pointer;
+  font-size: .9rem; padding: 0; line-height: 1;
+}
+
+/* Calendar */
+.calendar-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 1001;
+  display: none;
+  box-shadow: var(--shadow-md);
+  width: 620px;
+  max-width: 92vw;
+}
+.calendar-container.show {
+  display: block;
+  animation: slideDown .2s ease-out;
+}
+.calendar-presets {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.preset-btn {
+  padding: 6px 4px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all .15s;
+  font-size: .76rem;
+  font-family: inherit;
+  font-weight: 600;
+}
+.preset-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+.preset-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.calendar-nav { display: flex; align-items: center; gap: 6px; }
+.calendar-nav button {
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 5px 9px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: .9rem;
+  transition: all .15s;
+}
+.calendar-nav button:hover { border-color: var(--accent); }
+.calendar-title {
+  font-weight: 600;
+  font-size: .9rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 5px 10px;
+  border-radius: 6px;
+  transition: background .15s;
+}
+.calendar-title:hover { background: var(--bg-hover); }
+.calendar-grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.calendar-month-title {
+  text-align: center;
+  font-weight: 600;
+  font-size: .82rem;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+.calendar-day-label {
+  text-align: center;
+  font-size: .68rem;
+  color: var(--text-secondary);
+  padding: 4px 2px;
+  font-weight: 700;
+}
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .12s;
+  color: var(--text-primary);
+  font-size: .78rem;
+}
+.calendar-day:hover:not(.disabled):not(.outside-month) { background: var(--bg-hover); }
+.calendar-day.outside-month { color: var(--text-muted); cursor: default; }
+.calendar-day.disabled { color: var(--text-muted); cursor: not-allowed; opacity: .4; }
+.calendar-day.selected { background: var(--accent); color: #fff; }
+.calendar-day.in-range { background: color-mix(in srgb, var(--accent) 20%, transparent); }
+.calendar-day.today { border: 2px solid var(--accent); }
+.calendar-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.calendar-selected-range { color: var(--text-secondary); font-size: .78rem; }
+.calendar-actions { display: flex; gap: 8px; }
+
+/* Filter action buttons */
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  align-items: center;
+}
+.flt-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: .8rem;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: all .15s;
+  text-transform: uppercase;
+}
+.flt-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.flt-btn-primary:hover { filter: brightness(1.1); box-shadow: 0 4px 12px color-mix(in srgb, var(--accent) 35%, transparent); }
+.flt-btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+.flt-btn-secondary:hover { background: var(--bg-hover); color: var(--text-primary); }
+
+/* Loading spinner inside button */
+.loading-spinner {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
 /* ─── Animations ─────────────────────────────────────────────────── */
 @keyframes fadeUp {
   from { opacity:0; transform: translateY(14px); }
@@ -677,6 +987,112 @@ button { cursor: pointer; font-family: inherit; }
 ═══════════════════════════════════════════════════════════════════ -->
 <div class="view active" id="view-kasse">
 <div class="page-wrap">
+
+  <!-- Filter -->
+  <section class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">Avdeling</label>
+        <div class="custom-dropdown" id="kasseLocDropdown">
+          <div class="dropdown-trigger" id="kasseLocTrigger">
+            <div class="selected-tags" id="kasseLocTags">
+              <span style="color:var(--text-secondary);">Alle avdelinger</span>
+            </div>
+            <span style="font-size:.7rem;flex-shrink:0;">▼</span>
+          </div>
+          <div class="dropdown-menu" id="kasseLocMenu">
+            <input type="text" class="dropdown-search" placeholder="Søk avdeling..." id="kasseLocSearch">
+            <div class="dropdown-option" data-value="all">
+              <input type="checkbox" id="kloc-all" checked>
+              <label for="kloc-all">Alle avdelinger</label>
+            </div>
+            <div class="dropdown-option" data-value="storgata">
+              <input type="checkbox" id="kloc-1">
+              <label for="kloc-1">DinBaker — Storgata</label>
+            </div>
+            <div class="dropdown-option" data-value="bryggen">
+              <input type="checkbox" id="kloc-2">
+              <label for="kloc-2">DinBaker — Bryggen</label>
+            </div>
+            <div class="dropdown-option" data-value="jernbane">
+              <input type="checkbox" id="kloc-3">
+              <label for="kloc-3">DinBaker — Jernbanetorget</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Kassepunkt</label>
+        <select class="flt-select" id="kassePosFilter">
+          <option value="all">Alle kasser</option>
+          <option value="kasse1">Kasse 1</option>
+          <option value="kasse2">Kasse 2</option>
+          <option value="kasse3">Kasse 3 (Kiosk)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Periode</label>
+        <div style="position:relative;">
+          <input type="text" class="flt-input" id="kassePeriodInput" readonly placeholder="Velg periode..." value="I dag">
+          <div class="calendar-container" id="kasseCalendarContainer">
+            <div class="calendar-presets">
+              <button class="preset-btn active" data-preset="today" data-cal="kasse">I dag</button>
+              <button class="preset-btn" data-preset="yesterday" data-cal="kasse">I går</button>
+              <button class="preset-btn" data-preset="last7" data-cal="kasse">Siste 7 dager</button>
+              <button class="preset-btn" data-preset="last30" data-cal="kasse">Siste 30 dager</button>
+              <button class="preset-btn" data-preset="thisWeek" data-cal="kasse">Denne uke</button>
+              <button class="preset-btn" data-preset="prevWeek" data-cal="kasse">Forrige uke</button>
+              <button class="preset-btn" data-preset="thisMonth" data-cal="kasse">Denne måned</button>
+              <button class="preset-btn" data-preset="prevMonth" data-cal="kasse">Forrige måned</button>
+            </div>
+            <div class="calendar-header">
+              <div class="calendar-nav">
+                <button id="kassePrevYear">«</button>
+                <button id="kassePrevMonth">‹</button>
+              </div>
+              <div class="calendar-title" id="kasseCalTitle">April 2026</div>
+              <div class="calendar-nav">
+                <button id="kasseNextMonth">›</button>
+                <button id="kasseNextYear">»</button>
+              </div>
+            </div>
+            <div class="calendar-grid-container">
+              <div class="calendar-month">
+                <div class="calendar-month-title" id="kasseMonth1Title"></div>
+                <div class="calendar-grid" id="kasseCalendar1"></div>
+              </div>
+              <div class="calendar-month">
+                <div class="calendar-month-title" id="kasseMonth2Title"></div>
+                <div class="calendar-grid" id="kasseCalendar2"></div>
+              </div>
+            </div>
+            <div class="calendar-footer">
+              <div class="calendar-selected-range" id="kasseSelectedRange">Velg start- og sluttdato</div>
+              <div class="calendar-actions">
+                <button class="flt-btn flt-btn-secondary" id="kasseCalCancel">Avbryt</button>
+                <button class="flt-btn flt-btn-primary" id="kasseCalApply">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Ukedager</label>
+        <select class="flt-select" id="kasseWeekdaysFilter">
+          <option value="all">Alle dager</option>
+          <option value="weekdays">Ukedager (Man–Fre)</option>
+          <option value="weekend">Helg (Lør–Søn)</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="flt-btn flt-btn-secondary" id="kasseResetFilters">Nullstill</button>
+      <button class="flt-btn flt-btn-primary" id="kasseApplyFilters">Bruk filtre</button>
+    </div>
+  </section>
 
   <!-- Generell -->
   <div class="section-label mb-12">Generelt — i dag</div>
@@ -944,25 +1360,114 @@ button { cursor: pointer; font-family: inherit; }
 <div class="view" id="view-backend">
 <div class="page-wrap">
 
-  <!-- Filter bar -->
-  <div class="filter-bar">
-    <button class="period-btn" data-period="today">I dag</button>
-    <button class="period-btn" data-period="yesterday">I går</button>
-    <button class="period-btn" data-period="week">Siste 7 dager</button>
-    <button class="period-btn active" data-period="month">Siste 30 dager</button>
-    <button class="period-btn" data-period="quarter">Kvartal</button>
-    <button class="period-btn" data-period="year">År til dato</button>
-    <select class="filter-select" id="compare-select">
-      <option value="prev">vs forrige periode</option>
-      <option value="lastyear" selected>vs samme periode i fjor</option>
-    </select>
-    <select class="filter-select" id="location-select">
-      <option value="all">Alle avdelinger</option>
-      <option value="main">Storgata</option>
-      <option value="city">Bryggen</option>
-      <option value="kiosk">Jernbanetorget</option>
-    </select>
-  </div>
+  <!-- Filter -->
+  <section class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label class="filter-label">Avdelinger</label>
+        <div class="custom-dropdown" id="beLocDropdown">
+          <div class="dropdown-trigger" id="beLocTrigger">
+            <div class="selected-tags" id="beLocTags">
+              <span style="color:var(--text-secondary);">Alle avdelinger</span>
+            </div>
+            <span style="font-size:.7rem;flex-shrink:0;">▼</span>
+          </div>
+          <div class="dropdown-menu" id="beLocMenu">
+            <input type="text" class="dropdown-search" placeholder="Søk avdeling..." id="beLocSearch">
+            <div class="dropdown-option" data-value="all">
+              <input type="checkbox" id="bloc-all" checked>
+              <label for="bloc-all">Alle avdelinger</label>
+            </div>
+            <div class="dropdown-option" data-value="storgata">
+              <input type="checkbox" id="bloc-1">
+              <label for="bloc-1">DinBaker — Storgata</label>
+            </div>
+            <div class="dropdown-option" data-value="bryggen">
+              <input type="checkbox" id="bloc-2">
+              <label for="bloc-2">DinBaker — Bryggen</label>
+            </div>
+            <div class="dropdown-option" data-value="jernbane">
+              <input type="checkbox" id="bloc-3">
+              <label for="bloc-3">DinBaker — Jernbanetorget</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Periode</label>
+        <div style="position:relative;">
+          <input type="text" class="flt-input" id="bePeriodInput" readonly placeholder="Velg periode..." value="Siste 30 dager">
+          <div class="calendar-container" id="beCalendarContainer">
+            <div class="calendar-presets">
+              <button class="preset-btn" data-preset="today" data-cal="be">I dag</button>
+              <button class="preset-btn" data-preset="yesterday" data-cal="be">I går</button>
+              <button class="preset-btn" data-preset="last7" data-cal="be">Siste 7 dager</button>
+              <button class="preset-btn active" data-preset="last30" data-cal="be">Siste 30 dager</button>
+              <button class="preset-btn" data-preset="thisWeek" data-cal="be">Denne uke</button>
+              <button class="preset-btn" data-preset="prevWeek" data-cal="be">Forrige uke</button>
+              <button class="preset-btn" data-preset="thisMonth" data-cal="be">Denne måned</button>
+              <button class="preset-btn" data-preset="prevMonth" data-cal="be">Forrige måned</button>
+              <button class="preset-btn" data-preset="thisQuarter" data-cal="be">Dette kvartal</button>
+              <button class="preset-btn" data-preset="prevQuarter" data-cal="be">Forrige kvartal</button>
+              <button class="preset-btn" data-preset="thisYear" data-cal="be">Dette år</button>
+              <button class="preset-btn" data-preset="ytd" data-cal="be">År til dato</button>
+            </div>
+            <div class="calendar-header">
+              <div class="calendar-nav">
+                <button id="bePrevYear">«</button>
+                <button id="bePrevMonth">‹</button>
+              </div>
+              <div class="calendar-title" id="beCalTitle">April 2026</div>
+              <div class="calendar-nav">
+                <button id="beNextMonth">›</button>
+                <button id="beNextYear">»</button>
+              </div>
+            </div>
+            <div class="calendar-grid-container">
+              <div class="calendar-month">
+                <div class="calendar-month-title" id="beMonth1Title"></div>
+                <div class="calendar-grid" id="beCalendar1"></div>
+              </div>
+              <div class="calendar-month">
+                <div class="calendar-month-title" id="beMonth2Title"></div>
+                <div class="calendar-grid" id="beCalendar2"></div>
+              </div>
+            </div>
+            <div class="calendar-footer">
+              <div class="calendar-selected-range" id="beSelectedRange">Velg start- og sluttdato</div>
+              <div class="calendar-actions">
+                <button class="flt-btn flt-btn-secondary" id="beCalCancel">Avbryt</button>
+                <button class="flt-btn flt-btn-primary" id="beCalApply">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Ukedager</label>
+        <select class="flt-select" id="beWeekdaysFilter">
+          <option value="all">Alle dager</option>
+          <option value="weekdays">Ukedager (Man–Fre)</option>
+          <option value="weekend">Helg (Lør–Søn)</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Sammenligning</label>
+        <select class="flt-select" id="beComparisonFilter">
+          <option value="none">Ingen</option>
+          <option value="previous">Forrige periode</option>
+          <option value="lastYear" selected>Samme periode i fjor</option>
+        </select>
+      </div>
+    </div>
+    <div class="filter-actions">
+      <button class="flt-btn flt-btn-secondary" id="beResetFilters">Nullstill</button>
+      <button class="flt-btn flt-btn-primary" id="beApplyFilters">Bruk filtre</button>
+    </div>
+  </section>
 
   <!-- KPI-kort øverst -->
   <div class="section-label mb-12">KPI-oversikt</div>
@@ -1598,6 +2103,233 @@ function updateChartColors() {
   }
 }
 
+// ─── Generic multi-select location dropdown factory ───────────────────────
+function makeLocDropdown({ dropdownId, triggerId, tagsId, menuId, searchId, allCheckId, entityLabel }) {
+  const el = {
+    dropdown: document.getElementById(dropdownId),
+    trigger:  document.getElementById(triggerId),
+    tags:     document.getElementById(tagsId),
+    menu:     document.getElementById(menuId),
+    search:   document.getElementById(searchId),
+    selected: new Set(['all']),
+    entityLabel,
+  };
+
+  el.trigger.addEventListener('click', () => {
+    el.menu.classList.toggle('show');
+    el.trigger.classList.toggle('open');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!el.dropdown.contains(e.target)) {
+      el.menu.classList.remove('show');
+      el.trigger.classList.remove('open');
+    }
+  });
+
+  el.menu.querySelectorAll('.dropdown-option').forEach(opt => {
+    opt.querySelector('input').addEventListener('change', (e) => {
+      const val = opt.dataset.value;
+      if (val === 'all') {
+        el.menu.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = e.target.checked);
+        el.selected = e.target.checked ? new Set(['all']) : new Set();
+      } else {
+        if (e.target.checked) {
+          el.selected.add(val);
+          el.selected.delete('all');
+          document.getElementById(allCheckId).checked = false;
+        } else {
+          el.selected.delete(val);
+          if (el.selected.size === 0) {
+            el.selected.add('all');
+            document.getElementById(allCheckId).checked = true;
+          }
+        }
+      }
+      updateDropDisplay(el);
+    });
+  });
+
+  el.search.addEventListener('input', (e) => {
+    el.menu.querySelectorAll('.dropdown-option').forEach(opt => {
+      const lbl = opt.querySelector('label').textContent.toLowerCase();
+      opt.style.display = lbl.includes(e.target.value.toLowerCase()) ? '' : 'none';
+    });
+  });
+
+  el.selectAll = (checked) => {
+    el.menu.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = checked);
+    el.selected = checked ? new Set(['all']) : new Set();
+    updateDropDisplay(el);
+  };
+
+  updateDropDisplay(el);
+  return el;
+}
+
+function updateDropDisplay(el) {
+  if (el.selected.has('all') || el.selected.size === 0) {
+    el.tags.innerHTML = `<span style="color:var(--text-secondary);">Alle ${el.entityLabel}</span>`;
+  } else {
+    const names = Array.from(el.selected).map(v => {
+      const opt = el.menu.querySelector(`[data-value="${v}"]`);
+      return opt ? opt.querySelector('label').textContent : '';
+    }).filter(Boolean);
+    if (names.length <= 2) {
+      el.tags.innerHTML = names.map(n =>
+        `<span class="selected-tag">${n} <button onclick="this.closest('.selected-tag').remove()">×</button></span>`
+      ).join('');
+    } else {
+      el.tags.innerHTML = `<span style="color:var(--text-secondary);">${names.length} ${el.entityLabel} valgt</span>`;
+    }
+  }
+}
+
+// ─── Generic calendar factory ──────────────────────────────────────────────
+function makeCalendar({ inputId, containerId, prevYearId, prevMonthId, nextMonthId, nextYearId,
+                         titleId, month1TitleId, month2TitleId, cal1Id, cal2Id,
+                         rangeId, cancelId, applyId, calKey }) {
+  const state = {
+    input:        document.getElementById(inputId),
+    container:    document.getElementById(containerId),
+    rangeEl:      document.getElementById(rangeId),
+    currentMonth: new Date(2026, 3, 1), // April 2026
+    startDate:    null,
+    endDate:      null,
+  };
+
+  const months = ['Januar','Februar','Mars','April','Mai','Juni','Juli','August','September','Oktober','November','Desember'];
+
+  function fmtDate(d) {
+    return `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  }
+  function fmtMY(d) { return `${months[d.getMonth()]} ${d.getFullYear()}`; }
+
+  function render() {
+    const m1 = new Date(state.currentMonth);
+    const m2 = new Date(m1.getFullYear(), m1.getMonth()+1, 1);
+    document.getElementById(titleId).textContent       = fmtMY(m1);
+    document.getElementById(month1TitleId).textContent = fmtMY(m1);
+    document.getElementById(month2TitleId).textContent = fmtMY(m2);
+    renderMonth(cal1Id, m1);
+    renderMonth(cal2Id, m2);
+  }
+
+  function renderMonth(containerId, month) {
+    const c = document.getElementById(containerId);
+    c.innerHTML = '';
+    ['Ma','Ti','On','To','Fr','Lø','Sø'].forEach(d => {
+      const div = document.createElement('div');
+      div.className = 'calendar-day-label';
+      div.textContent = d;
+      c.appendChild(div);
+    });
+    const first = new Date(month.getFullYear(), month.getMonth(), 1);
+    const startPad = (first.getDay() + 6) % 7;
+    for (let i = 0; i < startPad; i++) {
+      const d = document.createElement('div');
+      d.className = 'calendar-day outside-month';
+      c.appendChild(d);
+    }
+    const days = new Date(month.getFullYear(), month.getMonth()+1, 0).getDate();
+    const today = new Date(2026, 3, 16);
+    for (let i = 1; i <= days; i++) {
+      const date = new Date(month.getFullYear(), month.getMonth(), i);
+      const div  = document.createElement('div');
+      div.className = 'calendar-day';
+      div.textContent = i;
+      if (date > today) div.classList.add('disabled');
+      if (state.startDate && date.toDateString() === state.startDate.toDateString()) div.classList.add('selected');
+      if (state.endDate   && date.toDateString() === state.endDate.toDateString())   div.classList.add('selected');
+      if (state.startDate && state.endDate && date > state.startDate && date < state.endDate) div.classList.add('in-range');
+      if (date.toDateString() === today.toDateString()) div.classList.add('today');
+      div.addEventListener('click', () => {
+        if (!state.startDate || (state.startDate && state.endDate)) {
+          state.startDate = date; state.endDate = null;
+        } else {
+          if (date < state.startDate) { state.endDate = state.startDate; state.startDate = date; }
+          else state.endDate = date;
+        }
+        updateRange();
+        render();
+      });
+      c.appendChild(div);
+    }
+  }
+
+  function updateRange() {
+    if (state.startDate && state.endDate) {
+      state.rangeEl.textContent = `${fmtDate(state.startDate)} → ${fmtDate(state.endDate)}`;
+    } else if (state.startDate) {
+      state.rangeEl.textContent = `${fmtDate(state.startDate)} → velg sluttdato`;
+    } else {
+      state.rangeEl.textContent = 'Velg start- og sluttdato';
+    }
+  }
+
+  function applyPreset(preset) {
+    const today = new Date(2026, 3, 16);
+    let s, e;
+    switch(preset) {
+      case 'today':     s = e = new Date(today); break;
+      case 'yesterday': s = e = new Date(today.getFullYear(), today.getMonth(), today.getDate()-1); break;
+      case 'last7':     e = new Date(today); s = new Date(today.getFullYear(), today.getMonth(), today.getDate()-6); break;
+      case 'last30':    e = new Date(today); s = new Date(today.getFullYear(), today.getMonth(), today.getDate()-29); break;
+      case 'thisWeek':  { const dw=today.getDay(); s=new Date(today.getFullYear(),today.getMonth(),today.getDate()-(dw===0?6:dw-1)); e=new Date(s.getFullYear(),s.getMonth(),s.getDate()+6); break; }
+      case 'prevWeek':  { const lw=new Date(today.getFullYear(),today.getMonth(),today.getDate()-7); const lwd=lw.getDay(); s=new Date(lw.getFullYear(),lw.getMonth(),lw.getDate()-(lwd===0?6:lwd-1)); e=new Date(s.getFullYear(),s.getMonth(),s.getDate()+6); break; }
+      case 'thisMonth': s=new Date(today.getFullYear(),today.getMonth(),1); e=new Date(today.getFullYear(),today.getMonth()+1,0); break;
+      case 'prevMonth': s=new Date(today.getFullYear(),today.getMonth()-1,1); e=new Date(today.getFullYear(),today.getMonth(),0); break;
+      case 'thisQuarter': { const q=Math.floor(today.getMonth()/3); s=new Date(today.getFullYear(),q*3,1); e=new Date(today.getFullYear(),q*3+3,0); break; }
+      case 'prevQuarter': { const pq=Math.floor(today.getMonth()/3)-1; s=new Date(today.getFullYear()+(pq<0?-1:0),(pq<0?3:pq)*3,1); e=new Date(today.getFullYear()+(pq<0?-1:0),(pq<0?3:pq)*3+3,0); break; }
+      case 'thisYear': s=new Date(today.getFullYear(),0,1); e=new Date(today.getFullYear(),11,31); break;
+      case 'ytd':      s=new Date(today.getFullYear(),0,1); e=new Date(today); break;
+      default: return;
+    }
+    state.startDate = s; state.endDate = e;
+    state.currentMonth = new Date(s);
+    updateRange(); render();
+    // Mark active preset
+    document.querySelectorAll(`.preset-btn[data-cal="${calKey}"]`).forEach(b => b.classList.toggle('active', b.dataset.preset===preset));
+    // Set input label
+    const presetLabels = { today:'I dag', yesterday:'I går', last7:'Siste 7 dager', last30:'Siste 30 dager', thisWeek:'Denne uke', prevWeek:'Forrige uke', thisMonth:'Denne måned', prevMonth:'Forrige måned', thisQuarter:'Dette kvartal', prevQuarter:'Forrige kvartal', thisYear:'Dette år', ytd:'År til dato' };
+    state.input.value = presetLabels[preset] || `${fmtDate(s)} - ${fmtDate(e)}`;
+    state.container.classList.remove('show');
+  }
+
+  // Wire preset buttons
+  document.querySelectorAll(`.preset-btn[data-cal="${calKey}"]`).forEach(btn => {
+    btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+  });
+
+  // Nav buttons
+  document.getElementById(prevYearId).addEventListener('click',  () => { state.currentMonth.setMonth(state.currentMonth.getMonth()-12); render(); });
+  document.getElementById(prevMonthId).addEventListener('click', () => { state.currentMonth.setMonth(state.currentMonth.getMonth()-1);  render(); });
+  document.getElementById(nextMonthId).addEventListener('click', () => { state.currentMonth.setMonth(state.currentMonth.getMonth()+1);  render(); });
+  document.getElementById(nextYearId).addEventListener('click',  () => { state.currentMonth.setMonth(state.currentMonth.getMonth()+12); render(); });
+
+  // Input click → open
+  state.input.addEventListener('click', () => state.container.classList.add('show'));
+
+  // Cancel / Apply
+  document.getElementById(cancelId).addEventListener('click', () => state.container.classList.remove('show'));
+  document.getElementById(applyId).addEventListener('click', () => {
+    if (state.startDate && state.endDate) {
+      state.input.value = `${fmtDate(state.startDate)} - ${fmtDate(state.endDate)}`;
+    }
+    state.container.classList.remove('show');
+  });
+
+  // Click outside closes
+  document.addEventListener('click', (e) => {
+    if (!state.container.contains(e.target) && e.target !== state.input) {
+      state.container.classList.remove('show');
+    }
+  });
+
+  render();
+  return state;
+}
+
 // ─── View switching ────────────────────────────────────────────────────────
 document.querySelectorAll('.view-tab').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -1606,14 +2338,6 @@ document.querySelectorAll('.view-tab').forEach(btn => {
     document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('view-'+target).classList.add('active');
-  });
-});
-
-// ─── Period filter (cosmetic) ─────────────────────────────────────────────
-document.querySelectorAll('.period-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
   });
 });
 
@@ -1645,6 +2369,68 @@ window.addEventListener('load', () => {
   const theme = saved || (osDark ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', theme);
   document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.t===theme));
+
+  // ── Kassepunkt filter ──────────────────────────────────────────
+  const kasseLoc = makeLocDropdown({
+    dropdownId: 'kasseLocDropdown', triggerId: 'kasseLocTrigger',
+    tagsId: 'kasseLocTags', menuId: 'kasseLocMenu', searchId: 'kasseLocSearch',
+    allCheckId: 'kloc-all', entityLabel: 'avdelinger'
+  });
+
+  makeCalendar({
+    inputId: 'kassePeriodInput', containerId: 'kasseCalendarContainer',
+    prevYearId: 'kassePrevYear', prevMonthId: 'kassePrevMonth',
+    nextMonthId: 'kasseNextMonth', nextYearId: 'kasseNextYear',
+    titleId: 'kasseCalTitle', month1TitleId: 'kasseMonth1Title',
+    month2TitleId: 'kasseMonth2Title', cal1Id: 'kasseCalendar1',
+    cal2Id: 'kasseCalendar2', rangeId: 'kasseSelectedRange',
+    cancelId: 'kasseCalCancel', applyId: 'kasseCalApply',
+    calKey: 'kasse'
+  });
+
+  document.getElementById('kasseApplyFilters').addEventListener('click', () => {
+    const btn = document.getElementById('kasseApplyFilters');
+    btn.innerHTML = '<span class="loading-spinner"></span>';
+    setTimeout(() => { btn.textContent = 'Bruk filtre'; renderKasseProducts(); renderKasseEmployees(); }, 800);
+  });
+  document.getElementById('kasseResetFilters').addEventListener('click', () => {
+    kasseLoc.selectAll(true);
+    document.getElementById('kassePeriodInput').value = 'I dag';
+    document.getElementById('kassePosFilter').value = 'all';
+    document.getElementById('kasseWeekdaysFilter').value = 'all';
+    document.querySelectorAll('.preset-btn[data-cal="kasse"]').forEach(b => b.classList.toggle('active', b.dataset.preset==='today'));
+  });
+
+  // ── Backend filter ─────────────────────────────────────────────
+  const beLoc = makeLocDropdown({
+    dropdownId: 'beLocDropdown', triggerId: 'beLocTrigger',
+    tagsId: 'beLocTags', menuId: 'beLocMenu', searchId: 'beLocSearch',
+    allCheckId: 'bloc-all', entityLabel: 'avdelinger'
+  });
+
+  makeCalendar({
+    inputId: 'bePeriodInput', containerId: 'beCalendarContainer',
+    prevYearId: 'bePrevYear', prevMonthId: 'bePrevMonth',
+    nextMonthId: 'beNextMonth', nextYearId: 'beNextYear',
+    titleId: 'beCalTitle', month1TitleId: 'beMonth1Title',
+    month2TitleId: 'beMonth2Title', cal1Id: 'beCalendar1',
+    cal2Id: 'beCalendar2', rangeId: 'beSelectedRange',
+    cancelId: 'beCalCancel', applyId: 'beCalApply',
+    calKey: 'be'
+  });
+
+  document.getElementById('beApplyFilters').addEventListener('click', () => {
+    const btn = document.getElementById('beApplyFilters');
+    btn.innerHTML = '<span class="loading-spinner"></span>';
+    setTimeout(() => { btn.textContent = 'Bruk filtre'; renderBeProducts(); renderBeEmployees(); }, 800);
+  });
+  document.getElementById('beResetFilters').addEventListener('click', () => {
+    beLoc.selectAll(true);
+    document.getElementById('bePeriodInput').value = 'Siste 30 dager';
+    document.getElementById('beWeekdaysFilter').value = 'all';
+    document.getElementById('beComparisonFilter').value = 'lastYear';
+    document.querySelectorAll('.preset-btn[data-cal="be"]').forEach(b => b.classList.toggle('active', b.dataset.preset==='last30'));
+  });
 
   renderKasseProducts();
   renderKasseEmployees();
