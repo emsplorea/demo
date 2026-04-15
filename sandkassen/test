@@ -1,1 +1,1658 @@
 
+<!DOCTYPE html>
+<html lang="no" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DinBaker — KPI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+<style>
+/* ─── Plorea Design Tokens ─────────────────────────────────────── */
+:root, [data-theme="dark"] {
+  --bg-page:      #16151A;
+  --bg-surface:   #1E1D24;
+  --bg-hover:     #26242E;
+  --bg-overlay:   #2E2C38;
+  --accent:       #6BB8DA;
+  --accent-dim:   #4FA3C8;
+  --success:      #4DB896;
+  --warning:      #C4C44A;
+  --error:        #D45858;
+  --text-primary: #F0EEF5;
+  --text-secondary:#9B98A8;
+  --text-muted:   #5C5970;
+  --border:       #2E2C38;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.45);
+  --shadow-md:    0 4px 14px rgba(0,0,0,.55);
+  --chart-grid:   rgba(255,255,255,.055);
+  --chart-tick:   #5C5970;
+  --chart-legend: #9B98A8;
+  --chart-tip-bg: #1E1D24;
+  --chart-tip-br: #2E2C38;
+  /* channel colours – dark */
+  --ch-table:      #2A2340;
+  --ch-takeaway:   #1A3328;
+  --ch-eatin:      #3D2218;
+  --ch-combo:      #3D1A20;
+}
+[data-theme="dim"] {
+  --bg-page:      #2A2838;
+  --bg-surface:   #34314A;
+  --bg-hover:     #3E3A58;
+  --bg-overlay:   #47426A;
+  --accent:       #6BB8DA;
+  --accent-dim:   #4FA3C8;
+  --success:      #4DB896;
+  --warning:      #C4C44A;
+  --error:        #D45858;
+  --text-primary: #EEEBf8;
+  --text-secondary:#B8B4CC;
+  --text-muted:   #7A7592;
+  --border:       #47426A;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.35);
+  --shadow-md:    0 4px 14px rgba(0,0,0,.45);
+  --chart-grid:   rgba(255,255,255,.07);
+  --chart-tick:   #7A7592;
+  --chart-legend: #B8B4CC;
+  --chart-tip-bg: #34314A;
+  --chart-tip-br: #47426A;
+}
+[data-theme="light"] {
+  --bg-page:      #F1F5F9;
+  --bg-surface:   #FFFFFF;
+  --bg-hover:     #F1F5F9;
+  --bg-overlay:   #E9E9E9;
+  --accent:       #2E6B87;
+  --accent-dim:   #4FA3C8;
+  --success:      #1A7A5E;
+  --warning:      #7A7A10;
+  --error:        #C44040;
+  --text-primary: #1A1A1A;
+  --text-secondary:#666666;
+  --text-muted:   #BBBDC4;
+  --border:       #E3E3E4;
+  --shadow-sm:    0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:    0 4px 14px rgba(0,0,0,.09);
+  --chart-grid:   rgba(0,0,0,.06);
+  --chart-tick:   #999;
+  --chart-legend: #666;
+  --chart-tip-bg: #FFFFFF;
+  --chart-tip-br: #E3E3E4;
+}
+
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  line-height: 1.5;
+  min-height: 100vh;
+  transition: background .18s ease, color .18s ease;
+  font-size: 14px;
+}
+h1,h2,h3,h4 { font-family: 'Sora', sans-serif; }
+mono, .mono { font-family: 'JetBrains Mono', monospace; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+
+/* ─── Topbar ────────────────────────────────────────────────────── */
+.topbar {
+  height: 52px;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+}
+.topbar-left { display: flex; align-items: center; gap: 20px; }
+.brand {
+  font-family: 'Sora', sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -.025em;
+  white-space: nowrap;
+}
+.brand span { color: var(--text-secondary); font-weight: 400; }
+
+/* View tabs */
+.view-tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-page);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.view-tab {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 5px 14px;
+  border-radius: 5px;
+  font-size: .8rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: background .12s, color .12s;
+  white-space: nowrap;
+}
+.view-tab:hover { color: var(--text-primary); background: var(--bg-hover); }
+.view-tab.active { background: var(--accent); color: #fff; }
+
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+
+/* Theme switcher */
+.theme-sw {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.theme-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  padding: 4px 10px;
+  border-radius: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+  transition: background .12s, color .12s;
+}
+.theme-btn:hover { color: var(--text-primary); }
+.theme-btn.active { background: var(--accent); color: #fff; }
+
+/* Live indicator */
+.live-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--success) 30%, transparent);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--success);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: .35; }
+}
+
+.icon-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  width: 34px; height: 34px;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem;
+  transition: background .12s, color .12s, border-color .12s;
+}
+.icon-btn:hover { background: var(--bg-hover); color: var(--text-primary); border-color: var(--accent); }
+
+/* Timestamp */
+.topbar-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.view { display: none; }
+.view.active { display: block; }
+.page-wrap { max-width: 1600px; margin: 0 auto; padding: 24px; }
+
+/* Section title */
+.section-label {
+  font-size: .7rem;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ─── KPI Grid ──────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.kpi-5 { grid-template-columns: repeat(5,1fr); }
+.kpi-4 { grid-template-columns: repeat(4,1fr); }
+.kpi-3 { grid-template-columns: repeat(3,1fr); }
+.kpi-2 { grid-template-columns: repeat(2,1fr); }
+
+.kpi-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .16s, box-shadow .16s, transform .16s;
+}
+.kpi-card:hover {
+  border-color: var(--accent);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--accent);
+  opacity: 0;
+  transition: opacity .16s;
+  border-radius: 12px 12px 0 0;
+}
+.kpi-card:hover::after { opacity: 1; }
+.kpi-card.success-accent::after { background: var(--success); }
+.kpi-card.warning-accent::after { background: var(--warning); }
+.kpi-card.error-accent::after { background: var(--error); }
+
+.kpi-label {
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.kpi-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.55rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -.02em;
+  line-height: 1.1;
+  margin-bottom: 6px;
+}
+.kpi-value.lg { font-size: 2rem; }
+.kpi-delta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  font-weight: 600;
+}
+.kpi-delta.pos { color: var(--success); }
+.kpi-delta.neg { color: var(--error); }
+.kpi-delta .vs { color: var(--text-muted); font-weight: 400; }
+.kpi-icon {
+  position: absolute;
+  top: 14px; right: 14px;
+  font-size: 1.3rem;
+  opacity: .18;
+}
+
+/* Progress bar inside KPI */
+.kpi-progress {
+  margin-top: 8px;
+  height: 3px;
+  background: var(--bg-hover);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.kpi-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  transition: width .4s ease;
+}
+.kpi-progress-fill.success { background: var(--success); }
+.kpi-progress-fill.warning { background: var(--warning); }
+.kpi-progress-fill.error { background: var(--error); }
+
+/* ─── Cards ─────────────────────────────────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: border-color .16s;
+}
+.card:hover { border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.card-title {
+  font-family: 'Sora', sans-serif;
+  font-size: .95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -.015em;
+}
+.card-badge {
+  font-size: .7rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+
+/* ─── Dashboard Grid ─────────────────────────────────────────────── */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px;
+  margin-bottom: 20px;
+}
+.col-12 { grid-column: span 12; }
+.col-8  { grid-column: span 8; }
+.col-6  { grid-column: span 6; }
+.col-5  { grid-column: span 5; }
+.col-4  { grid-column: span 4; }
+.col-3  { grid-column: span 3; }
+@media(max-width: 1280px) {
+  .col-8,.col-5 { grid-column: span 12; }
+  .col-4,.col-3 { grid-column: span 6; }
+}
+@media(max-width: 900px) {
+  .kpi-5,.kpi-4 { grid-template-columns: repeat(2,1fr); }
+  .col-6,.col-4,.col-3 { grid-column: span 12; }
+}
+
+.chart-wrap { position: relative; height: 220px; }
+.chart-wrap.tall { height: 280px; }
+.chart-wrap.short { height: 160px; }
+
+/* ─── Table ──────────────────────────────────────────────────────── */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+.data-table th {
+  text-align: left;
+  padding: 8px 10px;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+}
+.data-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+  color: var(--text-primary);
+  vertical-align: middle;
+}
+.data-table tbody tr:last-child td { border-bottom: none; }
+.data-table tbody tr:hover td { background: var(--bg-hover); }
+.td-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .78rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.td-right { text-align: right; }
+.td-muted { color: var(--text-secondary); }
+
+/* Rank number */
+.rank { 
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  width: 24px;
+  text-align: center;
+}
+
+/* ─── Badges ─────────────────────────────────────────────────────── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: .7rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-pos  { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 28%, transparent); }
+.badge-neg  { background: color-mix(in srgb, var(--error) 14%, transparent); color: var(--error); border: 1px solid color-mix(in srgb, var(--error) 28%, transparent); }
+.badge-warn { background: color-mix(in srgb, var(--warning) 14%, transparent); color: var(--warning); border: 1px solid color-mix(in srgb, var(--warning) 28%, transparent); }
+.badge-info { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 28%, transparent); }
+.badge-muted { background: color-mix(in srgb, var(--text-muted) 14%, transparent); color: var(--text-secondary); border: 1px solid var(--border); }
+
+/* Payment method row */
+.pay-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.pay-row:last-child { border-bottom: none; }
+.pay-icon {
+  width: 32px; height: 32px;
+  background: var(--bg-hover);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem;
+  flex-shrink: 0;
+}
+.pay-name { flex: 1; font-weight: 600; font-size: .84rem; }
+.pay-count { color: var(--text-secondary); font-size: .78rem; }
+.pay-amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .88rem;
+  font-weight: 600;
+  text-align: right;
+}
+.pay-bar-wrap { width: 80px; }
+.pay-bar {
+  height: 4px;
+  background: var(--bg-overlay);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.pay-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  transition: width .5s ease;
+}
+
+/* Employee row */
+.emp-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.emp-row:last-child { border-bottom: none; }
+.emp-avatar {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .72rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.emp-name { flex: 1; font-weight: 600; font-size: .83rem; }
+.emp-stat { text-align: right; }
+.emp-stat-main { font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 600; }
+.emp-stat-sub { font-size: .7rem; color: var(--text-secondary); }
+
+/* Stock alert row */
+.stock-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.stock-row:last-child { border-bottom: none; }
+.stock-name { flex: 1; font-size: .83rem; }
+.stock-qty {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .8rem;
+  font-weight: 600;
+}
+
+/* Campaign split bar */
+.split-bar-wrap {
+  margin: 12px 0;
+}
+.split-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: .74rem;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+.split-bar {
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  display: flex;
+}
+.split-bar-a { background: var(--accent); border-radius: 4px 0 0 4px; transition: width .5s ease; }
+.split-bar-b { background: color-mix(in srgb, var(--success) 60%, transparent); border-radius: 0 4px 4px 0; transition: width .5s ease; }
+
+/* Ops row (returns/cancellations/overrides) */
+.ops-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 60%, transparent);
+}
+.ops-row:last-child { border-bottom: none; }
+.ops-icon { font-size: 1rem; width: 24px; text-align: center; }
+.ops-label { flex: 1; font-size: .83rem; }
+.ops-count { font-family: 'JetBrains Mono', monospace; font-size: .82rem; font-weight: 600; margin-right: 8px; }
+.ops-amount { font-size: .78rem; color: var(--text-secondary); }
+
+/* ─── Business Pulse ─────────────────────────────────────────────── */
+.pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-top: 2px;
+}
+.pulse-item {
+  text-align: center;
+  padding: 12px 8px;
+  background: var(--bg-hover);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+}
+.pulse-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.pulse-label { font-size: .68rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .06em; }
+.pulse-trend { font-size: .72rem; font-weight: 600; margin-top: 3px; }
+
+/* ─── Period filter bar (backend) ─────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.period-btn {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-weight: 600;
+  transition: all .12s;
+}
+.period-btn:hover { color: var(--text-primary); border-color: var(--accent); }
+.period-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+.filter-select {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: .78rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color .12s;
+}
+.filter-select:focus { outline: none; border-color: var(--accent); }
+.filter-select option { background: var(--bg-surface); }
+
+/* ─── Scrollable table wrapper ───────────────────────────────────── */
+.table-scroll { overflow-x: auto; max-height: 360px; overflow-y: auto; }
+.table-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+.table-scroll::-webkit-scrollbar-track { background: transparent; }
+.table-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ─── Two-column layout helper ───────────────────────────────────── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media(max-width:900px) {
+  .two-col,.three-col { grid-template-columns: 1fr; }
+}
+
+/* ─── Margin helpers ────────────────────────────────────────────── */
+.mb-0 { margin-bottom: 0 !important; }
+.mb-12 { margin-bottom: 12px; }
+.mb-20 { margin-bottom: 20px; }
+.mt-12 { margin-top: 12px; }
+
+/* ─── Animations ─────────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(14px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+.kpi-card { animation: fadeUp .4s ease-out both; }
+.kpi-card:nth-child(1) { animation-delay: .05s; }
+.kpi-card:nth-child(2) { animation-delay: .10s; }
+.kpi-card:nth-child(3) { animation-delay: .15s; }
+.kpi-card:nth-child(4) { animation-delay: .20s; }
+.kpi-card:nth-child(5) { animation-delay: .25s; }
+</style>
+</head>
+<body>
+
+<!-- ─── TOPBAR ─────────────────────────────────────────────────────── -->
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="brand">DinBaker <span>Dashboard</span></div>
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="kasse">🖥 Kassepunkt</button>
+      <button class="view-tab" data-view="backend">📊 Backend</button>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="live-badge"><div class="live-dot"></div> Live</div>
+    <span class="topbar-time" id="clock">--:--:--</span>
+    <div class="theme-sw">
+      <button class="theme-btn" data-t="light">☀ Lys</button>
+      <button class="theme-btn active" data-t="dark">◐ Mørk</button>
+      <button class="theme-btn" data-t="dim">⬛ Dim</button>
+    </div>
+    <button class="icon-btn" title="Oppdater">↺</button>
+    <button class="icon-btn" title="Hjelp">?</button>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════════════
+     VIEW 1 — KASSEPUNKT (ansatte)
+═══════════════════════════════════════════════════════════════════ -->
+<div class="view active" id="view-kasse">
+<div class="page-wrap">
+
+  <!-- Generell -->
+  <div class="section-label mb-12">Generelt — i dag</div>
+  <div class="kpi-grid kpi-5 mb-20">
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">Omsetning i dag</div>
+      <div class="kpi-value lg">42 380 kr</div>
+      <div class="kpi-delta pos">↑ +12% <span class="vs">vs i går</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:68%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🧾</div>
+      <div class="kpi-label">Salg / kvitteringer</div>
+      <div class="kpi-value lg">318</div>
+      <div class="kpi-delta pos">↑ +8% <span class="vs">vs i går</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:55%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-label">Gjennomsnittskjøp</div>
+      <div class="kpi-value lg">133 kr</div>
+      <div class="kpi-delta pos">↑ +3.7% <span class="vs">vs i går</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:42%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🥐</div>
+      <div class="kpi-label">Antall varer solgt</div>
+      <div class="kpi-value lg">1 204</div>
+      <div class="kpi-delta pos">↑ +5% <span class="vs">vs i går</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:62%"></div></div>
+    </div>
+    <div class="kpi-card success-accent">
+      <div class="kpi-icon">🪑</div>
+      <div class="kpi-label">Åpne bord / ordre</div>
+      <div class="kpi-value lg">7</div>
+      <div class="kpi-delta"><span class="vs">3 avventer betaling</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill success" style="width:35%"></div></div>
+    </div>
+  </div>
+
+  <!-- Betaling + Produkter + Kampanjer (row) -->
+  <div class="dash-grid mb-0">
+
+    <!-- Betaling -->
+    <div class="card col-3">
+      <div class="card-header">
+        <span class="card-title">Betalingsmetoder</span>
+        <span class="card-badge">318 salg</span>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">💳</div>
+        <div style="flex:1">
+          <div class="pay-name">Kort</div>
+          <div class="pay-count">196 betalinger</div>
+          <div class="pay-bar-wrap mt-12"><div class="pay-bar"><div class="pay-bar-fill" style="width:62%"></div></div></div>
+        </div>
+        <div class="pay-amount">26 240 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">📱</div>
+        <div style="flex:1">
+          <div class="pay-name">Vipps</div>
+          <div class="pay-count">74 betalinger</div>
+          <div class="pay-bar-wrap mt-12"><div class="pay-bar"><div class="pay-bar-fill" style="width:24%"></div></div></div>
+        </div>
+        <div class="pay-amount">9 840 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">💵</div>
+        <div style="flex:1">
+          <div class="pay-name">Kontant</div>
+          <div class="pay-count">28 betalinger</div>
+          <div class="pay-bar-wrap mt-12"><div class="pay-bar"><div class="pay-bar-fill" style="width:9%"></div></div></div>
+        </div>
+        <div class="pay-amount">3 720 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">📄</div>
+        <div style="flex:1">
+          <div class="pay-name">Faktura</div>
+          <div class="pay-count">14 betalinger</div>
+          <div class="pay-bar-wrap mt-12"><div class="pay-bar"><div class="pay-bar-fill" style="width:6%"></div></div></div>
+        </div>
+        <div class="pay-amount">1 960 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">🎁</div>
+        <div style="flex:1">
+          <div class="pay-name">Gavekort</div>
+          <div class="pay-count">6 betalinger</div>
+          <div class="pay-bar-wrap mt-12"><div class="pay-bar"><div class="pay-bar-fill" style="width:2%"></div></div></div>
+        </div>
+        <div class="pay-amount">620 kr</div>
+      </div>
+    </div>
+
+    <!-- Topp 20 produkter -->
+    <div class="card col-5">
+      <div class="card-header">
+        <span class="card-title">Topp 20 produkter — i dag</span>
+        <span class="card-badge">1 204 varer</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table" id="kasse-products-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produkt</th>
+              <th class="td-right">Solgt</th>
+              <th class="td-right">Omsetning</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="kasse-products-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Kampanjer + Lager (column) -->
+    <div class="col-4" style="display:flex;flex-direction:column;gap:14px;">
+
+      <!-- Kampanjer -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Kampanjer i dag</span>
+          <span class="card-badge">Aktiv</span>
+        </div>
+        <div class="kpi-grid kpi-3 mb-12">
+          <div class="kpi-card mb-0" style="padding:12px 14px;">
+            <div class="kpi-label">Kampanje-salg</div>
+            <div class="kpi-value" style="font-size:1.15rem;">84</div>
+            <div class="kpi-delta pos">↑ +14%</div>
+          </div>
+          <div class="kpi-card mb-0" style="padding:12px 14px;">
+            <div class="kpi-label">Rabatt gitt</div>
+            <div class="kpi-value" style="font-size:1.15rem;">1 260 kr</div>
+            <div class="kpi-delta neg">↓ −2%</div>
+          </div>
+          <div class="kpi-card mb-0" style="padding:12px 14px;">
+            <div class="kpi-label">Kampanje-%</div>
+            <div class="kpi-value" style="font-size:1.15rem;">26%</div>
+            <div class="kpi-delta pos">↑ +3pp</div>
+          </div>
+        </div>
+        <div class="split-bar-wrap">
+          <div class="split-bar-label">
+            <span>🏷 Kampanje (26%)</span>
+            <span>Ordinær (74%) 🍞</span>
+          </div>
+          <div class="split-bar">
+            <div class="split-bar-a" style="width:26%"></div>
+            <div class="split-bar-b" style="width:74%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lagerstatus -->
+      <div class="card" style="flex:1;">
+        <div class="card-header">
+          <span class="card-title">Lager</span>
+          <span class="card-badge badge-warn" style="background:color-mix(in srgb,var(--warning) 14%,transparent);color:var(--warning);border:1px solid color-mix(in srgb,var(--warning) 28%,transparent);">3 lav</span>
+        </div>
+        <div class="stock-row">
+          <div class="badge badge-neg" style="margin-right:4px;">Utsolgt</div>
+          <span class="stock-name">Kanelbolle stor</span>
+          <span class="stock-qty td-mono" style="color:var(--error);">0</span>
+        </div>
+        <div class="stock-row">
+          <div class="badge badge-neg" style="margin-right:4px;">Utsolgt</div>
+          <span class="stock-name">Nøttekringle</span>
+          <span class="stock-qty td-mono" style="color:var(--error);">0</span>
+        </div>
+        <div class="stock-row">
+          <div class="badge badge-warn" style="margin-right:4px;">Lav</div>
+          <span class="stock-name">Surdeigsbaguette</span>
+          <span class="stock-qty td-mono" style="color:var(--warning);">4</span>
+        </div>
+        <div class="stock-row">
+          <div class="badge badge-warn" style="margin-right:4px;">Lav</div>
+          <span class="stock-name">Rugbrød skjært</span>
+          <span class="stock-qty td-mono" style="color:var(--warning);">6</span>
+        </div>
+        <div class="stock-row">
+          <div class="badge badge-warn" style="margin-right:4px;">Lav</div>
+          <span class="stock-name">Skolebolle m/ krem</span>
+          <span class="stock-qty td-mono" style="color:var(--warning);">8</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /dash-grid row 1 -->
+
+  <!-- Row 2: Medarbeidere + Drift -->
+  <div class="dash-grid mt-12 mb-0">
+
+    <!-- Medarbeidere -->
+    <div class="card col-6">
+      <div class="card-header">
+        <span class="card-title">Medarbeidere — i dag</span>
+        <span class="card-badge">5 på jobb</span>
+      </div>
+      <table class="data-table" id="kasse-emp-table">
+        <thead>
+          <tr>
+            <th>Medarbeider</th>
+            <th class="td-right">Salg</th>
+            <th class="td-right">Ant.</th>
+            <th class="td-right">Snitt</th>
+            <th class="td-right">Timer</th>
+          </tr>
+        </thead>
+        <tbody id="kasse-emp-body"></tbody>
+      </table>
+    </div>
+
+    <!-- Drift -->
+    <div class="card col-3">
+      <div class="card-header">
+        <span class="card-title">Drift</span>
+      </div>
+      <div class="ops-row">
+        <div class="ops-icon">↩</div>
+        <div class="ops-label">Returer i dag</div>
+        <div class="ops-count" style="color:var(--error);">3</div>
+        <div class="ops-amount">−420 kr</div>
+      </div>
+      <div class="ops-row">
+        <div class="ops-icon">✗</div>
+        <div class="ops-label">Kanselleringer</div>
+        <div class="ops-count" style="color:var(--warning);">7</div>
+        <div class="ops-amount">−840 kr</div>
+      </div>
+      <div class="ops-row">
+        <div class="ops-icon">✎</div>
+        <div class="ops-label">Prisoverstyringer</div>
+        <div class="ops-count" style="color:var(--accent);">2</div>
+        <div class="ops-amount">−180 kr</div>
+      </div>
+      <div class="ops-row" style="margin-top:6px;padding-top:12px;border-top:1px solid var(--border);border-bottom:none;">
+        <div class="ops-icon">⚠</div>
+        <div class="ops-label" style="font-weight:700;">Totalt avvik</div>
+        <div class="ops-count" style="color:var(--error); font-size:.9rem;">−1 440 kr</div>
+        <div class="ops-amount"></div>
+      </div>
+    </div>
+
+    <!-- Mini chart: Omsetning per time -->
+    <div class="card col-3">
+      <div class="card-header">
+        <span class="card-title">Omsetning per time</span>
+      </div>
+      <div class="chart-wrap short"><canvas id="kasse-hourly-chart"></canvas></div>
+    </div>
+
+  </div>
+
+</div>
+</div><!-- /view-kasse -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+     VIEW 2 — BACKEND (eiere / ledere)
+═══════════════════════════════════════════════════════════════════ -->
+<div class="view" id="view-backend">
+<div class="page-wrap">
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <button class="period-btn" data-period="today">I dag</button>
+    <button class="period-btn" data-period="yesterday">I går</button>
+    <button class="period-btn" data-period="week">Siste 7 dager</button>
+    <button class="period-btn active" data-period="month">Siste 30 dager</button>
+    <button class="period-btn" data-period="quarter">Kvartal</button>
+    <button class="period-btn" data-period="year">År til dato</button>
+    <select class="filter-select" id="compare-select">
+      <option value="prev">vs forrige periode</option>
+      <option value="lastyear" selected>vs samme periode i fjor</option>
+    </select>
+    <select class="filter-select" id="location-select">
+      <option value="all">Alle avdelinger</option>
+      <option value="main">Storgata</option>
+      <option value="city">Bryggen</option>
+      <option value="kiosk">Jernbanetorget</option>
+    </select>
+  </div>
+
+  <!-- KPI-kort øverst -->
+  <div class="section-label mb-12">KPI-oversikt</div>
+  <div class="kpi-grid kpi-4 mb-20">
+    <div class="kpi-card">
+      <div class="kpi-icon">💰</div>
+      <div class="kpi-label">Omsetning</div>
+      <div class="kpi-value lg">1 248 600 kr</div>
+      <div class="kpi-delta pos">↑ +15.4% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:72%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🧾</div>
+      <div class="kpi-label">Antall salg</div>
+      <div class="kpi-value lg">9 384</div>
+      <div class="kpi-delta pos">↑ +8.3% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:58%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🛒</div>
+      <div class="kpi-label">Gjennomsnittskjøp</div>
+      <div class="kpi-value lg">133 kr</div>
+      <div class="kpi-delta pos">↑ +6.4% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:44%"></div></div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-icon">🥐</div>
+      <div class="kpi-label">Varer per kvittering</div>
+      <div class="kpi-value lg">3.8</div>
+      <div class="kpi-delta neg">↓ −1.2% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill" style="width:38%"></div></div>
+    </div>
+    <div class="kpi-card success-accent">
+      <div class="kpi-icon">📈</div>
+      <div class="kpi-label">Bruttomargin (DB)</div>
+      <div class="kpi-value lg">58.2%</div>
+      <div class="kpi-delta pos">↑ +2.1pp <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill success" style="width:58%"></div></div>
+    </div>
+    <div class="kpi-card error-accent">
+      <div class="kpi-icon">↩</div>
+      <div class="kpi-label">Refusjoner</div>
+      <div class="kpi-value lg">4 240 kr</div>
+      <div class="kpi-delta neg">↑ +22% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill error" style="width:22%"></div></div>
+    </div>
+    <div class="kpi-card warning-accent">
+      <div class="kpi-icon">🏷</div>
+      <div class="kpi-label">Rabatt gitt</div>
+      <div class="kpi-value lg">18 640 kr</div>
+      <div class="kpi-delta pos">↓ −4.1% <span class="vs">vs i fjor</span></div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill warning" style="width:31%"></div></div>
+    </div>
+    <div class="kpi-card success-accent">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-label">Business Pulse</div>
+      <div class="kpi-value lg" style="color:var(--success);">Sterk</div>
+      <div class="kpi-delta pos">↑ 4 av 5 indikatorer grønne</div>
+      <div class="kpi-progress mt-12"><div class="kpi-progress-fill success" style="width:80%"></div></div>
+    </div>
+  </div>
+
+  <!-- Business Pulse detail -->
+  <div class="section-label mb-12">Business Pulse — Driftstatus</div>
+  <div class="card mb-20">
+    <div class="pulse-grid">
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↑</div>
+        <div class="pulse-label">Omsetning</div>
+        <div class="pulse-trend" style="color:var(--success);">+15.4%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↑</div>
+        <div class="pulse-label">Margin</div>
+        <div class="pulse-trend" style="color:var(--success);">+2.1pp</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--error);">↓</div>
+        <div class="pulse-label">Refusjoner</div>
+        <div class="pulse-trend" style="color:var(--error);">+22%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↑</div>
+        <div class="pulse-label">Snittkkjøp</div>
+        <div class="pulse-trend" style="color:var(--success);">+6.4%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↑</div>
+        <div class="pulse-label">Ant. salg</div>
+        <div class="pulse-trend" style="color:var(--success);">+8.3%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--warning);">→</div>
+        <div class="pulse-label">Varer/kvitt.</div>
+        <div class="pulse-trend" style="color:var(--warning);">−1.2%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↓</div>
+        <div class="pulse-label">Rabatt</div>
+        <div class="pulse-trend" style="color:var(--success);">−4.1%</div>
+      </div>
+      <div class="pulse-item">
+        <div class="pulse-value" style="color:var(--success);">↑</div>
+        <div class="pulse-label">Konvertering</div>
+        <div class="pulse-trend" style="color:var(--success);">+1.8pp</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Omsetning over tid + Betaling -->
+  <div class="section-label mb-12">Trender</div>
+  <div class="dash-grid mb-20">
+    <div class="card col-8">
+      <div class="card-header">
+        <span class="card-title">Omsetning over tid</span>
+        <span class="card-badge">Siste 30 dager</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="be-revenue-chart"></canvas></div>
+    </div>
+    <div class="card col-4">
+      <div class="card-header">
+        <span class="card-title">Betalingsmetoder</span>
+        <span class="card-badge">9 384 salg</span>
+      </div>
+      <div class="chart-wrap" style="height:180px;margin-bottom:10px;"><canvas id="be-payment-chart"></canvas></div>
+      <div class="pay-row">
+        <div class="pay-icon">💳</div>
+        <div style="flex:1"><div class="pay-name">Kort</div><div class="pay-count">5 820 salg</div></div>
+        <div class="pay-amount">774 600 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">📱</div>
+        <div style="flex:1"><div class="pay-name">Vipps</div><div class="pay-count">2 200 salg</div></div>
+        <div class="pay-amount">292 600 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">💵</div>
+        <div style="flex:1"><div class="pay-name">Kontant</div><div class="pay-count">840 salg</div></div>
+        <div class="pay-amount">111 700 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">📄</div>
+        <div style="flex:1"><div class="pay-name">Faktura</div><div class="pay-count">390 salg</div></div>
+        <div class="pay-amount">51 900 kr</div>
+      </div>
+      <div class="pay-row">
+        <div class="pay-icon">🎁</div>
+        <div style="flex:1"><div class="pay-name">Gavekort</div><div class="pay-count">134 salg</div></div>
+        <div class="pay-amount">17 800 kr</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Medarbeidere + Produkter -->
+  <div class="section-label mb-12">Produkter &amp; Medarbeidere</div>
+  <div class="dash-grid mb-20">
+
+    <!-- Top 20 produkter backend -->
+    <div class="card col-6">
+      <div class="card-header">
+        <span class="card-title">Topp 20 produkter</span>
+        <span class="card-badge">Siste 30 dager</span>
+      </div>
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produkt</th>
+              <th class="td-right">Solgt</th>
+              <th class="td-right">Omsetning</th>
+              <th class="td-right">vs i fjor</th>
+            </tr>
+          </thead>
+          <tbody id="be-products-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Medarbeidere backend -->
+    <div class="card col-6">
+      <div class="card-header">
+        <span class="card-title">Salg per medarbeider</span>
+        <span class="card-badge">Siste 30 dager</span>
+      </div>
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Medarbeider</th>
+            <th class="td-right">Omsetning</th>
+            <th class="td-right">Ant.</th>
+            <th class="td-right">Snitt</th>
+            <th class="td-right">Timer</th>
+            <th class="td-right">Trend</th>
+          </tr>
+        </thead>
+        <tbody id="be-emp-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Kampanjer + Drift -->
+  <div class="section-label mb-12">Kampanjer &amp; Drift</div>
+  <div class="dash-grid mb-20">
+
+    <!-- Kampanjer -->
+    <div class="card col-6">
+      <div class="card-header">
+        <span class="card-title">Kampanjer</span>
+        <span class="card-badge">Siste 30 dager</span>
+      </div>
+      <div class="kpi-grid kpi-3 mb-12">
+        <div class="kpi-card mb-0" style="padding:12px 14px;">
+          <div class="kpi-label">Kampanje-salg</div>
+          <div class="kpi-value" style="font-size:1.1rem;">2 480</div>
+          <div class="kpi-delta pos">↑ +18% <span class="vs">vs i fjor</span></div>
+        </div>
+        <div class="kpi-card mb-0" style="padding:12px 14px;">
+          <div class="kpi-label">Rabatt gitt</div>
+          <div class="kpi-value" style="font-size:1.1rem;">18 640 kr</div>
+          <div class="kpi-delta pos">↓ −4% <span class="vs">vs i fjor</span></div>
+        </div>
+        <div class="kpi-card mb-0" style="padding:12px 14px;">
+          <div class="kpi-label">Kampanje-andel</div>
+          <div class="kpi-value" style="font-size:1.1rem;">26.4%</div>
+          <div class="kpi-delta pos">↑ +3.2pp <span class="vs">vs i fjor</span></div>
+        </div>
+      </div>
+      <div class="split-bar-wrap">
+        <div class="split-bar-label">
+          <span>🏷 Kampanje (26.4%)</span>
+          <span>Ordinær (73.6%) 🍞</span>
+        </div>
+        <div class="split-bar">
+          <div class="split-bar-a" style="width:26.4%"></div>
+          <div class="split-bar-b" style="width:73.6%"></div>
+        </div>
+      </div>
+      <div class="chart-wrap short mt-12"><canvas id="be-campaign-chart"></canvas></div>
+    </div>
+
+    <!-- Drift / returer -->
+    <div class="card col-3">
+      <div class="card-header">
+        <span class="card-title">Drift — avvik</span>
+        <span class="card-badge">30 dager</span>
+      </div>
+      <div class="kpi-grid kpi-2 mb-12">
+        <div class="kpi-card mb-0" style="padding:10px 12px;">
+          <div class="kpi-label">Returer</div>
+          <div class="kpi-value" style="font-size:1.05rem;color:var(--error);">84</div>
+          <div class="kpi-delta neg">−12 280 kr</div>
+        </div>
+        <div class="kpi-card mb-0" style="padding:10px 12px;">
+          <div class="kpi-label">Kanselleringer</div>
+          <div class="kpi-value" style="font-size:1.05rem;color:var(--warning);">192</div>
+          <div class="kpi-delta neg">−24 840 kr</div>
+        </div>
+        <div class="kpi-card mb-0" style="padding:10px 12px;">
+          <div class="kpi-label">Prisoverstyringer</div>
+          <div class="kpi-value" style="font-size:1.05rem;color:var(--accent);">41</div>
+          <div class="kpi-delta neg">−4 900 kr</div>
+        </div>
+        <div class="kpi-card mb-0 error-accent" style="padding:10px 12px;">
+          <div class="kpi-label">Totalt avvik</div>
+          <div class="kpi-value" style="font-size:1.05rem;color:var(--error);">−42 020 kr</div>
+          <div class="kpi-delta neg">↑ +8% <span class="vs">vs i fjor</span></div>
+        </div>
+      </div>
+      <div class="chart-wrap short"><canvas id="be-drift-chart"></canvas></div>
+    </div>
+
+    <!-- Kanal-sammenligning -->
+    <div class="card col-3">
+      <div class="card-header">
+        <span class="card-title">Salg per kanal</span>
+        <span class="card-badge">vs i fjor</span>
+      </div>
+      <div class="chart-wrap tall"><canvas id="be-channel-chart"></canvas></div>
+    </div>
+
+  </div>
+
+</div>
+</div><!-- /view-backend -->
+
+
+<script>
+// ─── Mock data ─────────────────────────────────────────────────────────────
+const bakeryProducts = [
+  { name:'Kanelbolle',        sold:3840, rev:230400, status:'ok'    },
+  { name:'Surdeigsbaguette',  sold:2910, rev:218250, status:'ok'    },
+  { name:'Skolebolle',        sold:2480, rev:148800, status:'ok'    },
+  { name:'Rugbrød hel',       sold:1940, rev:174600, status:'ok'    },
+  { name:'Nøttekringle',      sold:1820, rev:127400, status:'lav'   },
+  { name:'Croissant smør',    sold:1740, rev:130500, status:'ok'    },
+  { name:'Grovbrød skjært',   sold:1620, rev:113400, status:'ok'    },
+  { name:'Berlinerbolle',     sold:1510, rev:106700, status:'ok'    },
+  { name:'Focaccia',          sold:1380, rev:124200, status:'ok'    },
+  { name:'Mørkt grovbrød',    sold:1250, rev:100000, status:'ok'    },
+  { name:'Hvetebrød',         sold:1180, rev:70800,  status:'ok'    },
+  { name:'Pølsebrød 4pk',     sold:1100, rev:88000,  status:'ok'    },
+  { name:'Sesambolle',        sold:980,  rev:68600,  status:'ok'    },
+  { name:'Valnøttbrød',       sold:920,  rev:82800,  status:'ok'    },
+  { name:'Julekake',          sold:840,  rev:100800, status:'ok'    },
+  { name:'Speltbrød',         sold:790,  rev:71100,  status:'ok'    },
+  { name:'Bringebærsnurr',    sold:740,  rev:55500,  status:'ok'    },
+  { name:'Ostehorn',          sold:710,  rev:53250,  status:'ok'    },
+  { name:'Sjokoladebolle',    sold:680,  rev:47600,  status:'ok'    },
+  { name:'Fruktkuvert',       sold:620,  rev:49600,  status:'utsolgt'},
+];
+
+const employees = [
+  { name:'Marte Bakke',     initials:'MB', sales:284600, count:2140, avg:133, hours:148 },
+  { name:'Jonas Holm',      initials:'JH', sales:262400, count:1980, avg:133, hours:138 },
+  { name:'Siri Nygaard',    initials:'SN', sales:248900, count:1870, avg:133, hours:130 },
+  { name:'Tobias Lund',     initials:'TL', sales:231800, count:1740, avg:133, hours:124 },
+  { name:'Emma Dahl',       initials:'ED', sales:218400, count:1640, avg:133, hours:116 },
+  { name:'Lars Øvergård',   initials:'LØ', sales:198200, count:1490, avg:133, hours:106 },
+];
+
+// ─── Kasse: products ───────────────────────────────────────────────────────
+function renderKasseProducts() {
+  const today = bakeryProducts.slice(0,20).map(p => ({
+    ...p,
+    soldToday: Math.round(p.sold / 30),
+    revToday: Math.round(p.rev / 30),
+  }));
+  document.getElementById('kasse-products-body').innerHTML = today.map((p,i) => `
+    <tr>
+      <td class="rank">${i+1}</td>
+      <td style="font-weight:500;">${p.name}</td>
+      <td class="td-right td-mono">${p.soldToday}</td>
+      <td class="td-right td-mono">${p.revToday.toLocaleString('no-NO')} kr</td>
+      <td>${p.status==='ok'
+          ? '<span class="badge badge-pos">OK</span>'
+          : p.status==='lav'
+            ? '<span class="badge badge-warn">Lav</span>'
+            : '<span class="badge badge-neg">Utsolgt</span>'}</td>
+    </tr>`).join('');
+}
+
+// ─── Kasse: employees ──────────────────────────────────────────────────────
+function renderKasseEmployees() {
+  document.getElementById('kasse-emp-body').innerHTML = employees.map(e => {
+    const todaySales = Math.round(e.sales / 30);
+    const todayCount = Math.round(e.count / 30);
+    const todayHours = +(e.hours / 20).toFixed(1);
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="emp-avatar">${e.initials}</div>
+          <span style="font-weight:600;">${e.name}</span>
+        </div>
+      </td>
+      <td class="td-right td-mono">${todaySales.toLocaleString('no-NO')} kr</td>
+      <td class="td-right td-mono">${todayCount}</td>
+      <td class="td-right td-mono">${e.avg} kr</td>
+      <td class="td-right td-mono">${todayHours} t</td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Backend: products ─────────────────────────────────────────────────────
+function renderBeProducts() {
+  const changes = [+18,+12,+9,+7,+5,+14,+3,-2,+11,+8,+6,+4,+15,-3,+22,+9,-1,+7,+13,-5];
+  document.getElementById('be-products-body').innerHTML = bakeryProducts.map((p,i) => {
+    const ch = changes[i];
+    return `<tr>
+      <td class="rank">${i+1}</td>
+      <td style="font-weight:500;">${p.name}</td>
+      <td class="td-right td-mono">${p.sold.toLocaleString('no-NO')}</td>
+      <td class="td-right td-mono">${p.rev.toLocaleString('no-NO')} kr</td>
+      <td class="td-right">
+        <span class="badge ${ch>=0?'badge-pos':'badge-neg'}">${ch>=0?'↑':'↓'} ${Math.abs(ch)}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Backend: employees ────────────────────────────────────────────────────
+function renderBeEmployees() {
+  const trends = [+11,+6,-2,+9,+4,+7];
+  document.getElementById('be-emp-body').innerHTML = employees.map((e,i) => {
+    const tr = trends[i];
+    return `<tr>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="emp-avatar">${e.initials}</div>
+          <span style="font-weight:600;">${e.name}</span>
+        </div>
+      </td>
+      <td class="td-right td-mono">${e.sales.toLocaleString('no-NO')} kr</td>
+      <td class="td-right td-mono">${e.count.toLocaleString('no-NO')}</td>
+      <td class="td-right td-mono">${e.avg} kr</td>
+      <td class="td-right td-mono">${e.hours}t</td>
+      <td class="td-right">
+        <span class="badge ${tr>=0?'badge-pos':'badge-neg'}">${tr>=0?'↑':'↓'} ${Math.abs(tr)}%</span>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── Chart helpers ─────────────────────────────────────────────────────────
+function cv(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function chartDefaults() {
+  return {
+    legend:  cv('--chart-legend'),
+    tick:    cv('--chart-tick'),
+    grid:    cv('--chart-grid'),
+    tipBg:   cv('--chart-tip-bg'),
+    tipBr:   cv('--chart-tip-br'),
+    accent:  cv('--accent'),
+    success: cv('--success'),
+    warning: cv('--warning'),
+    error:   cv('--error'),
+    text:    cv('--text-primary'),
+  };
+}
+
+let charts = {};
+
+function initCharts() {
+  const d = chartDefaults();
+  Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+  const tooltip = (extra={}) => ({
+    backgroundColor: d.tipBg,
+    borderColor: d.tipBr,
+    borderWidth: 1,
+    titleColor: d.text,
+    bodyColor: d.legend,
+    ...extra
+  });
+  const scales = (xGrid=true) => ({
+    y: { beginAtZero:true, ticks:{color:d.tick,font:{size:11}}, grid:{color:d.grid} },
+    x: { ticks:{color:d.tick,font:{size:11}}, grid:{color: xGrid?d.grid:'transparent'} }
+  });
+
+  // KASSEPUNKT: Hourly
+  const hours = ['08','09','10','11','12','13','14','15','16','17','18','19'];
+  const hourlyData = [1200,2400,3800,4200,5100,4800,4400,3900,3200,2800,2100,1380];
+  const kasseHourly = document.getElementById('kasse-hourly-chart');
+  if (kasseHourly) {
+    charts.kasseHourly = new Chart(kasseHourly, {
+      type: 'bar',
+      data: {
+        labels: hours.map(h=>h+':00'),
+        datasets: [{
+          data: hourlyData,
+          backgroundColor: d.accent+'55',
+          borderColor: d.accent,
+          borderWidth: 1,
+          borderRadius: 4,
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{display:false}, tooltip:tooltip() },
+        scales: scales()
+      }
+    });
+  }
+
+  // BACKEND: Revenue trend (30 days)
+  const days30 = Array.from({length:30},(_,i)=>{ const d=new Date(2026,2,16-29+i); return `${d.getDate()}.${d.getMonth()+1}`; });
+  const revBase = 35000;
+  const revData = days30.map((_,i)=> Math.round(revBase + Math.sin(i/3)*4000 + i*300 + Math.random()*2000));
+  const revPrev = days30.map((_,i)=> Math.round(revBase*0.87 + Math.sin(i/3)*3500 + i*250 + Math.random()*1800));
+
+  const beRevCtx = document.getElementById('be-revenue-chart');
+  if (beRevCtx) {
+    charts.beRev = new Chart(beRevCtx, {
+      type:'line',
+      data: {
+        labels: days30,
+        datasets: [{
+          label:'Denne perioden',
+          data: revData,
+          borderColor: d.accent,
+          backgroundColor: d.accent+'18',
+          tension:.4, fill:true, pointRadius:0, borderWidth:2
+        },{
+          label:'Samme periode i fjor',
+          data: revPrev,
+          borderColor: d.legend,
+          backgroundColor: 'transparent',
+          tension:.4, fill:false, pointRadius:0, borderWidth:1, borderDash:[4,3]
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins: { legend:{labels:{color:d.legend,font:{size:12}}}, tooltip:tooltip() },
+        scales: scales()
+      }
+    });
+  }
+
+  // BACKEND: Payment doughnut
+  const bePayCtx = document.getElementById('be-payment-chart');
+  if (bePayCtx) {
+    charts.bePay = new Chart(bePayCtx, {
+      type:'doughnut',
+      data: {
+        labels:['Kort','Vipps','Kontant','Faktura','Gavekort'],
+        datasets:[{
+          data:[62,23.5,8.9,4.2,1.4],
+          backgroundColor:[d.accent, d.success, d.warning, '#9B98A8', '#5C5970'],
+          borderColor: cv('--bg-surface'),
+          borderWidth:2
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{display:false},
+          tooltip:{...tooltip(), callbacks:{label:ctx=>`${ctx.label}: ${ctx.parsed}%`}}
+        }
+      }
+    });
+  }
+
+  // BACKEND: Campaign vs normal (last 4 weeks)
+  const beCampCtx = document.getElementById('be-campaign-chart');
+  if (beCampCtx) {
+    charts.beCamp = new Chart(beCampCtx, {
+      type:'bar',
+      data: {
+        labels:['Uke 8','Uke 9','Uke 10','Uke 11'],
+        datasets:[{
+          label:'Kampanje',
+          data:[4200,4800,5100,4900],
+          backgroundColor: d.accent+'AA',
+          borderRadius:4, barPercentage:.6
+        },{
+          label:'Ordinær',
+          data:[11800,12400,13200,12600],
+          backgroundColor: d.success+'66',
+          borderRadius:4, barPercentage:.6
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{labels:{color:d.legend,font:{size:11}}}, tooltip:tooltip() },
+        scales: scales()
+      }
+    });
+  }
+
+  // BACKEND: Drift/avvik bar
+  const beDriftCtx = document.getElementById('be-drift-chart');
+  if (beDriftCtx) {
+    charts.beDrift = new Chart(beDriftCtx, {
+      type:'bar',
+      data: {
+        labels:['Uke 8','Uke 9','Uke 10','Uke 11'],
+        datasets:[{
+          label:'Returer',
+          data:[2800,3200,3400,2880],
+          backgroundColor: d.error+'88',
+          borderRadius:4
+        },{
+          label:'Kanselleringer',
+          data:[5600,6200,6900,6140],
+          backgroundColor: d.warning+'88',
+          borderRadius:4
+        }]
+      },
+      options: {
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{labels:{color:d.legend,font:{size:11}}}, tooltip:tooltip() },
+        scales: scales()
+      }
+    });
+  }
+
+  // BACKEND: Channel comparison
+  const beChCtx = document.getElementById('be-channel-chart');
+  if (beChCtx) {
+    charts.beCh = new Chart(beChCtx, {
+      type:'bar',
+      data: {
+        labels:['POS – Betjent','Vipps Order','QR / Bord','Kiosk','Nett'],
+        datasets:[{
+          label:'Denne perioden',
+          data:[620000,310000,188000,84000,46000],
+          backgroundColor: d.accent+'BB',
+          borderRadius:4, barPercentage:.5
+        },{
+          label:'Samme periode i fjor',
+          data:[540000,240000,152000,60000,36000],
+          backgroundColor: d.legend+'55',
+          borderRadius:4, barPercentage:.5
+        }]
+      },
+      options: {
+        indexAxis:'y',
+        responsive:true, maintainAspectRatio:false,
+        plugins:{ legend:{labels:{color:d.legend,font:{size:11}}}, tooltip:tooltip() },
+        scales: {
+          x:{ ticks:{color:d.tick,font:{size:11}}, grid:{color:d.grid} },
+          y:{ ticks:{color:d.tick,font:{size:11}}, grid:{display:false} }
+        }
+      }
+    });
+  }
+}
+
+function updateChartColors() {
+  const d = chartDefaults();
+  Object.values(charts).forEach(chart => {
+    if (!chart) return;
+    if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = d.legend;
+    if (chart.options.plugins?.tooltip) {
+      chart.options.plugins.tooltip.backgroundColor = d.tipBg;
+      chart.options.plugins.tooltip.borderColor     = d.tipBr;
+      chart.options.plugins.tooltip.titleColor      = d.text;
+      chart.options.plugins.tooltip.bodyColor       = d.legend;
+    }
+    ['x','y'].forEach(axis => {
+      if (chart.options.scales?.[axis]) {
+        chart.options.scales[axis].ticks.color = d.tick;
+        if (chart.options.scales[axis].grid) chart.options.scales[axis].grid.color = d.grid;
+      }
+    });
+    chart.update('none');
+  });
+  // Update doughnut surface border
+  if (charts.bePay) {
+    charts.bePay.data.datasets[0].borderColor = cv('--bg-surface');
+    charts.bePay.update('none');
+  }
+}
+
+// ─── View switching ────────────────────────────────────────────────────────
+document.querySelectorAll('.view-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = btn.dataset.view;
+    document.querySelectorAll('.view-tab').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('view-'+target).classList.add('active');
+  });
+});
+
+// ─── Period filter (cosmetic) ─────────────────────────────────────────────
+document.querySelectorAll('.period-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+});
+
+// ─── Theme switching ───────────────────────────────────────────────────────
+document.querySelectorAll('.theme-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.t;
+    document.documentElement.setAttribute('data-theme', t);
+    document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.t===t));
+    localStorage.setItem('dinbaker-theme', t);
+    updateChartColors();
+  });
+});
+
+// ─── Clock ────────────────────────────────────────────────────────────────
+function tickClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    [now.getHours(),now.getMinutes(),now.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':');
+}
+setInterval(tickClock, 1000);
+tickClock();
+
+// ─── Init ─────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  // Restore theme
+  const saved = localStorage.getItem('dinbaker-theme');
+  const osDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const theme = saved || (osDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+  document.querySelectorAll('.theme-btn').forEach(b=>b.classList.toggle('active', b.dataset.t===theme));
+
+  renderKasseProducts();
+  renderKasseEmployees();
+  renderBeProducts();
+  renderBeEmployees();
+  initCharts();
+});
+</script>
+</body>
+</html>
