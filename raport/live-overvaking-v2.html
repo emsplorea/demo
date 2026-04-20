@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Live-overvåking · Plorea Ops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Plorea Design System v2.9 — Light */
+    --plorea-blue: #6BB8DA;
+    --plorea-blue-dark: #4A9BC2;
+    --plorea-blue-light: #E7F4FA;
+
+    --bg: #F6F8FA;
+    --surface: #FFFFFF;
+    --surface-2: #F0F3F6;
+    --surface-hover: #F8FAFB;
+    --border: #E4E8EC;
+    --border-strong: #CFD5DB;
+    --text: #0F1B24;
+    --text-muted: #5C6973;
+    --text-subtle: #8A9199;
+
+    --status-ok: #16A34A;
+    --status-ok-bg: #DCFCE7;
+    --status-warning: #D97706;
+    --status-warning-bg: #FEF3C7;
+    --status-critical: #DC2626;
+    --status-critical-bg: #FEE2E2;
+    --status-closed: #64748B;
+    --status-closed-bg: #E2E8F0;
+
+    --font-heading: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+    --shadow-sm: 0 1px 2px rgba(15, 27, 36, 0.04);
+    --shadow-md: 0 4px 12px rgba(15, 27, 36, 0.06), 0 1px 3px rgba(15, 27, 36, 0.04);
+    --shadow-lg: 0 12px 32px rgba(15, 27, 36, 0.08), 0 2px 6px rgba(15, 27, 36, 0.04);
+
+    --radius-sm: 6px;
+    --radius: 10px;
+    --radius-lg: 14px;
+  }
+
+  [data-theme="dark"] {
+    /* Plorea Design System v2.9 — Dark */
+    --bg: #0B1220;
+    --surface: #111A2B;
+    --surface-2: #182338;
+    --surface-hover: #1D2A42;
+    --border: #233148;
+    --border-strong: #2F4063;
+    --text: #E8EEF5;
+    --text-muted: #9AA8BC;
+    --text-subtle: #6B7A91;
+
+    --plorea-blue-light: #1B3A4E;
+
+    --status-ok-bg: #0F2E1B;
+    --status-warning-bg: #3B2A0A;
+    --status-critical-bg: #3B1414;
+    --status-closed-bg: #1F2A3E;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--font-heading); font-weight: 600; letter-spacing: -0.01em; }
+
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  /* ========== Top bar ========== */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+  }
+  .topbar-title { display: flex; align-items: center; gap: 14px; }
+  .topbar-title h1 { font-size: 20px; font-weight: 600; }
+  .topbar-title .event-ctx {
+    font-size: 13px;
+    color: var(--text-muted);
+    padding-left: 14px;
+    border-left: 1px solid var(--border);
+    margin-left: 4px;
+  }
+  .live-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--status-critical-bg);
+    color: var(--status-critical);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--status-critical);
+    border-radius: 50%;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .topbar-actions { display: flex; align-items: center; gap: 12px; }
+  .theme-toggle {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    color: var(--text);
+    font-size: 12px;
+    font-family: var(--font-body);
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+  }
+  .theme-toggle:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+
+  /* ========== Layout ========== */
+  .container { max-width: 1680px; margin: 0 auto; padding: 24px 28px 48px; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-subtle);
+    margin-bottom: 10px;
+  }
+
+  /* ========== KPI Grid ========== */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .kpi {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 18px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .kpi-value {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .kpi-trend-up { color: var(--status-ok); }
+  .kpi-trend-down { color: var(--status-critical); }
+  .kpi-accent { border-left: 3px solid var(--plorea-blue); }
+  .kpi-critical { border-left: 3px solid var(--status-critical); }
+  .kpi-warning { border-left: 3px solid var(--status-warning); }
+
+  .kpi-value.critical { color: var(--status-critical); }
+  .kpi-value.ok { color: var(--status-ok); }
+
+  /* Mini sparkline */
+  .sparkline { height: 24px; width: 100%; margin-top: 6px; display: block; }
+
+  /* Dual-value split (for device-type breakdown) */
+  .kpi-split {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-family: var(--font-heading);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .kpi-split-primary { font-size: 22px; font-weight: 600; }
+  .kpi-split-divider { font-size: 18px; color: var(--text-subtle); font-weight: 400; }
+  .kpi-split-secondary { font-size: 17px; font-weight: 500; color: var(--text-muted); }
+  .kpi-split-label {
+    font-size: 10px;
+    color: var(--text-subtle);
+    font-weight: 500;
+    margin-left: 2px;
+    font-family: var(--font-body);
+  }
+  .kpi-minibar {
+    display: flex;
+    height: 4px;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 8px;
+    background: var(--surface-2);
+  }
+  .kpi-minibar-seg { height: 100%; }
+  .kpi-minibar-pos { background: var(--plorea-blue); }
+  .kpi-minibar-qr { background: #A78BFA; }
+  [data-theme="dark"] .kpi-minibar-qr { background: #C4B5FD; }
+
+  /* ========== Kiosk selector ========== */
+  .selector-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .selector-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+  }
+  .selector-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px 5px 8px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .chip:hover { background: var(--surface-hover); border-color: var(--border-strong); }
+  .chip.active {
+    background: var(--plorea-blue-light);
+    border-color: var(--plorea-blue);
+    color: var(--text);
+  }
+  .chip .tag {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--surface-2);
+    color: var(--text-muted);
+  }
+  .chip.status-closed .tag { background: var(--status-closed-bg); color: var(--status-closed); }
+  .chip.status-idle .tag { background: var(--status-closed-bg); color: var(--text-subtle); }
+  .chip.status-critical .tag { background: var(--status-critical-bg); color: var(--status-critical); }
+  .chip .checkbox {
+    width: 14px; height: 14px; border: 1.5px solid var(--border-strong);
+    border-radius: 3px; display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface);
+  }
+  .chip.active .checkbox {
+    background: var(--plorea-blue); border-color: var(--plorea-blue);
+  }
+  .chip.active .checkbox::after {
+    content: ''; width: 7px; height: 4px;
+    border-left: 2px solid white; border-bottom: 2px solid white;
+    transform: rotate(-45deg) translate(1px, -1px);
+  }
+
+  /* ========== Kiosk rows ========== */
+  .kiosk-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.15s;
+  }
+  .kiosk-row:hover { box-shadow: var(--shadow-md); }
+
+  .kiosk-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: linear-gradient(90deg, var(--plorea-blue) 0%, var(--plorea-blue-dark) 100%);
+    color: white;
+  }
+  [data-theme="dark"] .kiosk-header {
+    background: linear-gradient(90deg, #1B3A4E 0%, #234A63 100%);
+  }
+  .kiosk-name { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 15px; font-family: var(--font-heading); }
+  .kiosk-name svg { opacity: 0.9; }
+  .kiosk-header-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; opacity: 0.95; }
+  .status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.28);
+    color: white;
+  }
+
+  .kiosk-body {
+    display: grid;
+    grid-template-columns: 1.2fr 1.4fr 1.2fr 1.5fr 1.1fr 1.4fr;
+    gap: 0;
+  }
+  .metric {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .metric:last-child { border-right: none; }
+  .metric-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .metric-value {
+    font-family: var(--font-heading);
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .metric-value.critical { color: var(--status-critical); }
+  .metric-value.warning { color: var(--status-warning); }
+  .metric-value.ok { color: var(--status-ok); }
+  .metric-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .metric-trend {
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .metric-sparkline { height: 22px; margin-top: 2px; }
+
+  /* Stop-% status cell — keep as the critical visual flag */
+  .metric.status-cell {
+    background: var(--status-critical-bg);
+    border-left: 3px solid var(--status-critical);
+    cursor: pointer;
+  }
+  .metric.status-cell:hover { filter: brightness(0.98); }
+  [data-theme="dark"] .metric.status-cell:hover { filter: brightness(1.1); }
+  .metric.status-cell.ok { background: var(--status-ok-bg); border-left-color: var(--status-ok); }
+  .metric.status-cell.warning { background: var(--status-warning-bg); border-left-color: var(--status-warning); }
+
+  .metric-hint { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .icon-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 14px; height: 14px; color: var(--text-subtle);
+  }
+
+  /* Payment mix bar */
+  .pay-mix {
+    display: flex;
+    height: 6px;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 6px;
+    background: var(--surface-2);
+  }
+  .pay-mix-seg { height: 100%; transition: all 0.2s; }
+  .pay-mix-card { background: var(--plorea-blue); }
+  .pay-mix-vipps { background: #FF5B24; }
+  .pay-mix-apay { background: #1E293B; }
+  [data-theme="dark"] .pay-mix-apay { background: #E8EEF5; }
+
+  .pay-mix-legend {
+    display: flex;
+    gap: 10px;
+    margin-top: 6px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+  .pay-mix-legend span { display: flex; align-items: center; gap: 4px; }
+  .pay-mix-legend .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+  /* Expand indicator */
+  .expand-hint {
+    padding: 8px 20px;
+    font-size: 11px;
+    color: var(--text-subtle);
+    background: var(--surface-2);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .expand-hint:hover { background: var(--surface-hover); color: var(--text-muted); }
+
+  /* Responsive: stack kiosk metrics on narrow viewports */
+  @media (max-width: 1400px) {
+    .kpi-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 1100px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kiosk-body { grid-template-columns: 1fr 1fr 1fr; }
+    .metric { border-bottom: 1px solid var(--border); }
+    .metric:nth-last-child(-n+3) { border-bottom: none; }
+  }
+  @media (max-width: 700px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .kiosk-body { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    <h1>Live-overvåking</h1>
+    <span class="event-ctx">Vålerenga IF — Intility Arena · Kveldens event</span>
+    <span class="live-pill"><span class="live-dot"></span> Live</span>
+  </div>
+  <div class="topbar-actions">
+    <button class="theme-toggle" onclick="toggleTheme()">
+      <svg id="theme-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+      <span id="theme-label">Mørk</span>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- =================== KPI STRIP =================== -->
+  <div class="section-label">Event-total · oppdatert for 3 sek siden</div>
+  <div class="kpi-grid">
+
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Event-tid
+      </div>
+      <div class="kpi-value mono">24:54</div>
+      <div class="kpi-sub">Pågående · Start kl. 19:00</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Operative kiosker</div>
+      <div class="kpi-value"><span class="ok">4</span><span style="color:var(--text-subtle); font-weight:500;"> / 14</span></div>
+      <div class="kpi-sub">10 lukket · 0 nede uventet</div>
+    </div>
+
+    <div class="kpi kpi-critical">
+      <div class="kpi-label">Samlet Stop-%-status</div>
+      <div class="kpi-value critical">CRITICAL</div>
+      <div class="kpi-sub">4 kiosker i kritisk sone</div>
+    </div>
+
+    <div class="kpi kpi-warning">
+      <div class="kpi-label">Produkter med advarsler</div>
+      <div class="kpi-value">116</div>
+      <div class="kpi-sub">Av 136 totalt · 85%</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Omsetning hittil</div>
+      <div class="kpi-value mono">497&nbsp;320</div>
+      <div class="kpi-sub"><span class="kpi-trend-up">▲ 12.4%</span> vs. forrige hjemmekamp</div>
+    </div>
+
+    <div class="kpi kpi-accent">
+      <div class="kpi-label">Omsetning · Simple-POS / QR</div>
+      <div class="kpi-split">
+        <span class="kpi-split-primary mono">417&nbsp;320</span>
+        <span class="kpi-split-divider">/</span>
+        <span class="kpi-split-secondary mono">80&nbsp;000</span>
+      </div>
+      <div class="kpi-minibar">
+        <div class="kpi-minibar-seg kpi-minibar-pos" style="width: 84%"></div>
+        <div class="kpi-minibar-seg kpi-minibar-qr" style="width: 16%"></div>
+      </div>
+      <div class="kpi-sub" style="margin-top: 6px;">
+        <span style="display:inline-flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;border-radius:50%;background:var(--plorea-blue);display:inline-block;"></span>POS 84%</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;margin-left:10px;"><span style="width:6px;height:6px;border-radius:50%;background:#A78BFA;display:inline-block;"></span>QR 16%</span>
+      </div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Transaksjoner</div>
+      <div class="kpi-value mono">3&nbsp;842</div>
+      <div class="kpi-sub">POS 2 104 · QR 1 738</div>
+    </div>
+
+    <div class="kpi">
+      <div class="kpi-label">Throughput</div>
+      <div class="kpi-value mono">14.2<span style="font-size: 14px; color: var(--text-muted); font-weight: 500;"> o/min</span></div>
+      <svg class="sparkline" viewBox="0 0 100 24" preserveAspectRatio="none">
+        <polyline points="0,18 8,16 16,14 24,12 32,15 40,10 48,11 56,6 64,8 72,4 80,7 88,5 96,3 100,4"
+          fill="none" stroke="var(--plorea-blue)" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </div>
+
+  </div>
+
+  <!-- =================== KIOSK SELECTOR =================== -->
+  <div class="selector-card">
+    <div class="selector-title">Velg kiosker å overvåke</div>
+    <div class="selector-chips">
+      <div class="chip status-closed"><span class="checkbox"></span> Kiosk1 <span class="tag">Lukket</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk2 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk3 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk4 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk5 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk6 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk7 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk8 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk9 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk10 <span class="tag">Critical</span></div>
+      <div class="chip status-closed"><span class="checkbox"></span> Kiosk11 <span class="tag">Lukket</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk12 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk13 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk14 <span class="tag">Ingen hendelse</span></div>
+    </div>
+  </div>
+
+  <!-- =================== KIOSK ROWS =================== -->
+  <div class="section-label">Overvåkede kiosker</div>
+
+  <!-- Kiosk 7 -->
+  <div class="kiosk-row">
+    <div class="kiosk-header">
+      <div class="kiosk-name">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Kiosk7
+      </div>
+      <div class="kiosk-header-meta">
+        <span>Sone Øst · QR + POS</span>
+        <span class="status-badge">Pågående</span>
+      </div>
+    </div>
+
+    <div class="kiosk-body">
+
+      <div class="metric">
+        <div class="metric-label">Event-tid</div>
+        <div class="metric-value mono">24:54:36</div>
+        <div class="metric-sub">Pågående</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Omsetning</div>
+        <div class="metric-value mono">152&nbsp;840&nbsp;<span style="font-size:11px;color:var(--text-muted);">kr</span></div>
+        <svg class="metric-sparkline" viewBox="0 0 100 22" preserveAspectRatio="none" style="width:100%;">
+          <polyline points="0,18 10,16 20,14 30,16 40,12 50,10 60,8 70,11 80,6 90,7 100,4"
+            fill="none" stroke="var(--plorea-blue)" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Total ordre</div>
+        <div class="metric-value mono">1&nbsp;120</div>
+        <div class="metric-sub">Snitt ventetid 14s / ordre</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Throughput · betalingsmiks</div>
+        <div class="metric-value mono">4.1 <span style="font-size:11px;color:var(--text-muted);font-weight:500;">o/min</span></div>
+        <div class="pay-mix">
+          <div class="pay-mix-seg pay-mix-card" style="width: 58%"></div>
+          <div class="pay-mix-seg pay-mix-vipps" style="width: 28%"></div>
+          <div class="pay-mix-seg pay-mix-apay" style="width: 14%"></div>
+        </div>
+        <div class="pay-mix-legend">
+          <span><span class="dot" style="background:var(--plorea-blue)"></span>Kort 58%</span>
+          <span><span class="dot" style="background:#FF5B24"></span>Vipps 28%</span>
+          <span><span class="dot" style="background:#1E293B"></span>AP 14%</span>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Sist transaksjon</div>
+        <div class="metric-value mono" style="font-size:16px;">12s <span style="font-size:11px;color:var(--text-muted);font-weight:500;">siden</span></div>
+        <div class="metric-sub">Topp: Pølse m/lompe ×24</div>
+      </div>
+
+      <div class="metric status-cell">
+        <div class="metric-label" style="color: var(--status-critical);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Stop-% Status
+        </div>
+        <div class="metric-value critical">CRITICAL (27)</div>
+        <div class="metric-hint">Klikk for detaljer →</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Kiosk 8 -->
+  <div class="kiosk-row">
+    <div class="kiosk-header">
+      <div class="kiosk-name">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Kiosk8
+      </div>
+      <div class="kiosk-header-meta">
+        <span>Sone Øst · QR + POS</span>
+        <span class="status-badge">Pågående</span>
+      </div>
+    </div>
+
+    <div class="kiosk-body">
+      <div class="metric">
+        <div class="metric-label">Event-tid</div>
+        <div class="metric-value mono">24:54:19</div>
+        <div class="metric-sub">Pågående</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Omsetning</div>
+        <div class="metric-value mono">128&nbsp;450&nbsp;<span style="font-size:11px;color:var(--text-muted);">kr</span></div>
+        <svg class="metric-sparkline" viewBox="0 0 100 22" preserveAspectRatio="none" style="width:100%;">
+          <polyline points="0,16 10,14 20,12 30,14 40,10 50,13 60,9 70,12 80,8 90,10 100,7"
+            fill="none" stroke="var(--plorea-blue)" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Total ordre</div>
+        <div class="metric-value mono">985</div>
+        <div class="metric-sub">Snitt ventetid 17s / ordre</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Throughput · betalingsmiks</div>
+        <div class="metric-value mono">3.6 <span style="font-size:11px;color:var(--text-muted);font-weight:500;">o/min</span></div>
+        <div class="pay-mix">
+          <div class="pay-mix-seg pay-mix-card" style="width: 72%"></div>
+          <div class="pay-mix-seg pay-mix-vipps" style="width: 22%"></div>
+          <div class="pay-mix-seg pay-mix-apay" style="width: 6%"></div>
+        </div>
+        <div class="pay-mix-legend">
+          <span><span class="dot" style="background:var(--plorea-blue)"></span>Kort 72%</span>
+          <span><span class="dot" style="background:#FF5B24"></span>Vipps 22%</span>
+          <span><span class="dot" style="background:#1E293B"></span>AP 6%</span>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Sist transaksjon</div>
+        <div class="metric-value mono" style="font-size:16px;">34s <span style="font-size:11px;color:var(--text-muted);font-weight:500;">siden</span></div>
+        <div class="metric-sub">Topp: Pils 0,4l ×38</div>
+      </div>
+
+      <div class="metric status-cell">
+        <div class="metric-label" style="color: var(--status-critical);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Stop-% Status
+        </div>
+        <div class="metric-value critical">CRITICAL (30)</div>
+        <div class="metric-hint">Klikk for detaljer →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kiosk 9 -->
+  <div class="kiosk-row">
+    <div class="kiosk-header">
+      <div class="kiosk-name">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Kiosk9
+      </div>
+      <div class="kiosk-header-meta">
+        <span>Sone Vest · QR + POS</span>
+        <span class="status-badge">Pågående</span>
+      </div>
+    </div>
+
+    <div class="kiosk-body">
+      <div class="metric">
+        <div class="metric-label">Event-tid</div>
+        <div class="metric-value mono">24:48:31</div>
+        <div class="metric-sub">Pågående</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Omsetning</div>
+        <div class="metric-value mono">112&nbsp;180&nbsp;<span style="font-size:11px;color:var(--text-muted);">kr</span></div>
+        <svg class="metric-sparkline" viewBox="0 0 100 22" preserveAspectRatio="none" style="width:100%;">
+          <polyline points="0,14 10,12 20,15 30,10 40,13 50,11 60,14 70,9 80,12 90,8 100,10"
+            fill="none" stroke="var(--plorea-blue)" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Total ordre</div>
+        <div class="metric-value mono">920</div>
+        <div class="metric-sub">Snitt ventetid 16s / ordre</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Throughput · betalingsmiks</div>
+        <div class="metric-value mono">3.8 <span style="font-size:11px;color:var(--text-muted);font-weight:500;">o/min</span></div>
+        <div class="pay-mix">
+          <div class="pay-mix-seg pay-mix-card" style="width: 61%"></div>
+          <div class="pay-mix-seg pay-mix-vipps" style="width: 30%"></div>
+          <div class="pay-mix-seg pay-mix-apay" style="width: 9%"></div>
+        </div>
+        <div class="pay-mix-legend">
+          <span><span class="dot" style="background:var(--plorea-blue)"></span>Kort 61%</span>
+          <span><span class="dot" style="background:#FF5B24"></span>Vipps 30%</span>
+          <span><span class="dot" style="background:#1E293B"></span>AP 9%</span>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Sist transaksjon</div>
+        <div class="metric-value mono" style="font-size:16px;">8s <span style="font-size:11px;color:var(--text-muted);font-weight:500;">siden</span></div>
+        <div class="metric-sub">Topp: Pommes ×19</div>
+      </div>
+
+      <div class="metric status-cell">
+        <div class="metric-label" style="color: var(--status-critical);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Stop-% Status
+        </div>
+        <div class="metric-value critical">CRITICAL (29)</div>
+        <div class="metric-hint">Klikk for detaljer →</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kiosk 10 — shown with one warning state for variety -->
+  <div class="kiosk-row">
+    <div class="kiosk-header">
+      <div class="kiosk-name">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Kiosk10
+      </div>
+      <div class="kiosk-header-meta">
+        <span>Sone Vest · QR + POS</span>
+        <span class="status-badge">Pågående</span>
+      </div>
+    </div>
+
+    <div class="kiosk-body">
+      <div class="metric">
+        <div class="metric-label">Event-tid</div>
+        <div class="metric-value mono">24:48:08</div>
+        <div class="metric-sub">Pågående</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Omsetning</div>
+        <div class="metric-value mono">103&nbsp;850&nbsp;<span style="font-size:11px;color:var(--text-muted);">kr</span></div>
+        <svg class="metric-sparkline" viewBox="0 0 100 22" preserveAspectRatio="none" style="width:100%;">
+          <polyline points="0,12 10,14 20,13 30,16 40,14 50,15 60,13 70,16 80,14 90,17 100,16"
+            fill="none" stroke="var(--plorea-blue)" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Total ordre</div>
+        <div class="metric-value mono">817</div>
+        <div class="metric-sub">Snitt ventetid 21s / ordre</div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Throughput · betalingsmiks</div>
+        <div class="metric-value mono">2.8 <span style="font-size:11px;color:var(--text-muted);font-weight:500;">o/min</span></div>
+        <div class="pay-mix">
+          <div class="pay-mix-seg pay-mix-card" style="width: 88%"></div>
+          <div class="pay-mix-seg pay-mix-vipps" style="width: 12%"></div>
+          <div class="pay-mix-seg pay-mix-apay" style="width: 0%"></div>
+        </div>
+        <div class="pay-mix-legend">
+          <span><span class="dot" style="background:var(--plorea-blue)"></span>Kort 88%</span>
+          <span><span class="dot" style="background:#FF5B24"></span>Vipps 12%</span>
+          <span style="color:var(--status-critical);">⚠ Apple Pay 0%</span>
+        </div>
+      </div>
+
+      <div class="metric">
+        <div class="metric-label">Sist transaksjon</div>
+        <div class="metric-value mono" style="font-size:16px;">1m 42s <span style="font-size:11px;color:var(--text-muted);font-weight:500;">siden</span></div>
+        <div class="metric-sub">Topp: Kaffe ×16</div>
+      </div>
+
+      <div class="metric status-cell">
+        <div class="metric-label" style="color: var(--status-critical);">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Stop-% Status
+        </div>
+        <div class="metric-value critical">CRITICAL (30)</div>
+        <div class="metric-hint">Klikk for detaljer →</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const root = document.documentElement;
+    const current = root.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    if (next === 'dark') {
+      root.setAttribute('data-theme', 'dark');
+      document.getElementById('theme-label').textContent = 'Lys';
+      document.getElementById('theme-icon').innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+    } else {
+      root.removeAttribute('data-theme');
+      document.getElementById('theme-label').textContent = 'Mørk';
+      document.getElementById('theme-icon').innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
+    }
+  }
+</script>
+
+</body>
+</html>
