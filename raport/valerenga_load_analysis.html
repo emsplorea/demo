@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<title>Vålerenga 19.04.2026 — Load Analysis</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0F14;
+  --bg-2: #0E151C;
+  --surface: #131C25;
+  --surface-2: #1A2530;
+  --border: #243242;
+  --border-strong: #2E4256;
+  --text: #E8EEF4;
+  --text-2: #A5B4C4;
+  --text-3: #6B7C8F;
+  --primary: #6BB8DA;
+  --primary-dim: #4A8FAD;
+  --primary-glow: rgba(107,184,218,.15);
+  --accent: #FFB547;
+  --danger: #F36B6B;
+  --success: #5AC994;
+  --purple: #B19CD9;
+  --grid: rgba(255,255,255,.04);
+  --grid-strong: rgba(255,255,255,.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+body {
+  background-image:
+    radial-gradient(ellipse 800px 400px at 20% 0%, rgba(107,184,218,.06), transparent 60%),
+    radial-gradient(ellipse 600px 300px at 90% 20%, rgba(255,181,71,.04), transparent 60%);
+}
+
+.wrap { max-width: 1400px; margin: 0 auto; padding: 40px 32px 80px; }
+
+/* Header */
+.header { margin-bottom: 32px; }
+.eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--primary);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--primary);
+}
+h1 {
+  font-family: 'Sora', sans-serif;
+  font-weight: 800;
+  font-size: 42px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+h1 span { color: var(--primary); }
+.subtitle {
+  color: var(--text-2);
+  font-size: 16px;
+  max-width: 700px;
+}
+.meta {
+  margin-top: 20px;
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--text-3);
+}
+.meta span strong { color: var(--text); font-weight: 500; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 6px;
+  width: fit-content;
+}
+.tab {
+  background: transparent;
+  border: none;
+  color: var(--text-3);
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .2s;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tab:hover { color: var(--text-2); }
+.tab.active {
+  background: var(--primary);
+  color: #0A0F14;
+}
+.tab .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor;
+  opacity: .5;
+}
+.tab.active .dot { opacity: 1; background: #0A0F14; }
+
+.panel { display: none; animation: fadeIn .3s ease; }
+.panel.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* KPI Grid */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.kpi {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  position: relative;
+  overflow: hidden;
+  transition: transform .2s, border-color .2s;
+}
+.kpi:hover { transform: translateY(-2px); border-color: var(--border-strong); }
+.kpi.highlight {
+  background: linear-gradient(180deg, rgba(107,184,218,.08), var(--surface));
+  border-color: rgba(107,184,218,.3);
+}
+.kpi.accent {
+  background: linear-gradient(180deg, rgba(255,181,71,.08), var(--surface));
+  border-color: rgba(255,181,71,.25);
+}
+.kpi .label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.kpi .value {
+  font-family: 'Sora', sans-serif;
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--text);
+}
+.kpi .value .unit {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--text-2);
+  margin-left: 6px;
+}
+.kpi.highlight .value { color: var(--primary); }
+.kpi.accent .value { color: var(--accent); }
+.kpi .sub {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Chart cards */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.grid.full { grid-template-columns: 1fr; }
+.grid.three { grid-template-columns: 2fr 1fr; }
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+}
+.card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+}
+.card-title {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.card-sub {
+  color: var(--text-3);
+  font-size: 12px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--primary-glow);
+  color: var(--primary);
+  border: 1px solid rgba(107,184,218,.2);
+  white-space: nowrap;
+  letter-spacing: 0.05em;
+}
+.badge.success {
+  background: rgba(90,201,148,.1);
+  color: var(--success);
+  border-color: rgba(90,201,148,.25);
+}
+.badge.accent {
+  background: rgba(255,181,71,.1);
+  color: var(--accent);
+  border-color: rgba(255,181,71,.25);
+}
+.chart-wrap { position: relative; height: 280px; }
+.chart-wrap.tall { height: 340px; }
+.chart-wrap.xtall { height: 420px; }
+
+/* Legend */
+.legend {
+  display: flex;
+  gap: 18px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--text-2);
+  font-family: 'JetBrains Mono', monospace;
+}
+.legend-dot {
+  width: 12px; height: 12px; border-radius: 3px;
+}
+.legend-dot.line {
+  width: 14px; height: 2px; border-radius: 0;
+}
+
+/* Phase comparison */
+.phase-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.phase {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.phase::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--primary);
+}
+.phase[data-phase="1"]::before { background: #6B7C8F; }
+.phase[data-phase="2"]::before { background: var(--primary-dim); }
+.phase[data-phase="3"]::before { background: var(--accent); }
+.phase[data-phase="4"]::before { background: #475264; }
+.phase-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+.phase-time {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 18px;
+}
+.phase-stats {
+  display: grid;
+  gap: 10px;
+}
+.phase-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.phase-stat:last-child { border-bottom: none; }
+.phase-stat-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--text-3);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.phase-stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+.phase-stat-value.primary { color: var(--primary); }
+.phase-stat-value.accent { color: var(--accent); }
+
+/* Insights */
+.insights {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 28px;
+  margin-top: 24px;
+}
+.insights h2 {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  margin-bottom: 20px;
+  letter-spacing: -0.01em;
+}
+.insight-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.insight {
+  padding-left: 16px;
+  border-left: 2px solid var(--primary);
+}
+.insight.accent { border-left-color: var(--accent); }
+.insight.success { border-left-color: var(--success); }
+.insight-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-3);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.insight-text {
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.insight-text strong {
+  color: var(--primary);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+.insight.accent .insight-text strong { color: var(--accent); }
+.insight.success .insight-text strong { color: var(--success); }
+
+@media (max-width: 960px) {
+  .kpis, .phase-grid { grid-template-columns: repeat(2, 1fr); }
+  .grid, .grid.three { grid-template-columns: 1fr; }
+  .insight-grid { grid-template-columns: 1fr; }
+  h1 { font-size: 32px; }
+  .wrap { padding: 24px 16px 60px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="header">
+  <div class="eyebrow">Plorea POS · Load Analysis</div>
+  <h1>Vålerenga Fotball Elite <span>— 19.04.2026</span></h1>
+  <p class="subtitle">Kapasitetsprofil for matchday. Alle tall basert på <code>created_at</code> og <code>updated_at</code> fra 7 555 ordre.</p>
+  <div class="meta">
+    <span>Tidsrom: <strong>09:15 → 14:41</strong></span>
+    <span>Totalt antall ordre: <strong>7 555</strong></span>
+    <span>Total GMV: <strong>749 122 NOK</strong></span>
+    <span>Terminaler: <strong>43 aktive</strong></span>
+  </div>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab active" data-tab="system"><span class="dot"></span>System &amp; Kapasitet</button>
+  <button class="tab" data-tab="business"><span class="dot"></span>Business &amp; Operasjonelt</button>
+</div>
+
+<!-- ============================================ -->
+<!-- TAB 1: SYSTEM & KAPASITET                    -->
+<!-- ============================================ -->
+<div class="panel active" data-panel="system">
+
+<section class="kpis">
+  <div class="kpi highlight">
+    <div class="label">Peak tx / sekund</div>
+    <div class="value">6<span class="unit">tx/s</span></div>
+    <div class="sub">~12 sekunder med 6 tx/s</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Peak 5s-snitt</div>
+    <div class="value">4.0<span class="unit">tx/s</span></div>
+    <div class="sub">20 tx på 5s @ 13:26:12</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Peak minutt</div>
+    <div class="value">76<span class="unit">/min</span></div>
+    <div class="sub">13:38 (≈1,27 tx/s sustained)</div>
+  </div>
+  <div class="kpi highlight">
+    <div class="label">Peak samtidige åpne</div>
+    <div class="value">27<span class="unit">tx</span></div>
+    <div class="sub">@ 13:26:12 og 13:27:27–29</div>
+  </div>
+</section>
+
+<div class="grid full">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Nye ordre per minutt — full dag</div>
+        <div class="card-sub">09:15 → 14:41 · hele matchday-vinduet</div>
+      </div>
+      <span class="badge">PEAK 76/MIN @ 13:38</span>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartDay"></canvas></div>
+  </div>
+</div>
+
+<div class="grid full">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Lifespan under last — degraderer systemet?</div>
+        <div class="card-sub">p50 og p95 av created→updated per 5-min, overlaid med ordre-volum</div>
+      </div>
+      <span class="badge success">FLAT P95 ≈ 20s</span>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartLifespanTime"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#2E4256"></span>Ordre / 5min</div>
+      <div class="legend-item"><span class="legend-dot line" style="background:#6BB8DA"></span>p50 lifespan</div>
+      <div class="legend-item"><span class="legend-dot line" style="background:#FFB547"></span>p95 lifespan</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Peak-vindu: tx/s raw vs rullende snitt</div>
+        <div class="card-sub">13:20 → 13:45 · sekund-oppløsning</div>
+      </div>
+      <span class="badge">BURST 6 tx/s</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartPeak"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#2E4256"></span>Raw tx/sekund</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#6BB8DA"></span>Snitt 5s-vindu</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#FFB547"></span>Snitt 10s-vindu</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Samtidige åpne transaksjoner</div>
+        <div class="card-sub">created_at → updated_at · 10s oppløsning</div>
+      </div>
+      <span class="badge">PEAK 27 @ 13:26:12</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartConcurrent"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Load-fordeling per terminal</div>
+        <div class="card-sub">43 unike devices · sortert på ordre-volum</div>
+      </div>
+      <span class="badge">TOP: 244 / BOTTOM: 22</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartDevices"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Aktive terminaler per minutt</div>
+        <div class="card-sub">Unike devices med ≥1 ordre per minutt</div>
+      </div>
+      <span class="badge accent">PEAK 41 / 43 (95%)</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartDevicesActive"></canvas></div>
+  </div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Inter-arrival fordeling</div>
+        <div class="card-sub">Sekunder mellom to påfølgende ordre · 7 554 par</div>
+      </div>
+      <span class="badge">MEDIAN 1.0s · P95 6s</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartInterarrival"></canvas></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Transaksjons-lifespan fordeling</div>
+        <div class="card-sub">created_at → updated_at over 7 555 ordre</div>
+      </div>
+      <span class="badge">MEDIAN 6s · P95 20s</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chartLifespan"></canvas></div>
+  </div>
+</div>
+
+<div class="insights">
+  <h2>Tolkning — system</h2>
+  <div class="insight-grid">
+    <div class="insight success">
+      <div class="insight-label">Systemet degraderer ikke</div>
+      <div class="insight-text">p95 lifespan holder seg <strong>flat rundt 20s</strong> gjennom hele peak-fasen selv når tx-volumet 5-dobles. Dette er det sterkeste kapasitets-argumentet vi har.</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Burst vs sustained</div>
+      <div class="insight-text">Systemet håndterer <strong>6 tx/s burst</strong> og <strong>~1,3 tx/s sustained</strong>. 10s-snittet på <strong>3 tx/s</strong> er det mest realistiske kapasitets-tallet for autoskalerings-triggere.</div>
+    </div>
+    <div class="insight accent">
+      <div class="insight-label">Device-bound, ikke system-bound</div>
+      <div class="insight-text">Peak aktiverer <strong>41 av 43 terminaler (95%)</strong>. Øker man trafikken ytterligere, må man først skalere antall terminaler — bakenden har mer kapasitet.</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Poisson-aktige ankomster</div>
+      <div class="insight-text">Inter-arrival følger eksponentialfordeling: <strong>67% under 1s</strong>, median 1s, mean 2,59s. Gjør kapasitets-modellering standard M/M/c-queue.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panel system -->
+
+<!-- ============================================ -->
+<!-- TAB 2: BUSINESS & OPERASJONELT               -->
+<!-- ============================================ -->
+<div class="panel" data-panel="business">
+
+<section class="kpis">
+  <div class="kpi highlight">
+    <div class="label">Total GMV</div>
+    <div class="value">749k<span class="unit">NOK</span></div>
+    <div class="sub">Over 5,4 timer drift</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Snitt ordre-verdi</div>
+    <div class="value">99<span class="unit">NOK</span></div>
+    <div class="sub">Median 76 NOK · maks 3 205 NOK</div>
+  </div>
+  <div class="kpi accent">
+    <div class="label">Peak GMV / min</div>
+    <div class="value">7.8k<span class="unit">NOK</span></div>
+    <div class="sub">@ 11:52 (pre-match, ikke halvtime!)</div>
+  </div>
+  <div class="kpi">
+    <div class="label">Kansellerte ordre</div>
+    <div class="value">502<span class="unit">(6,6%)</span></div>
+    <div class="sub">Peak 9/min @ 13:14</div>
+  </div>
+</section>
+
+<div class="grid full">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">GMV per minutt — hele dagen</div>
+        <div class="card-sub">Omsetning over tid · merk: peak GMV er pre-match, ikke halvtime</div>
+      </div>
+      <span class="badge accent">PEAK 7 807 NOK @ 11:52</span>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartGmv"></canvas></div>
+  </div>
+</div>
+
+<div class="grid full">
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Fullførte vs kansellerte ordre per minutt</div>
+        <div class="card-sub">Kansellerings-mønster over tid · 6,6% total cancel rate</div>
+      </div>
+      <span class="badge">PEAK CANCEL 9/MIN @ 13:14</span>
+    </div>
+    <div class="chart-wrap tall"><canvas id="chartCancel"></canvas></div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot" style="background:#6BB8DA"></span>Fullførte</div>
+      <div class="legend-item"><span class="legend-dot" style="background:#F36B6B"></span>Kansellerte</div>
+    </div>
+  </div>
+</div>
+
+<h2 style="font-family:'Sora',sans-serif;font-weight:700;font-size:20px;margin:28px 0 12px;letter-spacing:-0.01em;">Match-fase sammenligning</h2>
+<p style="color:var(--text-3);font-size:13px;margin-bottom:20px;font-family:'JetBrains Mono',monospace;">Dagens drift delt i fire faser basert på trafikkmønster</p>
+
+<div class="phase-grid" id="phaseGrid"></div>
+
+<div class="insights">
+  <h2>Tolkning — business &amp; drift</h2>
+  <div class="insight-grid">
+    <div class="insight accent">
+      <div class="insight-label">Pre-match slår halvtime på omsetning</div>
+      <div class="insight-text">Morgen/lunsj drar inn <strong>341k NOK</strong> mot peak-fasens <strong>195k NOK</strong>, på tross av at peak har 2× intensiteten. Grunnen: snitt-ticket faller fra <strong>109 → 92 NOK</strong> når kjøperne bytter fra måltid til kjapp snack.</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Cancel-raten følger ikke trafikken</div>
+      <div class="insight-text">Peak-fasen har lavere cancel-rate (<strong>6,5%</strong>) enn pre-match (<strong>8,0%</strong>) og post-peak (<strong>9,1%</strong>). Tyder på at stress under peak ikke øker feil — men at avslutningsfasen har mer staff-korreksjoner.</div>
+    </div>
+    <div class="insight">
+      <div class="insight-label">Operasjonell sustained-rate</div>
+      <div class="insight-text">Peak-fasen kjører <strong>60,4 ordre/min i snitt over 35 minutter</strong>. Det er det tallet som skal brukes når man bemanner og dimensjonerer fysisk infrastruktur for en matchday — ikke sekund-bursten.</div>
+    </div>
+    <div class="insight success">
+      <div class="insight-label">Post-peak faller raskt</div>
+      <div class="insight-text">Etter 13:50 synker raten til <strong>6,8 ordre/min</strong> — folk er tilbake i setene. 90% av dagens omsetning er gjort på 4,5 timer.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /panel business -->
+
+</div><!-- /wrap -->
+
+<script>
+const DATA = {"per_min":[{"t":"09:15","v":1},{"t":"09:16","v":0},{"t":"09:17","v":0},{"t":"09:18","v":0},{"t":"09:19","v":0},{"t":"09:20","v":0},{"t":"09:21","v":0},{"t":"09:22","v":0},{"t":"09:23","v":0},{"t":"09:24","v":0},{"t":"09:25","v":0},{"t":"09:26","v":0},{"t":"09:27","v":0},{"t":"09:28","v":0},{"t":"09:29","v":0},{"t":"09:30","v":0},{"t":"09:31","v":0},{"t":"09:32","v":0},{"t":"09:33","v":0},{"t":"09:34","v":0},{"t":"09:35","v":0},{"t":"09:36","v":0},{"t":"09:37","v":0},{"t":"09:38","v":0},{"t":"09:39","v":0},{"t":"09:40","v":0},{"t":"09:41","v":0},{"t":"09:42","v":0},{"t":"09:43","v":0},{"t":"09:44","v":1},{"t":"09:45","v":0},{"t":"09:46","v":0},{"t":"09:47","v":0},{"t":"09:48","v":0},{"t":"09:49","v":0},{"t":"09:50","v":0},{"t":"09:51","v":0},{"t":"09:52","v":0},{"t":"09:53","v":0},{"t":"09:54","v":1},{"t":"09:55","v":0},{"t":"09:56","v":0},{"t":"09:57","v":0},{"t":"09:58","v":0},{"t":"09:59","v":0},{"t":"10:00","v":0},{"t":"10:01","v":0},{"t":"10:02","v":0},{"t":"10:03","v":0},{"t":"10:04","v":0},{"t":"10:05","v":0},{"t":"10:06","v":0},{"t":"10:07","v":1},{"t":"10:08","v":0},{"t":"10:09","v":0},{"t":"10:10","v":1},{"t":"10:11","v":0},{"t":"10:12","v":1},{"t":"10:13","v":0},{"t":"10:14","v":0},{"t":"10:15","v":0},{"t":"10:16","v":0},{"t":"10:17","v":0},{"t":"10:18","v":2},{"t":"10:19","v":2},{"t":"10:20","v":0},{"t":"10:21","v":2},{"t":"10:22","v":0},{"t":"10:23","v":2},{"t":"10:24","v":0},{"t":"10:25","v":1},{"t":"10:26","v":0},{"t":"10:27","v":0},{"t":"10:28","v":1},{"t":"10:29","v":1},{"t":"10:30","v":1},{"t":"10:31","v":0},{"t":"10:32","v":4},{"t":"10:33","v":0},{"t":"10:34","v":1},{"t":"10:35","v":0},{"t":"10:36","v":0},{"t":"10:37","v":3},{"t":"10:38","v":0},{"t":"10:39","v":1},{"t":"10:40","v":0},{"t":"10:41","v":0},{"t":"10:42","v":1},{"t":"10:43","v":1},{"t":"10:44","v":2},{"t":"10:45","v":0},{"t":"10:46","v":0},{"t":"10:47","v":0},{"t":"10:48","v":1},{"t":"10:49","v":2},{"t":"10:50","v":1},{"t":"10:51","v":1},{"t":"10:52","v":2},{"t":"10:53","v":1},{"t":"10:54","v":1},{"t":"10:55","v":2},{"t":"10:56","v":0},{"t":"10:57","v":1},{"t":"10:58","v":0},{"t":"10:59","v":3},{"t":"11:00","v":7},{"t":"11:01","v":21},{"t":"11:02","v":21},{"t":"11:03","v":34},{"t":"11:04","v":44},{"t":"11:05","v":46},{"t":"11:06","v":52},{"t":"11:07","v":51},{"t":"11:08","v":39},{"t":"11:09","v":49},{"t":"11:10","v":56},{"t":"11:11","v":49},{"t":"11:12","v":57},{"t":"11:13","v":52},{"t":"11:14","v":55},{"t":"11:15","v":59},{"t":"11:16","v":57},{"t":"11:17","v":55},{"t":"11:18","v":54},{"t":"11:19","v":55},{"t":"11:20","v":59},{"t":"11:21","v":57},{"t":"11:22","v":50},{"t":"11:23","v":66},{"t":"11:24","v":49},{"t":"11:25","v":59},{"t":"11:26","v":43},{"t":"11:27","v":56},{"t":"11:28","v":53},{"t":"11:29","v":41},{"t":"11:30","v":58},{"t":"11:31","v":50},{"t":"11:32","v":49},{"t":"11:33","v":59},{"t":"11:34","v":51},{"t":"11:35","v":52},{"t":"11:36","v":52},{"t":"11:37","v":51},{"t":"11:38","v":59},{"t":"11:39","v":56},{"t":"11:40","v":63},{"t":"11:41","v":56},{"t":"11:42","v":54},{"t":"11:43","v":64},{"t":"11:44","v":55},{"t":"11:45","v":58},{"t":"11:46","v":51},{"t":"11:47","v":54},{"t":"11:48","v":63},{"t":"11:49","v":57},{"t":"11:50","v":55},{"t":"11:51","v":57},{"t":"11:52","v":67},{"t":"11:53","v":55},{"t":"11:54","v":47},{"t":"11:55","v":51},{"t":"11:56","v":49},{"t":"11:57","v":48},{"t":"11:58","v":35},{"t":"11:59","v":49},{"t":"12:00","v":53},{"t":"12:01","v":52},{"t":"12:02","v":42},{"t":"12:03","v":40},{"t":"12:04","v":43},{"t":"12:05","v":46},{"t":"12:06","v":41},{"t":"12:07","v":44},{"t":"12:08","v":46},{"t":"12:09","v":29},{"t":"12:10","v":46},{"t":"12:11","v":41},{"t":"12:12","v":40},{"t":"12:13","v":47},{"t":"12:14","v":48},{"t":"12:15","v":51},{"t":"12:16","v":48},{"t":"12:17","v":55},{"t":"12:18","v":46},{"t":"12:19","v":39},{"t":"12:20","v":37},{"t":"12:21","v":30},{"t":"12:22","v":27},{"t":"12:23","v":25},{"t":"12:24","v":20},{"t":"12:25","v":20},{"t":"12:26","v":12},{"t":"12:27","v":16},{"t":"12:28","v":7},{"t":"12:29","v":4},{"t":"12:30","v":6},{"t":"12:31","v":6},{"t":"12:32","v":5},{"t":"12:33","v":13},{"t":"12:34","v":10},{"t":"12:35","v":16},{"t":"12:36","v":7},{"t":"12:37","v":18},{"t":"12:38","v":5},{"t":"12:39","v":14},{"t":"12:40","v":12},{"t":"12:41","v":8},{"t":"12:42","v":7},{"t":"12:43","v":9},{"t":"12:44","v":10},{"t":"12:45","v":12},{"t":"12:46","v":14},{"t":"12:47","v":8},{"t":"12:48","v":5},{"t":"12:49","v":10},{"t":"12:50","v":13},{"t":"12:51","v":23},{"t":"12:52","v":15},{"t":"12:53","v":23},{"t":"12:54","v":19},{"t":"12:55","v":21},{"t":"12:56","v":20},{"t":"12:57","v":18},{"t":"12:58","v":17},{"t":"12:59","v":31},{"t":"13:00","v":30},{"t":"13:01","v":24},{"t":"13:02","v":19},{"t":"13:03","v":21},{"t":"13:04","v":33},{"t":"13:05","v":34},{"t":"13:06","v":31},{"t":"13:07","v":44},{"t":"13:08","v":38},{"t":"13:09","v":34},{"t":"13:10","v":24},{"t":"13:11","v":30},{"t":"13:12","v":31},{"t":"13:13","v":37},{"t":"13:14","v":55},{"t":"13:15","v":61},{"t":"13:16","v":69},{"t":"13:17","v":65},{"t":"13:18","v":65},{"t":"13:19","v":64},{"t":"13:20","v":68},{"t":"13:21","v":63},{"t":"13:22","v":63},{"t":"13:23","v":62},{"t":"13:24","v":69},{"t":"13:25","v":60},{"t":"13:26","v":69},{"t":"13:27","v":68},{"t":"13:28","v":72},{"t":"13:29","v":67},{"t":"13:30","v":64},{"t":"13:31","v":57},{"t":"13:32","v":61},{"t":"13:33","v":60},{"t":"13:34","v":67},{"t":"13:35","v":62},{"t":"13:36","v":63},{"t":"13:37","v":66},{"t":"13:38","v":76},{"t":"13:39","v":62},{"t":"13:40","v":66},{"t":"13:41","v":62},{"t":"13:42","v":67},{"t":"13:43","v":61},{"t":"13:44","v":53},{"t":"13:45","v":47},{"t":"13:46","v":42},{"t":"13:47","v":34},{"t":"13:48","v":34},{"t":"13:49","v":24},{"t":"13:50","v":22},{"t":"13:51","v":24},{"t":"13:52","v":19},{"t":"13:53","v":22},{"t":"13:54","v":25},{"t":"13:55","v":19},{"t":"13:56","v":19},{"t":"13:57","v":29},{"t":"13:58","v":17},{"t":"13:59","v":12},{"t":"14:00","v":12},{"t":"14:01","v":10},{"t":"14:02","v":13},{"t":"14:03","v":11},{"t":"14:04","v":14},{"t":"14:05","v":8},{"t":"14:06","v":2},{"t":"14:07","v":10},{"t":"14:08","v":11},{"t":"14:09","v":11},{"t":"14:10","v":4},{"t":"14:11","v":4},{"t":"14:12","v":2},{"t":"14:13","v":2},{"t":"14:14","v":1},{"t":"14:15","v":4},{"t":"14:16","v":1},{"t":"14:17","v":2},{"t":"14:18","v":0},{"t":"14:19","v":1},{"t":"14:20","v":3},{"t":"14:21","v":1},{"t":"14:22","v":2},{"t":"14:23","v":2},{"t":"14:24","v":3},{"t":"14:25","v":1},{"t":"14:26","v":1},{"t":"14:27","v":1},{"t":"14:28","v":0},{"t":"14:29","v":1},{"t":"14:30","v":0},{"t":"14:31","v":1},{"t":"14:32","v":1},{"t":"14:33","v":0},{"t":"14:34","v":0},{"t":"14:35","v":0},{"t":"14:36","v":0},{"t":"14:37","v":1},{"t":"14:38","v":0},{"t":"14:39","v":0},{"t":"14:40","v":0},{"t":"14:41","v":1}],"peak_sec":[{"t":"13:20:00","raw":0,"r5":0.0,"r10":0.0},{"t":"13:20:01","raw":2,"r5":0.4,"r10":0.2},{"t":"13:20:02","raw":2,"r5":0.8,"r10":0.4},{"t":"13:20:03","raw":0,"r5":0.8,"r10":0.4},{"t":"13:20:04","raw":1,"r5":1.0,"r10":0.5},{"t":"13:20:05","raw":2,"r5":1.4,"r10":0.7},{"t":"13:20:06","raw":1,"r5":1.2,"r10":0.8},{"t":"13:20:07","raw":1,"r5":1.0,"r10":0.9},{"t":"13:20:08","raw":0,"r5":1.0,"r10":0.9},{"t":"13:20:09","raw":1,"r5":1.0,"r10":1.0},{"t":"13:20:10","raw":4,"r5":1.4,"r10":1.4},{"t":"13:20:11","raw":1,"r5":1.4,"r10":1.3},{"t":"13:20:12","raw":0,"r5":1.2,"r10":1.1},{"t":"13:20:13","raw":1,"r5":1.4,"r10":1.2},{"t":"13:20:14","raw":2,"r5":1.6,"r10":1.3},{"t":"13:20:15","raw":1,"r5":1.0,"r10":1.2},{"t":"13:20:16","raw":2,"r5":1.2,"r10":1.3},{"t":"13:20:17","raw":1,"r5":1.4,"r10":1.3},{"t":"13:20:18","raw":0,"r5":1.2,"r10":1.3},{"t":"13:20:19","raw":0,"r5":0.8,"r10":1.2},{"t":"13:20:20","raw":1,"r5":0.8,"r10":0.9},{"t":"13:20:21","raw":1,"r5":0.6,"r10":0.9},{"t":"13:20:22","raw":2,"r5":0.8,"r10":1.1},{"t":"13:20:23","raw":1,"r5":1.0,"r10":1.1},{"t":"13:20:24","raw":1,"r5":1.2,"r10":1.0},{"t":"13:20:25","raw":1,"r5":1.2,"r10":1.0},{"t":"13:20:26","raw":1,"r5":1.2,"r10":0.9},{"t":"13:20:27","raw":1,"r5":1.0,"r10":0.9},{"t":"13:20:28","raw":2,"r5":1.2,"r10":1.1},{"t":"13:20:29","raw":2,"r5":1.4,"r10":1.3},{"t":"13:20:30","raw":2,"r5":1.6,"r10":1.4},{"t":"13:20:31","raw":1,"r5":1.6,"r10":1.4},{"t":"13:20:32","raw":1,"r5":1.6,"r10":1.3},{"t":"13:20:33","raw":2,"r5":1.6,"r10":1.4},{"t":"13:20:34","raw":0,"r5":1.2,"r10":1.3},{"t":"13:20:35","raw":0,"r5":0.8,"r10":1.2},{"t":"13:20:36","raw":1,"r5":0.8,"r10":1.2},{"t":"13:20:37","raw":4,"r5":1.4,"r10":1.5},{"t":"13:20:38","raw":0,"r5":1.0,"r10":1.3},{"t":"13:20:39","raw":3,"r5":1.6,"r10":1.4},{"t":"13:20:40","raw":0,"r5":1.6,"r10":1.2},{"t":"13:20:41","raw":0,"r5":1.4,"r10":1.1},{"t":"13:20:42","raw":0,"r5":0.6,"r10":1.0},{"t":"13:20:43","raw":3,"r5":1.2,"r10":1.1},{"t":"13:20:44","raw":2,"r5":1.0,"r10":1.3},{"t":"13:20:45","raw":0,"r5":1.0,"r10":1.3},{"t":"13:20:46","raw":2,"r5":1.4,"r10":1.4},{"t":"13:20:47","raw":1,"r5":1.6,"r10":1.1},{"t":"13:20:48","raw":1,"r5":1.2,"r10":1.2},{"t":"13:20:49","raw":0,"r5":0.8,"r10":0.9},{"t":"13:20:50","raw":1,"r5":1.0,"r10":1.0},{"t":"13:20:51","raw":0,"r5":0.6,"r10":1.0},{"t":"13:20:52","raw":1,"r5":0.6,"r10":1.1},{"t":"13:20:53","raw":0,"r5":0.4,"r10":0.8},{"t":"13:20:54","raw":0,"r5":0.4,"r10":0.6},{"t":"13:20:55","raw":1,"r5":0.4,"r10":0.7},{"t":"13:20:56","raw":2,"r5":0.8,"r10":0.7},{"t":"13:20:57","raw":2,"r5":1.0,"r10":0.8},{"t":"13:20:58","raw":2,"r5":1.4,"r10":0.9},{"t":"13:20:59","raw":1,"r5":1.6,"r10":1.0},{"t":"13:21:00","raw":0,"r5":1.4,"r10":0.9},{"t":"13:21:01","raw":1,"r5":1.2,"r10":1.0},{"t":"13:21:02","raw":1,"r5":1.0,"r10":1.0},{"t":"13:21:03","raw":2,"r5":1.0,"r10":1.2},{"t":"13:21:04","raw":1,"r5":1.0,"r10":1.3},{"t":"13:21:05","raw":2,"r5":1.4,"r10":1.4},{"t":"13:21:06","raw":1,"r5":1.4,"r10":1.3},{"t":"13:21:07","raw":2,"r5":1.6,"r10":1.3},{"t":"13:21:08","raw":0,"r5":1.2,"r10":1.1},{"t":"13:21:09","raw":1,"r5":1.2,"r10":1.1},{"t":"13:21:10","raw":3,"r5":1.4,"r10":1.4},{"t":"13:21:11","raw":0,"r5":1.2,"r10":1.3},{"t":"13:21:12","raw":2,"r5":1.2,"r10":1.4},{"t":"13:21:13","raw":1,"r5":1.4,"r10":1.3},{"t":"13:21:14","raw":0,"r5":1.2,"r10":1.2},{"t":"13:21:15","raw":1,"r5":0.8,"r10":1.1},{"t":"13:21:16","raw":1,"r5":1.0,"r10":1.1},{"t":"13:21:17","raw":1,"r5":0.8,"r10":1.0},{"t":"13:21:18","raw":0,"r5":0.6,"r10":1.0},{"t":"13:21:19","raw":1,"r5":0.8,"r10":1.0},{"t":"13:21:20","raw":0,"r5":0.6,"r10":0.7},{"t":"13:21:21","raw":2,"r5":0.8,"r10":0.9},{"t":"13:21:22","raw":0,"r5":0.6,"r10":0.7},{"t":"13:21:23","raw":1,"r5":0.8,"r10":0.7},{"t":"13:21:24","raw":1,"r5":0.8,"r10":0.8},{"t":"13:21:25","raw":0,"r5":0.8,"r10":0.7},{"t":"13:21:26","raw":1,"r5":0.6,"r10":0.7},{"t":"13:21:27","raw":2,"r5":1.0,"r10":0.8},{"t":"13:21:28","raw":0,"r5":0.8,"r10":0.8},{"t":"13:21:29","raw":1,"r5":0.8,"r10":0.8},{"t":"13:21:30","raw":0,"r5":0.8,"r10":0.8},{"t":"13:21:31","raw":1,"r5":0.8,"r10":0.7},{"t":"13:21:32","raw":0,"r5":0.4,"r10":0.7},{"t":"13:21:33","raw":2,"r5":0.8,"r10":0.8},{"t":"13:21:34","raw":4,"r5":1.4,"r10":1.1},{"t":"13:21:35","raw":1,"r5":1.6,"r10":1.2},{"t":"13:21:36","raw":2,"r5":1.8,"r10":1.3},{"t":"13:21:37","raw":0,"r5":1.8,"r10":1.1},{"t":"13:21:38","raw":2,"r5":1.8,"r10":1.3},{"t":"13:21:39","raw":2,"r5":1.4,"r10":1.4},{"t":"13:21:40","raw":2,"r5":1.6,"r10":1.6},{"t":"13:21:41","raw":0,"r5":1.2,"r10":1.5},{"t":"13:21:42","raw":0,"r5":1.2,"r10":1.5},{"t":"13:21:43","raw":0,"r5":0.8,"r10":1.3},{"t":"13:21:44","raw":0,"r5":0.4,"r10":0.9},{"t":"13:21:45","raw":1,"r5":0.2,"r10":0.9},{"t":"13:21:46","raw":2,"r5":0.6,"r10":0.9},{"t":"13:21:47","raw":1,"r5":0.8,"r10":1.0},{"t":"13:21:48","raw":0,"r5":0.8,"r10":0.8},{"t":"13:21:49","raw":4,"r5":1.6,"r10":1.0},{"t":"13:21:50","raw":1,"r5":1.6,"r10":0.9},{"t":"13:21:51","raw":1,"r5":1.4,"r10":1.0},{"t":"13:21:52","raw":2,"r5":1.6,"r10":1.2},{"t":"13:21:53","raw":1,"r5":1.8,"r10":1.3},{"t":"13:21:54","raw":0,"r5":1.0,"r10":1.3},{"t":"13:21:55","raw":1,"r5":1.0,"r10":1.3},{"t":"13:21:56","raw":0,"r5":0.8,"r10":1.1},{"t":"13:21:57","raw":1,"r5":0.6,"r10":1.1},{"t":"13:21:58","raw":2,"r5":0.8,"r10":1.3},{"t":"13:21:59","raw":1,"r5":1.0,"r10":1.0},{"t":"13:22:00","raw":1,"r5":1.0,"r10":1.0},{"t":"13:22:01","raw":1,"r5":1.2,"r10":1.0},{"t":"13:22:02","raw":2,"r5":1.4,"r10":1.0},{"t":"13:22:03","raw":1,"r5":1.2,"r10":1.0},{"t":"13:22:04","raw":0,"r5":1.0,"r10":1.0},{"t":"13:22:05","raw":2,"r5":1.2,"r10":1.1},{"t":"13:22:06","raw":3,"r5":1.6,"r10":1.4},{"t":"13:22:07","raw":1,"r5":1.4,"r10":1.4},{"t":"13:22:08","raw":0,"r5":1.2,"r10":1.2},{"t":"13:22:09","raw":4,"r5":2.0,"r10":1.5},{"t":"13:22:10","raw":1,"r5":1.8,"r10":1.5},{"t":"13:22:11","raw":0,"r5":1.2,"r10":1.4},{"t":"13:22:12","raw":1,"r5":1.2,"r10":1.3},{"t":"13:22:13","raw":1,"r5":1.4,"r10":1.3},{"t":"13:22:14","raw":1,"r5":0.8,"r10":1.4},{"t":"13:22:15","raw":1,"r5":0.8,"r10":1.3},{"t":"13:22:16","raw":2,"r5":1.2,"r10":1.2},{"t":"13:22:17","raw":0,"r5":1.0,"r10":1.1},{"t":"13:22:18","raw":0,"r5":0.8,"r10":1.1},{"t":"13:22:19","raw":0,"r5":0.6,"r10":0.7},{"t":"13:22:20","raw":2,"r5":0.8,"r10":0.8},{"t":"13:22:21","raw":1,"r5":0.6,"r10":0.9},{"t":"13:22:22","raw":0,"r5":0.6,"r10":0.8},{"t":"13:22:23","raw":1,"r5":0.8,"r10":0.8},{"t":"13:22:24","raw":1,"r5":1.0,"r10":0.8},{"t":"13:22:25","raw":0,"r5":0.6,"r10":0.7},{"t":"13:22:26","raw":1,"r5":0.6,"r10":0.6},{"t":"13:22:27","raw":0,"r5":0.6,"r10":0.6},{"t":"13:22:28","raw":3,"r5":1.0,"r10":0.9},{"t":"13:22:29","raw":2,"r5":1.2,"r10":1.1},{"t":"13:22:30","raw":2,"r5":1.6,"r10":1.1},{"t":"13:22:31","raw":1,"r5":1.6,"r10":1.1},{"t":"13:22:32","raw":1,"r5":1.8,"r10":1.2},{"t":"13:22:33","raw":1,"r5":1.4,"r10":1.2},{"t":"13:22:34","raw":2,"r5":1.4,"r10":1.3},{"t":"13:22:35","raw":0,"r5":1.0,"r10":1.3},{"t":"13:22:36","raw":0,"r5":0.8,"r10":1.2},{"t":"13:22:37","raw":1,"r5":0.8,"r10":1.3},{"t":"13:22:38","raw":4,"r5":1.4,"r10":1.4},{"t":"13:22:39","raw":1,"r5":1.2,"r10":1.3},{"t":"13:22:40","raw":1,"r5":1.4,"r10":1.2},{"t":"13:22:41","raw":2,"r5":1.8,"r10":1.3},{"t":"13:22:42","raw":2,"r5":2.0,"r10":1.4},{"t":"13:22:43","raw":0,"r5":1.2,"r10":1.3},{"t":"13:22:44","raw":0,"r5":1.0,"r10":1.1},{"t":"13:22:45","raw":0,"r5":0.8,"r10":1.1},{"t":"13:22:46","raw":0,"r5":0.4,"r10":1.1},{"t":"13:22:47","raw":1,"r5":0.2,"r10":1.1},{"t":"13:22:48","raw":0,"r5":0.2,"r10":0.7},{"t":"13:22:49","raw":0,"r5":0.2,"r10":0.6},{"t":"13:22:50","raw":0,"r5":0.2,"r10":0.5},{"t":"13:22:51","raw":0,"r5":0.2,"r10":0.3},{"t":"13:22:52","raw":1,"r5":0.2,"r10":0.2},{"t":"13:22:53","raw":2,"r5":0.6,"r10":0.4},{"t":"13:22:54","raw":0,"r5":0.6,"r10":0.4},{"t":"13:22:55","raw":0,"r5":0.6,"r10":0.4},{"t":"13:22:56","raw":0,"r5":0.6,"r10":0.4},{"t":"13:22:57","raw":2,"r5":0.8,"r10":0.5},{"t":"13:22:58","raw":2,"r5":0.8,"r10":0.7},{"t":"13:22:59","raw":4,"r5":1.6,"r10":1.1},{"t":"13:23:00","raw":2,"r5":2.0,"r10":1.3},{"t":"13:23:01","raw":1,"r5":2.2,"r10":1.4},{"t":"13:23:02","raw":0,"r5":1.8,"r10":1.3},{"t":"13:23:03","raw":1,"r5":1.6,"r10":1.2},{"t":"13:23:04","raw":0,"r5":0.8,"r10":1.2},{"t":"13:23:05","raw":0,"r5":0.4,"r10":1.2},{"t":"13:23:06","raw":1,"r5":0.4,"r10":1.3},{"t":"13:23:07","raw":0,"r5":0.4,"r10":1.1},{"t":"13:23:08","raw":2,"r5":0.6,"r10":1.1},{"t":"13:23:09","raw":1,"r5":0.8,"r10":0.8},{"t":"13:23:10","raw":2,"r5":1.2,"r10":0.8},{"t":"13:23:11","raw":1,"r5":1.2,"r10":0.8},{"t":"13:23:12","raw":0,"r5":1.2,"r10":0.8},{"t":"13:23:13","raw":2,"r5":1.2,"r10":0.9},{"t":"13:23:14","raw":1,"r5":1.2,"r10":1.0},{"t":"13:23:15","raw":1,"r5":1.0,"r10":1.1},{"t":"13:23:16","raw":1,"r5":1.0,"r10":1.1},{"t":"13:23:17","raw":2,"r5":1.4,"r10":1.3},{"t":"13:23:18","raw":2,"r5":1.4,"r10":1.3},{"t":"13:23:19","raw":4,"r5":2.0,"r10":1.6},{"t":"13:23:20","raw":2,"r5":2.2,"r10":1.6},{"t":"13:23:21","raw":3,"r5":2.6,"r10":1.8},{"t":"13:23:22","raw":0,"r5":2.2,"r10":1.8},{"t":"13:23:23","raw":1,"r5":2.0,"r10":1.7},{"t":"13:23:24","raw":0,"r5":1.2,"r10":1.6},{"t":"13:23:25","raw":1,"r5":1.0,"r10":1.6},{"t":"13:23:26","raw":0,"r5":0.4,"r10":1.5},{"t":"13:23:27","raw":0,"r5":0.4,"r10":1.3},{"t":"13:23:28","raw":0,"r5":0.2,"r10":1.1},{"t":"13:23:29","raw":2,"r5":0.6,"r10":0.9},{"t":"13:23:30","raw":0,"r5":0.4,"r10":0.7},{"t":"13:23:31","raw":2,"r5":0.8,"r10":0.6},{"t":"13:23:32","raw":0,"r5":0.8,"r10":0.6},{"t":"13:23:33","raw":1,"r5":1.0,"r10":0.6},{"t":"13:23:34","raw":2,"r5":1.0,"r10":0.8},{"t":"13:23:35","raw":1,"r5":1.2,"r10":0.8},{"t":"13:23:36","raw":2,"r5":1.2,"r10":1.0},{"t":"13:23:37","raw":1,"r5":1.4,"r10":1.1},{"t":"13:23:38","raw":1,"r5":1.4,"r10":1.2},{"t":"13:23:39","raw":0,"r5":1.0,"r10":1.0},{"t":"13:23:40","raw":1,"r5":1.0,"r10":1.1},{"t":"13:23:41","raw":1,"r5":0.8,"r10":1.0},{"t":"13:23:42","raw":0,"r5":0.6,"r10":1.0},{"t":"13:23:43","raw":0,"r5":0.4,"r10":0.9},{"t":"13:23:44","raw":3,"r5":1.0,"r10":1.0},{"t":"13:23:45","raw":4,"r5":1.6,"r10":1.3},{"t":"13:23:46","raw":1,"r5":1.6,"r10":1.2},{"t":"13:23:47","raw":0,"r5":1.6,"r10":1.1},{"t":"13:23:48","raw":1,"r5":1.8,"r10":1.1},{"t":"13:23:49","raw":0,"r5":1.2,"r10":1.1},{"t":"13:23:50","raw":1,"r5":0.6,"r10":1.1},{"t":"13:23:51","raw":1,"r5":0.6,"r10":1.1},{"t":"13:23:52","raw":0,"r5":0.6,"r10":1.1},{"t":"13:23:53","raw":0,"r5":0.4,"r10":1.1},{"t":"13:23:54","raw":0,"r5":0.4,"r10":0.8},{"t":"13:23:55","raw":0,"r5":0.2,"r10":0.4},{"t":"13:23:56","raw":1,"r5":0.2,"r10":0.4},{"t":"13:23:57","raw":3,"r5":0.8,"r10":0.7},{"t":"13:23:58","raw":0,"r5":0.8,"r10":0.6},{"t":"13:23:59","raw":2,"r5":1.2,"r10":0.8},{"t":"13:24:00","raw":2,"r5":1.6,"r10":0.9},{"t":"13:24:01","raw":1,"r5":1.6,"r10":0.9},{"t":"13:24:02","raw":0,"r5":1.0,"r10":0.9},{"t":"13:24:03","raw":1,"r5":1.2,"r10":1.0},{"t":"13:24:04","raw":2,"r5":1.2,"r10":1.2},{"t":"13:24:05","raw":2,"r5":1.2,"r10":1.4},{"t":"13:24:06","raw":1,"r5":1.2,"r10":1.4},{"t":"13:24:07","raw":1,"r5":1.4,"r10":1.2},{"t":"13:24:08","raw":5,"r5":2.2,"r10":1.7},{"t":"13:24:09","raw":0,"r5":1.8,"r10":1.5},{"t":"13:24:10","raw":1,"r5":1.6,"r10":1.4},{"t":"13:24:11","raw":3,"r5":2.0,"r10":1.6},{"t":"13:24:12","raw":1,"r5":2.0,"r10":1.7},{"t":"13:24:13","raw":0,"r5":1.0,"r10":1.6},{"t":"13:24:14","raw":1,"r5":1.2,"r10":1.5},{"t":"13:24:15","raw":1,"r5":1.2,"r10":1.4},{"t":"13:24:16","raw":0,"r5":0.6,"r10":1.3},{"t":"13:24:17","raw":2,"r5":0.8,"r10":1.4},{"t":"13:24:18","raw":3,"r5":1.4,"r10":1.2},{"t":"13:24:19","raw":2,"r5":1.6,"r10":1.4},{"t":"13:24:20","raw":2,"r5":1.8,"r10":1.5},{"t":"13:24:21","raw":0,"r5":1.8,"r10":1.2},{"t":"13:24:22","raw":2,"r5":1.8,"r10":1.3},{"t":"13:24:23","raw":2,"r5":1.6,"r10":1.5},{"t":"13:24:24","raw":1,"r5":1.4,"r10":1.5},{"t":"13:24:25","raw":0,"r5":1.0,"r10":1.4},{"t":"13:24:26","raw":0,"r5":1.0,"r10":1.4},{"t":"13:24:27","raw":0,"r5":0.6,"r10":1.2},{"t":"13:24:28","raw":0,"r5":0.2,"r10":0.9},{"t":"13:24:29","raw":0,"r5":0.0,"r10":0.7},{"t":"13:24:30","raw":1,"r5":0.2,"r10":0.6},{"t":"13:24:31","raw":0,"r5":0.2,"r10":0.6},{"t":"13:24:32","raw":1,"r5":0.4,"r10":0.5},{"t":"13:24:33","raw":0,"r5":0.4,"r10":0.3},{"t":"13:24:34","raw":2,"r5":0.8,"r10":0.4},{"t":"13:24:35","raw":1,"r5":0.8,"r10":0.5},{"t":"13:24:36","raw":3,"r5":1.4,"r10":0.8},{"t":"13:24:37","raw":1,"r5":1.4,"r10":0.9},{"t":"13:24:38","raw":3,"r5":2.0,"r10":1.2},{"t":"13:24:39","raw":0,"r5":1.6,"r10":1.2},{"t":"13:24:40","raw":4,"r5":2.2,"r10":1.5},{"t":"13:24:41","raw":0,"r5":1.6,"r10":1.5},{"t":"13:24:42","raw":0,"r5":1.4,"r10":1.4},{"t":"13:24:43","raw":0,"r5":0.8,"r10":1.4},{"t":"13:24:44","raw":0,"r5":0.8,"r10":1.2},{"t":"13:24:45","raw":1,"r5":0.2,"r10":1.2},{"t":"13:24:46","raw":1,"r5":0.4,"r10":1.0},{"t":"13:24:47","raw":1,"r5":0.6,"r10":1.0},{"t":"13:24:48","raw":0,"r5":0.6,"r10":0.7},{"t":"13:24:49","raw":2,"r5":1.0,"r10":0.9},{"t":"13:24:50","raw":1,"r5":1.0,"r10":0.6},{"t":"13:24:51","raw":0,"r5":0.8,"r10":0.6},{"t":"13:24:52","raw":1,"r5":0.8,"r10":0.7},{"t":"13:24:53","raw":0,"r5":0.8,"r10":0.7},{"t":"13:24:54","raw":2,"r5":0.8,"r10":0.9},{"t":"13:24:55","raw":0,"r5":0.6,"r10":0.8},{"t":"13:24:56","raw":1,"r5":0.8,"r10":0.8},{"t":"13:24:57","raw":2,"r5":1.0,"r10":0.9},{"t":"13:24:58","raw":2,"r5":1.4,"r10":1.1},{"t":"13:24:59","raw":3,"r5":1.6,"r10":1.2},{"t":"13:25:00","raw":3,"r5":2.2,"r10":1.4},{"t":"13:25:01","raw":2,"r5":2.4,"r10":1.6},{"t":"13:25:02","raw":1,"r5":2.2,"r10":1.6},{"t":"13:25:03","raw":1,"r5":2.0,"r10":1.7},{"t":"13:25:04","raw":0,"r5":1.4,"r10":1.5},{"t":"13:25:05","raw":1,"r5":1.0,"r10":1.6},{"t":"13:25:06","raw":3,"r5":1.2,"r10":1.8},{"t":"13:25:07","raw":0,"r5":1.0,"r10":1.6},{"t":"13:25:08","raw":1,"r5":1.0,"r10":1.5},{"t":"13:25:09","raw":0,"r5":1.0,"r10":1.2},{"t":"13:25:10","raw":0,"r5":0.8,"r10":0.9},{"t":"13:25:11","raw":2,"r5":0.6,"r10":0.9},{"t":"13:25:12","raw":0,"r5":0.6,"r10":0.8},{"t":"13:25:13","raw":0,"r5":0.4,"r10":0.7},{"t":"13:25:14","raw":1,"r5":0.6,"r10":0.8},{"t":"13:25:15","raw":2,"r5":1.0,"r10":0.9},{"t":"13:25:16","raw":0,"r5":0.6,"r10":0.6},{"t":"13:25:17","raw":0,"r5":0.6,"r10":0.6},{"t":"13:25:18","raw":3,"r5":1.2,"r10":0.8},{"t":"13:25:19","raw":1,"r5":1.2,"r10":0.9},{"t":"13:25:20","raw":1,"r5":1.0,"r10":1.0},{"t":"13:25:21","raw":1,"r5":1.2,"r10":0.9},{"t":"13:25:22","raw":2,"r5":1.6,"r10":1.1},{"t":"13:25:23","raw":3,"r5":1.6,"r10":1.4},{"t":"13:25:24","raw":0,"r5":1.4,"r10":1.3},{"t":"13:25:25","raw":1,"r5":1.4,"r10":1.2},{"t":"13:25:26","raw":2,"r5":1.6,"r10":1.4},{"t":"13:25:27","raw":2,"r5":1.6,"r10":1.6},{"t":"13:25:28","raw":3,"r5":1.6,"r10":1.6},{"t":"13:25:29","raw":1,"r5":1.8,"r10":1.6},{"t":"13:25:30","raw":0,"r5":1.6,"r10":1.5},{"t":"13:25:31","raw":3,"r5":1.8,"r10":1.7},{"t":"13:25:32","raw":1,"r5":1.6,"r10":1.6},{"t":"13:25:33","raw":2,"r5":1.4,"r10":1.5},{"t":"13:25:34","raw":0,"r5":1.2,"r10":1.5},{"t":"13:25:35","raw":0,"r5":1.2,"r10":1.4},{"t":"13:25:36","raw":1,"r5":0.8,"r10":1.3},{"t":"13:25:37","raw":0,"r5":0.6,"r10":1.1},{"t":"13:25:38","raw":0,"r5":0.2,"r10":0.8},{"t":"13:25:39","raw":1,"r5":0.4,"r10":0.8},{"t":"13:25:40","raw":2,"r5":0.8,"r10":1.0},{"t":"13:25:41","raw":0,"r5":0.6,"r10":0.7},{"t":"13:25:42","raw":1,"r5":0.8,"r10":0.7},{"t":"13:25:43","raw":1,"r5":1.0,"r10":0.6},{"t":"13:25:44","raw":0,"r5":0.8,"r10":0.6},{"t":"13:25:45","raw":0,"r5":0.4,"r10":0.6},{"t":"13:25:46","raw":0,"r5":0.4,"r10":0.5},{"t":"13:25:47","raw":2,"r5":0.6,"r10":0.7},{"t":"13:25:48","raw":1,"r5":0.6,"r10":0.8},{"t":"13:25:49","raw":0,"r5":0.6,"r10":0.7},{"t":"13:25:50","raw":0,"r5":0.6,"r10":0.5},{"t":"13:25:51","raw":1,"r5":0.8,"r10":0.6},{"t":"13:25:52","raw":0,"r5":0.4,"r10":0.5},{"t":"13:25:53","raw":0,"r5":0.2,"r10":0.4},{"t":"13:25:54","raw":0,"r5":0.2,"r10":0.4},{"t":"13:25:55","raw":1,"r5":0.4,"r10":0.5},{"t":"13:25:56","raw":1,"r5":0.4,"r10":0.6},{"t":"13:25:57","raw":0,"r5":0.4,"r10":0.4},{"t":"13:25:58","raw":3,"r5":1.0,"r10":0.6},{"t":"13:25:59","raw":2,"r5":1.4,"r10":0.8},{"t":"13:26:00","raw":0,"r5":1.2,"r10":0.8},{"t":"13:26:01","raw":0,"r5":1.0,"r10":0.7},{"t":"13:26:02","raw":0,"r5":1.0,"r10":0.7},{"t":"13:26:03","raw":2,"r5":0.8,"r10":0.9},{"t":"13:26:04","raw":2,"r5":0.8,"r10":1.1},{"t":"13:26:05","raw":0,"r5":0.8,"r10":1.0},{"t":"13:26:06","raw":2,"r5":1.2,"r10":1.1},{"t":"13:26:07","raw":4,"r5":2.0,"r10":1.5},{"t":"13:26:08","raw":6,"r5":2.8,"r10":1.8},{"t":"13:26:09","raw":1,"r5":2.6,"r10":1.7},{"t":"13:26:10","raw":3,"r5":3.2,"r10":2.0},{"t":"13:26:11","raw":5,"r5":3.8,"r10":2.5},{"t":"13:26:12","raw":5,"r5":4.0,"r10":3.0},{"t":"13:26:13","raw":0,"r5":2.8,"r10":2.8},{"t":"13:26:14","raw":0,"r5":2.6,"r10":2.6},{"t":"13:26:15","raw":1,"r5":2.2,"r10":2.7},{"t":"13:26:16","raw":0,"r5":1.2,"r10":2.5},{"t":"13:26:17","raw":2,"r5":0.6,"r10":2.3},{"t":"13:26:18","raw":1,"r5":0.8,"r10":1.8},{"t":"13:26:19","raw":1,"r5":1.0,"r10":1.8},{"t":"13:26:20","raw":1,"r5":1.0,"r10":1.6},{"t":"13:26:21","raw":1,"r5":1.2,"r10":1.2},{"t":"13:26:22","raw":2,"r5":1.2,"r10":0.9},{"t":"13:26:23","raw":2,"r5":1.4,"r10":1.1},{"t":"13:26:24","raw":0,"r5":1.2,"r10":1.1},{"t":"13:26:25","raw":1,"r5":1.2,"r10":1.1},{"t":"13:26:26","raw":0,"r5":1.0,"r10":1.1},{"t":"13:26:27","raw":0,"r5":0.6,"r10":0.9},{"t":"13:26:28","raw":1,"r5":0.4,"r10":0.9},{"t":"13:26:29","raw":3,"r5":1.0,"r10":1.1},{"t":"13:26:30","raw":0,"r5":0.8,"r10":1.0},{"t":"13:26:31","raw":1,"r5":1.0,"r10":1.0},{"t":"13:26:32","raw":2,"r5":1.4,"r10":1.0},{"t":"13:26:33","raw":2,"r5":1.6,"r10":1.0},{"t":"13:26:34","raw":1,"r5":1.2,"r10":1.1},{"t":"13:26:35","raw":0,"r5":1.2,"r10":1.0},{"t":"13:26:36","raw":1,"r5":1.2,"r10":1.1},{"t":"13:26:37","raw":0,"r5":0.8,"r10":1.1},{"t":"13:26:38","raw":1,"r5":0.6,"r10":1.1},{"t":"13:26:39","raw":0,"r5":0.4,"r10":0.8},{"t":"13:26:40","raw":0,"r5":0.4,"r10":0.8},{"t":"13:26:41","raw":0,"r5":0.2,"r10":0.7},{"t":"13:26:42","raw":0,"r5":0.2,"r10":0.5},{"t":"13:26:43","raw":1,"r5":0.2,"r10":0.4},{"t":"13:26:44","raw":2,"r5":0.6,"r10":0.5},{"t":"13:26:45","raw":0,"r5":0.6,"r10":0.5},{"t":"13:26:46","raw":0,"r5":0.6,"r10":0.4},{"t":"13:26:47","raw":0,"r5":0.6,"r10":0.4},{"t":"13:26:48","raw":0,"r5":0.4,"r10":0.3},{"t":"13:26:49","raw":2,"r5":0.4,"r10":0.5},{"t":"13:26:50","raw":0,"r5":0.4,"r10":0.5},{"t":"13:26:51","raw":1,"r5":0.6,"r10":0.6},{"t":"13:26:52","raw":0,"r5":0.6,"r10":0.6},{"t":"13:26:53","raw":0,"r5":0.6,"r10":0.5},{"t":"13:26:54","raw":0,"r5":0.2,"r10":0.3},{"t":"13:26:55","raw":1,"r5":0.4,"r10":0.4},{"t":"13:26:56","raw":1,"r5":0.4,"r10":0.5},{"t":"13:26:57","raw":2,"r5":0.8,"r10":0.7},{"t":"13:26:58","raw":1,"r5":1.0,"r10":0.8},{"t":"13:26:59","raw":4,"r5":1.8,"r10":1.0},{"t":"13:27:00","raw":4,"r5":2.4,"r10":1.4},{"t":"13:27:01","raw":4,"r5":3.0,"r10":1.7},{"t":"13:27:02","raw":0,"r5":2.6,"r10":1.7},{"t":"13:27:03","raw":3,"r5":3.0,"r10":2.0},{"t":"13:27:04","raw":2,"r5":2.6,"r10":2.2},{"t":"13:27:05","raw":3,"r5":2.4,"r10":2.4},{"t":"13:27:06","raw":0,"r5":1.6,"r10":2.3},{"t":"13:27:07","raw":2,"r5":2.0,"r10":2.3},{"t":"13:27:08","raw":0,"r5":1.4,"r10":2.2},{"t":"13:27:09","raw":2,"r5":1.4,"r10":2.0},{"t":"13:27:10","raw":1,"r5":1.0,"r10":1.7},{"t":"13:27:11","raw":1,"r5":1.2,"r10":1.4},{"t":"13:27:12","raw":1,"r5":1.0,"r10":1.5},{"t":"13:27:13","raw":0,"r5":1.0,"r10":1.2},{"t":"13:27:14","raw":0,"r5":0.6,"r10":1.0},{"t":"13:27:15","raw":0,"r5":0.4,"r10":0.7},{"t":"13:27:16","raw":1,"r5":0.4,"r10":0.8},{"t":"13:27:17","raw":0,"r5":0.2,"r10":0.6},{"t":"13:27:18","raw":1,"r5":0.4,"r10":0.7},{"t":"13:27:19","raw":2,"r5":0.8,"r10":0.7},{"t":"13:27:20","raw":2,"r5":1.2,"r10":0.8},{"t":"13:27:21","raw":2,"r5":1.4,"r10":0.9},{"t":"13:27:22","raw":0,"r5":1.4,"r10":0.8},{"t":"13:27:23","raw":4,"r5":2.0,"r10":1.2},{"t":"13:27:24","raw":2,"r5":2.0,"r10":1.4},{"t":"13:27:25","raw":3,"r5":2.2,"r10":1.7},{"t":"13:27:26","raw":0,"r5":1.8,"r10":1.6},{"t":"13:27:27","raw":4,"r5":2.6,"r10":2.0},{"t":"13:27:28","raw":1,"r5":2.0,"r10":2.0},{"t":"13:27:29","raw":1,"r5":1.8,"r10":1.9},{"t":"13:27:30","raw":0,"r5":1.2,"r10":1.7},{"t":"13:27:31","raw":0,"r5":1.2,"r10":1.5},{"t":"13:27:32","raw":0,"r5":0.4,"r10":1.5},{"t":"13:27:33","raw":0,"r5":0.2,"r10":1.1},{"t":"13:27:34","raw":0,"r5":0.0,"r10":0.9},{"t":"13:27:35","raw":0,"r5":0.0,"r10":0.6},{"t":"13:27:36","raw":0,"r5":0.0,"r10":0.6},{"t":"13:27:37","raw":2,"r5":0.4,"r10":0.4},{"t":"13:27:38","raw":0,"r5":0.4,"r10":0.3},{"t":"13:27:39","raw":1,"r5":0.6,"r10":0.3},{"t":"13:27:40","raw":0,"r5":0.6,"r10":0.3},{"t":"13:27:41","raw":0,"r5":0.6,"r10":0.3},{"t":"13:27:42","raw":1,"r5":0.4,"r10":0.4},{"t":"13:27:43","raw":0,"r5":0.4,"r10":0.4},{"t":"13:27:44","raw":0,"r5":0.2,"r10":0.4},{"t":"13:27:45","raw":0,"r5":0.2,"r10":0.4},{"t":"13:27:46","raw":0,"r5":0.2,"r10":0.4},{"t":"13:27:47","raw":3,"r5":0.6,"r10":0.5},{"t":"13:27:48","raw":2,"r5":1.0,"r10":0.7},{"t":"13:27:49","raw":1,"r5":1.2,"r10":0.7},{"t":"13:27:50","raw":0,"r5":1.2,"r10":0.7},{"t":"13:27:51","raw":0,"r5":1.2,"r10":0.7},{"t":"13:27:52","raw":0,"r5":0.6,"r10":0.6},{"t":"13:27:53","raw":1,"r5":0.4,"r10":0.7},{"t":"13:27:54","raw":0,"r5":0.2,"r10":0.7},{"t":"13:27:55","raw":1,"r5":0.4,"r10":0.8},{"t":"13:27:56","raw":2,"r5":0.8,"r10":1.0},{"t":"13:27:57","raw":3,"r5":1.4,"r10":1.0},{"t":"13:27:58","raw":1,"r5":1.4,"r10":0.9},{"t":"13:27:59","raw":4,"r5":2.2,"r10":1.2},{"t":"13:28:00","raw":2,"r5":2.4,"r10":1.4},{"t":"13:28:01","raw":1,"r5":2.2,"r10":1.5},{"t":"13:28:02","raw":2,"r5":2.0,"r10":1.7},{"t":"13:28:03","raw":1,"r5":2.0,"r10":1.7},{"t":"13:28:04","raw":1,"r5":1.4,"r10":1.8},{"t":"13:28:05","raw":3,"r5":1.6,"r10":2.0},{"t":"13:28:06","raw":4,"r5":2.2,"r10":2.2},{"t":"13:28:07","raw":2,"r5":2.2,"r10":2.1},{"t":"13:28:08","raw":1,"r5":2.2,"r10":2.1},{"t":"13:28:09","raw":1,"r5":2.2,"r10":1.8},{"t":"13:28:10","raw":1,"r5":1.8,"r10":1.7},{"t":"13:28:11","raw":1,"r5":1.2,"r10":1.7},{"t":"13:28:12","raw":1,"r5":1.0,"r10":1.6},{"t":"13:28:13","raw":0,"r5":0.8,"r10":1.5},{"t":"13:28:14","raw":2,"r5":1.0,"r10":1.6},{"t":"13:28:15","raw":1,"r5":1.0,"r10":1.4},{"t":"13:28:16","raw":2,"r5":1.2,"r10":1.2},{"t":"13:28:17","raw":0,"r5":1.0,"r10":1.0},{"t":"13:28:18","raw":1,"r5":1.2,"r10":1.0},{"t":"13:28:19","raw":2,"r5":1.2,"r10":1.1},{"t":"13:28:20","raw":2,"r5":1.4,"r10":1.2},{"t":"13:28:21","raw":1,"r5":1.2,"r10":1.2},{"t":"13:28:22","raw":0,"r5":1.2,"r10":1.1},{"t":"13:28:23","raw":1,"r5":1.2,"r10":1.2},{"t":"13:28:24","raw":1,"r5":1.0,"r10":1.1},{"t":"13:28:25","raw":0,"r5":0.6,"r10":1.0},{"t":"13:28:26","raw":3,"r5":1.0,"r10":1.1},{"t":"13:28:27","raw":1,"r5":1.2,"r10":1.2},{"t":"13:28:28","raw":1,"r5":1.2,"r10":1.2},{"t":"13:28:29","raw":0,"r5":1.0,"r10":1.0},{"t":"13:28:30","raw":0,"r5":1.0,"r10":0.8},{"t":"13:28:31","raw":3,"r5":1.0,"r10":1.0},{"t":"13:28:32","raw":2,"r5":1.2,"r10":1.2},{"t":"13:28:33","raw":0,"r5":1.0,"r10":1.1},{"t":"13:28:34","raw":0,"r5":1.0,"r10":1.0},{"t":"13:28:35","raw":1,"r5":1.2,"r10":1.1},{"t":"13:28:36","raw":2,"r5":1.0,"r10":1.0},{"t":"13:28:37","raw":2,"r5":1.0,"r10":1.1},{"t":"13:28:38","raw":0,"r5":1.0,"r10":1.0},{"t":"13:28:39","raw":0,"r5":1.0,"r10":1.0},{"t":"13:28:40","raw":0,"r5":0.8,"r10":1.0},{"t":"13:28:41","raw":2,"r5":0.8,"r10":0.9},{"t":"13:28:42","raw":0,"r5":0.4,"r10":0.7},{"t":"13:28:43","raw":0,"r5":0.4,"r10":0.7},{"t":"13:28:44","raw":2,"r5":0.8,"r10":0.9},{"t":"13:28:45","raw":1,"r5":1.0,"r10":0.9},{"t":"13:28:46","raw":0,"r5":0.6,"r10":0.7},{"t":"13:28:47","raw":1,"r5":0.8,"r10":0.6},{"t":"13:28:48","raw":0,"r5":0.8,"r10":0.6},{"t":"13:28:49","raw":1,"r5":0.6,"r10":0.7},{"t":"13:28:50","raw":1,"r5":0.6,"r10":0.8},{"t":"13:28:51","raw":0,"r5":0.6,"r10":0.6},{"t":"13:28:52","raw":0,"r5":0.4,"r10":0.6},{"t":"13:28:53","raw":1,"r5":0.6,"r10":0.7},{"t":"13:28:54","raw":0,"r5":0.4,"r10":0.5},{"t":"13:28:55","raw":2,"r5":0.6,"r10":0.6},{"t":"13:28:56","raw":0,"r5":0.6,"r10":0.6},{"t":"13:28:57","raw":5,"r5":1.6,"r10":1.0},{"t":"13:28:58","raw":6,"r5":2.6,"r10":1.6},{"t":"13:28:59","raw":1,"r5":2.8,"r10":1.6},{"t":"13:29:00","raw":2,"r5":2.8,"r10":1.7},{"t":"13:29:01","raw":2,"r5":3.2,"r10":1.9},{"t":"13:29:02","raw":2,"r5":2.6,"r10":2.1},{"t":"13:29:03","raw":1,"r5":1.6,"r10":2.1},{"t":"13:29:04","raw":0,"r5":1.4,"r10":2.1},{"t":"13:29:05","raw":0,"r5":1.0,"r10":1.9},{"t":"13:29:06","raw":2,"r5":1.0,"r10":2.1},{"t":"13:29:07","raw":1,"r5":0.8,"r10":1.7},{"t":"13:29:08","raw":0,"r5":0.6,"r10":1.1},{"t":"13:29:09","raw":1,"r5":0.8,"r10":1.1},{"t":"13:29:10","raw":1,"r5":1.0,"r10":1.0},{"t":"13:29:11","raw":1,"r5":0.8,"r10":0.9},{"t":"13:29:12","raw":1,"r5":0.8,"r10":0.8},{"t":"13:29:13","raw":2,"r5":1.2,"r10":0.9},{"t":"13:29:14","raw":2,"r5":1.4,"r10":1.1},{"t":"13:29:15","raw":2,"r5":1.6,"r10":1.3},{"t":"13:29:16","raw":0,"r5":1.4,"r10":1.1},{"t":"13:29:17","raw":1,"r5":1.4,"r10":1.1},{"t":"13:29:18","raw":2,"r5":1.4,"r10":1.3},{"t":"13:29:19","raw":1,"r5":1.2,"r10":1.3},{"t":"13:29:20","raw":3,"r5":1.4,"r10":1.5},{"t":"13:29:21","raw":2,"r5":1.8,"r10":1.6},{"t":"13:29:22","raw":3,"r5":2.2,"r10":1.8},{"t":"13:29:23","raw":3,"r5":2.4,"r10":1.9},{"t":"13:29:24","raw":1,"r5":2.4,"r10":1.8},{"t":"13:29:25","raw":1,"r5":2.0,"r10":1.7},{"t":"13:29:26","raw":2,"r5":2.0,"r10":1.9},{"t":"13:29:27","raw":0,"r5":1.4,"r10":1.8},{"t":"13:29:28","raw":2,"r5":1.2,"r10":1.8},{"t":"13:29:29","raw":1,"r5":1.2,"r10":1.8},{"t":"13:29:30","raw":1,"r5":1.2,"r10":1.6},{"t":"13:29:31","raw":1,"r5":1.0,"r10":1.5},{"t":"13:29:32","raw":0,"r5":1.0,"r10":1.2},{"t":"13:29:33","raw":1,"r5":0.8,"r10":1.0},{"t":"13:29:34","raw":0,"r5":0.6,"r10":0.9},{"t":"13:29:35","raw":0,"r5":0.4,"r10":0.8},{"t":"13:29:36","raw":0,"r5":0.2,"r10":0.6},{"t":"13:29:37","raw":1,"r5":0.4,"r10":0.7},{"t":"13:29:38","raw":1,"r5":0.4,"r10":0.6},{"t":"13:29:39","raw":0,"r5":0.4,"r10":0.5},{"t":"13:29:40","raw":0,"r5":0.4,"r10":0.4},{"t":"13:29:41","raw":1,"r5":0.6,"r10":0.4},{"t":"13:29:42","raw":1,"r5":0.6,"r10":0.5},{"t":"13:29:43","raw":0,"r5":0.4,"r10":0.4},{"t":"13:29:44","raw":2,"r5":0.8,"r10":0.6},{"t":"13:29:45","raw":1,"r5":1.0,"r10":0.7},{"t":"13:29:46","raw":0,"r5":0.8,"r10":0.7},{"t":"13:29:47","raw":0,"r5":0.6,"r10":0.6},{"t":"13:29:48","raw":0,"r5":0.6,"r10":0.5},{"t":"13:29:49","raw":3,"r5":0.8,"r10":0.8},{"t":"13:29:50","raw":1,"r5":0.8,"r10":0.9},{"t":"13:29:51","raw":0,"r5":0.8,"r10":0.8},{"t":"13:29:52","raw":0,"r5":0.8,"r10":0.7},{"t":"13:29:53","raw":1,"r5":1.0,"r10":0.8},{"t":"13:29:54","raw":0,"r5":0.4,"r10":0.6},{"t":"13:29:55","raw":0,"r5":0.2,"r10":0.5},{"t":"13:29:56","raw":3,"r5":0.8,"r10":0.8},{"t":"13:29:57","raw":4,"r5":1.6,"r10":1.2},{"t":"13:29:58","raw":2,"r5":1.8,"r10":1.4},{"t":"13:29:59","raw":1,"r5":2.0,"r10":1.2},{"t":"13:30:00","raw":2,"r5":2.4,"r10":1.3},{"t":"13:30:01","raw":2,"r5":2.2,"r10":1.5},{"t":"13:30:02","raw":2,"r5":1.8,"r10":1.7},{"t":"13:30:03","raw":2,"r5":1.8,"r10":1.8},{"t":"13:30:04","raw":3,"r5":2.2,"r10":2.1},{"t":"13:30:05","raw":1,"r5":2.0,"r10":2.2},{"t":"13:30:06","raw":2,"r5":2.0,"r10":2.1},{"t":"13:30:07","raw":1,"r5":1.8,"r10":1.8},{"t":"13:30:08","raw":1,"r5":1.6,"r10":1.7},{"t":"13:30:09","raw":3,"r5":1.6,"r10":1.9},{"t":"13:30:10","raw":0,"r5":1.4,"r10":1.7},{"t":"13:30:11","raw":1,"r5":1.2,"r10":1.6},{"t":"13:30:12","raw":1,"r5":1.2,"r10":1.5},{"t":"13:30:13","raw":1,"r5":1.2,"r10":1.4},{"t":"13:30:14","raw":1,"r5":0.8,"r10":1.2},{"t":"13:30:15","raw":0,"r5":0.8,"r10":1.1},{"t":"13:30:16","raw":0,"r5":0.6,"r10":0.9},{"t":"13:30:17","raw":2,"r5":0.8,"r10":1.0},{"t":"13:30:18","raw":2,"r5":1.0,"r10":1.1},{"t":"13:30:19","raw":0,"r5":0.8,"r10":0.8},{"t":"13:30:20","raw":2,"r5":1.2,"r10":1.0},{"t":"13:30:21","raw":0,"r5":1.2,"r10":0.9},{"t":"13:30:22","raw":4,"r5":1.6,"r10":1.2},{"t":"13:30:23","raw":1,"r5":1.4,"r10":1.2},{"t":"13:30:24","raw":0,"r5":1.4,"r10":1.1},{"t":"13:30:25","raw":2,"r5":1.4,"r10":1.3},{"t":"13:30:26","raw":1,"r5":1.6,"r10":1.4},{"t":"13:30:27","raw":1,"r5":1.0,"r10":1.3},{"t":"13:30:28","raw":0,"r5":0.8,"r10":1.1},{"t":"13:30:29","raw":1,"r5":1.0,"r10":1.2},{"t":"13:30:30","raw":3,"r5":1.2,"r10":1.3},{"t":"13:30:31","raw":1,"r5":1.2,"r10":1.4},{"t":"13:30:32","raw":0,"r5":1.0,"r10":1.0},{"t":"13:30:33","raw":2,"r5":1.4,"r10":1.1},{"t":"13:30:34","raw":0,"r5":1.2,"r10":1.1},{"t":"13:30:35","raw":0,"r5":0.6,"r10":0.9},{"t":"13:30:36","raw":0,"r5":0.4,"r10":0.8},{"t":"13:30:37","raw":0,"r5":0.4,"r10":0.7},{"t":"13:30:38","raw":0,"r5":0.0,"r10":0.7},{"t":"13:30:39","raw":0,"r5":0.0,"r10":0.6},{"t":"13:30:40","raw":1,"r5":0.2,"r10":0.4},{"t":"13:30:41","raw":0,"r5":0.2,"r10":0.3},{"t":"13:30:42","raw":1,"r5":0.4,"r10":0.4},{"t":"13:30:43","raw":1,"r5":0.6,"r10":0.3},{"t":"13:30:44","raw":0,"r5":0.6,"r10":0.3},{"t":"13:30:45","raw":0,"r5":0.4,"r10":0.3},{"t":"13:30:46","raw":0,"r5":0.4,"r10":0.3},{"t":"13:30:47","raw":0,"r5":0.2,"r10":0.3},{"t":"13:30:48","raw":1,"r5":0.2,"r10":0.4},{"t":"13:30:49","raw":0,"r5":0.2,"r10":0.4},{"t":"13:30:50","raw":0,"r5":0.2,"r10":0.3},{"t":"13:30:51","raw":1,"r5":0.4,"r10":0.4},{"t":"13:30:52","raw":1,"r5":0.6,"r10":0.4},{"t":"13:30:53","raw":0,"r5":0.4,"r10":0.3},{"t":"13:30:54","raw":1,"r5":0.6,"r10":0.4},{"t":"13:30:55","raw":1,"r5":0.8,"r10":0.5},{"t":"13:30:56","raw":1,"r5":0.8,"r10":0.6},{"t":"13:30:57","raw":6,"r5":1.8,"r10":1.2},{"t":"13:30:58","raw":4,"r5":2.6,"r10":1.5},{"t":"13:30:59","raw":0,"r5":2.4,"r10":1.5},{"t":"13:31:00","raw":0,"r5":2.2,"r10":1.5},{"t":"13:31:01","raw":1,"r5":2.2,"r10":1.5},{"t":"13:31:02","raw":1,"r5":1.2,"r10":1.5},{"t":"13:31:03","raw":2,"r5":0.8,"r10":1.7},{"t":"13:31:04","raw":1,"r5":1.0,"r10":1.7},{"t":"13:31:05","raw":2,"r5":1.4,"r10":1.8},{"t":"13:31:06","raw":2,"r5":1.6,"r10":1.9},{"t":"13:31:07","raw":1,"r5":1.6,"r10":1.4},{"t":"13:31:08","raw":1,"r5":1.4,"r10":1.1},{"t":"13:31:09","raw":0,"r5":1.2,"r10":1.1},{"t":"13:31:10","raw":2,"r5":1.2,"r10":1.3},{"t":"13:31:11","raw":1,"r5":1.0,"r10":1.3},{"t":"13:31:12","raw":3,"r5":1.4,"r10":1.5},{"t":"13:31:13","raw":0,"r5":1.2,"r10":1.3},{"t":"13:31:14","raw":1,"r5":1.4,"r10":1.3},{"t":"13:31:15","raw":1,"r5":1.2,"r10":1.2},{"t":"13:31:16","raw":1,"r5":1.2,"r10":1.1},{"t":"13:31:17","raw":2,"r5":1.0,"r10":1.2},{"t":"13:31:18","raw":2,"r5":1.4,"r10":1.3},{"t":"13:31:19","raw":0,"r5":1.2,"r10":1.3},{"t":"13:31:20","raw":3,"r5":1.6,"r10":1.4},{"t":"13:31:21","raw":2,"r5":1.8,"r10":1.5},{"t":"13:31:22","raw":1,"r5":1.6,"r10":1.3},{"t":"13:31:23","raw":2,"r5":1.6,"r10":1.5},{"t":"13:31:24","raw":0,"r5":1.6,"r10":1.4},{"t":"13:31:25","raw":0,"r5":1.0,"r10":1.3},{"t":"13:31:26","raw":1,"r5":0.8,"r10":1.3},{"t":"13:31:27","raw":1,"r5":0.8,"r10":1.2},{"t":"13:31:28","raw":0,"r5":0.4,"r10":1.0},{"t":"13:31:29","raw":1,"r5":0.6,"r10":1.1},{"t":"13:31:30","raw":4,"r5":1.4,"r10":1.2},{"t":"13:31:31","raw":1,"r5":1.4,"r10":1.1},{"t":"13:31:32","raw":1,"r5":1.4,"r10":1.1},{"t":"13:31:33","raw":1,"r5":1.6,"r10":1.0},{"t":"13:31:34","raw":0,"r5":1.4,"r10":1.0},{"t":"13:31:35","raw":0,"r5":0.6,"r10":1.0},{"t":"13:31:36","raw":0,"r5":0.4,"r10":0.9},{"t":"13:31:37","raw":1,"r5":0.4,"r10":0.9},{"t":"13:31:38","raw":0,"r5":0.2,"r10":0.9},{"t":"13:31:39","raw":0,"r5":0.2,"r10":0.8},{"t":"13:31:40","raw":0,"r5":0.2,"r10":0.4},{"t":"13:31:41","raw":1,"r5":0.4,"r10":0.4},{"t":"13:31:42","raw":0,"r5":0.2,"r10":0.3},{"t":"13:31:43","raw":1,"r5":0.4,"r10":0.3},{"t":"13:31:44","raw":0,"r5":0.4,"r10":0.3},{"t":"13:31:45","raw":0,"r5":0.4,"r10":0.3},{"t":"13:31:46","raw":1,"r5":0.4,"r10":0.4},{"t":"13:31:47","raw":1,"r5":0.6,"r10":0.4},{"t":"13:31:48","raw":0,"r5":0.4,"r10":0.4},{"t":"13:31:49","raw":0,"r5":0.4,"r10":0.4},{"t":"13:31:50","raw":0,"r5":0.4,"r10":0.4},{"t":"13:31:51","raw":1,"r5":0.4,"r10":0.4},{"t":"13:31:52","raw":0,"r5":0.2,"r10":0.4},{"t":"13:31:53","raw":0,"r5":0.2,"r10":0.3},{"t":"13:31:54","raw":0,"r5":0.2,"r10":0.3},{"t":"13:31:55","raw":0,"r5":0.2,"r10":0.3},{"t":"13:31:56","raw":1,"r5":0.2,"r10":0.3},{"t":"13:31:57","raw":3,"r5":0.8,"r10":0.5},{"t":"13:31:58","raw":5,"r5":1.8,"r10":1.0},{"t":"13:31:59","raw":0,"r5":1.8,"r10":1.0},{"t":"13:32:00","raw":1,"r5":2.0,"r10":1.1},{"t":"13:32:01","raw":0,"r5":1.8,"r10":1.0},{"t":"13:32:02","raw":3,"r5":1.8,"r10":1.3},{"t":"13:32:03","raw":2,"r5":1.2,"r10":1.5},{"t":"13:32:04","raw":1,"r5":1.4,"r10":1.6},{"t":"13:32:05","raw":0,"r5":1.2,"r10":1.6},{"t":"13:32:06","raw":2,"r5":1.6,"r10":1.7},{"t":"13:32:07","raw":3,"r5":1.6,"r10":1.7},{"t":"13:32:08","raw":1,"r5":1.4,"r10":1.3},{"t":"13:32:09","raw":1,"r5":1.4,"r10":1.4},{"t":"13:32:10","raw":0,"r5":1.4,"r10":1.3},{"t":"13:32:11","raw":1,"r5":1.2,"r10":1.4},{"t":"13:32:12","raw":3,"r5":1.2,"r10":1.4},{"t":"13:32:13","raw":0,"r5":1.0,"r10":1.2},{"t":"13:32:14","raw":1,"r5":1.0,"r10":1.2},{"t":"13:32:15","raw":3,"r5":1.6,"r10":1.5},{"t":"13:32:16","raw":2,"r5":1.8,"r10":1.5},{"t":"13:32:17","raw":2,"r5":1.6,"r10":1.4},{"t":"13:32:18","raw":0,"r5":1.6,"r10":1.3},{"t":"13:32:19","raw":1,"r5":1.6,"r10":1.3},{"t":"13:32:20","raw":0,"r5":1.0,"r10":1.3},{"t":"13:32:21","raw":3,"r5":1.2,"r10":1.5},{"t":"13:32:22","raw":1,"r5":1.0,"r10":1.3},{"t":"13:32:23","raw":1,"r5":1.2,"r10":1.4},{"t":"13:32:24","raw":2,"r5":1.4,"r10":1.5},{"t":"13:32:25","raw":0,"r5":1.4,"r10":1.2},{"t":"13:32:26","raw":0,"r5":0.8,"r10":1.0},{"t":"13:32:27","raw":0,"r5":0.6,"r10":0.8},{"t":"13:32:28","raw":0,"r5":0.4,"r10":0.8},{"t":"13:32:29","raw":0,"r5":0.0,"r10":0.7},{"t":"13:32:30","raw":2,"r5":0.4,"r10":0.9},{"t":"13:32:31","raw":2,"r5":0.8,"r10":0.8},{"t":"13:32:32","raw":1,"r5":1.0,"r10":0.8},{"t":"13:32:33","raw":0,"r5":1.0,"r10":0.7},{"t":"13:32:34","raw":1,"r5":1.2,"r10":0.6},{"t":"13:32:35","raw":0,"r5":0.8,"r10":0.6},{"t":"13:32:36","raw":0,"r5":0.4,"r10":0.6},{"t":"13:32:37","raw":0,"r5":0.2,"r10":0.6},{"t":"13:32:38","raw":1,"r5":0.4,"r10":0.7},{"t":"13:32:39","raw":3,"r5":0.8,"r10":1.0},{"t":"13:32:40","raw":0,"r5":0.8,"r10":0.8},{"t":"13:32:41","raw":0,"r5":0.8,"r10":0.6},{"t":"13:32:42","raw":0,"r5":0.8,"r10":0.5},{"t":"13:32:43","raw":0,"r5":0.6,"r10":0.5},{"t":"13:32:44","raw":0,"r5":0.0,"r10":0.4},{"t":"13:32:45","raw":3,"r5":0.6,"r10":0.7},{"t":"13:32:46","raw":0,"r5":0.6,"r10":0.7},{"t":"13:32:47","raw":1,"r5":0.8,"r10":0.8},{"t":"13:32:48","raw":0,"r5":0.8,"r10":0.7},{"t":"13:32:49","raw":0,"r5":0.8,"r10":0.4},{"t":"13:32:50","raw":0,"r5":0.2,"r10":0.4},{"t":"13:32:51","raw":0,"r5":0.2,"r10":0.4},{"t":"13:32:52","raw":0,"r5":0.0,"r10":0.4},{"t":"13:32:53","raw":1,"r5":0.2,"r10":0.5},{"t":"13:32:54","raw":0,"r5":0.2,"r10":0.5},{"t":"13:32:55","raw":0,"r5":0.2,"r10":0.2},{"t":"13:32:56","raw":3,"r5":0.8,"r10":0.5},{"t":"13:32:57","raw":3,"r5":1.4,"r10":0.7},{"t":"13:32:58","raw":3,"r5":1.8,"r10":1.0},{"t":"13:32:59","raw":3,"r5":2.4,"r10":1.3},{"t":"13:33:00","raw":1,"r5":2.6,"r10":1.4},{"t":"13:33:01","raw":3,"r5":2.6,"r10":1.7},{"t":"13:33:02","raw":3,"r5":2.6,"r10":2.0},{"t":"13:33:03","raw":3,"r5":2.6,"r10":2.2},{"t":"13:33:04","raw":0,"r5":2.0,"r10":2.2},{"t":"13:33:05","raw":3,"r5":2.4,"r10":2.5},{"t":"13:33:06","raw":0,"r5":1.8,"r10":2.2},{"t":"13:33:07","raw":2,"r5":1.6,"r10":2.1},{"t":"13:33:08","raw":1,"r5":1.2,"r10":1.9},{"t":"13:33:09","raw":0,"r5":1.2,"r10":1.6},{"t":"13:33:10","raw":0,"r5":0.6,"r10":1.5},{"t":"13:33:11","raw":0,"r5":0.6,"r10":1.2},{"t":"13:33:12","raw":2,"r5":0.6,"r10":1.1},{"t":"13:33:13","raw":0,"r5":0.4,"r10":0.8},{"t":"13:33:14","raw":0,"r5":0.4,"r10":0.8},{"t":"13:33:15","raw":3,"r5":1.0,"r10":0.8},{"t":"13:33:16","raw":1,"r5":1.2,"r10":0.9},{"t":"13:33:17","raw":0,"r5":0.8,"r10":0.7},{"t":"13:33:18","raw":4,"r5":1.6,"r10":1.0},{"t":"13:33:19","raw":0,"r5":1.6,"r10":1.0},{"t":"13:33:20","raw":1,"r5":1.2,"r10":1.1},{"t":"13:33:21","raw":1,"r5":1.2,"r10":1.2},{"t":"13:33:22","raw":2,"r5":1.6,"r10":1.2},{"t":"13:33:23","raw":2,"r5":1.2,"r10":1.4},{"t":"13:33:24","raw":0,"r5":1.2,"r10":1.4},{"t":"13:33:25","raw":2,"r5":1.4,"r10":1.3},{"t":"13:33:26","raw":1,"r5":1.4,"r10":1.3},{"t":"13:33:27","raw":0,"r5":1.0,"r10":1.3},{"t":"13:33:28","raw":0,"r5":0.6,"r10":0.9},{"t":"13:33:29","raw":1,"r5":0.8,"r10":1.0},{"t":"13:33:30","raw":1,"r5":0.6,"r10":1.0},{"t":"13:33:31","raw":2,"r5":0.8,"r10":1.1},{"t":"13:33:32","raw":0,"r5":0.8,"r10":0.9},{"t":"13:33:33","raw":0,"r5":0.8,"r10":0.7},{"t":"13:33:34","raw":0,"r5":0.6,"r10":0.7},{"t":"13:33:35","raw":0,"r5":0.4,"r10":0.5},{"t":"13:33:36","raw":1,"r5":0.2,"r10":0.5},{"t":"13:33:37","raw":0,"r5":0.2,"r10":0.5},{"t":"13:33:38","raw":0,"r5":0.2,"r10":0.5},{"t":"13:33:39","raw":1,"r5":0.4,"r10":0.5},{"t":"13:33:40","raw":1,"r5":0.6,"r10":0.5},{"t":"13:33:41","raw":0,"r5":0.4,"r10":0.3},{"t":"13:33:42","raw":0,"r5":0.4,"r10":0.3},{"t":"13:33:43","raw":1,"r5":0.6,"r10":0.4},{"t":"13:33:44","raw":1,"r5":0.6,"r10":0.5},{"t":"13:33:45","raw":0,"r5":0.4,"r10":0.5},{"t":"13:33:46","raw":0,"r5":0.4,"r10":0.4},{"t":"13:33:47","raw":0,"r5":0.4,"r10":0.4},{"t":"13:33:48","raw":0,"r5":0.2,"r10":0.4},{"t":"13:33:49","raw":0,"r5":0.0,"r10":0.3},{"t":"13:33:50","raw":0,"r5":0.0,"r10":0.2},{"t":"13:33:51","raw":1,"r5":0.2,"r10":0.3},{"t":"13:33:52","raw":0,"r5":0.2,"r10":0.3},{"t":"13:33:53","raw":1,"r5":0.4,"r10":0.3},{"t":"13:33:54","raw":0,"r5":0.4,"r10":0.2},{"t":"13:33:55","raw":0,"r5":0.4,"r10":0.2},{"t":"13:33:56","raw":1,"r5":0.4,"r10":0.3},{"t":"13:33:57","raw":6,"r5":1.6,"r10":0.9},{"t":"13:33:58","raw":5,"r5":2.4,"r10":1.4},{"t":"13:33:59","raw":2,"r5":2.8,"r10":1.6},{"t":"13:34:00","raw":3,"r5":3.4,"r10":1.9},{"t":"13:34:01","raw":2,"r5":3.6,"r10":2.0},{"t":"13:34:02","raw":2,"r5":2.8,"r10":2.2},{"t":"13:34:03","raw":0,"r5":1.8,"r10":2.1},{"t":"13:34:04","raw":1,"r5":1.6,"r10":2.2},{"t":"13:34:05","raw":1,"r5":1.2,"r10":2.3},{"t":"13:34:06","raw":0,"r5":0.8,"r10":2.2},{"t":"13:34:07","raw":0,"r5":0.4,"r10":1.6},{"t":"13:34:08","raw":2,"r5":0.8,"r10":1.3},{"t":"13:34:09","raw":0,"r5":0.6,"r10":1.1},{"t":"13:34:10","raw":0,"r5":0.4,"r10":0.8},{"t":"13:34:11","raw":1,"r5":0.6,"r10":0.7},{"t":"13:34:12","raw":0,"r5":0.6,"r10":0.5},{"t":"13:34:13","raw":2,"r5":0.6,"r10":0.7},{"t":"13:34:14","raw":3,"r5":1.2,"r10":0.9},{"t":"13:34:15","raw":2,"r5":1.6,"r10":1.0},{"t":"13:34:16","raw":0,"r5":1.4,"r10":1.0},{"t":"13:34:17","raw":2,"r5":1.8,"r10":1.2},{"t":"13:34:18","raw":2,"r5":1.8,"r10":1.2},{"t":"13:34:19","raw":0,"r5":1.2,"r10":1.2},{"t":"13:34:20","raw":0,"r5":0.8,"r10":1.2},{"t":"13:34:21","raw":3,"r5":1.4,"r10":1.4},{"t":"13:34:22","raw":0,"r5":1.0,"r10":1.4},{"t":"13:34:23","raw":3,"r5":1.2,"r10":1.5},{"t":"13:34:24","raw":3,"r5":1.8,"r10":1.5},{"t":"13:34:25","raw":2,"r5":2.2,"r10":1.5},{"t":"13:34:26","raw":1,"r5":1.8,"r10":1.6},{"t":"13:34:27","raw":1,"r5":2.0,"r10":1.5},{"t":"13:34:28","raw":0,"r5":1.4,"r10":1.3},{"t":"13:34:29","raw":0,"r5":0.8,"r10":1.3},{"t":"13:34:30","raw":0,"r5":0.4,"r10":1.3},{"t":"13:34:31","raw":2,"r5":0.6,"r10":1.2},{"t":"13:34:32","raw":0,"r5":0.4,"r10":1.2},{"t":"13:34:33","raw":1,"r5":0.6,"r10":1.0},{"t":"13:34:34","raw":0,"r5":0.6,"r10":0.7},{"t":"13:34:35","raw":1,"r5":0.8,"r10":0.6},{"t":"13:34:36","raw":0,"r5":0.4,"r10":0.5},{"t":"13:34:37","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:38","raw":1,"r5":0.4,"r10":0.5},{"t":"13:34:39","raw":0,"r5":0.4,"r10":0.5},{"t":"13:34:40","raw":1,"r5":0.4,"r10":0.6},{"t":"13:34:41","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:42","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:43","raw":0,"r5":0.2,"r10":0.3},{"t":"13:34:44","raw":0,"r5":0.2,"r10":0.3},{"t":"13:34:45","raw":0,"r5":0.0,"r10":0.2},{"t":"13:34:46","raw":2,"r5":0.4,"r10":0.4},{"t":"13:34:47","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:48","raw":0,"r5":0.4,"r10":0.3},{"t":"13:34:49","raw":0,"r5":0.4,"r10":0.3},{"t":"13:34:50","raw":1,"r5":0.6,"r10":0.3},{"t":"13:34:51","raw":1,"r5":0.4,"r10":0.4},{"t":"13:34:52","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:53","raw":0,"r5":0.4,"r10":0.4},{"t":"13:34:54","raw":2,"r5":0.8,"r10":0.6},{"t":"13:34:55","raw":4,"r5":1.4,"r10":1.0},{"t":"13:34:56","raw":0,"r5":1.2,"r10":0.8},{"t":"13:34:57","raw":5,"r5":2.2,"r10":1.3},{"t":"13:34:58","raw":4,"r5":3.0,"r10":1.7},{"t":"13:34:59","raw":6,"r5":3.8,"r10":2.3},{"t":"13:35:00","raw":3,"r5":3.6,"r10":2.5},{"t":"13:35:01","raw":1,"r5":3.8,"r10":2.5},{"t":"13:35:02","raw":0,"r5":2.8,"r10":2.5},{"t":"13:35:03","raw":2,"r5":2.4,"r10":2.7},{"t":"13:35:04","raw":0,"r5":1.2,"r10":2.5},{"t":"13:35:05","raw":0,"r5":0.6,"r10":2.1},{"t":"13:35:06","raw":1,"r5":0.6,"r10":2.2},{"t":"13:35:07","raw":2,"r5":1.0,"r10":1.9},{"t":"13:35:08","raw":0,"r5":0.6,"r10":1.5},{"t":"13:35:09","raw":0,"r5":0.6,"r10":0.9},{"t":"13:35:10","raw":1,"r5":0.8,"r10":0.7},{"t":"13:35:11","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:12","raw":1,"r5":0.4,"r10":0.7},{"t":"13:35:13","raw":4,"r5":1.2,"r10":0.9},{"t":"13:35:14","raw":1,"r5":1.4,"r10":1.0},{"t":"13:35:15","raw":0,"r5":1.2,"r10":1.0},{"t":"13:35:16","raw":1,"r5":1.4,"r10":1.0},{"t":"13:35:17","raw":5,"r5":2.2,"r10":1.3},{"t":"13:35:18","raw":0,"r5":1.4,"r10":1.3},{"t":"13:35:19","raw":1,"r5":1.4,"r10":1.4},{"t":"13:35:20","raw":2,"r5":1.8,"r10":1.5},{"t":"13:35:21","raw":0,"r5":1.6,"r10":1.5},{"t":"13:35:22","raw":1,"r5":0.8,"r10":1.5},{"t":"13:35:23","raw":0,"r5":0.8,"r10":1.1},{"t":"13:35:24","raw":1,"r5":0.8,"r10":1.1},{"t":"13:35:25","raw":3,"r5":1.0,"r10":1.4},{"t":"13:35:26","raw":1,"r5":1.2,"r10":1.4},{"t":"13:35:27","raw":0,"r5":1.0,"r10":0.9},{"t":"13:35:28","raw":2,"r5":1.4,"r10":1.1},{"t":"13:35:29","raw":1,"r5":1.4,"r10":1.1},{"t":"13:35:30","raw":0,"r5":0.8,"r10":0.9},{"t":"13:35:31","raw":1,"r5":0.8,"r10":1.0},{"t":"13:35:32","raw":0,"r5":0.8,"r10":0.9},{"t":"13:35:33","raw":0,"r5":0.4,"r10":0.9},{"t":"13:35:34","raw":0,"r5":0.2,"r10":0.8},{"t":"13:35:35","raw":0,"r5":0.2,"r10":0.5},{"t":"13:35:36","raw":2,"r5":0.4,"r10":0.6},{"t":"13:35:37","raw":0,"r5":0.4,"r10":0.6},{"t":"13:35:38","raw":0,"r5":0.4,"r10":0.4},{"t":"13:35:39","raw":1,"r5":0.6,"r10":0.4},{"t":"13:35:40","raw":0,"r5":0.6,"r10":0.4},{"t":"13:35:41","raw":0,"r5":0.2,"r10":0.3},{"t":"13:35:42","raw":1,"r5":0.4,"r10":0.4},{"t":"13:35:43","raw":2,"r5":0.8,"r10":0.6},{"t":"13:35:44","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:45","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:46","raw":1,"r5":0.8,"r10":0.5},{"t":"13:35:47","raw":0,"r5":0.6,"r10":0.5},{"t":"13:35:48","raw":2,"r5":0.6,"r10":0.7},{"t":"13:35:49","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:50","raw":1,"r5":0.8,"r10":0.7},{"t":"13:35:51","raw":1,"r5":0.8,"r10":0.8},{"t":"13:35:52","raw":1,"r5":1.0,"r10":0.8},{"t":"13:35:53","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:54","raw":0,"r5":0.6,"r10":0.6},{"t":"13:35:55","raw":1,"r5":0.6,"r10":0.7},{"t":"13:35:56","raw":2,"r5":0.8,"r10":0.8},{"t":"13:35:57","raw":3,"r5":1.2,"r10":1.1},{"t":"13:35:58","raw":3,"r5":1.8,"r10":1.2},{"t":"13:35:59","raw":6,"r5":3.0,"r10":1.8},{"t":"13:36:00","raw":2,"r5":3.2,"r10":1.9},{"t":"13:36:01","raw":1,"r5":3.0,"r10":1.9},{"t":"13:36:02","raw":2,"r5":2.8,"r10":2.0},{"t":"13:36:03","raw":1,"r5":2.4,"r10":2.1},{"t":"13:36:04","raw":2,"r5":1.6,"r10":2.3},{"t":"13:36:05","raw":4,"r5":2.0,"r10":2.6},{"t":"13:36:06","raw":0,"r5":1.8,"r10":2.4},{"t":"13:36:07","raw":0,"r5":1.4,"r10":2.1},{"t":"13:36:08","raw":0,"r5":1.2,"r10":1.8},{"t":"13:36:09","raw":1,"r5":1.0,"r10":1.3},{"t":"13:36:10","raw":1,"r5":0.4,"r10":1.2},{"t":"13:36:11","raw":0,"r5":0.4,"r10":1.1},{"t":"13:36:12","raw":0,"r5":0.4,"r10":0.9},{"t":"13:36:13","raw":3,"r5":1.0,"r10":1.1},{"t":"13:36:14","raw":1,"r5":1.0,"r10":1.0},{"t":"13:36:15","raw":2,"r5":1.2,"r10":0.8},{"t":"13:36:16","raw":1,"r5":1.4,"r10":0.9},{"t":"13:36:17","raw":1,"r5":1.6,"r10":1.0},{"t":"13:36:18","raw":0,"r5":1.0,"r10":1.0},{"t":"13:36:19","raw":0,"r5":0.8,"r10":0.9},{"t":"13:36:20","raw":1,"r5":0.6,"r10":0.9},{"t":"13:36:21","raw":1,"r5":0.6,"r10":1.0},{"t":"13:36:22","raw":2,"r5":0.8,"r10":1.2},{"t":"13:36:23","raw":2,"r5":1.2,"r10":1.1},{"t":"13:36:24","raw":1,"r5":1.4,"r10":1.1},{"t":"13:36:25","raw":1,"r5":1.4,"r10":1.0},{"t":"13:36:26","raw":2,"r5":1.6,"r10":1.1},{"t":"13:36:27","raw":3,"r5":1.8,"r10":1.3},{"t":"13:36:28","raw":1,"r5":1.6,"r10":1.4},{"t":"13:36:29","raw":0,"r5":1.4,"r10":1.4},{"t":"13:36:30","raw":1,"r5":1.4,"r10":1.4},{"t":"13:36:31","raw":1,"r5":1.2,"r10":1.4},{"t":"13:36:32","raw":0,"r5":0.6,"r10":1.2},{"t":"13:36:33","raw":0,"r5":0.4,"r10":1.0},{"t":"13:36:34","raw":0,"r5":0.4,"r10":0.9},{"t":"13:36:35","raw":1,"r5":0.4,"r10":0.9},{"t":"13:36:36","raw":0,"r5":0.2,"r10":0.7},{"t":"13:36:37","raw":0,"r5":0.2,"r10":0.4},{"t":"13:36:38","raw":0,"r5":0.2,"r10":0.3},{"t":"13:36:39","raw":0,"r5":0.2,"r10":0.3},{"t":"13:36:40","raw":0,"r5":0.0,"r10":0.2},{"t":"13:36:41","raw":1,"r5":0.2,"r10":0.2},{"t":"13:36:42","raw":0,"r5":0.2,"r10":0.2},{"t":"13:36:43","raw":0,"r5":0.2,"r10":0.2},{"t":"13:36:44","raw":1,"r5":0.4,"r10":0.3},{"t":"13:36:45","raw":0,"r5":0.4,"r10":0.2},{"t":"13:36:46","raw":0,"r5":0.2,"r10":0.2},{"t":"13:36:47","raw":1,"r5":0.4,"r10":0.3},{"t":"13:36:48","raw":0,"r5":0.4,"r10":0.3},{"t":"13:36:49","raw":1,"r5":0.4,"r10":0.4},{"t":"13:36:50","raw":0,"r5":0.4,"r10":0.4},{"t":"13:36:51","raw":0,"r5":0.4,"r10":0.3},{"t":"13:36:52","raw":1,"r5":0.4,"r10":0.4},{"t":"13:36:53","raw":2,"r5":0.8,"r10":0.6},{"t":"13:36:54","raw":3,"r5":1.2,"r10":0.8},{"t":"13:36:55","raw":0,"r5":1.2,"r10":0.8},{"t":"13:36:56","raw":3,"r5":1.8,"r10":1.1},{"t":"13:36:57","raw":3,"r5":2.2,"r10":1.3},{"t":"13:36:58","raw":4,"r5":2.6,"r10":1.7},{"t":"13:36:59","raw":4,"r5":2.8,"r10":2.0},{"t":"13:37:00","raw":1,"r5":3.0,"r10":2.1},{"t":"13:37:01","raw":1,"r5":2.6,"r10":2.2},{"t":"13:37:02","raw":1,"r5":2.2,"r10":2.2},{"t":"13:37:03","raw":1,"r5":1.6,"r10":2.1},{"t":"13:37:04","raw":2,"r5":1.2,"r10":2.0},{"t":"13:37:05","raw":3,"r5":1.6,"r10":2.3},{"t":"13:37:06","raw":1,"r5":1.6,"r10":2.1},{"t":"13:37:07","raw":0,"r5":1.4,"r10":1.8},{"t":"13:37:08","raw":0,"r5":1.2,"r10":1.4},{"t":"13:37:09","raw":4,"r5":1.6,"r10":1.4},{"t":"13:37:10","raw":0,"r5":1.0,"r10":1.3},{"t":"13:37:11","raw":1,"r5":1.0,"r10":1.3},{"t":"13:37:12","raw":0,"r5":1.0,"r10":1.2},{"t":"13:37:13","raw":2,"r5":1.4,"r10":1.3},{"t":"13:37:14","raw":1,"r5":0.8,"r10":1.2},{"t":"13:37:15","raw":1,"r5":1.0,"r10":1.0},{"t":"13:37:16","raw":2,"r5":1.2,"r10":1.1},{"t":"13:37:17","raw":1,"r5":1.4,"r10":1.2},{"t":"13:37:18","raw":4,"r5":1.8,"r10":1.6},{"t":"13:37:19","raw":1,"r5":1.8,"r10":1.3},{"t":"13:37:20","raw":1,"r5":1.8,"r10":1.4},{"t":"13:37:21","raw":0,"r5":1.4,"r10":1.3},{"t":"13:37:22","raw":1,"r5":1.4,"r10":1.4},{"t":"13:37:23","raw":2,"r5":1.0,"r10":1.4},{"t":"13:37:24","raw":1,"r5":1.0,"r10":1.4},{"t":"13:37:25","raw":0,"r5":0.8,"r10":1.3},{"t":"13:37:26","raw":5,"r5":1.8,"r10":1.6},{"t":"13:37:27","raw":1,"r5":1.8,"r10":1.6},{"t":"13:37:28","raw":2,"r5":1.8,"r10":1.4},{"t":"13:37:29","raw":0,"r5":1.6,"r10":1.3},{"t":"13:37:30","raw":0,"r5":1.6,"r10":1.2},{"t":"13:37:31","raw":2,"r5":1.0,"r10":1.4},{"t":"13:37:32","raw":0,"r5":0.8,"r10":1.3},{"t":"13:37:33","raw":1,"r5":0.6,"r10":1.2},{"t":"13:37:34","raw":0,"r5":0.6,"r10":1.1},{"t":"13:37:35","raw":0,"r5":0.6,"r10":1.1},{"t":"13:37:36","raw":0,"r5":0.2,"r10":0.6},{"t":"13:37:37","raw":1,"r5":0.4,"r10":0.6},{"t":"13:37:38","raw":1,"r5":0.4,"r10":0.5},{"t":"13:37:39","raw":2,"r5":0.8,"r10":0.7},{"t":"13:37:40","raw":2,"r5":1.2,"r10":0.9},{"t":"13:37:41","raw":1,"r5":1.4,"r10":0.8},{"t":"13:37:42","raw":0,"r5":1.2,"r10":0.8},{"t":"13:37:43","raw":3,"r5":1.6,"r10":1.0},{"t":"13:37:44","raw":0,"r5":1.2,"r10":1.0},{"t":"13:37:45","raw":0,"r5":0.8,"r10":1.0},{"t":"13:37:46","raw":2,"r5":1.0,"r10":1.2},{"t":"13:37:47","raw":0,"r5":1.0,"r10":1.1},{"t":"13:37:48","raw":1,"r5":0.6,"r10":1.1},{"t":"13:37:49","raw":0,"r5":0.6,"r10":0.9},{"t":"13:37:50","raw":0,"r5":0.6,"r10":0.7},{"t":"13:37:51","raw":0,"r5":0.2,"r10":0.6},{"t":"13:37:52","raw":0,"r5":0.2,"r10":0.6},{"t":"13:37:53","raw":0,"r5":0.0,"r10":0.3},{"t":"13:37:54","raw":0,"r5":0.0,"r10":0.3},{"t":"13:37:55","raw":0,"r5":0.0,"r10":0.3},{"t":"13:37:56","raw":1,"r5":0.2,"r10":0.2},{"t":"13:37:57","raw":5,"r5":1.2,"r10":0.7},{"t":"13:37:58","raw":3,"r5":1.8,"r10":0.9},{"t":"13:37:59","raw":1,"r5":2.0,"r10":1.0},{"t":"13:38:00","raw":3,"r5":2.6,"r10":1.3},{"t":"13:38:01","raw":3,"r5":3.0,"r10":1.6},{"t":"13:38:02","raw":4,"r5":2.8,"r10":2.0},{"t":"13:38:03","raw":1,"r5":2.4,"r10":2.1},{"t":"13:38:04","raw":2,"r5":2.6,"r10":2.3},{"t":"13:38:05","raw":1,"r5":2.2,"r10":2.4},{"t":"13:38:06","raw":0,"r5":1.6,"r10":2.3},{"t":"13:38:07","raw":1,"r5":1.0,"r10":1.9},{"t":"13:38:08","raw":1,"r5":1.0,"r10":1.7},{"t":"13:38:09","raw":2,"r5":1.0,"r10":1.8},{"t":"13:38:10","raw":4,"r5":1.6,"r10":1.9},{"t":"13:38:11","raw":1,"r5":1.8,"r10":1.7},{"t":"13:38:12","raw":0,"r5":1.6,"r10":1.3},{"t":"13:38:13","raw":1,"r5":1.6,"r10":1.3},{"t":"13:38:14","raw":2,"r5":1.6,"r10":1.3},{"t":"13:38:15","raw":1,"r5":1.0,"r10":1.3},{"t":"13:38:16","raw":0,"r5":0.8,"r10":1.3},{"t":"13:38:17","raw":2,"r5":1.2,"r10":1.4},{"t":"13:38:18","raw":3,"r5":1.6,"r10":1.6},{"t":"13:38:19","raw":0,"r5":1.2,"r10":1.4},{"t":"13:38:20","raw":2,"r5":1.4,"r10":1.2},{"t":"13:38:21","raw":1,"r5":1.6,"r10":1.2},{"t":"13:38:22","raw":0,"r5":1.2,"r10":1.2},{"t":"13:38:23","raw":1,"r5":0.8,"r10":1.2},{"t":"13:38:24","raw":1,"r5":1.0,"r10":1.1},{"t":"13:38:25","raw":2,"r5":1.0,"r10":1.2},{"t":"13:38:26","raw":1,"r5":1.0,"r10":1.3},{"t":"13:38:27","raw":3,"r5":1.6,"r10":1.4},{"t":"13:38:28","raw":2,"r5":1.8,"r10":1.3},{"t":"13:38:29","raw":2,"r5":2.0,"r10":1.5},{"t":"13:38:30","raw":1,"r5":1.8,"r10":1.4},{"t":"13:38:31","raw":2,"r5":2.0,"r10":1.5},{"t":"13:38:32","raw":1,"r5":1.6,"r10":1.6},{"t":"13:38:33","raw":0,"r5":1.2,"r10":1.5},{"t":"13:38:34","raw":1,"r5":1.0,"r10":1.5},{"t":"13:38:35","raw":1,"r5":1.0,"r10":1.4},{"t":"13:38:36","raw":0,"r5":0.6,"r10":1.3},{"t":"13:38:37","raw":2,"r5":0.8,"r10":1.2},{"t":"13:38:38","raw":1,"r5":1.0,"r10":1.1},{"t":"13:38:39","raw":0,"r5":0.8,"r10":0.9},{"t":"13:38:40","raw":1,"r5":0.8,"r10":0.9},{"t":"13:38:41","raw":2,"r5":1.2,"r10":0.9},{"t":"13:38:42","raw":1,"r5":1.0,"r10":0.9},{"t":"13:38:43","raw":0,"r5":0.8,"r10":0.9},{"t":"13:38:44","raw":1,"r5":1.0,"r10":0.9},{"t":"13:38:45","raw":0,"r5":0.8,"r10":0.8},{"t":"13:38:46","raw":0,"r5":0.4,"r10":0.8},{"t":"13:38:47","raw":0,"r5":0.2,"r10":0.6},{"t":"13:38:48","raw":1,"r5":0.4,"r10":0.6},{"t":"13:38:49","raw":0,"r5":0.2,"r10":0.6},{"t":"13:38:50","raw":0,"r5":0.2,"r10":0.5},{"t":"13:38:51","raw":0,"r5":0.2,"r10":0.3},{"t":"13:38:52","raw":2,"r5":0.6,"r10":0.4},{"t":"13:38:53","raw":1,"r5":0.6,"r10":0.5},{"t":"13:38:54","raw":0,"r5":0.6,"r10":0.4},{"t":"13:38:55","raw":0,"r5":0.6,"r10":0.4},{"t":"13:38:56","raw":0,"r5":0.6,"r10":0.4},{"t":"13:38:57","raw":1,"r5":0.4,"r10":0.5},{"t":"13:38:58","raw":4,"r5":1.0,"r10":0.8},{"t":"13:38:59","raw":6,"r5":2.2,"r10":1.4},{"t":"13:39:00","raw":4,"r5":3.0,"r10":1.8},{"t":"13:39:01","raw":1,"r5":3.2,"r10":1.9},{"t":"13:39:02","raw":1,"r5":3.2,"r10":1.8},{"t":"13:39:03","raw":1,"r5":2.6,"r10":1.8},{"t":"13:39:04","raw":2,"r5":1.8,"r10":2.0},{"t":"13:39:05","raw":1,"r5":1.2,"r10":2.1},{"t":"13:39:06","raw":1,"r5":1.2,"r10":2.2},{"t":"13:39:07","raw":1,"r5":1.2,"r10":2.2},{"t":"13:39:08","raw":2,"r5":1.4,"r10":2.0},{"t":"13:39:09","raw":0,"r5":1.0,"r10":1.4},{"t":"13:39:10","raw":1,"r5":1.0,"r10":1.1},{"t":"13:39:11","raw":2,"r5":1.2,"r10":1.2},{"t":"13:39:12","raw":0,"r5":1.0,"r10":1.1},{"t":"13:39:13","raw":1,"r5":0.8,"r10":1.1},{"t":"13:39:14","raw":1,"r5":1.0,"r10":1.0},{"t":"13:39:15","raw":0,"r5":0.8,"r10":0.9},{"t":"13:39:16","raw":1,"r5":0.6,"r10":0.9},{"t":"13:39:17","raw":1,"r5":0.8,"r10":0.9},{"t":"13:39:18","raw":2,"r5":1.0,"r10":0.9},{"t":"13:39:19","raw":3,"r5":1.4,"r10":1.2},{"t":"13:39:20","raw":0,"r5":1.4,"r10":1.1},{"t":"13:39:21","raw":3,"r5":1.8,"r10":1.2},{"t":"13:39:22","raw":2,"r5":2.0,"r10":1.4},{"t":"13:39:23","raw":2,"r5":2.0,"r10":1.5},{"t":"13:39:24","raw":3,"r5":2.0,"r10":1.7},{"t":"13:39:25","raw":0,"r5":2.0,"r10":1.7},{"t":"13:39:26","raw":2,"r5":1.8,"r10":1.8},{"t":"13:39:27","raw":0,"r5":1.4,"r10":1.7},{"t":"13:39:28","raw":0,"r5":1.0,"r10":1.5},{"t":"13:39:29","raw":1,"r5":0.6,"r10":1.3},{"t":"13:39:30","raw":1,"r5":0.8,"r10":1.4},{"t":"13:39:31","raw":2,"r5":0.8,"r10":1.3},{"t":"13:39:32","raw":0,"r5":0.8,"r10":1.1},{"t":"13:39:33","raw":2,"r5":1.2,"r10":1.1},{"t":"13:39:34","raw":0,"r5":1.0,"r10":0.8},{"t":"13:39:35","raw":0,"r5":0.8,"r10":0.8},{"t":"13:39:36","raw":0,"r5":0.4,"r10":0.6},{"t":"13:39:37","raw":0,"r5":0.4,"r10":0.6},{"t":"13:39:38","raw":1,"r5":0.2,"r10":0.7},{"t":"13:39:39","raw":0,"r5":0.2,"r10":0.6},{"t":"13:39:40","raw":1,"r5":0.4,"r10":0.6},{"t":"13:39:41","raw":0,"r5":0.4,"r10":0.4},{"t":"13:39:42","raw":3,"r5":1.0,"r10":0.7},{"t":"13:39:43","raw":0,"r5":0.8,"r10":0.5},{"t":"13:39:44","raw":0,"r5":0.8,"r10":0.5},{"t":"13:39:45","raw":0,"r5":0.6,"r10":0.5},{"t":"13:39:46","raw":0,"r5":0.6,"r10":0.5},{"t":"13:39:47","raw":1,"r5":0.2,"r10":0.6},{"t":"13:39:48","raw":1,"r5":0.4,"r10":0.6},{"t":"13:39:49","raw":0,"r5":0.4,"r10":0.6},{"t":"13:39:50","raw":1,"r5":0.6,"r10":0.6},{"t":"13:39:51","raw":0,"r5":0.6,"r10":0.6},{"t":"13:39:52","raw":0,"r5":0.4,"r10":0.3},{"t":"13:39:53","raw":0,"r5":0.2,"r10":0.3},{"t":"13:39:54","raw":0,"r5":0.2,"r10":0.3},{"t":"13:39:55","raw":0,"r5":0.0,"r10":0.3},{"t":"13:39:56","raw":0,"r5":0.0,"r10":0.3},{"t":"13:39:57","raw":3,"r5":0.6,"r10":0.5},{"t":"13:39:58","raw":5,"r5":1.6,"r10":0.9},{"t":"13:39:59","raw":2,"r5":2.0,"r10":1.1},{"t":"13:40:00","raw":3,"r5":2.6,"r10":1.3},{"t":"13:40:01","raw":0,"r5":2.6,"r10":1.3},{"t":"13:40:02","raw":2,"r5":2.4,"r10":1.5},{"t":"13:40:03","raw":1,"r5":1.6,"r10":1.6},{"t":"13:40:04","raw":0,"r5":1.2,"r10":1.6},{"t":"13:40:05","raw":1,"r5":0.8,"r10":1.7},{"t":"13:40:06","raw":2,"r5":1.2,"r10":1.9},{"t":"13:40:07","raw":2,"r5":1.2,"r10":1.8},{"t":"13:40:08","raw":0,"r5":1.0,"r10":1.3},{"t":"13:40:09","raw":3,"r5":1.6,"r10":1.4},{"t":"13:40:10","raw":0,"r5":1.4,"r10":1.1},{"t":"13:40:11","raw":2,"r5":1.4,"r10":1.3},{"t":"13:40:12","raw":3,"r5":1.6,"r10":1.4},{"t":"13:40:13","raw":3,"r5":2.2,"r10":1.6},{"t":"13:40:14","raw":1,"r5":1.8,"r10":1.7},{"t":"13:40:15","raw":1,"r5":2.0,"r10":1.7},{"t":"13:40:16","raw":0,"r5":1.6,"r10":1.5},{"t":"13:40:17","raw":2,"r5":1.4,"r10":1.5},{"t":"13:40:18","raw":2,"r5":1.2,"r10":1.7},{"t":"13:40:19","raw":0,"r5":1.0,"r10":1.4},{"t":"13:40:20","raw":1,"r5":1.0,"r10":1.5},{"t":"13:40:21","raw":0,"r5":1.0,"r10":1.3},{"t":"13:40:22","raw":0,"r5":0.6,"r10":1.0},{"t":"13:40:23","raw":0,"r5":0.2,"r10":0.7},{"t":"13:40:24","raw":3,"r5":0.8,"r10":0.9},{"t":"13:40:25","raw":0,"r5":0.6,"r10":0.8},{"t":"13:40:26","raw":1,"r5":0.8,"r10":0.9},{"t":"13:40:27","raw":3,"r5":1.4,"r10":1.0},{"t":"13:40:28","raw":1,"r5":1.6,"r10":0.9},{"t":"13:40:29","raw":1,"r5":1.2,"r10":1.0},{"t":"13:40:30","raw":2,"r5":1.6,"r10":1.1},{"t":"13:40:31","raw":2,"r5":1.8,"r10":1.3},{"t":"13:40:32","raw":0,"r5":1.2,"r10":1.3},{"t":"13:40:33","raw":0,"r5":1.0,"r10":1.3},{"t":"13:40:34","raw":4,"r5":1.6,"r10":1.4},{"t":"13:40:35","raw":0,"r5":1.2,"r10":1.4},{"t":"13:40:36","raw":1,"r5":1.0,"r10":1.4},{"t":"13:40:37","raw":0,"r5":1.0,"r10":1.1},{"t":"13:40:38","raw":1,"r5":1.2,"r10":1.1},{"t":"13:40:39","raw":0,"r5":0.4,"r10":1.0},{"t":"13:40:40","raw":0,"r5":0.4,"r10":0.8},{"t":"13:40:41","raw":0,"r5":0.2,"r10":0.6},{"t":"13:40:42","raw":0,"r5":0.2,"r10":0.6},{"t":"13:40:43","raw":2,"r5":0.4,"r10":0.8},{"t":"13:40:44","raw":0,"r5":0.4,"r10":0.4},{"t":"13:40:45","raw":1,"r5":0.6,"r10":0.5},{"t":"13:40:46","raw":1,"r5":0.8,"r10":0.5},{"t":"13:40:47","raw":0,"r5":0.8,"r10":0.5},{"t":"13:40:48","raw":0,"r5":0.4,"r10":0.4},{"t":"13:40:49","raw":0,"r5":0.4,"r10":0.4},{"t":"13:40:50","raw":0,"r5":0.2,"r10":0.4},{"t":"13:40:51","raw":1,"r5":0.2,"r10":0.5},{"t":"13:40:52","raw":0,"r5":0.2,"r10":0.5},{"t":"13:40:53","raw":0,"r5":0.2,"r10":0.3},{"t":"13:40:54","raw":0,"r5":0.2,"r10":0.3},{"t":"13:40:55","raw":0,"r5":0.2,"r10":0.2},{"t":"13:40:56","raw":1,"r5":0.2,"r10":0.2},{"t":"13:40:57","raw":6,"r5":1.4,"r10":0.8},{"t":"13:40:58","raw":5,"r5":2.4,"r10":1.3},{"t":"13:40:59","raw":1,"r5":2.6,"r10":1.4},{"t":"13:41:00","raw":1,"r5":2.8,"r10":1.5},{"t":"13:41:01","raw":3,"r5":3.2,"r10":1.7},{"t":"13:41:02","raw":0,"r5":2.0,"r10":1.7},{"t":"13:41:03","raw":3,"r5":1.6,"r10":2.0},{"t":"13:41:04","raw":2,"r5":1.8,"r10":2.2},{"t":"13:41:05","raw":0,"r5":1.6,"r10":2.2},{"t":"13:41:06","raw":0,"r5":1.0,"r10":2.1},{"t":"13:41:07","raw":0,"r5":1.0,"r10":1.5},{"t":"13:41:08","raw":0,"r5":0.4,"r10":1.0},{"t":"13:41:09","raw":3,"r5":0.6,"r10":1.2},{"t":"13:41:10","raw":1,"r5":0.8,"r10":1.2},{"t":"13:41:11","raw":1,"r5":1.0,"r10":1.0},{"t":"13:41:12","raw":1,"r5":1.2,"r10":1.1},{"t":"13:41:13","raw":2,"r5":1.6,"r10":1.0},{"t":"13:41:14","raw":3,"r5":1.6,"r10":1.1},{"t":"13:41:15","raw":1,"r5":1.6,"r10":1.2},{"t":"13:41:16","raw":1,"r5":1.6,"r10":1.3},{"t":"13:41:17","raw":0,"r5":1.4,"r10":1.3},{"t":"13:41:18","raw":1,"r5":1.2,"r10":1.4},{"t":"13:41:19","raw":1,"r5":0.8,"r10":1.2},{"t":"13:41:20","raw":0,"r5":0.6,"r10":1.1},{"t":"13:41:21","raw":2,"r5":0.8,"r10":1.2},{"t":"13:41:22","raw":1,"r5":1.0,"r10":1.2},{"t":"13:41:23","raw":1,"r5":1.0,"r10":1.1},{"t":"13:41:24","raw":1,"r5":1.0,"r10":0.9},{"t":"13:41:25","raw":0,"r5":1.0,"r10":0.8},{"t":"13:41:26","raw":1,"r5":0.8,"r10":0.8},{"t":"13:41:27","raw":3,"r5":1.2,"r10":1.1},{"t":"13:41:28","raw":1,"r5":1.2,"r10":1.1},{"t":"13:41:29","raw":0,"r5":1.0,"r10":1.0},{"t":"13:41:30","raw":3,"r5":1.6,"r10":1.3},{"t":"13:41:31","raw":0,"r5":1.4,"r10":1.1},{"t":"13:41:32","raw":1,"r5":1.0,"r10":1.1},{"t":"13:41:33","raw":1,"r5":1.0,"r10":1.1},{"t":"13:41:34","raw":2,"r5":1.4,"r10":1.2},{"t":"13:41:35","raw":2,"r5":1.2,"r10":1.4},{"t":"13:41:36","raw":1,"r5":1.4,"r10":1.4},{"t":"13:41:37","raw":1,"r5":1.4,"r10":1.2},{"t":"13:41:38","raw":0,"r5":1.2,"r10":1.1},{"t":"13:41:39","raw":2,"r5":1.2,"r10":1.3},{"t":"13:41:40","raw":2,"r5":1.2,"r10":1.2},{"t":"13:41:41","raw":1,"r5":1.2,"r10":1.3},{"t":"13:41:42","raw":1,"r5":1.2,"r10":1.3},{"t":"13:41:43","raw":1,"r5":1.4,"r10":1.3},{"t":"13:41:44","raw":0,"r5":1.0,"r10":1.1},{"t":"13:41:45","raw":0,"r5":0.6,"r10":0.9},{"t":"13:41:46","raw":0,"r5":0.4,"r10":0.8},{"t":"13:41:47","raw":0,"r5":0.2,"r10":0.7},{"t":"13:41:48","raw":0,"r5":0.0,"r10":0.7},{"t":"13:41:49","raw":0,"r5":0.0,"r10":0.5},{"t":"13:41:50","raw":1,"r5":0.2,"r10":0.4},{"t":"13:41:51","raw":0,"r5":0.2,"r10":0.3},{"t":"13:41:52","raw":0,"r5":0.2,"r10":0.2},{"t":"13:41:53","raw":0,"r5":0.2,"r10":0.1},{"t":"13:41:54","raw":0,"r5":0.2,"r10":0.1},{"t":"13:41:55","raw":0,"r5":0.0,"r10":0.1},{"t":"13:41:56","raw":2,"r5":0.4,"r10":0.3},{"t":"13:41:57","raw":4,"r5":1.2,"r10":0.7},{"t":"13:41:58","raw":2,"r5":1.6,"r10":0.9},{"t":"13:41:59","raw":1,"r5":1.8,"r10":1.0},{"t":"13:42:00","raw":4,"r5":2.6,"r10":1.3},{"t":"13:42:01","raw":1,"r5":2.4,"r10":1.4},{"t":"13:42:02","raw":4,"r5":2.4,"r10":1.8},{"t":"13:42:03","raw":2,"r5":2.4,"r10":2.0},{"t":"13:42:04","raw":0,"r5":2.2,"r10":2.0},{"t":"13:42:05","raw":1,"r5":1.6,"r10":2.1},{"t":"13:42:06","raw":0,"r5":1.4,"r10":1.9},{"t":"13:42:07","raw":1,"r5":0.8,"r10":1.6},{"t":"13:42:08","raw":1,"r5":0.6,"r10":1.5},{"t":"13:42:09","raw":0,"r5":0.6,"r10":1.4},{"t":"13:42:10","raw":1,"r5":0.6,"r10":1.1},{"t":"13:42:11","raw":2,"r5":1.0,"r10":1.2},{"t":"13:42:12","raw":0,"r5":0.8,"r10":0.8},{"t":"13:42:13","raw":2,"r5":1.0,"r10":0.8},{"t":"13:42:14","raw":2,"r5":1.4,"r10":1.0},{"t":"13:42:15","raw":2,"r5":1.6,"r10":1.1},{"t":"13:42:16","raw":2,"r5":1.6,"r10":1.3},{"t":"13:42:17","raw":1,"r5":1.8,"r10":1.3},{"t":"13:42:18","raw":0,"r5":1.4,"r10":1.2},{"t":"13:42:19","raw":3,"r5":1.6,"r10":1.5},{"t":"13:42:20","raw":1,"r5":1.4,"r10":1.5},{"t":"13:42:21","raw":0,"r5":1.0,"r10":1.3},{"t":"13:42:22","raw":0,"r5":0.8,"r10":1.3},{"t":"13:42:23","raw":1,"r5":1.0,"r10":1.2},{"t":"13:42:24","raw":1,"r5":0.6,"r10":1.1},{"t":"13:42:25","raw":2,"r5":0.8,"r10":1.1},{"t":"13:42:26","raw":0,"r5":0.8,"r10":0.9},{"t":"13:42:27","raw":1,"r5":1.0,"r10":0.9},{"t":"13:42:28","raw":0,"r5":0.8,"r10":0.9},{"t":"13:42:29","raw":2,"r5":1.0,"r10":0.8},{"t":"13:42:30","raw":0,"r5":0.6,"r10":0.7},{"t":"13:42:31","raw":0,"r5":0.6,"r10":0.7},{"t":"13:42:32","raw":1,"r5":0.6,"r10":0.8},{"t":"13:42:33","raw":1,"r5":0.8,"r10":0.8},{"t":"13:42:34","raw":0,"r5":0.4,"r10":0.7},{"t":"13:42:35","raw":1,"r5":0.6,"r10":0.6},{"t":"13:42:36","raw":2,"r5":1.0,"r10":0.8},{"t":"13:42:37","raw":1,"r5":1.0,"r10":0.8},{"t":"13:42:38","raw":1,"r5":1.0,"r10":0.9},{"t":"13:42:39","raw":1,"r5":1.2,"r10":0.8},{"t":"13:42:40","raw":0,"r5":1.0,"r10":0.8},{"t":"13:42:41","raw":2,"r5":1.0,"r10":1.0},{"t":"13:42:42","raw":1,"r5":1.0,"r10":1.0},{"t":"13:42:43","raw":0,"r5":0.8,"r10":0.9},{"t":"13:42:44","raw":2,"r5":1.0,"r10":1.1},{"t":"13:42:45","raw":0,"r5":1.0,"r10":1.0},{"t":"13:42:46","raw":4,"r5":1.4,"r10":1.2},{"t":"13:42:47","raw":1,"r5":1.4,"r10":1.2},{"t":"13:42:48","raw":1,"r5":1.6,"r10":1.2},{"t":"13:42:49","raw":1,"r5":1.4,"r10":1.2},{"t":"13:42:50","raw":0,"r5":1.4,"r10":1.2},{"t":"13:42:51","raw":0,"r5":0.6,"r10":1.0},{"t":"13:42:52","raw":0,"r5":0.4,"r10":0.9},{"t":"13:42:53","raw":0,"r5":0.2,"r10":0.9},{"t":"13:42:54","raw":0,"r5":0.0,"r10":0.7},{"t":"13:42:55","raw":1,"r5":0.2,"r10":0.8},{"t":"13:42:56","raw":1,"r5":0.4,"r10":0.5},{"t":"13:42:57","raw":5,"r5":1.4,"r10":0.9},{"t":"13:42:58","raw":2,"r5":1.8,"r10":1.0},{"t":"13:42:59","raw":1,"r5":2.0,"r10":1.0},{"t":"13:43:00","raw":2,"r5":2.2,"r10":1.2},{"t":"13:43:01","raw":2,"r5":2.4,"r10":1.4},{"t":"13:43:02","raw":1,"r5":1.6,"r10":1.5},{"t":"13:43:03","raw":0,"r5":1.2,"r10":1.5},{"t":"13:43:04","raw":0,"r5":1.0,"r10":1.5},{"t":"13:43:05","raw":2,"r5":1.0,"r10":1.6},{"t":"13:43:06","raw":1,"r5":0.8,"r10":1.6},{"t":"13:43:07","raw":0,"r5":0.6,"r10":1.1},{"t":"13:43:08","raw":2,"r5":1.0,"r10":1.1},{"t":"13:43:09","raw":1,"r5":1.2,"r10":1.1},{"t":"13:43:10","raw":2,"r5":1.2,"r10":1.1},{"t":"13:43:11","raw":1,"r5":1.2,"r10":1.0},{"t":"13:43:12","raw":1,"r5":1.4,"r10":1.0},{"t":"13:43:13","raw":0,"r5":1.0,"r10":1.0},{"t":"13:43:14","raw":3,"r5":1.4,"r10":1.3},{"t":"13:43:15","raw":0,"r5":1.0,"r10":1.1},{"t":"13:43:16","raw":0,"r5":0.8,"r10":1.0},{"t":"13:43:17","raw":1,"r5":0.8,"r10":1.1},{"t":"13:43:18","raw":1,"r5":1.0,"r10":1.0},{"t":"13:43:19","raw":1,"r5":0.6,"r10":1.0},{"t":"13:43:20","raw":1,"r5":0.8,"r10":0.9},{"t":"13:43:21","raw":1,"r5":1.0,"r10":0.9},{"t":"13:43:22","raw":3,"r5":1.4,"r10":1.1},{"t":"13:43:23","raw":2,"r5":1.6,"r10":1.3},{"t":"13:43:24","raw":0,"r5":1.4,"r10":1.0},{"t":"13:43:25","raw":0,"r5":1.2,"r10":1.0},{"t":"13:43:26","raw":2,"r5":1.4,"r10":1.2},{"t":"13:43:27","raw":1,"r5":1.0,"r10":1.2},{"t":"13:43:28","raw":0,"r5":0.6,"r10":1.1},{"t":"13:43:29","raw":2,"r5":1.0,"r10":1.2},{"t":"13:43:30","raw":0,"r5":1.0,"r10":1.1},{"t":"13:43:31","raw":1,"r5":0.8,"r10":1.1},{"t":"13:43:32","raw":3,"r5":1.2,"r10":1.1},{"t":"13:43:33","raw":2,"r5":1.6,"r10":1.1},{"t":"13:43:34","raw":0,"r5":1.2,"r10":1.1},{"t":"13:43:35","raw":0,"r5":1.2,"r10":1.1},{"t":"13:43:36","raw":2,"r5":1.4,"r10":1.1},{"t":"13:43:37","raw":1,"r5":1.0,"r10":1.1},{"t":"13:43:38","raw":0,"r5":0.6,"r10":1.1},{"t":"13:43:39","raw":0,"r5":0.6,"r10":0.9},{"t":"13:43:40","raw":2,"r5":1.0,"r10":1.1},{"t":"13:43:41","raw":1,"r5":0.8,"r10":1.1},{"t":"13:43:42","raw":1,"r5":0.8,"r10":0.9},{"t":"13:43:43","raw":1,"r5":1.0,"r10":0.8},{"t":"13:43:44","raw":2,"r5":1.4,"r10":1.0},{"t":"13:43:45","raw":2,"r5":1.4,"r10":1.2},{"t":"13:43:46","raw":1,"r5":1.4,"r10":1.1},{"t":"13:43:47","raw":1,"r5":1.4,"r10":1.1},{"t":"13:43:48","raw":0,"r5":1.2,"r10":1.1},{"t":"13:43:49","raw":0,"r5":0.8,"r10":1.1},{"t":"13:43:50","raw":0,"r5":0.4,"r10":0.9},{"t":"13:43:51","raw":0,"r5":0.2,"r10":0.8},{"t":"13:43:52","raw":0,"r5":0.0,"r10":0.7},{"t":"13:43:53","raw":0,"r5":0.0,"r10":0.6},{"t":"13:43:54","raw":0,"r5":0.0,"r10":0.4},{"t":"13:43:55","raw":0,"r5":0.0,"r10":0.2},{"t":"13:43:56","raw":0,"r5":0.0,"r10":0.1},{"t":"13:43:57","raw":1,"r5":0.2,"r10":0.1},{"t":"13:43:58","raw":4,"r5":1.0,"r10":0.5},{"t":"13:43:59","raw":3,"r5":1.6,"r10":0.8},{"t":"13:44:00","raw":1,"r5":1.8,"r10":0.9},{"t":"13:44:01","raw":3,"r5":2.4,"r10":1.2},{"t":"13:44:02","raw":1,"r5":2.4,"r10":1.3},{"t":"13:44:03","raw":2,"r5":2.0,"r10":1.5},{"t":"13:44:04","raw":0,"r5":1.4,"r10":1.5},{"t":"13:44:05","raw":1,"r5":1.4,"r10":1.6},{"t":"13:44:06","raw":0,"r5":0.8,"r10":1.6},{"t":"13:44:07","raw":0,"r5":0.6,"r10":1.5},{"t":"13:44:08","raw":1,"r5":0.4,"r10":1.2},{"t":"13:44:09","raw":0,"r5":0.4,"r10":0.9},{"t":"13:44:10","raw":1,"r5":0.4,"r10":0.9},{"t":"13:44:11","raw":0,"r5":0.4,"r10":0.6},{"t":"13:44:12","raw":1,"r5":0.6,"r10":0.6},{"t":"13:44:13","raw":1,"r5":0.6,"r10":0.5},{"t":"13:44:14","raw":2,"r5":1.0,"r10":0.7},{"t":"13:44:15","raw":0,"r5":0.8,"r10":0.6},{"t":"13:44:16","raw":1,"r5":1.0,"r10":0.7},{"t":"13:44:17","raw":1,"r5":1.0,"r10":0.8},{"t":"13:44:18","raw":0,"r5":0.8,"r10":0.7},{"t":"13:44:19","raw":0,"r5":0.4,"r10":0.7},{"t":"13:44:20","raw":2,"r5":0.8,"r10":0.8},{"t":"13:44:21","raw":3,"r5":1.2,"r10":1.1},{"t":"13:44:22","raw":1,"r5":1.2,"r10":1.1},{"t":"13:44:23","raw":3,"r5":1.8,"r10":1.3},{"t":"13:44:24","raw":0,"r5":1.8,"r10":1.1},{"t":"13:44:25","raw":0,"r5":1.4,"r10":1.1},{"t":"13:44:26","raw":1,"r5":1.0,"r10":1.1},{"t":"13:44:27","raw":1,"r5":1.0,"r10":1.1},{"t":"13:44:28","raw":2,"r5":0.8,"r10":1.3},{"t":"13:44:29","raw":0,"r5":0.8,"r10":1.3},{"t":"13:44:30","raw":4,"r5":1.6,"r10":1.5},{"t":"13:44:31","raw":0,"r5":1.4,"r10":1.2},{"t":"13:44:32","raw":2,"r5":1.6,"r10":1.3},{"t":"13:44:33","raw":0,"r5":1.2,"r10":1.0},{"t":"13:44:34","raw":1,"r5":1.4,"r10":1.1},{"t":"13:44:35","raw":0,"r5":0.6,"r10":1.1},{"t":"13:44:36","raw":1,"r5":0.8,"r10":1.1},{"t":"13:44:37","raw":2,"r5":0.8,"r10":1.2},{"t":"13:44:38","raw":2,"r5":1.2,"r10":1.2},{"t":"13:44:39","raw":0,"r5":1.0,"r10":1.2},{"t":"13:44:40","raw":1,"r5":1.2,"r10":0.9},{"t":"13:44:41","raw":1,"r5":1.2,"r10":1.0},{"t":"13:44:42","raw":0,"r5":0.8,"r10":0.8},{"t":"13:44:43","raw":0,"r5":0.4,"r10":0.8},{"t":"13:44:44","raw":0,"r5":0.4,"r10":0.7},{"t":"13:44:45","raw":0,"r5":0.2,"r10":0.7},{"t":"13:44:46","raw":0,"r5":0.0,"r10":0.6},{"t":"13:44:47","raw":0,"r5":0.0,"r10":0.4},{"t":"13:44:48","raw":0,"r5":0.0,"r10":0.2},{"t":"13:44:49","raw":0,"r5":0.0,"r10":0.2},{"t":"13:44:50","raw":0,"r5":0.0,"r10":0.1},{"t":"13:44:51","raw":0,"r5":0.0,"r10":0.0},{"t":"13:44:52","raw":0,"r5":0.0,"r10":0.0},{"t":"13:44:53","raw":0,"r5":0.0,"r10":0.0},{"t":"13:44:54","raw":0,"r5":0.0,"r10":0.0},{"t":"13:44:55","raw":1,"r5":0.2,"r10":0.1},{"t":"13:44:56","raw":1,"r5":0.4,"r10":0.2},{"t":"13:44:57","raw":3,"r5":1.0,"r10":0.5},{"t":"13:44:58","raw":3,"r5":1.6,"r10":0.8},{"t":"13:44:59","raw":2,"r5":2.0,"r10":1.0},{"t":"13:45:00","raw":0,"r5":1.8,"r10":1.0}],"concurrent":[{"t":"09:15:10","v":1},{"t":"09:15:20","v":0},{"t":"09:15:30","v":0},{"t":"09:15:40","v":0},{"t":"09:15:50","v":0},{"t":"09:16:00","v":0},{"t":"09:16:10","v":0},{"t":"09:16:20","v":0},{"t":"09:16:30","v":0},{"t":"09:16:40","v":0},{"t":"09:16:50","v":0},{"t":"09:17:00","v":0},{"t":"09:17:10","v":0},{"t":"09:17:20","v":0},{"t":"09:17:30","v":0},{"t":"09:17:40","v":0},{"t":"09:17:50","v":0},{"t":"09:18:00","v":0},{"t":"09:18:10","v":0},{"t":"09:18:20","v":0},{"t":"09:18:30","v":0},{"t":"09:18:40","v":0},{"t":"09:18:50","v":0},{"t":"09:19:00","v":0},{"t":"09:19:10","v":0},{"t":"09:19:20","v":0},{"t":"09:19:30","v":0},{"t":"09:19:40","v":0},{"t":"09:19:50","v":0},{"t":"09:20:00","v":0},{"t":"09:20:10","v":0},{"t":"09:20:20","v":0},{"t":"09:20:30","v":0},{"t":"09:20:40","v":0},{"t":"09:20:50","v":0},{"t":"09:21:00","v":0},{"t":"09:21:10","v":0},{"t":"09:21:20","v":0},{"t":"09:21:30","v":0},{"t":"09:21:40","v":0},{"t":"09:21:50","v":0},{"t":"09:22:00","v":0},{"t":"09:22:10","v":0},{"t":"09:22:20","v":0},{"t":"09:22:30","v":0},{"t":"09:22:40","v":0},{"t":"09:22:50","v":0},{"t":"09:23:00","v":0},{"t":"09:23:10","v":0},{"t":"09:23:20","v":0},{"t":"09:23:30","v":0},{"t":"09:23:40","v":0},{"t":"09:23:50","v":0},{"t":"09:24:00","v":0},{"t":"09:24:10","v":0},{"t":"09:24:20","v":0},{"t":"09:24:30","v":0},{"t":"09:24:40","v":0},{"t":"09:24:50","v":0},{"t":"09:25:00","v":0},{"t":"09:25:10","v":0},{"t":"09:25:20","v":0},{"t":"09:25:30","v":0},{"t":"09:25:40","v":0},{"t":"09:25:50","v":0},{"t":"09:26:00","v":0},{"t":"09:26:10","v":0},{"t":"09:26:20","v":0},{"t":"09:26:30","v":0},{"t":"09:26:40","v":0},{"t":"09:26:50","v":0},{"t":"09:27:00","v":0},{"t":"09:27:10","v":0},{"t":"09:27:20","v":0},{"t":"09:27:30","v":0},{"t":"09:27:40","v":0},{"t":"09:27:50","v":0},{"t":"09:28:00","v":0},{"t":"09:28:10","v":0},{"t":"09:28:20","v":0},{"t":"09:28:30","v":0},{"t":"09:28:40","v":0},{"t":"09:28:50","v":0},{"t":"09:29:00","v":0},{"t":"09:29:10","v":0},{"t":"09:29:20","v":0},{"t":"09:29:30","v":0},{"t":"09:29:40","v":0},{"t":"09:29:50","v":0},{"t":"09:30:00","v":0},{"t":"09:30:10","v":0},{"t":"09:30:20","v":0},{"t":"09:30:30","v":0},{"t":"09:30:40","v":0},{"t":"09:30:50","v":0},{"t":"09:31:00","v":0},{"t":"09:31:10","v":0},{"t":"09:31:20","v":0},{"t":"09:31:30","v":0},{"t":"09:31:40","v":0},{"t":"09:31:50","v":0},{"t":"09:32:00","v":0},{"t":"09:32:10","v":0},{"t":"09:32:20","v":0},{"t":"09:32:30","v":0},{"t":"09:32:40","v":0},{"t":"09:32:50","v":0},{"t":"09:33:00","v":0},{"t":"09:33:10","v":0},{"t":"09:33:20","v":0},{"t":"09:33:30","v":0},{"t":"09:33:40","v":0},{"t":"09:33:50","v":0},{"t":"09:34:00","v":0},{"t":"09:34:10","v":0},{"t":"09:34:20","v":0},{"t":"09:34:30","v":0},{"t":"09:34:40","v":0},{"t":"09:34:50","v":0},{"t":"09:35:00","v":0},{"t":"09:35:10","v":0},{"t":"09:35:20","v":0},{"t":"09:35:30","v":0},{"t":"09:35:40","v":0},{"t":"09:35:50","v":0},{"t":"09:36:00","v":0},{"t":"09:36:10","v":0},{"t":"09:36:20","v":0},{"t":"09:36:30","v":0},{"t":"09:36:40","v":0},{"t":"09:36:50","v":0},{"t":"09:37:00","v":0},{"t":"09:37:10","v":0},{"t":"09:37:20","v":0},{"t":"09:37:30","v":0},{"t":"09:37:40","v":0},{"t":"09:37:50","v":0},{"t":"09:38:00","v":0},{"t":"09:38:10","v":0},{"t":"09:38:20","v":0},{"t":"09:38:30","v":0},{"t":"09:38:40","v":0},{"t":"09:38:50","v":0},{"t":"09:39:00","v":0},{"t":"09:39:10","v":0},{"t":"09:39:20","v":0},{"t":"09:39:30","v":0},{"t":"09:39:40","v":0},{"t":"09:39:50","v":0},{"t":"09:40:00","v":0},{"t":"09:40:10","v":0},{"t":"09:40:20","v":0},{"t":"09:40:30","v":0},{"t":"09:40:40","v":0},{"t":"09:40:50","v":0},{"t":"09:41:00","v":0},{"t":"09:41:10","v":0},{"t":"09:41:20","v":0},{"t":"09:41:30","v":0},{"t":"09:41:40","v":0},{"t":"09:41:50","v":0},{"t":"09:42:00","v":0},{"t":"09:42:10","v":0},{"t":"09:42:20","v":0},{"t":"09:42:30","v":0},{"t":"09:42:40","v":0},{"t":"09:42:50","v":0},{"t":"09:43:00","v":0},{"t":"09:43:10","v":0},{"t":"09:43:20","v":0},{"t":"09:43:30","v":0},{"t":"09:43:40","v":0},{"t":"09:43:50","v":0},{"t":"09:44:00","v":0},{"t":"09:44:10","v":0},{"t":"09:44:20","v":0},{"t":"09:44:30","v":0},{"t":"09:44:40","v":0},{"t":"09:44:50","v":1},{"t":"09:45:00","v":0},{"t":"09:45:10","v":0},{"t":"09:45:20","v":0},{"t":"09:45:30","v":0},{"t":"09:45:40","v":0},{"t":"09:45:50","v":0},{"t":"09:46:00","v":0},{"t":"09:46:10","v":0},{"t":"09:46:20","v":0},{"t":"09:46:30","v":0},{"t":"09:46:40","v":0},{"t":"09:46:50","v":0},{"t":"09:47:00","v":0},{"t":"09:47:10","v":0},{"t":"09:47:20","v":0},{"t":"09:47:30","v":0},{"t":"09:47:40","v":0},{"t":"09:47:50","v":0},{"t":"09:48:00","v":0},{"t":"09:48:10","v":0},{"t":"09:48:20","v":0},{"t":"09:48:30","v":0},{"t":"09:48:40","v":0},{"t":"09:48:50","v":0},{"t":"09:49:00","v":0},{"t":"09:49:10","v":0},{"t":"09:49:20","v":0},{"t":"09:49:30","v":0},{"t":"09:49:40","v":0},{"t":"09:49:50","v":0},{"t":"09:50:00","v":0},{"t":"09:50:10","v":0},{"t":"09:50:20","v":0},{"t":"09:50:30","v":0},{"t":"09:50:40","v":0},{"t":"09:50:50","v":0},{"t":"09:51:00","v":0},{"t":"09:51:10","v":0},{"t":"09:51:20","v":0},{"t":"09:51:30","v":0},{"t":"09:51:40","v":0},{"t":"09:51:50","v":0},{"t":"09:52:00","v":0},{"t":"09:52:10","v":0},{"t":"09:52:20","v":0},{"t":"09:52:30","v":0},{"t":"09:52:40","v":0},{"t":"09:52:50","v":0},{"t":"09:53:00","v":0},{"t":"09:53:10","v":0},{"t":"09:53:20","v":0},{"t":"09:53:30","v":0},{"t":"09:53:40","v":0},{"t":"09:53:50","v":0},{"t":"09:54:00","v":0},{"t":"09:54:10","v":0},{"t":"09:54:20","v":0},{"t":"09:54:30","v":0},{"t":"09:54:40","v":1},{"t":"09:54:50","v":0},{"t":"09:55:00","v":0},{"t":"09:55:10","v":0},{"t":"09:55:20","v":0},{"t":"09:55:30","v":0},{"t":"09:55:40","v":0},{"t":"09:55:50","v":0},{"t":"09:56:00","v":0},{"t":"09:56:10","v":0},{"t":"09:56:20","v":0},{"t":"09:56:30","v":0},{"t":"09:56:40","v":0},{"t":"09:56:50","v":0},{"t":"09:57:00","v":0},{"t":"09:57:10","v":0},{"t":"09:57:20","v":0},{"t":"09:57:30","v":0},{"t":"09:57:40","v":0},{"t":"09:57:50","v":0},{"t":"09:58:00","v":0},{"t":"09:58:10","v":0},{"t":"09:58:20","v":0},{"t":"09:58:30","v":0},{"t":"09:58:40","v":0},{"t":"09:58:50","v":0},{"t":"09:59:00","v":0},{"t":"09:59:10","v":0},{"t":"09:59:20","v":0},{"t":"09:59:30","v":0},{"t":"09:59:40","v":0},{"t":"09:59:50","v":0},{"t":"10:00:00","v":0},{"t":"10:00:10","v":0},{"t":"10:00:20","v":0},{"t":"10:00:30","v":0},{"t":"10:00:40","v":0},{"t":"10:00:50","v":0},{"t":"10:01:00","v":0},{"t":"10:01:10","v":0},{"t":"10:01:20","v":0},{"t":"10:01:30","v":0},{"t":"10:01:40","v":0},{"t":"10:01:50","v":0},{"t":"10:02:00","v":0},{"t":"10:02:10","v":0},{"t":"10:02:20","v":0},{"t":"10:02:30","v":0},{"t":"10:02:40","v":0},{"t":"10:02:50","v":0},{"t":"10:03:00","v":0},{"t":"10:03:10","v":0},{"t":"10:03:20","v":0},{"t":"10:03:30","v":0},{"t":"10:03:40","v":0},{"t":"10:03:50","v":0},{"t":"10:04:00","v":0},{"t":"10:04:10","v":0},{"t":"10:04:20","v":0},{"t":"10:04:30","v":0},{"t":"10:04:40","v":0},{"t":"10:04:50","v":0},{"t":"10:05:00","v":0},{"t":"10:05:10","v":0},{"t":"10:05:20","v":0},{"t":"10:05:30","v":0},{"t":"10:05:40","v":0},{"t":"10:05:50","v":0},{"t":"10:06:00","v":0},{"t":"10:06:10","v":0},{"t":"10:06:20","v":0},{"t":"10:06:30","v":0},{"t":"10:06:40","v":0},{"t":"10:06:50","v":0},{"t":"10:07:00","v":0},{"t":"10:07:10","v":0},{"t":"10:07:20","v":0},{"t":"10:07:30","v":0},{"t":"10:07:40","v":1},{"t":"10:07:50","v":0},{"t":"10:08:00","v":0},{"t":"10:08:10","v":0},{"t":"10:08:20","v":0},{"t":"10:08:30","v":0},{"t":"10:08:40","v":0},{"t":"10:08:50","v":0},{"t":"10:09:00","v":0},{"t":"10:09:10","v":0},{"t":"10:09:20","v":0},{"t":"10:09:30","v":0},{"t":"10:09:40","v":0},{"t":"10:09:50","v":0},{"t":"10:10:00","v":1},{"t":"10:10:10","v":1},{"t":"10:10:20","v":1},{"t":"10:10:30","v":1},{"t":"10:10:40","v":1},{"t":"10:10:50","v":1},{"t":"10:11:00","v":1},{"t":"10:11:10","v":1},{"t":"10:11:20","v":1},{"t":"10:11:30","v":1},{"t":"10:11:40","v":1},{"t":"10:11:50","v":1},{"t":"10:12:00","v":1},{"t":"10:12:10","v":1},{"t":"10:12:20","v":1},{"t":"10:12:30","v":1},{"t":"10:12:40","v":1},{"t":"10:12:50","v":1},{"t":"10:13:00","v":0},{"t":"10:13:10","v":0},{"t":"10:13:20","v":0},{"t":"10:13:30","v":0},{"t":"10:13:40","v":0},{"t":"10:13:50","v":0},{"t":"10:14:00","v":0},{"t":"10:14:10","v":0},{"t":"10:14:20","v":0},{"t":"10:14:30","v":0},{"t":"10:14:40","v":0},{"t":"10:14:50","v":0},{"t":"10:15:00","v":0},{"t":"10:15:10","v":0},{"t":"10:15:20","v":0},{"t":"10:15:30","v":0},{"t":"10:15:40","v":0},{"t":"10:15:50","v":0},{"t":"10:16:00","v":0},{"t":"10:16:10","v":0},{"t":"10:16:20","v":0},{"t":"10:16:30","v":0},{"t":"10:16:40","v":0},{"t":"10:16:50","v":0},{"t":"10:17:00","v":0},{"t":"10:17:10","v":0},{"t":"10:17:20","v":0},{"t":"10:17:30","v":0},{"t":"10:17:40","v":0},{"t":"10:17:50","v":0},{"t":"10:18:00","v":1},{"t":"10:18:10","v":2},{"t":"10:18:20","v":1},{"t":"10:18:30","v":1},{"t":"10:18:40","v":1},{"t":"10:18:50","v":1},{"t":"10:19:00","v":1},{"t":"10:19:10","v":1},{"t":"10:19:20","v":1},{"t":"10:19:30","v":1},{"t":"10:19:40","v":1},{"t":"10:19:50","v":1},{"t":"10:20:00","v":0},{"t":"10:20:10","v":0},{"t":"10:20:20","v":0},{"t":"10:20:30","v":0},{"t":"10:20:40","v":0},{"t":"10:20:50","v":0},{"t":"10:21:00","v":0},{"t":"10:21:10","v":0},{"t":"10:21:20","v":1},{"t":"10:21:30","v":0},{"t":"10:21:40","v":1},{"t":"10:21:50","v":1},{"t":"10:22:00","v":1},{"t":"10:22:10","v":1},{"t":"10:22:20","v":1},{"t":"10:22:30","v":1},{"t":"10:22:40","v":1},{"t":"10:22:50","v":1},{"t":"10:23:00","v":1},{"t":"10:23:10","v":1},{"t":"10:23:20","v":1},{"t":"10:23:30","v":1},{"t":"10:23:40","v":1},{"t":"10:23:50","v":1},{"t":"10:24:00","v":1},{"t":"10:24:10","v":1},{"t":"10:24:20","v":1},{"t":"10:24:30","v":1},{"t":"10:24:40","v":1},{"t":"10:24:50","v":1},{"t":"10:25:00","v":1},{"t":"10:25:10","v":1},{"t":"10:25:20","v":1},{"t":"10:25:30","v":1},{"t":"10:25:40","v":1},{"t":"10:25:50","v":1},{"t":"10:26:00","v":1},{"t":"10:26:10","v":1},{"t":"10:26:20","v":0},{"t":"10:26:30","v":0},{"t":"10:26:40","v":0},{"t":"10:26:50","v":0},{"t":"10:27:00","v":0},{"t":"10:27:10","v":0},{"t":"10:27:20","v":0},{"t":"10:27:30","v":0},{"t":"10:27:40","v":0},{"t":"10:27:50","v":0},{"t":"10:28:00","v":0},{"t":"10:28:10","v":0},{"t":"10:28:20","v":0},{"t":"10:28:30","v":0},{"t":"10:28:40","v":1},{"t":"10:28:50","v":1},{"t":"10:29:00","v":1},{"t":"10:29:10","v":1},{"t":"10:29:20","v":2},{"t":"10:29:30","v":2},{"t":"10:29:40","v":2},{"t":"10:29:50","v":2},{"t":"10:30:00","v":2},{"t":"10:30:10","v":3},{"t":"10:30:20","v":2},{"t":"10:30:30","v":2},{"t":"10:30:40","v":2},{"t":"10:30:50","v":2},{"t":"10:31:00","v":2},{"t":"10:31:10","v":2},{"t":"10:31:20","v":2},{"t":"10:31:30","v":2},{"t":"10:31:40","v":2},{"t":"10:31:50","v":2},{"t":"10:32:00","v":3},{"t":"10:32:10","v":3},{"t":"10:32:20","v":3},{"t":"10:32:30","v":4},{"t":"10:32:40","v":2},{"t":"10:32:50","v":2},{"t":"10:33:00","v":2},{"t":"10:33:10","v":2},{"t":"10:33:20","v":2},{"t":"10:33:30","v":2},{"t":"10:33:40","v":2},{"t":"10:33:50","v":2},{"t":"10:34:00","v":2},{"t":"10:34:10","v":2},{"t":"10:34:20","v":2},{"t":"10:34:30","v":2},{"t":"10:34:40","v":2},{"t":"10:34:50","v":3},{"t":"10:35:00","v":2},{"t":"10:35:10","v":2},{"t":"10:35:20","v":2},{"t":"10:35:30","v":2},{"t":"10:35:40","v":2},{"t":"10:35:50","v":2},{"t":"10:36:00","v":2},{"t":"10:36:10","v":2},{"t":"10:36:20","v":2},{"t":"10:36:30","v":2},{"t":"10:36:40","v":2},{"t":"10:36:50","v":2},{"t":"10:37:00","v":3},{"t":"10:37:10","v":3},{"t":"10:37:20","v":3},{"t":"10:37:30","v":2},{"t":"10:37:40","v":3},{"t":"10:37:50","v":2},{"t":"10:38:00","v":2},{"t":"10:38:10","v":2},{"t":"10:38:20","v":2},{"t":"10:38:30","v":2},{"t":"10:38:40","v":2},{"t":"10:38:50","v":2},{"t":"10:39:00","v":2},{"t":"10:39:10","v":2},{"t":"10:39:20","v":2},{"t":"10:39:30","v":2},{"t":"10:39:40","v":2},{"t":"10:39:50","v":3},{"t":"10:40:00","v":2},{"t":"10:40:10","v":2},{"t":"10:40:20","v":2},{"t":"10:40:30","v":2},{"t":"10:40:40","v":2},{"t":"10:40:50","v":2},{"t":"10:41:00","v":2},{"t":"10:41:10","v":2},{"t":"10:41:20","v":2},{"t":"10:41:30","v":2},{"t":"10:41:40","v":2},{"t":"10:41:50","v":2},{"t":"10:42:00","v":2},{"t":"10:42:10","v":2},{"t":"10:42:20","v":2},{"t":"10:42:30","v":3},{"t":"10:42:40","v":2},{"t":"10:42:50","v":2},{"t":"10:43:00","v":2},{"t":"10:43:10","v":2},{"t":"10:43:20","v":2},{"t":"10:43:30","v":2},{"t":"10:43:40","v":3},{"t":"10:43:50","v":2},{"t":"10:44:00","v":2},{"t":"10:44:10","v":2},{"t":"10:44:20","v":3},{"t":"10:44:30","v":3},{"t":"10:44:40","v":3},{"t":"10:44:50","v":3},{"t":"10:45:00","v":3},{"t":"10:45:10","v":3},{"t":"10:45:20","v":3},{"t":"10:45:30","v":3},{"t":"10:45:40","v":3},{"t":"10:45:50","v":3},{"t":"10:46:00","v":3},{"t":"10:46:10","v":3},{"t":"10:46:20","v":3},{"t":"10:46:30","v":3},{"t":"10:46:40","v":3},{"t":"10:46:50","v":3},{"t":"10:47:00","v":3},{"t":"10:47:10","v":3},{"t":"10:47:20","v":3},{"t":"10:47:30","v":3},{"t":"10:47:40","v":3},{"t":"10:47:50","v":3},{"t":"10:48:00","v":3},{"t":"10:48:10","v":3},{"t":"10:48:20","v":2},{"t":"10:48:30","v":1},{"t":"10:48:40","v":1},{"t":"10:48:50","v":1},{"t":"10:49:00","v":1},{"t":"10:49:10","v":1},{"t":"10:49:20","v":0},{"t":"10:49:30","v":0},{"t":"10:49:40","v":0},{"t":"10:49:50","v":0},{"t":"10:50:00","v":0},{"t":"10:50:10","v":0},{"t":"10:50:20","v":0},{"t":"10:50:30","v":0},{"t":"10:50:40","v":0},{"t":"10:50:50","v":0},{"t":"10:51:00","v":0},{"t":"10:51:10","v":0},{"t":"10:51:20","v":0},{"t":"10:51:30","v":0},{"t":"10:51:40","v":0},{"t":"10:51:50","v":1},{"t":"10:52:00","v":1},{"t":"10:52:10","v":1},{"t":"10:52:20","v":1},{"t":"10:52:30","v":1},{"t":"10:52:40","v":2},{"t":"10:52:50","v":1},{"t":"10:53:00","v":1},{"t":"10:53:10","v":1},{"t":"10:53:20","v":1},{"t":"10:53:30","v":1},{"t":"10:53:40","v":1},{"t":"10:53:50","v":2},{"t":"10:54:00","v":1},{"t":"10:54:10","v":2},{"t":"10:54:20","v":2},{"t":"10:54:30","v":2},{"t":"10:54:40","v":2},{"t":"10:54:50","v":2},{"t":"10:55:00","v":2},{"t":"10:55:10","v":2},{"t":"10:55:20","v":3},{"t":"10:55:30","v":3},{"t":"10:55:40","v":3},{"t":"10:55:50","v":3},{"t":"10:56:00","v":2},{"t":"10:56:10","v":2},{"t":"10:56:20","v":2},{"t":"10:56:30","v":2},{"t":"10:56:40","v":2},{"t":"10:56:50","v":2},{"t":"10:57:00","v":2},{"t":"10:57:10","v":3},{"t":"10:57:20","v":2},{"t":"10:57:30","v":2},{"t":"10:57:40","v":2},{"t":"10:57:50","v":2},{"t":"10:58:00","v":2},{"t":"10:58:10","v":1},{"t":"10:58:20","v":1},{"t":"10:58:30","v":1},{"t":"10:58:40","v":1},{"t":"10:58:50","v":1},{"t":"10:59:00","v":1},{"t":"10:59:10","v":2},{"t":"10:59:20","v":0},{"t":"10:59:30","v":0},{"t":"10:59:40","v":1},{"t":"10:59:50","v":1},{"t":"11:00:00","v":0},{"t":"11:00:10","v":0},{"t":"11:00:20","v":1},{"t":"11:00:30","v":0},{"t":"11:00:40","v":1},{"t":"11:00:50","v":3},{"t":"11:01:00","v":4},{"t":"11:01:10","v":4},{"t":"11:01:20","v":5},{"t":"11:01:30","v":6},{"t":"11:01:40","v":4},{"t":"11:01:50","v":2},{"t":"11:02:00","v":1},{"t":"11:02:10","v":5},{"t":"11:02:20","v":6},{"t":"11:02:30","v":3},{"t":"11:02:40","v":3},{"t":"11:02:50","v":4},{"t":"11:03:00","v":3},{"t":"11:03:10","v":9},{"t":"11:03:20","v":8},{"t":"11:03:30","v":7},{"t":"11:03:40","v":3},{"t":"11:03:50","v":5},{"t":"11:04:00","v":6},{"t":"11:04:10","v":7},{"t":"11:04:20","v":10},{"t":"11:04:30","v":9},{"t":"11:04:40","v":7},{"t":"11:04:50","v":6},{"t":"11:05:00","v":8},{"t":"11:05:10","v":11},{"t":"11:05:20","v":11},{"t":"11:05:30","v":9},{"t":"11:05:40","v":6},{"t":"11:05:50","v":7},{"t":"11:06:00","v":6},{"t":"11:06:10","v":10},{"t":"11:06:20","v":11},{"t":"11:06:30","v":14},{"t":"11:06:40","v":6},{"t":"11:06:50","v":7},{"t":"11:07:00","v":9},{"t":"11:07:10","v":10},{"t":"11:07:20","v":7},{"t":"11:07:30","v":7},{"t":"11:07:40","v":10},{"t":"11:07:50","v":11},{"t":"11:08:00","v":9},{"t":"11:08:10","v":6},{"t":"11:08:20","v":5},{"t":"11:08:30","v":6},{"t":"11:08:40","v":7},{"t":"11:08:50","v":6},{"t":"11:09:00","v":5},{"t":"11:09:10","v":10},{"t":"11:09:20","v":10},{"t":"11:09:30","v":12},{"t":"11:09:40","v":10},{"t":"11:09:50","v":9},{"t":"11:10:00","v":11},{"t":"11:10:10","v":17},{"t":"11:10:20","v":12},{"t":"11:10:30","v":8},{"t":"11:10:40","v":9},{"t":"11:10:50","v":5},{"t":"11:11:00","v":6},{"t":"11:11:10","v":8},{"t":"11:11:20","v":7},{"t":"11:11:30","v":11},{"t":"11:11:40","v":10},{"t":"11:11:50","v":9},{"t":"11:12:00","v":10},{"t":"11:12:10","v":5},{"t":"11:12:20","v":10},{"t":"11:12:30","v":10},{"t":"11:12:40","v":15},{"t":"11:12:50","v":9},{"t":"11:13:00","v":10},{"t":"11:13:10","v":7},{"t":"11:13:20","v":11},{"t":"11:13:30","v":11},{"t":"11:13:40","v":10},{"t":"11:13:50","v":11},{"t":"11:14:00","v":10},{"t":"11:14:10","v":9},{"t":"11:14:20","v":9},{"t":"11:14:30","v":9},{"t":"11:14:40","v":13},{"t":"11:14:50","v":8},{"t":"11:15:00","v":12},{"t":"11:15:10","v":13},{"t":"11:15:20","v":8},{"t":"11:15:30","v":9},{"t":"11:15:40","v":9},{"t":"11:15:50","v":11},{"t":"11:16:00","v":9},{"t":"11:16:10","v":8},{"t":"11:16:20","v":12},{"t":"11:16:30","v":10},{"t":"11:16:40","v":12},{"t":"11:16:50","v":9},{"t":"11:17:00","v":11},{"t":"11:17:10","v":7},{"t":"11:17:20","v":8},{"t":"11:17:30","v":11},{"t":"11:17:40","v":15},{"t":"11:17:50","v":15},{"t":"11:18:00","v":12},{"t":"11:18:10","v":11},{"t":"11:18:20","v":9},{"t":"11:18:30","v":10},{"t":"11:18:40","v":13},{"t":"11:18:50","v":9},{"t":"11:19:00","v":11},{"t":"11:19:10","v":10},{"t":"11:19:20","v":11},{"t":"11:19:30","v":14},{"t":"11:19:40","v":11},{"t":"11:19:50","v":7},{"t":"11:20:00","v":10},{"t":"11:20:10","v":14},{"t":"11:20:20","v":8},{"t":"11:20:30","v":11},{"t":"11:20:40","v":8},{"t":"11:20:50","v":8},{"t":"11:21:00","v":4},{"t":"11:21:10","v":11},{"t":"11:21:20","v":10},{"t":"11:21:30","v":7},{"t":"11:21:40","v":10},{"t":"11:21:50","v":11},{"t":"11:22:00","v":10},{"t":"11:22:10","v":11},{"t":"11:22:20","v":9},{"t":"11:22:30","v":9},{"t":"11:22:40","v":9},{"t":"11:22:50","v":7},{"t":"11:23:00","v":13},{"t":"11:23:10","v":10},{"t":"11:23:20","v":11},{"t":"11:23:30","v":10},{"t":"11:23:40","v":9},{"t":"11:23:50","v":11},{"t":"11:24:00","v":10},{"t":"11:24:10","v":10},{"t":"11:24:20","v":9},{"t":"11:24:30","v":7},{"t":"11:24:40","v":6},{"t":"11:24:50","v":6},{"t":"11:25:00","v":8},{"t":"11:25:10","v":10},{"t":"11:25:20","v":12},{"t":"11:25:30","v":9},{"t":"11:25:40","v":9},{"t":"11:25:50","v":14},{"t":"11:26:00","v":14},{"t":"11:26:10","v":8},{"t":"11:26:20","v":6},{"t":"11:26:30","v":10},{"t":"11:26:40","v":10},{"t":"11:26:50","v":5},{"t":"11:27:00","v":10},{"t":"11:27:10","v":10},{"t":"11:27:20","v":9},{"t":"11:27:30","v":10},{"t":"11:27:40","v":6},{"t":"11:27:50","v":10},{"t":"11:28:00","v":11},{"t":"11:28:10","v":12},{"t":"11:28:20","v":10},{"t":"11:28:30","v":10},{"t":"11:28:40","v":9},{"t":"11:28:50","v":11},{"t":"11:29:00","v":12},{"t":"11:29:10","v":10},{"t":"11:29:20","v":8},{"t":"11:29:30","v":13},{"t":"11:29:40","v":7},{"t":"11:29:50","v":8},{"t":"11:30:00","v":9},{"t":"11:30:10","v":9},{"t":"11:30:20","v":7},{"t":"11:30:30","v":11},{"t":"11:30:40","v":11},{"t":"11:30:50","v":9},{"t":"11:31:00","v":9},{"t":"11:31:10","v":11},{"t":"11:31:20","v":5},{"t":"11:31:30","v":6},{"t":"11:31:40","v":9},{"t":"11:31:50","v":9},{"t":"11:32:00","v":11},{"t":"11:32:10","v":8},{"t":"11:32:20","v":6},{"t":"11:32:30","v":5},{"t":"11:32:40","v":9},{"t":"11:32:50","v":15},{"t":"11:33:00","v":8},{"t":"11:33:10","v":10},{"t":"11:33:20","v":6},{"t":"11:33:30","v":10},{"t":"11:33:40","v":12},{"t":"11:33:50","v":12},{"t":"11:34:00","v":8},{"t":"11:34:10","v":7},{"t":"11:34:20","v":6},{"t":"11:34:30","v":10},{"t":"11:34:40","v":8},{"t":"11:34:50","v":7},{"t":"11:35:00","v":10},{"t":"11:35:10","v":11},{"t":"11:35:20","v":9},{"t":"11:35:30","v":8},{"t":"11:35:40","v":7},{"t":"11:35:50","v":8},{"t":"11:36:00","v":8},{"t":"11:36:10","v":11},{"t":"11:36:20","v":11},{"t":"11:36:30","v":10},{"t":"11:36:40","v":10},{"t":"11:36:50","v":9},{"t":"11:37:00","v":9},{"t":"11:37:10","v":8},{"t":"11:37:20","v":11},{"t":"11:37:30","v":12},{"t":"11:37:40","v":10},{"t":"11:37:50","v":5},{"t":"11:38:00","v":11},{"t":"11:38:10","v":12},{"t":"11:38:20","v":7},{"t":"11:38:30","v":8},{"t":"11:38:40","v":10},{"t":"11:38:50","v":11},{"t":"11:39:00","v":9},{"t":"11:39:10","v":10},{"t":"11:39:20","v":12},{"t":"11:39:30","v":9},{"t":"11:39:40","v":10},{"t":"11:39:50","v":9},{"t":"11:40:00","v":19},{"t":"11:40:10","v":21},{"t":"11:40:20","v":9},{"t":"11:40:30","v":9},{"t":"11:40:40","v":7},{"t":"11:40:50","v":7},{"t":"11:41:00","v":11},{"t":"11:41:10","v":12},{"t":"11:41:20","v":10},{"t":"11:41:30","v":15},{"t":"11:41:40","v":6},{"t":"11:41:50","v":6},{"t":"11:42:00","v":7},{"t":"11:42:10","v":13},{"t":"11:42:20","v":9},{"t":"11:42:30","v":13},{"t":"11:42:40","v":10},{"t":"11:42:50","v":5},{"t":"11:43:00","v":16},{"t":"11:43:10","v":20},{"t":"11:43:20","v":6},{"t":"11:43:30","v":7},{"t":"11:43:40","v":8},{"t":"11:43:50","v":8},{"t":"11:44:00","v":11},{"t":"11:44:10","v":14},{"t":"11:44:20","v":8},{"t":"11:44:30","v":10},{"t":"11:44:40","v":8},{"t":"11:44:50","v":9},{"t":"11:45:00","v":9},{"t":"11:45:10","v":9},{"t":"11:45:20","v":12},{"t":"11:45:30","v":12},{"t":"11:45:40","v":13},{"t":"11:45:50","v":11},{"t":"11:46:00","v":11},{"t":"11:46:10","v":12},{"t":"11:46:20","v":9},{"t":"11:46:30","v":12},{"t":"11:46:40","v":12},{"t":"11:46:50","v":12},{"t":"11:47:00","v":6},{"t":"11:47:10","v":12},{"t":"11:47:20","v":13},{"t":"11:47:30","v":13},{"t":"11:47:40","v":12},{"t":"11:47:50","v":12},{"t":"11:48:00","v":11},{"t":"11:48:10","v":11},{"t":"11:48:20","v":8},{"t":"11:48:30","v":9},{"t":"11:48:40","v":14},{"t":"11:48:50","v":12},{"t":"11:49:00","v":12},{"t":"11:49:10","v":10},{"t":"11:49:20","v":5},{"t":"11:49:30","v":10},{"t":"11:49:40","v":10},{"t":"11:49:50","v":10},{"t":"11:50:00","v":13},{"t":"11:50:10","v":12},{"t":"11:50:20","v":6},{"t":"11:50:30","v":11},{"t":"11:50:40","v":10},{"t":"11:50:50","v":6},{"t":"11:51:00","v":14},{"t":"11:51:10","v":11},{"t":"11:51:20","v":8},{"t":"11:51:30","v":9},{"t":"11:51:40","v":10},{"t":"11:51:50","v":11},{"t":"11:52:00","v":9},{"t":"11:52:10","v":9},{"t":"11:52:20","v":12},{"t":"11:52:30","v":14},{"t":"11:52:40","v":13},{"t":"11:52:50","v":13},{"t":"11:53:00","v":9},{"t":"11:53:10","v":9},{"t":"11:53:20","v":10},{"t":"11:53:30","v":10},{"t":"11:53:40","v":12},{"t":"11:53:50","v":10},{"t":"11:54:00","v":9},{"t":"11:54:10","v":10},{"t":"11:54:20","v":9},{"t":"11:54:30","v":10},{"t":"11:54:40","v":14},{"t":"11:54:50","v":12},{"t":"11:55:00","v":7},{"t":"11:55:10","v":9},{"t":"11:55:20","v":9},{"t":"11:55:30","v":11},{"t":"11:55:40","v":11},{"t":"11:55:50","v":12},{"t":"11:56:00","v":6},{"t":"11:56:10","v":8},{"t":"11:56:20","v":6},{"t":"11:56:30","v":8},{"t":"11:56:40","v":7},{"t":"11:56:50","v":10},{"t":"11:57:00","v":9},{"t":"11:57:10","v":7},{"t":"11:57:20","v":5},{"t":"11:57:30","v":10},{"t":"11:57:40","v":8},{"t":"11:57:50","v":12},{"t":"11:58:00","v":9},{"t":"11:58:10","v":5},{"t":"11:58:20","v":11},{"t":"11:58:30","v":8},{"t":"11:58:40","v":7},{"t":"11:58:50","v":6},{"t":"11:59:00","v":7},{"t":"11:59:10","v":6},{"t":"11:59:20","v":7},{"t":"11:59:30","v":7},{"t":"11:59:40","v":7},{"t":"11:59:50","v":10},{"t":"12:00:00","v":10},{"t":"12:00:10","v":11},{"t":"12:00:20","v":10},{"t":"12:00:30","v":12},{"t":"12:00:40","v":9},{"t":"12:00:50","v":6},{"t":"12:01:00","v":8},{"t":"12:01:10","v":12},{"t":"12:01:20","v":12},{"t":"12:01:30","v":10},{"t":"12:01:40","v":8},{"t":"12:01:50","v":8},{"t":"12:02:00","v":9},{"t":"12:02:10","v":5},{"t":"12:02:20","v":5},{"t":"12:02:30","v":9},{"t":"12:02:40","v":7},{"t":"12:02:50","v":11},{"t":"12:03:00","v":6},{"t":"12:03:10","v":6},{"t":"12:03:20","v":5},{"t":"12:03:30","v":8},{"t":"12:03:40","v":8},{"t":"12:03:50","v":8},{"t":"12:04:00","v":8},{"t":"12:04:10","v":8},{"t":"12:04:20","v":8},{"t":"12:04:30","v":7},{"t":"12:04:40","v":7},{"t":"12:04:50","v":6},{"t":"12:05:00","v":5},{"t":"12:05:10","v":10},{"t":"12:05:20","v":4},{"t":"12:05:30","v":11},{"t":"12:05:40","v":9},{"t":"12:05:50","v":11},{"t":"12:06:00","v":11},{"t":"12:06:10","v":8},{"t":"12:06:20","v":10},{"t":"12:06:30","v":10},{"t":"12:06:40","v":11},{"t":"12:06:50","v":8},{"t":"12:07:00","v":11},{"t":"12:07:10","v":9},{"t":"12:07:20","v":11},{"t":"12:07:30","v":8},{"t":"12:07:40","v":9},{"t":"12:07:50","v":9},{"t":"12:08:00","v":9},{"t":"12:08:10","v":11},{"t":"12:08:20","v":11},{"t":"12:08:30","v":13},{"t":"12:08:40","v":11},{"t":"12:08:50","v":7},{"t":"12:09:00","v":8},{"t":"12:09:10","v":8},{"t":"12:09:20","v":7},{"t":"12:09:30","v":8},{"t":"12:09:40","v":6},{"t":"12:09:50","v":10},{"t":"12:10:00","v":6},{"t":"12:10:10","v":8},{"t":"12:10:20","v":10},{"t":"12:10:30","v":13},{"t":"12:10:40","v":10},{"t":"12:10:50","v":11},{"t":"12:11:00","v":12},{"t":"12:11:10","v":7},{"t":"12:11:20","v":9},{"t":"12:11:30","v":8},{"t":"12:11:40","v":11},{"t":"12:11:50","v":5},{"t":"12:12:00","v":5},{"t":"12:12:10","v":8},{"t":"12:12:20","v":7},{"t":"12:12:30","v":8},{"t":"12:12:40","v":7},{"t":"12:12:50","v":6},{"t":"12:13:00","v":7},{"t":"12:13:10","v":12},{"t":"12:13:20","v":9},{"t":"12:13:30","v":10},{"t":"12:13:40","v":9},{"t":"12:13:50","v":13},{"t":"12:14:00","v":7},{"t":"12:14:10","v":11},{"t":"12:14:20","v":13},{"t":"12:14:30","v":11},{"t":"12:14:40","v":13},{"t":"12:14:50","v":9},{"t":"12:15:00","v":9},{"t":"12:15:10","v":17},{"t":"12:15:20","v":14},{"t":"12:15:30","v":8},{"t":"12:15:40","v":12},{"t":"12:15:50","v":10},{"t":"12:16:00","v":11},{"t":"12:16:10","v":13},{"t":"12:16:20","v":9},{"t":"12:16:30","v":11},{"t":"12:16:40","v":12},{"t":"12:16:50","v":9},{"t":"12:17:00","v":10},{"t":"12:17:10","v":11},{"t":"12:17:20","v":10},{"t":"12:17:30","v":10},{"t":"12:17:40","v":7},{"t":"12:17:50","v":11},{"t":"12:18:00","v":11},{"t":"12:18:10","v":9},{"t":"12:18:20","v":6},{"t":"12:18:30","v":9},{"t":"12:18:40","v":7},{"t":"12:18:50","v":11},{"t":"12:19:00","v":10},{"t":"12:19:10","v":7},{"t":"12:19:20","v":10},{"t":"12:19:30","v":5},{"t":"12:19:40","v":10},{"t":"12:19:50","v":6},{"t":"12:20:00","v":5},{"t":"12:20:10","v":7},{"t":"12:20:20","v":7},{"t":"12:20:30","v":5},{"t":"12:20:40","v":10},{"t":"12:20:50","v":6},{"t":"12:21:00","v":7},{"t":"12:21:10","v":6},{"t":"12:21:20","v":5},{"t":"12:21:30","v":4},{"t":"12:21:40","v":7},{"t":"12:21:50","v":3},{"t":"12:22:00","v":7},{"t":"12:22:10","v":8},{"t":"12:22:20","v":6},{"t":"12:22:30","v":4},{"t":"12:22:40","v":4},{"t":"12:22:50","v":6},{"t":"12:23:00","v":3},{"t":"12:23:10","v":3},{"t":"12:23:20","v":3},{"t":"12:23:30","v":7},{"t":"12:23:40","v":8},{"t":"12:23:50","v":6},{"t":"12:24:00","v":7},{"t":"12:24:10","v":5},{"t":"12:24:20","v":3},{"t":"12:24:30","v":3},{"t":"12:24:40","v":4},{"t":"12:24:50","v":3},{"t":"12:25:00","v":5},{"t":"12:25:10","v":7},{"t":"12:25:20","v":4},{"t":"12:25:30","v":3},{"t":"12:25:40","v":3},{"t":"12:25:50","v":2},{"t":"12:26:00","v":3},{"t":"12:26:10","v":1},{"t":"12:26:20","v":4},{"t":"12:26:30","v":3},{"t":"12:26:40","v":3},{"t":"12:26:50","v":1},{"t":"12:27:00","v":5},{"t":"12:27:10","v":5},{"t":"12:27:20","v":2},{"t":"12:27:30","v":1},{"t":"12:27:40","v":2},{"t":"12:27:50","v":1},{"t":"12:28:00","v":2},{"t":"12:28:10","v":1},{"t":"12:28:20","v":1},{"t":"12:28:30","v":1},{"t":"12:28:40","v":2},{"t":"12:28:50","v":4},{"t":"12:29:00","v":4},{"t":"12:29:10","v":2},{"t":"12:29:20","v":3},{"t":"12:29:30","v":2},{"t":"12:29:40","v":0},{"t":"12:29:50","v":0},{"t":"12:30:00","v":1},{"t":"12:30:10","v":1},{"t":"12:30:20","v":1},{"t":"12:30:30","v":0},{"t":"12:30:40","v":2},{"t":"12:30:50","v":1},{"t":"12:31:00","v":0},{"t":"12:31:10","v":1},{"t":"12:31:20","v":1},{"t":"12:31:30","v":1},{"t":"12:31:40","v":3},{"t":"12:31:50","v":2},{"t":"12:32:00","v":3},{"t":"12:32:10","v":2},{"t":"12:32:20","v":2},{"t":"12:32:30","v":2},{"t":"12:32:40","v":2},{"t":"12:32:50","v":2},{"t":"12:33:00","v":4},{"t":"12:33:10","v":5},{"t":"12:33:20","v":2},{"t":"12:33:30","v":2},{"t":"12:33:40","v":1},{"t":"12:33:50","v":3},{"t":"12:34:00","v":5},{"t":"12:34:10","v":5},{"t":"12:34:20","v":5},{"t":"12:34:30","v":2},{"t":"12:34:40","v":4},{"t":"12:34:50","v":3},{"t":"12:35:00","v":2},{"t":"12:35:10","v":2},{"t":"12:35:20","v":4},{"t":"12:35:30","v":5},{"t":"12:35:40","v":5},{"t":"12:35:50","v":4},{"t":"12:36:00","v":2},{"t":"12:36:10","v":2},{"t":"12:36:20","v":2},{"t":"12:36:30","v":1},{"t":"12:36:40","v":1},{"t":"12:36:50","v":1},{"t":"12:37:00","v":3},{"t":"12:37:10","v":3},{"t":"12:37:20","v":3},{"t":"12:37:30","v":2},{"t":"12:37:40","v":5},{"t":"12:37:50","v":4},{"t":"12:38:00","v":2},{"t":"12:38:10","v":1},{"t":"12:38:20","v":0},{"t":"12:38:30","v":0},{"t":"12:38:40","v":1},{"t":"12:38:50","v":1},{"t":"12:39:00","v":1},{"t":"12:39:10","v":4},{"t":"12:39:20","v":2},{"t":"12:39:30","v":2},{"t":"12:39:40","v":5},{"t":"12:39:50","v":3},{"t":"12:40:00","v":2},{"t":"12:40:10","v":3},{"t":"12:40:20","v":2},{"t":"12:40:30","v":4},{"t":"12:40:40","v":1},{"t":"12:40:50","v":3},{"t":"12:41:00","v":3},{"t":"12:41:10","v":3},{"t":"12:41:20","v":3},{"t":"12:41:30","v":1},{"t":"12:41:40","v":1},{"t":"12:41:50","v":0},{"t":"12:42:00","v":0},{"t":"12:42:10","v":1},{"t":"12:42:20","v":2},{"t":"12:42:30","v":3},{"t":"12:42:40","v":3},{"t":"12:42:50","v":3},{"t":"12:43:00","v":3},{"t":"12:43:10","v":4},{"t":"12:43:20","v":3},{"t":"12:43:30","v":2},{"t":"12:43:40","v":3},{"t":"12:43:50","v":1},{"t":"12:44:00","v":1},{"t":"12:44:10","v":1},{"t":"12:44:20","v":2},{"t":"12:44:30","v":3},{"t":"12:44:40","v":2},{"t":"12:44:50","v":2},{"t":"12:45:00","v":1},{"t":"12:45:10","v":2},{"t":"12:45:20","v":2},{"t":"12:45:30","v":3},{"t":"12:45:40","v":3},{"t":"12:45:50","v":3},{"t":"12:46:00","v":4},{"t":"12:46:10","v":3},{"t":"12:46:20","v":3},{"t":"12:46:30","v":5},{"t":"12:46:40","v":4},{"t":"12:46:50","v":3},{"t":"12:47:00","v":1},{"t":"12:47:10","v":1},{"t":"12:47:20","v":2},{"t":"12:47:30","v":2},{"t":"12:47:40","v":1},{"t":"12:47:50","v":2},{"t":"12:48:00","v":4},{"t":"12:48:10","v":2},{"t":"12:48:20","v":2},{"t":"12:48:30","v":1},{"t":"12:48:40","v":1},{"t":"12:48:50","v":0},{"t":"12:49:00","v":1},{"t":"12:49:10","v":4},{"t":"12:49:20","v":4},{"t":"12:49:30","v":3},{"t":"12:49:40","v":1},{"t":"12:49:50","v":1},{"t":"12:50:00","v":3},{"t":"12:50:10","v":2},{"t":"12:50:20","v":3},{"t":"12:50:30","v":3},{"t":"12:50:40","v":3},{"t":"12:50:50","v":2},{"t":"12:51:00","v":4},{"t":"12:51:10","v":6},{"t":"12:51:20","v":6},{"t":"12:51:30","v":5},{"t":"12:51:40","v":5},{"t":"12:51:50","v":4},{"t":"12:52:00","v":2},{"t":"12:52:10","v":2},{"t":"12:52:20","v":4},{"t":"12:52:30","v":1},{"t":"12:52:40","v":4},{"t":"12:52:50","v":2},{"t":"12:53:00","v":4},{"t":"12:53:10","v":4},{"t":"12:53:20","v":5},{"t":"12:53:30","v":5},{"t":"12:53:40","v":5},{"t":"12:53:50","v":6},{"t":"12:54:00","v":7},{"t":"12:54:10","v":5},{"t":"12:54:20","v":4},{"t":"12:54:30","v":1},{"t":"12:54:40","v":2},{"t":"12:54:50","v":5},{"t":"12:55:00","v":3},{"t":"12:55:10","v":5},{"t":"12:55:20","v":5},{"t":"12:55:30","v":3},{"t":"12:55:40","v":4},{"t":"12:55:50","v":4},{"t":"12:56:00","v":4},{"t":"12:56:10","v":4},{"t":"12:56:20","v":3},{"t":"12:56:30","v":3},{"t":"12:56:40","v":5},{"t":"12:56:50","v":5},{"t":"12:57:00","v":6},{"t":"12:57:10","v":5},{"t":"12:57:20","v":3},{"t":"12:57:30","v":4},{"t":"12:57:40","v":4},{"t":"12:57:50","v":3},{"t":"12:58:00","v":4},{"t":"12:58:10","v":7},{"t":"12:58:20","v":6},{"t":"12:58:30","v":4},{"t":"12:58:40","v":4},{"t":"12:58:50","v":3},{"t":"12:59:00","v":4},{"t":"12:59:10","v":6},{"t":"12:59:20","v":6},{"t":"12:59:30","v":4},{"t":"12:59:40","v":5},{"t":"12:59:50","v":4},{"t":"13:00:00","v":4},{"t":"13:00:10","v":3},{"t":"13:00:20","v":6},{"t":"13:00:30","v":5},{"t":"13:00:40","v":4},{"t":"13:00:50","v":4},{"t":"13:01:00","v":3},{"t":"13:01:10","v":4},{"t":"13:01:20","v":5},{"t":"13:01:30","v":6},{"t":"13:01:40","v":6},{"t":"13:01:50","v":4},{"t":"13:02:00","v":4},{"t":"13:02:10","v":4},{"t":"13:02:20","v":3},{"t":"13:02:30","v":5},{"t":"13:02:40","v":4},{"t":"13:02:50","v":4},{"t":"13:03:00","v":6},{"t":"13:03:10","v":7},{"t":"13:03:20","v":5},{"t":"13:03:30","v":6},{"t":"13:03:40","v":3},{"t":"13:03:50","v":5},{"t":"13:04:00","v":8},{"t":"13:04:10","v":7},{"t":"13:04:20","v":5},{"t":"13:04:30","v":4},{"t":"13:04:40","v":6},{"t":"13:04:50","v":7},{"t":"13:05:00","v":7},{"t":"13:05:10","v":9},{"t":"13:05:20","v":6},{"t":"13:05:30","v":5},{"t":"13:05:40","v":8},{"t":"13:05:50","v":7},{"t":"13:06:00","v":6},{"t":"13:06:10","v":5},{"t":"13:06:20","v":6},{"t":"13:06:30","v":7},{"t":"13:06:40","v":10},{"t":"13:06:50","v":8},{"t":"13:07:00","v":11},{"t":"13:07:10","v":7},{"t":"13:07:20","v":6},{"t":"13:07:30","v":8},{"t":"13:07:40","v":5},{"t":"13:07:50","v":7},{"t":"13:08:00","v":6},{"t":"13:08:10","v":4},{"t":"13:08:20","v":5},{"t":"13:08:30","v":9},{"t":"13:08:40","v":8},{"t":"13:08:50","v":8},{"t":"13:09:00","v":7},{"t":"13:09:10","v":4},{"t":"13:09:20","v":4},{"t":"13:09:30","v":6},{"t":"13:09:40","v":7},{"t":"13:09:50","v":6},{"t":"13:10:00","v":8},{"t":"13:10:10","v":6},{"t":"13:10:20","v":4},{"t":"13:10:30","v":7},{"t":"13:10:40","v":4},{"t":"13:10:50","v":5},{"t":"13:11:00","v":4},{"t":"13:11:10","v":6},{"t":"13:11:20","v":6},{"t":"13:11:30","v":4},{"t":"13:11:40","v":5},{"t":"13:11:50","v":4},{"t":"13:12:00","v":8},{"t":"13:12:10","v":3},{"t":"13:12:20","v":6},{"t":"13:12:30","v":6},{"t":"13:12:40","v":6},{"t":"13:12:50","v":6},{"t":"13:13:00","v":6},{"t":"13:13:10","v":7},{"t":"13:13:20","v":8},{"t":"13:13:30","v":7},{"t":"13:13:40","v":8},{"t":"13:13:50","v":9},{"t":"13:14:00","v":5},{"t":"13:14:10","v":7},{"t":"13:14:20","v":6},{"t":"13:14:30","v":9},{"t":"13:14:40","v":9},{"t":"13:14:50","v":15},{"t":"13:15:00","v":15},{"t":"13:15:10","v":9},{"t":"13:15:20","v":9},{"t":"13:15:30","v":12},{"t":"13:15:40","v":13},{"t":"13:15:50","v":13},{"t":"13:16:00","v":10},{"t":"13:16:10","v":9},{"t":"13:16:20","v":9},{"t":"13:16:30","v":11},{"t":"13:16:40","v":12},{"t":"13:16:50","v":16},{"t":"13:17:00","v":9},{"t":"13:17:10","v":13},{"t":"13:17:20","v":9},{"t":"13:17:30","v":9},{"t":"13:17:40","v":18},{"t":"13:17:50","v":16},{"t":"13:18:00","v":18},{"t":"13:18:10","v":18},{"t":"13:18:20","v":14},{"t":"13:18:30","v":15},{"t":"13:18:40","v":12},{"t":"13:18:50","v":12},{"t":"13:19:00","v":16},{"t":"13:19:10","v":14},{"t":"13:19:20","v":16},{"t":"13:19:30","v":10},{"t":"13:19:40","v":13},{"t":"13:19:50","v":11},{"t":"13:20:00","v":14},{"t":"13:20:10","v":14},{"t":"13:20:20","v":14},{"t":"13:20:30","v":14},{"t":"13:20:40","v":10},{"t":"13:20:50","v":11},{"t":"13:21:00","v":13},{"t":"13:21:10","v":13},{"t":"13:21:20","v":10},{"t":"13:21:30","v":13},{"t":"13:21:40","v":13},{"t":"13:21:50","v":11},{"t":"13:22:00","v":14},{"t":"13:22:10","v":15},{"t":"13:22:20","v":9},{"t":"13:22:30","v":12},{"t":"13:22:40","v":12},{"t":"13:22:50","v":10},{"t":"13:23:00","v":13},{"t":"13:23:10","v":14},{"t":"13:23:20","v":16},{"t":"13:23:30","v":11},{"t":"13:23:40","v":12},{"t":"13:23:50","v":10},{"t":"13:24:00","v":13},{"t":"13:24:10","v":12},{"t":"13:24:20","v":13},{"t":"13:24:30","v":12},{"t":"13:24:40","v":16},{"t":"13:24:50","v":12},{"t":"13:25:00","v":16},{"t":"13:25:10","v":9},{"t":"13:25:20","v":13},{"t":"13:25:30","v":14},{"t":"13:25:40","v":6},{"t":"13:25:50","v":8},{"t":"13:26:00","v":19},{"t":"13:26:10","v":27},{"t":"13:26:20","v":16},{"t":"13:26:30","v":14},{"t":"13:26:40","v":9},{"t":"13:26:50","v":16},{"t":"13:27:00","v":25},{"t":"13:27:10","v":19},{"t":"13:27:20","v":27},{"t":"13:27:30","v":23},{"t":"13:27:40","v":15},{"t":"13:27:50","v":19},{"t":"13:28:00","v":24},{"t":"13:28:10","v":20},{"t":"13:28:20","v":16},{"t":"13:28:30","v":14},{"t":"13:28:40","v":12},{"t":"13:28:50","v":21},{"t":"13:29:00","v":21},{"t":"13:29:10","v":15},{"t":"13:29:20","v":20},{"t":"13:29:30","v":13},{"t":"13:29:40","v":10},{"t":"13:29:50","v":14},{"t":"13:30:00","v":20},{"t":"13:30:10","v":19},{"t":"13:30:20","v":17},{"t":"13:30:30","v":15},{"t":"13:30:40","v":7},{"t":"13:30:50","v":18},{"t":"13:31:00","v":17},{"t":"13:31:10","v":16},{"t":"13:31:20","v":14},{"t":"13:31:30","v":12},{"t":"13:31:40","v":9},{"t":"13:31:50","v":16},{"t":"13:32:00","v":18},{"t":"13:32:10","v":18},{"t":"13:32:20","v":15},{"t":"13:32:30","v":10},{"t":"13:32:40","v":6},{"t":"13:32:50","v":14},{"t":"13:33:00","v":20},{"t":"13:33:10","v":12},{"t":"13:33:20","v":13},{"t":"13:33:30","v":9},{"t":"13:33:40","v":6},{"t":"13:33:50","v":15},{"t":"13:34:00","v":20},{"t":"13:34:10","v":14},{"t":"13:34:20","v":13},{"t":"13:34:30","v":7},{"t":"13:34:40","v":5},{"t":"13:34:50","v":23},{"t":"13:35:00","v":25},{"t":"13:35:10","v":16},{"t":"13:35:20","v":15},{"t":"13:35:30","v":7},{"t":"13:35:40","v":5},{"t":"13:35:50","v":18},{"t":"13:36:00","v":20},{"t":"13:36:10","v":11},{"t":"13:36:20","v":13},{"t":"13:36:30","v":9},{"t":"13:36:40","v":6},{"t":"13:36:50","v":16},{"t":"13:37:00","v":16},{"t":"13:37:10","v":12},{"t":"13:37:20","v":11},{"t":"13:37:30","v":13},{"t":"13:37:40","v":9},{"t":"13:37:50","v":10},{"t":"13:38:00","v":20},{"t":"13:38:10","v":13},{"t":"13:38:20","v":11},{"t":"13:38:30","v":13},{"t":"13:38:40","v":9},{"t":"13:38:50","v":13},{"t":"13:39:00","v":17},{"t":"13:39:10","v":9},{"t":"13:39:20","v":16},{"t":"13:39:30","v":9},{"t":"13:39:40","v":7},{"t":"13:39:50","v":12},{"t":"13:40:00","v":17},{"t":"13:40:10","v":14},{"t":"13:40:20","v":10},{"t":"13:40:30","v":10},{"t":"13:40:40","v":5},{"t":"13:40:50","v":14},{"t":"13:41:00","v":16},{"t":"13:41:10","v":13},{"t":"13:41:20","v":10},{"t":"13:41:30","v":12},{"t":"13:41:40","v":9},{"t":"13:41:50","v":9},{"t":"13:42:00","v":15},{"t":"13:42:10","v":11},{"t":"13:42:20","v":9},{"t":"13:42:30","v":7},{"t":"13:42:40","v":11},{"t":"13:42:50","v":11},{"t":"13:43:00","v":12},{"t":"13:43:10","v":11},{"t":"13:43:20","v":10},{"t":"13:43:30","v":10},{"t":"13:43:40","v":11},{"t":"13:43:50","v":10},{"t":"13:44:00","v":14},{"t":"13:44:10","v":10},{"t":"13:44:20","v":11},{"t":"13:44:30","v":13},{"t":"13:44:40","v":9},{"t":"13:44:50","v":10},{"t":"13:45:00","v":8},{"t":"13:45:10","v":8},{"t":"13:45:20","v":8},{"t":"13:45:30","v":10},{"t":"13:45:40","v":7},{"t":"13:45:50","v":8},{"t":"13:46:00","v":11},{"t":"13:46:10","v":7},{"t":"13:46:20","v":8},{"t":"13:46:30","v":12},{"t":"13:46:40","v":9},{"t":"13:46:50","v":7},{"t":"13:47:00","v":10},{"t":"13:47:10","v":8},{"t":"13:47:20","v":8},{"t":"13:47:30","v":7},{"t":"13:47:40","v":5},{"t":"13:47:50","v":6},{"t":"13:48:00","v":7},{"t":"13:48:10","v":7},{"t":"13:48:20","v":6},{"t":"13:48:30","v":12},{"t":"13:48:40","v":10},{"t":"13:48:50","v":4},{"t":"13:49:00","v":3},{"t":"13:49:10","v":3},{"t":"13:49:20","v":6},{"t":"13:49:30","v":7},{"t":"13:49:40","v":5},{"t":"13:49:50","v":6},{"t":"13:50:00","v":6},{"t":"13:50:10","v":2},{"t":"13:50:20","v":4},{"t":"13:50:30","v":5},{"t":"13:50:40","v":3},{"t":"13:50:50","v":3},{"t":"13:51:00","v":2},{"t":"13:51:10","v":4},{"t":"13:51:20","v":5},{"t":"13:51:30","v":8},{"t":"13:51:40","v":4},{"t":"13:51:50","v":5},{"t":"13:52:00","v":3},{"t":"13:52:10","v":4},{"t":"13:52:20","v":2},{"t":"13:52:30","v":3},{"t":"13:52:40","v":2},{"t":"13:52:50","v":2},{"t":"13:53:00","v":3},{"t":"13:53:10","v":2},{"t":"13:53:20","v":1},{"t":"13:53:30","v":3},{"t":"13:53:40","v":4},{"t":"13:53:50","v":4},{"t":"13:54:00","v":4},{"t":"13:54:10","v":4},{"t":"13:54:20","v":5},{"t":"13:54:30","v":6},{"t":"13:54:40","v":4},{"t":"13:54:50","v":4},{"t":"13:55:00","v":3},{"t":"13:55:10","v":3},{"t":"13:55:20","v":2},{"t":"13:55:30","v":5},{"t":"13:55:40","v":5},{"t":"13:55:50","v":3},{"t":"13:56:00","v":3},{"t":"13:56:10","v":5},{"t":"13:56:20","v":4},{"t":"13:56:30","v":6},{"t":"13:56:40","v":5},{"t":"13:56:50","v":3},{"t":"13:57:00","v":4},{"t":"13:57:10","v":9},{"t":"13:57:20","v":5},{"t":"13:57:30","v":4},{"t":"13:57:40","v":6},{"t":"13:57:50","v":6},{"t":"13:58:00","v":3},{"t":"13:58:10","v":3},{"t":"13:58:20","v":4},{"t":"13:58:30","v":5},{"t":"13:58:40","v":5},{"t":"13:58:50","v":3},{"t":"13:59:00","v":3},{"t":"13:59:10","v":1},{"t":"13:59:20","v":3},{"t":"13:59:30","v":0},{"t":"13:59:40","v":2},{"t":"13:59:50","v":2},{"t":"14:00:00","v":3},{"t":"14:00:10","v":2},{"t":"14:00:20","v":3},{"t":"14:00:30","v":3},{"t":"14:00:40","v":2},{"t":"14:00:50","v":1},{"t":"14:01:00","v":3},{"t":"14:01:10","v":2},{"t":"14:01:20","v":3},{"t":"14:01:30","v":3},{"t":"14:01:40","v":3},{"t":"14:01:50","v":2},{"t":"14:02:00","v":1},{"t":"14:02:10","v":4},{"t":"14:02:20","v":3},{"t":"14:02:30","v":4},{"t":"14:02:40","v":3},{"t":"14:02:50","v":2},{"t":"14:03:00","v":3},{"t":"14:03:10","v":3},{"t":"14:03:20","v":3},{"t":"14:03:30","v":3},{"t":"14:03:40","v":1},{"t":"14:03:50","v":2},{"t":"14:04:00","v":2},{"t":"14:04:10","v":3},{"t":"14:04:20","v":3},{"t":"14:04:30","v":1},{"t":"14:04:40","v":4},{"t":"14:04:50","v":2},{"t":"14:05:00","v":2},{"t":"14:05:10","v":1},{"t":"14:05:20","v":1},{"t":"14:05:30","v":2},{"t":"14:05:40","v":2},{"t":"14:05:50","v":1},{"t":"14:06:00","v":1},{"t":"14:06:10","v":0},{"t":"14:06:20","v":1},{"t":"14:06:30","v":1},{"t":"14:06:40","v":0},{"t":"14:06:50","v":0},{"t":"14:07:00","v":1},{"t":"14:07:10","v":3},{"t":"14:07:20","v":3},{"t":"14:07:30","v":1},{"t":"14:07:40","v":2},{"t":"14:07:50","v":3},{"t":"14:08:00","v":0},{"t":"14:08:10","v":3},{"t":"14:08:20","v":5},{"t":"14:08:30","v":4},{"t":"14:08:40","v":6},{"t":"14:08:50","v":3},{"t":"14:09:00","v":2},{"t":"14:09:10","v":2},{"t":"14:09:20","v":4},{"t":"14:09:30","v":2},{"t":"14:09:40","v":4},{"t":"14:09:50","v":3},{"t":"14:10:00","v":2},{"t":"14:10:10","v":3},{"t":"14:10:20","v":1},{"t":"14:10:30","v":2},{"t":"14:10:40","v":1},{"t":"14:10:50","v":0},{"t":"14:11:00","v":1},{"t":"14:11:10","v":0},{"t":"14:11:20","v":1},{"t":"14:11:30","v":0},{"t":"14:11:40","v":1},{"t":"14:11:50","v":1},{"t":"14:12:00","v":1},{"t":"14:12:10","v":0},{"t":"14:12:20","v":0},{"t":"14:12:30","v":0},{"t":"14:12:40","v":0},{"t":"14:12:50","v":0},{"t":"14:13:00","v":1},{"t":"14:13:10","v":0},{"t":"14:13:20","v":0},{"t":"14:13:30","v":1},{"t":"14:13:40","v":0},{"t":"14:13:50","v":0},{"t":"14:14:00","v":0},{"t":"14:14:10","v":0},{"t":"14:14:20","v":0},{"t":"14:14:30","v":0},{"t":"14:14:40","v":0},{"t":"14:14:50","v":1},{"t":"14:15:00","v":1},{"t":"14:15:10","v":1},{"t":"14:15:20","v":0},{"t":"14:15:30","v":0},{"t":"14:15:40","v":1},{"t":"14:15:50","v":1},{"t":"14:16:00","v":1},{"t":"14:16:10","v":1},{"t":"14:16:20","v":1},{"t":"14:16:30","v":1},{"t":"14:16:40","v":1},{"t":"14:16:50","v":1},{"t":"14:17:00","v":1},{"t":"14:17:10","v":1},{"t":"14:17:20","v":1},{"t":"14:17:30","v":2},{"t":"14:17:40","v":1},{"t":"14:17:50","v":0},{"t":"14:18:00","v":0},{"t":"14:18:10","v":0},{"t":"14:18:20","v":0},{"t":"14:18:30","v":0},{"t":"14:18:40","v":0},{"t":"14:18:50","v":0},{"t":"14:19:00","v":0},{"t":"14:19:10","v":0},{"t":"14:19:20","v":0},{"t":"14:19:30","v":0},{"t":"14:19:40","v":1},{"t":"14:19:50","v":1},{"t":"14:20:00","v":1},{"t":"14:20:10","v":1},{"t":"14:20:20","v":1},{"t":"14:20:30","v":1},{"t":"14:20:40","v":0},{"t":"14:20:50","v":1},{"t":"14:21:00","v":1},{"t":"14:21:10","v":0},{"t":"14:21:20","v":0},{"t":"14:21:30","v":0},{"t":"14:21:40","v":0},{"t":"14:21:50","v":0},{"t":"14:22:00","v":0},{"t":"14:22:10","v":1},{"t":"14:22:20","v":0},{"t":"14:22:30","v":0},{"t":"14:22:40","v":0},{"t":"14:22:50","v":1},{"t":"14:23:00","v":0},{"t":"14:23:10","v":0},{"t":"14:23:20","v":1},{"t":"14:23:30","v":0},{"t":"14:23:40","v":1},{"t":"14:23:50","v":1},{"t":"14:24:00","v":1},{"t":"14:24:10","v":1},{"t":"14:24:20","v":1},{"t":"14:24:30","v":0},{"t":"14:24:40","v":0},{"t":"14:24:50","v":1},{"t":"14:25:00","v":1},{"t":"14:25:10","v":1},{"t":"14:25:20","v":1},{"t":"14:25:30","v":0},{"t":"14:25:40","v":0},{"t":"14:25:50","v":0},{"t":"14:26:00","v":0},{"t":"14:26:10","v":0},{"t":"14:26:20","v":0},{"t":"14:26:30","v":0},{"t":"14:26:40","v":0},{"t":"14:26:50","v":0},{"t":"14:27:00","v":0},{"t":"14:27:10","v":0},{"t":"14:27:20","v":0},{"t":"14:27:30","v":0},{"t":"14:27:40","v":0},{"t":"14:27:50","v":0},{"t":"14:28:00","v":0},{"t":"14:28:10","v":0},{"t":"14:28:20","v":0},{"t":"14:28:30","v":0},{"t":"14:28:40","v":0},{"t":"14:28:50","v":0},{"t":"14:29:00","v":0},{"t":"14:29:10","v":0},{"t":"14:29:20","v":0},{"t":"14:29:30","v":0},{"t":"14:29:40","v":0},{"t":"14:29:50","v":1},{"t":"14:30:00","v":1},{"t":"14:30:10","v":1},{"t":"14:30:20","v":1},{"t":"14:30:30","v":1},{"t":"14:30:40","v":1},{"t":"14:30:50","v":1},{"t":"14:31:00","v":1},{"t":"14:31:10","v":1},{"t":"14:31:20","v":1},{"t":"14:31:30","v":0},{"t":"14:31:40","v":0},{"t":"14:31:50","v":0},{"t":"14:32:00","v":0},{"t":"14:32:10","v":0},{"t":"14:32:20","v":0},{"t":"14:32:30","v":0},{"t":"14:32:40","v":0},{"t":"14:32:50","v":0},{"t":"14:33:00","v":0},{"t":"14:33:10","v":0},{"t":"14:33:20","v":0},{"t":"14:33:30","v":0},{"t":"14:33:40","v":0},{"t":"14:33:50","v":0},{"t":"14:34:00","v":0},{"t":"14:34:10","v":0},{"t":"14:34:20","v":0},{"t":"14:34:30","v":0},{"t":"14:34:40","v":0},{"t":"14:34:50","v":0},{"t":"14:35:00","v":0},{"t":"14:35:10","v":0},{"t":"14:35:20","v":0},{"t":"14:35:30","v":0},{"t":"14:35:40","v":0},{"t":"14:35:50","v":0},{"t":"14:36:00","v":0},{"t":"14:36:10","v":0},{"t":"14:36:20","v":0},{"t":"14:36:30","v":0},{"t":"14:36:40","v":0},{"t":"14:36:50","v":0},{"t":"14:37:00","v":0},{"t":"14:37:10","v":0},{"t":"14:37:20","v":0},{"t":"14:37:30","v":0},{"t":"14:37:40","v":0},{"t":"14:37:50","v":0},{"t":"14:38:00","v":0},{"t":"14:38:10","v":0},{"t":"14:38:20","v":0},{"t":"14:38:30","v":0},{"t":"14:38:40","v":0},{"t":"14:38:50","v":0},{"t":"14:39:00","v":0},{"t":"14:39:10","v":0},{"t":"14:39:20","v":0},{"t":"14:39:30","v":0},{"t":"14:39:40","v":0},{"t":"14:39:50","v":0},{"t":"14:40:00","v":0},{"t":"14:40:10","v":0},{"t":"14:40:20","v":0},{"t":"14:40:30","v":0},{"t":"14:40:40","v":0},{"t":"14:40:50","v":0},{"t":"14:41:00","v":1}],"lifespan":[{"bucket":"0-2s","count":236},{"bucket":"2-5s","count":2766},{"bucket":"5-8s","count":2835},{"bucket":"8-11s","count":693},{"bucket":"11-15s","count":405},{"bucket":"15-20s","count":246},{"bucket":"20-30s","count":187},{"bucket":"30-60s","count":166},{"bucket":"1-2min","count":3},{"bucket":">2min","count":18}],"summary":{"total_orders":7555,"peak_tx_s":6,"peak_tx_5s_avg":4.0,"peak_tx_10s_avg":3.0,"peak_minute":76,"peak_minute_time":"13:38","peak_concurrent":27,"peak_concurrent_time":"13:26:12","median_lifespan":6,"p95_lifespan":20,"mean_lifespan":8.8},"lifespan_over_time":[{"t":"09:15","count":1,"p50":6.0,"p95":6.0,"p99":6.0},{"t":"09:40","count":1,"p50":5.0,"p95":5.0,"p99":5.0},{"t":"09:50","count":1,"p50":5.0,"p95":5.0,"p99":5.0},{"t":"10:05","count":1,"p50":8.0,"p95":8.0,"p99":8.0},{"t":"10:10","count":2,"p50":6.0,"p95":6.9,"p99":7.0},{"t":"10:15","count":4,"p50":10.5,"p95":19.7,"p99":19.9},{"t":"10:20","count":4,"p50":4.0,"p95":14.2,"p99":15.6},{"t":"10:25","count":3,"p50":928.0,"p95":1189.9,"p99":1213.2},{"t":"10:30","count":6,"p50":6.5,"p95":11.8,"p99":12.8},{"t":"10:35","count":4,"p50":7.5,"p95":8.8,"p99":9.0},{"t":"10:40","count":4,"p50":6.5,"p95":10.4,"p99":10.9},{"t":"10:45","count":3,"p50":7.0,"p95":9.7,"p99":9.9},{"t":"10:50","count":6,"p50":10.5,"p95":322.0,"p99":325.2},{"t":"10:55","count":6,"p50":6.5,"p95":9.0,"p99":9.0},{"t":"11:00","count":127,"p50":6.0,"p95":14.0,"p99":28.0},{"t":"11:05","count":237,"p50":6.0,"p95":19.0,"p99":31.6},{"t":"11:10","count":269,"p50":6.0,"p95":21.6,"p99":42.3},{"t":"11:15","count":280,"p50":6.0,"p95":24.1,"p99":51.0},{"t":"11:20","count":281,"p50":6.0,"p95":18.0,"p99":36.4},{"t":"11:25","count":252,"p50":6.0,"p95":22.9,"p99":46.5},{"t":"11:30","count":267,"p50":6.0,"p95":20.0,"p99":34.7},{"t":"11:35","count":270,"p50":6.0,"p95":19.1,"p99":32.0},{"t":"11:40","count":292,"p50":6.0,"p95":16.0,"p99":28.1},{"t":"11:45","count":283,"p50":6.0,"p95":22.0,"p99":39.2},{"t":"11:50","count":281,"p50":6.0,"p95":19.0,"p99":40.4},{"t":"11:55","count":232,"p50":6.0,"p95":21.0,"p99":34.0},{"t":"12:00","count":230,"p50":6.0,"p95":19.5,"p99":35.1},{"t":"12:05","count":206,"p50":6.0,"p95":20.5,"p99":50.6},{"t":"12:10","count":222,"p50":6.0,"p95":18.0,"p99":174.9},{"t":"12:15","count":239,"p50":6.0,"p95":15.0,"p99":21.6},{"t":"12:20","count":139,"p50":6.0,"p95":20.1,"p99":39.0},{"t":"12:25","count":59,"p50":5.0,"p95":22.2,"p99":39.4},{"t":"12:30","count":40,"p50":5.0,"p95":28.8,"p99":48.7},{"t":"12:35","count":60,"p50":5.0,"p95":17.2,"p99":33.5},{"t":"12:40","count":46,"p50":6.5,"p95":23.8,"p99":50.5},{"t":"12:45","count":49,"p50":7.0,"p95":22.6,"p99":38.5},{"t":"12:50","count":93,"p50":6.0,"p95":20.2,"p99":51.0},{"t":"12:55","count":107,"p50":7.0,"p95":22.0,"p99":32.8},{"t":"13:00","count":127,"p50":6.0,"p95":21.1,"p99":43.9},{"t":"13:05","count":181,"p50":6.0,"p95":22.0,"p99":40.6},{"t":"13:10","count":177,"p50":6.0,"p95":18.0,"p99":36.3},{"t":"13:15","count":324,"p50":6.0,"p95":25.7,"p99":51.0},{"t":"13:20","count":325,"p50":6.0,"p95":17.0,"p99":35.3},{"t":"13:25","count":336,"p50":7.0,"p95":24.5,"p99":228.2},{"t":"13:30","count":309,"p50":6.0,"p95":23.0,"p99":51.0},{"t":"13:35","count":329,"p50":6.0,"p95":17.0,"p99":39.8},{"t":"13:40","count":309,"p50":6.0,"p95":17.0,"p99":29.9},{"t":"13:45","count":181,"p50":6.0,"p95":21.0,"p99":48.6},{"t":"13:50","count":112,"p50":5.0,"p95":15.4,"p99":28.6},{"t":"13:55","count":96,"p50":6.0,"p95":27.0,"p99":51.0},{"t":"14:00","count":60,"p50":6.0,"p95":17.4,"p99":57.9},{"t":"14:05","count":42,"p50":6.5,"p95":28.9,"p99":51.2},{"t":"14:10","count":13,"p50":6.0,"p95":19.8,"p99":20.8},{"t":"14:15","count":8,"p50":5.5,"p95":16.9,"p99":18.6},{"t":"14:20","count":11,"p50":4.0,"p95":10.0,"p99":10.0},{"t":"14:25","count":4,"p50":0.0,"p95":5.9,"p99":6.8},{"t":"14:30","count":2,"p50":5.5,"p95":10.4,"p99":10.9},{"t":"14:35","count":1,"p50":0.0,"p95":0.0,"p99":0.0},{"t":"14:40","count":1,"p50":1.0,"p95":1.0,"p99":1.0}],"devices":[{"device":"1188","orders":244,"gmv":24210.0},{"device":"1135","orders":240,"gmv":24142.0},{"device":"1134","orders":235,"gmv":23820.0},{"device":"1155","orders":235,"gmv":17465.0},{"device":"1140","orders":234,"gmv":29153.0},{"device":"1144","orders":218,"gmv":22098.0},{"device":"1169","orders":217,"gmv":24729.0},{"device":"1189","orders":216,"gmv":24423.0},{"device":"1267","orders":210,"gmv":26374.0},{"device":"1190","orders":209,"gmv":21206.0},{"device":"1136","orders":208,"gmv":24518.0},{"device":"1391","orders":208,"gmv":23026.0},{"device":"1268","orders":207,"gmv":22392.0},{"device":"1151","orders":206,"gmv":17182.0},{"device":"1156","orders":200,"gmv":16151.0},{"device":"1277","orders":199,"gmv":25498.0},{"device":"1276","orders":195,"gmv":23728.0},{"device":"2016","orders":187,"gmv":19070.0},{"device":"1139","orders":186,"gmv":14297.0},{"device":"1191","orders":185,"gmv":19659.0},{"device":"1170","orders":183,"gmv":19875.0},{"device":"1165","orders":182,"gmv":14796.0},{"device":"1148","orders":182,"gmv":17295.0},{"device":"1168","orders":180,"gmv":15226.0},{"device":"1164","orders":177,"gmv":14278.0},{"device":"1152","orders":174,"gmv":15385.0},{"device":"1143","orders":168,"gmv":16840.0},{"device":"1227","orders":166,"gmv":14249.0},{"device":"1153","orders":165,"gmv":13090.0},{"device":"1154","orders":165,"gmv":12827.0},{"device":"1149","orders":161,"gmv":13524.0},{"device":"2017","orders":159,"gmv":14900.0},{"device":"1138","orders":153,"gmv":12679.0},{"device":"1150","orders":150,"gmv":20569.0},{"device":"1142","orders":149,"gmv":20419.0},{"device":"1167","orders":148,"gmv":11995.0},{"device":"2015","orders":129,"gmv":11762.0},{"device":"1147","orders":124,"gmv":10619.0},{"device":"1166","orders":106,"gmv":8495.0},{"device":"1137","orders":103,"gmv":8753.0},{"device":"1145","orders":102,"gmv":10709.0},{"device":"1163","orders":68,"gmv":6346.0},{"device":"2011","orders":22,"gmv":1351.0}],"devices_active":[{"t":"09:15","v":1},{"t":"09:16","v":0},{"t":"09:17","v":0},{"t":"09:18","v":0},{"t":"09:19","v":0},{"t":"09:20","v":0},{"t":"09:21","v":0},{"t":"09:22","v":0},{"t":"09:23","v":0},{"t":"09:24","v":0},{"t":"09:25","v":0},{"t":"09:26","v":0},{"t":"09:27","v":0},{"t":"09:28","v":0},{"t":"09:29","v":0},{"t":"09:30","v":0},{"t":"09:31","v":0},{"t":"09:32","v":0},{"t":"09:33","v":0},{"t":"09:34","v":0},{"t":"09:35","v":0},{"t":"09:36","v":0},{"t":"09:37","v":0},{"t":"09:38","v":0},{"t":"09:39","v":0},{"t":"09:40","v":0},{"t":"09:41","v":0},{"t":"09:42","v":0},{"t":"09:43","v":0},{"t":"09:44","v":1},{"t":"09:45","v":0},{"t":"09:46","v":0},{"t":"09:47","v":0},{"t":"09:48","v":0},{"t":"09:49","v":0},{"t":"09:50","v":0},{"t":"09:51","v":0},{"t":"09:52","v":0},{"t":"09:53","v":0},{"t":"09:54","v":1},{"t":"09:55","v":0},{"t":"09:56","v":0},{"t":"09:57","v":0},{"t":"09:58","v":0},{"t":"09:59","v":0},{"t":"10:00","v":0},{"t":"10:01","v":0},{"t":"10:02","v":0},{"t":"10:03","v":0},{"t":"10:04","v":0},{"t":"10:05","v":0},{"t":"10:06","v":0},{"t":"10:07","v":1},{"t":"10:08","v":0},{"t":"10:09","v":0},{"t":"10:10","v":1},{"t":"10:11","v":0},{"t":"10:12","v":1},{"t":"10:13","v":0},{"t":"10:14","v":0},{"t":"10:15","v":0},{"t":"10:16","v":0},{"t":"10:17","v":0},{"t":"10:18","v":2},{"t":"10:19","v":1},{"t":"10:20","v":0},{"t":"10:21","v":2},{"t":"10:22","v":0},{"t":"10:23","v":2},{"t":"10:24","v":0},{"t":"10:25","v":1},{"t":"10:26","v":0},{"t":"10:27","v":0},{"t":"10:28","v":1},{"t":"10:29","v":1},{"t":"10:30","v":1},{"t":"10:31","v":0},{"t":"10:32","v":2},{"t":"10:33","v":0},{"t":"10:34","v":1},{"t":"10:35","v":0},{"t":"10:36","v":0},{"t":"10:37","v":2},{"t":"10:38","v":0},{"t":"10:39","v":1},{"t":"10:40","v":0},{"t":"10:41","v":0},{"t":"10:42","v":1},{"t":"10:43","v":1},{"t":"10:44","v":2},{"t":"10:45","v":0},{"t":"10:46","v":0},{"t":"10:47","v":0},{"t":"10:48","v":1},{"t":"10:49","v":2},{"t":"10:50","v":1},{"t":"10:51","v":1},{"t":"10:52","v":2},{"t":"10:53","v":1},{"t":"10:54","v":1},{"t":"10:55","v":2},{"t":"10:56","v":0},{"t":"10:57","v":1},{"t":"10:58","v":0},{"t":"10:59","v":3},{"t":"11:00","v":7},{"t":"11:01","v":17},{"t":"11:02","v":18},{"t":"11:03","v":29},{"t":"11:04","v":33},{"t":"11:05","v":34},{"t":"11:06","v":35},{"t":"11:07","v":35},{"t":"11:08","v":28},{"t":"11:09","v":37},{"t":"11:10","v":36},{"t":"11:11","v":34},{"t":"11:12","v":34},{"t":"11:13","v":36},{"t":"11:14","v":38},{"t":"11:15","v":37},{"t":"11:16","v":38},{"t":"11:17","v":37},{"t":"11:18","v":36},{"t":"11:19","v":36},{"t":"11:20","v":37},{"t":"11:21","v":32},{"t":"11:22","v":35},{"t":"11:23","v":37},{"t":"11:24","v":36},{"t":"11:25","v":37},{"t":"11:26","v":33},{"t":"11:27","v":34},{"t":"11:28","v":32},{"t":"11:29","v":31},{"t":"11:30","v":38},{"t":"11:31","v":35},{"t":"11:32","v":33},{"t":"11:33","v":36},{"t":"11:34","v":33},{"t":"11:35","v":34},{"t":"11:36","v":32},{"t":"11:37","v":33},{"t":"11:38","v":36},{"t":"11:39","v":33},{"t":"11:40","v":36},{"t":"11:41","v":35},{"t":"11:42","v":35},{"t":"11:43","v":38},{"t":"11:44","v":36},{"t":"11:45","v":35},{"t":"11:46","v":31},{"t":"11:47","v":37},{"t":"11:48","v":36},{"t":"11:49","v":35},{"t":"11:50","v":34},{"t":"11:51","v":35},{"t":"11:52","v":40},{"t":"11:53","v":35},{"t":"11:54","v":29},{"t":"11:55","v":33},{"t":"11:56","v":31},{"t":"11:57","v":31},{"t":"11:58","v":25},{"t":"11:59","v":29},{"t":"12:00","v":34},{"t":"12:01","v":32},{"t":"12:02","v":27},{"t":"12:03","v":29},{"t":"12:04","v":29},{"t":"12:05","v":31},{"t":"12:06","v":31},{"t":"12:07","v":28},{"t":"12:08","v":32},{"t":"12:09","v":22},{"t":"12:10","v":33},{"t":"12:11","v":30},{"t":"12:12","v":30},{"t":"12:13","v":31},{"t":"12:14","v":30},{"t":"12:15","v":33},{"t":"12:16","v":30},{"t":"12:17","v":32},{"t":"12:18","v":32},{"t":"12:19","v":26},{"t":"12:20","v":26},{"t":"12:21","v":21},{"t":"12:22","v":20},{"t":"12:23","v":18},{"t":"12:24","v":15},{"t":"12:25","v":16},{"t":"12:26","v":11},{"t":"12:27","v":12},{"t":"12:28","v":7},{"t":"12:29","v":4},{"t":"12:30","v":6},{"t":"12:31","v":5},{"t":"12:32","v":5},{"t":"12:33","v":10},{"t":"12:34","v":8},{"t":"12:35","v":14},{"t":"12:36","v":6},{"t":"12:37","v":12},{"t":"12:38","v":3},{"t":"12:39","v":10},{"t":"12:40","v":8},{"t":"12:41","v":7},{"t":"12:42","v":7},{"t":"12:43","v":9},{"t":"12:44","v":9},{"t":"12:45","v":11},{"t":"12:46","v":9},{"t":"12:47","v":6},{"t":"12:48","v":5},{"t":"12:49","v":9},{"t":"12:50","v":11},{"t":"12:51","v":15},{"t":"12:52","v":13},{"t":"12:53","v":18},{"t":"12:54","v":15},{"t":"12:55","v":17},{"t":"12:56","v":15},{"t":"12:57","v":13},{"t":"12:58","v":15},{"t":"12:59","v":19},{"t":"13:00","v":20},{"t":"13:01","v":16},{"t":"13:02","v":14},{"t":"13:03","v":15},{"t":"13:04","v":21},{"t":"13:05","v":25},{"t":"13:06","v":22},{"t":"13:07","v":29},{"t":"13:08","v":26},{"t":"13:09","v":24},{"t":"13:10","v":19},{"t":"13:11","v":20},{"t":"13:12","v":21},{"t":"13:13","v":24},{"t":"13:14","v":37},{"t":"13:15","v":41},{"t":"13:16","v":37},{"t":"13:17","v":37},{"t":"13:18","v":38},{"t":"13:19","v":35},{"t":"13:20","v":38},{"t":"13:21","v":33},{"t":"13:22","v":36},{"t":"13:23","v":34},{"t":"13:24","v":40},{"t":"13:25","v":38},{"t":"13:26","v":40},{"t":"13:27","v":39},{"t":"13:28","v":38},{"t":"13:29","v":37},{"t":"13:30","v":37},{"t":"13:31","v":38},{"t":"13:32","v":38},{"t":"13:33","v":38},{"t":"13:34","v":39},{"t":"13:35","v":37},{"t":"13:36","v":38},{"t":"13:37","v":41},{"t":"13:38","v":40},{"t":"13:39","v":40},{"t":"13:40","v":39},{"t":"13:41","v":37},{"t":"13:42","v":38},{"t":"13:43","v":37},{"t":"13:44","v":35},{"t":"13:45","v":29},{"t":"13:46","v":24},{"t":"13:47","v":22},{"t":"13:48","v":25},{"t":"13:49","v":14},{"t":"13:50","v":15},{"t":"13:51","v":17},{"t":"13:52","v":13},{"t":"13:53","v":15},{"t":"13:54","v":13},{"t":"13:55","v":14},{"t":"13:56","v":13},{"t":"13:57","v":20},{"t":"13:58","v":13},{"t":"13:59","v":10},{"t":"14:00","v":8},{"t":"14:01","v":9},{"t":"14:02","v":9},{"t":"14:03","v":9},{"t":"14:04","v":9},{"t":"14:05","v":8},{"t":"14:06","v":1},{"t":"14:07","v":9},{"t":"14:08","v":10},{"t":"14:09","v":8},{"t":"14:10","v":3},{"t":"14:11","v":4},{"t":"14:12","v":2},{"t":"14:13","v":2},{"t":"14:14","v":1},{"t":"14:15","v":4},{"t":"14:16","v":1},{"t":"14:17","v":2},{"t":"14:18","v":0},{"t":"14:19","v":1},{"t":"14:20","v":1},{"t":"14:21","v":1},{"t":"14:22","v":1},{"t":"14:23","v":2},{"t":"14:24","v":2},{"t":"14:25","v":1},{"t":"14:26","v":1},{"t":"14:27","v":1},{"t":"14:28","v":0},{"t":"14:29","v":1},{"t":"14:30","v":0},{"t":"14:31","v":1},{"t":"14:32","v":1},{"t":"14:33","v":0},{"t":"14:34","v":0},{"t":"14:35","v":0},{"t":"14:36","v":0},{"t":"14:37","v":1},{"t":"14:38","v":0},{"t":"14:39","v":0},{"t":"14:40","v":0},{"t":"14:41","v":1}],"cancellations":[{"t":"09:15","completed":0,"cancelled":1,"rate":100.0},{"t":"09:16","completed":0,"cancelled":0,"rate":0.0},{"t":"09:17","completed":0,"cancelled":0,"rate":0.0},{"t":"09:18","completed":0,"cancelled":0,"rate":0.0},{"t":"09:19","completed":0,"cancelled":0,"rate":0.0},{"t":"09:20","completed":0,"cancelled":0,"rate":0.0},{"t":"09:21","completed":0,"cancelled":0,"rate":0.0},{"t":"09:22","completed":0,"cancelled":0,"rate":0.0},{"t":"09:23","completed":0,"cancelled":0,"rate":0.0},{"t":"09:24","completed":0,"cancelled":0,"rate":0.0},{"t":"09:25","completed":0,"cancelled":0,"rate":0.0},{"t":"09:26","completed":0,"cancelled":0,"rate":0.0},{"t":"09:27","completed":0,"cancelled":0,"rate":0.0},{"t":"09:28","completed":0,"cancelled":0,"rate":0.0},{"t":"09:29","completed":0,"cancelled":0,"rate":0.0},{"t":"09:30","completed":0,"cancelled":0,"rate":0.0},{"t":"09:31","completed":0,"cancelled":0,"rate":0.0},{"t":"09:32","completed":0,"cancelled":0,"rate":0.0},{"t":"09:33","completed":0,"cancelled":0,"rate":0.0},{"t":"09:34","completed":0,"cancelled":0,"rate":0.0},{"t":"09:35","completed":0,"cancelled":0,"rate":0.0},{"t":"09:36","completed":0,"cancelled":0,"rate":0.0},{"t":"09:37","completed":0,"cancelled":0,"rate":0.0},{"t":"09:38","completed":0,"cancelled":0,"rate":0.0},{"t":"09:39","completed":0,"cancelled":0,"rate":0.0},{"t":"09:40","completed":0,"cancelled":0,"rate":0.0},{"t":"09:41","completed":0,"cancelled":0,"rate":0.0},{"t":"09:42","completed":0,"cancelled":0,"rate":0.0},{"t":"09:43","completed":0,"cancelled":0,"rate":0.0},{"t":"09:44","completed":0,"cancelled":1,"rate":100.0},{"t":"09:45","completed":0,"cancelled":0,"rate":0.0},{"t":"09:46","completed":0,"cancelled":0,"rate":0.0},{"t":"09:47","completed":0,"cancelled":0,"rate":0.0},{"t":"09:48","completed":0,"cancelled":0,"rate":0.0},{"t":"09:49","completed":0,"cancelled":0,"rate":0.0},{"t":"09:50","completed":0,"cancelled":0,"rate":0.0},{"t":"09:51","completed":0,"cancelled":0,"rate":0.0},{"t":"09:52","completed":0,"cancelled":0,"rate":0.0},{"t":"09:53","completed":0,"cancelled":0,"rate":0.0},{"t":"09:54","completed":0,"cancelled":1,"rate":100.0},{"t":"09:55","completed":0,"cancelled":0,"rate":0.0},{"t":"09:56","completed":0,"cancelled":0,"rate":0.0},{"t":"09:57","completed":0,"cancelled":0,"rate":0.0},{"t":"09:58","completed":0,"cancelled":0,"rate":0.0},{"t":"09:59","completed":0,"cancelled":0,"rate":0.0},{"t":"10:00","completed":0,"cancelled":0,"rate":0.0},{"t":"10:01","completed":0,"cancelled":0,"rate":0.0},{"t":"10:02","completed":0,"cancelled":0,"rate":0.0},{"t":"10:03","completed":0,"cancelled":0,"rate":0.0},{"t":"10:04","completed":0,"cancelled":0,"rate":0.0},{"t":"10:05","completed":0,"cancelled":0,"rate":0.0},{"t":"10:06","completed":0,"cancelled":0,"rate":0.0},{"t":"10:07","completed":1,"cancelled":0,"rate":0.0},{"t":"10:08","completed":0,"cancelled":0,"rate":0.0},{"t":"10:09","completed":0,"cancelled":0,"rate":0.0},{"t":"10:10","completed":0,"cancelled":1,"rate":100.0},{"t":"10:11","completed":0,"cancelled":0,"rate":0.0},{"t":"10:12","completed":1,"cancelled":0,"rate":0.0},{"t":"10:13","completed":0,"cancelled":0,"rate":0.0},{"t":"10:14","completed":0,"cancelled":0,"rate":0.0},{"t":"10:15","completed":0,"cancelled":0,"rate":0.0},{"t":"10:16","completed":0,"cancelled":0,"rate":0.0},{"t":"10:17","completed":0,"cancelled":0,"rate":0.0},{"t":"10:18","completed":0,"cancelled":2,"rate":100.0},{"t":"10:19","completed":0,"cancelled":2,"rate":100.0},{"t":"10:20","completed":0,"cancelled":0,"rate":0.0},{"t":"10:21","completed":0,"cancelled":2,"rate":100.0},{"t":"10:22","completed":0,"cancelled":0,"rate":0.0},{"t":"10:23","completed":0,"cancelled":2,"rate":100.0},{"t":"10:24","completed":0,"cancelled":0,"rate":0.0},{"t":"10:25","completed":0,"cancelled":1,"rate":100.0},{"t":"10:26","completed":0,"cancelled":0,"rate":0.0},{"t":"10:27","completed":0,"cancelled":0,"rate":0.0},{"t":"10:28","completed":1,"cancelled":0,"rate":0.0},{"t":"10:29","completed":1,"cancelled":0,"rate":0.0},{"t":"10:30","completed":1,"cancelled":0,"rate":0.0},{"t":"10:31","completed":0,"cancelled":0,"rate":0.0},{"t":"10:32","completed":1,"cancelled":3,"rate":75.0},{"t":"10:33","completed":0,"cancelled":0,"rate":0.0},{"t":"10:34","completed":1,"cancelled":0,"rate":0.0},{"t":"10:35","completed":0,"cancelled":0,"rate":0.0},{"t":"10:36","completed":0,"cancelled":0,"rate":0.0},{"t":"10:37","completed":2,"cancelled":1,"rate":33.3},{"t":"10:38","completed":0,"cancelled":0,"rate":0.0},{"t":"10:39","completed":0,"cancelled":1,"rate":100.0},{"t":"10:40","completed":0,"cancelled":0,"rate":0.0},{"t":"10:41","completed":0,"cancelled":0,"rate":0.0},{"t":"10:42","completed":1,"cancelled":0,"rate":0.0},{"t":"10:43","completed":1,"cancelled":0,"rate":0.0},{"t":"10:44","completed":1,"cancelled":1,"rate":50.0},{"t":"10:45","completed":0,"cancelled":0,"rate":0.0},{"t":"10:46","completed":0,"cancelled":0,"rate":0.0},{"t":"10:47","completed":0,"cancelled":0,"rate":0.0},{"t":"10:48","completed":1,"cancelled":0,"rate":0.0},{"t":"10:49","completed":2,"cancelled":0,"rate":0.0},{"t":"10:50","completed":1,"cancelled":0,"rate":0.0},{"t":"10:51","completed":1,"cancelled":0,"rate":0.0},{"t":"10:52","completed":2,"cancelled":0,"rate":0.0},{"t":"10:53","completed":1,"cancelled":0,"rate":0.0},{"t":"10:54","completed":1,"cancelled":0,"rate":0.0},{"t":"10:55","completed":2,"cancelled":0,"rate":0.0},{"t":"10:56","completed":0,"cancelled":0,"rate":0.0},{"t":"10:57","completed":1,"cancelled":0,"rate":0.0},{"t":"10:58","completed":0,"cancelled":0,"rate":0.0},{"t":"10:59","completed":3,"cancelled":0,"rate":0.0},{"t":"11:00","completed":6,"cancelled":1,"rate":14.3},{"t":"11:01","completed":20,"cancelled":1,"rate":4.8},{"t":"11:02","completed":20,"cancelled":1,"rate":4.8},{"t":"11:03","completed":32,"cancelled":2,"rate":5.9},{"t":"11:04","completed":41,"cancelled":3,"rate":6.8},{"t":"11:05","completed":44,"cancelled":2,"rate":4.3},{"t":"11:06","completed":48,"cancelled":4,"rate":7.7},{"t":"11:07","completed":48,"cancelled":3,"rate":5.9},{"t":"11:08","completed":38,"cancelled":1,"rate":2.6},{"t":"11:09","completed":47,"cancelled":2,"rate":4.1},{"t":"11:10","completed":54,"cancelled":2,"rate":3.6},{"t":"11:11","completed":49,"cancelled":0,"rate":0.0},{"t":"11:12","completed":55,"cancelled":2,"rate":3.5},{"t":"11:13","completed":48,"cancelled":4,"rate":7.7},{"t":"11:14","completed":51,"cancelled":4,"rate":7.3},{"t":"11:15","completed":58,"cancelled":1,"rate":1.7},{"t":"11:16","completed":54,"cancelled":3,"rate":5.3},{"t":"11:17","completed":49,"cancelled":6,"rate":10.9},{"t":"11:18","completed":48,"cancelled":6,"rate":11.1},{"t":"11:19","completed":50,"cancelled":5,"rate":9.1},{"t":"11:20","completed":55,"cancelled":4,"rate":6.8},{"t":"11:21","completed":55,"cancelled":2,"rate":3.5},{"t":"11:22","completed":46,"cancelled":4,"rate":8.0},{"t":"11:23","completed":62,"cancelled":4,"rate":6.1},{"t":"11:24","completed":49,"cancelled":0,"rate":0.0},{"t":"11:25","completed":57,"cancelled":2,"rate":3.4},{"t":"11:26","completed":41,"cancelled":2,"rate":4.7},{"t":"11:27","completed":53,"cancelled":3,"rate":5.4},{"t":"11:28","completed":50,"cancelled":3,"rate":5.7},{"t":"11:29","completed":39,"cancelled":2,"rate":4.9},{"t":"11:30","completed":52,"cancelled":6,"rate":10.3},{"t":"11:31","completed":49,"cancelled":1,"rate":2.0},{"t":"11:32","completed":46,"cancelled":3,"rate":6.1},{"t":"11:33","completed":58,"cancelled":1,"rate":1.7},{"t":"11:34","completed":47,"cancelled":4,"rate":7.8},{"t":"11:35","completed":46,"cancelled":6,"rate":11.5},{"t":"11:36","completed":51,"cancelled":1,"rate":1.9},{"t":"11:37","completed":49,"cancelled":2,"rate":3.9},{"t":"11:38","completed":58,"cancelled":1,"rate":1.7},{"t":"11:39","completed":54,"cancelled":2,"rate":3.6},{"t":"11:40","completed":60,"cancelled":3,"rate":4.8},{"t":"11:41","completed":56,"cancelled":0,"rate":0.0},{"t":"11:42","completed":52,"cancelled":2,"rate":3.7},{"t":"11:43","completed":62,"cancelled":2,"rate":3.1},{"t":"11:44","completed":53,"cancelled":2,"rate":3.6},{"t":"11:45","completed":54,"cancelled":4,"rate":6.9},{"t":"11:46","completed":49,"cancelled":2,"rate":3.9},{"t":"11:47","completed":52,"cancelled":2,"rate":3.7},{"t":"11:48","completed":63,"cancelled":0,"rate":0.0},{"t":"11:49","completed":52,"cancelled":5,"rate":8.8},{"t":"11:50","completed":52,"cancelled":3,"rate":5.5},{"t":"11:51","completed":54,"cancelled":3,"rate":5.3},{"t":"11:52","completed":61,"cancelled":6,"rate":9.0},{"t":"11:53","completed":53,"cancelled":2,"rate":3.6},{"t":"11:54","completed":45,"cancelled":2,"rate":4.3},{"t":"11:55","completed":51,"cancelled":0,"rate":0.0},{"t":"11:56","completed":47,"cancelled":2,"rate":4.1},{"t":"11:57","completed":43,"cancelled":5,"rate":10.4},{"t":"11:58","completed":32,"cancelled":3,"rate":8.6},{"t":"11:59","completed":47,"cancelled":2,"rate":4.1},{"t":"12:00","completed":50,"cancelled":3,"rate":5.7},{"t":"12:01","completed":48,"cancelled":4,"rate":7.7},{"t":"12:02","completed":41,"cancelled":1,"rate":2.4},{"t":"12:03","completed":34,"cancelled":6,"rate":15.0},{"t":"12:04","completed":41,"cancelled":2,"rate":4.7},{"t":"12:05","completed":44,"cancelled":2,"rate":4.3},{"t":"12:06","completed":41,"cancelled":0,"rate":0.0},{"t":"12:07","completed":41,"cancelled":3,"rate":6.8},{"t":"12:08","completed":45,"cancelled":1,"rate":2.2},{"t":"12:09","completed":28,"cancelled":1,"rate":3.4},{"t":"12:10","completed":44,"cancelled":2,"rate":4.3},{"t":"12:11","completed":41,"cancelled":0,"rate":0.0},{"t":"12:12","completed":39,"cancelled":1,"rate":2.5},{"t":"12:13","completed":44,"cancelled":3,"rate":6.4},{"t":"12:14","completed":44,"cancelled":4,"rate":8.3},{"t":"12:15","completed":48,"cancelled":3,"rate":5.9},{"t":"12:16","completed":44,"cancelled":4,"rate":8.3},{"t":"12:17","completed":52,"cancelled":3,"rate":5.5},{"t":"12:18","completed":45,"cancelled":1,"rate":2.2},{"t":"12:19","completed":34,"cancelled":5,"rate":12.8},{"t":"12:20","completed":33,"cancelled":4,"rate":10.8},{"t":"12:21","completed":29,"cancelled":1,"rate":3.3},{"t":"12:22","completed":25,"cancelled":2,"rate":7.4},{"t":"12:23","completed":21,"cancelled":4,"rate":16.0},{"t":"12:24","completed":17,"cancelled":3,"rate":15.0},{"t":"12:25","completed":19,"cancelled":1,"rate":5.0},{"t":"12:26","completed":11,"cancelled":1,"rate":8.3},{"t":"12:27","completed":16,"cancelled":0,"rate":0.0},{"t":"12:28","completed":6,"cancelled":1,"rate":14.3},{"t":"12:29","completed":3,"cancelled":1,"rate":25.0},{"t":"12:30","completed":5,"cancelled":1,"rate":16.7},{"t":"12:31","completed":3,"cancelled":3,"rate":50.0},{"t":"12:32","completed":4,"cancelled":1,"rate":20.0},{"t":"12:33","completed":11,"cancelled":2,"rate":15.4},{"t":"12:34","completed":10,"cancelled":0,"rate":0.0},{"t":"12:35","completed":15,"cancelled":1,"rate":6.2},{"t":"12:36","completed":7,"cancelled":0,"rate":0.0},{"t":"12:37","completed":17,"cancelled":1,"rate":5.6},{"t":"12:38","completed":5,"cancelled":0,"rate":0.0},{"t":"12:39","completed":13,"cancelled":1,"rate":7.1},{"t":"12:40","completed":10,"cancelled":2,"rate":16.7},{"t":"12:41","completed":8,"cancelled":0,"rate":0.0},{"t":"12:42","completed":5,"cancelled":2,"rate":28.6},{"t":"12:43","completed":9,"cancelled":0,"rate":0.0},{"t":"12:44","completed":10,"cancelled":0,"rate":0.0},{"t":"12:45","completed":10,"cancelled":2,"rate":16.7},{"t":"12:46","completed":13,"cancelled":1,"rate":7.1},{"t":"12:47","completed":7,"cancelled":1,"rate":12.5},{"t":"12:48","completed":4,"cancelled":1,"rate":20.0},{"t":"12:49","completed":9,"cancelled":1,"rate":10.0},{"t":"12:50","completed":11,"cancelled":2,"rate":15.4},{"t":"12:51","completed":18,"cancelled":5,"rate":21.7},{"t":"12:52","completed":15,"cancelled":0,"rate":0.0},{"t":"12:53","completed":18,"cancelled":5,"rate":21.7},{"t":"12:54","completed":17,"cancelled":2,"rate":10.5},{"t":"12:55","completed":18,"cancelled":3,"rate":14.3},{"t":"12:56","completed":19,"cancelled":1,"rate":5.0},{"t":"12:57","completed":16,"cancelled":2,"rate":11.1},{"t":"12:58","completed":17,"cancelled":0,"rate":0.0},{"t":"12:59","completed":29,"cancelled":2,"rate":6.5},{"t":"13:00","completed":29,"cancelled":1,"rate":3.3},{"t":"13:01","completed":20,"cancelled":4,"rate":16.7},{"t":"13:02","completed":17,"cancelled":2,"rate":10.5},{"t":"13:03","completed":18,"cancelled":3,"rate":14.3},{"t":"13:04","completed":28,"cancelled":5,"rate":15.2},{"t":"13:05","completed":32,"cancelled":2,"rate":5.9},{"t":"13:06","completed":27,"cancelled":4,"rate":12.9},{"t":"13:07","completed":37,"cancelled":7,"rate":15.9},{"t":"13:08","completed":37,"cancelled":1,"rate":2.6},{"t":"13:09","completed":32,"cancelled":2,"rate":5.9},{"t":"13:10","completed":23,"cancelled":1,"rate":4.2},{"t":"13:11","completed":27,"cancelled":3,"rate":10.0},{"t":"13:12","completed":28,"cancelled":3,"rate":9.7},{"t":"13:13","completed":35,"cancelled":2,"rate":5.4},{"t":"13:14","completed":46,"cancelled":9,"rate":16.4},{"t":"13:15","completed":53,"cancelled":8,"rate":13.1},{"t":"13:16","completed":63,"cancelled":6,"rate":8.7},{"t":"13:17","completed":57,"cancelled":8,"rate":12.3},{"t":"13:18","completed":63,"cancelled":2,"rate":3.1},{"t":"13:19","completed":62,"cancelled":2,"rate":3.1},{"t":"13:20","completed":62,"cancelled":6,"rate":8.8},{"t":"13:21","completed":56,"cancelled":7,"rate":11.1},{"t":"13:22","completed":60,"cancelled":3,"rate":4.8},{"t":"13:23","completed":58,"cancelled":4,"rate":6.5},{"t":"13:24","completed":65,"cancelled":4,"rate":5.8},{"t":"13:25","completed":59,"cancelled":1,"rate":1.7},{"t":"13:26","completed":61,"cancelled":8,"rate":11.6},{"t":"13:27","completed":64,"cancelled":4,"rate":5.9},{"t":"13:28","completed":70,"cancelled":2,"rate":2.8},{"t":"13:29","completed":66,"cancelled":1,"rate":1.5},{"t":"13:30","completed":60,"cancelled":4,"rate":6.2},{"t":"13:31","completed":52,"cancelled":5,"rate":8.8},{"t":"13:32","completed":58,"cancelled":3,"rate":4.9},{"t":"13:33","completed":54,"cancelled":6,"rate":10.0},{"t":"13:34","completed":62,"cancelled":5,"rate":7.5},{"t":"13:35","completed":58,"cancelled":4,"rate":6.5},{"t":"13:36","completed":60,"cancelled":3,"rate":4.8},{"t":"13:37","completed":65,"cancelled":1,"rate":1.5},{"t":"13:38","completed":73,"cancelled":3,"rate":3.9},{"t":"13:39","completed":56,"cancelled":6,"rate":9.7},{"t":"13:40","completed":65,"cancelled":1,"rate":1.5},{"t":"13:41","completed":59,"cancelled":3,"rate":4.8},{"t":"13:42","completed":63,"cancelled":4,"rate":6.0},{"t":"13:43","completed":59,"cancelled":2,"rate":3.3},{"t":"13:44","completed":50,"cancelled":3,"rate":5.7},{"t":"13:45","completed":40,"cancelled":7,"rate":14.9},{"t":"13:46","completed":38,"cancelled":4,"rate":9.5},{"t":"13:47","completed":32,"cancelled":2,"rate":5.9},{"t":"13:48","completed":30,"cancelled":4,"rate":11.8},{"t":"13:49","completed":23,"cancelled":1,"rate":4.2},{"t":"13:50","completed":22,"cancelled":0,"rate":0.0},{"t":"13:51","completed":21,"cancelled":3,"rate":12.5},{"t":"13:52","completed":19,"cancelled":0,"rate":0.0},{"t":"13:53","completed":20,"cancelled":2,"rate":9.1},{"t":"13:54","completed":23,"cancelled":2,"rate":8.0},{"t":"13:55","completed":16,"cancelled":3,"rate":15.8},{"t":"13:56","completed":16,"cancelled":3,"rate":15.8},{"t":"13:57","completed":23,"cancelled":6,"rate":20.7},{"t":"13:58","completed":16,"cancelled":1,"rate":5.9},{"t":"13:59","completed":11,"cancelled":1,"rate":8.3},{"t":"14:00","completed":11,"cancelled":1,"rate":8.3},{"t":"14:01","completed":10,"cancelled":0,"rate":0.0},{"t":"14:02","completed":12,"cancelled":1,"rate":7.7},{"t":"14:03","completed":10,"cancelled":1,"rate":9.1},{"t":"14:04","completed":13,"cancelled":1,"rate":7.1},{"t":"14:05","completed":8,"cancelled":0,"rate":0.0},{"t":"14:06","completed":2,"cancelled":0,"rate":0.0},{"t":"14:07","completed":9,"cancelled":1,"rate":10.0},{"t":"14:08","completed":9,"cancelled":2,"rate":18.2},{"t":"14:09","completed":8,"cancelled":3,"rate":27.3},{"t":"14:10","completed":3,"cancelled":1,"rate":25.0},{"t":"14:11","completed":4,"cancelled":0,"rate":0.0},{"t":"14:12","completed":2,"cancelled":0,"rate":0.0},{"t":"14:13","completed":2,"cancelled":0,"rate":0.0},{"t":"14:14","completed":1,"cancelled":0,"rate":0.0},{"t":"14:15","completed":4,"cancelled":0,"rate":0.0},{"t":"14:16","completed":1,"cancelled":0,"rate":0.0},{"t":"14:17","completed":2,"cancelled":0,"rate":0.0},{"t":"14:18","completed":0,"cancelled":0,"rate":0.0},{"t":"14:19","completed":1,"cancelled":0,"rate":0.0},{"t":"14:20","completed":3,"cancelled":0,"rate":0.0},{"t":"14:21","completed":1,"cancelled":0,"rate":0.0},{"t":"14:22","completed":2,"cancelled":0,"rate":0.0},{"t":"14:23","completed":2,"cancelled":0,"rate":0.0},{"t":"14:24","completed":3,"cancelled":0,"rate":0.0},{"t":"14:25","completed":1,"cancelled":0,"rate":0.0},{"t":"14:26","completed":1,"cancelled":0,"rate":0.0},{"t":"14:27","completed":1,"cancelled":0,"rate":0.0},{"t":"14:28","completed":0,"cancelled":0,"rate":0.0},{"t":"14:29","completed":1,"cancelled":0,"rate":0.0},{"t":"14:30","completed":0,"cancelled":0,"rate":0.0},{"t":"14:31","completed":1,"cancelled":0,"rate":0.0},{"t":"14:32","completed":1,"cancelled":0,"rate":0.0},{"t":"14:33","completed":0,"cancelled":0,"rate":0.0},{"t":"14:34","completed":0,"cancelled":0,"rate":0.0},{"t":"14:35","completed":0,"cancelled":0,"rate":0.0},{"t":"14:36","completed":0,"cancelled":0,"rate":0.0},{"t":"14:37","completed":1,"cancelled":0,"rate":0.0},{"t":"14:38","completed":0,"cancelled":0,"rate":0.0},{"t":"14:39","completed":0,"cancelled":0,"rate":0.0},{"t":"14:40","completed":0,"cancelled":0,"rate":0.0},{"t":"14:41","completed":1,"cancelled":0,"rate":0.0}],"gmv_per_min":[{"t":"09:15","v":35.0},{"t":"09:16","v":0.0},{"t":"09:17","v":0.0},{"t":"09:18","v":0.0},{"t":"09:19","v":0.0},{"t":"09:20","v":0.0},{"t":"09:21","v":0.0},{"t":"09:22","v":0.0},{"t":"09:23","v":0.0},{"t":"09:24","v":0.0},{"t":"09:25","v":0.0},{"t":"09:26","v":0.0},{"t":"09:27","v":0.0},{"t":"09:28","v":0.0},{"t":"09:29","v":0.0},{"t":"09:30","v":0.0},{"t":"09:31","v":0.0},{"t":"09:32","v":0.0},{"t":"09:33","v":0.0},{"t":"09:34","v":0.0},{"t":"09:35","v":0.0},{"t":"09:36","v":0.0},{"t":"09:37","v":0.0},{"t":"09:38","v":0.0},{"t":"09:39","v":0.0},{"t":"09:40","v":0.0},{"t":"09:41","v":0.0},{"t":"09:42","v":0.0},{"t":"09:43","v":0.0},{"t":"09:44","v":30.0},{"t":"09:45","v":0.0},{"t":"09:46","v":0.0},{"t":"09:47","v":0.0},{"t":"09:48","v":0.0},{"t":"09:49","v":0.0},{"t":"09:50","v":0.0},{"t":"09:51","v":0.0},{"t":"09:52","v":0.0},{"t":"09:53","v":0.0},{"t":"09:54","v":35.0},{"t":"09:55","v":0.0},{"t":"09:56","v":0.0},{"t":"09:57","v":0.0},{"t":"09:58","v":0.0},{"t":"09:59","v":0.0},{"t":"10:00","v":0.0},{"t":"10:01","v":0.0},{"t":"10:02","v":0.0},{"t":"10:03","v":0.0},{"t":"10:04","v":0.0},{"t":"10:05","v":0.0},{"t":"10:06","v":0.0},{"t":"10:07","v":33.0},{"t":"10:08","v":0.0},{"t":"10:09","v":0.0},{"t":"10:10","v":79.0},{"t":"10:11","v":0.0},{"t":"10:12","v":250.0},{"t":"10:13","v":0.0},{"t":"10:14","v":0.0},{"t":"10:15","v":0.0},{"t":"10:16","v":0.0},{"t":"10:17","v":0.0},{"t":"10:18","v":138.0},{"t":"10:19","v":190.0},{"t":"10:20","v":0.0},{"t":"10:21","v":75.0},{"t":"10:22","v":0.0},{"t":"10:23","v":68.0},{"t":"10:24","v":0.0},{"t":"10:25","v":48.0},{"t":"10:26","v":0.0},{"t":"10:27","v":0.0},{"t":"10:28","v":1.0},{"t":"10:29","v":1.0},{"t":"10:30","v":35.0},{"t":"10:31","v":0.0},{"t":"10:32","v":167.0},{"t":"10:33","v":0.0},{"t":"10:34","v":1.0},{"t":"10:35","v":0.0},{"t":"10:36","v":0.0},{"t":"10:37","v":32.0},{"t":"10:38","v":0.0},{"t":"10:39","v":79.0},{"t":"10:40","v":0.0},{"t":"10:41","v":0.0},{"t":"10:42","v":35.0},{"t":"10:43","v":146.0},{"t":"10:44","v":136.0},{"t":"10:45","v":0.0},{"t":"10:46","v":0.0},{"t":"10:47","v":0.0},{"t":"10:48","v":20.0},{"t":"10:49","v":199.0},{"t":"10:50","v":27.0},{"t":"10:51","v":27.0},{"t":"10:52","v":96.0},{"t":"10:53","v":48.0},{"t":"10:54","v":48.0},{"t":"10:55","v":73.0},{"t":"10:56","v":0.0},{"t":"10:57","v":65.0},{"t":"10:58","v":0.0},{"t":"10:59","v":187.0},{"t":"11:00","v":574.0},{"t":"11:01","v":5857.0},{"t":"11:02","v":2790.0},{"t":"11:03","v":4076.0},{"t":"11:04","v":5205.0},{"t":"11:05","v":5503.0},{"t":"11:06","v":5069.0},{"t":"11:07","v":5113.0},{"t":"11:08","v":5317.0},{"t":"11:09","v":5837.0},{"t":"11:10","v":5880.0},{"t":"11:11","v":5157.0},{"t":"11:12","v":4609.0},{"t":"11:13","v":6374.0},{"t":"11:14","v":6209.0},{"t":"11:15","v":6735.0},{"t":"11:16","v":6420.0},{"t":"11:17","v":5289.0},{"t":"11:18","v":6058.0},{"t":"11:19","v":5692.0},{"t":"11:20","v":6569.0},{"t":"11:21","v":6069.0},{"t":"11:22","v":5603.0},{"t":"11:23","v":7185.0},{"t":"11:24","v":5132.0},{"t":"11:25","v":6725.0},{"t":"11:26","v":5000.0},{"t":"11:27","v":6361.0},{"t":"11:28","v":5702.0},{"t":"11:29","v":5738.0},{"t":"11:30","v":7406.0},{"t":"11:31","v":7382.0},{"t":"11:32","v":5585.0},{"t":"11:33","v":5904.0},{"t":"11:34","v":5358.0},{"t":"11:35","v":5917.0},{"t":"11:36","v":6723.0},{"t":"11:37","v":5997.0},{"t":"11:38","v":6431.0},{"t":"11:39","v":6000.0},{"t":"11:40","v":5932.0},{"t":"11:41","v":5213.0},{"t":"11:42","v":5521.0},{"t":"11:43","v":6044.0},{"t":"11:44","v":5038.0},{"t":"11:45","v":5415.0},{"t":"11:46","v":5809.0},{"t":"11:47","v":7087.0},{"t":"11:48","v":5280.0},{"t":"11:49","v":6121.0},{"t":"11:50","v":6717.0},{"t":"11:51","v":5894.0},{"t":"11:52","v":7807.0},{"t":"11:53","v":4803.0},{"t":"11:54","v":5478.0},{"t":"11:55","v":4858.0},{"t":"11:56","v":5256.0},{"t":"11:57","v":4894.0},{"t":"11:58","v":3511.0},{"t":"11:59","v":5407.0},{"t":"12:00","v":6342.0},{"t":"12:01","v":5661.0},{"t":"12:02","v":5152.0},{"t":"12:03","v":4499.0},{"t":"12:04","v":4790.0},{"t":"12:05","v":4911.0},{"t":"12:06","v":3733.0},{"t":"12:07","v":4536.0},{"t":"12:08","v":5168.0},{"t":"12:09","v":3858.0},{"t":"12:10","v":5782.0},{"t":"12:11","v":4458.0},{"t":"12:12","v":4983.0},{"t":"12:13","v":4047.0},{"t":"12:14","v":5343.0},{"t":"12:15","v":4421.0},{"t":"12:16","v":4382.0},{"t":"12:17","v":5784.0},{"t":"12:18","v":4353.0},{"t":"12:19","v":4260.0},{"t":"12:20","v":4827.0},{"t":"12:21","v":2666.0},{"t":"12:22","v":3030.0},{"t":"12:23","v":2659.0},{"t":"12:24","v":2336.0},{"t":"12:25","v":2097.0},{"t":"12:26","v":2079.0},{"t":"12:27","v":1063.0},{"t":"12:28","v":933.0},{"t":"12:29","v":797.0},{"t":"12:30","v":844.0},{"t":"12:31","v":909.0},{"t":"12:32","v":357.0},{"t":"12:33","v":1154.0},{"t":"12:34","v":629.0},{"t":"12:35","v":1097.0},{"t":"12:36","v":600.0},{"t":"12:37","v":1187.0},{"t":"12:38","v":158.0},{"t":"12:39","v":941.0},{"t":"12:40","v":621.0},{"t":"12:41","v":478.0},{"t":"12:42","v":621.0},{"t":"12:43","v":1042.0},{"t":"12:44","v":1090.0},{"t":"12:45","v":892.0},{"t":"12:46","v":731.0},{"t":"12:47","v":664.0},{"t":"12:48","v":254.0},{"t":"12:49","v":545.0},{"t":"12:50","v":924.0},{"t":"12:51","v":2227.0},{"t":"12:52","v":1344.0},{"t":"12:53","v":1798.0},{"t":"12:54","v":1527.0},{"t":"12:55","v":1495.0},{"t":"12:56","v":1430.0},{"t":"12:57","v":1314.0},{"t":"12:58","v":1877.0},{"t":"12:59","v":2126.0},{"t":"13:00","v":1832.0},{"t":"13:01","v":1879.0},{"t":"13:02","v":1076.0},{"t":"13:03","v":1297.0},{"t":"13:04","v":2273.0},{"t":"13:05","v":2433.0},{"t":"13:06","v":2897.0},{"t":"13:07","v":3229.0},{"t":"13:08","v":2884.0},{"t":"13:09","v":3453.0},{"t":"13:10","v":2187.0},{"t":"13:11","v":2846.0},{"t":"13:12","v":2992.0},{"t":"13:13","v":2947.0},{"t":"13:14","v":4986.0},{"t":"13:15","v":5387.0},{"t":"13:16","v":5586.0},{"t":"13:17","v":7186.0},{"t":"13:18","v":5687.0},{"t":"13:19","v":6872.0},{"t":"13:20","v":5928.0},{"t":"13:21","v":6295.0},{"t":"13:22","v":6574.0},{"t":"13:23","v":5658.0},{"t":"13:24","v":7570.0},{"t":"13:25","v":5108.0},{"t":"13:26","v":6363.0},{"t":"13:27","v":5827.0},{"t":"13:28","v":6362.0},{"t":"13:29","v":6674.0},{"t":"13:30","v":5715.0},{"t":"13:31","v":6551.0},{"t":"13:32","v":7002.0},{"t":"13:33","v":6492.0},{"t":"13:34","v":6397.0},{"t":"13:35","v":5631.0},{"t":"13:36","v":6002.0},{"t":"13:37","v":6263.0},{"t":"13:38","v":6425.0},{"t":"13:39","v":6151.0},{"t":"13:40","v":5708.0},{"t":"13:41","v":5210.0},{"t":"13:42","v":4838.0},{"t":"13:43","v":4779.0},{"t":"13:44","v":4341.0},{"t":"13:45","v":3808.0},{"t":"13:46","v":3241.0},{"t":"13:47","v":2622.0},{"t":"13:48","v":2442.0},{"t":"13:49","v":2002.0},{"t":"13:50","v":1445.0},{"t":"13:51","v":2152.0},{"t":"13:52","v":1381.0},{"t":"13:53","v":1400.0},{"t":"13:54","v":1414.0},{"t":"13:55","v":1416.0},{"t":"13:56","v":1077.0},{"t":"13:57","v":1994.0},{"t":"13:58","v":880.0},{"t":"13:59","v":749.0},{"t":"14:00","v":946.0},{"t":"14:01","v":1064.0},{"t":"14:02","v":685.0},{"t":"14:03","v":935.0},{"t":"14:04","v":831.0},{"t":"14:05","v":404.0},{"t":"14:06","v":73.0},{"t":"14:07","v":1053.0},{"t":"14:08","v":593.0},{"t":"14:09","v":694.0},{"t":"14:10","v":413.0},{"t":"14:11","v":235.0},{"t":"14:12","v":63.0},{"t":"14:13","v":132.0},{"t":"14:14","v":308.0},{"t":"14:15","v":460.0},{"t":"14:16","v":30.0},{"t":"14:17","v":80.0},{"t":"14:18","v":0.0},{"t":"14:19","v":63.0},{"t":"14:20","v":140.0},{"t":"14:21","v":35.0},{"t":"14:22","v":100.0},{"t":"14:23","v":43.0},{"t":"14:24","v":234.0},{"t":"14:25","v":108.0},{"t":"14:26","v":192.0},{"t":"14:27","v":23.0},{"t":"14:28","v":0.0},{"t":"14:29","v":33.0},{"t":"14:30","v":0.0},{"t":"14:31","v":35.0},{"t":"14:32","v":52.0},{"t":"14:33","v":0.0},{"t":"14:34","v":0.0},{"t":"14:35","v":0.0},{"t":"14:36","v":0.0},{"t":"14:37","v":38.0},{"t":"14:38","v":0.0},{"t":"14:39","v":0.0},{"t":"14:40","v":0.0},{"t":"14:41","v":346.0}],"inter_arrival":[{"bucket":"0-0.5s","count":2355},{"bucket":"0.5-1s","count":2707},{"bucket":"1-2s","count":1140},{"bucket":"2-3s","count":537},{"bucket":"3-5s","count":436},{"bucket":"5-10s","count":223},{"bucket":"10-20s","count":83},{"bucket":"20-60s","count":42},{"bucket":"1-5min","count":26},{"bucket":">5min","count":5}],"phases":[{"phase":"Morgen/lunsj","orders":3117,"duration_min":165.0,"avg_tx_min":18.9,"peak_tx_s":6,"peak_tx_min":67,"avg_ticket":109.0,"total_gmv":341040.0,"cancel_pct":5.6,"median_lifespan":6.0,"p95_lifespan":20.0,"time_range":"09:15 \u2013 11:59"},{"phase":"Pre-match","orders":1975,"duration_min":75.0,"avg_tx_min":26.3,"peak_tx_s":6,"peak_tx_min":55,"avg_ticket":96.0,"total_gmv":189040.0,"cancel_pct":8.0,"median_lifespan":6.0,"p95_lifespan":20.0,"time_range":"12:00 \u2013 13:14"},{"phase":"Peak / Match","orders":2113,"duration_min":35.0,"avg_tx_min":60.4,"peak_tx_s":6,"peak_tx_min":76,"avg_ticket":92.0,"total_gmv":194696.0,"cancel_pct":6.5,"median_lifespan":6.0,"p95_lifespan":20.0,"time_range":"13:15 \u2013 13:49"},{"phase":"Post-peak","orders":350,"duration_min":51.0,"avg_tx_min":6.8,"peak_tx_s":3,"peak_tx_min":29,"avg_ticket":70.0,"total_gmv":24346.0,"cancel_pct":9.1,"median_lifespan":6.0,"p95_lifespan":22.0,"time_range":"13:50 \u2013 14:41"}],"extra_summary":{"total_gmv":749122.0,"avg_ticket":99.2,"median_ticket":76.0,"peak_gmv_min":7807,"peak_gmv_time":"11:52","total_devices":43,"peak_concurrent_devices":41,"total_cancelled":502,"cancel_pct":6.64,"median_interarrival":1.0,"mean_interarrival":2.59,"p95_interarrival":6.0}};
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`[data-panel="${btn.dataset.tab}"]`).classList.add('active');
+  });
+});
+
+// Chart.js defaults
+Chart.defaults.font.family = "'Plus Jakarta Sans', system-ui, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.color = '#A5B4C4';
+Chart.defaults.borderColor = 'rgba(255,255,255,.06)';
+
+const COLOR = {
+  primary: '#6BB8DA',
+  primaryDim: '#4A8FAD',
+  primaryFill: 'rgba(107,184,218,.15)',
+  primaryFillStrong: 'rgba(107,184,218,.3)',
+  accent: '#FFB547',
+  accentFill: 'rgba(255,181,71,.2)',
+  muted: '#2E4256',
+  mutedFill: 'rgba(46,66,86,.5)',
+  success: '#5AC994',
+  successFill: 'rgba(90,201,148,.2)',
+  danger: '#F36B6B',
+  dangerFill: 'rgba(243,107,107,.3)',
+  grid: 'rgba(255,255,255,.04)',
+};
+
+const gridCfg = { color: COLOR.grid, tickColor: 'transparent', drawBorder: false };
+const monoTicks = { font: { family: "'JetBrains Mono', monospace", size: 10 }, color: '#6B7C8F' };
+
+const commonOpts = {
+  responsive: true,
+  maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
+  plugins: {
+    legend: { display: false },
+    tooltip: {
+      backgroundColor: '#0A0F14',
+      borderColor: '#2E4256',
+      borderWidth: 1,
+      padding: 12,
+      titleFont: { family: "'JetBrains Mono', monospace", size: 11 },
+      bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 12 },
+      titleColor: '#6BB8DA',
+      bodyColor: '#E8EEF4',
+      cornerRadius: 8,
+      displayColors: true,
+      boxPadding: 4,
+    }
+  }
+};
+
+// === TAB 1 CHARTS ===
+
+// Full-day per-minute
+(() => {
+  const labels = DATA.per_min.map(d => d.t);
+  const colors = DATA.per_min.map(d => {
+    if (d.v >= 70) return COLOR.accent;
+    const [h,m] = d.t.split(':').map(Number);
+    const mins = h*60+m;
+    if (mins >= 13*60+10 && mins <= 13*60+50) return COLOR.primary;
+    return COLOR.muted;
+  });
+  new Chart(document.getElementById('chartDay'), {
+    type: 'bar',
+    data: { labels, datasets: [{ data: DATA.per_min.map(d => d.v), backgroundColor: colors, borderWidth: 0, borderRadius: 2 }] },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 12, autoSkip: true } },
+        y: { grid: gridCfg, ticks: monoTicks, title: { display: true, text: 'ordre / min', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: { title: (i) => i[0].label, label: (ctx) => `  ${ctx.parsed.y} ordre` } } }
+    }
+  });
+})();
+
+// Lifespan over time (dual axis)
+(() => {
+  const d = DATA.lifespan_over_time;
+  new Chart(document.getElementById('chartLifespanTime'), {
+    type: 'bar',
+    data: {
+      labels: d.map(x => x.t),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Ordre per 5min',
+          data: d.map(x => x.count),
+          backgroundColor: COLOR.mutedFill,
+          borderWidth: 0,
+          borderRadius: 2,
+          yAxisID: 'y',
+          order: 2,
+        },
+        {
+          type: 'line',
+          label: 'p50 lifespan (s)',
+          data: d.map(x => x.p50),
+          borderColor: COLOR.primary,
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          yAxisID: 'y1',
+          order: 1,
+        },
+        {
+          type: 'line',
+          label: 'p95 lifespan (s)',
+          data: d.map(x => Math.min(x.p95, 60)), // cap outliers visually
+          borderColor: COLOR.accent,
+          backgroundColor: 'transparent',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.3,
+          borderDash: [4,3],
+          yAxisID: 'y1',
+          order: 1,
+        },
+      ]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 14, autoSkip: true } },
+        y: { position: 'left', grid: gridCfg, ticks: monoTicks, beginAtZero: true,
+             title: { display: true, text: 'ordre / 5min', color: '#6B7C8F', font: { size: 11 } } },
+        y1: { position: 'right', grid: { display: false }, ticks: { ...monoTicks, callback: v => v+'s' },
+              beginAtZero: true, max: 60,
+              title: { display: true, text: 'lifespan (s)', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: {
+          afterBody: (items) => {
+            const i = items[0].dataIndex;
+            const real = d[i];
+            if (real.p95 > 60) return [`(p95 utenfor skala: ${real.p95}s)`];
+            return [];
+          }
+        } } }
+    }
+  });
+})();
+
+// Peak second-level
+(() => {
+  const d = DATA.peak_sec;
+  new Chart(document.getElementById('chartPeak'), {
+    type: 'line',
+    data: {
+      labels: d.map(x => x.t),
+      datasets: [
+        { label: 'Raw tx/s', data: d.map(x => x.raw), borderColor: COLOR.muted, borderWidth: 1, pointRadius: 0, stepped: true, fill: false },
+        { label: '5s avg', data: d.map(x => x.r5), borderColor: COLOR.primary, backgroundColor: COLOR.primaryFill, borderWidth: 2, pointRadius: 0, tension: 0.3, fill: true },
+        { label: '10s avg', data: d.map(x => x.r10), borderColor: COLOR.accent, borderWidth: 2, pointRadius: 0, tension: 0.3, borderDash: [4,3], fill: false },
+      ]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 8, autoSkip: true,
+          callback: function(v) { return this.getLabelForValue(v).substring(0,5); } } },
+        y: { grid: gridCfg, beginAtZero: true, ticks: monoTicks,
+             title: { display: true, text: 'tx/sekund', color: '#6B7C8F', font: { size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Concurrent
+(() => {
+  const d = DATA.concurrent;
+  new Chart(document.getElementById('chartConcurrent'), {
+    type: 'line',
+    data: { labels: d.map(x => x.t), datasets: [{ data: d.map(x => x.v), borderColor: COLOR.primary,
+      backgroundColor: (ctx) => {
+        const area = ctx.chart.chartArea;
+        if (!area) return COLOR.primaryFill;
+        const g = ctx.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+        g.addColorStop(0, 'rgba(107,184,218,.35)');
+        g.addColorStop(1, 'rgba(107,184,218,0)');
+        return g;
+      },
+      borderWidth: 2, pointRadius: 0, tension: 0.2, fill: true }] },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 10, autoSkip: true,
+          callback: function(v) { return this.getLabelForValue(v).substring(0,5); } } },
+        y: { grid: gridCfg, beginAtZero: true, ticks: monoTicks,
+             title: { display: true, text: 'åpne tx', color: '#6B7C8F', font: { size: 11 } } }
+      }
+    }
+  });
+})();
+
+// Devices distribution
+(() => {
+  const d = DATA.devices;
+  new Chart(document.getElementById('chartDevices'), {
+    type: 'bar',
+    data: {
+      labels: d.map(x => x.device),
+      datasets: [{
+        data: d.map(x => x.orders),
+        backgroundColor: d.map((x, i) => {
+          if (i < 5) return COLOR.primary;
+          if (i >= d.length - 3) return COLOR.muted;
+          return COLOR.primaryDim;
+        }),
+        borderWidth: 0,
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxRotation: 90, minRotation: 90, font: { family: "'JetBrains Mono', monospace", size: 8 } } },
+        y: { grid: gridCfg, ticks: monoTicks, beginAtZero: true,
+             title: { display: true, text: 'ordre', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: {
+          title: (i) => `Device ${i[0].label}`,
+          label: (ctx) => {
+            const row = d[ctx.dataIndex];
+            return [`  ${row.orders} ordre`, `  ${row.gmv.toLocaleString('no-NO')} NOK GMV`];
+          }
+        } } }
+    }
+  });
+})();
+
+// Devices active per minute
+(() => {
+  const d = DATA.devices_active;
+  new Chart(document.getElementById('chartDevicesActive'), {
+    type: 'line',
+    data: {
+      labels: d.map(x => x.t),
+      datasets: [{
+        data: d.map(x => x.v),
+        borderColor: COLOR.accent,
+        backgroundColor: 'rgba(255,181,71,.15)',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        fill: true,
+        stepped: false,
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 10, autoSkip: true } },
+        y: { grid: gridCfg, beginAtZero: true, max: 45, ticks: monoTicks,
+             title: { display: true, text: 'aktive devices', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: { label: (ctx) => `  ${ctx.parsed.y} av 43 devices aktive` } } }
+    }
+  });
+})();
+
+// Inter-arrival histogram
+(() => {
+  const d = DATA.inter_arrival;
+  new Chart(document.getElementById('chartInterarrival'), {
+    type: 'bar',
+    data: {
+      labels: d.map(x => x.bucket),
+      datasets: [{
+        data: d.map(x => x.count),
+        backgroundColor: d.map(x => ['0-0.5s','0.5-1s'].includes(x.bucket) ? COLOR.primary : COLOR.primaryDim),
+        borderWidth: 0,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, color: '#A5B4C4' } },
+        y: { grid: gridCfg, ticks: monoTicks,
+             title: { display: true, text: 'antall par', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: { label: (ctx) => {
+          const pct = ((ctx.parsed.y / 7554) * 100).toFixed(1);
+          return `  ${ctx.parsed.y} par (${pct}%)`;
+        } } } }
+    }
+  });
+})();
+
+// Lifespan histogram
+(() => {
+  const d = DATA.lifespan;
+  new Chart(document.getElementById('chartLifespan'), {
+    type: 'bar',
+    data: {
+      labels: d.map(x => x.bucket),
+      datasets: [{
+        data: d.map(x => x.count),
+        backgroundColor: d.map(x => {
+          if (['2-5s','5-8s'].includes(x.bucket)) return COLOR.primary;
+          if (x.bucket === '15-20s') return COLOR.accent;
+          return COLOR.muted;
+        }),
+        borderWidth: 0,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, color: '#A5B4C4' } },
+        y: { grid: gridCfg, ticks: monoTicks,
+             title: { display: true, text: 'antall ordre', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: { label: (ctx) => {
+          const pct = ((ctx.parsed.y / 7555) * 100).toFixed(1);
+          return `  ${ctx.parsed.y} ordre (${pct}%)`;
+        } } } }
+    }
+  });
+})();
+
+// === TAB 2 CHARTS ===
+
+// GMV per minute
+(() => {
+  const d = DATA.gmv_per_min;
+  new Chart(document.getElementById('chartGmv'), {
+    type: 'line',
+    data: {
+      labels: d.map(x => x.t),
+      datasets: [{
+        data: d.map(x => x.v),
+        borderColor: COLOR.accent,
+        backgroundColor: (ctx) => {
+          const area = ctx.chart.chartArea;
+          if (!area) return COLOR.accentFill;
+          const g = ctx.chart.ctx.createLinearGradient(0, area.top, 0, area.bottom);
+          g.addColorStop(0, 'rgba(255,181,71,.35)');
+          g.addColorStop(1, 'rgba(255,181,71,0)');
+          return g;
+        },
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.2,
+        fill: true,
+      }]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 12, autoSkip: true } },
+        y: { grid: gridCfg, beginAtZero: true, ticks: { ...monoTicks,
+             callback: v => (v/1000).toFixed(1)+'k' },
+             title: { display: true, text: 'NOK / min', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: { label: (ctx) => `  ${ctx.parsed.y.toLocaleString('no-NO')} NOK` } } }
+    }
+  });
+})();
+
+// Cancellations (stacked)
+(() => {
+  const d = DATA.cancellations;
+  new Chart(document.getElementById('chartCancel'), {
+    type: 'bar',
+    data: {
+      labels: d.map(x => x.t),
+      datasets: [
+        {
+          label: 'Fullførte',
+          data: d.map(x => x.completed),
+          backgroundColor: COLOR.primaryDim,
+          borderWidth: 0,
+          stack: 's1',
+        },
+        {
+          label: 'Kansellerte',
+          data: d.map(x => x.cancelled),
+          backgroundColor: COLOR.danger,
+          borderWidth: 0,
+          stack: 's1',
+        }
+      ]
+    },
+    options: {
+      ...commonOpts,
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { ...monoTicks, maxTicksLimit: 12, autoSkip: true } },
+        y: { stacked: true, grid: gridCfg, ticks: monoTicks,
+             title: { display: true, text: 'ordre / min', color: '#6B7C8F', font: { size: 11 } } }
+      },
+      plugins: { ...commonOpts.plugins, tooltip: { ...commonOpts.plugins.tooltip,
+        callbacks: {
+          afterBody: (items) => {
+            const i = items[0].dataIndex;
+            const rate = d[i].rate;
+            return [`Cancel rate: ${rate}%`];
+          }
+        } } }
+    }
+  });
+})();
+
+// Phase comparison cards
+(() => {
+  const grid = document.getElementById('phaseGrid');
+  DATA.phases.forEach((p, i) => {
+    const card = document.createElement('div');
+    card.className = 'phase';
+    card.dataset.phase = i+1;
+    card.innerHTML = `
+      <div class="phase-name">${p.phase}</div>
+      <div class="phase-time">${p.time_range} · ${p.duration_min} min</div>
+      <div class="phase-stats">
+        <div class="phase-stat"><span class="phase-stat-label">Ordre</span><span class="phase-stat-value primary">${p.orders.toLocaleString('no-NO')}</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Snitt ordre/min</span><span class="phase-stat-value">${p.avg_tx_min}</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Peak tx/s</span><span class="phase-stat-value">${p.peak_tx_s}</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Peak tx/min</span><span class="phase-stat-value">${p.peak_tx_min}</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Snitt ticket</span><span class="phase-stat-value">${p.avg_ticket} kr</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">GMV</span><span class="phase-stat-value accent">${p.total_gmv.toLocaleString('no-NO')} kr</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Cancel rate</span><span class="phase-stat-value">${p.cancel_pct}%</span></div>
+        <div class="phase-stat"><span class="phase-stat-label">Lifespan p50 / p95</span><span class="phase-stat-value">${p.median_lifespan}s / ${p.p95_lifespan}s</span></div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>
