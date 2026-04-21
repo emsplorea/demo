@@ -3102,9 +3102,6 @@
                                             <span class="change-badge" style="font-size: 0.55rem;">REDESIGNED</span>
                                         </div>
                                         <div style="display: flex; gap: 0.5rem;">
-                                            <button class="btn-secondary" onclick="prefillLowCriticalProducts()" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;" id="transferPrefillBtn" title="Forhåndsutfyll antall for produkter med Lav/Kritisk status på målet">
-                                                ⚡ Prefyll LAV/KRITISK
-                                            </button>
                                             <button class="btn-secondary" onclick="clearTransferQuantities()" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;">
                                                 Nullstill
                                             </button>
@@ -4602,8 +4599,36 @@
             renderTransferRows();
         }
         
-        // Render one row per product in the target DG
-        function renderTransferRows() {
+        // Build the Kilde cell HTML for a given stk value + packaging mode.
+        // Inline single-line format: "18 × Kasse" or "6 × Kasse + 12 stk" or "432 stk".
+        function formatSourceStockForCell(stk, mode) {
+            if (stk === null || stk === undefined) return '<span style="color: var(--text-muted);">ikke i kilde</span>';
+            if (mode === 'stk') {
+                return `<span class="stock-value">${stk}</span> <span style="color: var(--text-muted); font-size: 0.8em;">stk</span>`;
+            }
+            const pkg = packagingDefinitions.find(p => p.id === parseInt(mode, 10));
+            if (!pkg) return `<span class="stock-value">${stk}</span> <span style="color: var(--text-muted); font-size: 0.8em;">stk</span>`;
+            const stkPerPkg = pkgResultPerPackage(pkg);
+            if (stkPerPkg <= 0) return `<span class="stock-value">${stk}</span> <span style="color: var(--text-muted); font-size: 0.8em;">stk</span>`;
+            
+            if (pkg.type === 'UNIT_BASED') {
+                const whole = Math.floor(stk / stkPerPkg);
+                const loose = stk - (whole * stkPerPkg);
+                if (loose === 0) {
+                    return `<span class="stock-value">${whole}</span> <span style="color: var(--text-muted); font-size: 0.8em;">× ${pkg.name}</span>`;
+                }
+                return `<span class="stock-value">${whole}</span> <span style="color: var(--text-muted); font-size: 0.8em;">× ${pkg.name} + ${loose} stk</span>`;
+            } else {
+                const pkgCount = stk / stkPerPkg;
+                const rounded = Math.round(pkgCount * 100) / 100;
+                const display = Number.isInteger(rounded) ? rounded : rounded.toFixed(2);
+                return `<span class="stock-value">${display}</span> <span style="color: var(--text-muted); font-size: 0.8em;">× ${pkg.name}</span>`;
+            }
+        }
+        
+        // Render rows for products in the target DG.
+        // filterToProducts (optional): array of product names to include (defaults to all)
+        function renderTransferRows(filterToProducts) {
             const sourceId = document.getElementById('transferSource').value;
             const targetId = document.getElementById('transferTarget').value;
             const tbody = document.getElementById('transferProductRows');
@@ -4628,15 +4653,30 @@
             tbody.innerHTML = '';
             transferRowState = {};
             
-            Object.keys(targetEvent.currentStock).forEach(product => {
+            let products = Object.keys(targetEvent.currentStock);
+            if (Array.isArray(filterToProducts) && filterToProducts.length > 0) {
+                const allowSet = new Set(filterToProducts);
+                products = products.filter(p => allowSet.has(p));
+            }
+            
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Ingen produkter å vise</td></tr>';
+                return;
+            }
+            
+            products.forEach(product => {
                 const sourcePhysical = getSourcePhysicalForProduct(sourceId, product);
                 const targetStatus = getTargetStatusForProduct(targetId, product);
                 const srcHasProduct = sourcePhysical !== null;
                 const rowId = 'transfer-' + product.replace(/[^a-zA-Z0-9]/g, '_');
                 
-                transferRowState[product] = { pkgMode: 'stk', rawValue: 0, stk: 0, rowId };
+                // Pre-select the product's default packaging (stk is fallback if none)
+                const defaultPkg = getDefaultPackaging(product);
+                const initialMode = defaultPkg ? String(defaultPkg.id) : 'stk';
                 
-                const pkgDropdown = buildPackagingDropdownOptions(product, 'stk');
+                transferRowState[product] = { pkgMode: initialMode, rawValue: 0, stk: 0, rowId };
+                
+                const pkgDropdown = buildPackagingDropdownOptions(product, initialMode);
                 const tr = document.createElement('tr');
                 tr.dataset.product = product;
                 tr.id = rowId;
@@ -4657,8 +4697,8 @@
                             <div class="transfer-row-hint" data-product="${product}" style="font-size: 0.7rem; min-height: 0.9rem;"></div>
                         </div>
                     </td>
-                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">
-                        ${srcHasProduct ? `<span class="stock-value">${sourcePhysical}</span> <span style="color: var(--text-muted); font-size: 0.8em;">stk</span>` : '<span style="color: var(--text-muted);">ikke i kilde</span>'}
+                    <td class="transfer-row-src" data-product="${product}" style="text-align: right; font-family: 'JetBrains Mono', monospace;">
+                        ${formatSourceStockForCell(sourcePhysical, initialMode)}
                     </td>
                     <td style="text-align: right;">
                         <span style="color: ${targetStatus.color}; font-weight: 600; font-size: 0.85rem;">● ${targetStatus.status}</span>
@@ -4676,6 +4716,7 @@
             const row = document.getElementById(state.rowId);
             const input = row.querySelector('.transfer-row-qty');
             const hint = row.querySelector('.transfer-row-hint');
+            const srcCell = row.querySelector('.transfer-row-src');
             
             state.pkgMode = selectEl.value;
             
@@ -4695,6 +4736,12 @@
                     onTransferRowQtyInput(input);
                 }
             }
+            
+            // Update Kilde cell to reflect the new mode
+            const sourceId = document.getElementById('transferSource').value;
+            const sourcePhysical = getSourcePhysicalForProduct(sourceId, product);
+            if (srcCell) srcCell.innerHTML = formatSourceStockForCell(sourcePhysical, state.pkgMode);
+            
             updateTransferPreview();
         }
         
@@ -4727,46 +4774,6 @@
                 input.style.fontWeight = '';
             }
             updateTransferPreview();
-        }
-        
-        // Prefill LOW/CRITICAL target products with a suggested refill amount
-        function prefillLowCriticalProducts() {
-            const targetId = document.getElementById('transferTarget').value;
-            if (!targetId) { alert('Velg mål-enhetsgruppe først.'); return; }
-            
-            let filled = 0;
-            Object.keys(transferRowState).forEach(product => {
-                const targetStatus = getTargetStatusForProduct(targetId, product);
-                if (targetStatus.status === 'LAV' || targetStatus.status === 'KRITISK' || targetStatus.status === 'UTSOLGT') {
-                    const targetOkThreshold = 100;
-                    const shortfall = Math.max(0, targetOkThreshold - (targetStatus.available || 0));
-                    if (shortfall > 0) {
-                        const state = transferRowState[product];
-                        const row = document.getElementById(state.rowId);
-                        const input = row.querySelector('.transfer-row-qty');
-                        if (input.disabled) return;
-                        // Set qty in current pkg mode
-                        if (state.pkgMode === 'stk') {
-                            input.value = shortfall;
-                        } else {
-                            const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
-                            if (pkg) {
-                                const stkPerPkg = pkgResultPerPackage(pkg);
-                                const packages = stkPerPkg > 0 ? Math.ceil(shortfall / stkPerPkg) : shortfall;
-                                input.value = packages;
-                            } else {
-                                input.value = shortfall;
-                            }
-                        }
-                        onTransferRowQtyInput(input);
-                        filled++;
-                    }
-                }
-            });
-            
-            if (filled === 0) {
-                alert('Ingen produkter med LAV eller KRITISK status å forhåndsutfylle.');
-            }
         }
         
         function clearTransferQuantities() {
@@ -4954,7 +4961,8 @@
             document.getElementById('transferPreview').style.display = 'none';
         }
         
-        // Entry point from Live Monitoring → Stop-% KPI → Transfer stock button
+        // Entry point from Live Monitoring → Stop-% KPI → Transfer stock button.
+        // The list is prefilled with the LAV/KRITISK products only; Antall stays at 0.
         function openPrefilledTransferFromStopPct(kioskId, problemProducts) {
             const drill = document.getElementById('drillDownModal');
             if (drill) drill.classList.remove('active');
@@ -4964,27 +4972,31 @@
             if (eventTab) {
                 eventTab.click();
             } else {
-                // Fallback — switch page-section directly if nav-tab not found
                 document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
                 const pageSection = document.getElementById('event-management');
                 if (pageSection) pageSection.classList.add('active');
             }
             
-            // Select the originating DG, then switch to Lagertransfer tab
             selectEventDG(kioskId);
             if (eventData[kioskId] && eventData[kioskId].eventStatus === 'active') {
                 switchEventTab('transfer');
             }
             
-            // Preset Fra + Til, render rows, prefill qty for LAV/KRITISK
+            // Preset Fra + Til, then render rows filtered to LAV/KRITISK products only.
+            // Antall starts at 0 — the operator decides the amount per row.
             setTimeout(() => {
                 const srcSelect = document.getElementById('transferSource');
                 const tgtSelect = document.getElementById('transferTarget');
                 if (srcSelect) srcSelect.value = '__warehouse__';
                 if (tgtSelect) tgtSelect.value = kioskId;
-                renderTransferRows();
-                prefillLowCriticalProducts();
+                
+                // Extract problematic product names from the drill-down data
+                const problemProductNames = Array.isArray(problemProducts)
+                    ? problemProducts.map(p => p.name).filter(Boolean)
+                    : [];
+                
+                renderTransferRows(problemProductNames);
             }, 50);
         }
         
