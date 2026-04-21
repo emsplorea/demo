@@ -6,222 +6,1039 @@
 <title>Plorea – Menyimport</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
-  :root{--bp:#16151A;--bs:#1E1D24;--bh:#26242E;--bo:#2E2C38;--t1:#F0EEF5;--t2:#9B98A8;--t3:#5C5970;--pri:#6BB8DA;--prd:#468DAC;--acc:#2E6B87;--bd:#2E2C38;--bdl:#3A3848;--ok:#4DB896;--wn:#C4C44A;--er:#D45858;--sel:rgba(107,184,218,.12);--foc:rgba(107,184,218,.3);--alc:#C084FC;--alcb:rgba(192,132,252,.1);--ai:#F59E0B;--aib:rgba(245,158,11,.08);--rs:4px;--rm:6px;--rl:8px;--rxl:14px;--r2:20px;--rf:9999px;--e1:0 1px 3px rgba(0,0,0,.3);--e2:0 4px 12px rgba(0,0,0,.35);--e3:0 8px 32px rgba(0,0,0,.45);--dm:80ms;--df:100ms;--dd:160ms;--ds:240ms;--dp:320ms;--eo:cubic-bezier(.16,1,.3,1);--ei:cubic-bezier(.4,0,1,1);--ee:cubic-bezier(.4,0,.2,1)}
+
+  /* ========================================================================
+     PLOREA DESIGN TOKENS — aligned with Blueprint v1.1
+     ======================================================================== */
+  :root{
+    /* Surfaces (elevation 0–4) */
+    --bg-page:#16151A;
+    --bg-surface:#1E1D24;
+    --bg-hover:#26242E;
+    --bg-overlay:#2E2C38;
+
+    /* Text */
+    --t1:#F0EEF5;
+    --t2:#9B98A8;
+    --t3:#5C5970;
+
+    /* Primary palette */
+    --pri:#6BB8DA;
+    --pri-hover:#4FA3C8;
+    --pri-dark:#468DAC;
+    --pri-800:#2E6B87;
+
+    /* Semantic */
+    --ok:#4DB896;
+    --wn:#C4C44A;
+    --er:#D45858;
+    --alc:#C084FC;
+
+    /* Tinted backgrounds */
+    --sel:rgba(107,184,218,.12);
+    --foc:rgba(107,184,218,.3);
+    --alc-bg:rgba(192,132,252,.1);
+    --ai:#F59E0B;
+    --ai-bg:rgba(245,158,11,.08);
+
+    /* Borders */
+    --bd:#2E2C38;
+    --bd-lift:#3A3848;
+
+    /* Radius scale */
+    --r-sm:4px;
+    --r-md:6px;
+    --r-lg:8px;
+    --r-xl:14px;
+    --r-2xl:20px;
+    --r-full:9999px;
+
+    /* Elevation */
+    --e1:0 1px 3px rgba(0,0,0,.3);
+    --e2:0 4px 12px rgba(0,0,0,.35);
+    --e3:0 8px 32px rgba(0,0,0,.45);
+    --e4:0 16px 48px rgba(0,0,0,.55);
+    --e-focus:0 0 0 3px var(--foc);
+
+    /* Motion */
+    --dur-micro:80ms;
+    --dur-fast:100ms;
+    --dur:160ms;
+    --dur-slow:240ms;
+    --dur-panel:320ms;
+
+    --ease-out:cubic-bezier(.16,1,.3,1);
+    --ease-in:cubic-bezier(.4,0,1,1);
+    --ease:cubic-bezier(.4,0,.2,1);
+
+    /* Z-index scale */
+    --z-raised:10;
+    --z-dropdown:1000;
+    --z-sticky:1100;
+    --z-overlay:1200;
+    --z-modal:1300;
+    --z-toast:1400;
+  }
+
+  /* ========================================================================
+     RESET & BASE
+     ======================================================================== */
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bp);color:var(--t1);min-height:100vh;font-size:13px;line-height:1.6;-webkit-font-smoothing:antialiased}
-  h1,h2,h3,.sora{font-family:'Sora',sans-serif;letter-spacing:-.02em}
+  body{
+    font-family:'Plus Jakarta Sans',sans-serif;
+    background:var(--bg-page);
+    color:var(--t1);
+    min-height:100vh;
+    font-size:13px;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4,.sora{font-family:'Sora',sans-serif;letter-spacing:-.02em}
   .mono{font-family:'JetBrains Mono',monospace}
 
-  /* TOP */
-  .top{height:48px;background:var(--bs);border-bottom:1px solid var(--bd);display:flex;align-items:center;padding:0 24px;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--e1)}
-  .logo{font-family:'Sora';font-weight:700;font-size:17px;letter-spacing:-.03em}.logo span{color:var(--pri)}
+  /* Scrollbar styling */
+  ::-webkit-scrollbar{width:10px;height:10px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--bg-overlay);border-radius:var(--r-full);border:2px solid var(--bg-page)}
+  ::-webkit-scrollbar-thumb:hover{background:var(--bd-lift)}
+
+  /* ========================================================================
+     APP SHELL — Topbar (48px, elevation-1, sticky)
+     ======================================================================== */
+  .topbar{
+    height:48px;
+    background:var(--bg-surface);
+    border-bottom:1px solid var(--bd);
+    display:flex;
+    align-items:center;
+    padding:0 24px;
+    gap:16px;
+    position:sticky;
+    top:0;
+    z-index:var(--z-sticky);
+    box-shadow:var(--e1);
+  }
+  .logo{font-family:'Sora';font-weight:700;font-size:17px;letter-spacing:-.03em}
+  .logo span{color:var(--pri)}
   .sep{width:1px;height:20px;background:var(--bd)}
-  .ai-badge{font-family:'Sora';font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding:3px 10px;border-radius:var(--rf);background:var(--aib);color:var(--ai);border:1px solid rgba(245,158,11,.15);margin-left:auto}
+  .breadcrumb{font-size:13px;color:var(--t2);font-weight:500}
+  .breadcrumb strong{color:var(--t1);font-weight:600}
+  .ai-badge{
+    font-family:'Sora';font-size:9px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;
+    padding:3px 10px;border-radius:var(--r-full);
+    background:var(--ai-bg);color:var(--ai);
+    border:1px solid rgba(245,158,11,.15);
+    margin-left:auto;
+  }
 
-  .lay{max-width:1100px;margin:0 auto;padding:28px 24px 120px}
+  /* ========================================================================
+     PAGE CONTAINER — centred, max-width 1100
+     ======================================================================== */
+  .page{
+    max-width:1100px;
+    margin:0 auto;
+    padding:32px 24px 120px;
+  }
+  .page-head{margin-bottom:24px}
+  .page-head h1{font-family:'Sora';font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
+  .page-head p{font-size:14px;color:var(--t2);max-width:640px;line-height:1.55}
 
-  /* CARD */
-  .card{background:var(--bs);border:1px solid var(--bd);border-radius:var(--rxl);padding:24px;margin-bottom:16px;box-shadow:var(--e1)}
+  /* ========================================================================
+     CARD — elevation-1, r-xl, p-6
+     ======================================================================== */
+  .card{
+    background:var(--bg-surface);
+    border:1px solid var(--bd);
+    border-radius:var(--r-xl);
+    padding:24px;
+    margin-bottom:16px;
+    box-shadow:var(--e1);
+  }
+  .card-header{
+    display:flex;align-items:flex-start;gap:12px;
+    padding-bottom:16px;margin-bottom:20px;
+    border-bottom:1px solid var(--bd);
+  }
+  .card-header-icon{
+    width:40px;height:40px;border-radius:var(--r-lg);
+    background:var(--sel);color:var(--pri);
+    display:flex;align-items:center;justify-content:center;
+    font-size:20px;flex-shrink:0;
+  }
+  .card-header-text{flex:1}
+  .card-header-text h2{font-size:18px;font-weight:600;margin-bottom:2px}
+  .card-header-text p{font-size:12px;color:var(--t2);line-height:1.5}
 
-  /* INPUTS */
-  input[type="url"],input[type="text"],input[type="number"]{width:100%;height:44px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rl);padding:0 14px;font-family:inherit;font-size:13px;color:var(--t1);outline:none;transition:border-color var(--df) var(--ee),box-shadow var(--df) var(--ee)}
-  input:focus{border-color:var(--pri);box-shadow:0 0 0 3px var(--foc)}input::placeholder{color:var(--t3)}
-  select{height:34px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rm);padding:0 10px;font-family:inherit;font-size:12px;color:var(--t1);outline:none;cursor:pointer}
+  .section-label{
+    font-family:'Sora';font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;
+    color:var(--t3);margin-bottom:10px;
+    display:flex;align-items:center;gap:6px;
+  }
+  .section-label svg{opacity:.7}
 
-  /* BUTTONS */
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:44px;padding:0 20px;border-radius:var(--rl);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all var(--df) var(--ee);white-space:nowrap}
-  .bp{background:var(--pri);color:#fff}.bp:hover{background:var(--prd)}
-  .bs{background:var(--bh);color:var(--t1);border:1px solid var(--bd)}.bs:hover{background:var(--bo)}
-  .bok{background:var(--ok);color:#fff}.bok:hover{background:#3ca882}
-  .bsm{height:32px;padding:0 14px;font-size:12px;border-radius:var(--rm)}
-  .bxs{height:26px;padding:0 9px;font-size:11px;border-radius:var(--rs)}
-  .bai{background:var(--aib);color:var(--ai);border:1px solid rgba(245,158,11,.2)}.bai:hover{background:rgba(245,158,11,.15)}
-  .bg-btn{background:transparent;color:var(--t2);height:30px;padding:0 10px;font-size:11px;border:none;cursor:pointer;font-family:inherit;border-radius:var(--rm)}.bg-btn:hover{color:var(--t1);background:var(--bh)}
+  /* ========================================================================
+     METHOD SELECTOR — 4 cards (URL / Fil / AI / Bilde)
+     ======================================================================== */
+  .method-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .method-card{
+    background:var(--bg-page);
+    border:1px solid var(--bd);
+    border-radius:var(--r-lg);
+    padding:14px 12px;
+    cursor:pointer;
+    transition:all var(--dur) var(--ease);
+    display:flex;flex-direction:column;align-items:center;gap:8px;
+    text-align:center;position:relative;
+    min-height:88px;
+  }
+  .method-card:hover{background:var(--bg-hover);border-color:var(--bd-lift);transform:translateY(-1px)}
+  .method-card.on{
+    border-color:var(--pri);background:var(--sel);
+    box-shadow:var(--e-focus);
+  }
+  .method-card.on::after{
+    content:'';position:absolute;top:6px;right:6px;
+    width:6px;height:6px;border-radius:50%;background:var(--pri);
+  }
+  .method-ico{
+    width:32px;height:32px;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;font-size:16px;
+    background:var(--bg-hover);color:var(--t1);
+    transition:all var(--dur) var(--ease);
+  }
+  .method-card.on .method-ico{background:var(--pri);color:#fff}
+  .method-label{font-family:'Sora';font-size:12px;font-weight:600}
+  .method-hint{font-size:10px;color:var(--t3);line-height:1.35}
+  .method-card.on .method-hint{color:var(--t2)}
 
-  /* CHIPS */
-  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-  .chip{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:var(--rf);font-size:12px;font-weight:500;background:var(--bh);border:1px solid var(--bd);color:var(--t2);cursor:pointer;transition:all var(--df) var(--ee)}.chip:hover{border-color:var(--pri);color:var(--pri);background:var(--sel)}
+  /* ========================================================================
+     METHOD PANELS — shown conditionally
+     ======================================================================== */
+  .method-panel{display:none}
+  .method-panel.on{display:block;animation:fadeIn var(--dur-panel) var(--ease-out) both}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 
-  /* SCAN - FAST */
-  .scan-wrap{display:none;flex-direction:column;align-items:center;padding:48px 0;text-align:center}.scan-wrap.on{display:flex}
-  .scan-spinner{width:48px;height:48px;border:3px solid var(--bd);border-top-color:var(--ai);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:20px}
+  /* Input fields — 44px height per guidelines */
+  .input-group{position:relative;margin-bottom:10px}
+  .input-group .i-ico{
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    color:var(--t3);pointer-events:none;
+  }
+  .input-group input[type="url"],
+  .input-group input[type="text"]{
+    width:100%;height:44px;
+    background:var(--bg-hover);
+    border:1px solid var(--bd);
+    border-radius:var(--r-lg);
+    padding:0 14px 0 42px;
+    font-family:inherit;font-size:13px;color:var(--t1);
+    outline:none;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+  .input-group.no-ico input{padding-left:14px}
+  input:focus,textarea:focus,select:focus{
+    border-color:var(--pri);box-shadow:var(--e-focus);
+  }
+  input::placeholder,textarea::placeholder{color:var(--t3)}
+
+  /* Textarea */
+  .textarea-wrap textarea{
+    width:100%;min-height:96px;
+    background:var(--bg-hover);
+    border:1px solid var(--bd);
+    border-radius:var(--r-lg);
+    padding:12px 14px;
+    font-family:inherit;font-size:13px;color:var(--t1);
+    outline:none;resize:vertical;line-height:1.55;
+    transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+  }
+
+  /* Dropzone for file upload */
+  .dropzone{
+    border:2px dashed var(--bd-lift);
+    border-radius:var(--r-lg);
+    padding:32px 20px;
+    text-align:center;
+    cursor:pointer;
+    background:var(--bg-page);
+    transition:all var(--dur) var(--ease);
+    display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .dropzone:hover{border-color:var(--pri);background:var(--sel)}
+  .dropzone.drag{border-color:var(--pri);background:var(--sel);transform:scale(1.01)}
+  .dropzone-ico{
+    width:44px;height:44px;border-radius:var(--r-lg);
+    background:var(--bg-hover);display:flex;align-items:center;justify-content:center;
+    font-size:22px;color:var(--pri);
+  }
+  .dropzone-text{font-family:'Sora';font-size:14px;font-weight:600}
+  .dropzone-hint{font-size:11px;color:var(--t3)}
+  .dropzone input[type="file"]{display:none}
+
+  .file-types{
+    display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:4px;
+  }
+  .file-type{
+    font-family:'JetBrains Mono';font-size:9px;font-weight:600;
+    padding:2px 8px;border-radius:var(--r-sm);
+    background:var(--bg-hover);color:var(--t2);border:1px solid var(--bd);
+  }
+
+  /* Selected file display */
+  .file-chosen{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px;
+    background:var(--sel);
+    border:1px solid rgba(107,184,218,.3);
+    border-radius:var(--r-lg);
+    margin-top:10px;
+  }
+  .file-chosen-ico{
+    width:32px;height:32px;border-radius:var(--r-md);
+    background:var(--pri);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+  }
+  .file-chosen-info{flex:1;min-width:0}
+  .file-chosen-name{font-weight:600;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .file-chosen-meta{font-size:10px;color:var(--t2);font-family:'JetBrains Mono'}
+  .file-chosen-clear{
+    background:transparent;border:none;color:var(--t3);
+    cursor:pointer;width:24px;height:24px;border-radius:var(--r-sm);
+    display:flex;align-items:center;justify-content:center;font-size:14px;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .file-chosen-clear:hover{background:var(--er);color:#fff}
+
+  /* ========================================================================
+     CHIPS — quick examples / suggestions
+     ======================================================================== */
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;
+    padding:6px 12px;border-radius:var(--r-full);
+    font-size:11px;font-weight:500;
+    background:var(--bg-hover);border:1px solid var(--bd);
+    color:var(--t2);cursor:pointer;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .chip:hover{border-color:var(--pri);color:var(--pri);background:var(--sel)}
+
+  /* ========================================================================
+     AI OPTIONS BOX (shared across methods)
+     ======================================================================== */
+  .ai-options{
+    background:var(--ai-bg);
+    border:1px solid rgba(245,158,11,.15);
+    border-radius:var(--r-lg);
+    padding:14px 16px;
+    margin-top:16px;
+  }
+  .ai-options-head{
+    display:flex;align-items:center;gap:8px;margin-bottom:10px;
+  }
+  .ai-options-head .spark{font-size:14px}
+  .ai-options-title{font-family:'Sora';font-size:12px;font-weight:600;color:var(--ai)}
+  .ai-options-sub{font-size:10px;color:var(--t3);margin-left:auto}
+  .ai-toggle-row{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 0;
+  }
+  .ai-toggle-row:not(:last-child){border-bottom:1px solid rgba(245,158,11,.08)}
+  .ai-toggle-row label{flex:1;font-size:12px;line-height:1.4;cursor:pointer}
+  .ai-toggle-row label strong{font-weight:600;display:block;margin-bottom:1px}
+  .ai-toggle-row label span{font-size:10px;color:var(--t3)}
+
+  /* Switch component */
+  .switch{position:relative;width:34px;height:20px;flex-shrink:0}
+  .switch input{opacity:0;width:0;height:0}
+  .switch .slider{
+    position:absolute;cursor:pointer;inset:0;
+    background:var(--bg-overlay);border-radius:var(--r-full);
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .switch .slider::before{
+    content:'';position:absolute;height:14px;width:14px;
+    left:3px;top:3px;background:var(--t2);border-radius:50%;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .switch input:checked+.slider{background:var(--ai)}
+  .switch input:checked+.slider::before{transform:translateX(14px);background:#fff}
+
+  /* ========================================================================
+     BUTTONS — 44px default, 32px sm, 26px xs
+     ======================================================================== */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;
+    height:44px;padding:0 20px;border-radius:var(--r-lg);
+    font-family:inherit;font-size:13px;font-weight:600;
+    cursor:pointer;border:none;white-space:nowrap;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .btn-primary{background:var(--pri);color:#fff}
+  .btn-primary:hover{background:var(--pri-hover)}
+  .btn-primary:active{transform:scale(.98)}
+  .btn-secondary{background:var(--bg-hover);color:var(--t1);border:1px solid var(--bd)}
+  .btn-secondary:hover{background:var(--bg-overlay);border-color:var(--bd-lift)}
+  .btn-success{background:var(--ok);color:#fff}
+  .btn-success:hover{background:#3ca882}
+  .btn-ai{background:var(--ai-bg);color:var(--ai);border:1px solid rgba(245,158,11,.2)}
+  .btn-ai:hover{background:rgba(245,158,11,.15)}
+  .btn-ghost{background:transparent;color:var(--t2);height:30px;padding:0 10px;font-size:11px;border-radius:var(--r-md)}
+  .btn-ghost:hover{color:var(--t1);background:var(--bg-hover)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+
+  .btn-sm{height:32px;padding:0 14px;font-size:12px;border-radius:var(--r-md)}
+  .btn-xs{height:26px;padding:0 9px;font-size:11px;border-radius:var(--r-sm)}
+
+  /* Footer actions inside a card */
+  .card-footer{
+    display:flex;align-items:center;gap:10px;
+    padding-top:20px;margin-top:20px;
+    border-top:1px solid var(--bd);
+  }
+  .card-footer .spacer{flex:1}
+  .card-footer-hint{font-size:11px;color:var(--t3);display:flex;align-items:center;gap:6px}
+
+  /* ========================================================================
+     PROMPT GENERATOR — params row
+     ======================================================================== */
+  .params-row{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:10px;
+    margin-top:10px;
+  }
+  .param-field{display:flex;flex-direction:column;gap:4px}
+  .param-label{
+    font-family:'Sora';font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.06em;color:var(--t3);
+  }
+  .param-select,
+  .param-input{
+    height:36px;background:var(--bg-hover);border:1px solid var(--bd);
+    border-radius:var(--r-md);padding:0 10px;
+    font-family:inherit;font-size:12px;color:var(--t1);outline:none;cursor:pointer;
+  }
+  .param-select:focus,.param-input:focus{border-color:var(--pri);box-shadow:var(--e-focus)}
+
+  /* ========================================================================
+     SCAN / GENERATE ANIMATION
+     ======================================================================== */
+  .scan-wrap{
+    display:none;flex-direction:column;align-items:center;
+    padding:56px 0;text-align:center;
+  }
+  .scan-wrap.on{display:flex}
+  .scan-spinner{
+    width:52px;height:52px;
+    border:3px solid var(--bd);border-top-color:var(--ai);
+    border-radius:50%;animation:spin .8s linear infinite;margin-bottom:22px;
+  }
   @keyframes spin{to{transform:rotate(360deg)}}
-  .scan-found{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:16px;max-width:500px}
-  .scan-tag{font-size:10px;padding:3px 8px;border-radius:var(--rf);background:var(--bh);border:1px solid var(--bd);color:var(--t2);animation:tagIn .3s var(--eo) both}
+  .scan-title{font-family:'Sora';font-size:17px;font-weight:600;margin-bottom:4px}
+  .scan-sub{font-size:12px;color:var(--t2)}
+  .scan-found{
+    display:flex;flex-wrap:wrap;gap:6px;justify-content:center;
+    margin-top:20px;max-width:560px;
+  }
+  .scan-tag{
+    font-size:10px;padding:4px 10px;border-radius:var(--r-full);
+    background:var(--bg-hover);border:1px solid var(--bd);color:var(--t2);
+    animation:tagIn .3s var(--ease-out) both;
+  }
   @keyframes tagIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
 
-  /* AI BAR - compact */
-  .ai-bar{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bs);border:1px solid rgba(245,158,11,.12);border-radius:var(--rl);margin-bottom:12px;box-shadow:var(--e1);flex-wrap:wrap}
-  .ai-bar-icon{font-size:16px;flex-shrink:0}
-  .ai-bar-text{font-size:12px;color:var(--t2);flex:1;min-width:200px}.ai-bar-text strong{color:var(--ai)}
-  .ai-bar-stat{font-family:'Sora';font-size:16px;font-weight:700;color:var(--ai);min-width:30px;text-align:center}
-  .ai-bar-label{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
-  .ai-bar-sep{width:1px;height:24px;background:var(--bd)}
+  /* ========================================================================
+     SUMMARY BAR (step 3 head)
+     ======================================================================== */
+  .summary-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:0;
+    background:var(--bg-surface);
+    border:1px solid var(--bd);
+    border-radius:var(--r-lg);
+    overflow:hidden;
+    margin-bottom:12px;
+    box-shadow:var(--e1);
+  }
+  .summary-cell{
+    padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+    border-right:1px solid var(--bd);
+  }
+  .summary-cell:last-child{border-right:none}
+  .summary-ico{
+    width:32px;height:32px;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+  }
+  .summary-ico.ai{background:var(--ai-bg);color:var(--ai)}
+  .summary-ico.ok{background:rgba(77,184,150,.12);color:var(--ok)}
+  .summary-ico.pri{background:var(--sel);color:var(--pri)}
+  .summary-ico.wn{background:rgba(196,196,74,.12);color:var(--wn)}
+  .summary-val{font-family:'Sora';font-size:15px;font-weight:700;line-height:1}
+  .summary-lbl{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
 
-  /* REVIEW PROGRESS */
-  .review-prog{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bs);border:1px solid var(--bd);border-radius:var(--rl);margin-bottom:12px;box-shadow:var(--e1)}
-  .rp-bar{flex:1;height:6px;background:var(--bo);border-radius:3px;overflow:hidden}.rp-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .4s var(--eo)}
-  .rp-text{font-size:12px;font-weight:600;white-space:nowrap}.rp-sub{font-size:10px;color:var(--t3)}
+  /* Review progress (keep existing semantics) */
+  .review-prog{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 16px;
+    background:var(--bg-surface);border:1px solid var(--bd);
+    border-radius:var(--r-lg);margin-bottom:12px;box-shadow:var(--e1);
+  }
+  .rp-bar{flex:1;height:6px;background:var(--bg-overlay);border-radius:3px;overflow:hidden}
+  .rp-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .4s var(--ease-out)}
+  .rp-text{font-size:12px;font-weight:600;white-space:nowrap}
+  .rp-sub{font-size:10px;color:var(--t3)}
 
-  /* TOOLBAR */
-  .tb{display:flex;align-items:center;gap:8px;padding:8px 0;flex-wrap:wrap}
-  .srch{position:relative;width:220px}.srch svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
-  .srch input{width:100%;height:32px;padding:0 10px 0 32px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rm);font-size:11px}.srch input:focus{border-color:var(--pri)}
-  .fg{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
-  .fb{height:28px;padding:0 10px;border-radius:var(--rf);font-size:10px;font-weight:600;border:1px solid var(--bd);background:transparent;color:var(--t2);cursor:pointer;transition:all var(--df) var(--ee);font-family:inherit;display:inline-flex;align-items:center;gap:4px}
-  .fb:hover,.fb.on{background:var(--sel);border-color:var(--pri);color:var(--pri)}
-  .fb .fc{background:var(--bo);padding:1px 5px;border-radius:var(--rf);font-size:8px;font-weight:700}.fb.on .fc{background:var(--pri);color:#fff}
+  /* ========================================================================
+     TABS + TOOLBAR (step 3)
+     ======================================================================== */
+  .tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);margin-bottom:16px}
+  .tab{
+    padding:10px 20px;font-size:13px;font-weight:600;color:var(--t3);
+    cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .tab:hover{color:var(--t2)}
+  .tab.on{color:var(--pri);border-bottom-color:var(--pri)}
+  .tab .tc{
+    font-size:10px;background:var(--bg-overlay);padding:1px 6px;
+    border-radius:var(--r-full);margin-left:4px;
+  }
+  .tab.on .tc{background:var(--sel);color:var(--pri)}
 
-  /* TABLE */
-  .mt{width:100%;border-collapse:collapse;font-size:12px;background:var(--bs);border:1px solid var(--bd);border-radius:var(--rl);overflow:hidden;box-shadow:var(--e1);margin-bottom:16px}
-  .mt th{text-align:left;padding:8px 10px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);background:var(--bp);border-bottom:1px solid var(--bd);white-space:nowrap;position:sticky;top:48px;z-index:10}
+  .toolbar{display:flex;align-items:center;gap:8px;padding:8px 0 12px;flex-wrap:wrap}
+  .srch{position:relative;width:240px}
+  .srch svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none}
+  .srch input{
+    width:100%;height:32px;padding:0 10px 0 32px;
+    background:var(--bg-hover);border:1px solid var(--bd);
+    border-radius:var(--r-md);font-size:12px;color:var(--t1);outline:none;
+  }
+  .srch input:focus{border-color:var(--pri);box-shadow:var(--e-focus)}
+
+  .filter-group{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .fbtn{
+    height:28px;padding:0 10px;border-radius:var(--r-full);
+    font-size:10px;font-weight:600;
+    border:1px solid var(--bd);background:transparent;color:var(--t2);
+    cursor:pointer;font-family:inherit;
+    display:inline-flex;align-items:center;gap:4px;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .fbtn:hover,.fbtn.on{background:var(--sel);border-color:var(--pri);color:var(--pri)}
+  .fbtn .fc{background:var(--bg-overlay);padding:1px 5px;border-radius:var(--r-full);font-size:8px;font-weight:700}
+  .fbtn.on .fc{background:var(--pri);color:#fff}
+
+  /* ========================================================================
+     DATA TABLE
+     ======================================================================== */
+  .mt{
+    width:100%;border-collapse:collapse;font-size:12px;
+    background:var(--bg-surface);border:1px solid var(--bd);
+    border-radius:var(--r-lg);overflow:hidden;
+    box-shadow:var(--e1);margin-bottom:16px;
+  }
+  .mt th{
+    text-align:left;padding:8px 10px;
+    font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+    color:var(--t3);background:var(--bg-page);
+    border-bottom:1px solid var(--bd);white-space:nowrap;
+    position:sticky;top:48px;z-index:var(--z-raised);
+  }
   .mt td{padding:10px;border-bottom:1px solid rgba(46,44,56,.4);vertical-align:middle}
   .mt tr:last-child td{border-bottom:none}
-  .mt tbody tr{cursor:pointer;transition:background var(--df) var(--ee)}.mt tbody tr:hover td{background:var(--bh)}
-  .mt tr.confirmed td{opacity:.55}.mt tr.confirmed:hover td{opacity:.8}
+  .mt tbody tr{cursor:pointer;transition:background var(--dur-fast) var(--ease)}
+  .mt tbody tr:hover td{background:var(--bg-hover)}
+  .mt tr.confirmed td{opacity:.55}
+  .mt tr.confirmed:hover td{opacity:.8}
   .mt tr.confirmed td:first-child{opacity:1}
-  .mt .cat-row td{background:var(--bp);padding:6px 10px;font-family:'Sora';font-size:11px;font-weight:600;color:var(--t3);cursor:default;border-bottom:1px solid var(--bd)}
+  .mt .cat-row td{
+    background:var(--bg-page);padding:7px 10px;
+    font-family:'Sora';font-size:11px;font-weight:600;color:var(--t3);
+    cursor:default;border-bottom:1px solid var(--bd);
+  }
 
-  .chk{width:16px;height:16px;border-radius:var(--rs);border:2px solid var(--bd);background:var(--bh);cursor:pointer;appearance:none;-webkit-appearance:none;position:relative;transition:all var(--dm) var(--ee)}
-  .chk:checked{background:var(--pri);border-color:var(--pri)}.chk:checked::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:#fff;font-weight:700}
-  .chk-ok{border-color:var(--ok);background:rgba(77,184,150,.15)}.chk-ok::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:9px;color:var(--ok);font-weight:700}
+  /* Checkbox */
+  .chk{
+    width:16px;height:16px;border-radius:var(--r-sm);
+    border:2px solid var(--bd);background:var(--bg-hover);
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    position:relative;transition:all var(--dur-micro) var(--ease);
+  }
+  .chk:checked{background:var(--pri);border-color:var(--pri)}
+  .chk:checked::after{
+    content:'✓';position:absolute;top:50%;left:50%;
+    transform:translate(-50%,-50%);font-size:9px;color:#fff;font-weight:700;
+  }
 
-  /* IMAGE THUMB */
-  .img-th{width:44px;height:44px;border-radius:var(--rm);background:var(--bh);border:1px solid var(--bd);overflow:hidden;flex-shrink:0;position:relative;display:flex;align-items:center;justify-content:center}
+  /* Image thumbnail */
+  .img-th{
+    width:44px;height:44px;border-radius:var(--r-md);
+    background:var(--bg-hover);border:1px solid var(--bd);overflow:hidden;
+    flex-shrink:0;position:relative;
+    display:flex;align-items:center;justify-content:center;
+  }
   .img-th img{width:100%;height:100%;object-fit:cover}
   .img-th .img-empty{font-size:18px;opacity:.5}
-  .img-th .img-fail{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(212,88,88,.08);font-size:10px;color:var(--er)}
-  .img-status-dot{position:absolute;bottom:-1px;right:-1px;width:12px;height:12px;border-radius:50%;border:2px solid var(--bs);font-size:6px;display:flex;align-items:center;justify-content:center;font-weight:700}
-  .img-status-dot.ok{background:var(--ok);color:#fff}.img-status-dot.fail{background:var(--er);color:#fff}.img-status-dot.none{background:var(--t3);color:#fff}
-  /* Image section in drawer */
+  .img-status-dot{
+    position:absolute;bottom:-1px;right:-1px;
+    width:12px;height:12px;border-radius:50%;
+    border:2px solid var(--bg-surface);
+    font-size:6px;display:flex;align-items:center;justify-content:center;font-weight:700;
+  }
+  .img-status-dot.ok{background:var(--ok);color:#fff}
+  .img-status-dot.fail{background:var(--er);color:#fff}
+  .img-status-dot.none{background:var(--t3);color:#fff}
+  .img-status-dot.ai{background:var(--ai);color:#fff}
+
+  /* Image in drawer */
   .dr-img-wrap{display:flex;gap:14px;align-items:flex-start;margin-bottom:12px}
-  .dr-img-preview{width:120px;height:90px;border-radius:var(--rl);background:var(--bh);border:1px solid var(--bd);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .dr-img-preview{
+    width:120px;height:90px;border-radius:var(--r-lg);
+    background:var(--bg-hover);border:1px solid var(--bd);overflow:hidden;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+  }
   .dr-img-preview img{width:100%;height:100%;object-fit:cover}
   .dr-img-info{flex:1;display:flex;flex-direction:column;gap:6px}
   .dr-img-status{font-size:11px;font-weight:600;display:flex;align-items:center;gap:5px}
   .dr-img-actions{display:flex;gap:4px;flex-wrap:wrap}
 
-  /* BADGES */
-  .badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:var(--rs);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-  .b-alc{background:var(--alcb);color:var(--alc);border:1px solid rgba(192,132,252,.15)}
-  .b-ai{background:var(--aib);color:var(--ai);border:1px solid rgba(245,158,11,.15)}
+  /* ========================================================================
+     BADGES
+     ======================================================================== */
+  .badge{
+    display:inline-flex;align-items:center;gap:3px;
+    padding:2px 8px;border-radius:var(--r-sm);
+    font-size:9px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;
+  }
+  .b-alc{background:var(--alc-bg);color:var(--alc);border:1px solid rgba(192,132,252,.15)}
+  .b-ai{background:var(--ai-bg);color:var(--ai);border:1px solid rgba(245,158,11,.15)}
+  .b-ai-gen{background:rgba(245,158,11,.15);color:var(--ai);border:1px dashed rgba(245,158,11,.4)}
 
-  /* ALLERGEN TAGS */
-  .al-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--rs);background:rgba(255,255,255,.06);color:var(--t3);display:inline-flex;align-items:center;gap:3px}
+  /* Allergen tags */
+  .al-tag{
+    font-size:10px;font-weight:600;padding:2px 7px;border-radius:var(--r-sm);
+    background:rgba(255,255,255,.06);color:var(--t3);
+    display:inline-flex;align-items:center;gap:3px;
+  }
   .al-tag.ai{border-left:2px solid var(--ai)}
-  .al-src{font-size:7px;font-weight:700;padding:0 3px;border-radius:2px;text-transform:uppercase}.al-src.t{background:var(--aib);color:var(--ai)}.al-src.m{background:var(--sel);color:var(--pri)}
+  .al-src{font-size:7px;font-weight:700;padding:0 3px;border-radius:2px;text-transform:uppercase}
+  .al-src.t{background:var(--ai-bg);color:var(--ai)}
+  .al-src.m{background:var(--sel);color:var(--pri)}
 
-  /* HL DESC */
-  .hl-desc{font-size:11px;line-height:1.6;color:var(--t2);padding:6px 10px;background:var(--bp);border-radius:var(--rm);border:1px solid var(--bd)}
-  .hl-w{padding:1px 3px;border-radius:2px;font-weight:600;cursor:help;position:relative;background:rgba(212,88,88,.12);color:var(--er);border-bottom:1.5px solid var(--er)}
-  .hl-w .hl-tip{position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:var(--bo);border:1px solid var(--bd);border-radius:var(--rs);padding:2px 7px;font-size:8px;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity var(--df);z-index:10;color:var(--t1);font-weight:500}.hl-w:hover .hl-tip{opacity:1}
+  /* Highlighted description */
+  .hl-desc{
+    font-size:11px;line-height:1.6;color:var(--t2);
+    padding:6px 10px;background:var(--bg-page);
+    border-radius:var(--r-md);border:1px solid var(--bd);
+  }
+  .hl-desc.ai-gen{border-color:rgba(245,158,11,.3);background:var(--ai-bg)}
+  .hl-w{
+    padding:1px 3px;border-radius:2px;font-weight:600;cursor:help;position:relative;
+    background:rgba(212,88,88,.12);color:var(--er);border-bottom:1.5px solid var(--er);
+  }
+  .hl-w .hl-tip{
+    position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);
+    background:var(--bg-overlay);border:1px solid var(--bd);border-radius:var(--r-sm);
+    padding:2px 7px;font-size:8px;white-space:nowrap;
+    opacity:0;pointer-events:none;transition:opacity var(--dur-fast);
+    z-index:var(--z-raised);color:var(--t1);font-weight:500;
+  }
+  .hl-w:hover .hl-tip{opacity:1}
 
-  /* HG PILL */
-  .hg-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--rm);font-size:10px;font-weight:600;background:var(--bo);border:1px solid var(--bd)}
+  /* HG pill */
+  .hg-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:3px 10px;border-radius:var(--r-md);
+    font-size:10px;font-weight:600;
+    background:var(--bg-overlay);border:1px solid var(--bd);
+  }
   .hg-conf{font-family:'JetBrains Mono';font-size:9px;font-weight:700}
 
-  /* PRICE */
-  .pvt{font-size:7px;font-weight:700;text-transform:uppercase;padding:0px 3px;border-radius:2px}.pv-in{background:rgba(107,184,218,.12);color:var(--pri)}.pv-ta{background:rgba(77,184,150,.12);color:var(--ok)}
-  .inline-pr{background:transparent;border:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--t1);width:52px;padding:2px 4px;border-radius:var(--rs);outline:none;cursor:text}.inline-pr:hover{background:var(--bo)}.inline-pr:focus{background:var(--bo);box-shadow:0 0 0 2px var(--foc)}
+  /* Price */
+  .pvt{
+    font-size:7px;font-weight:700;text-transform:uppercase;
+    padding:0px 3px;border-radius:2px;
+  }
+  .pv-in{background:rgba(107,184,218,.12);color:var(--pri)}
+  .pv-ta{background:rgba(77,184,150,.12);color:var(--ok)}
+  .inline-pr{
+    background:transparent;border:none;font-family:inherit;
+    font-size:12px;font-weight:600;color:var(--t1);
+    width:52px;padding:2px 4px;border-radius:var(--r-sm);
+    outline:none;cursor:text;
+  }
+  .inline-pr:hover{background:var(--bg-overlay)}
+  .inline-pr:focus{background:var(--bg-overlay);box-shadow:var(--e-focus)}
 
-  /* CONFIRMED CHECK */
-  .conf-icon{width:18px;height:18px;border-radius:50%;background:rgba(77,184,150,.15);color:var(--ok);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+  /* Confirmed check */
+  .conf-icon{
+    width:18px;height:18px;border-radius:50%;
+    background:rgba(77,184,150,.15);color:var(--ok);
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;font-weight:700;flex-shrink:0;
+  }
 
-  /* TABS */
-  .tabs{display:flex;gap:0;border-bottom:2px solid var(--bd);margin-bottom:16px}
-  .tab{padding:10px 20px;font-size:13px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all var(--df) var(--ee)}.tab:hover{color:var(--t2)}.tab.on{color:var(--pri);border-bottom-color:var(--pri)}
-  .tab .tc{font-size:10px;background:var(--bo);padding:1px 6px;border-radius:var(--rf);margin-left:4px}.tab.on .tc{background:var(--sel);color:var(--pri)}
-
-  /* HG CARDS */
-  .hg-card{background:var(--bs);border:1px solid var(--bd);border-radius:var(--rxl);overflow:hidden;margin-bottom:8px;box-shadow:var(--e1)}
+  /* Hovedgruppe cards */
+  .hg-card{
+    background:var(--bg-surface);border:1px solid var(--bd);
+    border-radius:var(--r-xl);overflow:hidden;margin-bottom:8px;box-shadow:var(--e1);
+  }
   .hg-top{display:flex;align-items:center;gap:14px;padding:14px 20px}
-  .hg-ico{width:40px;height:40px;border-radius:var(--rl);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+  .hg-ico{
+    width:40px;height:40px;border-radius:var(--r-lg);
+    display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+  }
   .hg-nm{font-family:'Sora';font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px}
   .hg-meta{font-size:10px;color:var(--t2);margin-top:2px;display:flex;gap:6px;flex-wrap:wrap}
-  .hg-tag{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:var(--rs)}.hg-vat{background:var(--sel);color:var(--pri)}.hg-saft{background:rgba(255,255,255,.05);color:var(--t3);font-family:'JetBrains Mono';font-size:8px}
+  .hg-tag{display:inline-flex;align-items:center;gap:2px;font-size:9px;font-weight:600;padding:2px 7px;border-radius:var(--r-sm)}
+  .hg-vat{background:var(--sel);color:var(--pri)}
+  .hg-saft{background:rgba(255,255,255,.05);color:var(--t3);font-family:'JetBrains Mono';font-size:8px}
   .hg-cnt{font-family:'Sora';font-size:13px;font-weight:700;color:var(--pri);min-width:26px;text-align:center}
-  .hg-edit-btn{height:28px;padding:0 12px;border-radius:var(--rm);font-size:11px;font-weight:600;background:var(--bh);border:1px solid var(--bd);color:var(--t2);cursor:pointer;font-family:inherit;transition:all var(--df) var(--ee)}.hg-edit-btn:hover{background:var(--bo);color:var(--t1);border-color:var(--bdl)}
-  .hg-edit{display:none;padding:14px 20px;background:var(--bp);border-top:1px solid var(--bd);gap:10px;flex-wrap:wrap;align-items:flex-end}.hg-card.editing .hg-edit{display:flex}
-  .hg-ef{display:flex;flex-direction:column;gap:3px}.hg-el{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}.hg-ei{height:32px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rm);padding:0 9px;font-family:inherit;font-size:12px;color:var(--t1);outline:none;transition:border-color var(--df)}.hg-ei:focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--foc)}.hg-ei.w{width:180px}.hg-ei.n{width:70px}.hg-ei.c{width:90px;font-family:'JetBrains Mono'}
-  .hg-items{padding:10px 20px;display:none;flex-direction:column;gap:3px;max-height:180px;overflow-y:auto;border-top:1px solid var(--bd);background:var(--bp)}.hg-card.expanded .hg-items{display:flex}
-  .hg-item{display:flex;align-items:center;gap:8px;padding:5px 10px;background:var(--bs);border:1px solid rgba(46,44,56,.3);border-radius:var(--rm);font-size:11px}.hg-inm{flex:1;font-weight:500}.hg-ipr{font-family:'JetBrains Mono';font-size:10px;color:var(--t2);display:flex;gap:6px}
+  .hg-edit-btn{
+    height:28px;padding:0 12px;border-radius:var(--r-md);
+    font-size:11px;font-weight:600;
+    background:var(--bg-hover);border:1px solid var(--bd);color:var(--t2);
+    cursor:pointer;font-family:inherit;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .hg-edit-btn:hover{background:var(--bg-overlay);color:var(--t1);border-color:var(--bd-lift)}
+  .hg-edit{
+    display:none;padding:14px 20px;background:var(--bg-page);
+    border-top:1px solid var(--bd);gap:10px;flex-wrap:wrap;align-items:flex-end;
+  }
+  .hg-card.editing .hg-edit{display:flex}
+  .hg-ef{display:flex;flex-direction:column;gap:3px}
+  .hg-el{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3)}
+  .hg-ei{
+    height:32px;background:var(--bg-hover);border:1px solid var(--bd);
+    border-radius:var(--r-md);padding:0 9px;
+    font-family:inherit;font-size:12px;color:var(--t1);
+    outline:none;transition:border-color var(--dur-fast);
+  }
+  .hg-ei:focus{border-color:var(--pri);box-shadow:var(--e-focus)}
+  .hg-ei.w{width:180px}
+  .hg-ei.n{width:70px}
+  .hg-ei.c{width:90px;font-family:'JetBrains Mono'}
+  .hg-items{
+    padding:10px 20px;display:none;flex-direction:column;gap:3px;
+    max-height:180px;overflow-y:auto;border-top:1px solid var(--bd);background:var(--bg-page);
+  }
+  .hg-card.expanded .hg-items{display:flex}
+  .hg-item{
+    display:flex;align-items:center;gap:8px;padding:5px 10px;
+    background:var(--bg-surface);border:1px solid rgba(46,44,56,.3);
+    border-radius:var(--r-md);font-size:11px;
+  }
+  .hg-inm{flex:1;font-weight:500}
+  .hg-ipr{font-family:'JetBrains Mono';font-size:10px;color:var(--t2);display:flex;gap:6px}
 
-  /* STICKY */
-  .sticky{position:fixed;bottom:0;left:0;right:0;z-index:100;background:var(--bs);border-top:1px solid var(--bd);padding:10px 24px;display:none;backdrop-filter:blur(12px);box-shadow:0 -4px 16px rgba(0,0,0,.3)}.sticky.on{display:flex}
+  /* ========================================================================
+     STICKY ACTION BAR
+     ======================================================================== */
+  .sticky{
+    position:fixed;bottom:0;left:0;right:0;z-index:var(--z-sticky);
+    background:var(--bg-surface);border-top:1px solid var(--bd);
+    padding:10px 24px;display:none;
+    backdrop-filter:blur(12px);box-shadow:0 -4px 16px rgba(0,0,0,.3);
+  }
+  .sticky.on{display:flex}
   .sticky-in{max-width:1100px;margin:0 auto;display:flex;align-items:center;width:100%;gap:12px}
   .sticky-l{display:flex;align-items:center;gap:10px;font-size:13px;flex:1;flex-wrap:wrap}
-  .sticky-prog{width:80px;height:6px;background:var(--bo);border-radius:3px;overflow:hidden}.sticky-prog-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .3s var(--eo)}
+  .sticky-prog{width:80px;height:6px;background:var(--bg-overlay);border-radius:3px;overflow:hidden}
+  .sticky-prog-fill{height:100%;border-radius:3px;background:var(--ok);transition:width .3s var(--ease-out)}
   .sticky-r{display:flex;gap:8px;align-items:center}
 
-  /* DRAWER */
-  .dov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;opacity:0;pointer-events:none;transition:opacity var(--dp) var(--ee)}.dov.on{opacity:1;pointer-events:auto}
-  .drw{position:fixed;top:0;right:0;bottom:0;width:520px;max-width:96vw;background:var(--bs);border-left:1px solid var(--bd);z-index:210;transform:translateX(100%);transition:transform var(--dp) var(--eo);display:flex;flex-direction:column;box-shadow:var(--e3)}.drw.on{transform:translateX(0)}
-  .drh{display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid var(--bd);flex-shrink:0}
-  .drcl{width:30px;height:30px;border-radius:var(--rm);border:1px solid var(--bd);background:transparent;color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;transition:all var(--df) var(--ee)}.drcl:hover{background:var(--bh);color:var(--t1)}
-  .drt{flex:1;font-family:'Sora';font-size:15px;font-weight:600}.drt small{font-size:11px;font-weight:400;color:var(--t3);margin-left:5px}
-  .drn{display:flex;gap:3px}.drn button{width:26px;height:26px;border-radius:var(--rs);border:1px solid var(--bd);background:transparent;color:var(--t3);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;transition:all var(--df)}.drn button:hover:not(:disabled){background:var(--bh);color:var(--t1)}.drn button:disabled{opacity:.3;cursor:not-allowed}
+  /* ========================================================================
+     DRAWER — elevation-3
+     ======================================================================== */
+  .dov{
+    position:fixed;inset:0;background:rgba(0,0,0,.5);
+    z-index:var(--z-overlay);opacity:0;pointer-events:none;
+    transition:opacity var(--dur-panel) var(--ease);
+  }
+  .dov.on{opacity:1;pointer-events:auto}
+  .drw{
+    position:fixed;top:0;right:0;bottom:0;
+    width:520px;max-width:96vw;
+    background:var(--bg-surface);border-left:1px solid var(--bd);
+    z-index:var(--z-modal);
+    transform:translateX(100%);
+    transition:transform var(--dur-panel) var(--ease-out);
+    display:flex;flex-direction:column;box-shadow:var(--e3);
+  }
+  .drw.on{transform:translateX(0)}
+  .drh{
+    display:flex;align-items:center;gap:10px;
+    padding:14px 18px;border-bottom:1px solid var(--bd);flex-shrink:0;
+  }
+  .drcl{
+    width:30px;height:30px;border-radius:var(--r-md);
+    border:1px solid var(--bd);background:transparent;color:var(--t2);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .drcl:hover{background:var(--bg-hover);color:var(--t1)}
+  .drt{flex:1;font-family:'Sora';font-size:15px;font-weight:600}
+  .drt small{font-size:11px;font-weight:400;color:var(--t3);margin-left:5px}
+  .drn{display:flex;gap:3px}
+  .drn button{
+    width:26px;height:26px;border-radius:var(--r-sm);
+    border:1px solid var(--bd);background:transparent;color:var(--t3);
+    cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;
+    transition:all var(--dur-fast);
+  }
+  .drn button:hover:not(:disabled){background:var(--bg-hover);color:var(--t1)}
+  .drn button:disabled{opacity:.3;cursor:not-allowed}
   .drb{flex:1;overflow-y:auto;padding:18px}
-  .drs{margin-bottom:16px}.drst{font-family:'Sora';font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:7px;display:flex;align-items:center;gap:6px}
-  .drf{margin-bottom:10px}.drl{font-size:10px;font-weight:700;color:var(--t2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
-  .dri{width:100%;height:36px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rm);padding:0 10px;font-family:inherit;font-size:12px;color:var(--t1);outline:none}.dri:focus{border-color:var(--pri);box-shadow:0 0 0 2px var(--foc)}
-  .drta{width:100%;min-height:44px;background:var(--bh);border:1px solid var(--bd);border-radius:var(--rm);padding:8px 10px;font-family:inherit;font-size:12px;color:var(--t1);outline:none;resize:vertical}.drta:focus{border-color:var(--pri)}
-  .drat{display:flex;flex-wrap:wrap;gap:3px}.dra{font-size:10px;font-weight:500;padding:4px 9px;border-radius:var(--rs);background:var(--bh);border:1px solid var(--bd);color:var(--t2);cursor:pointer;transition:all var(--df) var(--ee)}.dra:hover{border-color:var(--pri);color:var(--pri)}.dra.sel{background:var(--pri);border-color:var(--pri);color:#fff}.dra.sug{border-color:rgba(245,158,11,.4);background:var(--aib)}.dra.sug::before{content:'🤖 ';font-size:8px}
-  .drac{display:flex;gap:6px;padding:14px 18px;border-top:1px solid var(--bd);flex-shrink:0;align-items:center}
+  .drs{margin-bottom:18px}
+  .drst{
+    font-family:'Sora';font-size:10px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--t3);
+    margin-bottom:8px;display:flex;align-items:center;gap:6px;
+  }
+  .drf{margin-bottom:10px}
+  .drl{
+    font-size:10px;font-weight:700;color:var(--t2);
+    margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;
+  }
+  .dri{
+    width:100%;height:36px;background:var(--bg-hover);border:1px solid var(--bd);
+    border-radius:var(--r-md);padding:0 10px;
+    font-family:inherit;font-size:12px;color:var(--t1);outline:none;
+  }
+  .dri:focus{border-color:var(--pri);box-shadow:var(--e-focus)}
+  .drta{
+    width:100%;min-height:44px;background:var(--bg-hover);border:1px solid var(--bd);
+    border-radius:var(--r-md);padding:8px 10px;
+    font-family:inherit;font-size:12px;color:var(--t1);outline:none;resize:vertical;
+  }
+  .drta:focus{border-color:var(--pri)}
+  .drat{display:flex;flex-wrap:wrap;gap:3px}
+  .dra{
+    font-size:10px;font-weight:500;padding:4px 9px;border-radius:var(--r-sm);
+    background:var(--bg-hover);border:1px solid var(--bd);color:var(--t2);
+    cursor:pointer;transition:all var(--dur-fast) var(--ease);
+  }
+  .dra:hover{border-color:var(--pri);color:var(--pri)}
+  .dra.sel{background:var(--pri);border-color:var(--pri);color:#fff}
+  .dra.sug{border-color:rgba(245,158,11,.4);background:var(--ai-bg)}
+  .dra.sug::before{content:'🤖 ';font-size:8px}
+  .drac{
+    display:flex;gap:6px;padding:14px 18px;
+    border-top:1px solid var(--bd);flex-shrink:0;align-items:center;
+  }
 
-  /* AI reasoning - COLLAPSIBLE */
-  .ai-toggle{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ai);cursor:pointer;padding:6px 10px;background:var(--aib);border:1px solid rgba(245,158,11,.12);border-radius:var(--rm);margin-bottom:8px;transition:all var(--df) var(--ee)}.ai-toggle:hover{background:rgba(245,158,11,.12)}
-  .ai-toggle .arr{transition:transform var(--dd) var(--ee)}.ai-toggle.open .arr{transform:rotate(90deg)}
-  .ai-detail{display:none;padding:10px 12px;background:var(--bp);border:1px solid rgba(245,158,11,.1);border-radius:var(--rm);margin-bottom:8px}.ai-detail.open{display:block}
-  .ai-step{display:flex;align-items:flex-start;gap:6px;font-size:10px;padding:2px 0}.ai-step-i{font-size:9px;margin-top:2px;flex-shrink:0}.ai-step-t{color:var(--t2);line-height:1.4}.ai-step-t strong{color:var(--t1)}.ai-step-t em{color:var(--ai);font-style:normal;font-weight:600}
+  /* AI reasoning collapsible */
+  .ai-toggle{
+    display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ai);
+    cursor:pointer;padding:6px 10px;
+    background:var(--ai-bg);border:1px solid rgba(245,158,11,.12);
+    border-radius:var(--r-md);margin-bottom:8px;
+    transition:all var(--dur-fast) var(--ease);
+  }
+  .ai-toggle:hover{background:rgba(245,158,11,.12)}
+  .ai-toggle .arr{transition:transform var(--dur-slow) var(--ease)}
+  .ai-toggle.open .arr{transform:rotate(90deg)}
+  .ai-detail{
+    display:none;padding:10px 12px;
+    background:var(--bg-page);border:1px solid rgba(245,158,11,.1);
+    border-radius:var(--r-md);margin-bottom:8px;
+  }
+  .ai-detail.open{display:block}
+  .ai-step{display:flex;align-items:flex-start;gap:6px;font-size:10px;padding:2px 0}
+  .ai-step-i{font-size:9px;margin-top:2px;flex-shrink:0}
+  .ai-step-t{color:var(--t2);line-height:1.4}
+  .ai-step-t strong{color:var(--t1)}
+  .ai-step-t em{color:var(--ai);font-style:normal;font-weight:600}
 
-  /* SUCCESS */
+  /* AI bar compact (step 3 top banner) */
+  .ai-bar{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 16px;
+    background:var(--bg-surface);
+    border:1px solid rgba(245,158,11,.12);
+    border-radius:var(--r-lg);margin-bottom:12px;box-shadow:var(--e1);flex-wrap:wrap;
+  }
+  .ai-bar-ico{font-size:16px;flex-shrink:0}
+  .ai-bar-text{font-size:12px;color:var(--t2);flex:1;min-width:200px}
+  .ai-bar-text strong{color:var(--ai)}
+
+  /* ========================================================================
+     SUCCESS SCREEN
+     ======================================================================== */
   .suc{display:flex;flex-direction:column;align-items:center;padding:48px 24px;text-align:center}
-  .suc-check{width:72px;height:72px;border-radius:50%;background:rgba(77,184,150,.12);display:flex;align-items:center;justify-content:center;margin-bottom:20px;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both}
+  .suc-check{
+    width:72px;height:72px;border-radius:50%;
+    background:rgba(77,184,150,.12);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:20px;animation:pop .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
   @keyframes pop{0%{transform:scale(0)}100%{transform:scale(1)}}
-  .suc-check svg{animation:draw .6s var(--eo) .3s both}
+  .suc-check svg{animation:draw .6s var(--ease-out) .3s both}
   @keyframes draw{from{stroke-dashoffset:30}to{stroke-dashoffset:0}}
   .suc-t{font-family:'Sora';font-size:22px;font-weight:700;letter-spacing:-.02em;margin-bottom:6px}
-  .suc-d{font-size:13px;color:var(--t2);max-width:440px;line-height:1.6;margin-bottom:28px}
+  .suc-d{font-size:13px;color:var(--t2);max-width:480px;line-height:1.6;margin-bottom:28px}
   .suc-stats{display:flex;gap:24px;margin-bottom:32px;flex-wrap:wrap;justify-content:center}
-  .suc-st{text-align:center;min-width:70px}.suc-sv{font-family:'Sora';font-size:28px;font-weight:700;letter-spacing:-.02em}.suc-sl{font-size:10px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .suc-st{text-align:center;min-width:70px}
+  .suc-sv{font-family:'Sora';font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .suc-sl{font-size:10px;color:var(--t3);margin-top:2px;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
   .suc-next{width:100%;max-width:500px;text-align:left;margin-bottom:28px}
-  .suc-next h4{font-family:'Sora';font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:10px}
-  .suc-ni{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bs);border:1px solid var(--bd);border-radius:var(--rl);margin-bottom:6px;cursor:pointer;transition:all var(--df) var(--ee);box-shadow:var(--e1)}
-  .suc-ni:hover{border-color:var(--pri);background:var(--bh)}
-  .suc-ni-ico{width:32px;height:32px;border-radius:var(--rm);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-  .suc-ni-ico.bl{background:var(--sel);color:var(--pri)}.suc-ni-ico.gn{background:rgba(77,184,150,.12);color:var(--ok)}.suc-ni-ico.or{background:var(--aib);color:var(--ai)}
-  .suc-ni-txt{flex:1}.suc-ni-txt strong{font-size:13px;display:block;font-weight:600}.suc-ni-txt span{font-size:11px;color:var(--t3)}
+  .suc-next h4{
+    font-family:'Sora';font-size:11px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:10px;
+  }
+  .suc-ni{
+    display:flex;align-items:center;gap:12px;
+    padding:12px 16px;
+    background:var(--bg-surface);border:1px solid var(--bd);
+    border-radius:var(--r-lg);margin-bottom:6px;
+    cursor:pointer;transition:all var(--dur-fast) var(--ease);box-shadow:var(--e1);
+  }
+  .suc-ni:hover{border-color:var(--pri);background:var(--bg-hover)}
+  .suc-ni-ico{
+    width:32px;height:32px;border-radius:var(--r-md);
+    display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;
+  }
+  .suc-ni-ico.bl{background:var(--sel);color:var(--pri)}
+  .suc-ni-ico.gn{background:rgba(77,184,150,.12);color:var(--ok)}
+  .suc-ni-ico.or{background:var(--ai-bg);color:var(--ai)}
+  .suc-ni-txt{flex:1}
+  .suc-ni-txt strong{font-size:13px;display:block;font-weight:600}
+  .suc-ni-txt span{font-size:11px;color:var(--t3)}
   .suc-ni-arr{color:var(--t3);font-size:14px}
-  /* IMPORTING OVERLAY */
-  .imp-overlay{position:fixed;inset:0;z-index:300;background:rgba(22,21,26,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity var(--dp) var(--ee)}.imp-overlay.on{opacity:1;pointer-events:auto}
-  .imp-bar{width:240px;height:4px;background:var(--bo);border-radius:2px;overflow:hidden}.imp-fill{height:100%;background:var(--ok);border-radius:2px;width:0%;transition:width .6s var(--eo)}
 
+  /* Importing overlay */
+  .imp-overlay{
+    position:fixed;inset:0;z-index:var(--z-modal);
+    background:rgba(22,21,26,.92);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    backdrop-filter:blur(8px);
+    opacity:0;pointer-events:none;
+    transition:opacity var(--dur-panel) var(--ease);
+  }
+  .imp-overlay.on{opacity:1;pointer-events:auto}
+  .imp-bar{width:240px;height:4px;background:var(--bg-overlay);border-radius:2px;overflow:hidden}
+  .imp-fill{height:100%;background:var(--ok);border-radius:2px;width:0%;transition:width .6s var(--ease-out)}
+
+  /* Utility */
   .hidden{display:none!important}
-  @media(max-width:768px){.drw{width:100%}.hg-edit{flex-direction:column}}
+
+  /* Responsive */
+  @media(max-width:768px){
+    .drw{width:100%}
+    .hg-edit{flex-direction:column}
+    .method-grid{grid-template-columns:repeat(2,1fr)}
+    .summary-grid{grid-template-columns:repeat(2,1fr)}
+    .summary-cell:nth-child(2){border-right:none}
+    .params-row{grid-template-columns:1fr}
+  }
 </style>
 </head>
 <body>
-<div class="top"><div class="logo">plorea<span>.</span></div><div class="sep"></div><span style="font-size:13px;color:var(--t2);font-weight:500">Menyimport</span><span class="ai-badge">✨ AI</span></div>
-<div class="lay"><div id="step1"></div><div id="step2" class="hidden"></div><div id="step3" class="hidden"></div><div id="step4" class="hidden"></div></div>
-<div class="sticky" id="sticky"><div class="sticky-in"><div class="sticky-l" id="stickyL"></div><div class="sticky-r" id="stickyR"></div></div></div>
+
+<!-- ======================================================================
+     TOPBAR
+     ====================================================================== -->
+<div class="topbar">
+  <div class="logo">plorea<span>.</span></div>
+  <div class="sep"></div>
+  <div class="breadcrumb">Meny · <strong>Importer</strong></div>
+  <span class="ai-badge">✨ AI</span>
+</div>
+
+<!-- ======================================================================
+     PAGE CONTAINER
+     ====================================================================== -->
+<div class="page">
+  <div id="step1"></div>
+  <div id="step2" class="hidden"></div>
+  <div id="step3" class="hidden"></div>
+  <div id="step4" class="hidden"></div>
+</div>
+
+<!-- Sticky action bar for step 3 -->
+<div class="sticky" id="sticky">
+  <div class="sticky-in">
+    <div class="sticky-l" id="stickyL"></div>
+    <div class="sticky-r" id="stickyR"></div>
+  </div>
+</div>
+
+<!-- Drawer overlay -->
 <div class="dov" id="dov" onclick="closeDr()"></div>
-<div class="imp-overlay" id="impOv"><div class="scan-spinner" style="border-top-color:var(--ok)"></div><div class="sora" style="font-size:16px;font-weight:600" id="impTxt">Importerer produkter…</div><div style="font-size:12px;color:var(--t2)" id="impSub">Oppretter i Plorea</div><div class="imp-bar"><div class="imp-fill" id="impFill"></div></div></div>
-<div class="drw" id="drw"><div class="drh"><button class="drcl" onclick="closeDr()">✕</button><div class="drt" id="drt"></div><div class="drn"><button onclick="navDr(-1)" id="drP">‹</button><button onclick="navDr(1)" id="drN">›</button></div></div><div class="drb" id="drb"></div><div class="drac" id="drac"></div></div>
+
+<!-- Import overlay -->
+<div class="imp-overlay" id="impOv">
+  <div class="scan-spinner" style="border-top-color:var(--ok)"></div>
+  <div class="sora" style="font-size:16px;font-weight:600" id="impTxt">Importerer produkter…</div>
+  <div style="font-size:12px;color:var(--t2)" id="impSub">Oppretter i Plorea</div>
+  <div class="imp-bar"><div class="imp-fill" id="impFill"></div></div>
+</div>
+
+<!-- Drawer -->
+<div class="drw" id="drw">
+  <div class="drh">
+    <button class="drcl" onclick="closeDr()">✕</button>
+    <div class="drt" id="drt"></div>
+    <div class="drn">
+      <button onclick="navDr(-1)" id="drP">‹</button>
+      <button onclick="navDr(1)" id="drN">›</button>
+    </div>
+  </div>
+  <div class="drb" id="drb"></div>
+  <div class="drac" id="drac"></div>
+</div>
 
 <script>
+/* ========================================================================
+   ALLERGEN & HOVEDGRUPPE RULES (unchanged logic)
+   ======================================================================== */
 const AL='Gluten,Melk,Egg,Fisk,Skalldyr,Bløtdyr,Soya,Nøtter,Peanøtter,Selleri,Sennep,Sesam,Sulfitt,Lupin'.split(',');
 const AR=[{k:'mozzarella',a:'Melk',c:98},{k:'parmesan',a:'Melk',c:97},{k:'ost',a:'Melk',c:95},{k:'smør',a:'Melk',c:96},{k:'krem',a:'Melk',c:88},{k:'mascarpone',a:'Melk',c:99},{k:'ricotta',a:'Melk',c:98},{k:'chevre',a:'Melk',c:97},{k:'gorgonzola',a:'Melk',c:99},{k:'béchamel',a:'Melk',c:94},{k:'vaniljeis',a:'Melk',c:92},{k:'kokos',a:'Melk',c:60},{k:'egg',a:'Egg',c:97},{k:'aioli',a:'Egg',c:90},{k:'bearnaise',a:'Egg',c:92},{k:'speilegg',a:'Egg',c:99},{k:'pasta',a:'Gluten',c:95},{k:'linguine',a:'Gluten',c:98},{k:'butterdeig',a:'Gluten',c:96},{k:'lasagne',a:'Gluten',c:97},{k:'vårrull',a:'Gluten',c:90},{k:'brød',a:'Gluten',c:97},{k:'torsk',a:'Fisk',c:99},{k:'laks',a:'Fisk',c:99},{k:'skrei',a:'Fisk',c:99},{k:'fisk',a:'Fisk',c:97},{k:'reke',a:'Skalldyr',c:98},{k:'blåskjell',a:'Bløtdyr',c:99},{k:'kamskjell',a:'Bløtdyr',c:99},{k:'peanøtt',a:'Peanøtter',c:99},{k:'hasselnøtt',a:'Nøtter',c:98},{k:'sennep',a:'Sennep',c:97},{k:'hvitvin',a:'Sulfitt',c:80}];
 const HR=[{t:i=>i.al&&/øl|pils|lager|ipa/i.test(i.n+' '+i.d),h:'beer',r:'Alkohol + øl/pilsner/IPA',c:96},{t:i=>i.al&&/vin|merlot|pinot|chianti|sangiovese/i.test(i.n+' '+i.d),h:'wine',r:'Alkohol + vin/merlot/chianti',c:95},{t:i=>i.al&&/brennevin|vodka|gin|whisky|limoncello|cognac/i.test(i.n+' '+i.d),h:'spirits',r:'Alkohol + brennevin/limoncello',c:93},{t:i=>i.al,h:'beer',r:'Alkohol (ukjent type)',c:70},{t:i=>i.tp==='drink'&&!i.al,h:'af',r:'Alkoholfri drikke',c:90},{t:i=>/barn/i.test(i.cn),h:'barne',r:'Kategori «Barnemeny»',c:92},{t:i=>i.tp==='dessert',h:'dessert',r:'Dessert',c:91},{t:i=>i.tp==='side'||/tilbehør/i.test(i.cn),h:'side',r:'Tilbehør',c:89},{t:()=>true,h:'mat',r:'Standard matrett',c:85}];
 
-let HGD=[{id:'mat',nm:'Mat',ic:'🍽️',bg:'rgba(107,184,218,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'dessert',nm:'Dessert',ic:'🍰',bg:'rgba(236,72,153,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'side',nm:'Tilbehør',ic:'🥗',bg:'rgba(234,179,8,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'barne',nm:'Barnemeny',ic:'👶',bg:'rgba(96,165,250,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'af',nm:'Alkoholfri drikke',ic:'🥤',bg:'rgba(77,184,150,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'beer',nm:'Øl',ic:'🍺',bg:'var(--alcb)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true},{id:'wine',nm:'Vin',ic:'🍷',bg:'var(--alcb)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true},{id:'spirits',nm:'Brennevin',ic:'🥃',bg:'var(--alcb)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true}];
+let HGD=[{id:'mat',nm:'Mat',ic:'🍽️',bg:'rgba(107,184,218,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'dessert',nm:'Dessert',ic:'🍰',bg:'rgba(236,72,153,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'side',nm:'Tilbehør',ic:'🥗',bg:'rgba(234,179,8,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'barne',nm:'Barnemeny',ic:'👶',bg:'rgba(96,165,250,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'af',nm:'Alkoholfri drikke',ic:'🥤',bg:'rgba(77,184,150,.08)',vi:25,vt:15,sf:'3000',sfn:'Varesalg, avgiftspliktig',al:false},{id:'beer',nm:'Øl',ic:'🍺',bg:'var(--alc-bg)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true},{id:'wine',nm:'Vin',ic:'🍷',bg:'var(--alc-bg)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true},{id:'spirits',nm:'Brennevin',ic:'🥃',bg:'var(--alc-bg)',vi:25,vt:25,sf:'3030',sfn:'Alkoholholdig drikke',al:true}];
 
 function aiAl(n,d){const t=(n+' '+d).toLowerCase();const f=[];AR.forEach(r=>{if(t.includes(r.k))f.push({a:r.a,tr:r.k,c:r.c});});const b={};f.forEach(x=>{if(!b[x.a]||x.c>b[x.a].c)b[x.a]=x;});return Object.values(b);}
 function aiHG(i){const s=[];for(const r of HR){if(r.t(i)){s.push({r:r.r,ok:true,h:r.h,c:r.c});return{res:{h:r.h,c:r.c,r:r.r},s};}else if(s.length<2)s.push({r:r.r,ok:false});}return{res:{h:'mat',c:50},s};}
 function hl(d,det){if(!d)return'<span style="color:var(--t3);font-style:italic">Mangler</span>';let h=d;[...det].sort((a,b)=>b.tr.length-a.tr.length).forEach(x=>{h=h.replace(new RegExp(`(${x.tr})`,'gi'),`<span class="hl-w"><span class="hl-tip">→ ${x.a} (${x.c}%)</span>$1</span>`);});return h;}
 const cc=c=>c>=85?'ok':c>=70?'wn':'er';
 
-function mk(n,d,pi,pt,ma,tp,src,al,cn,img){const ai=aiAl(n,d);const all=[...(ma||[])];const det=[];(ma||[]).forEach(a=>det.push({a,s:'m',tr:null,c:100}));ai.forEach(x=>{if(!all.includes(x.a)){all.push(x.a);det.push({a:x.a,s:'t',tr:x.tr,c:x.c});}});const miss=ai.filter(x=>!(ma||[]).includes(x.a));const hg=aiHG({n,d,tp,al,cn});const iss=[];if(!d)iss.push({f:'desc',t:'w',x:'Beskrivelse mangler'});if(pi===null&&pt===null)iss.push({f:'price',t:'e',x:'Pris ikke gjenkjent'});if(miss.length)iss.push({f:'al',t:'w',x:`AI fant ${miss.length} allergen${miss.length>1?'er':''}`});return{n,d:d||'',pi,pt,als:all,det,aiAl:ai,miss,tp,iss,st:iss.some(x=>x.t==='e')?'ch':iss.length?'ch':'ok',src,chk:true,conf:false,al:!!al,hg:hg.res.h,hgC:hg.res.c,hgS:hg.s,cn,img:img||null,imgSt:img?'found':'none'};}
+function mk(n,d,pi,pt,ma,tp,src,al,cn,img,opts){
+  opts = opts || {};
+  const ai=aiAl(n,d);const all=[...(ma||[])];const det=[];
+  (ma||[]).forEach(a=>det.push({a,s:'m',tr:null,c:100}));
+  ai.forEach(x=>{if(!all.includes(x.a)){all.push(x.a);det.push({a:x.a,s:'t',tr:x.tr,c:x.c});}});
+  const miss=ai.filter(x=>!(ma||[]).includes(x.a));
+  const hg=aiHG({n,d,tp,al,cn});
+  const iss=[];
+  if(!d)iss.push({f:'desc',t:'w',x:'Beskrivelse mangler'});
+  if(pi===null&&pt===null)iss.push({f:'price',t:'e',x:'Pris ikke gjenkjent'});
+  if(miss.length)iss.push({f:'al',t:'w',x:`AI fant ${miss.length} allergen${miss.length>1?'er':''}`});
+  return {
+    n,d:d||'',pi,pt,als:all,det,aiAl:ai,miss,tp,iss,
+    st:iss.some(x=>x.t==='e')?'ch':iss.length?'ch':'ok',
+    src,chk:true,conf:false,al:!!al,
+    hg:hg.res.h,hgC:hg.res.c,hgS:hg.s,cn,
+    img:img||null,imgSt:img?'found':'none',
+    aiImg:!!opts.aiImg, aiDesc:!!opts.aiDesc
+  };
+}
 
+/* ========================================================================
+   MOCK MENU DATA (unchanged)
+   ======================================================================== */
 const M={
 'havet-restaurant.no':{nm:'Havet Restaurant',cats:[
   {nm:'Forretter',its:[mk('Kamskjell fra Frøya','Grillet kamskjell med blomkålpuré, hasselnøtt og sitronsmør',189,179,['Bløtdyr','Melk'],'food','html',false,'Forretter','https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=200&h=200&fit=crop'),mk('Fiskesuppe','Hjemmelaget fiskesuppe med aioli og urter',159,149,['Fisk'],'food','html',false,'Forretter','https://images.unsplash.com/photo-1547592166-23ac45744acd?w=200&h=200&fit=crop'),mk('Tartar av okse','Med kapers, sennep, syltet rødløk og ristet brød',179,null,['Egg','Gluten'],'food','html',false,'Forretter',null)]},
@@ -244,8 +1061,22 @@ const M={
 ]},
 };
 
-// STATE
-let S={mk:null,m:null,ec:0,sr:'',af:'all',di:null,tab:'review'};
+/* ========================================================================
+   STATE
+   ======================================================================== */
+let S={
+  method:'url',      // url | file | prompt | photo
+  mk:null, m:null,
+  ec:0, sr:'', af:'all', di:null, tab:'review',
+  // Method-specific state
+  file:null,         // {name, size, type, kind}
+  prompt:'',
+  promptParams:{count:15, cuisine:'italiensk', style:'moderne'},
+  photo:null,        // {name, size, type}
+  // Global AI options
+  aiGenImages:true,
+  aiGenDescriptions:true,
+};
 const $=id=>document.getElementById(id);
 const its=()=>S.m?S.m.cats.flatMap(c=>c.its):[];
 const selN=()=>its().filter(i=>i.chk).length;
@@ -253,79 +1084,629 @@ const confN=()=>its().filter(i=>i.conf).length;
 const probN=()=>its().filter(i=>i.iss.length&&!i.conf).length;
 const aiDN=()=>its().reduce((s,i)=>s+i.aiAl.length,0);
 
-// S1
-function rS1(){$('step1').innerHTML=`<div class="card"><h2 class="sora" style="font-size:20px;font-weight:700;margin-bottom:6px">Importer meny med AI</h2><p style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px">Lim inn URL. AI detekterer allergener fra ingredienstekst og klassifiserer hovedgrupper med MVA og SAF-T automatisk.</p><div style="display:flex;gap:8px;margin-bottom:12px"><div style="flex:1;position:relative"><svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg><input type="url" id="urlIn" placeholder="https://restaurant.no/meny" style="padding-left:38px" autocomplete="off" /></div><button class="btn bp" onclick="scan()">✨ Skann</button></div><div class="chips"><div class="chip" onclick="$('urlIn').value='https://havet-restaurant.no/meny'">🐟 Havet</div><div class="chip" onclick="$('urlIn').value='https://pizzeria-napoli.no/menu.pdf'">🍕 Napoli</div><div class="chip" onclick="$('urlIn').value='https://thai-garden.no/var-meny'">🍜 Thai Garden</div></div></div>`;setTimeout(()=>$('urlIn')?.addEventListener('keydown',e=>{if(e.key==='Enter')scan();}),50);}
+/* ========================================================================
+   STEP 1 — Method Selector + Method Panels + AI Options
+   ======================================================================== */
+function rS1(){
+  $('step1').innerHTML = `
+    <div class="page-head">
+      <h1>Importer meny</h1>
+      <p>Velg hvordan du vil hente inn menyen. AI detekterer allergener, klassifiserer hovedgrupper med MVA og SAF-T, og fyller ut det som mangler.</p>
+    </div>
 
-// S2 - FAST SCAN (2 sec)
-function scan(){const u=$('urlIn')?.value?.trim();if(!u)return;const h=u.replace(/https?:\/\//,'').split('/')[0];S.mk=M[h]?h:Object.keys(M)[0];S.m=JSON.parse(JSON.stringify(M[S.mk]));S.ec=0;S.sr='';S.af='all';S.tab='review';$('step1').classList.add('hidden');$('step2').classList.remove('hidden');
-  const a=its();$('step2').innerHTML=`<div class="card"><div class="scan-wrap on"><div class="scan-spinner"></div><div class="sora" style="font-size:16px;font-weight:600" id="ss">Leser meny…</div><div style="font-size:12px;color:var(--t2);margin-top:4px" id="sd">Henter fra ${u}</div><div class="scan-found" id="sf"></div></div></div>`;
-  const imgOk=a.filter(i=>i.imgSt==='found').length;
-  const tags=a.map(i=>i.n);let ti=0;
-  const iv=setInterval(()=>{if(ti>=tags.length){clearInterval(iv);$('ss').textContent=`${a.length} retter funnet`;$('sd').textContent=`${aiDN()} AI-deteksjoner · ${imgOk} bilder hentet · ${a.filter(i=>i.al).length} alkohol`;setTimeout(()=>{$('step2').classList.add('hidden');$('step3').classList.remove('hidden');$('sticky').classList.add('on');rS3();},600);return;}
-    const tag=document.createElement('span');tag.className='scan-tag';tag.textContent=tags[ti];tag.style.animationDelay=ti*30+'ms';$('sf').appendChild(tag);ti++;},80);
+    <div class="card">
+      <div class="section-label">📥 Importmetode</div>
+      <div class="method-grid">
+        <div class="method-card ${S.method==='url'?'on':''}" onclick="setMethod('url')">
+          <div class="method-ico">🔗</div>
+          <div class="method-label">URL</div>
+          <div class="method-hint">Nettside eller PDF-link</div>
+        </div>
+        <div class="method-card ${S.method==='file'?'on':''}" onclick="setMethod('file')">
+          <div class="method-ico">📄</div>
+          <div class="method-label">Fil</div>
+          <div class="method-hint">Excel, PDF, CSV, Word</div>
+        </div>
+        <div class="method-card ${S.method==='prompt'?'on':''}" onclick="setMethod('prompt')">
+          <div class="method-ico">✨</div>
+          <div class="method-label">AI-prompt</div>
+          <div class="method-hint">Beskriv menyen</div>
+        </div>
+        <div class="method-card ${S.method==='photo'?'on':''}" onclick="setMethod('photo')">
+          <div class="method-ico">📷</div>
+          <div class="method-label">Bilde</div>
+          <div class="method-hint">OCR fra foto</div>
+        </div>
+      </div>
+
+      <!-- URL panel -->
+      <div class="method-panel ${S.method==='url'?'on':''}" id="panel-url">
+        <div class="section-label">🔗 Adresse</div>
+        <div class="input-group">
+          <svg class="i-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+          <input type="url" id="urlIn" placeholder="https://restaurant.no/meny" autocomplete="off" />
+        </div>
+        <div class="chips">
+          <div class="chip" onclick="$('urlIn').value='https://havet-restaurant.no/meny'">🐟 Havet</div>
+          <div class="chip" onclick="$('urlIn').value='https://pizzeria-napoli.no/menu.pdf'">🍕 Napoli</div>
+          <div class="chip" onclick="$('urlIn').value='https://thai-garden.no/var-meny'">🍜 Thai Garden</div>
+        </div>
+      </div>
+
+      <!-- File panel -->
+      <div class="method-panel ${S.method==='file'?'on':''}" id="panel-file">
+        <div class="section-label">📄 Last opp fil</div>
+        <label class="dropzone" id="dropZone" for="fileIn" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropFile(event)">
+          <div class="dropzone-ico">📎</div>
+          <div class="dropzone-text">Dra og slipp en fil her</div>
+          <div class="dropzone-hint">eller klikk for å velge</div>
+          <div class="file-types">
+            <span class="file-type">.XLSX</span>
+            <span class="file-type">.PDF</span>
+            <span class="file-type">.CSV</span>
+            <span class="file-type">.DOCX</span>
+          </div>
+          <input type="file" id="fileIn" accept=".xlsx,.xls,.pdf,.csv,.docx,.doc" onchange="pickFile(event)" />
+        </label>
+        <div id="fileChosen"></div>
+        <div class="chips">
+          <div class="chip" onclick="demoFile('menu-winter-2026.xlsx',54200,'xlsx')">📊 Excel demo</div>
+          <div class="chip" onclick="demoFile('havet-meny.pdf',182400,'pdf')">📕 PDF demo</div>
+          <div class="chip" onclick="demoFile('retter.csv',8120,'csv')">📋 CSV demo</div>
+        </div>
+      </div>
+
+      <!-- Prompt panel -->
+      <div class="method-panel ${S.method==='prompt'?'on':''}" id="panel-prompt">
+        <div class="section-label">✨ Beskriv menyen</div>
+        <div class="textarea-wrap">
+          <textarea id="promptIn" placeholder="F.eks: «En moderne italiensk restaurant i Oslo med fokus på håndlaget pasta, tradisjonelle pizzaer fra vedovn og norske sjømatretter tilpasset italiensk stil. Inkluder også vinliste med fokus på naturvin.»">${S.prompt||''}</textarea>
+        </div>
+        <div class="params-row">
+          <div class="param-field">
+            <div class="param-label">Kjøkken</div>
+            <select class="param-select" id="prmCuisine">
+              <option value="italiensk">Italiensk</option>
+              <option value="norsk">Norsk / skandinavisk</option>
+              <option value="asiatisk">Asiatisk</option>
+              <option value="franskamerikansk">Fransk / amerikansk</option>
+              <option value="meksikansk">Meksikansk</option>
+              <option value="vegetarisk">Vegetarisk / plantebasert</option>
+              <option value="annet">Annet</option>
+            </select>
+          </div>
+          <div class="param-field">
+            <div class="param-label">Profil</div>
+            <select class="param-select" id="prmStyle">
+              <option value="moderne">Moderne / fine dining</option>
+              <option value="casual">Casual / bistro</option>
+              <option value="fastfood">Hurtigmat / kiosk</option>
+              <option value="kafé">Kafé / lunsj</option>
+              <option value="bar">Bar / pub</option>
+            </select>
+          </div>
+          <div class="param-field">
+            <div class="param-label">Antall retter</div>
+            <input class="param-input" id="prmCount" type="number" min="5" max="40" value="${S.promptParams.count}" />
+          </div>
+        </div>
+        <div class="chips">
+          <div class="chip" onclick="setPromptExample('italienskModerne')">🍝 Italiensk moderne</div>
+          <div class="chip" onclick="setPromptExample('thai')">🍜 Thai streetfood</div>
+          <div class="chip" onclick="setPromptExample('burger')">🍔 Burgerbar</div>
+          <div class="chip" onclick="setPromptExample('norsk')">🐟 Norsk sjømat</div>
+        </div>
+      </div>
+
+      <!-- Photo panel -->
+      <div class="method-panel ${S.method==='photo'?'on':''}" id="panel-photo">
+        <div class="section-label">📷 Ta eller last opp bilde</div>
+        <label class="dropzone" id="photoZone" for="photoIn" ondragover="dragOver(event)" ondragleave="dragLeave(event)" ondrop="dropPhoto(event)">
+          <div class="dropzone-ico">📸</div>
+          <div class="dropzone-text">Bilde av fysisk meny</div>
+          <div class="dropzone-hint">JPG eller PNG · maks 10 MB per bilde</div>
+          <div class="file-types">
+            <span class="file-type">.JPG</span>
+            <span class="file-type">.PNG</span>
+            <span class="file-type">.HEIC</span>
+          </div>
+          <input type="file" id="photoIn" accept="image/*" capture="environment" onchange="pickPhoto(event)" />
+        </label>
+        <div id="photoChosen"></div>
+        <div style="font-size:10px;color:var(--t3);margin-top:8px;line-height:1.5">
+          💡 Tips: Ta bildet rett over menyen med god belysning. AI leser tekst, priser og gjenkjenner retter automatisk.
+        </div>
+      </div>
+
+      <!-- AI Options (shared) -->
+      <div class="ai-options">
+        <div class="ai-options-head">
+          <span class="spark">✨</span>
+          <span class="ai-options-title">AI-alternativer</span>
+          <span class="ai-options-sub">Gjelder alle importmetoder</span>
+        </div>
+        <div class="ai-toggle-row">
+          <label for="aiImgTog">
+            <strong>Generer produktbilder med AI</strong>
+            <span>Lager stilrene produktbilder for retter som mangler bilde</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="aiImgTog" ${S.aiGenImages?'checked':''} onchange="S.aiGenImages=this.checked">
+            <span class="slider"></span>
+          </div>
+        </div>
+        <div class="ai-toggle-row">
+          <label for="aiDescTog">
+            <strong>Generer varetekst med AI</strong>
+            <span>Fyller ut mangelfulle beskrivelser basert på rettens navn og ingredienser</span>
+          </label>
+          <div class="switch">
+            <input type="checkbox" id="aiDescTog" ${S.aiGenDescriptions?'checked':''} onchange="S.aiGenDescriptions=this.checked">
+            <span class="slider"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer action row -->
+      <div class="card-footer">
+        <div class="card-footer-hint">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          Du gjennomgår alt før import
+        </div>
+        <div class="spacer"></div>
+        <button class="btn btn-primary" id="primaryBtn" onclick="runMethod()">${primaryBtnLabel()}</button>
+      </div>
+    </div>
+  `;
+
+  // Wire up URL keyboard shortcut
+  setTimeout(()=>{
+    $('urlIn')?.addEventListener('keydown',e=>{if(e.key==='Enter')runMethod();});
+    $('promptIn')?.addEventListener('input',e=>{S.prompt=e.target.value;});
+    $('prmCuisine')?.addEventListener('change',e=>{S.promptParams.cuisine=e.target.value;});
+    $('prmStyle')?.addEventListener('change',e=>{S.promptParams.style=e.target.value;});
+    $('prmCount')?.addEventListener('change',e=>{S.promptParams.count=+e.target.value||15;});
+  },50);
 }
 
-// S3 - REVIEW + HG (TABBED)
+function primaryBtnLabel(){
+  switch(S.method){
+    case 'url':return '✨ Skann nettside';
+    case 'file':return '✨ Analyser fil';
+    case 'prompt':return '✨ Generer meny';
+    case 'photo':return '✨ Les bilde';
+    default:return '✨ Skann';
+  }
+}
+
+function setMethod(m){
+  S.method=m;
+  rS1();
+}
+
+/* ----- File handling ----- */
+function dragOver(e){e.preventDefault();e.currentTarget.classList.add('drag');}
+function dragLeave(e){e.currentTarget.classList.remove('drag');}
+function dropFile(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f)setFile(f.name,f.size,guessKind(f.name));
+}
+function pickFile(e){
+  const f=e.target.files[0];
+  if(f)setFile(f.name,f.size,guessKind(f.name));
+}
+function dropPhoto(e){
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag');
+  const f=e.dataTransfer.files[0];
+  if(f)setPhoto(f.name,f.size);
+}
+function pickPhoto(e){
+  const f=e.target.files[0];
+  if(f)setPhoto(f.name,f.size);
+}
+function guessKind(n){
+  const ext=(n.split('.').pop()||'').toLowerCase();
+  if(['xlsx','xls'].includes(ext))return 'xlsx';
+  if(['docx','doc'].includes(ext))return 'docx';
+  if(ext==='pdf')return 'pdf';
+  if(ext==='csv')return 'csv';
+  return 'file';
+}
+function setFile(name,size,kind){
+  S.file={name,size,kind};
+  renderFileChosen();
+}
+function demoFile(name,size,kind){
+  setFile(name,size,kind);
+}
+function clearFile(){
+  S.file=null;
+  $('fileChosen').innerHTML='';
+  $('fileIn').value='';
+}
+function setPhoto(name,size){
+  S.photo={name,size};
+  renderPhotoChosen();
+}
+function clearPhoto(){
+  S.photo=null;
+  $('photoChosen').innerHTML='';
+  $('photoIn').value='';
+}
+function renderFileChosen(){
+  if(!S.file){$('fileChosen').innerHTML='';return;}
+  const kindIco={xlsx:'📊',pdf:'📕',csv:'📋',docx:'📝',file:'📎'}[S.file.kind]||'📎';
+  $('fileChosen').innerHTML=`
+    <div class="file-chosen">
+      <div class="file-chosen-ico">${kindIco}</div>
+      <div class="file-chosen-info">
+        <div class="file-chosen-name">${S.file.name}</div>
+        <div class="file-chosen-meta">${S.file.kind.toUpperCase()} · ${formatSize(S.file.size)}</div>
+      </div>
+      <button class="file-chosen-clear" onclick="clearFile()">✕</button>
+    </div>`;
+}
+function renderPhotoChosen(){
+  if(!S.photo){$('photoChosen').innerHTML='';return;}
+  $('photoChosen').innerHTML=`
+    <div class="file-chosen">
+      <div class="file-chosen-ico">🖼️</div>
+      <div class="file-chosen-info">
+        <div class="file-chosen-name">${S.photo.name}</div>
+        <div class="file-chosen-meta">IMG · ${formatSize(S.photo.size)}</div>
+      </div>
+      <button class="file-chosen-clear" onclick="clearPhoto()">✕</button>
+    </div>`;
+}
+function formatSize(b){
+  if(b<1024)return b+' B';
+  if(b<1024*1024)return (b/1024).toFixed(1)+' KB';
+  return (b/1024/1024).toFixed(1)+' MB';
+}
+
+/* ----- Prompt examples ----- */
+const PROMPT_EXAMPLES={
+  italienskModerne:{text:'En moderne italiensk restaurant i Oslo med håndlaget pasta, napolitanske pizzaer fra vedovn og sesongbaserte antipasti. Vinliste med italienske naturviner. Dessertkart med tiramisu og panna cotta.',cuisine:'italiensk',style:'moderne'},
+  thai:{text:'Thailandsk streetfood med Pad Thai, ulike curry-retter (grønn, rød, massaman), tomyum-supper, vårruller og satayspyd. Drikke med Singha og thai-iste.',cuisine:'asiatisk',style:'casual'},
+  burger:{text:'Amerikanskinspirert burgerbar med 6-8 signaturburgere (biff, kylling, plantebasert), pommes frites, løkringer, milkshakes og håndverksøl.',cuisine:'franskamerikansk',style:'casual'},
+  norsk:{text:'Norsk sjømatrestaurant ved fjorden med fersk fisk (torsk, skrei, laks), blåskjell, kamskjell, reker og norsk lammekjøtt. Klassiske desserter og et utvalg aquavit.',cuisine:'norsk',style:'moderne'}
+};
+function setPromptExample(key){
+  const ex=PROMPT_EXAMPLES[key];if(!ex)return;
+  S.prompt=ex.text;
+  S.promptParams.cuisine=ex.cuisine;
+  S.promptParams.style=ex.style;
+  $('promptIn').value=ex.text;
+  $('prmCuisine').value=ex.cuisine;
+  $('prmStyle').value=ex.style;
+}
+
+/* ========================================================================
+   RUN METHOD — all 4 methods converge on scan animation → review
+   ======================================================================== */
+function runMethod(){
+  if(S.method==='url'){
+    const u=$('urlIn')?.value?.trim();
+    if(!u){flashInput('urlIn');return;}
+    runScan('url',u);
+  } else if(S.method==='file'){
+    if(!S.file){flashEl('dropZone');return;}
+    runScan('file',S.file.name);
+  } else if(S.method==='prompt'){
+    const p=($('promptIn')?.value||'').trim();
+    if(!p){flashInput('promptIn');return;}
+    S.prompt=p;
+    runScan('prompt',S.prompt);
+  } else if(S.method==='photo'){
+    if(!S.photo){flashEl('photoZone');return;}
+    runScan('photo',S.photo.name);
+  }
+}
+function flashInput(id){
+  const el=$(id);if(!el)return;
+  el.style.transition='border-color .1s';
+  el.style.borderColor='var(--er)';el.focus();
+  setTimeout(()=>{el.style.borderColor='';},800);
+}
+function flashEl(id){
+  const el=$(id);if(!el)return;
+  el.style.borderColor='var(--er)';
+  setTimeout(()=>{el.style.borderColor='';},800);
+}
+
+/* ========================================================================
+   STEP 2 — Scan / Generate animation (now supports all methods)
+   ======================================================================== */
+function runScan(kind,source){
+  // Pick menu data — URL-based maps, others pick a random demo
+  let key;
+  if(kind==='url'){
+    const h=source.replace(/https?:\/\//,'').split('/')[0];
+    key=M[h]?h:Object.keys(M)[0];
+  } else {
+    // For prompt, pick based on cuisine
+    if(kind==='prompt'){
+      if(/italien/i.test(S.promptParams.cuisine))key='pizzeria-napoli.no';
+      else if(/asia/i.test(S.promptParams.cuisine))key='thai-garden.no';
+      else key='havet-restaurant.no';
+    } else if(kind==='photo'){
+      key='havet-restaurant.no';
+    } else {
+      // file — try to match
+      if(/thai|asia/i.test(source))key='thai-garden.no';
+      else if(/pizza|napoli|italiensk/i.test(source))key='pizzeria-napoli.no';
+      else key='havet-restaurant.no';
+    }
+  }
+  S.mk=key;
+  S.m=JSON.parse(JSON.stringify(M[key]));
+  S.ec=0;S.sr='';S.af='all';S.tab='review';
+
+  // Apply AI generation: for items missing images/descriptions, set flags
+  if(S.aiGenImages||S.aiGenDescriptions){
+    S.m.cats.forEach(c=>{
+      c.its.forEach(it=>{
+        if(S.aiGenImages && it.imgSt!=='found'){
+          // Simulate AI image generation
+          it.img='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&sat=-30';
+          it.imgSt='ai-gen';
+          it.aiImg=true;
+        }
+        if(S.aiGenDescriptions && !it.d){
+          it.d='AI-generert beskrivelse basert på produktnavn og kategori.';
+          it.aiDesc=true;
+          it.iss=it.iss.filter(x=>x.f!=='desc');
+        }
+      });
+    });
+  }
+
+  $('step1').classList.add('hidden');
+  $('step2').classList.remove('hidden');
+
+  const a=its();
+  const titles={
+    url:'Leser meny…',
+    file:'Analyserer fil…',
+    prompt:'Genererer meny…',
+    photo:'Leser bilde med OCR…'
+  };
+  const subs={
+    url:`Henter fra ${source}`,
+    file:`Behandler ${source}`,
+    prompt:`AI bygger ${S.promptParams.count} retter basert på prompt`,
+    photo:`OCR på ${source}`
+  };
+
+  $('step2').innerHTML=`
+    <div class="card">
+      <div class="scan-wrap on">
+        <div class="scan-spinner"></div>
+        <div class="scan-title" id="ss">${titles[kind]}</div>
+        <div class="scan-sub" id="sd">${subs[kind]}</div>
+        <div class="scan-found" id="sf"></div>
+      </div>
+    </div>
+  `;
+
+  const imgOk=a.filter(i=>i.imgSt==='found').length;
+  const imgAi=a.filter(i=>i.imgSt==='ai-gen').length;
+  const tags=a.map(i=>i.n);
+  let ti=0;
+  const iv=setInterval(()=>{
+    if(ti>=tags.length){
+      clearInterval(iv);
+      $('ss').textContent=`${a.length} retter ${kind==='prompt'?'generert':'funnet'}`;
+      const parts=[
+        `${aiDN()} AI-deteksjoner`,
+        `${imgOk+imgAi} bilder${imgAi?` (${imgAi} AI)`:''}`,
+        `${a.filter(i=>i.al).length} alkohol`
+      ];
+      $('sd').textContent=parts.join(' · ');
+      setTimeout(()=>{
+        $('step2').classList.add('hidden');
+        $('step3').classList.remove('hidden');
+        $('sticky').classList.add('on');
+        rS3();
+      },700);
+      return;
+    }
+    const tag=document.createElement('span');
+    tag.className='scan-tag';
+    tag.textContent=tags[ti];
+    tag.style.animationDelay=ti*30+'ms';
+    $('sf').appendChild(tag);
+    ti++;
+  },75);
+}
+
+/* ========================================================================
+   STEP 3 — Review + Hovedgrupper (tabbed)
+   ======================================================================== */
 function rS3(){
   const a=its(),tot=a.length,cn=confN(),pn=probN(),aiD=aiDN(),alcN=a.filter(i=>i.al).length;
+  const imgOk=a.filter(i=>i.imgSt==='found').length;
+  const imgAi=a.filter(i=>i.imgSt==='ai-gen').length;
+  const imgMiss=tot-imgOk-imgAi;
+  const hgCount=new Set(a.map(i=>i.hg)).size;
   let h='';
 
-  // AI BAR - compact
-  const imgOk=a.filter(i=>i.imgSt==='found').length,imgMiss=a.length-imgOk;
-  h+=`<div class="ai-bar"><span class="ai-bar-icon">✨</span><span class="ai-bar-text"><strong>${aiD} allergener</strong> detektert · <strong>${new Set(a.map(i=>i.hg)).size} hovedgrupper</strong> · <strong>${imgOk} bilder</strong> hentet${imgMiss?`, ${imgMiss} mangler`:''}</span>${a.filter(i=>i.miss.length).length?`<button class="btn bai bsm" onclick="bulkAcceptAI()">🤖 Godta alle AI-forslag (${a.filter(i=>i.miss.length).length})</button>`:''}</div>`;
+  // SUMMARY GRID — 4 stats
+  h+=`
+    <div class="summary-grid">
+      <div class="summary-cell">
+        <div class="summary-ico ai">✨</div>
+        <div><div class="summary-val">${aiD}</div><div class="summary-lbl">AI-deteksjoner</div></div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-ico pri">🏷️</div>
+        <div><div class="summary-val">${hgCount}</div><div class="summary-lbl">Hovedgrupper</div></div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-ico ok">🖼️</div>
+        <div><div class="summary-val">${imgOk+imgAi}<span style="font-size:11px;color:var(--t3);font-weight:500">/${tot}</span></div><div class="summary-lbl">Bilder ${imgAi?`(${imgAi} AI)`:''}</div></div>
+      </div>
+      <div class="summary-cell">
+        <div class="summary-ico ${alcN?'wn':'ok'}">${alcN?'🍷':'✓'}</div>
+        <div><div class="summary-val">${alcN}</div><div class="summary-lbl">Alkohol</div></div>
+      </div>
+    </div>
+  `;
+
+  // Bulk AI accept bar
+  if(a.filter(i=>i.miss.length).length){
+    h+=`<div class="ai-bar">
+      <span class="ai-bar-ico">🤖</span>
+      <span class="ai-bar-text">AI fant <strong>${a.filter(i=>i.miss.length).reduce((s,i)=>s+i.miss.length,0)} potensielle allergener</strong> som ikke er i originaldata</span>
+      <button class="btn btn-ai btn-sm" onclick="bulkAcceptAI()">Godta alle (${a.filter(i=>i.miss.length).length})</button>
+    </div>`;
+  }
 
   // Review progress
   const pct=tot?Math.round(cn/tot*100):0;
-  h+=`<div class="review-prog"><div class="rp-text">${cn}/${tot} gjennomgått</div><div class="rp-bar"><div class="rp-fill" style="width:${pct}%"></div></div><div class="rp-sub">${pn?`⚠ ${pn} trenger oppmerksomhet`:'✓ Alt klart'}</div></div>`;
+  h+=`<div class="review-prog">
+    <div class="rp-text">${cn}/${tot} gjennomgått</div>
+    <div class="rp-bar"><div class="rp-fill" style="width:${pct}%"></div></div>
+    <div class="rp-sub">${pn?`⚠ ${pn} trenger oppmerksomhet`:'✓ Alt klart'}</div>
+  </div>`;
 
   // TABS
-  h+=`<div class="tabs"><div class="tab ${S.tab==='review'?'on':''}" onclick="S.tab='review';rS3()">Produkter<span class="tc">${tot}</span></div><div class="tab ${S.tab==='hg'?'on':''}" onclick="S.tab='hg';rS3()">Hovedgrupper<span class="tc">${new Set(a.filter(i=>i.chk).map(i=>i.hg)).size}</span></div></div>`;
+  h+=`<div class="tabs">
+    <div class="tab ${S.tab==='review'?'on':''}" onclick="S.tab='review';rS3()">Produkter<span class="tc">${tot}</span></div>
+    <div class="tab ${S.tab==='hg'?'on':''}" onclick="S.tab='hg';rS3()">Hovedgrupper<span class="tc">${new Set(a.filter(i=>i.chk).map(i=>i.hg)).size}</span></div>
+  </div>`;
 
   if(S.tab==='review'){
     // Toolbar
-    h+=`<div class="tb"><div class="srch"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Søk…" value="${S.sr}" oninput="S.sr=this.value;rS3()" /></div><div class="fg"><button class="fb ${S.af==='all'?'on':''}" onclick="S.af='all';rS3()">Alle <span class="fc">${tot}</span></button><button class="fb ${S.af==='ai'?'on':''}" onclick="S.af='ai';rS3()">🤖 AI-funn <span class="fc">${a.filter(i=>i.miss.length).length}</span></button><button class="fb ${S.af==='noimg'?'on':''}" onclick="S.af='noimg';rS3()">📷 Uten bilde <span class="fc">${a.filter(i=>i.imgSt!=='found').length}</span></button><button class="fb ${S.af==='uc'?'on':''}" onclick="S.af='uc';rS3()">Ubekreftet <span class="fc">${tot-cn}</span></button><button class="fb ${S.af==='alc'?'on':''}" onclick="S.af='alc';rS3()">Alkohol <span class="fc">${alcN}</span></button></div></div>`;
+    h+=`<div class="toolbar">
+      <div class="srch">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Søk produkter…" value="${S.sr}" oninput="S.sr=this.value;rS3()" />
+      </div>
+      <div class="filter-group">
+        <button class="fbtn ${S.af==='all'?'on':''}" onclick="S.af='all';rS3()">Alle <span class="fc">${tot}</span></button>
+        <button class="fbtn ${S.af==='ai'?'on':''}" onclick="S.af='ai';rS3()">🤖 AI-funn <span class="fc">${a.filter(i=>i.miss.length).length}</span></button>
+        <button class="fbtn ${S.af==='aigen'?'on':''}" onclick="S.af='aigen';rS3()">✨ AI-generert <span class="fc">${a.filter(i=>i.aiImg||i.aiDesc).length}</span></button>
+        <button class="fbtn ${S.af==='noimg'?'on':''}" onclick="S.af='noimg';rS3()">📷 Uten bilde <span class="fc">${imgMiss}</span></button>
+        <button class="fbtn ${S.af==='uc'?'on':''}" onclick="S.af='uc';rS3()">Ubekreftet <span class="fc">${tot-cn}</span></button>
+        <button class="fbtn ${S.af==='alc'?'on':''}" onclick="S.af='alc';rS3()">Alkohol <span class="fc">${alcN}</span></button>
+      </div>
+    </div>`;
 
-    // FLAT TABLE (categories as inline rows)
-    const imgN=a.filter(i=>i.imgSt==='found').length;
-    h+=`<table class="mt"><thead><tr><th style="width:24px"></th><th style="width:50px">Bilde</th><th>Produkt & allergener</th><th style="width:100px">Pris</th><th style="width:130px">Hovedgruppe</th></tr></thead><tbody>`;
+    // Table
+    h+=`<table class="mt"><thead><tr>
+      <th style="width:24px"></th>
+      <th style="width:50px">Bilde</th>
+      <th>Produkt &amp; allergener</th>
+      <th style="width:100px">Pris</th>
+      <th style="width:130px">Hovedgruppe</th>
+    </tr></thead><tbody>`;
     S.m.cats.forEach((cat,ci)=>{
-      const fi=cat.its.filter(filt);if(!fi.length)return;
+      const fi=cat.its.filter(filt);
+      if(!fi.length)return;
       h+=`<tr class="cat-row"><td colspan="5">${cat.nm} · ${fi.length} retter</td></tr>`;
-      fi.forEach(it=>{const ri=cat.its.indexOf(it);const hg=HGD.find(g=>g.id===it.hg)||HGD[0];
-        h+=`<tr class="${it.conf?'confirmed':''}" onclick="openDr(${ci},${ri})"><td onclick="event.stopPropagation()">${it.conf?'<div class="conf-icon">✓</div>':`<input type="checkbox" class="chk" ${it.chk?'checked':''} onchange="S.m.cats[${ci}].its[${ri}].chk=this.checked;updS()" />`}</td>`;
+      fi.forEach(it=>{
+        const ri=cat.its.indexOf(it);
+        const hg=HGD.find(g=>g.id===it.hg)||HGD[0];
+        h+=`<tr class="${it.conf?'confirmed':''}" onclick="openDr(${ci},${ri})">
+          <td onclick="event.stopPropagation()">${it.conf?'<div class="conf-icon">✓</div>':`<input type="checkbox" class="chk" ${it.chk?'checked':''} onchange="S.m.cats[${ci}].its[${ri}].chk=this.checked;updS()" />`}</td>`;
         // Image thumbnail
-        h+=`<td><div class="img-th">${it.imgSt==='found'?`<img src="${it.img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<span class=img-empty>📷</span><div class=img-status-dot style=background:var(--er)>!</div>';S.m.cats[${ci}].its[${ri}].imgSt='failed'">`:`<span class="img-empty">📷</span>`}<div class="img-status-dot ${it.imgSt==='found'?'ok':it.imgSt==='failed'?'fail':'none'}">${it.imgSt==='found'?'✓':it.imgSt==='failed'?'!':'–'}</div></div></td>`;
-        h+=`<td><div style="display:flex;align-items:center;gap:6px;margin-bottom:3px"><span class="sora" style="font-size:12px;font-weight:600">${it.n}</span>${it.al?'<span class="badge b-alc">🍷</span>':''}${it.miss.length?`<span class="badge b-ai">+${it.miss.length} AI</span>`:''}</div>`;
-        h+=`<div class="hl-desc">${hl(it.d,it.aiAl)}</div>`;
-        h+=`<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">${it.det.map(d=>`<span class="al-tag ${d.s==='t'?'ai':''}">${d.a} <span class="al-src ${d.s}">${d.s==='t'?'🤖':'📋'}</span></span>`).join('')}</div></td>`;
+        const dotClass=it.imgSt==='found'?'ok':it.imgSt==='ai-gen'?'ai':it.imgSt==='failed'?'fail':'none';
+        const dotIcon=it.imgSt==='found'?'✓':it.imgSt==='ai-gen'?'✨':it.imgSt==='failed'?'!':'–';
+        h+=`<td>
+          <div class="img-th">
+            ${(it.imgSt==='found'||it.imgSt==='ai-gen')?`<img src="${it.img}" alt="" loading="lazy" onerror="this.parentElement.innerHTML='<span class=img-empty>📷</span><div class=img-status-dot style=background:var(--er)>!</div>';S.m.cats[${ci}].its[${ri}].imgSt='failed'">`:`<span class="img-empty">📷</span>`}
+            <div class="img-status-dot ${dotClass}">${dotIcon}</div>
+          </div>
+        </td>`;
+        // Name + allergens
+        h+=`<td>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px">
+            <span class="sora" style="font-size:12px;font-weight:600">${it.n}</span>
+            ${it.al?'<span class="badge b-alc">🍷</span>':''}
+            ${it.miss.length?`<span class="badge b-ai">+${it.miss.length} AI</span>`:''}
+            ${it.aiDesc?'<span class="badge b-ai-gen">✨ AI-tekst</span>':''}
+          </div>
+          <div class="hl-desc ${it.aiDesc?'ai-gen':''}">${hl(it.d,it.aiAl)}</div>
+          <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:4px">${it.det.map(d=>`<span class="al-tag ${d.s==='t'?'ai':''}">${d.a} <span class="al-src ${d.s}">${d.s==='t'?'🤖':'📋'}</span></span>`).join('')}</div>
+        </td>`;
+        // Price
         h+=`<td>${it.pi!==null?`<div><span class="pvt pv-in">S</span> <input class="inline-pr" value="${it.pi},-" onclick="event.stopPropagation()" onchange="iPr(${ci},${ri},'pi',this.value)" /></div>`:''} ${it.pt!==null?`<div><span class="pvt pv-ta">T</span> <input class="inline-pr" value="${it.pt},-" onclick="event.stopPropagation()" onchange="iPr(${ci},${ri},'pt',this.value)" /></div>`:''}${it.pi===null&&it.pt===null?'<span style="color:var(--er);font-size:10px">✕</span>':''}</td>`;
-        h+=`<td><div class="hg-pill">${hg.ic} ${hg.nm} <span class="hg-conf" style="color:var(--${cc(it.hgC)==='ok'?'ok':cc(it.hgC)==='wn'?'wn':'er'})">${it.hgC}%</span></div></td></tr>`;
+        // HG pill
+        h+=`<td><div class="hg-pill">${hg.ic} ${hg.nm} <span class="hg-conf" style="color:var(--${cc(it.hgC)==='ok'?'ok':cc(it.hgC)==='wn'?'wn':'er'})">${it.hgC}%</span></div></td>
+        </tr>`;
       });
     });
     h+=`</tbody></table>`;
   } else {
-    // HG TAB
-    const sel=its().filter(i=>i.chk),grp={};sel.forEach(i=>{if(!grp[i.hg])grp[i.hg]=[];grp[i.hg].push(i);});
+    // HG tab
+    const sel=its().filter(i=>i.chk);
+    const grp={};
+    sel.forEach(i=>{if(!grp[i.hg])grp[i.hg]=[];grp[i.hg].push(i);});
     const used=HGD.filter(t=>grp[t.id]?.length);
     h+=`<div style="font-size:12px;color:var(--t2);margin-bottom:12px">${sel.length} produkter i ${used.length} grupper. Klikk <strong>Rediger</strong> for å endre navn, MVA og SAF-T konto.</div>`;
-    used.forEach(t=>{const its2=grp[t.id];
-      h+=`<div class="hg-card" id="hg-${t.id}"><div class="hg-top"><div class="hg-ico" style="background:${t.bg}">${t.ic}</div><div style="flex:1"><div class="hg-nm">${t.nm}${t.al?' <span class="badge b-alc" style="font-size:8px">🍷 25% · 🚫</span>':''}</div><div class="hg-meta"><span class="hg-tag hg-vat">S: ${t.vi}%</span><span class="hg-tag hg-vat">T: ${t.vt}%</span><span class="hg-tag hg-saft">SAF-T ${t.sf} – ${t.sfn}</span></div></div><div class="hg-cnt">${its2.length}</div><button class="hg-edit-btn" onclick="event.stopPropagation();$('hg-${t.id}').classList.toggle('editing')">✏ Rediger</button><button class="bg-btn" onclick="$('hg-${t.id}').classList.toggle('expanded')" style="font-size:13px">▾</button></div>`;
-      h+=`<div class="hg-edit"><div class="hg-ef"><div class="hg-el">Gruppenavn</div><input class="hg-ei w" value="${t.nm}" onchange="eHG('${t.id}','nm',this.value)" /></div><div class="hg-ef"><div class="hg-el">MVA Serv.</div><input class="hg-ei n" type="number" value="${t.vi}" onchange="eHG('${t.id}','vi',+this.value)" /><span style="font-size:11px;color:var(--t3)">%</span></div><div class="hg-ef"><div class="hg-el">MVA Take.</div><input class="hg-ei n" type="number" value="${t.vt}" onchange="eHG('${t.id}','vt',+this.value)" /><span style="font-size:11px;color:var(--t3)">%</span></div><div class="hg-ef"><div class="hg-el">SAF-T Konto</div><input class="hg-ei c" value="${t.sf}" onchange="eHG('${t.id}','sf',this.value)" /></div><div class="hg-ef"><div class="hg-el">SAF-T Navn</div><input class="hg-ei w" value="${t.sfn}" onchange="eHG('${t.id}','sfn',this.value)" /></div></div>`;
-      h+=`<div class="hg-items">${its2.map(i=>`<div class="hg-item"><div class="hg-inm">${i.n}</div><div class="hg-ipr">${i.pi!==null?`<span style="color:var(--pri)">S:${i.pi}</span>`:''}${i.pt!==null?`<span style="color:var(--ok)">T:${i.pt}</span>`:''}</div>${i.al?'<span class="badge b-alc" style="font-size:7px">🍷</span>':''}</div>`).join('')}</div></div>`;
+    used.forEach(t=>{
+      const its2=grp[t.id];
+      h+=`<div class="hg-card" id="hg-${t.id}">
+        <div class="hg-top">
+          <div class="hg-ico" style="background:${t.bg}">${t.ic}</div>
+          <div style="flex:1">
+            <div class="hg-nm">${t.nm}${t.al?' <span class="badge b-alc" style="font-size:8px">🍷 25% · 🚫</span>':''}</div>
+            <div class="hg-meta">
+              <span class="hg-tag hg-vat">S: ${t.vi}%</span>
+              <span class="hg-tag hg-vat">T: ${t.vt}%</span>
+              <span class="hg-tag hg-saft">SAF-T ${t.sf} – ${t.sfn}</span>
+            </div>
+          </div>
+          <div class="hg-cnt">${its2.length}</div>
+          <button class="hg-edit-btn" onclick="event.stopPropagation();$('hg-${t.id}').classList.toggle('editing')">✏ Rediger</button>
+          <button class="btn-ghost" onclick="$('hg-${t.id}').classList.toggle('expanded')" style="font-size:13px">▾</button>
+        </div>
+        <div class="hg-edit">
+          <div class="hg-ef"><div class="hg-el">Gruppenavn</div><input class="hg-ei w" value="${t.nm}" onchange="eHG('${t.id}','nm',this.value)" /></div>
+          <div class="hg-ef"><div class="hg-el">MVA Serv.</div><input class="hg-ei n" type="number" value="${t.vi}" onchange="eHG('${t.id}','vi',+this.value)" /><span style="font-size:11px;color:var(--t3)">%</span></div>
+          <div class="hg-ef"><div class="hg-el">MVA Take.</div><input class="hg-ei n" type="number" value="${t.vt}" onchange="eHG('${t.id}','vt',+this.value)" /><span style="font-size:11px;color:var(--t3)">%</span></div>
+          <div class="hg-ef"><div class="hg-el">SAF-T Konto</div><input class="hg-ei c" value="${t.sf}" onchange="eHG('${t.id}','sf',this.value)" /></div>
+          <div class="hg-ef"><div class="hg-el">SAF-T Navn</div><input class="hg-ei w" value="${t.sfn}" onchange="eHG('${t.id}','sfn',this.value)" /></div>
+        </div>
+        <div class="hg-items">${its2.map(i=>`<div class="hg-item"><div class="hg-inm">${i.n}</div><div class="hg-ipr">${i.pi!==null?`<span style="color:var(--pri)">S:${i.pi}</span>`:''}${i.pt!==null?`<span style="color:var(--ok)">T:${i.pt}</span>`:''}</div>${i.al?'<span class="badge b-alc" style="font-size:7px">🍷</span>':''}</div>`).join('')}</div>
+      </div>`;
     });
   }
 
   $('step3').innerHTML=h;updS();
-  $('stickyR').innerHTML=`<button class="btn bok bsm" onclick="doImport()">✓ Importer ${selN()}</button>`;
+  $('stickyR').innerHTML=`<button class="btn btn-success btn-sm" onclick="doImport()">✓ Importer ${selN()}</button>`;
 }
 
-function filt(i){if(S.sr&&!i.n.toLowerCase().includes(S.sr.toLowerCase())&&!i.d.toLowerCase().includes(S.sr.toLowerCase()))return false;if(S.af==='ai')return i.miss.length>0;if(S.af==='uc')return!i.conf;if(S.af==='alc')return i.al;if(S.af==='noimg')return i.imgSt!=='found';return true;}
+function filt(i){
+  if(S.sr&&!i.n.toLowerCase().includes(S.sr.toLowerCase())&&!i.d.toLowerCase().includes(S.sr.toLowerCase()))return false;
+  if(S.af==='ai')return i.miss.length>0;
+  if(S.af==='aigen')return i.aiImg||i.aiDesc;
+  if(S.af==='uc')return!i.conf;
+  if(S.af==='alc')return i.al;
+  if(S.af==='noimg')return i.imgSt!=='found'&&i.imgSt!=='ai-gen';
+  return true;
+}
 function iPr(ci,ri,f,v){const n=parseFloat(v.replace(/[^0-9.,]/g,'').replace(',','.'));S.m.cats[ci].its[ri][f]=isNaN(n)?null:n;S.ec++;}
 function bulkAcceptAI(){its().forEach(i=>{if(i.miss.length){i.miss.forEach(d=>{if(!i.als.includes(d.a)){i.als.push(d.a);i.det.push(d);}});i.miss=[];i.iss=i.iss.filter(x=>x.f!=='al');i.st=i.iss.length?'ch':'ok';}});S.ec++;rS3();}
 function eHG(id,f,v){const h=HGD.find(g=>g.id===id);if(h)h[f]=v;S.ec++;rS3();}
-function updS(){const cn=confN(),tot=its().length,pct=tot?Math.round(cn/tot*100):0;$('stickyL').innerHTML=`<span style="font-weight:600">${selN()} valgt</span><div class="sticky-prog"><div class="sticky-prog-fill" style="width:${pct}%"></div></div><span style="font-size:11px;color:var(--t2)">${cn}/${tot}</span>${probN()?`<span style="font-size:10px;color:var(--wn)">⚠ ${probN()}</span>`:''}`;}
+function updS(){
+  const cn=confN(),tot=its().length,pct=tot?Math.round(cn/tot*100):0;
+  $('stickyL').innerHTML=`<span style="font-weight:600">${selN()} valgt</span>
+    <div class="sticky-prog"><div class="sticky-prog-fill" style="width:${pct}%"></div></div>
+    <span style="font-size:11px;color:var(--t2)">${cn}/${tot}</span>
+    ${probN()?`<span style="font-size:10px;color:var(--wn)">⚠ ${probN()}</span>`:''}`;
+}
 
-// DRAWER
+/* ========================================================================
+   DRAWER
+   ======================================================================== */
 function openDr(ci,ri){S.di={ci,ri};$('dov').classList.add('on');$('drw').classList.add('on');renDr();}
 function closeDr(){$('dov').classList.remove('on');$('drw').classList.remove('on');S.di=null;rS3();}
 function navDr(d){const a=its(),cur=S.m.cats[S.di.ci].its[S.di.ri],idx=a.indexOf(cur);const list=d===1?[...a.slice(idx+1),...a.slice(0,idx)]:[...a.slice(0,idx).reverse(),...a.slice(idx+1).reverse()];for(const t of list){for(let ci=0;ci<S.m.cats.length;ci++){const ri=S.m.cats[ci].its.indexOf(t);if(ri>=0){S.di={ci,ri};renDr();return;}}}}
@@ -334,53 +1715,78 @@ function renDr(){
   const it=S.m.cats[S.di.ci].its[S.di.ri],cat=S.m.cats[S.di.ci];
   const hg=HGD.find(g=>g.id===it.hg)||HGD[0];
   $('drt').innerHTML=`${it.n}<small>${cat.nm}</small>`;
-  const dl=((it.d||'')+' '+it.n).toLowerCase();const sugs=[];AR.forEach(r=>{if(dl.includes(r.k)&&!it.als.includes(r.a)&&!sugs.includes(r.a))sugs.push(r.a);});
+  const dl=((it.d||'')+' '+it.n).toLowerCase();
+  const sugs=[];
+  AR.forEach(r=>{if(dl.includes(r.k)&&!it.als.includes(r.a)&&!sugs.includes(r.a))sugs.push(r.a);});
 
   let h='';
   // IMAGE SECTION
   h+=`<div class="drs"><div class="drst">🖼️ Produktbilde</div><div class="dr-img-wrap">`;
-  h+=`<div class="dr-img-preview">${it.imgSt==='found'?`<img src="${it.img}" alt="${it.n}">`:`<span style="font-size:28px;opacity:.3">📷</span>`}</div>`;
+  h+=`<div class="dr-img-preview">${(it.imgSt==='found'||it.imgSt==='ai-gen')?`<img src="${it.img}" alt="${it.n}">`:`<span style="font-size:28px;opacity:.3">📷</span>`}</div>`;
   h+=`<div class="dr-img-info">`;
   if(it.imgSt==='found'){
-    h+=`<div class="dr-img-status" style="color:var(--ok)">✓ Bilde hentet fra nettside</div>`;
+    h+=`<div class="dr-img-status" style="color:var(--ok)">✓ Bilde hentet fra kilde</div>`;
     h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Automatisk lastet ned under skanning</div>`;
-    h+=`<div class="dr-img-actions"><button class="btn bxs bs" onclick="drImgClear()" style="margin-top:4px">✕ Fjern bilde</button></div>`;
+    h+=`<div class="dr-img-actions"><button class="btn btn-xs btn-secondary" onclick="drRegenImg()">✨ Regenerer med AI</button><button class="btn btn-xs btn-secondary" onclick="drImgClear()">✕ Fjern</button></div>`;
+  } else if(it.imgSt==='ai-gen'){
+    h+=`<div class="dr-img-status" style="color:var(--ai)">✨ AI-generert bilde</div>`;
+    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Generert automatisk basert på produktnavn</div>`;
+    h+=`<div class="dr-img-actions"><button class="btn btn-xs btn-ai" onclick="drRegenImg()">🔄 Regenerer</button><button class="btn btn-xs btn-secondary" onclick="drImgUpload()">📤 Last opp eget</button></div>`;
   } else if(it.imgSt==='failed'){
     h+=`<div class="dr-img-status" style="color:var(--er)">✕ Kunne ikke hente bilde</div>`;
     h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Bildet var ikke tilgjengelig eller formatet støttes ikke</div>`;
-    h+=`<div class="dr-img-actions" style="margin-top:6px"><button class="btn bxs bp" onclick="drImgUpload()">📤 Last opp manuelt</button><button class="btn bxs bs" onclick="drImgSkip()">Legg til senere</button></div>`;
+    h+=`<div class="dr-img-actions"><button class="btn btn-xs btn-ai" onclick="drGenAi()">✨ Generer med AI</button><button class="btn btn-xs btn-secondary" onclick="drImgUpload()">📤 Last opp</button></div>`;
   } else {
-    h+=`<div class="dr-img-status" style="color:var(--t3)">Ingen bilde funnet på nettsiden</div>`;
-    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Du kan laste opp et bilde nå eller gjøre det etter import</div>`;
-    h+=`<div class="dr-img-actions" style="margin-top:6px"><button class="btn bxs bp" onclick="drImgUpload()">📤 Last opp bilde</button><button class="btn bxs bs" onclick="drImgSkip()">Ta dette senere</button></div>`;
+    h+=`<div class="dr-img-status" style="color:var(--t3)">Ingen bilde funnet</div>`;
+    h+=`<div style="font-size:10px;color:var(--t3);margin-top:2px">Du kan generere med AI, laste opp eller hoppe over</div>`;
+    h+=`<div class="dr-img-actions"><button class="btn btn-xs btn-ai" onclick="drGenAi()">✨ Generer med AI</button><button class="btn btn-xs btn-secondary" onclick="drImgUpload()">📤 Last opp</button></div>`;
   }
   h+=`</div></div></div>`;
 
-  // FIELDS - compact
-  h+=`<div class="drs"><div class="drst">📦 Produkt</div><div class="drf"><div class="drl">Navn</div><input class="dri" value="${it.n}" onchange="drE('n',this.value)" /></div><div class="drf"><div class="drl">Beskrivelse</div><textarea class="drta" onchange="drE('d',this.value)">${it.d}</textarea></div><div style="display:flex;gap:8px"><div class="drf" style="flex:1"><div class="drl">Servering</div><input class="dri" value="${it.pi!==null?it.pi+',-':''}" placeholder="—" onchange="drEP('pi',this.value)" /></div><div class="drf" style="flex:1"><div class="drl">Takeaway</div><input class="dri" value="${it.pt!==null?it.pt+',-':''}" placeholder="—" onchange="drEP('pt',this.value)" /></div></div></div>`;
+  // FIELDS
+  h+=`<div class="drs"><div class="drst">📦 Produkt</div>
+    <div class="drf"><div class="drl">Navn</div><input class="dri" value="${it.n}" onchange="drE('n',this.value)" /></div>
+    <div class="drf">
+      <div class="drl">Beskrivelse ${it.aiDesc?'<span class="badge b-ai-gen" style="margin-left:4px">✨ AI-tekst</span>':''}</div>
+      <textarea class="drta" onchange="drE('d',this.value)">${it.d}</textarea>
+      ${!it.d?`<button class="btn btn-xs btn-ai" style="margin-top:4px" onclick="drGenDesc()">✨ Generer beskrivelse med AI</button>`:''}
+    </div>
+    <div style="display:flex;gap:8px">
+      <div class="drf" style="flex:1"><div class="drl">Servering</div><input class="dri" value="${it.pi!==null?it.pi+',-':''}" placeholder="—" onchange="drEP('pi',this.value)" /></div>
+      <div class="drf" style="flex:1"><div class="drl">Takeaway</div><input class="dri" value="${it.pt!==null?it.pt+',-':''}" placeholder="—" onchange="drEP('pt',this.value)" /></div>
+    </div>
+  </div>`;
 
-  // ALLERGENS - with collapsible AI reasoning
+  // ALLERGENS
   h+=`<div class="drs"><div class="drst">⚠ Allergener</div><div class="hl-desc" style="margin-bottom:8px">${hl(it.d,it.aiAl)}</div>`;
   if(it.aiAl.length){
     h+=`<div class="ai-toggle" id="aiAlToggle" onclick="this.classList.toggle('open');$('aiAlDetail').classList.toggle('open')"><span class="arr">▸</span> 🤖 ${it.aiAl.length} AI-deteksjon${it.aiAl.length>1?'er':''} – vis resonnering</div>`;
     h+=`<div class="ai-detail" id="aiAlDetail">${it.aiAl.map(d=>`<div class="ai-step"><span class="ai-step-i">→</span><span class="ai-step-t">«<strong>${d.tr}</strong>» → <em>${d.a}</em> (${d.c}%) ${it.det.find(x=>x.a===d.a&&x.s==='m')?'✓ metadata':'⚠ kun AI'}</span></div>`).join('')}</div>`;
   }
   h+=`<div class="drat" style="margin-top:4px">${AL.map(a=>{const sel=it.als.includes(a);const sug=sugs.includes(a)&&!sel;return`<div class="dra ${sel?'sel':''} ${sug?'sug':''}" onclick="drTgAl('${a}')">${a}</div>`;}).join('')}</div>`;
-  if(it.miss.length)h+=`<div style="margin-top:6px"><button class="btn bai bxs" onclick="drAccAl()">🤖 Godta ${it.miss.length} AI-forslag</button></div>`;
+  if(it.miss.length)h+=`<div style="margin-top:6px"><button class="btn btn-ai btn-xs" onclick="drAccAl()">🤖 Godta ${it.miss.length} AI-forslag</button></div>`;
   h+=`</div>`;
 
-  // HOVEDGRUPPE - with collapsible reasoning
-  h+=`<div class="drs"><div class="drst">🏷️ Hovedgruppe</div><div class="hg-pill" style="margin-bottom:8px">${hg.ic} ${hg.nm} <span class="hg-conf" style="color:var(--${cc(it.hgC)==='ok'?'ok':cc(it.hgC)==='wn'?'wn':'er'})">${it.hgC}%</span></div>`;
-  h+=`<div class="ai-toggle" id="aiHgToggle" onclick="this.classList.toggle('open');$('aiHgDetail').classList.toggle('open')"><span class="arr">▸</span> 🤖 Vis AI-resonnering</div>`;
-  h+=`<div class="ai-detail" id="aiHgDetail">${it.hgS.map(s=>`<div class="ai-step"><span class="ai-step-i">${s.ok?'✓':'✗'}</span><span class="ai-step-t" style="${s.ok?'':'opacity:.5'}">${s.r}${s.ok?' → <em>'+HGD.find(g=>g.id===s.h)?.ic+' '+HGD.find(g=>g.id===s.h)?.nm+'</em>':''}</span></div>`).join('')}</div>`;
-  h+=`<div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:6px">${HGD.map(g=>`<button class="btn bxs ${it.hg===g.id?'bp':'bs'}" onclick="drHG('${g.id}')">${g.ic} ${g.nm}</button>`).join('')}</div>`;
-  h+=`<div style="font-size:9px;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono'">SAF-T: ${hg.sf} – ${hg.sfn} · MVA: ${hg.al?'25%':it.pt!==null?'S:'+hg.vi+'%/T:'+hg.vt+'%':hg.vi+'%'}${hg.al?' · 🚫 Rabattsperre':''}</div></div>`;
+  // HOVEDGRUPPE
+  h+=`<div class="drs"><div class="drst">🏷️ Hovedgruppe</div>
+    <div class="hg-pill" style="margin-bottom:8px">${hg.ic} ${hg.nm} <span class="hg-conf" style="color:var(--${cc(it.hgC)==='ok'?'ok':cc(it.hgC)==='wn'?'wn':'er'})">${it.hgC}%</span></div>
+    <div class="ai-toggle" id="aiHgToggle" onclick="this.classList.toggle('open');$('aiHgDetail').classList.toggle('open')"><span class="arr">▸</span> 🤖 Vis AI-resonnering</div>
+    <div class="ai-detail" id="aiHgDetail">${it.hgS.map(s=>`<div class="ai-step"><span class="ai-step-i">${s.ok?'✓':'✗'}</span><span class="ai-step-t" style="${s.ok?'':'opacity:.5'}">${s.r}${s.ok?' → <em>'+HGD.find(g=>g.id===s.h)?.ic+' '+HGD.find(g=>g.id===s.h)?.nm+'</em>':''}</span></div>`).join('')}</div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;margin-top:6px">${HGD.map(g=>`<button class="btn btn-xs ${it.hg===g.id?'btn-primary':'btn-secondary'}" onclick="drHG('${g.id}')">${g.ic} ${g.nm}</button>`).join('')}</div>
+    <div style="font-size:9px;color:var(--t3);margin-top:4px;font-family:'JetBrains Mono'">SAF-T: ${hg.sf} – ${hg.sfn} · MVA: ${hg.al?'25%':it.pt!==null?'S:'+hg.vi+'%/T:'+hg.vt+'%':hg.vi+'%'}${hg.al?' · 🚫 Rabattsperre':''}</div>
+  </div>`;
 
   // ALKOHOL
-  h+=`<div class="drs"><div class="drst">🍷 Alkohol</div><div style="display:flex;gap:4px"><button class="btn bxs ${it.al?'bp':'bs'}" onclick="drE('al',true)" style="${it.al?'background:var(--alc);border-color:var(--alc)':''}">Ja</button><button class="btn bxs ${!it.al?'bp':'bs'}" onclick="drE('al',false)">Nei</button></div>${it.al?'<div style="font-size:9px;color:var(--alc);margin-top:3px">25% MVA · Rabattsperre aktiv</div>':''}</div>`;
+  h+=`<div class="drs"><div class="drst">🍷 Alkohol</div>
+    <div style="display:flex;gap:4px">
+      <button class="btn btn-xs ${it.al?'btn-primary':'btn-secondary'}" onclick="drE('al',true)" style="${it.al?'background:var(--alc);border-color:var(--alc)':''}">Ja</button>
+      <button class="btn btn-xs ${!it.al?'btn-primary':'btn-secondary'}" onclick="drE('al',false)">Nei</button>
+    </div>
+    ${it.al?'<div style="font-size:9px;color:var(--alc);margin-top:3px">25% MVA · Rabattsperre aktiv</div>':''}
+  </div>`;
 
   $('drb').innerHTML=h;
-  $('drac').innerHTML=`<button class="btn bok bsm" onclick="drConf()">✓ ${it.conf?'Allerede bekreftet':'Bekreft & neste'}</button><button class="btn bs bsm" style="margin-left:auto" onclick="navDr(1)">Neste →</button>`;
+  $('drac').innerHTML=`<button class="btn btn-success btn-sm" onclick="drConf()">✓ ${it.conf?'Allerede bekreftet':'Bekreft & neste'}</button><button class="btn btn-secondary btn-sm" style="margin-left:auto" onclick="navDr(1)">Neste →</button>`;
 }
 
 function drE(f,v){const it=S.m.cats[S.di.ci].its[S.di.ri];it[f]=v;S.ec++;if(f==='al'||f==='d'){const r=aiHG({n:it.n,d:it.d,tp:it.tp,al:it.al,cn:it.cn});it.hg=r.res.h;it.hgC=r.res.c;it.hgS=r.s;if(f==='d'){it.aiAl=aiAl(it.n,v);it.miss=it.aiAl.filter(x=>!it.det.some(d=>d.a===x.a&&d.s==='m'));}}renDr();}
@@ -388,33 +1794,63 @@ function drEP(f,v){const n=parseFloat((v||'').replace(/[^0-9.,]/g,'').replace(',
 function drTgAl(a){const it=S.m.cats[S.di.ci].its[S.di.ri];const x=it.als.indexOf(a);if(x>=0){it.als.splice(x,1);it.det=it.det.filter(d=>d.a!==a);}else{it.als.push(a);it.det.push({a,s:'manual',tr:null,c:100});}S.ec++;renDr();}
 function drAccAl(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.miss.forEach(d=>{if(!it.als.includes(d.a)){it.als.push(d.a);it.det.push(d);}});it.miss=[];it.iss=it.iss.filter(x=>x.f!=='al');it.st=it.iss.length?'ch':'ok';S.ec++;renDr();}
 function drHG(id){const it=S.m.cats[S.di.ci].its[S.di.ri];it.hg=id;it.hgC=100;it.hgS=[{r:'Manuelt valgt',ok:true,h:id,c:100}];S.ec++;renDr();}
-function drImgClear(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.img=null;it.imgSt='none';S.ec++;renDr();}
-function drImgUpload(){const it=S.m.cats[S.di.ci].its[S.di.ri];
-  // Simulate file picker with a placeholder
-  const fakeUrl='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop';
-  it.img=fakeUrl;it.imgSt='found';S.ec++;renDr();}
-function drImgSkip(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.imgSt='none';S.ec++;renDr();}
-function drConf(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.conf=true;it.iss=[];it.st='ok';S.ec++;
-  // Auto-navigate to next unconfirmed
-  const a=its(),idx=a.indexOf(it);const next=[...a.slice(idx+1),...a.slice(0,idx)].find(i=>!i.conf);
-  if(next){for(let ci=0;ci<S.m.cats.length;ci++){const ri=S.m.cats[ci].its.indexOf(next);if(ri>=0){S.di={ci,ri};renDr();return;}}}
-  closeDr();}
+function drImgClear(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.img=null;it.imgSt='none';it.aiImg=false;S.ec++;renDr();}
+function drImgUpload(){
+  const it=S.m.cats[S.di.ci].its[S.di.ri];
+  it.img='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop';
+  it.imgSt='found';it.aiImg=false;S.ec++;renDr();
+}
+function drGenAi(){
+  const it=S.m.cats[S.di.ci].its[S.di.ri];
+  it.img='https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&h=200&fit=crop&sat=-30';
+  it.imgSt='ai-gen';it.aiImg=true;S.ec++;renDr();
+}
+function drRegenImg(){
+  const it=S.m.cats[S.di.ci].its[S.di.ri];
+  // Pretend to generate a different image
+  const urls=['photo-1504674900247-0877df9cc836','photo-1555939594-58d7cb561ad1','photo-1476224203421-9ac39bcb3327','photo-1551183053-bf91a1d81141'];
+  const pick=urls[Math.floor(Math.random()*urls.length)];
+  it.img=`https://images.unsplash.com/${pick}?w=200&h=200&fit=crop&sat=-30`;
+  it.imgSt='ai-gen';it.aiImg=true;S.ec++;renDr();
+}
+function drGenDesc(){
+  const it=S.m.cats[S.di.ci].its[S.di.ri];
+  const templates={
+    mat:'En nydelig rett tilberedt med ferske ingredienser og servert med omhu.',
+    dessert:'En himmelsk dessert med perfekt balanse mellom sødme og tekstur.',
+    side:'Et klassisk tilbehør som komplementerer hovedretten.',
+    af:'En forfriskende drikk som passer til enhver anledning.',
+    beer:'En håndplukket øl med distinkt karakter.',
+    wine:'Et elegant vinvalg med god struktur og kompleksitet.',
+    spirits:'En premium destillat for spesielle anledninger.'
+  };
+  it.d=templates[it.hg]||templates.mat;
+  it.aiDesc=true;
+  it.aiAl=aiAl(it.n,it.d);
+  it.iss=it.iss.filter(x=>x.f!=='desc');
+  S.ec++;renDr();
+}
+function drConf(){const it=S.m.cats[S.di.ci].its[S.di.ri];it.conf=true;it.iss=[];it.st='ok';S.ec++;const a=its(),idx=a.indexOf(it);const next=[...a.slice(idx+1),...a.slice(0,idx)].find(i=>!i.conf);if(next){for(let ci=0;ci<S.m.cats.length;ci++){const ri=S.m.cats[ci].its.indexOf(next);if(ri>=0){S.di={ci,ri};renDr();return;}}}closeDr();}
 
-// IMPORT FLOW
+/* ========================================================================
+   IMPORT FLOW
+   ======================================================================== */
 function doImport(){
   const sel=its().filter(i=>i.chk),tot=sel.length;
   if(!tot)return;
-  // Show overlay
   $('impOv').classList.add('on');
   $('impFill').style.width='0%';
   let step=0;
+  const aiImgCount=sel.filter(i=>i.aiImg).length;
+  const aiDescCount=sel.filter(i=>i.aiDesc).length;
   const steps=[
-    {t:'Oppretter kategorier…',s:`${S.m.cats.length} kategorier`,p:12},
-    {t:'Importerer produkter…',s:`0 av ${tot}`,p:25},
-    {t:'Importerer produkter…',s:`${Math.floor(tot*.5)} av ${tot}`,p:42},
-    {t:'Setter allergener…',s:`${sel.reduce((s,i)=>s+i.als.length,0)} allergener`,p:55},
-    {t:'Overfører bilder…',s:`${sel.filter(i=>i.imgSt==='found').length} bilder`,p:68},
-    {t:'Tilordner hovedgrupper…',s:`MVA og SAF-T koder`,p:78},
+    {t:'Oppretter kategorier…',s:`${S.m.cats.length} kategorier`,p:10},
+    {t:'Importerer produkter…',s:`0 av ${tot}`,p:22},
+    {t:'Importerer produkter…',s:`${Math.floor(tot*.5)} av ${tot}`,p:40},
+    {t:'Setter allergener…',s:`${sel.reduce((s,i)=>s+i.als.length,0)} allergener`,p:52},
+    {t:'Overfører bilder…',s:`${sel.filter(i=>i.imgSt==='found').length} originale, ${aiImgCount} AI-genererte`,p:64},
+    ...(aiDescCount?[{t:'Lagrer AI-beskrivelser…',s:`${aiDescCount} varetekster`,p:72}]:[]),
+    {t:'Tilordner hovedgrupper…',s:`MVA og SAF-T koder`,p:80},
     {t:'Setter priser…',s:`Servering og takeaway`,p:88},
     {t:'Validerer…',s:`Kontrollerer data`,p:95},
     {t:'Ferdig!',s:`${tot} produkter importert`,p:100},
@@ -437,27 +1873,30 @@ function showSuccess(){
   $('step3').classList.add('hidden');
   $('step4').classList.remove('hidden');
   $('sticky').classList.remove('on');
-  
+
   const sel=its().filter(i=>i.chk);
   const tot=sel.length;
   const alcN=sel.filter(i=>i.al).length;
-  const aiD=sel.reduce((s,i)=>s+i.aiAl.length,0);
   const imgOk=sel.filter(i=>i.imgSt==='found').length;
-  const imgMiss=tot-imgOk;
+  const imgAi=sel.filter(i=>i.imgSt==='ai-gen').length;
+  const imgMiss=tot-imgOk-imgAi;
+  const aiDescCount=sel.filter(i=>i.aiDesc).length;
   const grps={};sel.forEach(i=>{if(!grps[i.hg])grps[i.hg]=0;grps[i.hg]++;});
   const hgN=Object.keys(grps).length;
-  const catN=new Set(sel.map(i=>i.cn)).size;
   const alN=sel.reduce((s,i)=>s+i.als.length,0);
+
+  const methodLabel={url:'URL',file:'fil',prompt:'AI-prompt',photo:'bilde'}[S.method]||'kilde';
 
   $('step4').innerHTML=`<div class="suc">
     <div class="suc-check"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="30"><polyline points="20 6 9 17 4 12"/></svg></div>
     <h2 class="suc-t">Meny importert!</h2>
-    <p class="suc-d">${tot} produkter fra <strong>${S.m.nm}</strong> er opprettet i Plorea med ${hgN} hovedgrupper, ${alN} allergenmerking og ${imgOk} produktbilder.${imgMiss?` ${imgMiss} produkt${imgMiss>1?'er':''} mangler bilde – du kan legge disse til senere.`:''}${alcN?` ${alcN} alkohol-produkter er flagget med rabattsperre.`:''}</p>
-    
+    <p class="suc-d">${tot} produkter fra <strong>${S.m.nm}</strong> er opprettet i Plorea via ${methodLabel}. ${hgN} hovedgrupper, ${alN} allergenmerking${imgOk+imgAi?`, ${imgOk+imgAi} produktbilder${imgAi?` (${imgAi} AI-genererte)`:''}`:''}${aiDescCount?`, ${aiDescCount} AI-beskrivelser`:''}.${imgMiss?` ${imgMiss} produkt${imgMiss>1?'er':''} mangler bilde – du kan legge disse til senere.`:''}${alcN?` ${alcN} alkohol-produkter er flagget med rabattsperre.`:''}</p>
+
     <div class="suc-stats">
       <div class="suc-st"><div class="suc-sv" style="color:var(--ok)">${tot}</div><div class="suc-sl">Produkter</div></div>
-      <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${imgOk}</div><div class="suc-sl">Med bilde</div></div>
-      <div class="suc-st"><div class="suc-sv" style="color:${imgMiss?'var(--wn)':'var(--ok)'}">${imgMiss}</div><div class="suc-sl">Uten bilde</div></div>
+      <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${imgOk+imgAi}</div><div class="suc-sl">Med bilde</div></div>
+      ${imgAi?`<div class="suc-st"><div class="suc-sv" style="color:var(--ai)">${imgAi}</div><div class="suc-sl">AI-bilder</div></div>`:''}
+      ${imgMiss?`<div class="suc-st"><div class="suc-sv" style="color:var(--wn)">${imgMiss}</div><div class="suc-sl">Uten bilde</div></div>`:''}
       <div class="suc-st"><div class="suc-sv" style="color:var(--pri)">${hgN}</div><div class="suc-sl">Hovedgrupper</div></div>
       ${alcN?`<div class="suc-st"><div class="suc-sv" style="color:var(--alc)">${alcN}</div><div class="suc-sl">Alkohol</div></div>`:''}
     </div>
@@ -469,11 +1908,11 @@ function showSuccess(){
         <div class="suc-ni-txt"><strong>Gå til menyoversikt</strong><span>Se og finjuster alle importerte produkter</span></div>
         <span class="suc-ni-arr">→</span>
       </div>
-      <div class="suc-ni" onclick="alert('Navigerer til Bilder…')">
+      ${imgMiss?`<div class="suc-ni" onclick="alert('Navigerer til Bilder…')">
         <div class="suc-ni-ico or">📷</div>
         <div class="suc-ni-txt"><strong>Legg til produktbilder</strong><span>${imgMiss} produkt${imgMiss>1?'er':''} mangler bilde</span></div>
         <span class="suc-ni-arr">→</span>
-      </div>
+      </div>`:''}
       <div class="suc-ni" onclick="alert('Navigerer til Tilgjengelighet…')">
         <div class="suc-ni-ico gn">🕐</div>
         <div class="suc-ni-txt"><strong>Sett tilgjengelighet</strong><span>Servering, takeaway, lunsj/middag, kanaler</span></div>
@@ -487,11 +1926,11 @@ function showSuccess(){
     </div>
 
     <div style="display:flex;gap:10px">
-      <button class="btn bs" onclick="resetAll()">Importer flere</button>
-      <button class="btn bp" onclick="alert('Navigerer til Menyoversikt…')">Gå til menyoversikt</button>
+      <button class="btn btn-secondary" onclick="resetAll()">Importer flere</button>
+      <button class="btn btn-primary" onclick="alert('Navigerer til Menyoversikt…')">Gå til menyoversikt</button>
     </div>
 
-    <div style="margin-top:24px;padding:16px 20px;background:var(--bs);border:1px solid var(--bd);border-radius:var(--rl);max-width:500px;width:100%;text-align:left;box-shadow:var(--e1)">
+    <div style="margin-top:24px;padding:16px 20px;background:var(--bg-surface);border:1px solid var(--bd);border-radius:var(--r-lg);max-width:500px;width:100%;text-align:left;box-shadow:var(--e1)">
       <div style="font-family:Sora;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);margin-bottom:10px">Importert oversikt</div>
       ${Object.entries(grps).map(([hid,cnt])=>{const hg=HGD.find(g=>g.id===hid)||HGD[0];return`<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(46,44,56,.3);font-size:12px"><span style="font-size:16px">${hg.ic}</span><span style="flex:1;font-weight:500">${hg.nm}</span><span style="font-family:'JetBrains Mono';font-size:10px;color:var(--t3)">SAF-T ${hg.sf}</span><span style="font-family:'JetBrains Mono';font-size:10px;color:var(--pri)">MVA ${hg.vi}%${hg.vt!==hg.vi?'/'+hg.vt+'%':''}</span><span style="font-weight:700;min-width:24px;text-align:right">${cnt}</span></div>`;}).join('')}
     </div>
@@ -499,7 +1938,11 @@ function showSuccess(){
 }
 
 function resetAll(){
-  S={mk:null,m:null,ec:0,sr:'',af:'all',di:null,tab:'review'};
+  S={
+    method:'url',mk:null,m:null,ec:0,sr:'',af:'all',di:null,tab:'review',
+    file:null,prompt:'',promptParams:{count:15,cuisine:'italiensk',style:'moderne'},photo:null,
+    aiGenImages:true,aiGenDescriptions:true
+  };
   $('step4').classList.add('hidden');
   $('step1').classList.remove('hidden');
   rS1();
