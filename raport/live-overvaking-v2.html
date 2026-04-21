@@ -153,7 +153,7 @@
   .theme-toggle:hover { background: var(--surface-hover); border-color: var(--border-strong); }
 
   /* ========== Layout ========== */
-  .container { max-width: 1680px; margin: 0 auto; padding: 24px 28px 48px; }
+  .container { max-width: 1680px; margin: 0 auto; padding: 24px 28px 96px; }
 
   .section-label {
     font-size: 11px;
@@ -254,19 +254,92 @@
   .kpi-minibar-qr { background: #A78BFA; }
   [data-theme="dark"] .kpi-minibar-qr { background: #C4B5FD; }
 
-  /* ========== Kiosk selector ========== */
-  .selector-card {
+  /* ========== Kiosk selector — sticky footer ========== */
+  .selector-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
     background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 18px;
-    margin-bottom: 20px;
-    box-shadow: var(--shadow-sm);
+    border-top: 1px solid var(--border);
+    box-shadow: 0 -4px 20px rgba(15, 27, 36, 0.06);
+    z-index: 20;
+    max-height: calc(100vh - 100px);
+    display: flex;
+    flex-direction: column;
   }
-  .selector-title {
-    font-size: 12px;
+  [data-theme="dark"] .selector-footer {
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  }
+  .selector-footer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.15s;
+  }
+  .selector-footer-header:hover { background: var(--surface-hover); }
+  .selector-footer-summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+  .selector-footer-summary .count-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    background: var(--plorea-blue-light);
+    color: var(--plorea-blue-dark);
+    border-radius: 999px;
+    font-size: 11px;
     font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  [data-theme="dark"] .selector-footer-summary .count-pill {
+    color: #9ED4EC;
+  }
+  .selector-footer-summary .meta {
+    font-size: 12px;
     color: var(--text-muted);
+    font-weight: 500;
+  }
+  .selector-footer-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
+    transition: transform 0.25s;
+  }
+  .selector-footer-toggle svg { transition: transform 0.25s ease; }
+  .selector-footer.expanded .selector-footer-toggle svg { transform: rotate(180deg); }
+
+  .selector-footer-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 24px;
+    border-top: 1px solid transparent;
+  }
+  .selector-footer.expanded .selector-footer-content {
+    max-height: 320px;
+    padding: 14px 24px 20px;
+    border-top-color: var(--border);
+    overflow-y: auto;
+  }
+  .selector-footer-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
     margin-bottom: 10px;
   }
   .selector-chips { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -567,29 +640,8 @@
 
   </div>
 
-  <!-- =================== KIOSK SELECTOR =================== -->
-  <div class="selector-card">
-    <div class="selector-title">Velg kiosker å overvåke</div>
-    <div class="selector-chips">
-      <div class="chip status-closed"><span class="checkbox"></span> Kiosk1 <span class="tag">Lukket</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk2 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk3 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk4 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk5 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk6 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk7 <span class="tag">Critical</span></div>
-      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk8 <span class="tag">Critical</span></div>
-      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk9 <span class="tag">Critical</span></div>
-      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk10 <span class="tag">Critical</span></div>
-      <div class="chip status-closed"><span class="checkbox"></span> Kiosk11 <span class="tag">Lukket</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk12 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk13 <span class="tag">Ingen hendelse</span></div>
-      <div class="chip status-idle"><span class="checkbox"></span> Kiosk14 <span class="tag">Ingen hendelse</span></div>
-    </div>
-  </div>
-
   <!-- =================== KIOSK ROWS =================== -->
-  <div class="section-label">Overvåkede kiosker</div>
+  <div class="section-label">Overvåkede kiosker · 4 aktive</div>
 
   <!-- Kiosk 7 -->
   <div class="kiosk-row">
@@ -863,6 +915,41 @@
 
 </div>
 
+<!-- =================== STICKY FOOTER: KIOSK SELECTOR =================== -->
+<div class="selector-footer" id="selector-footer">
+  <div class="selector-footer-header" onclick="toggleSelector()">
+    <div class="selector-footer-summary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      <span>Velg kiosker å overvåke</span>
+      <span class="count-pill">4 av 14 aktive</span>
+      <span class="meta">· 10 lukket · 0 nede</span>
+    </div>
+    <div class="selector-footer-toggle">
+      <span id="toggle-label">Vis</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </div>
+  </div>
+  <div class="selector-footer-content">
+    <div class="selector-footer-title">Alle kiosker</div>
+    <div class="selector-chips">
+      <div class="chip status-closed"><span class="checkbox"></span> Kiosk1 <span class="tag">Lukket</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk2 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk3 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk4 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk5 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk6 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk7 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk8 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk9 <span class="tag">Critical</span></div>
+      <div class="chip active status-critical"><span class="checkbox"></span> Kiosk10 <span class="tag">Critical</span></div>
+      <div class="chip status-closed"><span class="checkbox"></span> Kiosk11 <span class="tag">Lukket</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk12 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk13 <span class="tag">Ingen hendelse</span></div>
+      <div class="chip status-idle"><span class="checkbox"></span> Kiosk14 <span class="tag">Ingen hendelse</span></div>
+    </div>
+  </div>
+</div>
+
 <script>
   function toggleTheme() {
     const root = document.documentElement;
@@ -877,6 +964,13 @@
       document.getElementById('theme-label').textContent = 'Mørk';
       document.getElementById('theme-icon').innerHTML = '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';
     }
+  }
+
+  function toggleSelector() {
+    const footer = document.getElementById('selector-footer');
+    const label = document.getElementById('toggle-label');
+    footer.classList.toggle('expanded');
+    label.textContent = footer.classList.contains('expanded') ? 'Skjul' : 'Vis';
   }
 </script>
 
