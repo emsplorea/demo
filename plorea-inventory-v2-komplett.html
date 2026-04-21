@@ -1399,6 +1399,664 @@
         .cell-updated {
             animation: cellUpdate 1s ease;
         }
+
+        /* ============================================
+           LIVE MONITORING v2 — KPI strip, 6-col rows,
+           sticky footer chip selector
+           ============================================ */
+        .lm-section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 0.7rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+        .lm-section-label .lm-freshness {
+            font-weight: 500;
+            text-transform: none;
+            letter-spacing: 0;
+        }
+
+        /* KPI Strip */
+        .lm-kpi-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+        @media (max-width: 1100px) {
+            .lm-kpi-strip { grid-template-columns: repeat(2, 1fr); }
+        }
+        .lm-kpi {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1rem 1.1rem;
+            box-shadow: var(--elevation-1);
+            transition: all 0.15s ease;
+            min-width: 0;
+        }
+        .lm-kpi:hover {
+            box-shadow: var(--elevation-2);
+            transform: translateY(-1px);
+        }
+        .lm-kpi-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .lm-kpi-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            line-height: 1.1;
+            letter-spacing: -0.01em;
+            font-variant-numeric: tabular-nums;
+        }
+        .lm-kpi-value.critical { color: var(--danger); }
+        .lm-kpi-value.warning  { color: #a88900; }
+        .lm-kpi-value.ok       { color: #0a7a5f; }
+        .lm-kpi-value .ok      { color: #0a7a5f; }
+        .lm-kpi-sub {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .lm-kpi-accent   { border-left: 3px solid var(--accent-primary); }
+        .lm-kpi-critical { border-left: 3px solid var(--danger); }
+        .lm-kpi-warning  { border-left: 3px solid var(--warning); }
+
+        .lm-split {
+            display: flex;
+            align-items: baseline;
+            gap: 0.4rem;
+            font-family: 'Sora', sans-serif;
+            line-height: 1.1;
+            font-variant-numeric: tabular-nums;
+        }
+        .lm-split-primary { font-size: 1.25rem; font-weight: 600; }
+        .lm-split-divider { color: var(--gray-500); font-size: 1rem; }
+        .lm-split-secondary {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+        }
+        .lm-minibar {
+            display: flex;
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+            background: var(--gray-200);
+        }
+        .lm-minibar-seg { height: 100%; }
+        .lm-minibar-pos { background: var(--accent-primary); }
+        .lm-minibar-qr  { background: #A78BFA; }
+
+        .lm-sparkline {
+            height: 22px;
+            width: 100%;
+            margin-top: 0.35rem;
+            display: block;
+        }
+
+        .lm-trend-up   { color: #0a7a5f; font-weight: 600; }
+        .lm-trend-down { color: var(--danger); font-weight: 600; }
+
+        /* Kiosk Row */
+        .lm-kiosk-row {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--elevation-1);
+            transition: all 0.15s ease;
+        }
+        .lm-kiosk-row:hover { box-shadow: var(--elevation-2); }
+        .lm-kiosk-row-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(90deg, var(--accent-primary) 0%, var(--blue-700) 100%);
+            color: white;
+        }
+        .lm-kiosk-row-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Sora', sans-serif;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .lm-kiosk-row-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.75rem;
+            opacity: 0.95;
+        }
+        .lm-status-badge {
+            font-size: 0.62rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 0.2rem 0.55rem;
+            border-radius: 4px;
+            background: rgba(0, 0, 0, 0.28);
+            color: white;
+        }
+
+        .lm-kiosk-row-body {
+            display: grid;
+            grid-template-columns: 1.1fr 1.4fr 1.1fr 1.55fr 1.15fr 1.3fr;
+            gap: 0;
+        }
+        @media (max-width: 1100px) {
+            .lm-kiosk-row-body { grid-template-columns: repeat(2, 1fr); }
+        }
+        .lm-metric {
+            padding: 0.95rem 1.15rem;
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            min-width: 0;
+        }
+        .lm-metric:last-child { border-right: none; }
+        .lm-metric-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+        .lm-metric-value {
+            font-family: 'Sora', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 600;
+            line-height: 1.2;
+            font-variant-numeric: tabular-nums;
+            letter-spacing: -0.01em;
+        }
+        .lm-metric-value.critical { color: var(--danger); }
+        .lm-metric-value.warning  { color: #a88900; }
+        .lm-metric-value.ok       { color: #0a7a5f; }
+        .lm-metric-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+        }
+
+        /* Payment mix bar */
+        .lm-paymix {
+            display: flex;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 0.4rem;
+            background: var(--gray-200);
+        }
+        .lm-paymix-seg { height: 100%; }
+        .lm-paymix-card  { background: var(--accent-primary); }
+        .lm-paymix-vipps { background: #FF5B24; }
+        .lm-paymix-apay  { background: #1E293B; }
+        .lm-paymix-legend {
+            display: flex;
+            gap: 0.6rem;
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .lm-paymix-legend .dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 3px;
+            vertical-align: middle;
+        }
+
+        /* Stop-% status cell */
+        .lm-metric.status-cell {
+            background: rgba(218, 107, 107, 0.08);
+            border-left: 3px solid var(--danger);
+            cursor: pointer;
+        }
+        .lm-metric.status-cell:hover { background: rgba(218, 107, 107, 0.15); }
+        .lm-metric.status-cell.warning {
+            background: rgba(218, 218, 107, 0.12);
+            border-left-color: var(--warning);
+        }
+        .lm-metric.status-cell.warning:hover { background: rgba(218, 218, 107, 0.22); }
+        .lm-metric.status-cell.ok {
+            background: rgba(107, 218, 178, 0.1);
+            border-left-color: var(--success);
+            cursor: default;
+        }
+        .lm-metric-hint {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            margin-top: 0.1rem;
+        }
+
+        /* Sticky selector footer (hidden by default; shown only on live-monitoring page) */
+        .lm-selector-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            z-index: 20;
+            max-height: calc(100vh - 100px);
+            display: none;
+            flex-direction: column;
+        }
+        .lm-selector-footer.visible { display: flex; }
+        .lm-selector-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 2rem;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s;
+        }
+        .lm-selector-header:hover { background: var(--bg-hover); }
+        .lm-selector-summary {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            flex-wrap: wrap;
+        }
+        .lm-selector-icon { font-size: 1.05rem; }
+        .lm-count-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.18rem 0.6rem;
+            background: var(--blue-50);
+            color: var(--blue-800);
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+        .lm-selector-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .lm-selector-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        .lm-chevron {
+            display: inline-block;
+            transition: transform 0.25s ease;
+            font-size: 0.7rem;
+        }
+        .lm-selector-footer.expanded .lm-chevron { transform: rotate(180deg); }
+        .lm-selector-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 2rem;
+            border-top: 1px solid transparent;
+        }
+        .lm-selector-footer.expanded .lm-selector-content {
+            max-height: 340px;
+            padding: 0.9rem 2rem 1.25rem;
+            border-top-color: var(--border);
+            overflow-y: auto;
+        }
+        .lm-selector-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 0.65rem;
+        }
+        .lm-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+        }
+        .lm-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.35rem 0.65rem 0.35rem 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            background: var(--bg-card);
+            font-size: 0.8rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s;
+            user-select: none;
+        }
+        .lm-chip:hover {
+            background: var(--bg-hover);
+            border-color: var(--gray-400);
+        }
+        .lm-chip.active {
+            background: var(--blue-50);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
+        }
+        .lm-chip-checkbox {
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid var(--gray-400);
+            border-radius: 3px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            flex-shrink: 0;
+            position: relative;
+        }
+        .lm-chip.active .lm-chip-checkbox {
+            background: var(--accent-primary);
+            border-color: var(--accent-primary);
+        }
+        .lm-chip.active .lm-chip-checkbox::after {
+            content: '';
+            width: 6px;
+            height: 3px;
+            border-left: 2px solid white;
+            border-bottom: 2px solid white;
+            transform: rotate(-45deg) translate(1px, -1px);
+        }
+        .lm-chip-tag {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: var(--gray-200);
+            color: var(--text-muted);
+        }
+        .lm-chip[data-status="closed"]   .lm-chip-tag { background: var(--gray-200); color: var(--gray-700); }
+        .lm-chip[data-status="idle"]     .lm-chip-tag { background: var(--gray-100); color: var(--text-muted); }
+        .lm-chip[data-status="critical"] .lm-chip-tag { background: rgba(218, 107, 107, 0.2); color: var(--danger); }
+        .lm-chip[data-status="warning"]  .lm-chip-tag { background: rgba(218, 218, 107, 0.3); color: #8a6e00; }
+        .lm-chip[data-status="ok"]       .lm-chip-tag { background: rgba(107, 218, 178, 0.25); color: #0a7a5f; }
+
+        /* Reserve space for sticky footer on LM page */
+        body.has-lm-footer .container { padding-bottom: 6rem; }
+
+        /* ============================================
+           DG Lagerjustering modal — flash highlight
+           on Current Stock (DG) after save
+           ============================================ */
+        @keyframes dgStockFlash {
+            0%   { background: rgba(255, 235, 59, 0.45); color: #0a7a5f; font-weight: 700; }
+            60%  { background: rgba(255, 235, 59, 0.35); color: #0a7a5f; font-weight: 700; }
+            100% { background: transparent; color: inherit; font-weight: inherit; }
+        }
+        .dg-stock-flash { animation: dgStockFlash 2.4s ease-out; border-radius: 4px; }
+
+        /* "NEW" badge for changes */
+        .change-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            background: rgba(192, 38, 211, 0.1);
+            color: #C026D3;
+            border: 1px solid rgba(192, 38, 211, 0.3);
+            border-radius: 999px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        /* ============================================
+           PACKAGING FRAMEWORK (Forpakning)
+           ============================================ */
+
+        /* Master data table */
+        .pkg-master-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+        .pkg-master-table thead th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-main);
+        }
+        .pkg-master-table tbody td {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid var(--border-light);
+            vertical-align: middle;
+        }
+        .pkg-master-table tbody tr:hover { background: var(--bg-hover); }
+        .pkg-master-table .col-num { text-align: right; font-variant-numeric: tabular-nums; }
+        .pkg-master-table .col-center { text-align: center; }
+        .pkg-type-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .pkg-type-unit {
+            background: rgba(107, 184, 218, 0.15);
+            color: var(--blue-800);
+        }
+        .pkg-type-volume {
+            background: rgba(155, 135, 212, 0.18);
+            color: #6246a8;
+        }
+        .pkg-default-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            background: rgba(107, 218, 178, 0.2);
+            color: #0a7a5f;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .pkg-inactive-badge {
+            display: inline-flex;
+            align-items: center;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 3px 9px;
+            background: var(--gray-200);
+            color: var(--text-muted);
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .pkg-result-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 4px 10px;
+            background: var(--blue-50);
+            color: var(--blue-800);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        .pkg-row-actions {
+            display: flex;
+            gap: 0.3rem;
+        }
+        .pkg-icon-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-muted);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            transition: all 0.15s;
+        }
+        .pkg-icon-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--gray-400);
+            color: var(--text-primary);
+        }
+        .pkg-icon-btn.danger:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+        }
+
+        /* Packaging helper component (reusable across flows) */
+        .pkg-helper {
+            background: linear-gradient(135deg, rgba(107, 184, 218, 0.08), rgba(192, 38, 211, 0.04));
+            border: 1px solid rgba(107, 184, 218, 0.35);
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 1.1rem;
+        }
+        .pkg-helper-head {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            flex-wrap: wrap;
+        }
+        .pkg-helper-head label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.875rem;
+            cursor: pointer;
+            user-select: none;
+        }
+        .pkg-helper-head input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--accent-primary);
+        }
+        .pkg-helper-hint {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: auto;
+        }
+        .pkg-helper-body {
+            margin-top: 0.75rem;
+            display: grid;
+            grid-template-columns: minmax(180px, 1.3fr) minmax(120px, 0.8fr) minmax(160px, 1fr);
+            gap: 0.6rem;
+            align-items: end;
+        }
+        .pkg-helper-body.hidden { display: none; }
+        .pkg-helper-field label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 0.3rem;
+        }
+        .pkg-helper-field select,
+        .pkg-helper-field input {
+            width: 100%;
+            padding: 0.5rem 0.65rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--bg-card);
+            font-family: inherit;
+            font-size: 0.875rem;
+            color: var(--text-primary);
+        }
+        .pkg-helper-field select:focus,
+        .pkg-helper-field input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(107, 184, 218, 0.2);
+        }
+        .pkg-helper-result {
+            padding: 0.55rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px dashed var(--accent-primary);
+            border-radius: 6px;
+            font-family: 'Sora', sans-serif;
+            font-variant-numeric: tabular-nums;
+            color: var(--text-primary);
+        }
+        .pkg-helper-result .val {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--blue-800);
+        }
+        .pkg-helper-result .sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: inherit;
+        }
+        .pkg-helper-disabled {
+            opacity: 0.55;
+        }
+        .pkg-helper-disabled label { cursor: not-allowed; }
+
+        /* Row-level packaging pill (used in DG Lagerjustering table) */
+        .pkg-row-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            padding: 2px 8px;
+            background: var(--bg-main);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            margin-left: 0.5rem;
+            font-weight: 500;
+        }
+        .pkg-row-pill .pkg-row-pill-val {
+            color: var(--blue-800);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
     </style>
 </head>
 <body>
@@ -1417,6 +2075,7 @@
             <div class="nav-tabs">
                 <button class="nav-tab active" data-page="device-groups">Enhetsgrupper</button>
                 <button class="nav-tab" data-page="warehouse">🏭 Hovedlager</button>
+                <button class="nav-tab" data-page="packaging">📦 Forpakning <span class="change-badge" style="font-size: 0.55rem; margin-left: 0.3rem;">NEW</span></button>
                 <button class="nav-tab" data-page="event-management">Event Management</button>
                 <button class="nav-tab" data-page="live-dashboard">Live Monitoring</button>
             </div>
@@ -1677,6 +2336,17 @@
                             </div>
                         </div>
                         
+                        <!-- NEW: Lagerjustering action (PLBR-1205) -->
+                        <div style="margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: center;">
+                            <button class="btn-secondary" onclick="openDGAdjustmentDialog()" style="display: inline-flex; align-items: center; gap: 0.45rem;">
+                                ⚙️ Lagerjustering
+                            </button>
+                            <span class="change-badge">NEW</span>
+                            <span style="font-size: 0.75rem; color: var(--text-muted); margin-left: 0.25rem;">
+                                Juster fysisk lager på enhetsgruppen — både opp og ned
+                            </span>
+                        </div>
+                        
                         <div class="form-section">
                             <div class="section-title">📊 Lagerjusteringer (Excel-style)</div>
                             <div style="padding: 1rem; background: rgba(74, 158, 255, 0.05); border: 1px solid var(--accent-primary); border-radius: 8px; margin-bottom: 1rem;">
@@ -1885,6 +2555,7 @@
                                 <thead>
                                     <tr>
                                         <th style="text-align: left;">Produkt</th>
+                                        <th style="text-align: center; width: 170px;">Forpakning <span class="change-badge" style="font-size: 0.5rem; vertical-align: middle;">NEW</span></th>
                                         <th style="text-align: center; width: 150px;">Antall mottatt</th>
                                         <th style="text-align: center; width: 150px;">Kjøpspris (kr)</th>
                                         <th style="text-align: right; width: 120px;">Total kostnad</th>
@@ -1896,6 +2567,7 @@
                                 <tfoot>
                                     <tr style="border-top: 2px solid var(--border); font-weight: 700;">
                                         <td>TOTALT</td>
+                                        <td style="text-align: center; color: var(--text-muted); font-weight: 500; font-size: 0.8rem;">(alle i stk)</td>
                                         <td style="text-align: center;" id="deliveryTotalQty">0</td>
                                         <td style="text-align: center;">—</td>
                                         <td style="text-align: right;" id="deliveryTotalCost">kr 0.00</td>
@@ -1959,9 +2631,13 @@
                         <input type="text" class="form-input" id="adjustmentCurrentQty" disabled>
                     </div>
                     
+                    <!-- Packaging helper (Forpakning) -->
+                    <div id="whAdjustmentPkgHelper"></div>
+                    
                     <div class="form-group">
-                        <label class="form-label required">Ny korrekt beholdning</label>
+                        <label class="form-label required">Ny korrekt beholdning <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(i stk)</span></label>
                         <input type="number" class="form-input" id="adjustmentNewQty" min="0" placeholder="Skriv inn korrekt antall">
+                        <div id="whAdjustmentNewQtyHint" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: none;"></div>
                     </div>
                     
                     <div class="form-group">
@@ -1993,6 +2669,218 @@
             </div>
         </div>
         
+        <!-- Device Group Lagerjustering Modal (PLBR-1205) — NEW -->
+        <div class="modal-overlay" id="dgAdjustmentModal">
+            <div class="modal-container" style="max-width: 640px;">
+                <div class="modal-header">
+                    <div class="modal-title">⚙️ Lagerjustering — <span id="dgAdjustmentTargetName">Kiosk Nord</span></div>
+                    <button class="modal-close" onclick="closeDGAdjustmentModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+                        Juster fysisk lager for hvert produkt i denne enhetsgruppen. Både opp og ned er tillatt.
+                        Tilgjengelig lager oppdateres tilsvarende.
+                    </div>
+                    
+                    <!-- Packaging quick-add (Forpakning) -->
+                    <div style="border: 1px solid var(--border); border-radius: 8px; padding: 0.9rem 1rem; margin-bottom: 1.25rem; background: var(--bg-main);">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.7rem;">
+                            <span style="font-weight: 600; font-size: 0.875rem;">📦 Raskt påfyll via forpakning</span>
+                            <span class="change-badge" style="font-size: 0.55rem;">NEW</span>
+                            <span style="font-size: 0.72rem; color: var(--text-muted); margin-left: auto;">Konverteres automatisk til stk</span>
+                        </div>
+                        <div style="display: grid; grid-template-columns: minmax(160px, 1.3fr) minmax(180px, 1.4fr) minmax(90px, 0.8fr) auto; gap: 0.5rem; align-items: end;">
+                            <div>
+                                <label style="display: block; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem;">Produkt</label>
+                                <select class="form-input" id="dgPkgQaProduct" onchange="onDGPkgQaProductChange()" style="padding: 0.5rem 0.65rem; font-size: 0.875rem;">
+                                    <!-- Populated by openDGAdjustmentDialog -->
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem;">Forpakning</label>
+                                <select class="form-input" id="dgPkgQaPackaging" onchange="onDGPkgQaComputeResult()" style="padding: 0.5rem 0.65rem; font-size: 0.875rem;">
+                                    <!-- Populated on product change -->
+                                </select>
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.7rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.25rem;">Antall</label>
+                                <input type="number" class="form-input" id="dgPkgQaCount" min="0" step="1" value="1" oninput="onDGPkgQaComputeResult()" style="padding: 0.5rem 0.65rem; font-size: 0.875rem;">
+                            </div>
+                            <button class="btn-primary" onclick="applyDGPkgQuickAdd()" style="padding: 0.5rem 1rem; font-size: 0.875rem; white-space: nowrap;">+ Legg til</button>
+                        </div>
+                        <div id="dgPkgQaResult" style="margin-top: 0.55rem; font-size: 0.78rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.4rem;">
+                            <span>Velg produkt for å se konvertering</span>
+                        </div>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">Produkt</th>
+                                    <th style="text-align: right; width: 160px;">Fysisk lager</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dgAdjustmentRows">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <span id="dgAdjustmentChangeCount" style="margin-right: auto; font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Ingen endringer</span>
+                    <button class="btn-secondary" onclick="closeDGAdjustmentModal()">Avbryt</button>
+                    <button class="btn-primary" id="dgAdjustmentSaveBtn" onclick="confirmDGAdjustment()" disabled>✓ Lagre</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Forpakning (Packaging) Page — NEW -->
+        <div class="page-section" id="packaging">
+            <div class="content-header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div class="content-title">📦 Forpakning — oppsett <span class="change-badge" style="vertical-align: middle; margin-left: 0.5rem; font-size: 0.55rem;">NEW FEATURE</span></div>
+                        <div class="content-subtitle">Definer hvordan produkter mottas og forflyttes (kasser, kegger, tanker). Intern lagerføring er alltid i salgsenheter (stk).</div>
+                    </div>
+                    <button class="btn-primary" onclick="openPackagingEditor()">+ Ny forpakning</button>
+                </div>
+            </div>
+
+            <!-- Explainer -->
+            <div style="padding: 1rem 1.25rem; background: rgba(74, 158, 255, 0.06); border: 1px solid var(--accent-primary); border-radius: 8px; margin-bottom: 1.5rem;">
+                <div style="font-weight: 600; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                    ℹ️ Hvordan forpakning fungerer
+                </div>
+                <div style="font-size: 0.875rem; color: var(--text-secondary); line-height: 1.6;">
+                    En <strong>forpakning</strong> er hvordan et produkt leveres eller forflyttes — f.eks. en kasse med 24 flasker, en keg på 30L, eller en tank på 3000L.
+                    Forpakninger brukes som <strong>inndata-hjelp</strong> i varemottak, lagerjustering og overføringer.
+                    <strong>Lageret lagres alltid i salgsenheter (stk)</strong> — forpakninger konverteres automatisk.
+                </div>
+            </div>
+
+            <!-- Master Data Table -->
+            <div class="form-section">
+                <div class="section-title">Definerte forpakninger</div>
+                <div style="overflow-x: auto; border: 1px solid var(--border); border-radius: 8px;">
+                    <table class="pkg-master-table">
+                        <thead>
+                            <tr>
+                                <th>Produkt</th>
+                                <th>Forpakning</th>
+                                <th>Type</th>
+                                <th class="col-num">Mengde i forpakning</th>
+                                <th class="col-num">Salgsenhet</th>
+                                <th class="col-num">Resultat</th>
+                                <th class="col-center">Status</th>
+                                <th style="width: 90px;"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="pkgMasterTableBody">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Usage panel -->
+            <div class="form-section">
+                <div class="section-title">Hvor forpakning brukes</div>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem;">
+                    <div style="padding: 0.9rem 1.1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 0.35rem;">Hovedlager → Varemottak</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Ta imot i kasser / kegger / tanker. Systemet konverterer til stk.</div>
+                    </div>
+                    <div style="padding: 0.9rem 1.1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 0.35rem;">Hovedlager → Lagerjustering</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">PÅ for hele forpakninger, AV for manuelle korreksjoner.</div>
+                    </div>
+                    <div style="padding: 0.9rem 1.1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 0.35rem;">Enhetsgruppe → Lagerjustering</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Bulk-påfyll fra hovedlager i kasser og kegger.</div>
+                    </div>
+                    <div style="padding: 0.9rem 1.1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-card);">
+                        <div style="font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; font-weight: 700; margin-bottom: 0.35rem;">Event Management → Overføring</div>
+                        <div style="font-size: 0.875rem; color: var(--text-secondary);">Overføring mellom enhetsgrupper kan gjøres i forpakninger.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Packaging Editor Modal -->
+        <div class="modal-overlay" id="packagingEditorModal">
+            <div class="modal-container" style="max-width: 560px;">
+                <div class="modal-header">
+                    <div class="modal-title">📦 <span id="pkgEditorTitle">Ny forpakning</span></div>
+                    <button class="modal-close" onclick="closePackagingEditor()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label required">Produkt</label>
+                        <select class="form-input" id="pkgProduct">
+                            <!-- populated by JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Navn på forpakning</label>
+                        <input type="text" class="form-input" id="pkgName" placeholder="F.eks. Kasse, Keg, Tank, Palett">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">Type</label>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <label style="flex: 1; display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
+                                <input type="radio" name="pkgType" value="UNIT_BASED" checked onchange="onPkgTypeChange()">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Enhetsbasert</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">F.eks. 24 flasker</div>
+                                </div>
+                            </label>
+                            <label style="flex: 1; display: flex; align-items: center; gap: 0.5rem; padding: 0.7rem 0.9rem; border: 1px solid var(--border); border-radius: 6px; cursor: pointer;">
+                                <input type="radio" name="pkgType" value="VOLUME_BASED" onchange="onPkgTypeChange()">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem;">Volumbasert</div>
+                                    <div style="font-size: 0.72rem; color: var(--text-muted);">F.eks. 30L</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                        <div class="form-group">
+                            <label class="form-label required" id="pkgQtyLabel">Enheter per forpakning</label>
+                            <input type="number" class="form-input" id="pkgQty" min="1" step="1" oninput="updatePkgPreview()">
+                        </div>
+                        <div class="form-group" id="pkgUnitSizeGroup" style="display: none;">
+                            <label class="form-label required">Salgsenhet-størrelse (L)</label>
+                            <input type="number" class="form-input" id="pkgUnitSize" min="0.01" step="0.01" placeholder="F.eks. 0.5" oninput="updatePkgPreview()">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+                            <input type="checkbox" id="pkgDefault" style="width: 16px; height: 16px;">
+                            <span style="font-weight: 600; font-size: 0.875rem;">Sett som standard for dette produktet</span>
+                        </label>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; margin-left: 1.6rem;">
+                            Kun én forpakning kan være standard per produkt.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.6rem; cursor: pointer;">
+                            <input type="checkbox" id="pkgActive" checked style="width: 16px; height: 16px;">
+                            <span style="font-weight: 600; font-size: 0.875rem;">Aktiv</span>
+                        </label>
+                    </div>
+                    <div id="pkgPreview" style="margin-top: 1rem; padding: 0.9rem 1rem; background: var(--bg-main); border: 1px dashed var(--accent-primary); border-radius: 8px; display: none;">
+                        <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">Forhåndsvisning</div>
+                        <div id="pkgPreviewText" style="font-size: 0.95rem; color: var(--text-primary);"></div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closePackagingEditor()">Avbryt</button>
+                    <button class="btn-primary" onclick="savePackaging()">Lagre</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Event Management Page -->
         <div class="page-section" id="event-management">
             <div class="two-column">
@@ -2218,16 +3106,19 @@
                                 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
                                     <div class="form-group">
                                         <label class="form-label">Produkt</label>
-                                        <select class="form-input" id="transferProduct" onchange="updateTransferPreview()">
+                                        <select class="form-input" id="transferProduct" onchange="onTransferProductChange()">
                                             <option value="">Velg produkt...</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label class="form-label">Antall</label>
+                                        <label class="form-label">Antall <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(stk)</span></label>
                                         <input type="number" class="form-input" id="transferQuantity" min="1" 
                                                placeholder="0" oninput="updateTransferPreview()">
                                     </div>
                                 </div>
+                                
+                                <!-- Packaging helper for transfer (Forpakning) -->
+                                <div id="transferPkgHelper" style="margin-top: -0.5rem;"></div>
                             </div>
                             
                             <!-- Transfer Preview -->
@@ -2565,39 +3456,28 @@
         <!-- Live Monitoring Dashboard -->
         <div class="page-section" id="live-dashboard">
             <div class="content-header">
-                <div class="content-title">📡 Live Monitoring Dashboard</div>
+                <div class="content-title">📡 Live Monitoring Dashboard <span class="change-badge" style="vertical-align: middle; margin-left: 0.5rem; font-size: 0.55rem;">REDESIGNED</span></div>
                 <div class="content-subtitle">Sanntidsovervåkning av flere enhetsgrupper</div>
             </div>
 
-            <!-- Kiosk Selection -->
-            <div style="padding: 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 2rem; position: relative;">
-                <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent-primary), var(--accent-copper), var(--accent-primary)); border-radius: 8px 8px 0 0;"></div>
-                <div style="font-weight: 600; margin-bottom: 1rem; color: var(--text-primary);">Velg kiosker å monitore:</div>
-                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem 1.25rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s ease;">
-                        <input type="checkbox" id="monitor-kiosk-1" checked onchange="toggleKioskMonitoring('kiosk-1')" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-weight: 600;">🏪 Kiosk Nord</span>
-                        <span class="badge badge-status active" style="margin-left: 0.5rem;">ACTIVE</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem 1.25rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s ease;">
-                        <input type="checkbox" id="monitor-kiosk-2" checked onchange="toggleKioskMonitoring('kiosk-2')" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-weight: 600;">🏪 Kiosk Sør</span>
-                        <span class="badge badge-status" style="margin-left: 0.5rem; background: var(--status-open);">OPEN</span>
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.75rem 1.25rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s ease;">
-                        <input type="checkbox" id="monitor-kiosk-3" onchange="toggleKioskMonitoring('kiosk-3')" style="width: 18px; height: 18px; cursor: pointer;">
-                        <span style="font-weight: 600;">🏪 Kiosk Øst</span>
-                        <span class="badge badge-status closed" style="margin-left: 0.5rem;">CLOSED</span>
-                    </label>
-                </div>
+            <!-- Event-total KPI Strip (PLBR-1202) — NEW -->
+            <div class="lm-section-label">
+                <span>Event-total</span>
+                <span class="lm-freshness">oppdatert for <span id="lmFreshness">3</span> sek siden</span>
+            </div>
+            <div class="lm-kpi-strip" id="lmKpiStrip">
+                <!-- 8 KPIs populated by JS -->
             </div>
 
-            <!-- KPI Dashboard Grid -->
-            <div id="kioskMonitoringGrid" style="display: flex; flex-direction: column; gap: 2rem;">
-                <!-- Kiosk cards will be rendered here by JavaScript -->
+            <!-- Kiosk Rows (PLBR-1204) — REDESIGNED 6-column layout -->
+            <div class="lm-section-label" style="margin-top: 2rem;">
+                <span>Overvåkede kiosker · <span id="lmActiveCount">0</span> aktive</span>
+            </div>
+            <div id="lmKioskRows" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <!-- Rendered by JS -->
             </div>
 
-            <!-- Drill-down Modal -->
+            <!-- Drill-down Modal (existing — reused) -->
             <div class="modal-overlay" id="drillDownModal">
                 <div class="modal-container" style="max-width: 900px;">
                     <div class="modal-header">
@@ -2611,6 +3491,28 @@
                         <button class="btn-secondary" onclick="closeDrillDown()">Lukk</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sticky kiosk selector footer (PLBR-1203) — NEW, visible only on Live Monitoring page -->
+    <div class="lm-selector-footer" id="lmSelectorFooter">
+        <div class="lm-selector-header" onclick="toggleLmSelector()">
+            <div class="lm-selector-summary">
+                <span class="lm-selector-icon">🏪</span>
+                <span>Velg kiosker å overvåke</span>
+                <span class="lm-count-pill" id="lmCountPill">0 av 0 aktive</span>
+                <span class="lm-selector-meta" id="lmSelectorMeta"></span>
+            </div>
+            <div class="lm-selector-toggle">
+                <span id="lmToggleLabel">Vis</span>
+                <span class="lm-chevron">▾</span>
+            </div>
+        </div>
+        <div class="lm-selector-content">
+            <div class="lm-selector-title">Alle kiosker</div>
+            <div class="lm-chips" id="lmChips">
+                <!-- Populated by JS -->
             </div>
         </div>
     </div>
@@ -2966,6 +3868,14 @@
                 // Update pages
                 document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
                 document.getElementById(targetPage).classList.add('active');
+                
+                // Live Monitoring: show/hide sticky footer and re-render
+                if (typeof toggleLmFooterVisibility === 'function') {
+                    toggleLmFooterVisibility(targetPage === 'live-dashboard');
+                }
+                if (targetPage === 'live-dashboard' && typeof renderLiveMonitoringV2 === 'function') {
+                    renderLiveMonitoringV2();
+                }
                 
                 // Reset form state
                 formIsDirty = false;
@@ -3646,6 +4556,36 @@
                     productSelect.innerHTML += `<option value="${product}">${product}</option>`;
                 });
             }
+        }
+        
+        function onTransferProductChange() {
+            const product = document.getElementById('transferProduct').value;
+            const helperContainer = document.getElementById('transferPkgHelper');
+            if (!helperContainer) { updateTransferPreview(); return; }
+            
+            if (!product) {
+                helperContainer.innerHTML = '';
+                updateTransferPreview();
+                return;
+            }
+            
+            pkgHelperRender('transferPkgHelper', product, {
+                label: 'Bruk standard forpakning',
+                defaultOn: false,
+                onChange: (state) => {
+                    const qtyInput = document.getElementById('transferQuantity');
+                    if (state.on && state.pkg && state.n > 0) {
+                        qtyInput.value = state.stk;
+                        qtyInput.readOnly = true;
+                        qtyInput.style.background = 'var(--bg-hover)';
+                    } else {
+                        qtyInput.readOnly = false;
+                        qtyInput.style.background = '';
+                    }
+                    updateTransferPreview();
+                }
+            });
+            updateTransferPreview();
         }
         
         function updateTransferPreview() {
@@ -4360,18 +5300,53 @@
             tbody.innerHTML = '';
             
             Object.keys(warehouseStock).forEach(product => {
+                const packagings = getPackagingsForProduct(product, true);
+                const defaultPkg = getDefaultPackaging(product);
+                
+                // Build packaging dropdown options — "stk" first, then each packaging
+                const pkgOptions = [`<option value="stk">stk (manuell)</option>`]
+                    .concat(packagings.map(p => 
+                        `<option value="${p.id}" ${p.isDefault ? 'selected' : ''}>${p.name} (${pkgResultPerPackage(p)} stk)${p.isDefault ? ' · standard' : ''}</option>`
+                    ));
+                // Pre-select default packaging if one exists (packaging-first UX per PLBR spec)
+                const hasDefault = !!defaultPkg;
+                if (!hasDefault) {
+                    // No default → stay in stk mode
+                    pkgOptions[0] = `<option value="stk" selected>stk (manuell)</option>`;
+                }
+                
+                const qtyLabel = hasDefault ? `# ${defaultPkg.name.toLowerCase()}` : 'Antall (stk)';
+                const stkLabel = hasDefault
+                    ? `<span class="pkg-row-pill">= <span class="pkg-row-pill-val" data-product="${product}" data-field="stk-equiv">${pkgResultPerPackage(defaultPkg)}</span> stk</span>`
+                    : '';
+                
                 const row = document.createElement('tr');
+                row.dataset.product = product;
                 row.innerHTML = `
                     <td><strong>${product}</strong></td>
                     <td style="text-align: center;">
-                        <input type="number" 
-                               class="form-input" 
-                               min="0" 
-                               value="0" 
-                               data-product="${product}"
-                               data-field="qty"
-                               onchange="updateDeliveryTotals()"
-                               style="width: 120px; text-align: center; padding: 0.5rem;">
+                        <select class="form-input pkg-mode-select"
+                                data-product="${product}"
+                                onchange="onDeliveryPkgModeChange(this)"
+                                style="width: 150px; padding: 0.4rem 0.5rem; font-size: 0.8rem;">
+                            ${pkgOptions.join('')}
+                        </select>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.15rem;">
+                            <input type="number"
+                                   class="form-input"
+                                   min="0"
+                                   step="1"
+                                   value="0"
+                                   data-product="${product}"
+                                   data-field="qty-input"
+                                   onchange="updateDeliveryTotals()"
+                                   oninput="onDeliveryQtyInput(this)"
+                                   style="width: 120px; text-align: center; padding: 0.5rem;"
+                                   aria-label="${qtyLabel}">
+                            <div data-product="${product}" data-field="stk-display" style="font-size: 0.7rem;">${stkLabel}</div>
+                        </div>
                     </td>
                     <td style="text-align: center;">
                         <input type="number" 
@@ -4394,21 +5369,78 @@
             updateDeliveryTotals();
         }
         
+        // Get the effective stk value for a delivery product row, respecting packaging mode
+        function getDeliveryRowStk(product) {
+            const modeSelect = document.querySelector(`select.pkg-mode-select[data-product="${product}"]`);
+            const qtyInput = document.querySelector(`input[data-product="${product}"][data-field="qty-input"]`);
+            if (!modeSelect || !qtyInput) return 0;
+            
+            const raw = parseFloat(qtyInput.value) || 0;
+            const mode = modeSelect.value;
+            
+            if (mode === 'stk') return Math.max(0, Math.round(raw));
+            
+            const pkgId = parseInt(mode, 10);
+            const pkg = packagingDefinitions.find(p => p.id === pkgId);
+            return pkg ? pkgConvertToStk(pkg, raw) : 0;
+        }
+        
+        function onDeliveryPkgModeChange(selectEl) {
+            const product = selectEl.getAttribute('data-product');
+            const qtyInput = document.querySelector(`input[data-product="${product}"][data-field="qty-input"]`);
+            const stkDisplay = document.querySelector(`div[data-product="${product}"][data-field="stk-display"]`);
+            if (!qtyInput || !stkDisplay) return;
+            
+            const mode = selectEl.value;
+            if (mode === 'stk') {
+                qtyInput.setAttribute('aria-label', 'Antall (stk)');
+                qtyInput.placeholder = 'stk';
+                stkDisplay.innerHTML = '';
+            } else {
+                const pkgId = parseInt(mode, 10);
+                const pkg = packagingDefinitions.find(p => p.id === pkgId);
+                if (pkg) {
+                    qtyInput.setAttribute('aria-label', `# ${pkg.name.toLowerCase()}`);
+                    qtyInput.placeholder = '# ' + pkg.name.toLowerCase();
+                    onDeliveryQtyInput(qtyInput);
+                }
+            }
+            updateDeliveryTotals();
+        }
+        
+        function onDeliveryQtyInput(input) {
+            const product = input.getAttribute('data-product');
+            const modeSelect = document.querySelector(`select.pkg-mode-select[data-product="${product}"]`);
+            const stkDisplay = document.querySelector(`div[data-product="${product}"][data-field="stk-display"]`);
+            if (!modeSelect || !stkDisplay) return;
+            
+            if (modeSelect.value === 'stk') {
+                stkDisplay.innerHTML = '';
+                return;
+            }
+            
+            const pkgId = parseInt(modeSelect.value, 10);
+            const pkg = packagingDefinitions.find(p => p.id === pkgId);
+            const n = parseFloat(input.value) || 0;
+            const stk = pkgConvertToStk(pkg, n);
+            stkDisplay.innerHTML = `<span class="pkg-row-pill">= <span class="pkg-row-pill-val">${stk.toLocaleString('nb-NO').replace(/,/g, ' ')}</span> stk</span>`;
+            updateDeliveryTotals();
+        }
+        
         function updateDeliveryTotals() {
             let totalQty = 0;
             let totalCost = 0;
             
             const products = Object.keys(warehouseStock);
             products.forEach(product => {
-                const qtyInput = document.querySelector(`input[data-product="${product}"][data-field="qty"]`);
                 const priceInput = document.querySelector(`input[data-product="${product}"][data-field="price"]`);
                 const totalCell = document.querySelector(`td[data-product="${product}"][data-field="total"]`);
                 
-                const qty = parseInt(qtyInput.value) || 0;
+                const stk = getDeliveryRowStk(product);
                 const price = parseFloat(priceInput.value) || 0;
-                const lineCost = qty * price;
+                const lineCost = stk * price;
                 
-                totalQty += qty;
+                totalQty += stk;
                 totalCost += lineCost;
                 
                 totalCell.textContent = lineCost > 0 ? `kr ${lineCost.toFixed(2)}` : 'kr 0.00';
@@ -4433,14 +5465,26 @@
             // Collect products from sheet
             const products = [];
             Object.keys(warehouseStock).forEach(product => {
-                const qtyInput = document.querySelector(`input[data-product="${product}"][data-field="qty"]`);
                 const priceInput = document.querySelector(`input[data-product="${product}"][data-field="price"]`);
+                const modeSelect = document.querySelector(`select.pkg-mode-select[data-product="${product}"]`);
+                const qtyInput = document.querySelector(`input[data-product="${product}"][data-field="qty-input"]`);
                 
-                const qty = parseInt(qtyInput.value) || 0;
+                const stk = getDeliveryRowStk(product);
                 const price = parseFloat(priceInput.value) || 0;
                 
-                if (qty > 0) {
-                    products.push({ product, qty, price });
+                if (stk > 0) {
+                    // Capture packaging info for history
+                    let pkgInfo = null;
+                    if (modeSelect && modeSelect.value !== 'stk') {
+                        const pkgId = parseInt(modeSelect.value, 10);
+                        const pkg = packagingDefinitions.find(p => p.id === pkgId);
+                        const n = parseFloat(qtyInput.value) || 0;
+                        if (pkg && n > 0) {
+                            pkgInfo = { name: pkg.name, type: pkg.type, packages: n };
+                        }
+                    }
+                    // Price is per-stk for demo simplicity
+                    products.push({ product, qty: stk, price, pkgInfo });
                 }
             });
             
@@ -4475,7 +5519,10 @@
                 const currentQty = warehouseStock[p.product].physical_qty;
                 const newQty = currentQty + p.qty;
                 const costInfo = p.price > 0 ? ` @ kr ${p.price.toFixed(2)} = kr ${(p.qty * p.price).toFixed(2)}` : '';
-                summaryHTML += `<li>${p.product}: <strong style="color: var(--success);">+${p.qty}</strong> (${currentQty} → ${newQty})${costInfo}</li>`;
+                const pkgInfo = p.pkgInfo 
+                    ? ` <span style="color: var(--text-muted); font-size: 0.85em;">(${p.pkgInfo.packages} × ${p.pkgInfo.name})</span>` 
+                    : '';
+                summaryHTML += `<li>${p.product}: <strong style="color: var(--success);">+${p.qty} stk</strong>${pkgInfo} (${currentQty} → ${newQty})${costInfo}</li>`;
             });
             
             summaryHTML += '</ul>';
@@ -4565,13 +5612,36 @@
             document.getElementById('adjustmentNewQty').value = '';
             document.getElementById('adjustmentReason').value = '';
             document.getElementById('adjustmentDetails').value = '';
+            document.getElementById('whAdjustmentPkgHelper').innerHTML = '';
+            document.getElementById('whAdjustmentNewQtyHint').style.display = 'none';
             
-            // Add change listener
+            // Add change listener — rebuild packaging helper when product changes
             select.onchange = function() {
                 if (this.value) {
-                    document.getElementById('adjustmentCurrentQty').value = warehouseStock[this.value].physical_qty;
+                    const currentQty = warehouseStock[this.value].physical_qty;
+                    document.getElementById('adjustmentCurrentQty').value = currentQty;
+                    
+                    // Build packaging helper scoped to this product
+                    pkgHelperRender('whAdjustmentPkgHelper', this.value, {
+                        label: 'Bruk standard forpakning (legger til stk)',
+                        defaultOn: false,
+                        onChange: (state) => {
+                            const hint = document.getElementById('whAdjustmentNewQtyHint');
+                            const newQtyInput = document.getElementById('adjustmentNewQty');
+                            if (state.on && state.pkg && state.n > 0) {
+                                const proposed = currentQty + state.stk;
+                                newQtyInput.value = proposed;
+                                hint.innerHTML = `Satt fra forpakning: <strong>${currentQty}</strong> + <strong style="color: var(--blue-800);">${state.n} × ${state.pkg.name} = ${state.stk} stk</strong> → <strong>${proposed} stk</strong>`;
+                                hint.style.display = '';
+                            } else {
+                                hint.style.display = 'none';
+                            }
+                        }
+                    });
                 } else {
                     document.getElementById('adjustmentCurrentQty').value = '';
+                    document.getElementById('whAdjustmentPkgHelper').innerHTML = '';
+                    document.getElementById('whAdjustmentNewQtyHint').style.display = 'none';
                 }
             };
         }
@@ -5051,7 +6121,1024 @@
         
         function initializeLiveMonitoring() {
             renderKioskMonitoring();
+            renderLiveMonitoringV2();
         }
+        
+        // ============================================
+        // LIVE MONITORING v2 — KPI strip, 6-col rows,
+        // sticky footer chip selector (PLBR-1202/1203/1204)
+        // ============================================
+        
+        // Extended per-kiosk data for v2 layout
+        const liveMonitoringDataV2 = {
+            'kiosk-1': {
+                zone: 'Sone Nord · QR + POS',
+                statusLabel: 'Pågående',
+                chipStatus: 'critical',
+                eventRuntime: '2:34:18',
+                revenue: 152840,
+                revSparkline: [18,16,14,16,12,10,8,11,6,7,4],
+                totalOrders: 1120,
+                avgWaitSec: 14,
+                throughputOM: 4.1,
+                paymentMix: { card: 58, vipps: 28, apay: 14 },
+                lastTxSec: 12,
+                topProduct: 'Pølse m/lompe',
+                topProductQty: 24,
+                stopStatus: 'KRITISK',
+                stopCount: 27
+            },
+            'kiosk-2': {
+                zone: 'Sone Sør · QR + POS',
+                statusLabel: 'Pågående',
+                chipStatus: 'warning',
+                eventRuntime: '1:12:45',
+                revenue: 84320,
+                revSparkline: [12,14,13,16,14,15,13,16,14,17,16],
+                totalOrders: 612,
+                avgWaitSec: 19,
+                throughputOM: 2.8,
+                paymentMix: { card: 72, vipps: 22, apay: 6 },
+                lastTxSec: 34,
+                topProduct: 'Kaffe',
+                topProductQty: 41,
+                stopStatus: 'LAV',
+                stopCount: 2
+            },
+            'kiosk-3': {
+                zone: 'Sone Øst · QR + POS',
+                statusLabel: 'Lukket',
+                chipStatus: 'closed',
+                eventRuntime: '—',
+                revenue: 0,
+                revSparkline: [],
+                totalOrders: 0,
+                avgWaitSec: 0,
+                throughputOM: 0,
+                paymentMix: { card: 0, vipps: 0, apay: 0 },
+                lastTxSec: null,
+                topProduct: null,
+                topProductQty: 0,
+                stopStatus: 'OK',
+                stopCount: 0
+            }
+        };
+        
+        const lmSelectorState = {
+            selected: new Set(['kiosk-1', 'kiosk-2']),
+            expanded: false
+        };
+        
+        function lmFormatNumber(n) {
+            return (n || 0).toLocaleString('nb-NO').replace(/,/g, ' ');
+        }
+        
+        function renderLiveMonitoringV2() {
+            if (!document.getElementById('lmKpiStrip')) return;
+            renderLmKpiStrip();
+            renderLmKioskRows();
+            renderLmSelectorFooter();
+            updateLmSummary();
+        }
+        
+        function renderLmKpiStrip() {
+            const strip = document.getElementById('lmKpiStrip');
+            if (!strip) return;
+            
+            const selected = Array.from(lmSelectorState.selected).filter(k => deviceGroupData[k]);
+            const allKiosks = Object.keys(deviceGroupData);
+            const totalKiosks = allKiosks.length;
+            const activeKiosks = selected.filter(k => liveMonitoringDataV2[k]?.chipStatus !== 'closed').length;
+            const closedKiosks = allKiosks.filter(k => liveMonitoringDataV2[k]?.chipStatus === 'closed').length;
+            
+            let totalRevenue = 0, totalOrders = 0, totalProducts = 0, warnedProducts = 0;
+            let aggregateStop = 'OK';
+            let criticalCount = 0;
+            let throughput = 0;
+            
+            selected.forEach(k => {
+                const d = liveMonitoringDataV2[k];
+                const mon = liveMonitoringData[k];
+                if (!d) return;
+                totalRevenue += d.revenue;
+                totalOrders += d.totalOrders;
+                throughput += d.throughputOM;
+                if (mon) {
+                    totalProducts += mon.products.length;
+                    warnedProducts += mon.products.filter(p => p.status !== 'OK').length;
+                }
+                if (d.chipStatus === 'critical') {
+                    aggregateStop = 'CRITICAL';
+                    criticalCount++;
+                } else if (d.chipStatus === 'warning' && aggregateStop !== 'CRITICAL') {
+                    aggregateStop = 'WARNING';
+                }
+            });
+            
+            const posRevenue = Math.round(totalRevenue * 0.78);
+            const qrRevenue  = totalRevenue - posRevenue;
+            const posOrders = Math.round(totalOrders * 0.55);
+            const qrOrders  = totalOrders - posOrders;
+            const productPct = totalProducts > 0 ? Math.round(warnedProducts / totalProducts * 100) : 0;
+            
+            const firstActive = selected.find(k => liveMonitoringDataV2[k]?.chipStatus !== 'closed');
+            const eventTid = firstActive ? liveMonitoringDataV2[firstActive].eventRuntime : '—';
+            
+            const aggregateClass = aggregateStop === 'CRITICAL' ? 'critical' : aggregateStop === 'WARNING' ? 'warning' : 'ok';
+            const aggregateBorderClass = aggregateStop === 'CRITICAL' ? 'lm-kpi-critical' : aggregateStop === 'WARNING' ? 'lm-kpi-warning' : '';
+            
+            strip.innerHTML = `
+                <div class="lm-kpi lm-kpi-accent">
+                    <div class="lm-kpi-label">⏱ Event-tid</div>
+                    <div class="lm-kpi-value">${eventTid}</div>
+                    <div class="lm-kpi-sub">Pågående · Start kl. 19:00</div>
+                </div>
+                <div class="lm-kpi">
+                    <div class="lm-kpi-label">Operative kiosker</div>
+                    <div class="lm-kpi-value"><span class="ok">${activeKiosks}</span><span style="color: var(--gray-500); font-weight: 500;"> / ${totalKiosks}</span></div>
+                    <div class="lm-kpi-sub">${closedKiosks} lukket · 0 nede uventet</div>
+                </div>
+                <div class="lm-kpi ${aggregateBorderClass}">
+                    <div class="lm-kpi-label">Samlet Stop-%-status</div>
+                    <div class="lm-kpi-value ${aggregateClass}">${aggregateStop}</div>
+                    <div class="lm-kpi-sub">${criticalCount} kiosker i kritisk sone</div>
+                </div>
+                <div class="lm-kpi lm-kpi-warning">
+                    <div class="lm-kpi-label">Produkter med advarsler</div>
+                    <div class="lm-kpi-value">${warnedProducts}</div>
+                    <div class="lm-kpi-sub">Av ${totalProducts} totalt · ${productPct}%</div>
+                </div>
+                <div class="lm-kpi">
+                    <div class="lm-kpi-label">Omsetning hittil</div>
+                    <div class="lm-kpi-value">${lmFormatNumber(totalRevenue)}</div>
+                    <div class="lm-kpi-sub"><span class="lm-trend-up">▲ 12.4%</span> vs. forrige hjemmekamp</div>
+                </div>
+                <div class="lm-kpi lm-kpi-accent">
+                    <div class="lm-kpi-label">Omsetning · Simple-POS / QR</div>
+                    <div class="lm-split">
+                        <span class="lm-split-primary">${lmFormatNumber(posRevenue)}</span>
+                        <span class="lm-split-divider">/</span>
+                        <span class="lm-split-secondary">${lmFormatNumber(qrRevenue)}</span>
+                    </div>
+                    <div class="lm-minibar">
+                        <div class="lm-minibar-seg lm-minibar-pos" style="width: 78%"></div>
+                        <div class="lm-minibar-seg lm-minibar-qr" style="width: 22%"></div>
+                    </div>
+                    <div class="lm-kpi-sub" style="margin-top: 0.4rem; display: flex; gap: 0.75rem;">
+                        <span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent-primary);margin-right:3px;vertical-align:middle;"></span>POS 78%</span>
+                        <span><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#A78BFA;margin-right:3px;vertical-align:middle;"></span>QR 22%</span>
+                    </div>
+                </div>
+                <div class="lm-kpi">
+                    <div class="lm-kpi-label">Transaksjoner</div>
+                    <div class="lm-kpi-value">${lmFormatNumber(totalOrders)}</div>
+                    <div class="lm-kpi-sub">POS ${lmFormatNumber(posOrders)} · QR ${lmFormatNumber(qrOrders)}</div>
+                </div>
+                <div class="lm-kpi">
+                    <div class="lm-kpi-label">Throughput</div>
+                    <div class="lm-kpi-value">${throughput.toFixed(1)}<span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 500;"> o/min</span></div>
+                    <svg class="lm-sparkline" viewBox="0 0 100 24" preserveAspectRatio="none">
+                        <polyline points="0,18 8,16 16,14 24,12 32,15 40,10 48,11 56,6 64,8 72,4 80,7 88,5 96,3 100,4"
+                            fill="none" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+            `;
+        }
+        
+        function renderLmKioskRows() {
+            const container = document.getElementById('lmKioskRows');
+            if (!container) return;
+            container.innerHTML = '';
+            
+            const selected = Array.from(lmSelectorState.selected).filter(k => deviceGroupData[k]);
+            const counter = document.getElementById('lmActiveCount');
+            if (counter) counter.textContent = selected.length;
+            
+            if (selected.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 3rem 2rem; text-align: center; color: var(--text-muted); background: var(--bg-card); border: 1px dashed var(--border); border-radius: 12px;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">📊</div>
+                        <div style="font-size: 1rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.25rem;">Ingen kiosker valgt</div>
+                        <div style="font-size: 0.875rem;">Åpne "Velg kiosker å overvåke" nederst for å velge minst én</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            selected.forEach(k => {
+                const dg = deviceGroupData[k];
+                const d  = liveMonitoringDataV2[k];
+                if (!dg || !d) return;
+                container.appendChild(createLmKioskRow(k, dg, d));
+            });
+        }
+        
+        function createLmKioskRow(kioskId, dg, d) {
+            const row = document.createElement('div');
+            row.className = 'lm-kiosk-row';
+            
+            const isClosed = d.chipStatus === 'closed';
+            const stopLower = (d.stopStatus || 'OK').toLowerCase();
+            const stopCellClass = stopLower === 'kritisk' ? '' : stopLower === 'lav' ? 'warning' : 'ok';
+            const stopValueClass = stopLower === 'kritisk' ? 'critical' : stopLower === 'lav' ? 'warning' : 'ok';
+            const stopClickable = d.stopStatus !== 'OK' && !isClosed;
+            const stopLabelColor = stopLower === 'kritisk' ? 'var(--danger)' : stopLower === 'lav' ? '#a88900' : 'var(--text-muted)';
+            
+            let sparklineSvg = '<div class="lm-metric-sub">—</div>';
+            if (d.revSparkline && d.revSparkline.length > 1) {
+                const points = d.revSparkline.map((y, i) => `${(i / (d.revSparkline.length - 1)) * 100},${y}`).join(' ');
+                sparklineSvg = `<svg viewBox="0 0 100 22" preserveAspectRatio="none" style="height: 22px; width: 100%; margin-top: 0.15rem;">
+                    <polyline points="${points}" fill="none" stroke="var(--accent-primary)" stroke-width="1.5" stroke-linejoin="round"/>
+                </svg>`;
+            }
+            
+            let lastTxDisplay = '—';
+            let topProductDisplay = isClosed ? 'Ingen aktivitet' : '—';
+            if (d.lastTxSec !== null && d.lastTxSec !== undefined) {
+                if (d.lastTxSec < 60) {
+                    lastTxDisplay = `${d.lastTxSec}s <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">siden</span>`;
+                } else {
+                    const m = Math.floor(d.lastTxSec / 60);
+                    const s = d.lastTxSec % 60;
+                    lastTxDisplay = `${m}m ${s}s <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">siden</span>`;
+                }
+                if (d.topProduct) topProductDisplay = `Topp: ${d.topProduct} ×${d.topProductQty}`;
+            }
+            
+            const mix = d.paymentMix;
+            const apayLegend = mix.apay === 0
+                ? `<span style="color: var(--danger);">⚠ AP 0%</span>`
+                : `<span><span class="dot" style="background: #1E293B;"></span>AP ${mix.apay}%</span>`;
+            
+            row.innerHTML = `
+                <div class="lm-kiosk-row-header"${isClosed ? ' style="opacity: 0.75;"' : ''}>
+                    <div class="lm-kiosk-row-name">🏪 ${dg.name}</div>
+                    <div class="lm-kiosk-row-meta">
+                        <span>${d.zone || ''}</span>
+                        <span class="lm-status-badge">${d.statusLabel || 'Ukjent'}</span>
+                    </div>
+                </div>
+                <div class="lm-kiosk-row-body">
+                    <div class="lm-metric">
+                        <div class="lm-metric-label">Event-tid</div>
+                        <div class="lm-metric-value">${d.eventRuntime}</div>
+                        <div class="lm-metric-sub">${d.statusLabel || ''}</div>
+                    </div>
+                    <div class="lm-metric">
+                        <div class="lm-metric-label">Omsetning</div>
+                        <div class="lm-metric-value">${lmFormatNumber(d.revenue)} <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">kr</span></div>
+                        ${sparklineSvg}
+                    </div>
+                    <div class="lm-metric">
+                        <div class="lm-metric-label">Total ordre</div>
+                        <div class="lm-metric-value">${lmFormatNumber(d.totalOrders)}</div>
+                        <div class="lm-metric-sub">${d.avgWaitSec > 0 ? 'Snitt ventetid ' + d.avgWaitSec + 's / ordre' : '—'}</div>
+                    </div>
+                    <div class="lm-metric">
+                        <div class="lm-metric-label">Throughput · betalingsmiks</div>
+                        <div class="lm-metric-value">${d.throughputOM.toFixed(1)} <span style="font-size: 0.7rem; color: var(--text-muted); font-weight: 500;">o/min</span></div>
+                        <div class="lm-paymix">
+                            <div class="lm-paymix-seg lm-paymix-card"  style="width: ${mix.card}%"></div>
+                            <div class="lm-paymix-seg lm-paymix-vipps" style="width: ${mix.vipps}%"></div>
+                            <div class="lm-paymix-seg lm-paymix-apay"  style="width: ${mix.apay}%"></div>
+                        </div>
+                        <div class="lm-paymix-legend">
+                            <span><span class="dot" style="background: var(--accent-primary);"></span>Kort ${mix.card}%</span>
+                            <span><span class="dot" style="background: #FF5B24;"></span>Vipps ${mix.vipps}%</span>
+                            ${apayLegend}
+                        </div>
+                    </div>
+                    <div class="lm-metric">
+                        <div class="lm-metric-label">Sist transaksjon</div>
+                        <div class="lm-metric-value" style="font-size: 1rem;">${lastTxDisplay}</div>
+                        <div class="lm-metric-sub">${topProductDisplay}</div>
+                    </div>
+                    <div class="lm-metric status-cell ${stopCellClass}"${stopClickable ? ` onclick="showStopPercentDetails('${kioskId}')"` : ''}>
+                        <div class="lm-metric-label" style="color: ${stopLabelColor};">⚠ Stop-% Status</div>
+                        <div class="lm-metric-value ${stopValueClass}">${d.stopStatus}${d.stopCount > 0 ? ' (' + d.stopCount + ')' : ''}</div>
+                        <div class="lm-metric-hint">${stopClickable ? 'Klikk for detaljer →' : (isClosed ? 'Kiosk lukket' : 'Alle produkter OK')}</div>
+                    </div>
+                </div>
+            `;
+            return row;
+        }
+        
+        function renderLmSelectorFooter() {
+            const chipsEl = document.getElementById('lmChips');
+            if (!chipsEl) return;
+            chipsEl.innerHTML = '';
+            
+            const tagLabelMap = {
+                'closed':   'Lukket',
+                'idle':     'Ingen hendelse',
+                'critical': 'Critical',
+                'warning':  'Warning',
+                'ok':       'OK'
+            };
+            
+            Object.keys(deviceGroupData).forEach(k => {
+                const dg = deviceGroupData[k];
+                const d  = liveMonitoringDataV2[k];
+                if (!dg) return;
+                
+                const chipStatus = d?.chipStatus || 'idle';
+                const isSelected = lmSelectorState.selected.has(k);
+                
+                const chip = document.createElement('div');
+                chip.className = 'lm-chip' + (isSelected ? ' active' : '');
+                chip.setAttribute('data-status', chipStatus);
+                chip.onclick = () => toggleLmChip(k);
+                chip.innerHTML = `
+                    <span class="lm-chip-checkbox"></span>
+                    ${dg.name}
+                    <span class="lm-chip-tag">${tagLabelMap[chipStatus] || 'Ukjent'}</span>
+                `;
+                chipsEl.appendChild(chip);
+            });
+        }
+        
+        function toggleLmChip(kioskId) {
+            if (lmSelectorState.selected.has(kioskId)) {
+                lmSelectorState.selected.delete(kioskId);
+            } else {
+                lmSelectorState.selected.add(kioskId);
+            }
+            renderLiveMonitoringV2();
+        }
+        
+        function toggleLmSelector() {
+            const footer = document.getElementById('lmSelectorFooter');
+            const label  = document.getElementById('lmToggleLabel');
+            if (!footer) return;
+            lmSelectorState.expanded = !lmSelectorState.expanded;
+            footer.classList.toggle('expanded', lmSelectorState.expanded);
+            if (label) label.textContent = lmSelectorState.expanded ? 'Skjul' : 'Vis';
+        }
+        
+        function updateLmSummary() {
+            const allKiosks = Object.keys(deviceGroupData);
+            const total = allKiosks.length;
+            const selectedCount = Array.from(lmSelectorState.selected).filter(k => deviceGroupData[k]).length;
+            const closed = allKiosks.filter(k => liveMonitoringDataV2[k]?.chipStatus === 'closed').length;
+            
+            const pill = document.getElementById('lmCountPill');
+            const meta = document.getElementById('lmSelectorMeta');
+            if (pill) pill.textContent = `${selectedCount} av ${total} aktive`;
+            if (meta) meta.textContent = `· ${closed} lukket · 0 nede`;
+        }
+        
+        function toggleLmFooterVisibility(show) {
+            const footer = document.getElementById('lmSelectorFooter');
+            if (!footer) return;
+            if (show) {
+                footer.classList.add('visible');
+                document.body.classList.add('has-lm-footer');
+            } else {
+                footer.classList.remove('visible');
+                footer.classList.remove('expanded');
+                lmSelectorState.expanded = false;
+                const label = document.getElementById('lmToggleLabel');
+                if (label) label.textContent = 'Vis';
+                document.body.classList.remove('has-lm-footer');
+            }
+        }
+        
+        // ============================================
+        // DG LAGERJUSTERING (PLBR-1205)
+        // ============================================
+        
+        let dgAdjustmentState = {};
+        
+        function openDGAdjustmentDialog() {
+            const modal = document.getElementById('dgAdjustmentModal');
+            const selectedDgItem = document.querySelector('.dg-item.selected');
+            if (!selectedDgItem) return;
+            const dgId = selectedDgItem.getAttribute('data-dg');
+            const dgName = (deviceGroupData[dgId] && deviceGroupData[dgId].name) || 'Enhetsgruppe';
+            
+            const target = document.getElementById('dgAdjustmentTargetName');
+            if (target) target.textContent = dgName;
+            
+            // Snapshot from the Current Stock (DG) column of the stock adjustment table
+            const tbody = document.getElementById('dgAdjustmentRows');
+            tbody.innerHTML = '';
+            dgAdjustmentState = {};
+            
+            const stockRows = document.querySelectorAll('#stockAdjustmentTable tbody tr');
+            stockRows.forEach((row, idx) => {
+                const productName = row.cells[0].textContent.trim();
+                const currentStock = parseInt(row.cells[2].textContent, 10) || 0;
+                const id = 'dgprod-' + idx;
+                
+                dgAdjustmentState[id] = { 
+                    name: productName,
+                    original: currentStock,
+                    current: currentStock,
+                    rowIndex: idx
+                };
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${productName}</td>
+                    <td style="text-align: right;">
+                        <input type="number" class="table-input" 
+                               data-id="${id}" value="${currentStock}" min="0" step="1"
+                               style="width: 120px; text-align: right;"
+                               oninput="onDGAdjustmentInput(this)">
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            updateDGAdjustmentSummary();
+            populateDGPkgQaProducts();
+            modal.classList.add('active');
+        }
+        
+        // ---- DG Lagerjustering: packaging quick-add ----
+        function populateDGPkgQaProducts() {
+            const select = document.getElementById('dgPkgQaProduct');
+            if (!select) return;
+            // Products come from the actual rows in the adjustment modal
+            const ids = Object.keys(dgAdjustmentState);
+            select.innerHTML = ['<option value="">— Velg produkt —</option>']
+                .concat(ids.map(id => `<option value="${id}">${dgAdjustmentState[id].name}</option>`))
+                .join('');
+            onDGPkgQaProductChange();
+        }
+        
+        function onDGPkgQaProductChange() {
+            const productSelect = document.getElementById('dgPkgQaProduct');
+            const pkgSelect = document.getElementById('dgPkgQaPackaging');
+            const resultEl = document.getElementById('dgPkgQaResult');
+            if (!productSelect || !pkgSelect || !resultEl) return;
+            
+            const stateId = productSelect.value;
+            if (!stateId) {
+                pkgSelect.innerHTML = '<option value="">—</option>';
+                pkgSelect.disabled = true;
+                resultEl.innerHTML = '<span>Velg produkt for å se konvertering</span>';
+                return;
+            }
+            const productName = dgAdjustmentState[stateId].name;
+            const packagings = getPackagingsForProduct(productName, true);
+            
+            if (packagings.length === 0) {
+                pkgSelect.innerHTML = '<option value="">Ingen forpakning definert</option>';
+                pkgSelect.disabled = true;
+                resultEl.innerHTML = `<span style="color: var(--warning);">⚠ Ingen forpakning definert for ${productName} — definer i "📦 Forpakning"-fanen eller bruk manuell redigering nedenfor.</span>`;
+                return;
+            }
+            
+            pkgSelect.disabled = false;
+            const defaultPkg = getDefaultPackaging(productName);
+            pkgSelect.innerHTML = packagings.map(p => 
+                `<option value="${p.id}" ${defaultPkg && defaultPkg.id === p.id ? 'selected' : ''}>${p.name} · ${pkgFormatInput(p)} = ${pkgResultPerPackage(p)} stk${p.isDefault ? ' · standard' : ''}</option>`
+            ).join('');
+            onDGPkgQaComputeResult();
+        }
+        
+        function onDGPkgQaComputeResult() {
+            const productSelect = document.getElementById('dgPkgQaProduct');
+            const pkgSelect = document.getElementById('dgPkgQaPackaging');
+            const countInput = document.getElementById('dgPkgQaCount');
+            const resultEl = document.getElementById('dgPkgQaResult');
+            if (!productSelect || !pkgSelect || !countInput || !resultEl) return;
+            
+            const stateId = productSelect.value;
+            if (!stateId || !pkgSelect.value) return;
+            
+            const pkgId = parseInt(pkgSelect.value, 10);
+            const pkg = packagingDefinitions.find(p => p.id === pkgId);
+            const n = parseFloat(countInput.value) || 0;
+            const stk = pkgConvertToStk(pkg, n);
+            const current = dgAdjustmentState[stateId].current;
+            const newVal = current + stk;
+            
+            resultEl.innerHTML = `
+                <span><strong>${n} × ${pkg.name}</strong> = <strong style="color: var(--blue-800);">+${stk} stk</strong></span>
+                <span style="color: var(--text-muted);">→ Ny Fysisk lager for ${dgAdjustmentState[stateId].name}: ${current} + ${stk} = <strong style="color: var(--text-primary);">${newVal} stk</strong></span>
+            `;
+        }
+        
+        function applyDGPkgQuickAdd() {
+            const productSelect = document.getElementById('dgPkgQaProduct');
+            const pkgSelect = document.getElementById('dgPkgQaPackaging');
+            const countInput = document.getElementById('dgPkgQaCount');
+            
+            const stateId = productSelect.value;
+            if (!stateId) { alert('Velg et produkt først.'); return; }
+            if (!pkgSelect.value) { alert('Ingen forpakning tilgjengelig — definer en i "📦 Forpakning"-fanen.'); return; }
+            
+            const pkgId = parseInt(pkgSelect.value, 10);
+            const pkg = packagingDefinitions.find(p => p.id === pkgId);
+            const n = parseFloat(countInput.value) || 0;
+            if (n <= 0) { alert('Antall forpakninger må være større enn 0.'); return; }
+            
+            const stk = pkgConvertToStk(pkg, n);
+            const newVal = dgAdjustmentState[stateId].current + stk;
+            
+            // Find the corresponding input in the adjustment table and update it
+            const inputs = document.querySelectorAll('#dgAdjustmentRows input[data-id]');
+            let targetInput = null;
+            inputs.forEach(inp => {
+                if (inp.getAttribute('data-id') === stateId) targetInput = inp;
+            });
+            
+            if (targetInput) {
+                targetInput.value = newVal;
+                // Flash the row
+                targetInput.style.transition = 'all 0.2s';
+                targetInput.style.transform = 'scale(1.05)';
+                setTimeout(() => { targetInput.style.transform = ''; }, 250);
+                // Trigger the input handler to update state + summary
+                onDGAdjustmentInput(targetInput);
+            }
+            
+            // Reset quick-add count to 1 for next entry
+            countInput.value = 1;
+            onDGPkgQaComputeResult();
+        }
+        
+        function onDGAdjustmentInput(input) {
+            const id = input.getAttribute('data-id');
+            const raw = input.value.trim();
+            
+            let valid = true;
+            if (raw === '' || !/^\d+$/.test(raw)) valid = false;
+            else if (parseInt(raw, 10) < 0) valid = false;
+            
+            if (valid) {
+                const n = parseInt(raw, 10);
+                dgAdjustmentState[id].current = n;
+                input.style.borderColor = '';
+                if (n !== dgAdjustmentState[id].original) {
+                    input.style.background = 'rgba(107, 184, 218, 0.12)';
+                    input.style.fontWeight = '600';
+                    input.style.borderColor = 'var(--accent-primary)';
+                } else {
+                    input.style.background = '';
+                    input.style.fontWeight = '';
+                }
+            } else {
+                dgAdjustmentState[id].current = NaN;
+                input.style.borderColor = 'var(--danger)';
+                input.style.background = 'rgba(218, 107, 107, 0.1)';
+            }
+            
+            updateDGAdjustmentSummary();
+        }
+        
+        function updateDGAdjustmentSummary() {
+            const changeCount = document.getElementById('dgAdjustmentChangeCount');
+            const saveBtn = document.getElementById('dgAdjustmentSaveBtn');
+            if (!changeCount || !saveBtn) return;
+            
+            const ids = Object.keys(dgAdjustmentState);
+            const changedIds = ids.filter(id =>
+                !Number.isNaN(dgAdjustmentState[id].current) &&
+                dgAdjustmentState[id].current !== dgAdjustmentState[id].original
+            );
+            const anyInvalid = ids.some(id => Number.isNaN(dgAdjustmentState[id].current));
+            
+            if (anyInvalid) {
+                changeCount.textContent = 'Ugyldige verdier — rett før lagring';
+                changeCount.style.color = 'var(--danger)';
+                saveBtn.disabled = true;
+            } else if (changedIds.length === 0) {
+                changeCount.textContent = 'Ingen endringer';
+                changeCount.style.color = '';
+                saveBtn.disabled = true;
+            } else {
+                changeCount.textContent = `${changedIds.length} endring${changedIds.length === 1 ? '' : 'er'}`;
+                changeCount.style.color = '';
+                saveBtn.disabled = false;
+            }
+        }
+        
+        function closeDGAdjustmentModal() {
+            const modal = document.getElementById('dgAdjustmentModal');
+            if (modal) modal.classList.remove('active');
+        }
+        
+        function confirmDGAdjustment() {
+            const stockRows = document.querySelectorAll('#stockAdjustmentTable tbody tr');
+            let changeCount = 0;
+            
+            Object.keys(dgAdjustmentState).forEach(id => {
+                const state = dgAdjustmentState[id];
+                if (Number.isNaN(state.current) || state.current === state.original) return;
+                
+                const row = stockRows[state.rowIndex];
+                if (!row) return;
+                
+                // Update Current Stock (DG) cell
+                row.cells[2].textContent = state.current;
+                row.cells[2].classList.remove('dg-stock-flash');
+                // Retrigger animation
+                void row.cells[2].offsetWidth;
+                row.cells[2].classList.add('dg-stock-flash');
+                
+                // Recompute Foreslått Påfyll = max(0, prevStart - current)
+                const prevStart = parseInt(row.cells[3].textContent, 10) || 0;
+                const suggested = Math.max(0, prevStart - state.current);
+                row.cells[4].textContent = '+' + suggested;
+                
+                // Sync Antall å hente input to match
+                const pickInput = row.cells[5].querySelector('input');
+                if (pickInput) pickInput.value = suggested;
+                
+                changeCount++;
+            });
+            
+            closeDGAdjustmentModal();
+            showDGAdjustmentToast(`✓ ${changeCount} produkt${changeCount === 1 ? '' : 'er'} oppdatert`);
+        }
+        
+        function showDGAdjustmentToast(msg) {
+            let toast = document.getElementById('dgAdjustmentToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'dgAdjustmentToast';
+                toast.style.cssText = 'position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--gray-900); color: white; padding: 12px 22px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 2500);
+        }
+        
+        // ============================================
+        // PACKAGING FRAMEWORK (Forpakning) — shared
+        // ============================================
+        // Master data: one product can have multiple packaging definitions.
+        // Inventory is ALWAYS stored in sales units (stk) — packaging is input helper only.
+        
+        let pkgIdSeq = 100;
+        const packagingDefinitions = [
+            // UNIT_BASED examples
+            { id: ++pkgIdSeq, product: 'Coca-Cola 0.5L',     name: 'Kasse',   type: 'UNIT_BASED',   qty: 24,   unitSize: null, isDefault: true,  active: true },
+            { id: ++pkgIdSeq, product: 'Pepsi Max 0.5L',     name: 'Kasse',   type: 'UNIT_BASED',   qty: 24,   unitSize: null, isDefault: true,  active: true },
+            { id: ++pkgIdSeq, product: 'Vann 0.5L',          name: 'Kasse',   type: 'UNIT_BASED',   qty: 24,   unitSize: null, isDefault: true,  active: true },
+            { id: ++pkgIdSeq, product: 'Vann 0.5L',          name: 'Palett',  type: 'UNIT_BASED',   qty: 72,   unitSize: null, isDefault: false, active: true },
+            { id: ++pkgIdSeq, product: 'Red Bull 0.25L',     name: 'Kasse',   type: 'UNIT_BASED',   qty: 24,   unitSize: null, isDefault: true,  active: true },
+            { id: ++pkgIdSeq, product: 'Monster Energy 0.5L',name: 'Kasse',   type: 'UNIT_BASED',   qty: 12,   unitSize: null, isDefault: true,  active: true },
+            // VOLUME_BASED showcase entries (demonstrating keg + tank)
+            { id: ++pkgIdSeq, product: 'Pils 0.5L',          name: 'Keg',     type: 'VOLUME_BASED', qty: 30,   unitSize: 0.5,  isDefault: true,  active: true },
+            { id: ++pkgIdSeq, product: 'Pils 0.5L',          name: 'Tank',    type: 'VOLUME_BASED', qty: 3000, unitSize: 0.5,  isDefault: false, active: true }
+        ];
+        
+        // All known products — seeded from warehouseStock on init plus packaging-only products
+        function getAllKnownProducts() {
+            const set = new Set();
+            if (typeof warehouseStock !== 'undefined') {
+                Object.keys(warehouseStock).forEach(p => set.add(p));
+            }
+            packagingDefinitions.forEach(pkg => set.add(pkg.product));
+            return Array.from(set).sort();
+        }
+        
+        function pkgConvertToStk(pkg, numPackages) {
+            if (!pkg || !numPackages || numPackages <= 0) return 0;
+            if (pkg.type === 'UNIT_BASED') {
+                return Math.round(pkg.qty * numPackages);
+            } else { // VOLUME_BASED
+                if (!pkg.unitSize || pkg.unitSize <= 0) return 0;
+                return Math.round((pkg.qty / pkg.unitSize) * numPackages);
+            }
+        }
+        
+        function pkgResultPerPackage(pkg) {
+            return pkgConvertToStk(pkg, 1);
+        }
+        
+        function pkgFormatInput(pkg) {
+            if (!pkg) return '';
+            return pkg.type === 'UNIT_BASED'
+                ? `${pkg.qty} stk`
+                : `${pkg.qty}L (${pkg.unitSize}L salgsenhet)`;
+        }
+        
+        function getPackagingsForProduct(product, activeOnly = true) {
+            return packagingDefinitions.filter(p =>
+                p.product === product && (!activeOnly || p.active)
+            );
+        }
+        
+        function getDefaultPackaging(product) {
+            const list = getPackagingsForProduct(product, true);
+            return list.find(p => p.isDefault) || list[0] || null;
+        }
+        
+        // ---- Master data table rendering ----
+        function renderPackagingMasterTable() {
+            const tbody = document.getElementById('pkgMasterTableBody');
+            if (!tbody) return;
+            
+            if (packagingDefinitions.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="padding: 2rem; text-align: center; color: var(--text-muted);">Ingen forpakninger definert ennå. Trykk "+ Ny forpakning" for å legge til.</td></tr>`;
+                return;
+            }
+            
+            // Group by product, with default first
+            const sorted = [...packagingDefinitions].sort((a, b) => {
+                if (a.product !== b.product) return a.product.localeCompare(b.product);
+                if (a.isDefault !== b.isDefault) return a.isDefault ? -1 : 1;
+                return a.name.localeCompare(b.name);
+            });
+            
+            tbody.innerHTML = sorted.map(pkg => {
+                const stk = pkgResultPerPackage(pkg);
+                const inputLabel = pkg.type === 'UNIT_BASED'
+                    ? `${pkg.qty} enheter`
+                    : `${pkg.qty} L`;
+                const typeBadge = pkg.type === 'UNIT_BASED'
+                    ? '<span class="pkg-type-badge pkg-type-unit">Enhetsbasert</span>'
+                    : '<span class="pkg-type-badge pkg-type-volume">Volumbasert</span>';
+                const unitSizeCell = pkg.type === 'VOLUME_BASED' && pkg.unitSize
+                    ? `${pkg.unitSize} L`
+                    : '<span style="color: var(--text-muted);">—</span>';
+                const defaultBadge = pkg.isDefault
+                    ? '<span class="pkg-default-badge">✓ Standard</span>'
+                    : '';
+                const activeBadge = pkg.active ? '' : '<span class="pkg-inactive-badge">Inaktiv</span>';
+                
+                return `
+                    <tr data-pkg-id="${pkg.id}" ${!pkg.active ? 'style="opacity: 0.55;"' : ''}>
+                        <td><strong>${pkg.product}</strong></td>
+                        <td>${pkg.name}</td>
+                        <td>${typeBadge}</td>
+                        <td class="col-num">${inputLabel}</td>
+                        <td class="col-num">${unitSizeCell}</td>
+                        <td class="col-num"><span class="pkg-result-chip">${stk} stk</span></td>
+                        <td class="col-center">${defaultBadge} ${activeBadge}</td>
+                        <td>
+                            <div class="pkg-row-actions">
+                                <button class="pkg-icon-btn" title="Rediger" onclick="openPackagingEditor(${pkg.id})">✏️</button>
+                                <button class="pkg-icon-btn danger" title="Slett" onclick="deletePackaging(${pkg.id})">🗑️</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // ---- Editor modal ----
+        let pkgEditingId = null;
+        
+        function openPackagingEditor(id = null) {
+            pkgEditingId = id;
+            const modal = document.getElementById('packagingEditorModal');
+            const title = document.getElementById('pkgEditorTitle');
+            const productSelect = document.getElementById('pkgProduct');
+            const nameInput = document.getElementById('pkgName');
+            const qtyInput = document.getElementById('pkgQty');
+            const unitSizeInput = document.getElementById('pkgUnitSize');
+            const defaultCb = document.getElementById('pkgDefault');
+            const activeCb = document.getElementById('pkgActive');
+            
+            // Populate product dropdown
+            productSelect.innerHTML = getAllKnownProducts().map(p => 
+                `<option value="${p}">${p}</option>`
+            ).join('');
+            
+            if (id) {
+                const pkg = packagingDefinitions.find(p => p.id === id);
+                if (!pkg) return;
+                title.textContent = 'Rediger forpakning';
+                productSelect.value = pkg.product;
+                nameInput.value = pkg.name;
+                qtyInput.value = pkg.qty;
+                unitSizeInput.value = pkg.unitSize || '';
+                defaultCb.checked = pkg.isDefault;
+                activeCb.checked = pkg.active;
+                // Set radio
+                document.querySelectorAll('input[name="pkgType"]').forEach(r => {
+                    r.checked = (r.value === pkg.type);
+                });
+            } else {
+                title.textContent = 'Ny forpakning';
+                nameInput.value = '';
+                qtyInput.value = '';
+                unitSizeInput.value = '';
+                defaultCb.checked = false;
+                activeCb.checked = true;
+                document.querySelector('input[name="pkgType"][value="UNIT_BASED"]').checked = true;
+            }
+            
+            onPkgTypeChange();
+            updatePkgPreview();
+            modal.classList.add('active');
+        }
+        
+        function closePackagingEditor() {
+            document.getElementById('packagingEditorModal').classList.remove('active');
+            pkgEditingId = null;
+        }
+        
+        function onPkgTypeChange() {
+            const type = document.querySelector('input[name="pkgType"]:checked').value;
+            const unitSizeGroup = document.getElementById('pkgUnitSizeGroup');
+            const qtyLabel = document.getElementById('pkgQtyLabel');
+            if (type === 'VOLUME_BASED') {
+                unitSizeGroup.style.display = '';
+                qtyLabel.textContent = 'Volum per forpakning (L)';
+            } else {
+                unitSizeGroup.style.display = 'none';
+                qtyLabel.textContent = 'Enheter per forpakning';
+            }
+            updatePkgPreview();
+        }
+        
+        function updatePkgPreview() {
+            const preview = document.getElementById('pkgPreview');
+            const previewText = document.getElementById('pkgPreviewText');
+            const type = document.querySelector('input[name="pkgType"]:checked').value;
+            const qty = parseFloat(document.getElementById('pkgQty').value);
+            const unitSize = parseFloat(document.getElementById('pkgUnitSize').value);
+            const name = document.getElementById('pkgName').value.trim() || '[Forpakning]';
+            
+            if (!qty || qty <= 0) {
+                preview.style.display = 'none';
+                return;
+            }
+            
+            if (type === 'UNIT_BASED') {
+                preview.style.display = '';
+                previewText.innerHTML = `<strong>1 × ${name}</strong> = <strong style="color: var(--blue-800);">${Math.round(qty)} stk</strong>`;
+            } else {
+                if (!unitSize || unitSize <= 0) {
+                    preview.style.display = '';
+                    previewText.innerHTML = `<span style="color: var(--text-muted);">Fyll inn salgsenhet-størrelse for å se resultat</span>`;
+                } else {
+                    const stk = Math.round(qty / unitSize);
+                    preview.style.display = '';
+                    previewText.innerHTML = `<strong>1 × ${name} (${qty}L)</strong> ÷ <strong>${unitSize}L</strong> = <strong style="color: var(--blue-800);">${stk} stk</strong>`;
+                }
+            }
+        }
+        
+        function savePackaging() {
+            const product = document.getElementById('pkgProduct').value;
+            const name = document.getElementById('pkgName').value.trim();
+            const type = document.querySelector('input[name="pkgType"]:checked').value;
+            const qty = parseFloat(document.getElementById('pkgQty').value);
+            const unitSize = parseFloat(document.getElementById('pkgUnitSize').value);
+            const isDefault = document.getElementById('pkgDefault').checked;
+            const active = document.getElementById('pkgActive').checked;
+            
+            if (!product || !name || !qty || qty <= 0) {
+                alert('⚠️ Vennligst fyll ut produkt, navn og gyldig mengde.');
+                return;
+            }
+            if (type === 'VOLUME_BASED' && (!unitSize || unitSize <= 0)) {
+                alert('⚠️ Volumbasert forpakning må ha salgsenhet-størrelse.');
+                return;
+            }
+            
+            // If setting as default, clear other defaults for this product
+            if (isDefault) {
+                packagingDefinitions.forEach(p => {
+                    if (p.product === product && p.id !== pkgEditingId) p.isDefault = false;
+                });
+            }
+            
+            if (pkgEditingId) {
+                // Update existing
+                const pkg = packagingDefinitions.find(p => p.id === pkgEditingId);
+                if (pkg) {
+                    Object.assign(pkg, { product, name, type, qty, unitSize: type === 'VOLUME_BASED' ? unitSize : null, isDefault, active });
+                }
+            } else {
+                // Create new
+                packagingDefinitions.push({
+                    id: ++pkgIdSeq,
+                    product, name, type, qty,
+                    unitSize: type === 'VOLUME_BASED' ? unitSize : null,
+                    isDefault, active
+                });
+            }
+            
+            closePackagingEditor();
+            renderPackagingMasterTable();
+            showDGAdjustmentToast(pkgEditingId ? '✓ Forpakning oppdatert' : '✓ Forpakning opprettet');
+        }
+        
+        function deletePackaging(id) {
+            const pkg = packagingDefinitions.find(p => p.id === id);
+            if (!pkg) return;
+            if (!confirm(`Slette forpakningen "${pkg.name}" for ${pkg.product}?`)) return;
+            const idx = packagingDefinitions.indexOf(pkg);
+            if (idx >= 0) packagingDefinitions.splice(idx, 1);
+            renderPackagingMasterTable();
+            showDGAdjustmentToast('✓ Forpakning slettet');
+        }
+        
+        // ---- Reusable packaging helper component ----
+        // Renders a "Use standard packaging" block that controls a target field.
+        // Builds the HTML into a container, and wires events. Call pkgHelperCompute(containerId)
+        // to read the converted stk value.
+        function pkgHelperRender(containerId, product, options = {}) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            const packagings = getPackagingsForProduct(product, true);
+            const hasPackaging = packagings.length > 0;
+            const defaultPkg = getDefaultPackaging(product);
+            const defaultOn = hasPackaging && (options.defaultOn !== false);
+            const label = options.label || 'Bruk standard forpakning';
+            const onChange = options.onChange || (() => {});
+            
+            container.innerHTML = `
+                <div class="pkg-helper ${!hasPackaging ? 'pkg-helper-disabled' : ''}" data-container="${containerId}">
+                    <div class="pkg-helper-head">
+                        <label>
+                            <input type="checkbox" class="pkg-helper-toggle" ${defaultOn ? 'checked' : ''} ${!hasPackaging ? 'disabled' : ''}>
+                            ${label}
+                            <span class="change-badge" style="font-size: 0.55rem; margin-left: 0.3rem;">NEW</span>
+                        </label>
+                        <span class="pkg-helper-hint">${hasPackaging ? 'PÅ: legg inn antall forpakninger · AV: legg inn stk direkte' : 'Ingen forpakning definert for dette produktet'}</span>
+                    </div>
+                    <div class="pkg-helper-body ${defaultOn ? '' : 'hidden'}">
+                        <div class="pkg-helper-field">
+                            <label>Forpakning</label>
+                            <select class="pkg-helper-select">
+                                ${packagings.map(p => `<option value="${p.id}" ${defaultPkg && defaultPkg.id === p.id ? 'selected' : ''}>${p.name} · ${pkgFormatInput(p)} = ${pkgResultPerPackage(p)} stk${p.isDefault ? ' · standard' : ''}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="pkg-helper-field">
+                            <label>Antall forpakninger</label>
+                            <input type="number" class="pkg-helper-count" min="0" step="1" value="1">
+                        </div>
+                        <div class="pkg-helper-field">
+                            <label>Resultat</label>
+                            <div class="pkg-helper-result">
+                                <span class="val" data-role="stk">0</span>
+                                <span class="sub"> stk</span>
+                                <div class="sub" data-role="breakdown" style="margin-top: 2px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // Wire events
+            const toggle = container.querySelector('.pkg-helper-toggle');
+            const body = container.querySelector('.pkg-helper-body');
+            const select = container.querySelector('.pkg-helper-select');
+            const count = container.querySelector('.pkg-helper-count');
+            
+            const recompute = () => {
+                const isOn = toggle.checked;
+                body.classList.toggle('hidden', !isOn);
+                
+                if (isOn) {
+                    const pkgId = parseInt(select.value, 10);
+                    const pkg = packagingDefinitions.find(p => p.id === pkgId);
+                    const n = parseFloat(count.value) || 0;
+                    const stk = pkgConvertToStk(pkg, n);
+                    
+                    const stkEl = container.querySelector('[data-role="stk"]');
+                    const breakdownEl = container.querySelector('[data-role="breakdown"]');
+                    stkEl.textContent = stk.toLocaleString('nb-NO').replace(/,/g, ' ');
+                    breakdownEl.textContent = pkg ? `${n} × ${pkg.name} (${pkgFormatInput(pkg)})` : '';
+                    
+                    onChange({ on: true, stk, pkg, n });
+                } else {
+                    onChange({ on: false, stk: null, pkg: null, n: null });
+                }
+            };
+            
+            toggle.addEventListener('change', recompute);
+            select.addEventListener('change', recompute);
+            count.addEventListener('input', recompute);
+            
+            recompute();
+        }
+        
+        function pkgHelperRead(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return { on: false, stk: null };
+            const toggle = container.querySelector('.pkg-helper-toggle');
+            if (!toggle || !toggle.checked) return { on: false, stk: null };
+            const select = container.querySelector('.pkg-helper-select');
+            const count = container.querySelector('.pkg-helper-count');
+            const pkgId = parseInt(select.value, 10);
+            const pkg = packagingDefinitions.find(p => p.id === pkgId);
+            const n = parseFloat(count.value) || 0;
+            return { on: true, stk: pkgConvertToStk(pkg, n), pkg, n };
+        }
+        
+        // Initialize packaging master table on load
+        document.addEventListener('DOMContentLoaded', renderPackagingMasterTable);
+        // Also call immediately in case DOMContentLoaded has already fired
+        renderPackagingMasterTable();
         
         // Call warehouse init when page loads
         if (document.readyState === 'loading') {
