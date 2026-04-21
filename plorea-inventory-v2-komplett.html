@@ -4959,7 +4959,19 @@
             const drill = document.getElementById('drillDownModal');
             if (drill) drill.classList.remove('active');
             
-            showSection('eventManagement');
+            // Navigate to Event Management page via the existing nav-tab mechanism
+            const eventTab = document.querySelector('.nav-tab[data-page="event-management"]');
+            if (eventTab) {
+                eventTab.click();
+            } else {
+                // Fallback — switch page-section directly if nav-tab not found
+                document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.page-section').forEach(p => p.classList.remove('active'));
+                const pageSection = document.getElementById('event-management');
+                if (pageSection) pageSection.classList.add('active');
+            }
+            
+            // Select the originating DG, then switch to Lagertransfer tab
             selectEventDG(kioskId);
             if (eventData[kioskId] && eventData[kioskId].eventStatus === 'active') {
                 switchEventTab('transfer');
@@ -4967,8 +4979,10 @@
             
             // Preset Fra + Til, render rows, prefill qty for LAV/KRITISK
             setTimeout(() => {
-                document.getElementById('transferSource').value = '__warehouse__';
-                document.getElementById('transferTarget').value = kioskId;
+                const srcSelect = document.getElementById('transferSource');
+                const tgtSelect = document.getElementById('transferTarget');
+                if (srcSelect) srcSelect.value = '__warehouse__';
+                if (tgtSelect) tgtSelect.value = kioskId;
                 renderTransferRows();
                 prefillLowCriticalProducts();
             }, 50);
