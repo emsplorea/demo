@@ -2956,54 +2956,17 @@
                         <div class="content-subtitle">Administrer event-livssyklus og lagerbekreftelse</div>
                     </div>
                     
-                    <!-- Degraded Mode Banner -->
-                    <div id="degradedBanner" style="display: none; margin-bottom: 2rem; padding: 1.5rem; background: rgba(239, 68, 68, 0.1); border: 2px solid var(--danger); border-radius: 8px; animation: pulse 2s ease-in-out infinite;">
-                        <div style="display: flex; gap: 1rem; align-items: start;">
-                            <div style="font-size: 2rem;">🚨</div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 1.125rem; font-weight: 700; color: var(--danger); margin-bottom: 0.5rem;">
-                                    DEGRADED MODE - Lager-inkonsistens oppdaget
-                                </div>
-                                <div style="font-size: 0.875rem; margin-bottom: 1rem; color: var(--text-primary);" id="degradedDescription">
-                                    Systemet har oppdaget at reservert lager overskrider tillatt cap for ett eller flere produkter.
-                                </div>
-                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="degradedProducts">
-                                    <!-- Populated by JS -->
-                                </div>
-                                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(239, 68, 68, 0.3);">
-                                    <div style="font-weight: 600; margin-bottom: 0.5rem; font-size: 0.875rem;">📋 Anbefalte tiltak:</div>
-                                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-                                        <button class="btn-secondary" onclick="switchEventTab('transfer')" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
-                                            🔄 Overfør mer lager
-                                        </button>
-                                        <button class="btn-secondary" onclick="alert('Reconciliation vil bli implementert i neste versjon')" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
-                                            📊 Kjør opptelling
-                                        </button>
-                                        <button class="btn-secondary" onclick="showDegradedDetails()" style="font-size: 0.875rem; padding: 0.5rem 1rem;">
-                                            ℹ️ Vis detaljer
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
                     <!-- Event Management Tabs (only shown for active events) -->
                     <div id="eventTabs" style="display: none; margin-bottom: 2rem;">
-                        <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border); justify-content: space-between; align-items: center;">
-                            <div style="display: flex; gap: 0.5rem;">
-                                <button class="event-tab active" onclick="switchEventTab('status')">
-                                    📊 Lagerstatus
-                                </button>
-                                <button class="event-tab" onclick="switchEventTab('transfer')">
-                                    🔄 Lagertransfer
-                                </button>
-                                <button class="event-tab" onclick="switchEventTab('reconciliation')">
-                                    📋 Opptelling
-                                </button>
-                            </div>
-                            <button onclick="simulateDegradedMode()" style="padding: 0.5rem 1rem; background: transparent; border: 1px dashed var(--danger); color: var(--danger); border-radius: 6px; font-size: 0.75rem; cursor: pointer; font-family: 'JetBrains Mono', monospace;">
-                                🧪 Simuler Degraded Mode
+                        <div style="display: flex; gap: 0.5rem; border-bottom: 1px solid var(--border);">
+                            <button class="event-tab active" onclick="switchEventTab('status')">
+                                📊 Lagerstatus
+                            </button>
+                            <button class="event-tab" onclick="switchEventTab('transfer')">
+                                🔄 Lagertransfer
+                            </button>
+                            <button class="event-tab" onclick="switchEventTab('reconciliation')">
+                                📋 Opptelling
                             </button>
                         </div>
                     </div>
@@ -4879,15 +4842,17 @@
         
         // Degraded Mode Detection and Display
         function checkAndUpdateDegradedState(dgId) {
+            // Degraded-mode alerting on Event Management was removed — managers use
+            // the Live Monitoring Dashboard for alerts during an active event instead.
+            // We still compute the degraded state so the sidebar DEGRADED-badge can
+            // reflect stock inconsistency at a glance.
             const event = eventData[dgId];
             const dgData = deviceGroupData[dgId];
             
             if (!event || event.eventStatus !== 'active') {
-                document.getElementById('degradedBanner').style.display = 'none';
                 return;
             }
             
-            // Check for degraded products
             const degradedProducts = {};
             let hasDegraded = false;
             
@@ -4896,70 +4861,22 @@
                 const reserved = event.reservedStock[product] || 0;
                 const cap = Math.floor(physical * dgData.stopPercent / 100);
                 
-                // Degraded condition: reserved > cap
                 if (reserved > cap) {
                     hasDegraded = true;
-                    degradedProducts[product] = {
-                        reason: 'reserved_exceeds_cap',
-                        reserved: reserved,
-                        cap: cap,
-                        detected_at: new Date().toISOString()
-                    };
+                    degradedProducts[product] = { reason: 'reserved_exceeds_cap', reserved, cap, detected_at: new Date().toISOString() };
                 }
                 
-                // Other degraded conditions
                 if (physical < 0 || reserved < 0) {
                     hasDegraded = true;
-                    degradedProducts[product] = {
-                        reason: 'invalid_stock_value',
-                        physical: physical,
-                        reserved: reserved,
-                        detected_at: new Date().toISOString()
-                    };
+                    degradedProducts[product] = { reason: 'invalid_stock_value', physical, reserved, detected_at: new Date().toISOString() };
                 }
             });
             
-            // Update event state
             event.degraded = hasDegraded;
             event.degradedProducts = degradedProducts;
             
-            // Update UI
-            const banner = document.getElementById('degradedBanner');
-            if (hasDegraded) {
-                banner.style.display = 'block';
-                renderDegradedBanner(dgId);
-            } else {
-                banner.style.display = 'none';
-            }
-            
-            // Update sidebar badge
+            // Update sidebar badge only
             updateSidebarDegradedStatus(dgId);
-        }
-        
-        function renderDegradedBanner(dgId) {
-            const event = eventData[dgId];
-            const productsDiv = document.getElementById('degradedProducts');
-            
-            let html = '';
-            Object.keys(event.degradedProducts).forEach(product => {
-                const info = event.degradedProducts[product];
-                
-                if (info.reason === 'reserved_exceeds_cap') {
-                    html += `
-                        <div style="padding: 0.5rem 0.75rem; background: var(--bg-card); border: 1px solid var(--danger); border-radius: 6px; font-size: 0.875rem;">
-                            <strong>${product}:</strong> Reserved <strong>${info.reserved}</strong> > Cap <strong>${info.cap}</strong>
-                        </div>
-                    `;
-                } else if (info.reason === 'invalid_stock_value') {
-                    html += `
-                        <div style="padding: 0.5rem 0.75rem; background: var(--bg-card); border: 1px solid var(--danger); border-radius: 6px; font-size: 0.875rem;">
-                            <strong>${product}:</strong> Ugyldig verdi (Physical: ${info.physical}, Reserved: ${info.reserved})
-                        </div>
-                    `;
-                }
-            });
-            
-            productsDiv.innerHTML = html;
         }
         
         function updateSidebarDegradedStatus(dgId) {
@@ -4993,38 +4910,6 @@
             });
         }
         
-        function showDegradedDetails() {
-            const event = eventData[currentEventDG];
-            
-            let details = '🚨 DEGRADED MODE DETALJER\n\n';
-            details += 'Produkter med inkonsistens:\n\n';
-            
-            Object.keys(event.degradedProducts).forEach(product => {
-                const info = event.degradedProducts[product];
-                
-                if (info.reason === 'reserved_exceeds_cap') {
-                    details += `• ${product}\n`;
-                    details += `  Reserved: ${info.reserved}\n`;
-                    details += `  Cap: ${info.cap}\n`;
-                    details += `  Overskridelse: ${info.reserved - info.cap}\n`;
-                    details += `  Oppdaget: ${formatTime(info.detected_at)}\n\n`;
-                }
-            });
-            
-            details += '\nHva betyr dette?\n';
-            details += 'Det er reservert mer lager via QR enn Stop-% tillater.\n';
-            details += 'Dette skjer ofte når:\n';
-            details += '- POS-salg reduserer physical stock etter at QR-reservasjoner ble gjort\n';
-            details += '- Stop-% ble endret mens reservasjoner var aktive\n\n';
-            
-            details += 'Løsninger:\n';
-            details += '1. Overfør mer lager fra annen enhetsgruppe\n';
-            details += '2. Vent til QR-reservasjoner blir hentet eller utløper\n';
-            details += '3. Kjør opptelling for å korrigere fysisk lager\n';
-            
-            alert(details);
-        }
-        
         // Trigger degraded check after transfers
         function executeTransferOriginal() {
             const originalExecute = executeTransfer;
@@ -5042,35 +4927,8 @@
             filterDevices(); // Initialize device count
             selectDeviceGroup('kiosk-1'); // Load initial device group
             selectEventDG('kiosk-1'); // Load initial event management view
-            checkAndUpdateDegradedState('kiosk-1'); // Check initial degraded state
+            checkAndUpdateDegradedState('kiosk-1'); // Sidebar badge only
         });
-        
-        // Simulate degraded mode for demo purposes
-        function simulateDegradedMode() {
-            const event = eventData[currentEventDG];
-            const dgData = deviceGroupData[currentEventDG];
-            
-            if (event.eventStatus !== 'active') {
-                alert('Event må være aktivt for å simulere degraded mode');
-                return;
-            }
-            
-            // Create a degraded state by making reserved > cap
-            const products = Object.keys(event.currentStock);
-            if (products.length > 0) {
-                const product = products[0]; // Take first product
-                const physical = event.currentStock[product];
-                const cap = Math.floor(physical * dgData.stopPercent / 100);
-                
-                // Set reserved to exceed cap
-                event.reservedStock[product] = cap + 5;
-                
-                // Re-render and check
-                renderActiveEvent(currentEventDG);
-                
-                alert(`✓ Degraded mode simulert!\n\n${product}:\n- Physical: ${physical}\n- Cap (${dgData.stopPercent}%): ${cap}\n- Reserved: ${event.reservedStock[product]} (overstiger cap med 5)`);
-            }
-        }
         
         // Reconciliation (Stock Count) functionality
         let reconciliationCounts = {};
@@ -5912,15 +5770,15 @@
         }
         
         // Format a stk value in packaging units using the product's default packaging.
-        // Shows primary count (e.g. "6.5") + packaging label (e.g. "× Kasse"), plus a remainder
-        // hint (e.g. "6 × Kasse + 12 stk") for UNIT_BASED so whole-vs-partial is obvious.
+        // If no explicit default is set, fall back to showing stk (system default unit).
         function formatStockInPackaging(stkValue, pkg) {
             if (!pkg) {
-                return '<span style="color: var(--text-muted); font-weight: 500;">—</span>';
+                // No explicit default packaging → stk is the system default
+                return `<span class="stock-value">${stkValue}</span> <span style="color: var(--text-muted); font-size: 0.85em; font-weight: 500;">stk</span>`;
             }
             const stkPerPkg = pkgResultPerPackage(pkg);
             if (!stkPerPkg || stkPerPkg <= 0) {
-                return '<span style="color: var(--text-muted); font-weight: 500;">—</span>';
+                return `<span class="stock-value">${stkValue}</span> <span style="color: var(--text-muted); font-size: 0.85em; font-weight: 500;">stk</span>`;
             }
             
             if (pkg.type === 'UNIT_BASED') {
@@ -7021,8 +6879,11 @@
         }
         
         function getDefaultPackaging(product) {
+            // Strict: only returns the explicitly-marked default packaging.
+            // If no packaging is marked as default, returns null — callers fall back to stk
+            // (the system default unit).
             const list = getPackagingsForProduct(product, true);
-            return list.find(p => p.isDefault) || list[0] || null;
+            return list.find(p => p.isDefault) || null;
         }
         
         // ---- Master data table rendering ----
