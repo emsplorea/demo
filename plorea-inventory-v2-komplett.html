@@ -3082,7 +3082,7 @@
                                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
                                     <div class="form-group">
                                         <label class="form-label">Fra enhetsgruppe</label>
-                                        <select class="form-input" id="transferSource" onchange="updateTransferPreview()">
+                                        <select class="form-input" id="transferSource" onchange="onTransferSourceChange()">
                                             <option value="">Velg kilde...</option>
                                         </select>
                                     </div>
@@ -3094,91 +3094,95 @@
                                     </div>
                                 </div>
                                 
-                                <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 1rem;">
-                                    <div class="form-group">
-                                        <label class="form-label">Produkt</label>
-                                        <select class="form-input" id="transferProduct" onchange="onTransferProductChange()">
-                                            <option value="">Velg produkt...</option>
-                                        </select>
+                                <!-- Multi-product transfer table (REDESIGNED — same pattern as Registrer varemottak) -->
+                                <div style="background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; margin-bottom: 1rem;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                                        <div style="font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 0.5rem;">
+                                            📋 Produkter å overføre
+                                            <span class="change-badge" style="font-size: 0.55rem;">REDESIGNED</span>
+                                        </div>
+                                        <div style="display: flex; gap: 0.5rem;">
+                                            <button class="btn-secondary" onclick="prefillLowCriticalProducts()" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;" id="transferPrefillBtn" title="Forhåndsutfyll antall for produkter med Lav/Kritisk status på målet">
+                                                ⚡ Prefyll LAV/KRITISK
+                                            </button>
+                                            <button class="btn-secondary" onclick="clearTransferQuantities()" style="padding: 0.4rem 0.85rem; font-size: 0.78rem;">
+                                                Nullstill
+                                            </button>
+                                        </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label">Forpakning <span class="change-badge" style="font-size: 0.55rem; vertical-align: middle; margin-left: 0.3rem;">NEW</span></label>
-                                        <select class="form-input" id="transferPkgMode" onchange="onTransferPkgModeChange()">
-                                            <option value="stk">stk (manuell)</option>
-                                        </select>
+                                    <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                                        La rader med 0 stå tomme. Per rad kan du velge om antallet legges inn i <strong>stk</strong> eller via en <strong>forpakning</strong>.
                                     </div>
-                                    <div class="form-group">
-                                        <label class="form-label" id="transferQtyLabel">Antall <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(stk)</span></label>
-                                        <input type="number" class="form-input" id="transferQuantity" min="1" 
-                                               placeholder="0" oninput="onTransferQtyInput()">
-                                        <div id="transferQtyHint" style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem; display: none;"></div>
+                                    <div style="overflow-x: auto;">
+                                        <table class="stock-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: left;">Produkt</th>
+                                                    <th style="text-align: center; width: 170px;">Forpakning <span class="change-badge" style="font-size: 0.5rem; vertical-align: middle;">NEW</span></th>
+                                                    <th style="text-align: center; width: 160px;">Antall å overføre</th>
+                                                    <th style="text-align: right; width: 140px;">Kilde · Fysisk</th>
+                                                    <th style="text-align: right; width: 140px;">Mål · Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="transferProductRows">
+                                                <tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Velg kilde og mål for å laste produkter</td></tr>
+                                            </tbody>
+                                        </table>
                                     </div>
+                                </div>
+                                
+                                <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+                                    <button class="btn-primary" onclick="previewTransferBatch()" id="previewTransferBtn">
+                                        📋 Forhåndsvis transfer
+                                    </button>
                                 </div>
                             </div>
                             
-                            <!-- Transfer Preview -->
+                            <!-- Transfer Preview (multi-product summary — REDESIGNED) -->
                             <div id="transferPreview" style="display: none;">
                                 <div class="form-section">
                                     <div class="section-title">📋 Forhåndsvisning av transfer</div>
                                     
-                                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                                        <!-- Source DG Preview -->
-                                        <div style="padding: 1.25rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
-                                            <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-secondary);">
-                                                Fra: <span id="previewSourceName" style="color: var(--text-primary);"></span>
-                                            </div>
-                                            <div style="display: grid; gap: 0.75rem;">
-                                                <div>
-                                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Physical Stock</div>
-                                                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.125rem;">
-                                                        <span id="previewSourcePhysicalBefore">150</span>
-                                                        <span style="color: var(--text-muted);"> → </span>
-                                                        <span id="previewSourcePhysicalAfter" style="color: var(--danger);">140</span>
-                                                        <span style="font-size: 0.875rem; color: var(--danger); margin-left: 0.5rem;" id="previewSourcePhysicalDiff">-10</span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Available Stock</div>
-                                                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.125rem;">
-                                                        <span id="previewSourceAvailableBefore">120</span>
-                                                        <span style="color: var(--text-muted);"> → </span>
-                                                        <span id="previewSourceAvailableAfter" style="color: var(--danger);">110</span>
-                                                    </div>
-                                                </div>
-                                                <div id="previewSourceWarning" style="display: none; margin-top: 0.5rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 6px; font-size: 0.875rem; color: var(--danger);">
-                                                    ⚠️ Advarsel: Vil resultere i degraded state
-                                                </div>
-                                            </div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                        <div style="padding: 0.9rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
+                                            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">Fra</div>
+                                            <div style="font-weight: 700; font-size: 1rem;" id="previewSourceName">—</div>
                                         </div>
-                                        
-                                        <!-- Target DG Preview -->
-                                        <div style="padding: 1.25rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
-                                            <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-secondary);">
-                                                Til: <span id="previewTargetName" style="color: var(--text-primary);"></span>
-                                            </div>
-                                            <div style="display: grid; gap: 0.75rem;">
-                                                <div>
-                                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Physical Stock</div>
-                                                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.125rem;">
-                                                        <span id="previewTargetPhysicalBefore">80</span>
-                                                        <span style="color: var(--text-muted);"> → </span>
-                                                        <span id="previewTargetPhysicalAfter" style="color: var(--success);">90</span>
-                                                        <span style="font-size: 0.875rem; color: var(--success); margin-left: 0.5rem;" id="previewTargetPhysicalDiff">+10</span>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Available Stock</div>
-                                                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 1.125rem;">
-                                                        <span id="previewTargetAvailableBefore">60</span>
-                                                        <span style="color: var(--text-muted);"> → </span>
-                                                        <span id="previewTargetAvailableAfter" style="color: var(--success);">70</span>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                        <div style="padding: 0.9rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
+                                            <div style="font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem;">Til</div>
+                                            <div style="font-weight: 700; font-size: 1rem;" id="previewTargetName">—</div>
                                         </div>
                                     </div>
                                     
-                                    <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
+                                    <div style="overflow-x: auto; margin-bottom: 1rem;">
+                                        <table class="stock-table">
+                                            <thead>
+                                                <tr>
+                                                    <th style="text-align: left;">Produkt</th>
+                                                    <th style="text-align: center;">Overføring</th>
+                                                    <th style="text-align: right;">Kilde: før → etter</th>
+                                                    <th style="text-align: right;">Mål: før → etter</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="transferPreviewRows">
+                                                <!-- Populated by previewTransferBatch -->
+                                            </tbody>
+                                            <tfoot>
+                                                <tr style="border-top: 2px solid var(--border); font-weight: 700;">
+                                                    <td>TOTALT (alle i stk)</td>
+                                                    <td style="text-align: center;" id="previewTotalStk">0</td>
+                                                    <td style="text-align: right; color: var(--text-muted);">—</td>
+                                                    <td style="text-align: right; color: var(--text-muted);">—</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    
+                                    <div id="previewWarnings" style="display: none; margin-bottom: 1rem; padding: 0.9rem 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid var(--danger); border-radius: 8px; font-size: 0.875rem; color: var(--danger);">
+                                        <!-- Populated with warnings if source runs into degraded state or is insufficient -->
+                                    </div>
+                                    
+                                    <div style="padding: 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
                                         <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.5rem;">
                                             📝 Husk:
                                         </div>
@@ -3190,7 +3194,7 @@
                                     </div>
                                     
                                     <div style="margin-top: 1.5rem; display: flex; gap: 1rem;">
-                                        <button class="btn-success" onclick="executeTransfer()" id="executeTransferBtn">
+                                        <button class="btn-success" onclick="executeTransferBatch()" id="executeTransferBtn">
                                             ✓ Utfør Transfer
                                         </button>
                                         <button class="btn-secondary" onclick="resetTransferForm()">
@@ -4525,272 +4529,449 @@
             }
         }
         
+        // ============================================
+        // LAGERTRANSFER — Multi-product batch (REDESIGNED)
+        // ============================================
+        // Supports Hovedlager as source + event DGs. Table lists all products in
+        // the target DG; user enters # per row with Forpakning dropdown.
+        
+        // Per-product row state: { pkgMode: 'stk' | pkgId (string), rawValue, stk, rowId }
+        let transferRowState = {};
+        
         function populateTransferDropdowns(currentDgId) {
             const sourceSelect = document.getElementById('transferSource');
             const targetSelect = document.getElementById('transferTarget');
-            const productSelect = document.getElementById('transferProduct');
+            if (!sourceSelect || !targetSelect) return;
             
-            // Clear existing options
             sourceSelect.innerHTML = '<option value="">Velg kilde...</option>';
             targetSelect.innerHTML = '<option value="">Velg mål...</option>';
-            productSelect.innerHTML = '<option value="">Velg produkt...</option>';
             
-            // Populate device groups (only active events)
+            // Fra: Hovedlager first, then active-event DGs
+            sourceSelect.innerHTML += '<option value="__warehouse__">🏭 Hovedlager</option>';
             for (let dgId in eventData) {
                 if (eventData[dgId].eventStatus === 'active') {
                     const dgName = deviceGroupData[dgId].name;
                     sourceSelect.innerHTML += `<option value="${dgId}">${dgName}</option>`;
+                }
+            }
+            
+            // Til: active-event DGs only
+            for (let dgId in eventData) {
+                if (eventData[dgId].eventStatus === 'active') {
+                    const dgName = deviceGroupData[dgId].name;
                     targetSelect.innerHTML += `<option value="${dgId}">${dgName}</option>`;
                 }
             }
             
-            // Populate products from current event
-            const event = eventData[currentDgId];
-            if (event && event.currentStock) {
-                Object.keys(event.currentStock).forEach(product => {
-                    productSelect.innerHTML += `<option value="${product}">${product}</option>`;
-                });
-            }
-        }
-        
-        function onTransferProductChange() {
-            const product = document.getElementById('transferProduct').value;
-            const pkgModeSelect = document.getElementById('transferPkgMode');
-            if (!pkgModeSelect) { updateTransferPreview(); return; }
-            
-            if (!product) {
-                pkgModeSelect.innerHTML = '<option value="stk">stk (manuell)</option>';
-                pkgModeSelect.disabled = true;
-                onTransferPkgModeChange();
-                updateTransferPreview();
-                return;
-            }
-            
-            // Rebuild dropdown for this product
-            pkgModeSelect.innerHTML = buildPackagingDropdownOptions(product, 'stk');
-            pkgModeSelect.disabled = false;
-            onTransferPkgModeChange();
-            updateTransferPreview();
-        }
-        
-        function onTransferPkgModeChange() {
-            const pkgModeSelect = document.getElementById('transferPkgMode');
-            const qtyLabel = document.getElementById('transferQtyLabel');
-            const qtyInput = document.getElementById('transferQuantity');
-            if (!pkgModeSelect || !qtyLabel || !qtyInput) return;
-            
-            const mode = pkgModeSelect.value;
-            if (mode === 'stk') {
-                qtyLabel.innerHTML = 'Antall <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(stk)</span>';
-                qtyInput.placeholder = '0';
-            } else {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(mode, 10));
-                if (pkg) {
-                    qtyLabel.innerHTML = `Antall <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(${pkg.name.toLowerCase()})</span>`;
-                    qtyInput.placeholder = `# ${pkg.name.toLowerCase()}`;
-                }
-            }
-            onTransferQtyInput();
-        }
-        
-        function onTransferQtyInput() {
-            const pkgModeSelect = document.getElementById('transferPkgMode');
-            const qtyInput = document.getElementById('transferQuantity');
-            const hint = document.getElementById('transferQtyHint');
-            if (!pkgModeSelect || !qtyInput || !hint) return;
-            
-            const raw = qtyInput.value;
-            const mode = pkgModeSelect.value;
-            
-            if (!raw || parseFloat(raw) <= 0 || mode === 'stk') {
-                hint.style.display = 'none';
-            } else {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(mode, 10));
-                if (pkg) {
-                    const n = parseFloat(raw) || 0;
-                    const stk = pkgConvertToStk(pkg, n);
-                    hint.innerHTML = `= <strong style="color: var(--blue-800);">${stk.toLocaleString('nb-NO').replace(/,/g, ' ')} stk</strong>`;
-                    hint.style.display = '';
-                }
-            }
-            updateTransferPreview();
-        }
-        
-        // Returns the effective stk quantity to transfer (packaging-aware)
-        function getTransferStk() {
-            const pkgModeSelect = document.getElementById('transferPkgMode');
-            const qtyInput = document.getElementById('transferQuantity');
-            if (!qtyInput) return 0;
-            const raw = parseFloat(qtyInput.value) || 0;
-            if (!pkgModeSelect || pkgModeSelect.value === 'stk') return Math.round(raw);
-            const pkg = packagingDefinitions.find(p => p.id === parseInt(pkgModeSelect.value, 10));
-            return pkg ? pkgConvertToStk(pkg, raw) : Math.round(raw);
-        }
-        
-        function updateTransferPreview() {
-            const sourceDgId = document.getElementById('transferSource').value;
-            const targetDgId = document.getElementById('transferTarget').value;
-            const product = document.getElementById('transferProduct').value;
-            const quantity = getTransferStk();
-            
+            // Reset state
+            transferRowState = {};
+            const tbody = document.getElementById('transferProductRows');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Velg kilde og mål for å laste produkter</td></tr>';
             const preview = document.getElementById('transferPreview');
-            const executeBtn = document.getElementById('executeTransferBtn');
-            
-            // Hide preview if incomplete
-            if (!sourceDgId || !targetDgId || !product || quantity <= 0) {
-                preview.style.display = 'none';
-                return;
-            }
-            
-            // Validate source != target
-            if (sourceDgId === targetDgId) {
-                alert('Kilde og mål kan ikke være samme enhetsgruppe!');
-                document.getElementById('transferTarget').value = '';
-                preview.style.display = 'none';
-                return;
-            }
-            
-            const sourceEvent = eventData[sourceDgId];
-            const targetEvent = eventData[targetDgId];
-            const sourceDg = deviceGroupData[sourceDgId];
-            const targetDg = deviceGroupData[targetDgId];
-            
-            // Get current stock
-            const sourcePhysical = sourceEvent.currentStock[product] || 0;
-            const sourceReserved = sourceEvent.reservedStock[product] || 0;
-            const targetPhysical = targetEvent.currentStock[product] || 0;
-            const targetReserved = targetEvent.reservedStock[product] || 0;
-            
-            // Validate source has enough
-            if (sourcePhysical < quantity) {
-                alert(`Ikke nok lager! ${sourceDg.name} har kun ${sourcePhysical} på lager.`);
-                preview.style.display = 'none';
-                executeBtn.disabled = true;
-                return;
-            }
-            
-            // Calculate before/after
-            const sourcePhysicalAfter = sourcePhysical - quantity;
-            const targetPhysicalAfter = targetPhysical + quantity;
-            
-            const sourceAvailableBefore = calculateAvailable(sourcePhysical, sourceReserved, sourceDg.stopPercent);
-            const sourceAvailableAfter = calculateAvailable(sourcePhysicalAfter, sourceReserved, sourceDg.stopPercent);
-            const targetAvailableBefore = calculateAvailable(targetPhysical, targetReserved, targetDg.stopPercent);
-            const targetAvailableAfter = calculateAvailable(targetPhysicalAfter, targetReserved, targetDg.stopPercent);
-            
-            // Check for degraded state (reserved > cap)
-            const sourceCap = Math.floor(sourcePhysicalAfter * sourceDg.stopPercent / 100);
-            const willCauseDegraded = sourceReserved > sourceCap;
-            
-            // Update preview
-            document.getElementById('previewSourceName').textContent = sourceDg.name;
-            document.getElementById('previewTargetName').textContent = targetDg.name;
-            
-            document.getElementById('previewSourcePhysicalBefore').textContent = sourcePhysical;
-            document.getElementById('previewSourcePhysicalAfter').textContent = sourcePhysicalAfter;
-            document.getElementById('previewSourcePhysicalDiff').textContent = `-${quantity}`;
-            document.getElementById('previewSourceAvailableBefore').textContent = sourceAvailableBefore;
-            document.getElementById('previewSourceAvailableAfter').textContent = sourceAvailableAfter;
-            
-            document.getElementById('previewTargetPhysicalBefore').textContent = targetPhysical;
-            document.getElementById('previewTargetPhysicalAfter').textContent = targetPhysicalAfter;
-            document.getElementById('previewTargetPhysicalDiff').textContent = `+${quantity}`;
-            document.getElementById('previewTargetAvailableBefore').textContent = targetAvailableBefore;
-            document.getElementById('previewTargetAvailableAfter').textContent = targetAvailableAfter;
-            
-            // Show degraded warning
-            const warningDiv = document.getElementById('previewSourceWarning');
-            if (willCauseDegraded) {
-                warningDiv.style.display = 'block';
-                warningDiv.textContent = `⚠️ Advarsel: Vil resultere i degraded state (Reserved ${sourceReserved} > Cap ${sourceCap})`;
-            } else {
-                warningDiv.style.display = 'none';
-            }
-            
-            preview.style.display = 'block';
-            executeBtn.disabled = false;
+            if (preview) preview.style.display = 'none';
         }
         
-        function executeTransfer() {
-            const sourceDgId = document.getElementById('transferSource').value;
-            const targetDgId = document.getElementById('transferTarget').value;
-            const product = document.getElementById('transferProduct').value;
-            const quantity = getTransferStk();
-            
-            // Build packaging context for confirm message
-            const pkgModeSelect = document.getElementById('transferPkgMode');
-            const qtyInput = document.getElementById('transferQuantity');
-            let pkgDetail = '';
-            if (pkgModeSelect && pkgModeSelect.value !== 'stk') {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(pkgModeSelect.value, 10));
-                if (pkg) pkgDetail = ` (${parseFloat(qtyInput.value)} × ${pkg.name})`;
+        // Get the "source" physical stock for a product (Hovedlager or DG)
+        function getSourcePhysicalForProduct(sourceId, product) {
+            if (sourceId === '__warehouse__') {
+                return warehouseStock[product] ? warehouseStock[product].physical_qty : null;
             }
+            const ev = eventData[sourceId];
+            if (!ev || !ev.currentStock) return null;
+            return (product in ev.currentStock) ? ev.currentStock[product] : null;
+        }
+        
+        // Resolve target stock status for display (OK / LAV / KRITISK / UTSOLGT)
+        function getTargetStatusForProduct(targetDgId, product) {
+            const ev = eventData[targetDgId];
+            if (!ev || !ev.currentStock || !(product in ev.currentStock)) return { status: '—', color: 'var(--text-muted)', available: null };
             
-            if (!confirm(`Er du sikker på at du vil overføre ${quantity} × ${product}${pkgDetail}\nfra ${deviceGroupData[sourceDgId].name} til ${deviceGroupData[targetDgId].name}?\n\nDette kan ikke angres.`)) {
+            const physical = ev.currentStock[product];
+            const reserved = ev.reservedStock[product] || 0;
+            const available = Math.max(0, physical - reserved);
+            
+            let status = 'OK', color = 'var(--success)';
+            if (available === 0) { status = 'UTSOLGT'; color = 'var(--danger)'; }
+            else if (available < 50) { status = 'KRITISK'; color = 'var(--danger)'; }
+            else if (available < 100) { status = 'LAV'; color = 'var(--warning)'; }
+            return { status, color, available };
+        }
+        
+        function onTransferSourceChange() {
+            updateTransferPreview();
+            renderTransferRows();
+        }
+        
+        // Render one row per product in the target DG
+        function renderTransferRows() {
+            const sourceId = document.getElementById('transferSource').value;
+            const targetId = document.getElementById('transferTarget').value;
+            const tbody = document.getElementById('transferProductRows');
+            if (!tbody) return;
+            
+            if (!sourceId || !targetId) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Velg kilde og mål for å laste produkter</td></tr>';
+                transferRowState = {};
+                return;
+            }
+            if (sourceId === targetId) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--danger); padding: 2rem;">Kilde og mål kan ikke være samme enhetsgruppe</td></tr>';
                 return;
             }
             
-            const sourceEvent = eventData[sourceDgId];
-            const targetEvent = eventData[targetDgId];
+            const targetEvent = eventData[targetId];
+            if (!targetEvent || !targetEvent.currentStock) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Målet har ikke et aktivt event</td></tr>';
+                return;
+            }
             
-            // Execute atomic transfer
+            tbody.innerHTML = '';
+            transferRowState = {};
+            
+            Object.keys(targetEvent.currentStock).forEach(product => {
+                const sourcePhysical = getSourcePhysicalForProduct(sourceId, product);
+                const targetStatus = getTargetStatusForProduct(targetId, product);
+                const srcHasProduct = sourcePhysical !== null;
+                const rowId = 'transfer-' + product.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                transferRowState[product] = { pkgMode: 'stk', rawValue: 0, stk: 0, rowId };
+                
+                const pkgDropdown = buildPackagingDropdownOptions(product, 'stk');
+                const tr = document.createElement('tr');
+                tr.dataset.product = product;
+                tr.id = rowId;
+                tr.innerHTML = `
+                    <td><strong>${product}</strong></td>
+                    <td style="text-align: center;">
+                        <select class="form-input transfer-row-pkg" data-product="${product}"
+                                onchange="onTransferRowPkgChange(this)"
+                                style="width: 160px; padding: 0.4rem 0.5rem; font-size: 0.8rem;" ${srcHasProduct ? '' : 'disabled'}>
+                            ${pkgDropdown}
+                        </select>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 0.15rem;">
+                            <input type="number" class="table-input transfer-row-qty" data-product="${product}"
+                                   value="0" min="0" step="1" style="width: 110px; text-align: right;"
+                                   oninput="onTransferRowQtyInput(this)" ${srcHasProduct ? '' : 'disabled'}>
+                            <div class="transfer-row-hint" data-product="${product}" style="font-size: 0.7rem; min-height: 0.9rem;"></div>
+                        </div>
+                    </td>
+                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace;">
+                        ${srcHasProduct ? `<span class="stock-value">${sourcePhysical}</span> <span style="color: var(--text-muted); font-size: 0.8em;">stk</span>` : '<span style="color: var(--text-muted);">ikke i kilde</span>'}
+                    </td>
+                    <td style="text-align: right;">
+                        <span style="color: ${targetStatus.color}; font-weight: 600; font-size: 0.85rem;">● ${targetStatus.status}</span>
+                        ${targetStatus.available !== null ? `<div style="font-size: 0.72rem; color: var(--text-muted);">${targetStatus.available} stk</div>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+        
+        function onTransferRowPkgChange(selectEl) {
+            const product = selectEl.dataset.product;
+            const state = transferRowState[product];
+            if (!state) return;
+            const row = document.getElementById(state.rowId);
+            const input = row.querySelector('.transfer-row-qty');
+            const hint = row.querySelector('.transfer-row-hint');
+            
+            state.pkgMode = selectEl.value;
+            
+            // Re-interpret current stk value in new mode (keep stk constant across mode switches)
+            if (state.pkgMode === 'stk') {
+                input.value = state.stk;
+                state.rawValue = state.stk;
+                hint.innerHTML = '';
+            } else {
+                const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                if (pkg) {
+                    const stkPerPkg = pkgResultPerPackage(pkg);
+                    const pkgCount = stkPerPkg > 0 ? state.stk / stkPerPkg : 0;
+                    const rounded = Math.round(pkgCount * 100) / 100;
+                    input.value = Number.isInteger(rounded) ? rounded : rounded.toFixed(2);
+                    state.rawValue = parseFloat(input.value);
+                    onTransferRowQtyInput(input);
+                }
+            }
+            updateTransferPreview();
+        }
+        
+        function onTransferRowQtyInput(input) {
+            const product = input.dataset.product;
+            const state = transferRowState[product];
+            if (!state) return;
+            const row = document.getElementById(state.rowId);
+            const hint = row.querySelector('.transfer-row-hint');
+            const raw = parseFloat(input.value) || 0;
+            state.rawValue = raw;
+            
+            if (state.pkgMode === 'stk') {
+                state.stk = Math.max(0, Math.round(raw));
+                hint.innerHTML = '';
+            } else {
+                const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                state.stk = pkg ? pkgConvertToStk(pkg, raw) : Math.max(0, Math.round(raw));
+                if (raw > 0 && pkg) {
+                    hint.innerHTML = `<span class="pkg-row-pill">= <span class="pkg-row-pill-val">${state.stk.toLocaleString('nb-NO').replace(/,/g, ' ')}</span> stk</span>`;
+                } else {
+                    hint.innerHTML = '';
+                }
+            }
+            if (state.stk > 0) {
+                input.style.background = 'rgba(107, 184, 218, 0.12)';
+                input.style.fontWeight = '600';
+            } else {
+                input.style.background = '';
+                input.style.fontWeight = '';
+            }
+            updateTransferPreview();
+        }
+        
+        // Prefill LOW/CRITICAL target products with a suggested refill amount
+        function prefillLowCriticalProducts() {
+            const targetId = document.getElementById('transferTarget').value;
+            if (!targetId) { alert('Velg mål-enhetsgruppe først.'); return; }
+            
+            let filled = 0;
+            Object.keys(transferRowState).forEach(product => {
+                const targetStatus = getTargetStatusForProduct(targetId, product);
+                if (targetStatus.status === 'LAV' || targetStatus.status === 'KRITISK' || targetStatus.status === 'UTSOLGT') {
+                    const targetOkThreshold = 100;
+                    const shortfall = Math.max(0, targetOkThreshold - (targetStatus.available || 0));
+                    if (shortfall > 0) {
+                        const state = transferRowState[product];
+                        const row = document.getElementById(state.rowId);
+                        const input = row.querySelector('.transfer-row-qty');
+                        if (input.disabled) return;
+                        // Set qty in current pkg mode
+                        if (state.pkgMode === 'stk') {
+                            input.value = shortfall;
+                        } else {
+                            const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                            if (pkg) {
+                                const stkPerPkg = pkgResultPerPackage(pkg);
+                                const packages = stkPerPkg > 0 ? Math.ceil(shortfall / stkPerPkg) : shortfall;
+                                input.value = packages;
+                            } else {
+                                input.value = shortfall;
+                            }
+                        }
+                        onTransferRowQtyInput(input);
+                        filled++;
+                    }
+                }
+            });
+            
+            if (filled === 0) {
+                alert('Ingen produkter med LAV eller KRITISK status å forhåndsutfylle.');
+            }
+        }
+        
+        function clearTransferQuantities() {
+            Object.keys(transferRowState).forEach(product => {
+                const state = transferRowState[product];
+                const row = document.getElementById(state.rowId);
+                const input = row.querySelector('.transfer-row-qty');
+                if (input) { input.value = 0; onTransferRowQtyInput(input); }
+            });
+            document.getElementById('transferPreview').style.display = 'none';
+        }
+        
+        // Preview hidden on any input change — user re-previews explicitly
+        function updateTransferPreview() {
+            const preview = document.getElementById('transferPreview');
+            if (preview) preview.style.display = 'none';
+        }
+        
+        function previewTransferBatch() {
+            const sourceId = document.getElementById('transferSource').value;
+            const targetId = document.getElementById('transferTarget').value;
+            
+            if (!sourceId || !targetId) { alert('Velg kilde og mål først.'); return; }
+            if (sourceId === targetId) { alert('Kilde og mål kan ikke være samme enhetsgruppe.'); return; }
+            
+            const sourceName = sourceId === '__warehouse__' ? '🏭 Hovedlager' : deviceGroupData[sourceId].name;
+            const targetName = deviceGroupData[targetId].name;
+            
+            document.getElementById('previewSourceName').textContent = sourceName;
+            document.getElementById('previewTargetName').textContent = targetName;
+            
+            const rows = [];
+            let totalStk = 0;
+            const warnings = [];
+            
+            Object.keys(transferRowState).forEach(product => {
+                const state = transferRowState[product];
+                if (state.stk <= 0) return;
+                
+                const srcBefore = getSourcePhysicalForProduct(sourceId, product);
+                const tgtBefore = eventData[targetId].currentStock[product] || 0;
+                const srcAfter = (srcBefore !== null) ? srcBefore - state.stk : null;
+                const tgtAfter = tgtBefore + state.stk;
+                
+                let pkgDetail = '';
+                if (state.pkgMode !== 'stk') {
+                    const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                    if (pkg) pkgDetail = ` <span style="color: var(--text-muted); font-size: 0.82em;">(${state.rawValue} × ${pkg.name})</span>`;
+                }
+                
+                if (srcBefore === null) {
+                    warnings.push(`${product}: Finnes ikke i kilde`);
+                } else if (srcAfter < 0) {
+                    warnings.push(`${product}: Kilde mangler ${Math.abs(srcAfter)} stk (krever ${state.stk}, har ${srcBefore})`);
+                }
+                
+                totalStk += state.stk;
+                rows.push({ product, stk: state.stk, pkgDetail, srcBefore, srcAfter, tgtBefore, tgtAfter });
+            });
+            
+            if (rows.length === 0) { alert('Ingen produkter å overføre. Fyll inn antall på minst én rad.'); return; }
+            
+            const previewTbody = document.getElementById('transferPreviewRows');
+            previewTbody.innerHTML = rows.map(r => `
+                <tr>
+                    <td><strong>${r.product}</strong></td>
+                    <td style="text-align: center;"><span class="stock-value" style="color: var(--accent-primary);">+${r.stk} stk</span>${r.pkgDetail}</td>
+                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                        ${r.srcBefore !== null ? `${r.srcBefore} → <span style="color: ${r.srcAfter < 0 ? 'var(--danger)' : 'var(--text-primary)'}; font-weight: 600;">${r.srcAfter}</span>` : '<span style="color: var(--danger);">ikke i kilde</span>'}
+                    </td>
+                    <td style="text-align: right; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;">
+                        ${r.tgtBefore} → <span style="color: var(--success); font-weight: 600;">${r.tgtAfter}</span>
+                    </td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('previewTotalStk').textContent = totalStk.toLocaleString('nb-NO').replace(/,/g, ' ') + ' stk';
+            
+            const warningsEl = document.getElementById('previewWarnings');
+            if (warnings.length > 0) {
+                warningsEl.innerHTML = '<strong>⚠ Advarsler:</strong><ul style="margin-top: 0.4rem; margin-left: 1.25rem;">' + warnings.map(w => `<li>${w}</li>`).join('') + '</ul>';
+                warningsEl.style.display = '';
+                document.getElementById('executeTransferBtn').disabled = true;
+            } else {
+                warningsEl.style.display = 'none';
+                document.getElementById('executeTransferBtn').disabled = false;
+            }
+            
+            document.getElementById('transferPreview').style.display = 'block';
+        }
+        
+        function executeTransferBatch() {
+            const sourceId = document.getElementById('transferSource').value;
+            const targetId = document.getElementById('transferTarget').value;
             const executeBtn = document.getElementById('executeTransferBtn');
+            
+            const transfers = [];
+            Object.keys(transferRowState).forEach(product => {
+                const state = transferRowState[product];
+                if (state.stk > 0) {
+                    let pkgInfo = null;
+                    if (state.pkgMode !== 'stk') {
+                        const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                        if (pkg) pkgInfo = { name: pkg.name, packages: state.rawValue };
+                    }
+                    transfers.push({ product, stk: state.stk, pkgInfo });
+                }
+            });
+            
+            if (transfers.length === 0) { alert('Ingen produkter å overføre.'); return; }
+            
+            const sourceName = sourceId === '__warehouse__' ? 'Hovedlager' : deviceGroupData[sourceId].name;
+            const targetName = deviceGroupData[targetId].name;
+            const totalStk = transfers.reduce((s, t) => s + t.stk, 0);
+            
+            if (!confirm(`Overføre ${transfers.length} produkt(er) (totalt ${totalStk} stk) fra ${sourceName} til ${targetName}?\n\nDette kan ikke angres.`)) return;
+            
             executeBtn.disabled = true;
             executeBtn.textContent = 'Utfører transfer...';
             
             setTimeout(() => {
-                // Update stock
-                sourceEvent.currentStock[product] -= quantity;
+                const targetEvent = eventData[targetId];
+                transfers.forEach(t => {
+                    // Decrement source
+                    if (sourceId === '__warehouse__') {
+                        if (warehouseStock[t.product]) {
+                            warehouseStock[t.product].physical_qty -= t.stk;
+                        }
+                    } else {
+                        eventData[sourceId].currentStock[t.product] -= t.stk;
+                    }
+                    
+                    // Increment target
+                    if (!(t.product in targetEvent.currentStock)) {
+                        targetEvent.currentStock[t.product] = 0;
+                        targetEvent.reservedStock[t.product] = 0;
+                    }
+                    targetEvent.currentStock[t.product] += t.stk;
+                    
+                    // Log transfer
+                    const log = {
+                        timestamp: new Date().toISOString(),
+                        from: sourceId, to: targetId,
+                        product: t.product, quantity: t.stk,
+                        packaging: t.pkgInfo,
+                        user: 'Admin Bruker'
+                    };
+                    if (sourceId !== '__warehouse__') {
+                        const srcEvent = eventData[sourceId];
+                        if (!srcEvent.transferHistory) srcEvent.transferHistory = [];
+                        srcEvent.transferHistory.unshift(log);
+                        srcEvent.transferHistory = srcEvent.transferHistory.slice(0, 10);
+                    }
+                    if (!targetEvent.transferHistory) targetEvent.transferHistory = [];
+                    targetEvent.transferHistory.unshift(log);
+                    targetEvent.transferHistory = targetEvent.transferHistory.slice(0, 10);
+                });
                 
-                if (!targetEvent.currentStock[product]) {
-                    targetEvent.currentStock[product] = 0;
-                    targetEvent.reservedStock[product] = 0;
+                // Recompute warehouse available if source was warehouse
+                if (sourceId === '__warehouse__') {
+                    Object.keys(warehouseStock).forEach(p => {
+                        warehouseStock[p].available_qty = warehouseStock[p].physical_qty - warehouseStock[p].allocated_qty;
+                    });
+                    renderWarehouseStock();
                 }
-                targetEvent.currentStock[product] += quantity;
-                
-                // Log transfer
-                const transferLog = {
-                    timestamp: new Date().toISOString(),
-                    from: sourceDgId,
-                    to: targetDgId,
-                    product: product,
-                    quantity: quantity,
-                    user: 'Admin Bruker'
-                };
-                
-                // Add to both event histories
-                if (!sourceEvent.transferHistory) sourceEvent.transferHistory = [];
-                if (!targetEvent.transferHistory) targetEvent.transferHistory = [];
-                
-                sourceEvent.transferHistory.unshift(transferLog);
-                targetEvent.transferHistory.unshift(transferLog);
-                
-                // Keep only last 10
-                sourceEvent.transferHistory = sourceEvent.transferHistory.slice(0, 10);
-                targetEvent.transferHistory = targetEvent.transferHistory.slice(0, 10);
                 
                 executeBtn.textContent = '✓ Utfør Transfer';
                 executeBtn.disabled = false;
                 
-                // Show success
-                alert(`✓ Transfer fullført!\n${quantity} × ${product} flyttet fra ${deviceGroupData[sourceDgId].name} til ${deviceGroupData[targetDgId].name}`);
+                alert(`✓ Transfer fullført!\n\n${transfers.length} produkt(er) (${totalStk} stk) flyttet fra ${sourceName} til ${targetName}`);
                 
-                // Reset form and update displays
                 resetTransferForm();
                 renderActiveEvent(currentEventDG);
                 renderTransferHistory(currentEventDG);
-                
-                // Check for degraded state after transfer
                 checkAndUpdateDegradedState(currentEventDG);
-            }, 800);
+            }, 600);
         }
         
         function resetTransferForm() {
             document.getElementById('transferSource').value = '';
             document.getElementById('transferTarget').value = '';
-            document.getElementById('transferProduct').value = '';
-            document.getElementById('transferQuantity').value = '';
+            const tbody = document.getElementById('transferProductRows');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted); padding: 2rem;">Velg kilde og mål for å laste produkter</td></tr>';
+            transferRowState = {};
             document.getElementById('transferPreview').style.display = 'none';
+        }
+        
+        // Entry point from Live Monitoring → Stop-% KPI → Transfer stock button
+        function openPrefilledTransferFromStopPct(kioskId, problemProducts) {
+            const drill = document.getElementById('drillDownModal');
+            if (drill) drill.classList.remove('active');
+            
+            showSection('eventManagement');
+            selectEventDG(kioskId);
+            if (eventData[kioskId] && eventData[kioskId].eventStatus === 'active') {
+                switchEventTab('transfer');
+            }
+            
+            // Preset Fra + Til, render rows, prefill qty for LAV/KRITISK
+            setTimeout(() => {
+                document.getElementById('transferSource').value = '__warehouse__';
+                document.getElementById('transferTarget').value = kioskId;
+                renderTransferRows();
+                prefillLowCriticalProducts();
+            }, 50);
         }
         
         function renderTransferHistory(dgId) {
@@ -6164,10 +6345,15 @@
                 <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
                     <strong>💡 Anbefalte tiltak:</strong>
                     <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-                        <li>Overfør lager fra andre enhetsgrupper</li>
-                        <li>Kjør opptelling for å verifisere faktisk beholdning</li>
+                        <li>Overfør beholdning fra andre enhetsgrupper</li>
+                        <li>Kjør en telling for å bekrefte faktisk lagerbeholdning</li>
                         <li>Vurder å starte nytt event med påfylling fra hovedlager</li>
                     </ul>
+                </div>
+                <div style="margin-top: 1.25rem; display: flex; justify-content: flex-start;">
+                    <button class="btn-primary" onclick='openPrefilledTransferFromStopPct(${JSON.stringify(kioskId)}, ${JSON.stringify(problemProducts)})' style="padding: 0.7rem 1.25rem; font-size: 0.875rem;">
+                        🔄 Transfer stock
+                    </button>
                 </div>
             `;
             
