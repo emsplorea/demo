@@ -24,12 +24,20 @@
     --primary: #1E40AF;
     --primary-hover: #1E3A8A;
     --primary-soft: rgba(30, 64, 175, 0.06);
+
     --success: #047857;
+    --success-strong: #065F46;
     --success-bg: #ECFDF5;
+    --success-border: #A7F3D0;
+
     --warning: #B45309;
     --warning-bg: #FFFBEB;
-    --danger: #991B1B;
+    --warning-border: #FDE68A;
+
+    --danger: #B91C1C;
+    --danger-strong: #991B1B;
     --danger-bg: #FEF2F2;
+    --danger-border: #FECACA;
 
     --r-sm: 6px;
     --r-md: 8px;
@@ -118,6 +126,7 @@
   .section-subtitle { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
   .section-body { padding: 18px 20px 20px; }
 
+  /* Provider row */
   .provider-row {
     display: flex;
     align-items: center;
@@ -136,7 +145,7 @@
   }
   .provider-label .desc { font-size: 12.5px; color: var(--ink-muted); }
   .provider-select-wrap { min-width: 220px; }
-  .provider-badge {
+  .global-badge {
     display: inline-flex;
     align-items: center;
     padding: 2px 8px;
@@ -149,6 +158,7 @@
     text-transform: uppercase;
   }
 
+  /* Setting row */
   .setting-row {
     display: flex;
     align-items: center;
@@ -162,20 +172,22 @@
   .setting-label { font-size: 13.5px; font-weight: 500; }
   .setting-desc { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; max-width: 520px; }
 
+  /* Collapsible */
   .collapsible {
     overflow: hidden;
     transition: max-height 0.25s ease;
     max-height: 0;
   }
-  .collapsible.open { max-height: 600px; }
+  .collapsible.open { max-height: 400px; }
 
-  .integrert-fields {
+  /* Grid */
+  .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 14px;
-    padding-bottom: 4px;
   }
 
+  /* Toggle */
   .toggle {
     position: relative;
     width: 38px;
@@ -206,6 +218,7 @@
   .toggle input:checked + .slider { background: var(--primary); }
   .toggle input:checked + .slider::before { transform: translateX(16px); }
 
+  /* Terminal cards */
   .terminal-list { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
 
   .terminal-card {
@@ -213,6 +226,7 @@
     border-radius: var(--r-md);
     background: var(--surface);
     transition: border-color 0.15s, box-shadow 0.15s;
+    overflow: hidden;
   }
   .terminal-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
 
@@ -264,6 +278,7 @@
   }
   .provider-select:hover { border-color: var(--ink-muted); }
 
+  /* Status pill */
   .status {
     display: inline-flex;
     align-items: center;
@@ -279,9 +294,18 @@
   .status.ok .status-dot { background: var(--success); }
   .status.warn { background: var(--warning-bg); color: var(--warning); }
   .status.warn .status-dot { background: var(--warning); }
+  .status.error { background: var(--danger-bg); color: var(--danger); }
+  .status.error .status-dot { background: var(--danger); }
   .status.off { background: #F3F4F6; color: var(--ink-muted); }
   .status.off .status-dot { background: var(--ink-faint); }
+  .status.testing .status-dot {
+    background: var(--primary);
+    animation: pulse 1s ease-in-out infinite;
+  }
+  .status.testing { background: var(--primary-soft); color: var(--primary); }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+  /* Card strip */
   .card-strip {
     display: flex;
     align-items: center;
@@ -289,7 +313,6 @@
     padding: 10px 16px;
     border-bottom: 1px solid var(--border);
     background: var(--surface-muted);
-    border-radius: var(--r-md) var(--r-md) 0 0;
   }
   .card-strip-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
   .card-name { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
@@ -313,36 +336,115 @@
     border-color: var(--border);
     color: var(--ink);
   }
+  .icon-btn.primary { color: var(--primary); }
+  .icon-btn.primary:hover { background: var(--primary-soft); border-color: rgba(30,64,175,0.2); }
+  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  .advanced-toggle {
-    width: 100%;
-    padding: 10px 16px;
-    background: transparent;
-    border: none;
-    border-top: 1px dashed var(--border);
-    cursor: pointer;
+  /* TEST RESULT PANEL */
+  .test-result {
+    display: none;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    animation: slideDown 0.2s ease;
+  }
+  .test-result.show { display: block; }
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .test-result.success {
+    background: var(--success-bg);
+    border-bottom-color: var(--success-border);
+  }
+  .test-result.error {
+    background: var(--danger-bg);
+    border-bottom-color: var(--danger-border);
+  }
+  .test-result.warn {
+    background: var(--warning-bg);
+    border-bottom-color: var(--warning-border);
+  }
+
+  .result-head {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    font-family: inherit;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .result-icon { flex-shrink: 0; margin-top: 1px; }
+  .result-icon.success { color: var(--success); }
+  .result-icon.error { color: var(--danger); }
+  .result-icon.warn { color: var(--warning); }
+
+  .result-body { flex: 1; min-width: 0; }
+  .result-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+  }
+  .result-detail {
     font-size: 12.5px;
     color: var(--ink-muted);
+    margin-top: 2px;
+    line-height: 1.45;
+  }
+  .result-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 14px;
+    margin-top: 8px;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    align-items: center;
+  }
+  .result-meta .chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    background: rgba(17, 20, 24, 0.05);
+    padding: 2px 6px;
+    border-radius: 4px;
+    color: var(--ink);
+  }
+  .result-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .result-action {
+    font-family: inherit;
+    font-size: 12px;
     font-weight: 500;
-    transition: color 0.15s;
+    padding: 5px 10px;
+    border-radius: var(--r-sm);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--ink);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
   }
-  .advanced-toggle:hover { color: var(--ink); }
-  .advanced-toggle .chevron { transition: transform 0.2s; }
-  .advanced-toggle.open .chevron { transform: rotate(90deg); }
-  .advanced-content {
-    display: none;
-    padding: 4px 16px 16px;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    background: var(--surface-muted);
-    border-radius: 0 0 var(--r-md) var(--r-md);
+  .result-action:hover { background: var(--surface-muted); }
+  .result-action.primary {
+    background: var(--ink);
+    color: #fff;
+    border-color: var(--ink);
   }
-  .advanced-toggle.open + .advanced-content { display: grid; }
+  .result-action.primary:hover { background: #000; }
+  .result-close {
+    color: var(--ink-faint);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, background 0.15s;
+    flex-shrink: 0;
+  }
+  .result-close:hover { color: var(--ink); background: rgba(17,20,24,0.05); }
 
+  /* Add btn */
   .add-btn {
     display: inline-flex;
     align-items: center;
@@ -365,6 +467,7 @@
     background: var(--primary-soft);
   }
 
+  /* Kebab */
   .kebab-wrap { position: relative; }
   .kebab-menu {
     position: absolute;
@@ -400,6 +503,7 @@
   .kebab-item.danger { color: var(--danger); }
   .kebab-item.danger:hover { background: var(--danger-bg); }
 
+  /* Footer */
   .footer {
     position: fixed;
     bottom: 0;
@@ -470,7 +574,7 @@
 
   @media (max-width: 780px) {
     .card-main { grid-template-columns: 1fr 1fr; }
-    .integrert-fields { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
     .provider-row { flex-direction: column; align-items: stretch; gap: 12px; }
     .provider-select-wrap { min-width: 0; }
   }
@@ -504,11 +608,11 @@
     <p>Konfigurer betalingsterminaler tilknyttet denne kassen.</p>
   </div>
 
-  <!-- 1. Terminal-leverandør (global) -->
+  <!-- 1. Terminal-leverandør (GLOBAL) -->
   <section class="section">
     <div class="provider-row">
       <div class="provider-label">
-        <div class="lbl">Terminal-leverandør <span class="provider-badge">Global</span></div>
+        <div class="lbl">Terminal-leverandør <span class="global-badge">Global</span></div>
         <div class="desc">Gjelder både integrert terminal og alle multibetalingsterminaler under.</div>
       </div>
       <div class="provider-select-wrap">
@@ -523,7 +627,35 @@
     </div>
   </section>
 
-  <!-- 2. Integrert terminal -->
+  <!-- 2. Autentisering (GLOBAL) -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <div class="section-title">Autentisering <span class="global-badge">Global</span></div>
+        <div class="section-subtitle">Samme nøkkelident og passfrase brukes på alle terminalene.</div>
+      </div>
+    </div>
+    <div class="section-body">
+      <div class="grid-2">
+        <div class="field">
+          <label class="field-label">Nøkkelidentifikator</label>
+          <input class="field-input mono" type="password" value="demo-key-12345">
+        </div>
+        <div class="field">
+          <label class="field-label">Passfrase</label>
+          <input class="field-input mono" type="password" value="demo-passphrase-1234567">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Integrert terminal -->
+  <!--
+    NOTE: "Aktiver Paypoint Connect" er fjernet fra denne visningen.
+    Protokollen er utfaset og skal ikke lenger eksponeres i UI.
+    Backend bør migreres bort fra innstillingen og feltet fjernes fra databaseskjemaet
+    etter en overgangsperiode. Se PO-notat før fjerning i prod.
+  -->
   <section class="section">
     <div class="section-header">
       <div class="section-title-wrap">
@@ -538,8 +670,7 @@
 
     <div class="collapsible open" id="integrert-body">
       <div class="section-body">
-
-        <div class="integrert-fields">
+        <div class="grid-2">
           <div class="field">
             <label class="field-label">Terminal-ID / Serienummer</label>
             <input class="field-input mono" value="P400Plus-806221916">
@@ -548,37 +679,17 @@
             <label class="field-label">IP-adresse (valgfri)</label>
             <input class="field-input mono" placeholder="f.eks. 192.168.50.10">
           </div>
-          <div class="field">
-            <label class="field-label">Nøkkelidentifikator</label>
-            <input class="field-input mono" type="password" value="demo-key-12345">
-          </div>
-          <div class="field">
-            <label class="field-label">Passfrase</label>
-            <input class="field-input mono" type="password" value="demo-passphrase-1234567">
-          </div>
         </div>
-
-        <div class="setting-row" style="margin-top: 8px;">
-          <div>
-            <div class="setting-label">Aktiver Paypoint Connect</div>
-            <div class="setting-desc">Bruk Paypoint Connect som kommunikasjonsprotokoll mot terminalen.</div>
-          </div>
-          <label class="toggle">
-            <input type="checkbox">
-            <span class="slider"></span>
-          </label>
-        </div>
-
       </div>
     </div>
   </section>
 
-  <!-- 3. Multibetalingsterminaler -->
+  <!-- 4. Multibetalingsterminaler -->
   <section class="section">
     <div class="section-header">
       <div class="section-title-wrap">
         <div class="section-title">Multibetalingsterminaler</div>
-        <div class="section-subtitle">Ytterligere terminaler — arver leverandør fra innstillingen over.</div>
+        <div class="section-subtitle">Ytterligere terminaler — arver leverandør og autentisering fra innstillingene over.</div>
       </div>
       <span class="status off" id="terminal-count"><span class="status-dot"></span>3 terminaler</span>
     </div>
@@ -589,7 +700,7 @@
         <line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-      <div>Alle terminaler under bruker <strong id="provider-name">Amendo</strong> som leverandør. Endre i innstillingen over for å bytte.</div>
+      <div>Alle terminaler under bruker <strong id="provider-name">Amendo</strong> og de globale autentiseringsnøklene. Bruk <strong>Test</strong>-knappen på hvert kort for å verifisere tilkoblingen.</div>
     </div>
 
     <div class="terminal-list" id="terminal-list"></div>
@@ -623,14 +734,115 @@
   ];
 
   const statusLabels = {
-    ok:   { text: 'Tilkoblet', cls: 'ok' },
-    warn: { text: 'Varsel',    cls: 'warn' },
-    off:  { text: 'Frakoblet', cls: 'off' },
+    ok:      { text: 'Tilkoblet',    cls: 'ok' },
+    warn:    { text: 'Varsel',       cls: 'warn' },
+    error:   { text: 'Feil',         cls: 'error' },
+    off:     { text: 'Ikke testet',  cls: 'off' },
+    testing: { text: 'Tester…',      cls: 'testing' },
   };
 
   const providerNames = {
     amendo: 'Amendo', adyen: 'Adyen', nets: 'Nets', verifone: 'Verifone', none: 'Ingen',
   };
+
+  // === TEST RESULT SCENARIOS ===
+  // A PO-friendly catalog of possible responses. Each has a precise, actionable message.
+  const testScenarios = [
+    {
+      kind: 'success',
+      title: 'Tilkobling OK',
+      detail: t => `Terminalen svarte på ${t.ip} og autentiserte med globale nøkler. Kassen kan sende betalinger nå.`,
+      meta: t => [
+        { label: 'Latens', value: '42 ms' },
+        { label: 'Firmware', value: 'v5.8.2' },
+        { label: 'Serienummer', value: t.serial },
+      ],
+      actions: [],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_NET_UNREACHABLE',
+      title: 'Kan ikke nå terminalen',
+      detail: t => `Ingen respons fra ${t.ip} innen 10 sekunder. Sjekk at terminalen er slått på og koblet til samme nettverk som kassen.`,
+      meta: t => [
+        { label: 'IP', value: t.ip },
+        { label: 'Kode', value: 'ERR_NET_UNREACHABLE' },
+      ],
+      actions: [
+        { label: 'Prøv igjen', primary: true, action: 'retry' },
+        { label: 'Ping fra kassen', action: 'ping' },
+      ],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_AUTH_INVALID',
+      title: 'Autentisering avvist',
+      detail: () => `Leverandøren godtok ikke nøkkelidentifikator eller passfrase. Verifiser de globale autentiseringsnøklene — disse gjelder alle terminaler.`,
+      meta: t => [
+        { label: 'Kode', value: 'ERR_AUTH_INVALID' },
+        { label: 'Status', value: 'HTTP 401' },
+      ],
+      actions: [
+        { label: 'Gå til Autentisering', primary: true, action: 'goto-auth' },
+      ],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_NOT_REGISTERED',
+      title: 'Serienummer ikke registrert',
+      detail: t => `Serienummer ${t.serial} er ikke registrert på denne kontoen hos leverandøren. Kontroller at nummeret er korrekt skrevet, eller registrer terminalen i leverandørportalen først.`,
+      meta: t => [
+        { label: 'Serienummer', value: t.serial },
+        { label: 'Kode', value: 'ERR_NOT_REGISTERED' },
+      ],
+      actions: [
+        { label: 'Kopier serienummer', action: 'copy-serial' },
+      ],
+    },
+    {
+      kind: 'warn',
+      code: 'WARN_FIRMWARE_OUTDATED',
+      title: 'Tilkobling OK — men firmware er utdatert',
+      detail: t => `Terminalen svarer på ${t.ip}, men kjører firmware v4.1.0. Anbefalt minimum er v5.0.0. Eldre firmware kan feile på kontaktløs betaling over 500 NOK.`,
+      meta: t => [
+        { label: 'Firmware', value: 'v4.1.0' },
+        { label: 'Anbefalt', value: '≥ v5.0.0' },
+        { label: 'Kode', value: 'WARN_FIRMWARE_OUTDATED' },
+      ],
+      actions: [
+        { label: 'Oppdater firmware', primary: true, action: 'update' },
+      ],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_TIMEOUT',
+      title: 'Tidsavbrutt',
+      detail: t => `Terminalen på ${t.ip} startet svar, men fullførte ikke håndtrykket innen 15 sekunder. Ofte forårsaket av ustabilt wifi eller at terminalen er opptatt med en transaksjon.`,
+      meta: () => [
+        { label: 'Kode', value: 'ERR_TIMEOUT' },
+        { label: 'Ventetid', value: '15.0 s' },
+      ],
+      actions: [
+        { label: 'Prøv igjen', primary: true, action: 'retry' },
+      ],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_PROVIDER_MISMATCH',
+      title: 'Leverandør stemmer ikke',
+      detail: t => `Terminalen ${t.serial} er registrert hos en annen leverandør enn den som er valgt globalt. Enten må global leverandør endres, eller terminalen må flyttes i leverandørportalen.`,
+      meta: t => [
+        { label: 'Valgt', value: document.getElementById('provider-name')?.textContent || 'Amendo' },
+        { label: 'Funnet', value: 'Nets' },
+        { label: 'Kode', value: 'ERR_PROVIDER_MISMATCH' },
+      ],
+      actions: [
+        { label: 'Bytt leverandør', primary: true, action: 'goto-provider' },
+      ],
+    },
+  ];
+
+  let scenarioCycle = 0; // cycle through scenarios in demo for illustrative variety
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -643,14 +855,15 @@
       const s = statusLabels[t.status];
       const el = document.createElement('div');
       el.className = 'terminal-card';
+      el.id = `card-${i}`;
       el.innerHTML = `
         <div class="card-strip">
           <div class="card-strip-left">
             <span class="card-name">${escapeHtml(t.name)}</span>
-            <span class="status ${s.cls}"><span class="status-dot"></span>${s.text}</span>
+            <span class="status ${s.cls}" id="status-${i}"><span class="status-dot"></span>${s.text}</span>
           </div>
           <div class="card-strip-right">
-            <button class="icon-btn" onclick="testTerminal(${i})" title="Test tilkobling">
+            <button class="icon-btn primary" onclick="testTerminal(${i})" title="Test tilkobling" id="test-btn-${i}">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="5 3 19 12 5 21 5 3"/>
               </svg>
@@ -658,31 +871,17 @@
             <div class="kebab-wrap">
               <button class="icon-btn" onclick="toggleKebab(${i}, event)" title="Mer">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <circle cx="12" cy="5" r="1"/>
-                  <circle cx="12" cy="12" r="1"/>
-                  <circle cx="12" cy="19" r="1"/>
+                  <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
                 </svg>
               </button>
               <div class="kebab-menu" id="kebab-${i}">
-                <button class="kebab-item" onclick="duplicateTerminal(${i})">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <rect x="9" y="9" width="13" height="13" rx="2"/>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                  </svg>
-                  Dupliser
-                </button>
-                <button class="kebab-item danger" onclick="deleteTerminal(${i})">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <polyline points="3 6 5 6 21 6"/>
-                    <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
-                    <path d="M10 11v6M14 11v6"/>
-                  </svg>
-                  Slett terminal
-                </button>
+                <button class="kebab-item" onclick="duplicateTerminal(${i})">Dupliser</button>
+                <button class="kebab-item danger" onclick="deleteTerminal(${i})">Slett terminal</button>
               </div>
             </div>
           </div>
         </div>
+        <div class="test-result" id="result-${i}"></div>
         <div class="card-main">
           <div class="field">
             <label class="field-label">Navn</label>
@@ -697,22 +896,6 @@
             <input class="field-input mono" value="${escapeHtml(t.serial)}">
           </div>
         </div>
-        <button class="advanced-toggle" onclick="toggleAdvanced(this)">
-          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>
-          Autentisering · valgfritt
-        </button>
-        <div class="advanced-content">
-          <div class="field">
-            <label class="field-label">Nøkkelidentifikator</label>
-            <input class="field-input mono" type="password" placeholder="Skriv inn nøkkelident…">
-          </div>
-          <div class="field">
-            <label class="field-label">Passfrase</label>
-            <input class="field-input mono" type="password" placeholder="Skriv inn passfrase…">
-          </div>
-        </div>
       `;
       host.appendChild(el);
     });
@@ -722,8 +905,7 @@
     add.onclick = addTerminal;
     add.innerHTML = `
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
       </svg>
       Legg til ny terminal
     `;
@@ -733,7 +915,76 @@
       `<span class="status-dot"></span>${terminals.length} terminal${terminals.length === 1 ? '' : 'er'}`;
   }
 
-  function toggleAdvanced(btn) { btn.classList.toggle('open'); }
+  function setStatus(i, status) {
+    terminals[i].status = status;
+    const s = statusLabels[status];
+    const el = document.getElementById(`status-${i}`);
+    if (el) el.outerHTML = `<span class="status ${s.cls}" id="status-${i}"><span class="status-dot"></span>${s.text}</span>`;
+  }
+
+  function showTestResult(i, scenario) {
+    const panel = document.getElementById(`result-${i}`);
+    const t = terminals[i];
+    const iconMap = {
+      success: `<svg class="result-icon success" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>`,
+      error:   `<svg class="result-icon error" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+      warn:    `<svg class="result-icon warn" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`,
+    };
+
+    const metaHtml = (scenario.meta?.(t) || []).map(m =>
+      `<span><strong>${m.label}:</strong> <span class="chip">${escapeHtml(m.value)}</span></span>`
+    ).join('');
+
+    const actionsHtml = (scenario.actions || []).map(a =>
+      `<button class="result-action${a.primary ? ' primary' : ''}" onclick="handleResultAction('${a.action}', ${i})">${escapeHtml(a.label)}</button>`
+    ).join('');
+
+    panel.className = `test-result show ${scenario.kind}`;
+    panel.innerHTML = `
+      <div class="result-head">
+        ${iconMap[scenario.kind]}
+        <div class="result-body">
+          <div class="result-title">${escapeHtml(scenario.title)}</div>
+          <div class="result-detail">${escapeHtml(scenario.detail(t))}</div>
+          ${metaHtml ? `<div class="result-meta">${metaHtml}</div>` : ''}
+          ${actionsHtml ? `<div class="result-actions">${actionsHtml}</div>` : ''}
+        </div>
+        <button class="result-close" onclick="closeResult(${i})" title="Lukk">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      </div>
+    `;
+
+    const statusMap = { success: 'ok', error: 'error', warn: 'warn' };
+    setStatus(i, statusMap[scenario.kind]);
+  }
+
+  function closeResult(i) {
+    const panel = document.getElementById(`result-${i}`);
+    if (panel) { panel.classList.remove('show'); panel.innerHTML = ''; }
+  }
+
+  function handleResultAction(action, i) {
+    switch (action) {
+      case 'retry':       testTerminal(i); break;
+      case 'goto-auth':   document.querySelector('input[value="demo-key-12345"]')?.focus(); showToast('Rulles til autentisering'); break;
+      case 'goto-provider': document.getElementById('provider-select').focus(); showToast('Rulles til leverandør'); break;
+      case 'ping':        showToast('Pinger…'); break;
+      case 'update':      showToast('Sender firmware-oppdatering'); break;
+      case 'copy-serial': showToast(`Kopiert: ${terminals[i].serial}`); break;
+      default: showToast(`Handling: ${action}`);
+    }
+  }
+
+  function testTerminal(i) {
+    setStatus(i, 'testing');
+    closeResult(i);
+    const scenario = testScenarios[scenarioCycle % testScenarios.length];
+    scenarioCycle++;
+    setTimeout(() => showTestResult(i, scenario), 700);
+  }
 
   function toggleKebab(i, e) {
     e.stopPropagation();
@@ -765,8 +1016,6 @@
     renderTerminals();
     showToast('Terminal duplisert');
   }
-
-  function testTerminal(i) { showToast(`Tester ${terminals[i].name}…`); }
 
   function onProviderChange() {
     const v = document.getElementById('provider-select').value;
