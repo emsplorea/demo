@@ -12,6 +12,7 @@
     --bg: #F6F6F2;
     --surface: #FFFFFF;
     --surface-muted: #FAFAF7;
+    --surface-locked: #F3F3EE;
     --border: #E8E6DF;
     --border-strong: #D4D2C9;
 
@@ -25,8 +26,11 @@
     --primary-hover: #1E3A8A;
     --primary-soft: rgba(30, 64, 175, 0.06);
 
+    --bo-accent: #6D28D9;       /* Purple — distinct from primary, signals "different system" */
+    --bo-soft: rgba(109, 40, 217, 0.06);
+    --bo-border: rgba(109, 40, 217, 0.2);
+
     --success: #047857;
-    --success-strong: #065F46;
     --success-bg: #ECFDF5;
     --success-border: #A7F3D0;
 
@@ -59,7 +63,7 @@
     letter-spacing: -0.005em;
   }
 
-  /* Sticky app header (topbar + tabs) */
+  /* Sticky app header */
   .app-header {
     position: sticky;
     top: 0;
@@ -114,6 +118,16 @@
     margin-bottom: 16px;
     overflow: hidden;
   }
+
+  /* === BACK OFFICE SECTION (read-only, distinct styling) === */
+  .section.bo {
+    background: var(--surface-locked);
+    border-color: var(--bo-border);
+  }
+  .section.bo .section-header {
+    background: linear-gradient(to bottom, rgba(109, 40, 217, 0.04), transparent);
+  }
+
   .section-header {
     padding: 18px 20px 14px;
     border-bottom: 1px solid var(--border);
@@ -134,6 +148,53 @@
   .section-subtitle { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
   .section-body { padding: 18px 20px 20px; }
 
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .badge.global {
+    background: var(--primary-soft);
+    color: var(--primary);
+  }
+  .badge.bo {
+    background: var(--bo-soft);
+    color: var(--bo-accent);
+  }
+  .badge.readonly {
+    background: rgba(17, 20, 24, 0.06);
+    color: var(--ink-muted);
+  }
+
+  /* BO link */
+  .bo-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 12px;
+    background: var(--surface);
+    border: 1px solid var(--bo-border);
+    border-radius: var(--r-sm);
+    color: var(--bo-accent);
+    font-size: 12.5px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.15s;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .bo-link:hover {
+    background: var(--bo-soft);
+    border-color: var(--bo-accent);
+  }
+
   /* Provider row */
   .provider-row {
     display: flex;
@@ -150,20 +211,184 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
   }
   .provider-label .desc { font-size: 12.5px; color: var(--ink-muted); }
   .provider-select-wrap { min-width: 220px; }
-  .global-badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 2px 8px;
-    border-radius: 999px;
-    background: var(--primary-soft);
-    color: var(--primary);
-    font-size: 10.5px;
-    font-weight: 600;
+
+  /* BO info rows (read-only) */
+  .bo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-bottom: 4px;
+  }
+  .bo-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+  .bo-field-label {
+    font-size: 11px;
+    font-weight: 500;
     letter-spacing: 0.04em;
     text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .bo-field-value {
+    padding: 8px 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 36px;
+  }
+  .bo-field-value.locked-value {
+    background: repeating-linear-gradient(
+      45deg,
+      var(--surface),
+      var(--surface) 10px,
+      rgba(109, 40, 217, 0.02) 10px,
+      rgba(109, 40, 217, 0.02) 20px
+    );
+    border-color: var(--bo-border);
+    font-family: inherit;
+  }
+  .bo-field-hint {
+    margin-top: 6px;
+    font-size: 11.5px;
+    color: var(--ink-muted);
+    font-family: inherit;
+    line-height: 1.4;
+    padding-left: 2px;
+  }
+
+  /* BO offline banner */
+  .bo-offline-banner {
+    display: none;
+    background: var(--warning-bg);
+    border-bottom: 1px solid var(--warning-border);
+    padding: 10px 20px;
+    font-size: 12.5px;
+    color: var(--ink);
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .bo-offline-banner.show { display: flex; }
+  .bo-offline-banner .icon {
+    color: var(--warning);
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .bo-offline-banner strong { font-weight: 600; }
+
+  /* Cache indicator under field values */
+  .cache-indicator {
+    font-size: 10.5px;
+    color: var(--ink-faint);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+  }
+  .cache-indicator.local {
+    color: var(--warning);
+  }
+  .cache-indicator svg { flex-shrink: 0; }
+
+  /* BO-down state: locked API key becomes unavailable */
+  .section.bo.offline .locked-value {
+    opacity: 0.5;
+  }
+  .section.bo.offline .locked-value .value-text {
+    color: var(--warning) !important;
+  }
+
+  /* Demo toggle (floating dev control, not part of production UI) */
+  .demo-toggle {
+    position: fixed;
+    bottom: 90px;
+    right: 24px;
+    z-index: 25;
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 14px;
+    border-radius: var(--r-md);
+    font-size: 12px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+  }
+  .demo-toggle:hover { background: #000; }
+  .demo-toggle .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+  }
+  .demo-toggle.offline .dot { background: var(--warning); }
+  .bo-field-value .value-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+  .bo-field-value .value-actions {
+    display: flex;
+    gap: 2px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  .bo-icon-btn {
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
+    border-radius: 4px;
+    color: var(--ink-faint);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .bo-icon-btn:hover { background: rgba(17, 20, 24, 0.06); color: var(--ink); }
+
+  .bo-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 12px;
+    color: var(--ink-muted);
+  }
+  .bo-footer-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .last-sync {
+    font-variant-numeric: tabular-nums;
   }
 
   /* Setting row */
@@ -177,8 +402,6 @@
   }
   .setting-row:first-child { padding-top: 4px; }
   .setting-row:last-child { border-bottom: none; padding-bottom: 4px; }
-  .setting-label { font-size: 13.5px; font-weight: 500; }
-  .setting-desc { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; max-width: 520px; }
 
   /* Collapsible */
   .collapsible {
@@ -286,7 +509,6 @@
   }
   .provider-select:hover { border-color: var(--ink-muted); }
 
-  /* Status pill */
   .status {
     display: inline-flex;
     align-items: center;
@@ -306,14 +528,10 @@
   .status.error .status-dot { background: var(--danger); }
   .status.off { background: #F3F4F6; color: var(--ink-muted); }
   .status.off .status-dot { background: var(--ink-faint); }
-  .status.testing .status-dot {
-    background: var(--primary);
-    animation: pulse 1s ease-in-out infinite;
-  }
+  .status.testing .status-dot { background: var(--primary); animation: pulse 1s ease-in-out infinite; }
   .status.testing { background: var(--primary-soft); color: var(--primary); }
   @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-  /* Card strip */
   .card-strip {
     display: flex;
     align-items: center;
@@ -346,9 +564,8 @@
   }
   .icon-btn.primary { color: var(--primary); }
   .icon-btn.primary:hover { background: var(--primary-soft); border-color: rgba(30,64,175,0.2); }
-  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-  /* TEST RESULT PANEL */
+  /* Test result panel */
   .test-result {
     display: none;
     padding: 12px 16px;
@@ -360,42 +577,19 @@
     from { opacity: 0; transform: translateY(-4px); }
     to   { opacity: 1; transform: translateY(0); }
   }
-  .test-result.success {
-    background: var(--success-bg);
-    border-bottom-color: var(--success-border);
-  }
-  .test-result.error {
-    background: var(--danger-bg);
-    border-bottom-color: var(--danger-border);
-  }
-  .test-result.warn {
-    background: var(--warning-bg);
-    border-bottom-color: var(--warning-border);
-  }
+  .test-result.success { background: var(--success-bg); border-bottom-color: var(--success-border); }
+  .test-result.error { background: var(--danger-bg); border-bottom-color: var(--danger-border); }
+  .test-result.warn { background: var(--warning-bg); border-bottom-color: var(--warning-border); }
 
-  .result-head {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-  }
+  .result-head { display: flex; align-items: flex-start; gap: 10px; }
   .result-icon { flex-shrink: 0; margin-top: 1px; }
   .result-icon.success { color: var(--success); }
   .result-icon.error { color: var(--danger); }
   .result-icon.warn { color: var(--warning); }
 
   .result-body { flex: 1; min-width: 0; }
-  .result-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--ink);
-    letter-spacing: -0.01em;
-  }
-  .result-detail {
-    font-size: 12.5px;
-    color: var(--ink-muted);
-    margin-top: 2px;
-    line-height: 1.45;
-  }
+  .result-title { font-size: 13px; font-weight: 600; color: var(--ink); letter-spacing: -0.01em; }
+  .result-detail { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; line-height: 1.45; }
   .result-meta {
     display: flex;
     flex-wrap: wrap;
@@ -413,11 +607,7 @@
     border-radius: 4px;
     color: var(--ink);
   }
-  .result-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-  }
+  .result-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
   .result-action {
     font-family: inherit;
     font-size: 12px;
@@ -431,11 +621,7 @@
     transition: background 0.15s, border-color 0.15s;
   }
   .result-action:hover { background: var(--surface-muted); }
-  .result-action.primary {
-    background: var(--ink);
-    color: #fff;
-    border-color: var(--ink);
-  }
+  .result-action.primary { background: var(--ink); color: #fff; border-color: var(--ink); }
   .result-action.primary:hover { background: #000; }
   .result-close {
     color: var(--ink-faint);
@@ -452,7 +638,6 @@
   }
   .result-close:hover { color: var(--ink); background: rgba(17,20,24,0.05); }
 
-  /* Add btn */
   .add-btn {
     display: inline-flex;
     align-items: center;
@@ -475,7 +660,6 @@
     background: var(--primary-soft);
   }
 
-  /* Kebab */
   .kebab-wrap { position: relative; }
   .kebab-menu {
     position: absolute;
@@ -511,7 +695,6 @@
   .kebab-item.danger { color: var(--danger); }
   .kebab-item.danger:hover { background: var(--danger-bg); }
 
-  /* Footer */
   .footer {
     position: fixed;
     bottom: 0;
@@ -582,7 +765,7 @@
 
   @media (max-width: 780px) {
     .card-main { grid-template-columns: 1fr 1fr; }
-    .grid-2 { grid-template-columns: 1fr; }
+    .grid-2, .bo-grid { grid-template-columns: 1fr; }
     .provider-row { flex-direction: column; align-items: stretch; gap: 12px; }
     .provider-select-wrap { min-width: 0; }
   }
@@ -618,53 +801,146 @@
     <p>Konfigurer betalingsterminaler tilknyttet denne kassen.</p>
   </div>
 
-  <!-- 1. Terminal-leverandør (GLOBAL) -->
-  <section class="section">
-    <div class="provider-row">
-      <div class="provider-label">
-        <div class="lbl">Terminal-leverandør <span class="global-badge">Global</span></div>
-        <div class="desc">Gjelder både integrert terminal og alle multibetalingsterminaler under.</div>
-      </div>
-      <div class="provider-select-wrap">
-        <select class="field-select provider-select" id="provider-select" onchange="onProviderChange()">
-          <option value="amendo">Amendo</option>
-          <option value="adyen">Adyen</option>
-          <option value="nets">Nets</option>
-          <option value="verifone">Verifone</option>
-          <option value="none">Ingen</option>
-        </select>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2. Autentisering (GLOBAL) -->
-  <section class="section">
+  <!-- 1. BACK OFFICE SECTION (read-only - all merchant-level config consolidated here) -->
+  <section class="section bo" id="bo-section">
     <div class="section-header">
       <div class="section-title-wrap">
-        <div class="section-title">Autentisering <span class="global-badge">Global</span></div>
-        <div class="section-subtitle">Samme nøkkelident og passfrase brukes på alle terminalene.</div>
+        <div class="section-title">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--bo-accent)">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Back Office
+          <span class="badge bo">MERCHANT-NIVÅ</span>
+          <span class="badge readonly">READ-ONLY</span>
+        </div>
+        <div class="section-subtitle">Leverandør, kontooppsett og krypteringsnøkler konfigureres i Back Office. Gjelder alle kasser og terminaler under merchant-kontoen.</div>
+      </div>
+      <button class="bo-link" onclick="openBackOffice()">
+        Åpne i Back Office
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Offline banner (shows when BO is unreachable) -->
+    <div class="bo-offline-banner" id="bo-offline-banner">
+      <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+      <div>
+        <strong>Back Office ikke tilgjengelig</strong> — kassen bruker siste lagrede verdier fra lokal cache. Betaling fungerer som normalt. Kun diagnose mot Management API er deaktivert til BO er tilbake.
       </div>
     </div>
     <div class="section-body">
-      <div class="grid-2">
-        <div class="field">
-          <label class="field-label">Nøkkelidentifikator</label>
-          <input class="field-input mono" type="password" value="demo-key-12345">
+
+      <!-- Row 1: Provider + Merchant Account -->
+      <div class="bo-grid">
+        <div class="bo-field">
+          <div class="bo-field-label">Leverandør</div>
+          <div class="bo-field-value">
+            <span class="value-text" id="bo-provider">Adyen</span>
+          </div>
         </div>
-        <div class="field">
-          <label class="field-label">Passfrase</label>
-          <input class="field-input mono" type="password" value="demo-passphrase-1234567">
+        <div class="bo-field">
+          <div class="bo-field-label">Merchant Account</div>
+          <div class="bo-field-value">
+            <span class="value-text">AmendoPOS</span>
+            <div class="value-actions">
+              <button class="bo-icon-btn" title="Kopier" onclick="copyValue('AmendoPOS')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      <!-- Row 2: Management API Key (full width, locked — never viewable, not cached locally) -->
+      <div class="bo-field" style="margin-top: 14px;">
+        <div class="bo-field-label">
+          Management API Key
+          <span class="badge readonly" style="margin-left: 4px;">SKJULT</span>
+        </div>
+        <div class="bo-field-value locked-value" id="apikey-value">
+          <span class="value-text" id="apikey-text" style="color: var(--ink-muted);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: -1px; margin-right: 6px;">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Konfigurert · kan ikke inspiseres
+          </span>
+          <div class="value-actions">
+            <button class="bo-icon-btn" title="Rotér nøkkel i Back Office" onclick="openBackOffice()">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="bo-field-hint">
+          Av sikkerhetshensyn vises ikke API-nøkler etter opprettelse, og lagres ikke lokalt på kassen. Kun Back Office kjenner verdien. For å bytte nøkkel, gå til Back Office og generer en ny.
+        </div>
+      </div>
+
+      <!-- Row 3: Terminal encryption keys (masked, inspectable) -->
+      <div class="bo-grid" style="margin-top: 14px;">
+        <div class="bo-field">
+          <div class="bo-field-label">Nøkkelidentifikator</div>
+          <div class="bo-field-value">
+            <span class="value-text" id="keyident-text">••••••••••••</span>
+            <div class="value-actions">
+              <button class="bo-icon-btn" title="Vis / skjul" onclick="toggleMask('keyident')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="keyident-eye">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="bo-field">
+          <div class="bo-field-label">Passfrase</div>
+          <div class="bo-field-value">
+            <span class="value-text" id="passphrase-text">••••••••••••••••</span>
+            <div class="value-actions">
+              <button class="bo-icon-btn" title="Vis / skjul" onclick="toggleMask('passphrase')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="passphrase-eye">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="bo-footer">
+      <div class="bo-footer-left" id="bo-status">
+        <span class="status ok"><span class="status-dot"></span>Tilkoblet Adyen via Back Office</span>
+        <span>·</span>
+        <span class="last-sync">Sist synkronisert 22.04.2026 · 12:30</span>
+      </div>
+      <button class="bo-icon-btn" onclick="syncFromBO()" title="Synkroniser nå">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+          <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+        </svg>
+      </button>
     </div>
   </section>
 
-  <!-- 3. Integrert terminal -->
+  <!-- 4. Integrert terminal -->
   <!--
-    NOTE: "Aktiver Paypoint Connect" er fjernet fra denne visningen.
-    Protokollen er utfaset og skal ikke lenger eksponeres i UI.
-    Backend bør migreres bort fra innstillingen og feltet fjernes fra databaseskjemaet
-    etter en overgangsperiode. Se PO-notat før fjerning i prod.
+    NOTE: "Aktiver Paypoint Connect" er fjernet fra UI — utfaset protokoll.
+    Backend bør migreres bort fra innstillingen etter overgangsperiode.
   -->
   <section class="section">
     <div class="section-header">
@@ -694,7 +970,7 @@
     </div>
   </section>
 
-  <!-- 4. Multibetalingsterminaler -->
+  <!-- 5. Multibetalingsterminaler -->
   <section class="section">
     <div class="section-header">
       <div class="section-title-wrap">
@@ -710,13 +986,18 @@
         <line x1="12" y1="8" x2="12" y2="12"/>
         <line x1="12" y1="16" x2="12.01" y2="16"/>
       </svg>
-      <div>Alle terminaler under bruker <strong id="provider-name">Amendo</strong> og de globale autentiseringsnøklene. Bruk <strong>Test</strong>-knappen på hvert kort for å verifisere tilkoblingen.</div>
+      <div>Alle terminaler under arver leverandør (<strong>Adyen</strong>), merchant (<strong>AmendoPOS</strong>) og krypteringsnøkler fra Back Office. Bruk <strong>Test</strong>-knappen på hvert kort for å verifisere tilkoblingen.</div>
     </div>
 
     <div class="terminal-list" id="terminal-list"></div>
   </section>
 
 </main>
+
+<button class="demo-toggle" id="demo-toggle" onclick="toggleBOState()">
+  <span class="dot"></span>
+  <span id="demo-toggle-label">Simuler: BO nede</span>
+</button>
 
 <footer class="footer">
   <button class="btn btn-primary" onclick="showToast('Innstillinger lagret')">Lagre</button>
@@ -744,28 +1025,28 @@
   ];
 
   const statusLabels = {
-    ok:      { text: 'Tilkoblet',    cls: 'ok' },
-    warn:    { text: 'Varsel',       cls: 'warn' },
-    error:   { text: 'Feil',         cls: 'error' },
-    off:     { text: 'Ikke testet',  cls: 'off' },
-    testing: { text: 'Tester…',      cls: 'testing' },
+    ok:      { text: 'Tilkoblet', cls: 'ok' },
+    warn:    { text: 'Varsel',    cls: 'warn' },
+    error:   { text: 'Feil',      cls: 'error' },
+    off:     { text: 'Ikke testet', cls: 'off' },
+    testing: { text: 'Tester…',   cls: 'testing' },
   };
 
   const providerNames = {
     amendo: 'Amendo', adyen: 'Adyen', nets: 'Nets', verifone: 'Verifone', none: 'Ingen',
   };
 
-  // === TEST RESULT SCENARIOS ===
-  // A PO-friendly catalog of possible responses. Each has a precise, actionable message.
+  // Test scenarios — extended with BO-related errors
   const testScenarios = [
     {
       kind: 'success',
       title: 'Tilkobling OK',
-      detail: t => `Terminalen svarte på ${t.ip} og autentiserte med globale nøkler. Kassen kan sende betalinger nå.`,
+      detail: t => `Terminalen svarte på ${t.ip} og autentiserte med krypteringsnøkler fra merchant AmendoPOS. Validert mot Back Office.`,
       meta: t => [
         { label: 'Latens', value: '42 ms' },
         { label: 'Firmware', value: 'v5.8.2' },
         { label: 'Serienummer', value: t.serial },
+        { label: 'Merchant', value: 'AmendoPOS' },
       ],
       actions: [],
     },
@@ -787,25 +1068,27 @@
       kind: 'error',
       code: 'ERR_AUTH_INVALID',
       title: 'Autentisering avvist',
-      detail: () => `Leverandøren godtok ikke nøkkelidentifikator eller passfrase. Verifiser de globale autentiseringsnøklene — disse gjelder alle terminaler.`,
-      meta: t => [
+      detail: () => `Leverandøren godtok ikke nøkkelidentifikator eller passfrase. Verifiser krypteringsnøklene i Back Office — disse gjelder alle kasser og terminaler under merchant-kontoen.`,
+      meta: () => [
         { label: 'Kode', value: 'ERR_AUTH_INVALID' },
         { label: 'Status', value: 'HTTP 401' },
       ],
       actions: [
-        { label: 'Gå til Autentisering', primary: true, action: 'goto-auth' },
+        { label: 'Åpne Back Office', primary: true, action: 'goto-auth' },
       ],
     },
     {
       kind: 'error',
       code: 'ERR_NOT_REGISTERED',
-      title: 'Serienummer ikke registrert',
-      detail: t => `Serienummer ${t.serial} er ikke registrert på denne kontoen hos leverandøren. Kontroller at nummeret er korrekt skrevet, eller registrer terminalen i leverandørportalen først.`,
+      title: 'Serienummer ikke registrert hos merchant',
+      detail: t => `Serienummer ${t.serial} er ikke registrert under merchant AmendoPOS i Adyen Management Portal. Kontroller at nummeret er korrekt, eller registrer terminalen i Adyen først.`,
       meta: t => [
         { label: 'Serienummer', value: t.serial },
+        { label: 'Merchant', value: 'AmendoPOS' },
         { label: 'Kode', value: 'ERR_NOT_REGISTERED' },
       ],
       actions: [
+        { label: 'Åpne Adyen Portal', primary: true, action: 'goto-adyen' },
         { label: 'Kopier serienummer', action: 'copy-serial' },
       ],
     },
@@ -814,7 +1097,7 @@
       code: 'WARN_FIRMWARE_OUTDATED',
       title: 'Tilkobling OK — men firmware er utdatert',
       detail: t => `Terminalen svarer på ${t.ip}, men kjører firmware v4.1.0. Anbefalt minimum er v5.0.0. Eldre firmware kan feile på kontaktløs betaling over 500 NOK.`,
-      meta: t => [
+      meta: () => [
         { label: 'Firmware', value: 'v4.1.0' },
         { label: 'Anbefalt', value: '≥ v5.0.0' },
         { label: 'Kode', value: 'WARN_FIRMWARE_OUTDATED' },
@@ -840,19 +1123,37 @@
       kind: 'error',
       code: 'ERR_PROVIDER_MISMATCH',
       title: 'Leverandør stemmer ikke',
-      detail: t => `Terminalen ${t.serial} er registrert hos en annen leverandør enn den som er valgt globalt. Enten må global leverandør endres, eller terminalen må flyttes i leverandørportalen.`,
-      meta: t => [
-        { label: 'Valgt', value: document.getElementById('provider-name')?.textContent || 'Amendo' },
+      detail: t => `Terminalen ${t.serial} er registrert hos en annen leverandør enn den som er konfigurert for merchant-kontoen. Enten må leverandør endres i Back Office, eller terminalen må flyttes i leverandørportalen.`,
+      meta: () => [
+        { label: 'Konfigurert', value: 'Adyen' },
         { label: 'Funnet', value: 'Nets' },
         { label: 'Kode', value: 'ERR_PROVIDER_MISMATCH' },
       ],
       actions: [
-        { label: 'Bytt leverandør', primary: true, action: 'goto-provider' },
+        { label: 'Åpne Back Office', primary: true, action: 'goto-provider' },
+      ],
+    },
+    {
+      kind: 'error',
+      code: 'ERR_BO_UNREACHABLE',
+      title: 'Back Office utilgjengelig',
+      detail: () => `Kan ikke nå Back Office for å validere terminalen mot merchant-kontoen. Sjekk internett-tilkoblingen på kassen, eller om BO er nede. Tilkoblings-tester kan fortsatt fungere lokalt.`,
+      meta: () => [
+        { label: 'Kode', value: 'ERR_BO_UNREACHABLE' },
+        { label: 'Sist kontakt', value: '12:30' },
+      ],
+      actions: [
+        { label: 'Synkroniser på nytt', primary: true, action: 'sync-bo' },
       ],
     },
   ];
 
-  let scenarioCycle = 0; // cycle through scenarios in demo for illustrative variety
+  let scenarioCycle = 0;
+  const maskedValues = {
+    keyident:   { masked: 'demo-key-12345', hidden: '••••••••••••' },
+    passphrase: { masked: 'demo-passphrase-1234567', hidden: '••••••••••••••••' },
+  };
+  const maskedState = { keyident: true, passphrase: true };
 
   function escapeHtml(s) {
     return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -978,12 +1279,14 @@
 
   function handleResultAction(action, i) {
     switch (action) {
-      case 'retry':       testTerminal(i); break;
-      case 'goto-auth':   document.querySelector('input[value="demo-key-12345"]')?.focus(); showToast('Rulles til autentisering'); break;
-      case 'goto-provider': document.getElementById('provider-select').focus(); showToast('Rulles til leverandør'); break;
-      case 'ping':        showToast('Pinger…'); break;
-      case 'update':      showToast('Sender firmware-oppdatering'); break;
-      case 'copy-serial': showToast(`Kopiert: ${terminals[i].serial}`); break;
+      case 'retry':          testTerminal(i); break;
+      case 'goto-auth':      showToast('Krypteringsnøkler konfigureres i Back Office'); openBackOffice(); break;
+      case 'goto-provider':  showToast('Leverandør konfigureres i Back Office'); openBackOffice(); break;
+      case 'goto-adyen':     showToast('Åpner Adyen Management Portal…'); break;
+      case 'ping':           showToast('Pinger…'); break;
+      case 'update':         showToast('Sender firmware-oppdatering'); break;
+      case 'copy-serial':    showToast(`Kopiert: ${terminals[i].serial}`); break;
+      case 'sync-bo':        syncFromBO(); break;
       default: showToast(`Handling: ${action}`);
     }
   }
@@ -1012,31 +1315,18 @@
     terminals.push({ name: `ny-${terminals.length + 1}`, ip: '', serial: '', status: 'off' });
     renderTerminals();
 
-    // Wait for DOM to update, then scroll the new card into view
-    // and auto-focus the name field so the user can start typing immediately.
     requestAnimationFrame(() => {
       const cards = document.querySelectorAll('.terminal-card');
       const lastCard = cards[cards.length - 1];
       if (!lastCard) return;
-
       lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      // Highlight briefly to signal "this is the new one"
       lastCard.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
       lastCard.style.borderColor = 'var(--primary)';
       lastCard.style.boxShadow = '0 0 0 3px rgba(30, 64, 175, 0.08)';
-      setTimeout(() => {
-        lastCard.style.borderColor = '';
-        lastCard.style.boxShadow = '';
-      }, 1200);
-
-      // Focus and pre-select the Navn field after the scroll animation settles
+      setTimeout(() => { lastCard.style.borderColor = ''; lastCard.style.boxShadow = ''; }, 1200);
       setTimeout(() => {
         const nameInput = lastCard.querySelector('.field-input');
-        if (nameInput) {
-          nameInput.focus();
-          nameInput.select();
-        }
+        if (nameInput) { nameInput.focus(); nameInput.select(); }
       }, 400);
     });
 
@@ -1056,17 +1346,89 @@
     showToast('Terminal duplisert');
   }
 
-  function onProviderChange() {
-    const v = document.getElementById('provider-select').value;
-    document.getElementById('provider-name').textContent = providerNames[v];
-    showToast(`Leverandør satt til ${providerNames[v]}`);
-  }
-
   function onIntegrertToggle() {
     const body = document.getElementById('integrert-body');
     const checked = document.getElementById('integrert-toggle').checked;
     body.classList.toggle('open', checked);
   }
+
+  // === BO actions ===
+  function openBackOffice() {
+    showToast('Åpner Back Office i ny fane…');
+  }
+
+  // === Offline simulation ===
+  let boOnline = true;
+
+  function toggleBOState() {
+    boOnline = !boOnline;
+    const section = document.getElementById('bo-section');
+    const banner = document.getElementById('bo-offline-banner');
+    const status = document.getElementById('bo-status');
+    const apikeyText = document.getElementById('apikey-text');
+    const toggle = document.getElementById('demo-toggle');
+    const toggleLabel = document.getElementById('demo-toggle-label');
+
+    if (boOnline) {
+      section.classList.remove('offline');
+      banner.classList.remove('show');
+      status.innerHTML = `
+        <span class="status ok"><span class="status-dot"></span>Tilkoblet Adyen via Back Office</span>
+        <span>·</span>
+        <span class="last-sync">Sist synkronisert 22.04.2026 · 12:30</span>
+      `;
+      apikeyText.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: -1px; margin-right: 6px;">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+        Konfigurert · kan ikke inspiseres
+      `;
+      apikeyText.style.color = 'var(--ink-muted)';
+      toggle.classList.remove('offline');
+      toggleLabel.textContent = 'Simuler: BO nede';
+      showToast('Back Office tilbake · verdier synkronisert');
+    } else {
+      section.classList.add('offline');
+      banner.classList.add('show');
+      status.innerHTML = `
+        <span class="status warn"><span class="status-dot"></span>Back Office utilgjengelig</span>
+        <span>·</span>
+        <span class="last-sync">Bruker lokal cache fra 22.04.2026 · 12:30</span>
+      `;
+      apikeyText.innerHTML = `
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: -1px; margin-right: 6px;">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Ikke tilgjengelig · krever Back Office
+      `;
+      apikeyText.style.color = 'var(--warning)';
+      toggle.classList.add('offline');
+      toggleLabel.textContent = 'Simuler: BO tilbake';
+      showToast('Simulerer: Back Office er nede — betaling fungerer fortsatt');
+    }
+  }
+
+  function syncFromBO() {
+    showToast('Synkroniserer fra Back Office…');
+    setTimeout(() => showToast('Back Office oppdatert · merchant verifisert'), 1200);
+  }
+
+  function toggleMask(which) {
+    maskedState[which] = !maskedState[which];
+    const textEl = document.getElementById(`${which}-text`);
+    const eyeEl = document.getElementById(`${which}-eye`);
+    textEl.textContent = maskedState[which]
+      ? maskedValues[which].hidden
+      : maskedValues[which].masked;
+    if (maskedState[which]) {
+      eyeEl.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    } else {
+      eyeEl.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+    }
+  }
+
+  function copyValue(v) { showToast(`Kopiert: ${v}`); }
 
   function showToast(text) {
     const t = document.getElementById('toast');
