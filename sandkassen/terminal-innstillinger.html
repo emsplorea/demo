@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminaler · Amendo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F6F2;
+    --surface: #FFFFFF;
+    --surface-muted: #FAFAF7;
+    --border: #E8E6DF;
+    --border-strong: #D4D2C9;
+
+    --ink: #111418;
+    --ink-muted: #5C6169;
+    --ink-faint: #8A8F97;
+
+    --navy: #0E1B2C;
+
+    --primary: #1E40AF;
+    --primary-hover: #1E3A8A;
+    --primary-soft: rgba(30, 64, 175, 0.06);
+    --success: #047857;
+    --success-bg: #ECFDF5;
+    --warning: #B45309;
+    --warning-bg: #FFFBEB;
+    --danger: #991B1B;
+    --danger-bg: #FEF2F2;
+
+    --r-sm: 6px;
+    --r-md: 8px;
+    --r-lg: 12px;
+
+    --shadow-sm: 0 1px 2px rgba(17, 20, 24, 0.04);
+    --shadow-md: 0 1px 3px rgba(17, 20, 24, 0.06), 0 4px 12px rgba(17, 20, 24, 0.03);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Hanken Grotesk', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.005em;
+  }
+
+  .topbar {
+    background: var(--navy);
+    color: #fff;
+    padding: 14px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .logo { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+  .logo span { color: #4F7FE8; }
+  .topbar-right { font-size: 12px; text-align: right; line-height: 1.4; }
+  .topbar-right .company { font-weight: 600; letter-spacing: 0.02em; }
+  .topbar-right .meta { color: rgba(255,255,255,0.6); font-variant-numeric: tabular-nums; }
+
+  .tabs {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 28px;
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 14px 16px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--ink-muted);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+  .page { max-width: 1100px; margin: 0 auto; padding: 28px 28px 120px; }
+  .page-header { margin-bottom: 24px; }
+  .page-header h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 4px; }
+  .page-header p { color: var(--ink-muted); font-size: 13.5px; }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .section-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .section-title-wrap { min-width: 0; }
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-subtitle { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; }
+  .section-body { padding: 18px 20px 20px; }
+
+  .provider-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 20px;
+  }
+  .provider-label { flex: 1; min-width: 0; }
+  .provider-label .lbl {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin-bottom: 2px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .provider-label .desc { font-size: 12.5px; color: var(--ink-muted); }
+  .provider-select-wrap { min-width: 220px; }
+  .provider-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0;
+    gap: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .setting-row:first-child { padding-top: 4px; }
+  .setting-row:last-child { border-bottom: none; padding-bottom: 4px; }
+  .setting-label { font-size: 13.5px; font-weight: 500; }
+  .setting-desc { font-size: 12.5px; color: var(--ink-muted); margin-top: 2px; max-width: 520px; }
+
+  .collapsible {
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+    max-height: 0;
+  }
+  .collapsible.open { max-height: 600px; }
+
+  .integrert-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-bottom: 4px;
+  }
+
+  .toggle {
+    position: relative;
+    width: 38px;
+    height: 22px;
+    flex-shrink: 0;
+  }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle .slider {
+    position: absolute;
+    inset: 0;
+    background: var(--border-strong);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .toggle .slider::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.2s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+  }
+  .toggle input:checked + .slider { background: var(--primary); }
+  .toggle input:checked + .slider::before { transform: translateX(16px); }
+
+  .terminal-list { padding: 16px 20px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+  .terminal-card {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .terminal-card:hover { border-color: var(--border-strong); box-shadow: var(--shadow-sm); }
+
+  .card-main {
+    padding: 14px 16px;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr 1fr;
+    gap: 14px;
+    align-items: end;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .field-label {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .field-input, .field-select {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    font-family: inherit;
+    font-size: 13.5px;
+    color: var(--ink);
+    background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .field-input:focus, .field-select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.08);
+  }
+  .field-input.mono { font-family: 'JetBrains Mono', monospace; font-size: 12.5px; }
+  .field-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235C6169' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+  }
+  .provider-select {
+    padding: 10px 36px 10px 12px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--border-strong);
+  }
+  .provider-select:hover { border-color: var(--ink-muted); }
+
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .status.ok { background: var(--success-bg); color: var(--success); }
+  .status.ok .status-dot { background: var(--success); }
+  .status.warn { background: var(--warning-bg); color: var(--warning); }
+  .status.warn .status-dot { background: var(--warning); }
+  .status.off { background: #F3F4F6; color: var(--ink-muted); }
+  .status.off .status-dot { background: var(--ink-faint); }
+
+  .card-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-muted);
+    border-radius: var(--r-md) var(--r-md) 0 0;
+  }
+  .card-strip-left { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1; }
+  .card-name { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+  .card-strip-right { display: flex; align-items: center; gap: 4px; }
+
+  .icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: var(--r-sm);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-muted);
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .icon-btn:hover {
+    background: var(--surface);
+    border-color: var(--border);
+    color: var(--ink);
+  }
+
+  .advanced-toggle {
+    width: 100%;
+    padding: 10px 16px;
+    background: transparent;
+    border: none;
+    border-top: 1px dashed var(--border);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-family: inherit;
+    font-size: 12.5px;
+    color: var(--ink-muted);
+    font-weight: 500;
+    transition: color 0.15s;
+  }
+  .advanced-toggle:hover { color: var(--ink); }
+  .advanced-toggle .chevron { transition: transform 0.2s; }
+  .advanced-toggle.open .chevron { transform: rotate(90deg); }
+  .advanced-content {
+    display: none;
+    padding: 4px 16px 16px;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    background: var(--surface-muted);
+    border-radius: 0 0 var(--r-md) var(--r-md);
+  }
+  .advanced-toggle.open + .advanced-content { display: grid; }
+
+  .add-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 14px;
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--r-sm);
+    color: var(--ink-muted);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .add-btn:hover {
+    color: var(--primary);
+    border-color: var(--primary);
+    border-style: solid;
+    background: var(--primary-soft);
+  }
+
+  .kebab-wrap { position: relative; }
+  .kebab-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 4px);
+    min-width: 170px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    box-shadow: var(--shadow-md);
+    padding: 4px;
+    z-index: 10;
+    display: none;
+  }
+  .kebab-menu.open { display: block; }
+  .kebab-item {
+    width: 100%;
+    padding: 8px 10px;
+    background: transparent;
+    border: none;
+    border-radius: var(--r-sm);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.1s;
+  }
+  .kebab-item:hover { background: var(--surface-muted); }
+  .kebab-item.danger { color: var(--danger); }
+  .kebab-item.danger:hover { background: var(--danger-bg); }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(246, 246, 242, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border);
+    padding: 14px 28px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    z-index: 20;
+  }
+  .btn {
+    padding: 10px 20px;
+    border-radius: var(--r-sm);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+    letter-spacing: -0.005em;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-hover); }
+  .btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--border-strong); }
+  .btn-secondary:hover { background: var(--surface-muted); }
+  .btn-icon { padding: 10px 12px; background: var(--surface); border-color: var(--border-strong); }
+  .btn-icon:hover { background: var(--surface-muted); }
+
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--ink);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--r-sm);
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .callout {
+    display: flex;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--primary-soft);
+    border: 1px solid rgba(30, 64, 175, 0.12);
+    border-radius: var(--r-sm);
+    font-size: 12.5px;
+    color: var(--ink);
+    margin: 14px 20px 0;
+  }
+  .callout .icon { color: var(--primary); flex-shrink: 0; margin-top: 1px; }
+  .callout strong { font-weight: 600; }
+
+  @media (max-width: 780px) {
+    .card-main { grid-template-columns: 1fr 1fr; }
+    .integrert-fields { grid-template-columns: 1fr; }
+    .provider-row { flex-direction: column; align-items: stretch; gap: 12px; }
+    .provider-select-wrap { min-width: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="logo">amend<span>o</span></div>
+  <div class="topbar-right">
+    <div class="company">AMENDO GROUP AS FORTNOX 10001</div>
+    <div class="meta">22. april 2026 · 12:37:01</div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="tab">Normal</div>
+  <div class="tab">Lisens</div>
+  <div class="tab">Kvittering</div>
+  <div class="tab">Avansert</div>
+  <div class="tab">Tips</div>
+  <div class="tab">Kjøkkenprinter</div>
+  <div class="tab active">Terminaler</div>
+  <div class="tab">Kiosk mode</div>
+</nav>
+
+<main class="page">
+
+  <div class="page-header">
+    <h1>Terminaler</h1>
+    <p>Konfigurer betalingsterminaler tilknyttet denne kassen.</p>
+  </div>
+
+  <!-- 1. Terminal-leverandør (global) -->
+  <section class="section">
+    <div class="provider-row">
+      <div class="provider-label">
+        <div class="lbl">Terminal-leverandør <span class="provider-badge">Global</span></div>
+        <div class="desc">Gjelder både integrert terminal og alle multibetalingsterminaler under.</div>
+      </div>
+      <div class="provider-select-wrap">
+        <select class="field-select provider-select" id="provider-select" onchange="onProviderChange()">
+          <option value="amendo">Amendo</option>
+          <option value="adyen">Adyen</option>
+          <option value="nets">Nets</option>
+          <option value="verifone">Verifone</option>
+          <option value="none">Ingen</option>
+        </select>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Integrert terminal -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <div class="section-title">Integrert terminal</div>
+        <div class="section-subtitle">Betalingsterminal som er direkte koblet til denne kassen.</div>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" id="integrert-toggle" checked onchange="onIntegrertToggle()">
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="collapsible open" id="integrert-body">
+      <div class="section-body">
+
+        <div class="integrert-fields">
+          <div class="field">
+            <label class="field-label">Terminal-ID / Serienummer</label>
+            <input class="field-input mono" value="P400Plus-806221916">
+          </div>
+          <div class="field">
+            <label class="field-label">IP-adresse (valgfri)</label>
+            <input class="field-input mono" placeholder="f.eks. 192.168.50.10">
+          </div>
+          <div class="field">
+            <label class="field-label">Nøkkelidentifikator</label>
+            <input class="field-input mono" type="password" value="demo-key-12345">
+          </div>
+          <div class="field">
+            <label class="field-label">Passfrase</label>
+            <input class="field-input mono" type="password" value="demo-passphrase-1234567">
+          </div>
+        </div>
+
+        <div class="setting-row" style="margin-top: 8px;">
+          <div>
+            <div class="setting-label">Aktiver Paypoint Connect</div>
+            <div class="setting-desc">Bruk Paypoint Connect som kommunikasjonsprotokoll mot terminalen.</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox">
+            <span class="slider"></span>
+          </label>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Multibetalingsterminaler -->
+  <section class="section">
+    <div class="section-header">
+      <div class="section-title-wrap">
+        <div class="section-title">Multibetalingsterminaler</div>
+        <div class="section-subtitle">Ytterligere terminaler — arver leverandør fra innstillingen over.</div>
+      </div>
+      <span class="status off" id="terminal-count"><span class="status-dot"></span>3 terminaler</span>
+    </div>
+
+    <div class="callout">
+      <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <div>Alle terminaler under bruker <strong id="provider-name">Amendo</strong> som leverandør. Endre i innstillingen over for å bytte.</div>
+    </div>
+
+    <div class="terminal-list" id="terminal-list"></div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <button class="btn btn-primary" onclick="showToast('Innstillinger lagret')">Lagre</button>
+  <button class="btn btn-secondary">Lukk</button>
+  <button class="btn btn-icon" aria-label="Tastatur">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="2" y="6" width="20" height="12" rx="2"/>
+      <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h12"/>
+    </svg>
+  </button>
+</footer>
+
+<div class="toast" id="toast">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  <span id="toast-text">Lagret</span>
+</div>
+
+<script>
+  const terminals = [
+    { name: 'test2', ip: '192.168.50.203', serial: 'P400Plus-80531507', status: 'ok' },
+    { name: 'test3', ip: '192.168.50.46',  serial: 'P400Plus-80470988', status: 'warn' },
+    { name: 'test1', ip: '192.168.50.211', serial: 'P400Plus-80622191', status: 'off' },
+  ];
+
+  const statusLabels = {
+    ok:   { text: 'Tilkoblet', cls: 'ok' },
+    warn: { text: 'Varsel',    cls: 'warn' },
+    off:  { text: 'Frakoblet', cls: 'off' },
+  };
+
+  const providerNames = {
+    amendo: 'Amendo', adyen: 'Adyen', nets: 'Nets', verifone: 'Verifone', none: 'Ingen',
+  };
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function renderTerminals() {
+    const host = document.getElementById('terminal-list');
+    host.innerHTML = '';
+    terminals.forEach((t, i) => {
+      const s = statusLabels[t.status];
+      const el = document.createElement('div');
+      el.className = 'terminal-card';
+      el.innerHTML = `
+        <div class="card-strip">
+          <div class="card-strip-left">
+            <span class="card-name">${escapeHtml(t.name)}</span>
+            <span class="status ${s.cls}"><span class="status-dot"></span>${s.text}</span>
+          </div>
+          <div class="card-strip-right">
+            <button class="icon-btn" onclick="testTerminal(${i})" title="Test tilkobling">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="5 3 19 12 5 21 5 3"/>
+              </svg>
+            </button>
+            <div class="kebab-wrap">
+              <button class="icon-btn" onclick="toggleKebab(${i}, event)" title="Mer">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <circle cx="12" cy="5" r="1"/>
+                  <circle cx="12" cy="12" r="1"/>
+                  <circle cx="12" cy="19" r="1"/>
+                </svg>
+              </button>
+              <div class="kebab-menu" id="kebab-${i}">
+                <button class="kebab-item" onclick="duplicateTerminal(${i})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  Dupliser
+                </button>
+                <button class="kebab-item danger" onclick="deleteTerminal(${i})">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/>
+                    <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/>
+                  </svg>
+                  Slett terminal
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card-main">
+          <div class="field">
+            <label class="field-label">Navn</label>
+            <input class="field-input" value="${escapeHtml(t.name)}">
+          </div>
+          <div class="field">
+            <label class="field-label">IP-adresse</label>
+            <input class="field-input mono" value="${escapeHtml(t.ip)}">
+          </div>
+          <div class="field">
+            <label class="field-label">Serienummer</label>
+            <input class="field-input mono" value="${escapeHtml(t.serial)}">
+          </div>
+        </div>
+        <button class="advanced-toggle" onclick="toggleAdvanced(this)">
+          <svg class="chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
+          Autentisering · valgfritt
+        </button>
+        <div class="advanced-content">
+          <div class="field">
+            <label class="field-label">Nøkkelidentifikator</label>
+            <input class="field-input mono" type="password" placeholder="Skriv inn nøkkelident…">
+          </div>
+          <div class="field">
+            <label class="field-label">Passfrase</label>
+            <input class="field-input mono" type="password" placeholder="Skriv inn passfrase…">
+          </div>
+        </div>
+      `;
+      host.appendChild(el);
+    });
+
+    const add = document.createElement('button');
+    add.className = 'add-btn';
+    add.onclick = addTerminal;
+    add.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Legg til ny terminal
+    `;
+    host.appendChild(add);
+
+    document.getElementById('terminal-count').innerHTML =
+      `<span class="status-dot"></span>${terminals.length} terminal${terminals.length === 1 ? '' : 'er'}`;
+  }
+
+  function toggleAdvanced(btn) { btn.classList.toggle('open'); }
+
+  function toggleKebab(i, e) {
+    e.stopPropagation();
+    document.querySelectorAll('.kebab-menu.open').forEach(m => {
+      if (m.id !== `kebab-${i}`) m.classList.remove('open');
+    });
+    document.getElementById(`kebab-${i}`).classList.toggle('open');
+  }
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.kebab-menu.open').forEach(m => m.classList.remove('open'));
+  });
+
+  function addTerminal() {
+    terminals.push({ name: `ny-${terminals.length + 1}`, ip: '', serial: '', status: 'off' });
+    renderTerminals();
+    showToast('Terminal lagt til');
+  }
+
+  function deleteTerminal(i) {
+    terminals.splice(i, 1);
+    renderTerminals();
+    showToast('Terminal fjernet');
+  }
+
+  function duplicateTerminal(i) {
+    const copy = { ...terminals[i], name: terminals[i].name + '-kopi', status: 'off' };
+    terminals.splice(i + 1, 0, copy);
+    renderTerminals();
+    showToast('Terminal duplisert');
+  }
+
+  function testTerminal(i) { showToast(`Tester ${terminals[i].name}…`); }
+
+  function onProviderChange() {
+    const v = document.getElementById('provider-select').value;
+    document.getElementById('provider-name').textContent = providerNames[v];
+    showToast(`Leverandør satt til ${providerNames[v]}`);
+  }
+
+  function onIntegrertToggle() {
+    const body = document.getElementById('integrert-body');
+    const checked = document.getElementById('integrert-toggle').checked;
+    body.classList.toggle('open', checked);
+  }
+
+  function showToast(text) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-text').textContent = text;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(() => t.classList.remove('show'), 2000);
+  }
+
+  renderTerminals();
+</script>
+
+</body>
+</html>
