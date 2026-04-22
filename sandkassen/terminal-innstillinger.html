@@ -263,6 +263,15 @@
     border-color: var(--bo-border);
     font-family: inherit;
   }
+  .badge.synced {
+    background: rgba(4, 120, 87, 0.08);
+    color: var(--success);
+  }
+  .badge.not-stored {
+    background: rgba(180, 83, 9, 0.08);
+    color: var(--warning);
+  }
+
   .bo-field-hint {
     margin-top: 6px;
     font-size: 11.5px;
@@ -814,7 +823,7 @@
           <span class="badge bo">MERCHANT-NIVÅ</span>
           <span class="badge readonly">READ-ONLY</span>
         </div>
-        <div class="section-subtitle">Leverandør, kontooppsett og krypteringsnøkler konfigureres i Back Office. Gjelder alle kasser og terminaler under merchant-kontoen.</div>
+        <div class="section-subtitle">Leverandør, kontooppsett og krypteringsnøkler konfigureres i Back Office. Verdier synkroniseres til lokal DB på kassen — POS fungerer også når BO er utilgjengelig.</div>
       </div>
       <button class="bo-link" onclick="openBackOffice()">
         Åpne i Back Office
@@ -834,7 +843,7 @@
         <line x1="12" y1="17" x2="12.01" y2="17"/>
       </svg>
       <div>
-        <strong>Back Office ikke tilgjengelig</strong> — kassen bruker siste lagrede verdier fra lokal cache. Betaling fungerer som normalt. Kun diagnose mot Management API er deaktivert til BO er tilbake.
+        <strong>Back Office ikke tilgjengelig</strong> — kassen bruker siste synkroniserte verdier fra lokal DB. Betaling fungerer som normalt. Kun diagnose mot Management API er deaktivert til BO er tilbake.
       </div>
     </div>
     <div class="section-body">
@@ -842,13 +851,13 @@
       <!-- Row 1: Provider + Merchant Account -->
       <div class="bo-grid">
         <div class="bo-field">
-          <div class="bo-field-label">Leverandør</div>
+          <div class="bo-field-label">Leverandør <span class="badge synced" style="margin-left: 4px;">LOKAL DB</span></div>
           <div class="bo-field-value">
             <span class="value-text" id="bo-provider">Adyen</span>
           </div>
         </div>
         <div class="bo-field">
-          <div class="bo-field-label">Merchant Account</div>
+          <div class="bo-field-label">Merchant Account <span class="badge synced" style="margin-left: 4px;">LOKAL DB</span></div>
           <div class="bo-field-value">
             <span class="value-text">AmendoPOS</span>
             <div class="value-actions">
@@ -867,7 +876,7 @@
       <div class="bo-field" style="margin-top: 14px;">
         <div class="bo-field-label">
           Management API Key
-          <span class="badge readonly" style="margin-left: 4px;">SKJULT</span>
+          <span class="badge not-stored" style="margin-left: 4px;">IKKE LAGRET LOKALT</span>
         </div>
         <div class="bo-field-value locked-value" id="apikey-value">
           <span class="value-text" id="apikey-text" style="color: var(--ink-muted);">
@@ -887,14 +896,14 @@
           </div>
         </div>
         <div class="bo-field-hint">
-          Av sikkerhetshensyn vises ikke API-nøkler etter opprettelse, og lagres ikke lokalt på kassen. Kun Back Office kjenner verdien. For å bytte nøkkel, gå til Back Office og generer en ny.
+          Av sikkerhetshensyn vises ikke API-nøkler etter opprettelse, og lagres aldri lokalt på kassen. Kun Back Office kjenner verdien. For å bytte nøkkel, gå til Back Office og generer en ny.
         </div>
       </div>
 
-      <!-- Row 3: Terminal encryption keys (masked, inspectable) -->
+      <!-- Row 3: Terminal encryption keys (masked, inspectable, persisted locally) -->
       <div class="bo-grid" style="margin-top: 14px;">
         <div class="bo-field">
-          <div class="bo-field-label">Nøkkelidentifikator</div>
+          <div class="bo-field-label">Nøkkelidentifikator <span class="badge synced" style="margin-left: 4px;">LOKAL DB</span></div>
           <div class="bo-field-value">
             <span class="value-text" id="keyident-text">••••••••••••</span>
             <div class="value-actions">
@@ -907,7 +916,7 @@
           </div>
         </div>
         <div class="bo-field">
-          <div class="bo-field-label">Passfrase</div>
+          <div class="bo-field-label">Passfrase <span class="badge synced" style="margin-left: 4px;">LOKAL DB</span></div>
           <div class="bo-field-value">
             <span class="value-text" id="passphrase-text">••••••••••••••••</span>
             <div class="value-actions">
@@ -1394,13 +1403,13 @@
       status.innerHTML = `
         <span class="status warn"><span class="status-dot"></span>Back Office utilgjengelig</span>
         <span>·</span>
-        <span class="last-sync">Bruker lokal cache fra 22.04.2026 · 12:30</span>
+        <span class="last-sync">Lokal DB · sist synkronisert 22.04.2026 · 12:30</span>
       `;
       apikeyText.innerHTML = `
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline; vertical-align: -1px; margin-right: 6px;">
           <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
-        Ikke tilgjengelig · krever Back Office
+        Ikke tilgjengelig · lagres aldri lokalt
       `;
       apikeyText.style.color = 'var(--warning)';
       toggle.classList.add('offline');
