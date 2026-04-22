@@ -59,6 +59,14 @@
     letter-spacing: -0.005em;
   }
 
+  /* Sticky app header (topbar + tabs) */
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    box-shadow: 0 1px 0 var(--border);
+  }
+
   .topbar {
     background: var(--navy);
     color: #fff;
@@ -582,24 +590,26 @@
 </head>
 <body>
 
-<header class="topbar">
-  <div class="logo">amend<span>o</span></div>
-  <div class="topbar-right">
-    <div class="company">AMENDO GROUP AS FORTNOX 10001</div>
-    <div class="meta">22. april 2026 · 12:37:01</div>
-  </div>
-</header>
+<div class="app-header">
+  <header class="topbar">
+    <div class="logo">amend<span>o</span></div>
+    <div class="topbar-right">
+      <div class="company">AMENDO GROUP AS FORTNOX 10001</div>
+      <div class="meta">22. april 2026 · 12:37:01</div>
+    </div>
+  </header>
 
-<nav class="tabs">
-  <div class="tab">Normal</div>
-  <div class="tab">Lisens</div>
-  <div class="tab">Kvittering</div>
-  <div class="tab">Avansert</div>
-  <div class="tab">Tips</div>
-  <div class="tab">Kjøkkenprinter</div>
-  <div class="tab active">Terminaler</div>
-  <div class="tab">Kiosk mode</div>
-</nav>
+  <nav class="tabs">
+    <div class="tab">Normal</div>
+    <div class="tab">Lisens</div>
+    <div class="tab">Kvittering</div>
+    <div class="tab">Avansert</div>
+    <div class="tab">Tips</div>
+    <div class="tab">Kjøkkenprinter</div>
+    <div class="tab active">Terminaler</div>
+    <div class="tab">Kiosk mode</div>
+  </nav>
+</div>
 
 <main class="page">
 
@@ -1001,6 +1011,35 @@
   function addTerminal() {
     terminals.push({ name: `ny-${terminals.length + 1}`, ip: '', serial: '', status: 'off' });
     renderTerminals();
+
+    // Wait for DOM to update, then scroll the new card into view
+    // and auto-focus the name field so the user can start typing immediately.
+    requestAnimationFrame(() => {
+      const cards = document.querySelectorAll('.terminal-card');
+      const lastCard = cards[cards.length - 1];
+      if (!lastCard) return;
+
+      lastCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      // Highlight briefly to signal "this is the new one"
+      lastCard.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+      lastCard.style.borderColor = 'var(--primary)';
+      lastCard.style.boxShadow = '0 0 0 3px rgba(30, 64, 175, 0.08)';
+      setTimeout(() => {
+        lastCard.style.borderColor = '';
+        lastCard.style.boxShadow = '';
+      }, 1200);
+
+      // Focus and pre-select the Navn field after the scroll animation settles
+      setTimeout(() => {
+        const nameInput = lastCard.querySelector('.field-input');
+        if (nameInput) {
+          nameInput.focus();
+          nameInput.select();
+        }
+      }, 400);
+    });
+
     showToast('Terminal lagt til');
   }
 
