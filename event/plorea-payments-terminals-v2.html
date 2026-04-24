@@ -264,6 +264,24 @@
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover { background: var(--bg-hover); }
 
+  /* Status cell: entire cell clickable, not just the badge */
+  td.status-cell {
+    cursor: pointer;
+    position: relative;
+  }
+  td.status-cell::after {
+    content: "▸";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  td.status-cell:hover::after { opacity: 1; }
+
   .row-id {
     font-weight: 600;
     color: var(--text-muted);
@@ -675,42 +693,145 @@
   .stat-card.warning .stat-number { color: var(--status-yellow); }
   .stat-card.error .stat-number { color: var(--status-purple); }
 
-  /* Details popover */
+  /* Details popover - expanded for detailed status */
   .popover {
     position: absolute;
     background: var(--bg-surface);
     border: 1px solid var(--border-strong);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--shadow-lg);
-    padding: 14px;
-    width: 320px;
+    padding: 0;
+    width: 400px;
     z-index: 50;
     font-size: 13px;
+    overflow: hidden;
   }
-  .popover-title { font-weight: 700; margin-bottom: 6px; font-size: 13px; }
+  .popover-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .popover-header.header-purple { background: linear-gradient(135deg, #F3E8FF 0%, #FAF5FF 100%); }
+  .popover-header.header-red { background: linear-gradient(135deg, #FEF2F2 0%, #FEF5F5 100%); }
+  .popover-header.header-yellow { background: linear-gradient(135deg, #FFFBEB 0%, #FFFDF5 100%); }
+  .popover-header.header-green { background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF6 100%); }
+  .popover-title { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .popover-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .popover-body { padding: 12px 16px; }
+  .popover-section {
+    margin-bottom: 14px;
+  }
+  .popover-section:last-child { margin-bottom: 0; }
+  .popover-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
   .popover-row {
     display: flex;
     justify-content: space-between;
-    padding: 4px 0;
+    padding: 3px 0;
     font-size: 12px;
+    gap: 12px;
   }
   .popover-row .label { color: var(--text-secondary); }
-  .popover-row .value { font-family: 'SF Mono', Monaco, monospace; color: var(--text-primary); }
+  .popover-row .value {
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--text-primary);
+    text-align: right;
+    word-break: break-all;
+  }
   .popover-error {
     background: #FEF2F2;
     border: 1px solid #FCA5A5;
+    border-left: 3px solid #DC2626;
     border-radius: 6px;
-    padding: 8px 10px;
-    margin-top: 8px;
+    padding: 10px 12px;
+    margin-top: 4px;
     font-size: 12px;
     color: #991B1B;
+    line-height: 1.5;
+  }
+  .popover-info {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-left: 3px solid #3B82F6;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #1E40AF;
+    line-height: 1.5;
+  }
+  .popover-timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  .popover-timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--border-strong);
+  }
+  .popover-timeline li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .popover-timeline li::before {
+    content: '';
+    position: absolute;
+    left: 1px;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 1px solid var(--bg-surface);
+  }
+  .popover-timeline li.success::before { background: var(--status-green); }
+  .popover-timeline li.warning::before { background: var(--status-yellow); }
+  .popover-timeline li.error::before { background: var(--status-purple); }
+  .popover-timeline li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 1px;
+  }
+  .popover-timeline li .time {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', Monaco, monospace;
   }
   .popover-actions {
-    margin-top: 10px;
+    padding: 10px 16px;
+    background: var(--bg-subtle);
+    border-top: 1px solid var(--border);
     display: flex;
     justify-content: flex-end;
     gap: 6px;
   }
+  .popover-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .popover-close:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
 
   /* Step indicator for CSV modal */
   .steps {
@@ -908,12 +1029,12 @@
             <th style="width:100px"></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody id="terminals-tbody">
           <!-- Purple row — the star of the show -->
           <tr>
             <td class="row-id">8</td>
-            <td>
-              <span class="status-indicator status-purple" onclick="showPopover(this, 'purple')">
+            <td class="status-cell" onclick="showPopover(this, 'purple', {name:'4386 Messe1', tid:'S1F2-000158241144386', apiType:'Plorea'})">
+              <span class="status-indicator status-purple">
                 <span class="status-dot"></span>Merchant failed
               </span>
             </td>
@@ -929,8 +1050,8 @@
           <!-- Red (offline) -->
           <tr>
             <td class="row-id">9</td>
-            <td>
-              <span class="status-indicator status-red" onclick="showPopover(this, 'red')">
+            <td class="status-cell" onclick="showPopover(this, 'red', {name:'1199 Messe2', tid:'S1F2-000158232331199', apiType:'Plorea'})">
+              <span class="status-indicator status-red">
                 <span class="status-dot"></span>Offline
               </span>
             </td>
@@ -946,8 +1067,8 @@
           <!-- Yellow (pending sync) -->
           <tr>
             <td class="row-id">10</td>
-            <td>
-              <span class="status-indicator status-yellow" onclick="showPopover(this, 'yellow-pending')">
+            <td class="status-cell" onclick="showPopover(this, 'yellow-pending', {name:'Ems Test', tid:'S1F2-000158241144359', apiType:'Test Plorea'})">
+              <span class="status-indicator status-yellow">
                 <span class="status-dot"></span>Pending sync
               </span>
             </td>
@@ -963,8 +1084,8 @@
           <!-- Green (healthy) -->
           <tr>
             <td class="row-id">11</td>
-            <td>
-              <span class="status-indicator status-green" onclick="showPopover(this, 'green')">
+            <td class="status-cell" onclick="showPopover(this, 'green', {name:'Teste', tid:'S21 de Jaylton A', apiType:'Plorea'})">
+              <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
@@ -980,8 +1101,8 @@
           <!-- Green Amendo -->
           <tr>
             <td class="row-id">12</td>
-            <td>
-              <span class="status-indicator status-green" onclick="showPopover(this, 'green')">
+            <td class="status-cell" onclick="showPopover(this, 'green', {name:'Manoel 2352', tid:'S1F2-000158234962352', apiType:'Amendo'})">
+              <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
@@ -997,8 +1118,8 @@
           <!-- Yellow (online with fault) -->
           <tr>
             <td class="row-id">26</td>
-            <td>
-              <span class="status-indicator status-yellow" onclick="showPopover(this, 'yellow-fault')">
+            <td class="status-cell" onclick="showPopover(this, 'yellow-fault', {name:'Test TRD', tid:'S1F2-000158234962349', apiType:'Test Plorea'})">
+              <span class="status-indicator status-yellow">
                 <span class="status-dot"></span>Online with fault
               </span>
             </td>
@@ -1014,8 +1135,8 @@
           <!-- Green (Ecom) -->
           <tr>
             <td class="row-id">28</td>
-            <td>
-              <span class="status-indicator status-green" onclick="showPopover(this, 'green')">
+            <td class="status-cell" onclick="showPopover(this, 'green', {name:'PloreaECOM', tid:'PloreaECOM', apiType:'Plorea', type:'Ecom'})">
+              <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
@@ -1031,8 +1152,8 @@
           <!-- Another purple to drive the point home -->
           <tr>
             <td class="row-id">30</td>
-            <td>
-              <span class="status-indicator status-purple" onclick="showPopover(this, 'purple-auth')">
+            <td class="status-cell" onclick="showPopover(this, 'purple-auth', {name:'manoel new 7754', tid:'S1F2-000158240707754', apiType:'Amendo'})">
+              <span class="status-indicator status-purple">
                 <span class="status-dot"></span>Merchant failed
               </span>
             </td>
@@ -1048,8 +1169,8 @@
           <!-- Test amendo, green -->
           <tr>
             <td class="row-id">31</td>
-            <td>
-              <span class="status-indicator status-green" onclick="showPopover(this, 'green')">
+            <td class="status-cell" onclick="showPopover(this, 'green', {name:'TRD1631', tid:'S1F2-000158243341631', apiType:'Test Amendo'})">
+              <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
@@ -1064,8 +1185,8 @@
 
           <tr>
             <td class="row-id">35</td>
-            <td>
-              <span class="status-indicator status-green" onclick="showPopover(this, 'green')">
+            <td class="status-cell" onclick="showPopover(this, 'green', {name:'2349', tid:'S1F2-000158234962349', apiType:'Plorea'})">
+              <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
@@ -1154,7 +1275,7 @@
             Terminaltype <span class="required">*</span>
             <span class="badge-new">RENAMED</span>
           </label>
-          <select class="form-select">
+          <select class="form-select" id="new-terminaltype">
             <option value="">Velg...</option>
             <option value="terminal">Terminal</option>
             <option value="ecom">Ecom</option>
@@ -1199,19 +1320,19 @@
 
         <div class="form-group dependent" id="dep-navn">
           <label class="form-label">Terminalnavn <span class="required">*</span></label>
-          <input class="form-input" placeholder="F.eks. Kasse 1" />
+          <input class="form-input" id="new-navn" placeholder="F.eks. Kasse 1" />
         </div>
 
         <div class="form-group dependent" id="dep-tid">
           <label class="form-label">Terminal TID <span class="required">*</span></label>
-          <input class="form-input" placeholder="S1F2-..." />
+          <input class="form-input" id="new-tid" placeholder="S1F2-..." />
         </div>
 
       </div>
     </div>
     <div class="modal-footer">
       <button class="btn" onclick="closeModal('add-terminal-modal')">Lukk</button>
-      <button class="btn-primary btn">Lagre endringer</button>
+      <button class="btn-primary btn" onclick="saveNewTerminal()">Lagre endringer</button>
     </div>
   </div>
 </div>
@@ -1463,135 +1584,393 @@
     document.getElementById('csv-skip').style.display = 'none';
   }
 
-  // ===== Popover for status indicator =====
-  function showPopover(triggerEl, type) {
+  // ===== Popover for status indicator - RICH DETAILED VIEW =====
+  function showPopover(triggerEl, type, terminalData) {
     const pop = document.getElementById('popover');
-    const content = {
+    terminalData = terminalData || {};
+
+    const statusConfig = {
       'purple': {
-        title: '🟣 Merchant assignment failed',
-        rows: [
-          ['Terminal TID', 'S1F2-000158241144386'],
-          ['API type tried', 'Plorea'],
-          ['Target merchant', 'MESSE-HOVED-001'],
-          ['Failed at', '23.04.2026 14:32']
-        ],
-        error: '[Plorea] HTTP 422: Invalid merchantId — the provided merchant account does not exist in the Plorea company account. Check the bedrift → merchantId mapping.',
-        showRetry: true
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Payments may route to the wrong Adyen account',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name || '—'}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid || '—'}</span></div>
+            <div class="popover-row"><span class="label">API type tried</span><span class="value">${d.apiType || '—'}</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">MESSE-HOVED-001</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Adyen-feil</div>
+            <div class="popover-error">
+              <strong>[${d.apiType}] HTTP 422: Invalid merchantId</strong><br/>
+              The provided merchant account does not exist in the ${d.apiType} company account. Check the bedrift → merchantId mapping in config.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="error"><strong>Reassign failed</strong><span class="time">23.04.2026 14:32 · 2t siden</span></li>
+              <li><strong>Reassign attempted</strong><span class="time">23.04.2026 14:32</span></li>
+              <li><strong>Terminal added to Plorea</strong><span class="time">23.04.2026 14:31</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn-primary btn" style="padding:7px 14px; font-size:12px">🔄 Prøv på nytt</button><button class="btn" style="padding:7px 14px; font-size:12px">Se full feil-logg</button>'
       },
       'purple-auth': {
-        title: '🟣 Merchant assignment failed',
-        rows: [
-          ['Terminal TID', 'S1F2-000158240707754'],
-          ['API type tried', 'Amendo'],
-          ['Target merchant', 'AMENDO-MAIN-007'],
-          ['Failed at', '23.04.2026 09:14']
-        ],
-        error: '[Amendo] HTTP 401: Authentication error — check the Amendo API credentials in the config file. Payments from this terminal may not route correctly.',
-        showRetry: true
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Authentication error — payments at risk',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type tried</span><span class="value">${d.apiType}</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">AMENDO-MAIN-007</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Adyen-feil</div>
+            <div class="popover-error">
+              <strong>[${d.apiType}] HTTP 401: Authentication error</strong><br/>
+              Check the Amendo API credentials in the config file. All Amendo-routed terminals are affected until this is resolved.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="error"><strong>Auth failed (retry 3/3)</strong><span class="time">23.04.2026 09:14</span></li>
+              <li class="error"><strong>Auth failed (retry 2/3)</strong><span class="time">23.04.2026 09:13</span></li>
+              <li class="error"><strong>Auth failed (retry 1/3)</strong><span class="time">23.04.2026 09:12</span></li>
+              <li><strong>Terminal added to Plorea</strong><span class="time">23.04.2026 09:12</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn-primary btn" style="padding:7px 14px; font-size:12px">🔄 Prøv på nytt</button><button class="btn" style="padding:7px 14px; font-size:12px">Kontakt systemansvarlig</button>'
       },
       'purple-demo': {
-        title: '🟣 Merchant assignment failed (example)',
-        rows: [
-          ['Terminal TID', 'S1F2-000158241144386'],
-          ['API type tried', 'Plorea'],
-          ['Failed at', 'Just now']
-        ],
-        error: '[Plorea] HTTP 422: Invalid merchantId — check the bedrift → merchantId mapping.',
-        showRetry: true
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Example — revenue at risk on wrong account',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-error">
+              The purple indicator means the Adyen reassign call failed — the terminal may route payments to the wrong merchant account. This is the highest-severity state in the system and takes priority over all other indicators.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">What to do</div>
+            <ul class="popover-timeline">
+              <li><strong>Check the error message</strong><span class="time">Shown in the red box above the row details</span></li>
+              <li><strong>Try again</strong><span class="time">Retries the reassign call</span></li>
+              <li><strong>If auth error</strong><span class="time">Check config credentials for the API type</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
       },
       'red': {
-        title: '🔴 Terminal offline',
-        rows: [
-          ['Last contact', '22.04.2026 18:03'],
-          ['Offline for', '~20 hours'],
-          ['Reason', 'Connection timeout']
-        ],
-        error: null, showRetry: false
+        headerClass: 'header-red',
+        badge: '🔴',
+        title: 'Terminal offline',
+        subtitle: 'No contact with the system',
+        severity: 'red',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Offline-detaljer</div>
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">22.04.2026 18:03</span></div>
+            <div class="popover-row"><span class="label">Offline i</span><span class="value">~20 timer</span></div>
+            <div class="popover-row"><span class="label">Årsak</span><span class="value">Connection timeout</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="warning"><strong>Offline</strong><span class="time">22.04.2026 18:03</span></li>
+              <li class="success"><strong>Online</strong><span class="time">22.04.2026 08:00</span></li>
+              <li class="success"><strong>Online</strong><span class="time">21.04.2026 08:00</span></li>
+            </ul>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Merchant-tilordningen er OK — betalinger vil rutes riktig når terminalen kommer tilbake online.
+            </div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Kontakt støtte</button>'
       },
       'red-demo': {
-        title: '🔴 Terminal offline (example)',
-        rows: [
-          ['Last contact', '22.04.2026 18:03'],
-          ['Reason', 'Connection timeout']
-        ],
-        error: null, showRetry: false
+        headerClass: 'header-red',
+        badge: '🔴',
+        title: 'Terminal offline (example)',
+        subtitle: 'No contact with the system',
+        severity: 'red',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">22.04.2026 18:03</span></div>
+            <div class="popover-row"><span class="label">Årsak</span><span class="value">Connection timeout</span></div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
       },
       'yellow-pending': {
-        title: '🟡 Pending sync',
-        rows: [
-          ['Reassign sent', '23.04.2026 14:15'],
-          ['Expected sync by', '23.04.2026 17:15'],
-          ['API type', 'Test Plorea']
-        ],
-        error: 'Adyen accepted the reassign. The terminal will synchronize within the next ~3 hours unless WebSockets are enabled.',
-        showRetry: false
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Pending sync',
+        subtitle: 'Waiting for next Adyen sync window',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Sync-detaljer</div>
+            <div class="popover-row"><span class="label">Reassign sendt</span><span class="value">23.04.2026 14:15</span></div>
+            <div class="popover-row"><span class="label">Forventet sync</span><span class="value">23.04.2026 17:15</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">TEST-PLOREA-DEV</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Adyen aksepterte reassign-forespørselen. Terminalen synkroniseres innen ~3 timer med mindre WebSockets er aktivert. Ingen handling nødvendig.
+            </div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Tving sync nå</button>'
       },
       'yellow-fault': {
-        title: '🟡 Online with fault',
-        rows: [
-          ['Fault', 'Receipt paper low'],
-          ['First reported', '23.04.2026 10:00']
-        ],
-        error: null, showRetry: false
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Online with fault',
+        subtitle: 'Terminal reachable, but reports an issue',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Feildetaljer</div>
+            <div class="popover-row"><span class="label">Feil</span><span class="value">Receipt paper low</span></div>
+            <div class="popover-row"><span class="label">Først rapportert</span><span class="value">23.04.2026 10:00</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Terminalen fungerer og kan fortsatt prosessere betalinger. Bytt kvitteringsrull så snart som mulig.
+            </div>
+          </div>`,
+        actions: ''
       },
       'yellow-demo': {
-        title: '🟡 Pending sync (example)',
-        rows: [
-          ['Reassign sent', 'Just now'],
-          ['Expected sync by', '~3 hours']
-        ],
-        error: null, showRetry: false
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Pending sync (example)',
+        subtitle: 'Waiting for next Adyen sync window',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-row"><span class="label">Reassign sendt</span><span class="value">Just now</span></div>
+            <div class="popover-row"><span class="label">Forventet sync</span><span class="value">~3 timer</span></div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
       },
       'green': {
-        title: '🟢 Healthy',
-        rows: [
-          ['Last successful contact', '23.04.2026 14:47'],
-          ['Merchant', 'Correctly assigned']
-        ],
-        error: null, showRetry: false
+        headerClass: 'header-green',
+        badge: '🟢',
+        title: 'Healthy',
+        subtitle: 'Online and correctly assigned',
+        severity: 'green',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Status</div>
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">23.04.2026 14:47</span></div>
+            <div class="popover-row"><span class="label">Merchant</span><span class="value" style="color: var(--status-green)">✓ Riktig tilordnet</span></div>
+            <div class="popover-row"><span class="label">Uptime (7 dager)</span><span class="value">99.2%</span></div>
+          </div>`,
+        actions: ''
       }
-    }[type];
+    };
 
-    if (!content) return;
+    const cfg = statusConfig[type];
+    if (!cfg) return;
 
-    let html = `<div class="popover-title">${content.title}</div>`;
-    content.rows.forEach(([l, v]) => {
-      html += `<div class="popover-row"><span class="label">${l}</span><span class="value">${v}</span></div>`;
-    });
-    if (content.error) html += `<div class="popover-error">${content.error}</div>`;
-    if (content.showRetry) {
-      html += `<div class="popover-actions">
-        <button class="btn-primary btn" style="padding:6px 12px; font-size:12px">Prøv på nytt</button>
-      </div>`;
-    }
+    const html = `
+      <button class="popover-close" onclick="closePopover()">✕</button>
+      <div class="popover-header ${cfg.headerClass}">
+        <div class="popover-title">${cfg.badge} ${cfg.title}</div>
+        <div class="popover-subtitle">${cfg.subtitle}</div>
+      </div>
+      <div class="popover-body">
+        ${cfg.body(terminalData)}
+      </div>
+      ${cfg.actions ? `<div class="popover-actions">${cfg.actions}</div>` : ''}
+    `;
     pop.innerHTML = html;
 
-    // Position popover near the trigger (or centered if demo pill)
+    // Position popover
     if (typeof triggerEl === 'string') {
-      // Called from demo pill — show centered
       pop.style.position = 'fixed';
       pop.style.top = '50%';
       pop.style.left = '50%';
       pop.style.transform = 'translate(-50%, -50%)';
     } else {
       const r = triggerEl.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+      const popH = 440; // estimated
+      let top = r.bottom + 8;
+      if (top + popH > viewportH - 20) { top = Math.max(20, r.top - popH - 8); }
       pop.style.position = 'fixed';
-      pop.style.top = (r.bottom + 8) + 'px';
-      pop.style.left = Math.max(16, r.left) + 'px';
+      pop.style.top = top + 'px';
+      pop.style.left = Math.max(16, Math.min(r.left, window.innerWidth - 420)) + 'px';
       pop.style.transform = 'none';
     }
     pop.style.display = 'block';
 
-    // Close on any other click
+    // Close on outside click
     setTimeout(() => {
       const off = (e) => {
-        if (!pop.contains(e.target) && e.target !== triggerEl) {
-          pop.style.display = 'none';
+        if (!pop.contains(e.target) && !triggerEl.contains?.(e.target)) {
+          closePopover();
           document.removeEventListener('click', off);
         }
       };
       document.addEventListener('click', off);
     }, 0);
+  }
+
+  function closePopover() {
+    document.getElementById('popover').style.display = 'none';
+  }
+
+  // ===== Save new terminal — actually add the row to the table =====
+  let nextRowId = 36;
+  function saveNewTerminal() {
+    const apiType = document.getElementById('api-type-select').value;
+    const terminaltype = document.getElementById('new-terminaltype').value;
+    const navn = document.getElementById('new-navn').value.trim();
+    const tid = document.getElementById('new-tid').value.trim();
+
+    // Simple validation
+    const errors = [];
+    if (!apiType) errors.push('API type');
+    if (!terminaltype) errors.push('Terminaltype');
+    if (selected.size === 0) errors.push('Betalingstyper (minst én)');
+    if (!navn) errors.push('Terminalnavn');
+    if (!tid) errors.push('Terminal TID');
+
+    if (errors.length) {
+      alert('Fyll ut følgende felter:\n\n• ' + errors.join('\n• '));
+      return;
+    }
+
+    // API type label + badge styling
+    const apiLabels = { 'plorea': 'Plorea', 'amendo': 'Amendo', 'test-plorea': 'Test Plorea', 'test-amendo': 'Test Amendo' };
+    const apiClass = apiType.startsWith('test-') ? 'api-test' : (apiType === 'amendo' ? 'api-amendo' : 'api-plorea');
+    const apiLabel = apiLabels[apiType];
+
+    // Terminal type label
+    const typeLabel = terminaltype === 'terminal' ? 'Terminal' : 'Ecom';
+
+    // Create new row — starts as "pending sync" since Adyen reassign just fired
+    const tbody = document.getElementById('terminals-tbody');
+    const tr = document.createElement('tr');
+    tr.style.animation = 'none';
+    const dataJson = JSON.stringify({ name: navn, tid: tid, apiType: apiLabel }).replace(/"/g, '&quot;');
+
+    tr.innerHTML = `
+      <td class="row-id">${nextRowId}</td>
+      <td class="status-cell" onclick='showPopover(this, "yellow-pending", ${JSON.stringify({name: navn, tid: tid, apiType: apiLabel})})'>
+        <span class="status-indicator status-yellow">
+          <span class="status-dot"></span>Pending sync
+        </span>
+      </td>
+      <td class="terminal-name">${escapeHtml(navn)}</td>
+      <td><span class="api-type ${apiClass}">${apiLabel}</span></td>
+      <td>${typeLabel}</td>
+      <td class="tid-cell">${escapeHtml(tid)}</td>
+      <td class="device-cell muted">—</td>
+      <td class="device-group muted">—</td>
+      <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+    `;
+
+    // Flash highlight animation via style
+    tr.style.background = '#FEF3C7';
+    tr.style.transition = 'background 2s ease-out';
+    tbody.appendChild(tr);
+    setTimeout(() => { tr.style.background = ''; }, 50);
+
+    nextRowId++;
+
+    // Close modal and reset form
+    closeModal('add-terminal-modal');
+    resetAddTerminalForm();
+
+    // Scroll to the new row
+    setTimeout(() => {
+      tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+
+    // Toast
+    showToast(`✓ "${navn}" lagret. Adyen reassign sendt til ${apiLabel} — synkroniseres innen ~3 timer.`);
+  }
+
+  function resetAddTerminalForm() {
+    document.getElementById('api-type-select').value = '';
+    document.getElementById('new-terminaltype').value = '';
+    document.getElementById('new-navn').value = '';
+    document.getElementById('new-tid').value = '';
+    selected.clear();
+    renderChips();
+    document.querySelectorAll('.ms-opt').forEach(o => o.checked = false);
+    document.getElementById('ms-all').checked = false;
+    onApiTypeChange('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // ===== Toast =====
+  function showToast(msg) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+        background: #065F46; color: white; padding: 12px 20px;
+        border-radius: 8px; font-size: 13px; font-weight: 500;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 200; max-width: 500px;
+        opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      `;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 4000);
   }
 </script>
 
