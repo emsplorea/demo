@@ -141,6 +141,169 @@
     background: #E2E8F0;
     color: var(--text-secondary);
   }
+  .scenario-btn .jira-keys {
+    display: inline-flex;
+    gap: 3px;
+    margin-left: 4px;
+  }
+  .scenario-btn .jira-mini {
+    background: rgba(255,255,255,0.18);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 9px;
+    font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.02em;
+  }
+  .scenario-btn:not(.active) .jira-mini {
+    background: #DBEAFE;
+    color: #1E40AF;
+  }
+
+  /* ==================== Jira reference panel ==================== */
+  .jira-panel {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .jira-panel-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    cursor: pointer;
+    user-select: none;
+    background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+    transition: background 0.15s;
+  }
+  .jira-panel-toggle:hover { background: linear-gradient(135deg, #F1F5F9 0%, #DBEAFE 100%); }
+  .jira-panel-toggle-title {
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .jira-panel-toggle-title::before { content: "🎯 "; }
+  .jira-panel-toggle-meta { flex: 1; font-size: 11px; }
+  .jira-panel-toggle-meta strong { color: var(--text-primary); font-weight: 600; }
+  .jira-panel-toggle-arrow {
+    color: var(--text-muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+  .jira-panel.open .jira-panel-toggle-arrow { transform: rotate(180deg); }
+  .jira-panel-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+  }
+  .jira-panel.open .jira-panel-content { max-height: 600px; }
+  .jira-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .jira-table th {
+    background: var(--bg-subtle);
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+  .jira-table td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .jira-table tr:last-child td { border-bottom: none; }
+  .jira-table tr:hover { background: var(--bg-hover); }
+  .jira-key-link {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 600;
+    color: #0052CC;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .jira-key-link:hover { text-decoration: underline; }
+  .jira-key-link.epic { color: #7E22CE; }
+  .jira-type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .jira-type-epic { background: #F3E8FF; color: #7E22CE; }
+  .jira-type-task { background: #DBEAFE; color: #1E40AF; }
+  .jira-prio {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .jira-prio.high { color: #DC2626; }
+  .jira-prio.medium { color: #B45309; }
+  .jira-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: #DEE2E6;
+    color: #495057;
+    white-space: nowrap;
+  }
+  .jira-maps-to {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* Inline Jira chip — for use in topbar and step header */
+  .jira-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    vertical-align: middle;
+    border: 1px solid #BFDBFE;
+    transition: background 0.15s;
+  }
+  .jira-chip:hover { background: #BFDBFE; text-decoration: none; }
+  .jira-chip.epic { background: #F3E8FF; color: #7E22CE; border-color: #E9D5FF; }
+  .jira-chip.epic:hover { background: #E9D5FF; }
+  .jira-chip::before { content: "🔗"; font-size: 9px; }
+  .jira-chip-group {
+    display: inline-flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
 
   /* ==================== Step header ==================== */
   .step-header {
@@ -1449,11 +1612,94 @@
 <div class="topbar">
   <div class="topbar-title">
     Device Templates
-    <span class="badge">Interactive Flow Demo</span>
+    <a class="jira-chip epic" href="https://easy-step.atlassian.net/browse/PLBR-1232" target="_blank">PLBR-1232 Epic</a>
   </div>
   <div class="topbar-meta">
     <span id="current-scenario-label">Velg et scenario for å starte</span>
     <strong id="current-step-indicator"></strong>
+  </div>
+</div>
+
+<!-- Jira reference panel (collapsible) -->
+<div class="jira-panel" id="jira-panel">
+  <div class="jira-panel-toggle" onclick="toggleJiraPanel()">
+    <span class="jira-panel-toggle-title">Tilhørende Jira-oppgaver</span>
+    <span class="jira-panel-toggle-meta">
+      Epic <strong>PLBR-1232</strong> + 6 underoppgaver (PLBR-1233 → 1238) · Alle på <strong>To Do</strong> · Klikk for å se full oversikt
+    </span>
+    <span class="jira-panel-toggle-arrow">▾</span>
+  </div>
+  <div class="jira-panel-content">
+    <table class="jira-table">
+      <thead>
+        <tr>
+          <th style="width: 110px">Key</th>
+          <th style="width: 80px">Type</th>
+          <th>Summary</th>
+          <th style="width: 90px">Prio</th>
+          <th style="width: 90px">Status</th>
+          <th>Demo-scenario</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a class="jira-key-link epic" href="https://easy-step.atlassian.net/browse/PLBR-1232" target="_blank">PLBR-1232</a></td>
+          <td><span class="jira-type-badge jira-type-epic">Epic</span></td>
+          <td><strong>QR-code-based device provisioning for POS terminals</strong> — paraplyen for hele endringen</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Hele demoen</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1233" target="_blank">PLBR-1233</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>Admin — Create and edit Device Template</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 1: Opprett mal m/ PIN</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1234" target="_blank">PLBR-1234</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>Admin — Template list with QR code generation</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 2: Generer QR-kode</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1235" target="_blank">PLBR-1235</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>POS login — Scan QR code function</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 3 (steg 1–2): Login + kamera</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1236" target="_blank">PLBR-1236</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>First-time provisioning — apply template, auto-bind Adyen terminal, pick Device Group</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 3 (steg 3–9): PIN, setup, binding, gruppevalg</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1237" target="_blank">PLBR-1237</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>Re-scan flow — move terminal between Device Groups with auto-settlement</td>
+          <td><span class="jira-prio high">High</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 4–8: Re-scan, gruppeflytting, oppgjør, recovery</td>
+        </tr>
+        <tr>
+          <td><a class="jira-key-link" href="https://easy-step.atlassian.net/browse/PLBR-1238" target="_blank">PLBR-1238</a></td>
+          <td><span class="jira-type-badge jira-type-task">Task</span></td>
+          <td>Cross-tenant scan block with instruction to move via Payments → Terminals</td>
+          <td><span class="jira-prio medium">Medium</span></td>
+          <td><span class="jira-status-pill">To Do</span></td>
+          <td class="jira-maps-to">Scenario 9: Cross-tenant blokkering</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 
@@ -1492,6 +1738,7 @@ const scenarios = [
     id: 1,
     label: 'Opprett mal m/ PIN',
     type: 'admin',
+    jiraKeys: ['PLBR-1233'],
     steps: [
       {
         title: 'Device Templates-seksjon',
@@ -1519,6 +1766,7 @@ const scenarios = [
     id: 2,
     label: 'Generer QR-kode',
     type: 'admin',
+    jiraKeys: ['PLBR-1234'],
     steps: [
       {
         title: 'Device Templates — liste',
@@ -1536,6 +1784,7 @@ const scenarios = [
     id: 3,
     label: 'Første gangs provisionering',
     type: 'terminal',
+    jiraKeys: ['PLBR-1235', 'PLBR-1236'],
     steps: [
       {
         title: 'POS login-skjerm',
@@ -1596,6 +1845,7 @@ const scenarios = [
     id: 4,
     label: 'Re-scan: samme gruppe',
     type: 'terminal',
+    jiraKeys: ['PLBR-1237'],
     steps: [
       {
         title: 'Terminal allerede provisjonert',
@@ -1636,6 +1886,7 @@ const scenarios = [
     id: 5,
     label: 'Re-scan: ny gruppe, ingen oppgjør',
     type: 'terminal',
+    jiraKeys: ['PLBR-1237'],
     steps: [
       {
         title: 'Device Group-velger (re-scan)',
@@ -1680,6 +1931,7 @@ const scenarios = [
     id: 6,
     label: 'Re-scan: ny gruppe m/ oppgjør (OK)',
     type: 'terminal',
+    jiraKeys: ['PLBR-1237'],
     steps: [
       {
         title: 'Device Group-velger',
@@ -1720,6 +1972,7 @@ const scenarios = [
     id: 7,
     label: 'Re-scan: print feilet',
     type: 'terminal',
+    jiraKeys: ['PLBR-1237'],
     steps: [
       {
         title: 'Kjører dagsoppgjør...',
@@ -1742,6 +1995,7 @@ const scenarios = [
     id: 8,
     label: 'Recovery: flytting feilet etter oppgjør',
     type: 'terminal',
+    jiraKeys: ['PLBR-1237'],
     steps: [
       {
         title: 'Kjører dagsoppgjør...',
@@ -1764,6 +2018,7 @@ const scenarios = [
     id: 9,
     label: 'Cross-tenant blokkering',
     type: 'terminal',
+    jiraKeys: ['PLBR-1238'],
     steps: [
       {
         title: 'Kamera startet',
@@ -2582,12 +2837,18 @@ let currentStepIdx = 0;
 function init() {
   // Render scenario picker
   const picker = document.getElementById('scenarios-inner');
-  picker.innerHTML = scenarios.map((s, i) => `
-    <button class="scenario-btn" data-idx="${i}">
-      <span class="num">${s.id}</span>
-      ${s.label}
-    </button>
-  `).join('');
+  picker.innerHTML = scenarios.map((s, i) => {
+    const jiraKeys = (s.jiraKeys || []).map(k =>
+      `<span class="jira-mini">${k.replace('PLBR-', '')}</span>`
+    ).join('');
+    return `
+      <button class="scenario-btn" data-idx="${i}">
+        <span class="num">${s.id}</span>
+        ${s.label}
+        ${jiraKeys ? `<span class="jira-keys">${jiraKeys}</span>` : ''}
+      </button>
+    `;
+  }).join('');
 
   picker.querySelectorAll('.scenario-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -2628,6 +2889,10 @@ function init() {
   render();
 }
 
+function toggleJiraPanel() {
+  document.getElementById('jira-panel').classList.toggle('open');
+}
+
 function render() {
   const scenario = scenarios[currentScenarioIdx];
   const step = scenario.steps[currentStepIdx];
@@ -2641,8 +2906,11 @@ function render() {
   document.getElementById('current-scenario-label').textContent = `Scenario ${scenario.id}: ${scenario.label}`;
   document.getElementById('current-step-indicator').textContent = `— Steg ${currentStepIdx + 1} av ${scenario.steps.length}`;
 
-  // Update step header
-  document.getElementById('step-title').textContent = step.title;
+  // Update step header — title + scenario's Jira chips
+  const jiraChips = (scenario.jiraKeys || []).map(k =>
+    `<a class="jira-chip" href="https://easy-step.atlassian.net/browse/${k}" target="_blank" onclick="event.stopPropagation()">${k}</a>`
+  ).join('');
+  document.getElementById('step-title').innerHTML = `${escapeHtml(step.title)}${jiraChips ? `<span class="jira-chip-group">${jiraChips}</span>` : ''}`;
   document.getElementById('step-desc').textContent = step.desc;
 
   // Render stage
@@ -2668,6 +2936,10 @@ function render() {
   const isLastStep = currentScenarioIdx === scenarios.length - 1 && currentStepIdx === scenario.steps.length - 1;
   document.getElementById('btn-prev').disabled = isFirstStep;
   document.getElementById('btn-next').disabled = isLastStep;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 }
 
 init();
