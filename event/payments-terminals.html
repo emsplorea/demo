@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Plorea Systems — Payments › Terminals (v2)</title>
+<title>Plorea Systems — Payments › Terminals (PLBR-1222)</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
   :root {
@@ -886,6 +886,235 @@
   }
   .demo-pill:hover { background: white; }
   .demo-pill.active { background: #4338CA; color: white; border-color: #4338CA; }
+  .demo-pill .pill-key {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 10px;
+    opacity: 0.7;
+    margin-left: 4px;
+    padding: 1px 5px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 3px;
+  }
+  .demo-pill.active .pill-key { background: rgba(255,255,255,0.2); opacity: 0.9; }
+
+  /* ===== Jira reference panel ===== */
+  .jira-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .jira-panel-header {
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .jira-panel-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .jira-panel-title::before { content: "🎯"; }
+  .jira-panel-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  .jira-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .jira-table th {
+    background: var(--bg-subtle);
+    padding: 8px 14px;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+  .jira-table td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .jira-table tr:last-child td { border-bottom: none; }
+  .jira-table tr:hover { background: var(--bg-hover); }
+  .jira-key {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 600;
+    color: #0052CC;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .jira-key:hover { text-decoration: underline; }
+  .jira-key.epic { color: #7E22CE; }
+  .jira-summary {
+    color: var(--text-primary);
+    line-height: 1.4;
+  }
+  .jira-type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .jira-type-epic { background: #F3E8FF; color: #7E22CE; }
+  .jira-type-task { background: #DBEAFE; color: #1E40AF; }
+  .jira-prio {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+  .jira-prio.high { color: #DC2626; }
+  .jira-prio.medium { color: #B45309; }
+  .jira-status {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+  .jira-status.todo { background: #DEE2E6; color: #495057; }
+  .jira-status.inprogress { background: #DBEAFE; color: #1E40AF; }
+  .jira-status.done { background: #D1FAE5; color: #065F46; }
+  .jira-maps-to {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  /* Inline Jira chip — for use in section titles and modal headers */
+  .jira-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 7px;
+    border-radius: 4px;
+    background: #DBEAFE;
+    color: #1E40AF;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'SF Mono', Monaco, monospace;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    vertical-align: middle;
+    margin-left: 8px;
+    border: 1px solid #BFDBFE;
+    transition: background 0.15s;
+  }
+  .jira-chip:hover { background: #BFDBFE; text-decoration: none; }
+  .jira-chip.epic { background: #F3E8FF; color: #7E22CE; border-color: #E9D5FF; }
+  .jira-chip.epic:hover { background: #E9D5FF; }
+  .jira-chip::before { content: "🔗"; font-size: 9px; }
+
+  /* ===== Adyen API-tilkobling (PLBR-1231) global config card ===== */
+  .api-config-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, #EFF6FF 0%, #F0F9FF 100%);
+    border-bottom: 1px solid var(--border);
+  }
+  .api-config-icon {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+  }
+  .api-config-info { flex: 1; min-width: 0; }
+  .api-config-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .api-config-value {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .api-config-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .api-config-env {
+    font-size: 11px;
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--text-secondary);
+    background: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+  }
+  .api-config-card.test {
+    background: linear-gradient(135deg, #FEF3C7 0%, #FFFBEB 100%);
+  }
+  .api-config-card.test .api-config-icon {
+    background: #FEF3C7;
+    border-color: #FCD34D;
+  }
+  .api-config-locked {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .api-config-locked::before { content: "🔒"; }
+
+  /* Modal info-banner — used in Legg til terminal to show inherited bedrift config */
+  .modal-info-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #1E40AF;
+    margin-bottom: 16px;
+    line-height: 1.4;
+  }
+  .modal-info-banner-icon { font-size: 16px; flex-shrink: 0; }
 </style>
 </head>
 <body>
@@ -909,18 +1138,101 @@
   </aside>
 
   <main class="content">
+    <!-- Jira reference panel -->
+    <div class="jira-panel">
+      <div class="jira-panel-header">
+        <div>
+          <div class="jira-panel-title">Tilhørende Jira-oppgaver</div>
+          <div style="font-size:12px; color: var(--text-secondary); margin-top:4px;">
+            Demo dekker Epic <strong>PLBR-1222</strong> med 6 underoppgaver. Klikk på en rad eller bruk demo-pillene under for å se hva hver oppgave leverer.
+          </div>
+        </div>
+        <div class="jira-panel-meta">PLBR · easy-step.atlassian.net · Hentet fra Jira</div>
+      </div>
+      <table class="jira-table">
+        <thead>
+          <tr>
+            <th style="width: 110px">Key</th>
+            <th style="width: 80px">Type</th>
+            <th>Summary</th>
+            <th style="width: 90px">Prio</th>
+            <th style="width: 90px">Status</th>
+            <th>Demo-element</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a class="jira-key epic" href="https://easy-step.atlassian.net/browse/PLBR-1222" target="_blank">PLBR-1222</a></td>
+            <td><span class="jira-type-badge jira-type-epic">Epic</span></td>
+            <td class="jira-summary"><strong>Terminal setup improvements</strong> — paraplyen for hele endringen</td>
+            <td><span class="jira-prio high">High</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">Hele Terminals-seksjonen</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1231" target="_blank">PLBR-1231</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">Global Adyen API-tilkobling per bedrift/lokasjon</td>
+            <td><span class="jira-prio high">High</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">«Adyen API-tilkobling»-kortet på toppen</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1223" target="_blank">PLBR-1223</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">«Legg til terminal»-form (Terminaltype rename + Betalingstyper multi-select)</td>
+            <td><span class="jira-prio medium">Medium</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">«+ Legg til terminal»-modalen</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1224" target="_blank">PLBR-1224</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">Live trafikklys-status med click-to-reveal feilmelding (online/fault/offline)</td>
+            <td><span class="jira-prio medium">Medium</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">🟢 / 🟡 / 🔴 i Status-kolonnen</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1225" target="_blank">PLBR-1225</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">Vis Device navn og Device Group i terminal-listen</td>
+            <td><span class="jira-prio medium">Medium</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">«Device navn»- og «Device Group»-kolonnene</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1226" target="_blank">PLBR-1226</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">CSV-import av terminaler med cross-tenant TID-konflikthåndtering</td>
+            <td><span class="jira-prio medium">Medium</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">«📄 Importer fra CSV»-modalen (4 steg)</td>
+          </tr>
+          <tr>
+            <td><a class="jira-key" href="https://easy-step.atlassian.net/browse/PLBR-1227" target="_blank">PLBR-1227</a></td>
+            <td><span class="jira-type-badge jira-type-task">Task</span></td>
+            <td class="jira-summary">Sync med Adyen Management API v3 + samlet status-indikator (purple-prioritet)</td>
+            <td><span class="jira-prio high">High</span></td>
+            <td><span class="jira-status todo">To Do</span></td>
+            <td class="jira-maps-to">🟣 Merchant failed + samlet indikator-seksjon</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
     <!-- Demo banner -->
     <div class="demo-banner">
-      <strong>Demo — Payments › Terminals (v2)</strong><br />
-      Shows the combined result of PLBR-1222, PLBR-1223, PLBR-1224, PLBR-1225, PLBR-1226, PLBR-1227, and PLBR-1231.
-      Use the buttons below to explore each flow.
+      <strong>Interaktiv demo</strong><br />
+      Bruk knappene under for å åpne hver flyt. Hver pille er merket med Jira-key så du ser hvilken oppgave som leverer hva.
       <div class="demo-nav">
-        <button class="demo-pill active" onclick="scrollToSection('list')">Terminals list</button>
-        <button class="demo-pill" onclick="openAddTerminal()">+ Legg til terminal</button>
-        <button class="demo-pill" onclick="openCsvImport()">📄 Importer fra CSV</button>
-        <button class="demo-pill" onclick="openStatusPopover('purple-demo', 'purple')">🟣 Purple indicator (merchant mismatch)</button>
-        <button class="demo-pill" onclick="openStatusPopover('red-demo', 'red')">🔴 Red (offline)</button>
-        <button class="demo-pill" onclick="openStatusPopover('yellow-demo', 'yellow')">🟡 Yellow (pending sync)</button>
+        <button class="demo-pill active" onclick="scrollToSection('list')">Terminals list <span class="pill-key">1222</span></button>
+        <button class="demo-pill" onclick="scrollToSection('api-config')">Adyen API-tilkobling <span class="pill-key">1231</span></button>
+        <button class="demo-pill" onclick="openAddTerminal()">+ Legg til terminal <span class="pill-key">1223</span></button>
+        <button class="demo-pill" onclick="openCsvImport()">📄 Importer fra CSV <span class="pill-key">1226</span></button>
+        <button class="demo-pill" onclick="openStatusPopover('purple-demo', 'purple')">🟣 Merchant failed <span class="pill-key">1227</span></button>
+        <button class="demo-pill" onclick="openStatusPopover('red-demo', 'red')">🔴 Offline <span class="pill-key">1224</span></button>
+        <button class="demo-pill" onclick="openStatusPopover('yellow-demo', 'yellow')">🟡 Pending sync <span class="pill-key">1227</span></button>
       </div>
     </div>
 
@@ -931,6 +1243,35 @@
         <div class="page-title">Payments</div>
       </div>
       <div class="location-tag">Messe</div>
+    </div>
+
+    <!-- ============ ADYEN API-TILKOBLING (PLBR-1231) — global per bedrift ============ -->
+    <div class="section" id="api-config">
+      <div class="section-header">
+        <div>
+          <div class="section-title">
+            Adyen API-tilkobling
+            <a class="jira-chip" href="https://easy-step.atlassian.net/browse/PLBR-1231" target="_blank">PLBR-1231</a>
+          </div>
+          <div class="section-subtitle">Global parameter — settes én gang per bedrift. Alle terminaler arver denne tilkoblingen.</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn" disabled title="Kan ikke endres mens terminaler er registrert. Fjern alle terminaler først." style="opacity:0.6; cursor:not-allowed">
+            🔒 Endre
+          </button>
+        </div>
+      </div>
+      <div class="api-config-card">
+        <div class="api-config-icon">🏦</div>
+        <div class="api-config-info">
+          <div class="api-config-label">Aktiv API-tilkobling</div>
+          <div class="api-config-value">
+            <span class="api-config-name">Plorea</span>
+            <span class="api-config-env">Live · management-live.adyen.com</span>
+          </div>
+          <div class="api-config-locked">Låst fordi 10 terminaler er registrert. Fjern alle terminaler for å bytte API-tilkobling.</div>
+        </div>
+      </div>
     </div>
 
     <!-- Currencies block (simplified, matches screenshot) -->
@@ -999,9 +1340,11 @@
         <div>
           <div class="section-title">
             Terminals
-            <span class="new-badge">PLBR-1222 → 1231</span>
+            <a class="jira-chip epic" href="https://easy-step.atlassian.net/browse/PLBR-1222" target="_blank">PLBR-1222 Epic</a>
           </div>
-          <div class="section-subtitle">Adyen terminals registered against four API accounts — Plorea, Amendo, and their test environments</div>
+          <div class="section-subtitle">
+            Status-kolonne via <a href="https://easy-step.atlassian.net/browse/PLBR-1224" target="_blank" style="color: var(--brand)">PLBR-1224</a> + <a href="https://easy-step.atlassian.net/browse/PLBR-1227" target="_blank" style="color: var(--brand)">PLBR-1227</a> · Device-kolonner via <a href="https://easy-step.atlassian.net/browse/PLBR-1225" target="_blank" style="color: var(--brand)">PLBR-1225</a> · Alle terminaler arver bedriftens API-tilkobling (<strong>Plorea</strong>)
+          </div>
         </div>
         <div class="section-actions">
           <button class="btn" onclick="openCsvImport()">📄 Importer fra CSV</button>
@@ -1021,7 +1364,6 @@
             <th>#</th>
             <th>Status</th>
             <th>Navn</th>
-            <th>API type</th>
             <th>Type</th>
             <th>TID</th>
             <th>Device navn</th>
@@ -1030,7 +1372,7 @@
           </tr>
         </thead>
         <tbody id="terminals-tbody">
-          <!-- Purple row — the star of the show -->
+          <!-- 🟣 Purple — merchant_assignment_failed (highest priority) -->
           <tr>
             <td class="row-id">8</td>
             <td class="status-cell" onclick="openStatusPopover(this, 'purple', {name:'4386 Messe1', tid:'S1F2-000158241144386', apiType:'Plorea'})">
@@ -1039,7 +1381,6 @@
               </span>
             </td>
             <td class="terminal-name">4386 Messe1</td>
-            <td><span class="api-type api-plorea">Plorea</span></td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158241144386</td>
             <td class="device-cell">Kiosk 7</td>
@@ -1047,7 +1388,7 @@
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Red (offline) -->
+          <!-- 🔴 Red — offline -->
           <tr>
             <td class="row-id">9</td>
             <td class="status-cell" onclick="openStatusPopover(this, 'red', {name:'1199 Messe2', tid:'S1F2-000158232331199', apiType:'Plorea'})">
@@ -1056,7 +1397,6 @@
               </span>
             </td>
             <td class="terminal-name">1199 Messe2</td>
-            <td><span class="api-type api-plorea">Plorea</span></td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158232331199</td>
             <td class="device-cell">POS Baren</td>
@@ -1064,75 +1404,71 @@
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Yellow (pending sync) -->
+          <!-- 🟡 Yellow pending — waiting for Adyen sync -->
           <tr>
             <td class="row-id">10</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-pending', {name:'Ems Test', tid:'S1F2-000158241144359', apiType:'Test Plorea'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-pending', {name:'4359 Bar 1', tid:'S1F2-000158241144359', apiType:'Plorea'})">
               <span class="status-indicator status-yellow">
                 <span class="status-dot"></span>Pending sync
               </span>
             </td>
-            <td class="terminal-name">Ems Test</td>
-            <td><span class="api-type api-test">Test Plorea</span></td>
+            <td class="terminal-name">4359 Bar 1</td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158241144359</td>
-            <td class="device-cell">Test Enhet 3</td>
-            <td class="device-group">Utvikling</td>
+            <td class="device-cell">Bar Kasse 1</td>
+            <td class="device-group">Bar</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Green (healthy) -->
+          <!-- 🟢 Green — healthy -->
           <tr>
             <td class="row-id">11</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'Teste', tid:'S21 de Jaylton A', apiType:'Plorea'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'Hovedkasse', tid:'S1F2-000158244361212', apiType:'Plorea'})">
               <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
-            <td class="terminal-name">Teste</td>
-            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td class="terminal-name">Hovedkasse</td>
             <td>Terminal</td>
-            <td class="tid-cell">S21 de Jaylton A</td>
+            <td class="tid-cell">S1F2-000158244361212</td>
             <td class="device-cell">Kasse 1</td>
             <td class="device-group">Hovedinngang</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Green Amendo -->
+          <!-- 🟢 Green -->
           <tr>
             <td class="row-id">12</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'Manoel 2352', tid:'S1F2-000158234962352', apiType:'Amendo'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'2352 Bakeri', tid:'S1F2-000158234962352', apiType:'Plorea'})">
               <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
-            <td class="terminal-name">Manoel 2352</td>
-            <td><span class="api-type api-amendo">Amendo</span></td>
+            <td class="terminal-name">2352 Bakeri</td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158234962352</td>
-            <td class="device-cell">Amendo POS</td>
-            <td class="device-group">Amendo-sone</td>
-            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
-          </tr>
-
-          <!-- Yellow (online with fault) -->
-          <tr>
-            <td class="row-id">26</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-fault', {name:'Test TRD', tid:'S1F2-000158234962349', apiType:'Test Plorea'})">
-              <span class="status-indicator status-yellow">
-                <span class="status-dot"></span>Online with fault
-              </span>
-            </td>
-            <td class="terminal-name">Test TRD</td>
-            <td><span class="api-type api-test">Test Plorea</span></td>
-            <td>Terminal</td>
-            <td class="tid-cell">S1F2-000158234962349</td>
-            <td class="device-cell">Kasse 2</td>
+            <td class="device-cell">Bakeri POS</td>
             <td class="device-group">Bakeri</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Green (Ecom) -->
+          <!-- 🟡 Yellow fault — online with paper-low fault -->
+          <tr>
+            <td class="row-id">26</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-fault', {name:'2349 Bar 2', tid:'S1F2-000158234962349', apiType:'Plorea'})">
+              <span class="status-indicator status-yellow">
+                <span class="status-dot"></span>Online with fault
+              </span>
+            </td>
+            <td class="terminal-name">2349 Bar 2</td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158234962349</td>
+            <td class="device-cell">Kasse 2</td>
+            <td class="device-group">Bar</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- 🟢 Green — Ecom -->
           <tr>
             <td class="row-id">28</td>
             <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'PloreaECOM', tid:'PloreaECOM', apiType:'Plorea', type:'Ecom'})">
@@ -1141,7 +1477,6 @@
               </span>
             </td>
             <td class="terminal-name">PloreaECOM</td>
-            <td><span class="api-type api-plorea">Plorea</span></td>
             <td>Ecom</td>
             <td class="tid-cell">PloreaECOM</td>
             <td class="device-cell muted">—</td>
@@ -1149,52 +1484,50 @@
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Another purple to drive the point home -->
+          <!-- 🟣 Another purple to drive the point home — auth failure -->
           <tr>
             <td class="row-id">30</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'purple-auth', {name:'manoel new 7754', tid:'S1F2-000158240707754', apiType:'Amendo'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'purple-auth', {name:'7754 Sone 3', tid:'S1F2-000158240707754', apiType:'Plorea'})">
               <span class="status-indicator status-purple">
                 <span class="status-dot"></span>Merchant failed
               </span>
             </td>
-            <td class="terminal-name">manoel new 7754</td>
-            <td><span class="api-type api-amendo">Amendo</span></td>
+            <td class="terminal-name">7754 Sone 3</td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158240707754</td>
-            <td class="device-cell">Amendo POS 2</td>
-            <td class="device-group">Amendo-sone</td>
+            <td class="device-cell">POS Sone 3</td>
+            <td class="device-group">Sone 3</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
-          <!-- Test amendo, green -->
+          <!-- 🟢 Green -->
           <tr>
             <td class="row-id">31</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'TRD1631', tid:'S1F2-000158243341631', apiType:'Test Amendo'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'1631 Inngang Vest', tid:'S1F2-000158243341631', apiType:'Plorea'})">
               <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
-            <td class="terminal-name">TRD1631</td>
-            <td><span class="api-type api-test">Test Amendo</span></td>
+            <td class="terminal-name">1631 Inngang Vest</td>
             <td>Terminal</td>
             <td class="tid-cell">S1F2-000158243341631</td>
-            <td class="device-cell">Test Kasse</td>
-            <td class="device-group">Utvikling</td>
+            <td class="device-cell">Kasse Vest</td>
+            <td class="device-group">Hovedinngang</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
 
+          <!-- 🟢 Green -->
           <tr>
             <td class="row-id">35</td>
-            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'2349', tid:'S1F2-000158234962349', apiType:'Plorea'})">
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'4429 Inngang Øst', tid:'S1F2-000158243414429', apiType:'Plorea'})">
               <span class="status-indicator status-green">
                 <span class="status-dot"></span>Healthy
               </span>
             </td>
-            <td class="terminal-name">2349</td>
-            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td class="terminal-name">4429 Inngang Øst</td>
             <td>Terminal</td>
-            <td class="tid-cell">S1F2-000158234962349</td>
-            <td class="device-cell">Kasse 3</td>
+            <td class="tid-cell">S1F2-000158243414429</td>
+            <td class="device-cell">Kasse Øst</td>
             <td class="device-group">Hovedinngang</td>
             <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
           </tr>
@@ -1206,8 +1539,15 @@
     <div class="section">
       <div class="section-header">
         <div>
-          <div class="section-title">Combined status indicator <span class="new-badge">PLBR-1227</span></div>
-          <div class="section-subtitle">One indicator per row. Priority: Purple > Red > Yellow > Green</div>
+          <div class="section-title">
+            Combined status indicator
+            <a class="jira-chip" href="https://easy-step.atlassian.net/browse/PLBR-1224" target="_blank">PLBR-1224</a>
+            <a class="jira-chip" href="https://easy-step.atlassian.net/browse/PLBR-1227" target="_blank">PLBR-1227</a>
+          </div>
+          <div class="section-subtitle">
+            Én indikator per rad. Prioritet: Purple > Red > Yellow > Green.
+            PLBR-1224 leverer trafikklys-grunnlaget (grønn/gul/rød); PLBR-1227 utvider med purple og prioriteringslogikken.
+          </div>
         </div>
       </div>
       <div style="padding:18px 20px; display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
@@ -1246,31 +1586,28 @@
   <div class="modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Legg til terminal <span class="new-badge">PLBR-1223 + 1231</span></div>
+        <div class="modal-title">
+          Legg til terminal
+          <a class="jira-chip" href="https://easy-step.atlassian.net/browse/PLBR-1223" target="_blank">PLBR-1223</a>
+        </div>
       </div>
       <button class="modal-close" onclick="closeModal('add-terminal-modal')">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- Inherited bedrift config (PLBR-1231) -->
+      <div class="modal-info-banner">
+        <span class="modal-info-banner-icon">🏦</span>
+        <div>
+          Bruker bedriftens Adyen API-tilkobling: <strong>Plorea</strong> (Live).
+          API type settes globalt for bedriften via <a href="https://easy-step.atlassian.net/browse/PLBR-1231" target="_blank" style="color: inherit; font-weight:600">PLBR-1231</a> — ikke per terminal.
+        </div>
+      </div>
+
       <div class="form-grid">
 
-        <!-- API type - the new first field -->
-        <div class="form-group full">
-          <label class="form-label">
-            API type <span class="required">*</span>
-            <span class="badge-new">NEW</span>
-          </label>
-          <select class="form-select" id="api-type-select" onchange="onApiTypeChange(this.value)">
-            <option value="">Velg API type...</option>
-            <option value="plorea">Plorea</option>
-            <option value="amendo">Amendo</option>
-            <option value="test-plorea">🧪 Test Plorea</option>
-            <option value="test-amendo">🧪 Test Amendo</option>
-          </select>
-          <div class="form-hint">Determines which Adyen company account this terminal is registered against. Immutable after creation.</div>
-        </div>
-
         <!-- Terminaltype - renamed options -->
-        <div class="form-group dependent" id="dep-terminaltype">
+        <div class="form-group full">
           <label class="form-label">
             Terminaltype <span class="required">*</span>
             <span class="badge-new">RENAMED</span>
@@ -1280,10 +1617,10 @@
             <option value="terminal">Terminal</option>
             <option value="ecom">Ecom</option>
           </select>
-          <div class="form-hint">Formerly "Adyen" and "Adyen Ecom".</div>
+          <div class="form-hint">Tidligere «Adyen» og «Adyen Ecom». Backend mapper gamle verdier transparent.</div>
         </div>
 
-        <div class="form-group dependent" id="dep-betalingstyper">
+        <div class="form-group full">
           <label class="form-label">
             Betalingstyper <span class="required">*</span>
             <span class="badge-new">MULTI-SELECT</span>
@@ -1315,15 +1652,15 @@
               </label>
             </div>
           </div>
-          <div class="form-hint">Click "Velg alle" for one-tap selection of all payment types.</div>
+          <div class="form-hint">Klikk «Velg alle» for å velge alle betalingstyper i én operasjon.</div>
         </div>
 
-        <div class="form-group dependent" id="dep-navn">
+        <div class="form-group">
           <label class="form-label">Terminalnavn <span class="required">*</span></label>
           <input class="form-input" id="new-navn" placeholder="F.eks. Kasse 1" />
         </div>
 
-        <div class="form-group dependent" id="dep-tid">
+        <div class="form-group">
           <label class="form-label">Terminal TID <span class="required">*</span></label>
           <input class="form-input" id="new-tid" placeholder="S1F2-..." />
         </div>
@@ -1342,11 +1679,23 @@
   <div class="modal wide">
     <div class="modal-header">
       <div>
-        <div class="modal-title">Importer terminaler fra CSV <span class="new-badge">PLBR-1226</span></div>
+        <div class="modal-title">
+          Importer terminaler fra CSV
+          <a class="jira-chip" href="https://easy-step.atlassian.net/browse/PLBR-1226" target="_blank">PLBR-1226</a>
+        </div>
       </div>
       <button class="modal-close" onclick="closeModal('csv-modal')">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- Inherited bedrift config (PLBR-1231) -->
+      <div class="modal-info-banner">
+        <span class="modal-info-banner-icon">🏦</span>
+        <div>
+          Alle importerte terminaler arver bedriftens Adyen API-tilkobling: <strong>Plorea</strong> (Live).
+          CSV-formatet har derfor 4 kolonner — ingen «API type»-kolonne (<a href="https://easy-step.atlassian.net/browse/PLBR-1231" target="_blank" style="color: inherit; font-weight:600">PLBR-1231</a>).
+        </div>
+      </div>
 
       <!-- Step indicator -->
       <div class="steps" id="csv-steps">
@@ -1369,12 +1718,12 @@
           <a class="csv-template-link">⬇ Last ned CSV-mal</a>
         </div>
         <div style="margin-top:20px; font-size:13px; color: var(--text-secondary);">
-          <strong style="color: var(--text-primary);">Forventet format:</strong>
+          <strong style="color: var(--text-primary);">Forventet format (4 kolonner):</strong>
           <div style="background: var(--bg-subtle); border:1px solid var(--border); border-radius:6px; padding:10px 12px; margin-top:6px; font-family: 'SF Mono', Monaco, monospace; font-size:11px; overflow-x:auto;">
-            API type,Terminaltype,Betalingstyper,Terminalnavn,Terminal TID<br/>
-            Plorea,Terminal,all,Kasse 1,S1F2-000158241144386<br/>
-            Amendo,Terminal,all,Amendo POS,S1F2-000158232331199<br/>
-            Test Plorea,Ecom,all,Test Ecom,TEST-ECOM-001
+            Terminaltype,Betalingstyper,Terminalnavn,Terminal TID<br/>
+            Terminal,all,Bar Kasse 1,S1F2-000158241144386<br/>
+            Terminal,all,Bar Kasse 2,S1F2-000158232331199<br/>
+            Ecom,all,Web Bestilling,PloreaECOM-2
           </div>
         </div>
       </div>
@@ -1382,9 +1731,9 @@
       <!-- Step 2 - Validation summary (hidden by default) -->
       <div id="csv-step-2" style="display:none">
         <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; color:#065F46; font-size:13px;">
-          ✓ <strong>12 rader validert</strong> — ingen feil. Fordeling: 7 Plorea, 3 Amendo, 2 Test Plorea.
+          ✓ <strong>12 rader validert</strong> — ingen feil. Alle vil registreres mot bedriftens Adyen-tilkobling: <strong>Plorea</strong>.
         </div>
-        <div style="font-size:13px; color: var(--text-secondary);">Klikk "Neste" for å sjekke TID-konflikter mot andre bedrifter.</div>
+        <div style="font-size:13px; color: var(--text-secondary);">Klikk «Neste» for å sjekke TID-konflikter mot andre bedrifter.</div>
       </div>
 
       <!-- Step 3 - Conflict dialog -->
@@ -1397,7 +1746,7 @@
         <div class="conflict-table">
           <table>
             <thead>
-              <tr><th>Terminal TID</th><th>Navn (fra CSV)</th><th>API type</th><th>Registrert i dag på</th></tr>
+              <tr><th>Terminal TID</th><th>Navn (fra CSV)</th><th>Kildens API type</th><th>Registrert i dag på</th></tr>
             </thead>
             <tbody>
               <tr>
@@ -1423,9 +1772,10 @@
         </div>
 
         <div style="background: var(--bg-subtle); border: 1px solid var(--border); border-radius:8px; padding: 14px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
-          <strong style="color: var(--text-primary);">Ved "Ja — flytt":</strong>
-          Eksisterende terminalene på kildebedriften settes til <code>inactive</code> med <code>deleted_at = nå</code>.
-          Det samme skjer for enhetene som bruker terminalene på kildesiden. Nye terminaler opprettes på denne bedriften.
+          <strong style="color: var(--text-primary);">Ved «Ja — flytt»:</strong>
+          Eksisterende terminaler på kildebedriften settes til <code>inactive</code> med <code>deleted_at = nå</code>.
+          Det samme skjer for enhetene som bruker terminalene på kildesiden. Nye terminaler opprettes på denne bedriften
+          og registreres mot bedriftens API-tilkobling (<strong>Plorea</strong> i dette tilfellet) — også når kilden bruker en annen API type.
         </div>
       </div>
 
@@ -1483,11 +1833,9 @@
     document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
-  // ===== Add Terminal form: gate fields on API type =====
-  function onApiTypeChange(val) {
-    const deps = document.querySelectorAll('.form-group.dependent');
-    deps.forEach(d => d.classList.toggle('enabled', val !== ''));
-  }
+  // ===== Add Terminal form =====
+  // Tidligere gateet vi feltene på per-terminal API type-valg.
+  // Nå arves API type fra bedriftens globale config (PLBR-1231), så feltene er alltid aktive.
 
   // ===== Multi-select =====
   const selected = new Set();
@@ -1633,13 +1981,13 @@
             <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
             <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
             <div class="popover-row"><span class="label">API type tried</span><span class="value">${d.apiType}</span></div>
-            <div class="popover-row"><span class="label">Target merchant</span><span class="value">AMENDO-MAIN-007</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">PLOREA-MAIN-001</span></div>
           </div>
           <div class="popover-section">
             <div class="popover-section-title">Adyen-feil</div>
             <div class="popover-error">
               <strong>[${d.apiType}] HTTP 401: Authentication error</strong><br/>
-              Check the Amendo API credentials in the config file. All Amendo-routed terminals are affected until this is resolved.
+              Sjekk ${d.apiType} API-credentials i config-filen. Alle ${d.apiType}-rutede terminaler er berørt inntil dette er løst.
             </div>
           </div>
           <div class="popover-section">
@@ -1739,7 +2087,7 @@
             <div class="popover-section-title">Sync-detaljer</div>
             <div class="popover-row"><span class="label">Reassign sendt</span><span class="value">23.04.2026 14:15</span></div>
             <div class="popover-row"><span class="label">Forventet sync</span><span class="value">23.04.2026 17:15</span></div>
-            <div class="popover-row"><span class="label">Target merchant</span><span class="value">TEST-PLOREA-DEV</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">PLOREA-MAIN-001</span></div>
           </div>
           <div class="popover-section">
             <div class="popover-info">
@@ -1862,15 +2210,17 @@
 
   // ===== Save new terminal — actually add the row to the table =====
   let nextRowId = 36;
+  // Bedriftens globale Adyen API-tilkobling (PLBR-1231) — i dette demoet er den hardkodet til "Plorea"
+  const BEDRIFT_API_TYPE = 'plorea';
+  const BEDRIFT_API_LABEL = 'Plorea';
+
   function saveNewTerminal() {
-    const apiType = document.getElementById('api-type-select').value;
     const terminaltype = document.getElementById('new-terminaltype').value;
     const navn = document.getElementById('new-navn').value.trim();
     const tid = document.getElementById('new-tid').value.trim();
 
-    // Simple validation
+    // Simple validation — API type ikke lenger per-terminal-felt (arves fra bedrift)
     const errors = [];
-    if (!apiType) errors.push('API type');
     if (!terminaltype) errors.push('Terminaltype');
     if (selected.size === 0) errors.push('Betalingstyper (minst én)');
     if (!navn) errors.push('Terminalnavn');
@@ -1881,10 +2231,9 @@
       return;
     }
 
-    // API type label + badge styling
-    const apiLabels = { 'plorea': 'Plorea', 'amendo': 'Amendo', 'test-plorea': 'Test Plorea', 'test-amendo': 'Test Amendo' };
-    const apiClass = apiType.startsWith('test-') ? 'api-test' : (apiType === 'amendo' ? 'api-amendo' : 'api-plorea');
-    const apiLabel = apiLabels[apiType];
+    // API type arves fra bedriftens globale config (PLBR-1231)
+    const apiType = BEDRIFT_API_TYPE;
+    const apiLabel = BEDRIFT_API_LABEL;
 
     // Terminal type label
     const typeLabel = terminaltype === 'terminal' ? 'Terminal' : 'Ecom';
@@ -1893,7 +2242,6 @@
     const tbody = document.getElementById('terminals-tbody');
     const tr = document.createElement('tr');
     tr.style.animation = 'none';
-    const dataJson = JSON.stringify({ name: navn, tid: tid, apiType: apiLabel }).replace(/"/g, '&quot;');
 
     tr.innerHTML = `
       <td class="row-id">${nextRowId}</td>
@@ -1903,7 +2251,6 @@
         </span>
       </td>
       <td class="terminal-name">${escapeHtml(navn)}</td>
-      <td><span class="api-type ${apiClass}">${apiLabel}</span></td>
       <td>${typeLabel}</td>
       <td class="tid-cell">${escapeHtml(tid)}</td>
       <td class="device-cell muted">—</td>
@@ -1929,19 +2276,18 @@
     }, 100);
 
     // Toast
-    showToast(`✓ "${navn}" lagret. Adyen reassign sendt til ${apiLabel} — synkroniseres innen ~3 timer.`);
+    showToast(`✓ "${navn}" lagret. Adyen reassign sendt til ${apiLabel} (bedriftens API-tilkobling) — synkroniseres innen ~3 timer.`);
   }
 
   function resetAddTerminalForm() {
-    document.getElementById('api-type-select').value = '';
     document.getElementById('new-terminaltype').value = '';
     document.getElementById('new-navn').value = '';
     document.getElementById('new-tid').value = '';
     selected.clear();
     renderChips();
     document.querySelectorAll('.ms-opt').forEach(o => o.checked = false);
-    document.getElementById('ms-all').checked = false;
-    onApiTypeChange('');
+    const allCheckbox = document.getElementById('ms-all');
+    if (allCheckbox) allCheckbox.checked = false;
   }
 
   function escapeHtml(s) {
