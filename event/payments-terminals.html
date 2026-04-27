@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Plorea Systems — Payments › Terminals (v2)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #F1F5F9;
+    --bg-hover: #F8FAFC;
+
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+
+    --brand: #468DAC;
+    --brand-hover: #2E6B87;
+    --brand-light: #6BB8DA;
+
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    --status-green: #10B981;
+    --status-yellow: #F59E0B;
+    --status-red: #EF4444;
+    --status-purple: #9333EA;
+    --status-purple-bg: #F3E8FF;
+    --status-purple-border: #C084FC;
+
+    --new-badge-bg: #F3E8FF;
+    --new-badge-text: #7E22CE;
+
+    --api-plorea-bg: #DBEAFE;
+    --api-plorea-text: #1E40AF;
+    --api-amendo-bg: #D1FAE5;
+    --api-amendo-text: #065F46;
+    --api-test-bg: #FEF3C7;
+    --api-test-text: #92400E;
+    --api-test-border: #F59E0B;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* ===== App shell (simulated) ===== */
+  .app {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    min-height: 100vh;
+  }
+  .sidebar {
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 12px;
+  }
+  .logo {
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--brand);
+    padding: 0 12px 20px;
+    letter-spacing: -0.02em;
+  }
+  .nav-section {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 16px 12px 8px;
+  }
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .nav-item:hover { background: var(--bg-subtle); color: var(--text-primary); }
+  .nav-item.active { background: var(--brand); color: white; }
+  .nav-item.active:hover { background: var(--brand-hover); }
+
+  .content {
+    padding: 32px 40px;
+    max-width: 1600px;
+    overflow-x: auto;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .breadcrumb {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+  }
+  .breadcrumb strong { color: var(--text-secondary); font-weight: 500; }
+  .page-title {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+  .location-tag {
+    font-size: 13px;
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    background: var(--bg-subtle);
+    border-radius: 6px;
+  }
+  .location-tag::before { content: "📍 "; }
+
+  /* ===== Section blocks ===== */
+  .section {
+    background: var(--bg-surface);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-top: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .section-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+
+  .section-actions { display: flex; gap: 8px; align-items: center; }
+
+  /* ===== Buttons ===== */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn:hover { background: var(--bg-subtle); border-color: var(--text-muted); }
+  .btn-primary {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+  }
+  .btn-primary:hover { background: var(--brand-hover); border-color: var(--brand-hover); }
+  .btn-danger {
+    background: #DC2626;
+    color: white;
+    border-color: #DC2626;
+  }
+  .btn-danger:hover { background: #B91C1C; }
+  .btn-icon {
+    padding: 6px;
+    min-width: 28px;
+    min-height: 28px;
+    justify-content: center;
+  }
+  .btn-plus {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* ===== Callout for demo ===== */
+  .demo-banner {
+    background: linear-gradient(135deg, #EFF6FF 0%, #F3E8FF 100%);
+    border: 1px solid #C7D2FE;
+    border-radius: 10px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: #3730A3;
+  }
+  .demo-banner strong { color: #1E1B4B; font-weight: 700; }
+  .demo-banner a {
+    color: #4338CA;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .new-badge {
+    display: inline-block;
+    background: var(--new-badge-bg);
+    color: var(--new-badge-text);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+
+  /* ===== Table ===== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  thead th {
+    background: #F8FAFC;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text-primary);
+    vertical-align: middle;
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: var(--bg-hover); }
+
+  /* Status cell: entire cell clickable, not just the badge */
+  td.status-cell {
+    cursor: pointer;
+    position: relative;
+  }
+  td.status-cell::after {
+    content: "▸";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  td.status-cell:hover::after { opacity: 1; }
+
+  .row-id {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  .terminal-name { font-weight: 600; }
+  .tid-cell { font-family: 'SF Mono', Monaco, monospace; font-size: 12px; color: var(--text-secondary); }
+  .device-cell { color: var(--text-primary); font-weight: 500; }
+  .device-group { color: var(--text-secondary); font-size: 12px; }
+  .muted { color: var(--text-muted); }
+
+  /* ===== Status indicator (combined) ===== */
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid transparent;
+    user-select: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .status-green { background: #ECFDF5; color: #065F46; border-color: #A7F3D0; }
+  .status-green .status-dot { background: var(--status-green); }
+  .status-yellow { background: #FFFBEB; color: #92400E; border-color: #FCD34D; }
+  .status-yellow .status-dot { background: var(--status-yellow); }
+  .status-red { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+  .status-red .status-dot { background: var(--status-red); }
+  .status-purple {
+    background: var(--status-purple-bg);
+    color: #6B21A8;
+    border-color: var(--status-purple-border);
+    box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.12);
+    animation: pulse-purple 2.5s ease-in-out infinite;
+  }
+  .status-purple .status-dot { background: var(--status-purple); }
+  @keyframes pulse-purple {
+    0%, 100% { box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.12); }
+    50% { box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.2); }
+  }
+  .status-indicator:hover { transform: translateY(-1px); }
+
+  /* ===== API type badge ===== */
+  .api-type {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+  .api-plorea { background: var(--api-plorea-bg); color: var(--api-plorea-text); }
+  .api-amendo { background: var(--api-amendo-bg); color: var(--api-amendo-text); }
+  .api-test {
+    background: var(--api-test-bg);
+    color: var(--api-test-text);
+    border: 1px dashed var(--api-test-border);
+  }
+  .api-test::before {
+    content: "🧪 ";
+    font-size: 10px;
+  }
+
+  /* ===== Row actions ===== */
+  .row-actions {
+    display: flex;
+    gap: 4px;
+    justify-content: flex-end;
+  }
+  .action-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg-surface);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    transition: all 0.15s;
+  }
+  .action-btn:hover { color: var(--text-primary); border-color: var(--border-strong); }
+  .action-btn.danger:hover { background: #FEF2F2; color: #DC2626; border-color: #FCA5A5; }
+
+  /* ===== Toggle ===== */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .toggle-wrap { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+  .toggle {
+    width: 32px;
+    height: 18px;
+    background: #CBD5E1;
+    border-radius: 9px;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.15s;
+  }
+  .toggle.on { background: var(--brand); }
+  .toggle.on::after { transform: translateX(14px); }
+
+  .search-input {
+    padding: 8px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    min-width: 240px;
+    background: var(--bg-surface);
+  }
+  .search-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(70, 141, 172, 0.12); }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.hidden { display: none; }
+  .modal {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    width: min(560px, 92vw);
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-lg);
+  }
+  .modal.wide { width: min(820px, 94vw); }
+  .modal-header {
+    padding: 18px 22px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .modal-close:hover { background: var(--bg-subtle); color: var(--text-primary); }
+  .modal-body {
+    padding: 22px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-footer {
+    padding: 14px 22px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    background: var(--bg-subtle);
+  }
+
+  /* ===== Form ===== */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-grid.single { grid-template-columns: 1fr; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-label .required { color: var(--status-red); }
+  .form-label .badge-new {
+    display: inline-block;
+    background: var(--new-badge-bg);
+    color: var(--new-badge-text);
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    padding: 10px 12px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(70, 141, 172, 0.15);
+  }
+  .form-input::placeholder { color: var(--text-muted); }
+  .form-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.4;
+  }
+
+  /* Disabled-dependent fields */
+  .form-group.dependent {
+    opacity: 0.4;
+    pointer-events: none;
+    transition: opacity 0.25s;
+  }
+  .form-group.dependent.enabled {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Multi-select */
+  .multiselect {
+    padding: 8px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    min-height: 42px;
+    background: var(--bg-surface);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .multiselect-chip {
+    background: #E0F2FE;
+    color: #075985;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .multiselect-chip .x {
+    cursor: pointer;
+    font-weight: 700;
+    color: #0284C7;
+    margin-left: 2px;
+  }
+  .multiselect-placeholder {
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+  .multiselect-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: var(--shadow-md);
+    z-index: 10;
+    max-height: 220px;
+    overflow-y: auto;
+  }
+  .multiselect-dropdown.hidden { display: none; }
+  .multiselect-option {
+    padding: 9px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .multiselect-option:last-child { border-bottom: none; }
+  .multiselect-option:hover { background: var(--bg-subtle); }
+  .multiselect-option.selected { background: #EFF6FF; }
+  .multiselect-option.select-all {
+    font-weight: 700;
+    background: #F8FAFC;
+    border-bottom: 1px solid var(--border-strong);
+  }
+  .multiselect-option input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--brand);
+  }
+
+  /* ===== CSV Import flow ===== */
+  .csv-upload-zone {
+    border: 2px dashed var(--border-strong);
+    border-radius: 10px;
+    padding: 32px;
+    text-align: center;
+    background: var(--bg-subtle);
+    transition: all 0.2s;
+  }
+  .csv-upload-zone.dragover {
+    border-color: var(--brand);
+    background: #EFF6FF;
+  }
+  .csv-upload-icon { font-size: 40px; opacity: 0.5; margin-bottom: 8px; }
+  .csv-upload-text { font-size: 14px; color: var(--text-secondary); margin-bottom: 12px; }
+  .csv-template-link {
+    font-size: 12px;
+    color: var(--brand);
+    text-decoration: underline;
+    margin-top: 8px;
+    display: inline-block;
+  }
+
+  /* Conflict table */
+  .conflict-banner {
+    background: #FFF7ED;
+    border: 1px solid #FDBA74;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #9A3412;
+  }
+  .conflict-table {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .conflict-table table { border: none; }
+  .conflict-table td { font-size: 12px; }
+
+  /* Summary */
+  .summary-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+  .stat-card {
+    padding: 14px;
+    background: var(--bg-subtle);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .stat-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 6px;
+  }
+  .stat-card.success .stat-number { color: var(--status-green); }
+  .stat-card.warning .stat-number { color: var(--status-yellow); }
+  .stat-card.error .stat-number { color: var(--status-purple); }
+
+  /* Details popover - expanded for detailed status */
+  .popover {
+    position: absolute;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: 10px;
+    box-shadow: var(--shadow-lg);
+    padding: 0;
+    width: 400px;
+    z-index: 50;
+    font-size: 13px;
+    overflow: hidden;
+  }
+  .popover-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .popover-header.header-purple { background: linear-gradient(135deg, #F3E8FF 0%, #FAF5FF 100%); }
+  .popover-header.header-red { background: linear-gradient(135deg, #FEF2F2 0%, #FEF5F5 100%); }
+  .popover-header.header-yellow { background: linear-gradient(135deg, #FFFBEB 0%, #FFFDF5 100%); }
+  .popover-header.header-green { background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF6 100%); }
+  .popover-title { font-weight: 700; font-size: 14px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .popover-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+  .popover-body { padding: 12px 16px; }
+  .popover-section {
+    margin-bottom: 14px;
+  }
+  .popover-section:last-child { margin-bottom: 0; }
+  .popover-section-title {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+  }
+  .popover-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    font-size: 12px;
+    gap: 12px;
+  }
+  .popover-row .label { color: var(--text-secondary); }
+  .popover-row .value {
+    font-family: 'SF Mono', Monaco, monospace;
+    color: var(--text-primary);
+    text-align: right;
+    word-break: break-all;
+  }
+  .popover-error {
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-left: 3px solid #DC2626;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-top: 4px;
+    font-size: 12px;
+    color: #991B1B;
+    line-height: 1.5;
+  }
+  .popover-info {
+    background: #EFF6FF;
+    border: 1px solid #BFDBFE;
+    border-left: 3px solid #3B82F6;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    color: #1E40AF;
+    line-height: 1.5;
+  }
+  .popover-timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+  }
+  .popover-timeline::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background: var(--border-strong);
+  }
+  .popover-timeline li {
+    position: relative;
+    padding: 4px 0 4px 18px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .popover-timeline li::before {
+    content: '';
+    position: absolute;
+    left: 1px;
+    top: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    border: 1px solid var(--bg-surface);
+  }
+  .popover-timeline li.success::before { background: var(--status-green); }
+  .popover-timeline li.warning::before { background: var(--status-yellow); }
+  .popover-timeline li.error::before { background: var(--status-purple); }
+  .popover-timeline li strong {
+    color: var(--text-primary);
+    font-weight: 600;
+    display: block;
+    margin-bottom: 1px;
+  }
+  .popover-timeline li .time {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+  .popover-actions {
+    padding: 10px 16px;
+    background: var(--bg-subtle);
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+  }
+  .popover-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .popover-close:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+
+  /* Step indicator for CSV modal */
+  .steps {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    font-size: 12px;
+  }
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+  }
+  .step.active { color: var(--brand); font-weight: 600; }
+  .step.done { color: var(--status-green); }
+  .step-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    border: 1px solid var(--border);
+  }
+  .step.active .step-num { background: var(--brand); color: white; border-color: var(--brand); }
+  .step.done .step-num { background: var(--status-green); color: white; border-color: var(--status-green); }
+  .step-separator { color: var(--text-muted); }
+
+  /* Demo navigation pills */
+  .demo-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+  .demo-pill {
+    background: rgba(255,255,255,0.7);
+    border: 1px solid #C7D2FE;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #3730A3;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+  }
+  .demo-pill:hover { background: white; }
+  .demo-pill.active { background: #4338CA; color: white; border-color: #4338CA; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Simulated sidebar -->
+  <aside class="sidebar">
+    <div class="logo">plorea</div>
+    <div class="nav-section">Main Setup</div>
+    <div class="nav-item">Companies</div>
+    <div class="nav-item">Locations</div>
+    <div class="nav-item">Employees</div>
+    <div class="nav-item">Printers</div>
+    <div class="nav-item active">Payments</div>
+    <div class="nav-item">Logs</div>
+    <div class="nav-item">Tokens</div>
+    <div class="nav-section">Modules</div>
+    <div class="nav-item">Reports</div>
+    <div class="nav-item">Orders</div>
+    <div class="nav-item">Settlements</div>
+  </aside>
+
+  <main class="content">
+    <!-- Demo banner -->
+    <div class="demo-banner">
+      <strong>Demo — Payments › Terminals (v2)</strong><br />
+      Shows the combined result of PLBR-1222, PLBR-1223, PLBR-1224, PLBR-1225, PLBR-1226, PLBR-1227, and PLBR-1231.
+      Use the buttons below to explore each flow.
+      <div class="demo-nav">
+        <button class="demo-pill active" onclick="scrollToSection('list')">Terminals list</button>
+        <button class="demo-pill" onclick="openAddTerminal()">+ Legg til terminal</button>
+        <button class="demo-pill" onclick="openCsvImport()">📄 Importer fra CSV</button>
+        <button class="demo-pill" onclick="openStatusPopover('purple-demo', 'purple')">🟣 Purple indicator (merchant mismatch)</button>
+        <button class="demo-pill" onclick="openStatusPopover('red-demo', 'red')">🔴 Red (offline)</button>
+        <button class="demo-pill" onclick="openStatusPopover('yellow-demo', 'yellow')">🟡 Yellow (pending sync)</button>
+      </div>
+    </div>
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <div class="breadcrumb"><strong>POS Main Screen</strong> › Payments</div>
+        <div class="page-title">Payments</div>
+      </div>
+      <div class="location-tag">Messe</div>
+    </div>
+
+    <!-- Currencies block (simplified, matches screenshot) -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Currencies</div>
+          <div class="section-subtitle">Supported currencies for this location</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search currencies..." style="min-width:200px" />
+        <span style="flex:1"></span>
+        <label class="toggle-wrap">
+          <span class="toggle"></span> Show deleted/inactive
+        </label>
+      </div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Active</th><th>Name</th><th>ISO</th><th>Account</th><th>Default</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="row-id">128</td>
+            <td><span class="toggle on"></span></td>
+            <td>Krone</td>
+            <td>NOK</td>
+            <td class="tid-cell">37012977</td>
+            <td>✓</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Payments type block (simplified, matches screenshot) -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Payments type</div>
+          <div class="section-subtitle">Configure which payment types appear in POS and z-report</div>
+        </div>
+      </div>
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search payment types..." style="min-width:200px" />
+        <span style="flex:1"></span>
+        <label class="toggle-wrap">
+          <span class="toggle"></span> Show deleted rows
+        </label>
+      </div>
+      <table>
+        <thead>
+          <tr><th>#</th><th>Payment type</th><th>Currency</th><th>Show in payments</th><th>Show in z-report</th><th></th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="row-id">88</td><td>Tip</td><td class="muted">NOK</td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><div class="row-actions"><button class="action-btn">✎</button></div></td></tr>
+          <tr><td class="row-id">91</td><td>Visa</td><td class="muted">NOK</td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><div class="row-actions"><button class="action-btn">✎</button></div></td></tr>
+          <tr><td class="row-id">92</td><td>MasterCard</td><td class="muted">NOK</td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><span class="status-indicator status-green"><span class="status-dot"></span>Active</span></td><td><div class="row-actions"><button class="action-btn">✎</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ============ TERMINALS (the focus of this demo) ============ -->
+    <div class="section" id="list">
+      <div class="section-header">
+        <div>
+          <div class="section-title">
+            Terminals
+            <span class="new-badge">PLBR-1222 → 1231</span>
+          </div>
+          <div class="section-subtitle">Adyen terminals registered against four API accounts — Plorea, Amendo, and their test environments</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn" onclick="openCsvImport()">📄 Importer fra CSV</button>
+          <button class="btn-plus btn" onclick="openAddTerminal()">+</button>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <input class="search-input" placeholder="Search by name, TID, device..." />
+        <span style="flex:1"></span>
+        <label class="toggle-wrap"><span class="toggle"></span> Show deleted rows</label>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Status</th>
+            <th>Navn</th>
+            <th>API type</th>
+            <th>Type</th>
+            <th>TID</th>
+            <th>Device navn</th>
+            <th>Device Group</th>
+            <th style="width:100px"></th>
+          </tr>
+        </thead>
+        <tbody id="terminals-tbody">
+          <!-- Purple row — the star of the show -->
+          <tr>
+            <td class="row-id">8</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'purple', {name:'4386 Messe1', tid:'S1F2-000158241144386', apiType:'Plorea'})">
+              <span class="status-indicator status-purple">
+                <span class="status-dot"></span>Merchant failed
+              </span>
+            </td>
+            <td class="terminal-name">4386 Messe1</td>
+            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158241144386</td>
+            <td class="device-cell">Kiosk 7</td>
+            <td class="device-group">Messe-Kiosker</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Red (offline) -->
+          <tr>
+            <td class="row-id">9</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'red', {name:'1199 Messe2', tid:'S1F2-000158232331199', apiType:'Plorea'})">
+              <span class="status-indicator status-red">
+                <span class="status-dot"></span>Offline
+              </span>
+            </td>
+            <td class="terminal-name">1199 Messe2</td>
+            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158232331199</td>
+            <td class="device-cell">POS Baren</td>
+            <td class="device-group muted">—</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Yellow (pending sync) -->
+          <tr>
+            <td class="row-id">10</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-pending', {name:'Ems Test', tid:'S1F2-000158241144359', apiType:'Test Plorea'})">
+              <span class="status-indicator status-yellow">
+                <span class="status-dot"></span>Pending sync
+              </span>
+            </td>
+            <td class="terminal-name">Ems Test</td>
+            <td><span class="api-type api-test">Test Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158241144359</td>
+            <td class="device-cell">Test Enhet 3</td>
+            <td class="device-group">Utvikling</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Green (healthy) -->
+          <tr>
+            <td class="row-id">11</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'Teste', tid:'S21 de Jaylton A', apiType:'Plorea'})">
+              <span class="status-indicator status-green">
+                <span class="status-dot"></span>Healthy
+              </span>
+            </td>
+            <td class="terminal-name">Teste</td>
+            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S21 de Jaylton A</td>
+            <td class="device-cell">Kasse 1</td>
+            <td class="device-group">Hovedinngang</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Green Amendo -->
+          <tr>
+            <td class="row-id">12</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'Manoel 2352', tid:'S1F2-000158234962352', apiType:'Amendo'})">
+              <span class="status-indicator status-green">
+                <span class="status-dot"></span>Healthy
+              </span>
+            </td>
+            <td class="terminal-name">Manoel 2352</td>
+            <td><span class="api-type api-amendo">Amendo</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158234962352</td>
+            <td class="device-cell">Amendo POS</td>
+            <td class="device-group">Amendo-sone</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Yellow (online with fault) -->
+          <tr>
+            <td class="row-id">26</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'yellow-fault', {name:'Test TRD', tid:'S1F2-000158234962349', apiType:'Test Plorea'})">
+              <span class="status-indicator status-yellow">
+                <span class="status-dot"></span>Online with fault
+              </span>
+            </td>
+            <td class="terminal-name">Test TRD</td>
+            <td><span class="api-type api-test">Test Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158234962349</td>
+            <td class="device-cell">Kasse 2</td>
+            <td class="device-group">Bakeri</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Green (Ecom) -->
+          <tr>
+            <td class="row-id">28</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'PloreaECOM', tid:'PloreaECOM', apiType:'Plorea', type:'Ecom'})">
+              <span class="status-indicator status-green">
+                <span class="status-dot"></span>Healthy
+              </span>
+            </td>
+            <td class="terminal-name">PloreaECOM</td>
+            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td>Ecom</td>
+            <td class="tid-cell">PloreaECOM</td>
+            <td class="device-cell muted">—</td>
+            <td class="device-group muted">—</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Another purple to drive the point home -->
+          <tr>
+            <td class="row-id">30</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'purple-auth', {name:'manoel new 7754', tid:'S1F2-000158240707754', apiType:'Amendo'})">
+              <span class="status-indicator status-purple">
+                <span class="status-dot"></span>Merchant failed
+              </span>
+            </td>
+            <td class="terminal-name">manoel new 7754</td>
+            <td><span class="api-type api-amendo">Amendo</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158240707754</td>
+            <td class="device-cell">Amendo POS 2</td>
+            <td class="device-group">Amendo-sone</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <!-- Test amendo, green -->
+          <tr>
+            <td class="row-id">31</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'TRD1631', tid:'S1F2-000158243341631', apiType:'Test Amendo'})">
+              <span class="status-indicator status-green">
+                <span class="status-dot"></span>Healthy
+              </span>
+            </td>
+            <td class="terminal-name">TRD1631</td>
+            <td><span class="api-type api-test">Test Amendo</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158243341631</td>
+            <td class="device-cell">Test Kasse</td>
+            <td class="device-group">Utvikling</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+
+          <tr>
+            <td class="row-id">35</td>
+            <td class="status-cell" onclick="openStatusPopover(this, 'green', {name:'2349', tid:'S1F2-000158234962349', apiType:'Plorea'})">
+              <span class="status-indicator status-green">
+                <span class="status-dot"></span>Healthy
+              </span>
+            </td>
+            <td class="terminal-name">2349</td>
+            <td><span class="api-type api-plorea">Plorea</span></td>
+            <td>Terminal</td>
+            <td class="tid-cell">S1F2-000158234962349</td>
+            <td class="device-cell">Kasse 3</td>
+            <td class="device-group">Hovedinngang</td>
+            <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Legend for the status system -->
+    <div class="section">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Combined status indicator <span class="new-badge">PLBR-1227</span></div>
+          <div class="section-subtitle">One indicator per row. Priority: Purple > Red > Yellow > Green</div>
+        </div>
+      </div>
+      <div style="padding:18px 20px; display:grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+        <div>
+          <span class="status-indicator status-purple"><span class="status-dot"></span>Merchant failed</span>
+          <div style="margin-top:8px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
+            <strong style="color: var(--status-purple);">Highest priority.</strong> Adyen merchant assignment failed — payments may route to the wrong account. Click to retry.
+          </div>
+        </div>
+        <div>
+          <span class="status-indicator status-red"><span class="status-dot"></span>Offline</span>
+          <div style="margin-top:8px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
+            Terminal has no contact with the system. Check network or power.
+          </div>
+        </div>
+        <div>
+          <span class="status-indicator status-yellow"><span class="status-dot"></span>Pending / fault</span>
+          <div style="margin-top:8px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
+            Either online with a non-critical fault, or Adyen reassign is waiting for the next sync window (~3h).
+          </div>
+        </div>
+        <div>
+          <span class="status-indicator status-green"><span class="status-dot"></span>Healthy</span>
+          <div style="margin-top:8px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
+            Online, healthy, and correctly assigned to the right merchant account.
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ============ MODAL: Legg til terminal ============ -->
+<div class="modal-overlay hidden" id="add-terminal-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Legg til terminal <span class="new-badge">PLBR-1223 + 1231</span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('add-terminal-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+
+        <!-- API type - the new first field -->
+        <div class="form-group full">
+          <label class="form-label">
+            API type <span class="required">*</span>
+            <span class="badge-new">NEW</span>
+          </label>
+          <select class="form-select" id="api-type-select" onchange="onApiTypeChange(this.value)">
+            <option value="">Velg API type...</option>
+            <option value="plorea">Plorea</option>
+            <option value="amendo">Amendo</option>
+            <option value="test-plorea">🧪 Test Plorea</option>
+            <option value="test-amendo">🧪 Test Amendo</option>
+          </select>
+          <div class="form-hint">Determines which Adyen company account this terminal is registered against. Immutable after creation.</div>
+        </div>
+
+        <!-- Terminaltype - renamed options -->
+        <div class="form-group dependent" id="dep-terminaltype">
+          <label class="form-label">
+            Terminaltype <span class="required">*</span>
+            <span class="badge-new">RENAMED</span>
+          </label>
+          <select class="form-select" id="new-terminaltype">
+            <option value="">Velg...</option>
+            <option value="terminal">Terminal</option>
+            <option value="ecom">Ecom</option>
+          </select>
+          <div class="form-hint">Formerly "Adyen" and "Adyen Ecom".</div>
+        </div>
+
+        <div class="form-group dependent" id="dep-betalingstyper">
+          <label class="form-label">
+            Betalingstyper <span class="required">*</span>
+            <span class="badge-new">MULTI-SELECT</span>
+          </label>
+          <div class="multiselect" id="multiselect" onclick="toggleMultiselect(event)">
+            <span class="multiselect-placeholder" id="ms-placeholder">Velg betalingstyper...</span>
+            <div class="multiselect-dropdown hidden" id="ms-dropdown">
+              <label class="multiselect-option select-all" onclick="event.stopPropagation(); toggleSelectAll()">
+                <input type="checkbox" id="ms-all" />
+                <span>Velg alle</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('Visa')">
+                <input type="checkbox" class="ms-opt" data-val="Visa" /><span>Visa</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('MasterCard')">
+                <input type="checkbox" class="ms-opt" data-val="MasterCard" /><span>MasterCard</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('AmEx')">
+                <input type="checkbox" class="ms-opt" data-val="AmEx" /><span>AmEx</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('Diners')">
+                <input type="checkbox" class="ms-opt" data-val="Diners" /><span>Diners</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('Maestro')">
+                <input type="checkbox" class="ms-opt" data-val="Maestro" /><span>Maestro</span>
+              </label>
+              <label class="multiselect-option" onclick="event.stopPropagation(); toggleOption('JCB')">
+                <input type="checkbox" class="ms-opt" data-val="JCB" /><span>JCB</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-hint">Click "Velg alle" for one-tap selection of all payment types.</div>
+        </div>
+
+        <div class="form-group dependent" id="dep-navn">
+          <label class="form-label">Terminalnavn <span class="required">*</span></label>
+          <input class="form-input" id="new-navn" placeholder="F.eks. Kasse 1" />
+        </div>
+
+        <div class="form-group dependent" id="dep-tid">
+          <label class="form-label">Terminal TID <span class="required">*</span></label>
+          <input class="form-input" id="new-tid" placeholder="S1F2-..." />
+        </div>
+
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal('add-terminal-modal')">Lukk</button>
+      <button class="btn-primary btn" onclick="saveNewTerminal()">Lagre endringer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CSV Import ============ -->
+<div class="modal-overlay hidden" id="csv-modal">
+  <div class="modal wide">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Importer terminaler fra CSV <span class="new-badge">PLBR-1226</span></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('csv-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Step indicator -->
+      <div class="steps" id="csv-steps">
+        <div class="step active" data-step="1"><span class="step-num">1</span>Upload</div>
+        <span class="step-separator">›</span>
+        <div class="step" data-step="2"><span class="step-num">2</span>Validate</div>
+        <span class="step-separator">›</span>
+        <div class="step" data-step="3"><span class="step-num">3</span>Conflicts</div>
+        <span class="step-separator">›</span>
+        <div class="step" data-step="4"><span class="step-num">4</span>Result</div>
+      </div>
+
+      <!-- Step 1 - Upload -->
+      <div id="csv-step-1">
+        <div class="csv-upload-zone">
+          <div class="csv-upload-icon">📄</div>
+          <div class="csv-upload-text">Dra filen hit eller klikk for å velge CSV</div>
+          <button class="btn" style="margin-top:4px">Velg fil</button>
+          <br />
+          <a class="csv-template-link">⬇ Last ned CSV-mal</a>
+        </div>
+        <div style="margin-top:20px; font-size:13px; color: var(--text-secondary);">
+          <strong style="color: var(--text-primary);">Forventet format:</strong>
+          <div style="background: var(--bg-subtle); border:1px solid var(--border); border-radius:6px; padding:10px 12px; margin-top:6px; font-family: 'SF Mono', Monaco, monospace; font-size:11px; overflow-x:auto;">
+            API type,Terminaltype,Betalingstyper,Terminalnavn,Terminal TID<br/>
+            Plorea,Terminal,all,Kasse 1,S1F2-000158241144386<br/>
+            Amendo,Terminal,all,Amendo POS,S1F2-000158232331199<br/>
+            Test Plorea,Ecom,all,Test Ecom,TEST-ECOM-001
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 - Validation summary (hidden by default) -->
+      <div id="csv-step-2" style="display:none">
+        <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; padding: 12px 14px; margin-bottom: 16px; color:#065F46; font-size:13px;">
+          ✓ <strong>12 rader validert</strong> — ingen feil. Fordeling: 7 Plorea, 3 Amendo, 2 Test Plorea.
+        </div>
+        <div style="font-size:13px; color: var(--text-secondary);">Klikk "Neste" for å sjekke TID-konflikter mot andre bedrifter.</div>
+      </div>
+
+      <!-- Step 3 - Conflict dialog -->
+      <div id="csv-step-3" style="display:none">
+        <div class="conflict-banner">
+          ⚠️ <strong>3 terminaler funnet på andre bedrifter.</strong>
+          Følgende TID-er er registrert på <strong>andre bedrifter/lokasjoner</strong> i dag. Velg hvordan du vil håndtere dem.
+        </div>
+
+        <div class="conflict-table">
+          <table>
+            <thead>
+              <tr><th>Terminal TID</th><th>Navn (fra CSV)</th><th>API type</th><th>Registrert i dag på</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="tid-cell">S1F2-000158241144386</td>
+                <td>Kasse 1</td>
+                <td><span class="api-type api-plorea">Plorea</span></td>
+                <td>Café Aurora (Bergen)</td>
+              </tr>
+              <tr>
+                <td class="tid-cell">S1F2-000158232331199</td>
+                <td>Amendo POS</td>
+                <td><span class="api-type api-amendo">Amendo</span></td>
+                <td>Amendo Hovedkontor</td>
+              </tr>
+              <tr>
+                <td class="tid-cell">S1F2-000158234962352</td>
+                <td>Kasse 7</td>
+                <td><span class="api-type api-plorea">Plorea</span></td>
+                <td>Café Aurora (Bergen)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="background: var(--bg-subtle); border: 1px solid var(--border); border-radius:8px; padding: 14px; font-size:12px; color: var(--text-secondary); line-height:1.5;">
+          <strong style="color: var(--text-primary);">Ved "Ja — flytt":</strong>
+          Eksisterende terminalene på kildebedriften settes til <code>inactive</code> med <code>deleted_at = nå</code>.
+          Det samme skjer for enhetene som bruker terminalene på kildesiden. Nye terminaler opprettes på denne bedriften.
+        </div>
+      </div>
+
+      <!-- Step 4 - Summary -->
+      <div id="csv-step-4" style="display:none">
+        <div class="summary-stats">
+          <div class="stat-card success">
+            <div class="stat-number">9</div>
+            <div class="stat-label">Synced ✓</div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Pending sync</div>
+          </div>
+          <div class="stat-card error">
+            <div class="stat-number">1</div>
+            <div class="stat-label">Merchant failed</div>
+          </div>
+        </div>
+
+        <div style="font-size:13px; color:var(--text-secondary); margin-bottom:10px;">
+          12 terminaler importert. 3 flyttet fra Café Aurora (Bergen) og Amendo Hovedkontor.
+          <strong style="color: var(--status-purple);">1 merchant-tilordning feilet</strong> og krever oppmerksomhet.
+        </div>
+
+        <div style="border: 1px solid var(--border); border-radius:8px; padding: 10px 12px; font-size:12px; background: var(--status-purple-bg); color: #6B21A8; margin-top:10px;">
+          <strong>Merchant failed:</strong> <code>S1F2-000158234962352</code> ([Amendo] Invalid merchantId) — retry from the terminal row.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="csv-footer">
+      <button class="btn" onclick="closeModal('csv-modal')">Avbryt</button>
+      <button class="btn" id="csv-back" onclick="csvStep(-1)" style="display:none">Tilbake</button>
+      <button class="btn-danger btn" id="csv-skip" style="display:none" onclick="csvStep(1, 'skip')">Importer kun de nye</button>
+      <button class="btn-primary btn" id="csv-next" onclick="csvStep(1)">Neste</button>
+    </div>
+  </div>
+</div>
+
+<!-- Popover (single shared) -->
+<div class="popover" id="popover" style="display:none"></div>
+
+<script>
+  // ===== Modal handling =====
+  function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+  function closeModal(id) {
+    document.getElementById(id).classList.add('hidden');
+    if (id === 'csv-modal') resetCsvFlow();
+    document.getElementById('popover').style.display = 'none';
+  }
+  function openAddTerminal() { openModal('add-terminal-modal'); }
+  function openCsvImport() { openModal('csv-modal'); resetCsvFlow(); }
+
+  function scrollToSection(id) {
+    document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== Add Terminal form: gate fields on API type =====
+  function onApiTypeChange(val) {
+    const deps = document.querySelectorAll('.form-group.dependent');
+    deps.forEach(d => d.classList.toggle('enabled', val !== ''));
+  }
+
+  // ===== Multi-select =====
+  const selected = new Set();
+  function toggleMultiselect(e) {
+    e.stopPropagation();
+    const dd = document.getElementById('ms-dropdown');
+    dd.classList.toggle('hidden');
+  }
+  document.addEventListener('click', (e) => {
+    const ms = document.getElementById('multiselect');
+    if (!ms.contains(e.target)) document.getElementById('ms-dropdown').classList.add('hidden');
+  });
+  function toggleOption(val) {
+    const cb = document.querySelector(`.ms-opt[data-val="${val}"]`);
+    if (selected.has(val)) { selected.delete(val); cb.checked = false; }
+    else { selected.add(val); cb.checked = true; }
+    renderChips();
+    syncSelectAll();
+  }
+  function toggleSelectAll() {
+    const all = document.getElementById('ms-all');
+    const opts = document.querySelectorAll('.ms-opt');
+    const newState = !all.checked;
+    all.checked = newState;
+    if (newState) { opts.forEach(o => { o.checked = true; selected.add(o.dataset.val); }); }
+    else { opts.forEach(o => { o.checked = false; selected.delete(o.dataset.val); }); }
+    renderChips();
+  }
+  function syncSelectAll() {
+    const opts = document.querySelectorAll('.ms-opt');
+    const allChecked = Array.from(opts).every(o => o.checked);
+    document.getElementById('ms-all').checked = allChecked;
+  }
+  function renderChips() {
+    const ms = document.getElementById('multiselect');
+    // Clear existing chips (but keep placeholder + dropdown)
+    ms.querySelectorAll('.multiselect-chip').forEach(c => c.remove());
+    const placeholder = document.getElementById('ms-placeholder');
+    if (selected.size === 0) { placeholder.style.display = ''; return; }
+    placeholder.style.display = 'none';
+    const dd = document.getElementById('ms-dropdown');
+    selected.forEach(v => {
+      const chip = document.createElement('span');
+      chip.className = 'multiselect-chip';
+      chip.innerHTML = `${v}<span class="x" onclick="event.stopPropagation();toggleOption('${v}')">×</span>`;
+      ms.insertBefore(chip, dd);
+    });
+  }
+
+  // ===== CSV flow =====
+  let csvStepIdx = 1;
+  function csvStep(dir, mode) {
+    // mode 'skip' = "Importer kun de nye" - jump to result
+    if (mode === 'skip') { csvStepIdx = 4; }
+    else { csvStepIdx = Math.max(1, Math.min(4, csvStepIdx + dir)); }
+    // Show/hide step content
+    [1,2,3,4].forEach(n => {
+      document.getElementById(`csv-step-${n}`).style.display = (n === csvStepIdx ? '' : 'none');
+    });
+    // Update step indicator
+    document.querySelectorAll('#csv-steps .step').forEach(s => {
+      const n = parseInt(s.dataset.step);
+      s.classList.remove('active', 'done');
+      if (n < csvStepIdx) s.classList.add('done');
+      else if (n === csvStepIdx) s.classList.add('active');
+    });
+    // Update footer buttons
+    const back = document.getElementById('csv-back');
+    const next = document.getElementById('csv-next');
+    const skip = document.getElementById('csv-skip');
+    back.style.display = (csvStepIdx > 1 && csvStepIdx < 4) ? '' : 'none';
+    skip.style.display = (csvStepIdx === 3) ? '' : 'none';
+    if (csvStepIdx === 1) next.textContent = 'Valider';
+    else if (csvStepIdx === 2) next.textContent = 'Sjekk konflikter';
+    else if (csvStepIdx === 3) { next.textContent = 'Ja — flytt terminalene'; next.className = 'btn-danger btn'; }
+    else if (csvStepIdx === 4) { next.textContent = 'Ferdig'; next.className = 'btn-primary btn'; next.onclick = () => closeModal('csv-modal'); }
+    else next.className = 'btn-primary btn';
+  }
+  function resetCsvFlow() {
+    csvStepIdx = 1;
+    [1,2,3,4].forEach(n => {
+      document.getElementById(`csv-step-${n}`).style.display = (n === 1 ? '' : 'none');
+    });
+    document.querySelectorAll('#csv-steps .step').forEach(s => {
+      const n = parseInt(s.dataset.step);
+      s.classList.remove('active', 'done');
+      if (n === 1) s.classList.add('active');
+    });
+    const next = document.getElementById('csv-next');
+    next.textContent = 'Valider';
+    next.className = 'btn-primary btn';
+    next.onclick = () => csvStep(1);
+    document.getElementById('csv-back').style.display = 'none';
+    document.getElementById('csv-skip').style.display = 'none';
+  }
+
+  // ===== Popover for status indicator - RICH DETAILED VIEW =====
+  function openStatusPopover(triggerEl, type, terminalData) {
+    const pop = document.getElementById('popover');
+    terminalData = terminalData || {};
+
+    const statusConfig = {
+      'purple': {
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Payments may route to the wrong Adyen account',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name || '—'}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid || '—'}</span></div>
+            <div class="popover-row"><span class="label">API type tried</span><span class="value">${d.apiType || '—'}</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">MESSE-HOVED-001</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Adyen-feil</div>
+            <div class="popover-error">
+              <strong>[${d.apiType}] HTTP 422: Invalid merchantId</strong><br/>
+              The provided merchant account does not exist in the ${d.apiType} company account. Check the bedrift → merchantId mapping in config.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="error"><strong>Reassign failed</strong><span class="time">23.04.2026 14:32 · 2t siden</span></li>
+              <li><strong>Reassign attempted</strong><span class="time">23.04.2026 14:32</span></li>
+              <li><strong>Terminal added to Plorea</strong><span class="time">23.04.2026 14:31</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn-primary btn" style="padding:7px 14px; font-size:12px">🔄 Prøv på nytt</button><button class="btn" style="padding:7px 14px; font-size:12px">Se full feil-logg</button>'
+      },
+      'purple-auth': {
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Authentication error — payments at risk',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type tried</span><span class="value">${d.apiType}</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">AMENDO-MAIN-007</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Adyen-feil</div>
+            <div class="popover-error">
+              <strong>[${d.apiType}] HTTP 401: Authentication error</strong><br/>
+              Check the Amendo API credentials in the config file. All Amendo-routed terminals are affected until this is resolved.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="error"><strong>Auth failed (retry 3/3)</strong><span class="time">23.04.2026 09:14</span></li>
+              <li class="error"><strong>Auth failed (retry 2/3)</strong><span class="time">23.04.2026 09:13</span></li>
+              <li class="error"><strong>Auth failed (retry 1/3)</strong><span class="time">23.04.2026 09:12</span></li>
+              <li><strong>Terminal added to Plorea</strong><span class="time">23.04.2026 09:12</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn-primary btn" style="padding:7px 14px; font-size:12px">🔄 Prøv på nytt</button><button class="btn" style="padding:7px 14px; font-size:12px">Kontakt systemansvarlig</button>'
+      },
+      'purple-demo': {
+        headerClass: 'header-purple',
+        badge: '🟣',
+        title: 'Merchant assignment failed',
+        subtitle: 'Example — revenue at risk on wrong account',
+        severity: 'purple',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-error">
+              The purple indicator means the Adyen reassign call failed — the terminal may route payments to the wrong merchant account. This is the highest-severity state in the system and takes priority over all other indicators.
+            </div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">What to do</div>
+            <ul class="popover-timeline">
+              <li><strong>Check the error message</strong><span class="time">Shown in the red box above the row details</span></li>
+              <li><strong>Try again</strong><span class="time">Retries the reassign call</span></li>
+              <li><strong>If auth error</strong><span class="time">Check config credentials for the API type</span></li>
+            </ul>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
+      },
+      'red': {
+        headerClass: 'header-red',
+        badge: '🔴',
+        title: 'Terminal offline',
+        subtitle: 'No contact with the system',
+        severity: 'red',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Offline-detaljer</div>
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">22.04.2026 18:03</span></div>
+            <div class="popover-row"><span class="label">Offline i</span><span class="value">~20 timer</span></div>
+            <div class="popover-row"><span class="label">Årsak</span><span class="value">Connection timeout</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Timeline</div>
+            <ul class="popover-timeline">
+              <li class="warning"><strong>Offline</strong><span class="time">22.04.2026 18:03</span></li>
+              <li class="success"><strong>Online</strong><span class="time">22.04.2026 08:00</span></li>
+              <li class="success"><strong>Online</strong><span class="time">21.04.2026 08:00</span></li>
+            </ul>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Merchant-tilordningen er OK — betalinger vil rutes riktig når terminalen kommer tilbake online.
+            </div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Kontakt støtte</button>'
+      },
+      'red-demo': {
+        headerClass: 'header-red',
+        badge: '🔴',
+        title: 'Terminal offline (example)',
+        subtitle: 'No contact with the system',
+        severity: 'red',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">22.04.2026 18:03</span></div>
+            <div class="popover-row"><span class="label">Årsak</span><span class="value">Connection timeout</span></div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
+      },
+      'yellow-pending': {
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Pending sync',
+        subtitle: 'Waiting for next Adyen sync window',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Sync-detaljer</div>
+            <div class="popover-row"><span class="label">Reassign sendt</span><span class="value">23.04.2026 14:15</span></div>
+            <div class="popover-row"><span class="label">Forventet sync</span><span class="value">23.04.2026 17:15</span></div>
+            <div class="popover-row"><span class="label">Target merchant</span><span class="value">TEST-PLOREA-DEV</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Adyen aksepterte reassign-forespørselen. Terminalen synkroniseres innen ~3 timer med mindre WebSockets er aktivert. Ingen handling nødvendig.
+            </div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Tving sync nå</button>'
+      },
+      'yellow-fault': {
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Online with fault',
+        subtitle: 'Terminal reachable, but reports an issue',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Feildetaljer</div>
+            <div class="popover-row"><span class="label">Feil</span><span class="value">Receipt paper low</span></div>
+            <div class="popover-row"><span class="label">Først rapportert</span><span class="value">23.04.2026 10:00</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-info">
+              Terminalen fungerer og kan fortsatt prosessere betalinger. Bytt kvitteringsrull så snart som mulig.
+            </div>
+          </div>`,
+        actions: ''
+      },
+      'yellow-demo': {
+        headerClass: 'header-yellow',
+        badge: '🟡',
+        title: 'Pending sync (example)',
+        subtitle: 'Waiting for next Adyen sync window',
+        severity: 'yellow',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-row"><span class="label">Reassign sendt</span><span class="value">Just now</span></div>
+            <div class="popover-row"><span class="label">Forventet sync</span><span class="value">~3 timer</span></div>
+          </div>`,
+        actions: '<button class="btn" style="padding:7px 14px; font-size:12px">Lukk</button>'
+      },
+      'green': {
+        headerClass: 'header-green',
+        badge: '🟢',
+        title: 'Healthy',
+        subtitle: 'Online and correctly assigned',
+        severity: 'green',
+        body: (d) => `
+          <div class="popover-section">
+            <div class="popover-section-title">Terminal</div>
+            <div class="popover-row"><span class="label">Navn</span><span class="value">${d.name}</span></div>
+            <div class="popover-row"><span class="label">TID</span><span class="value">${d.tid}</span></div>
+            <div class="popover-row"><span class="label">API type</span><span class="value">${d.apiType}</span></div>
+          </div>
+          <div class="popover-section">
+            <div class="popover-section-title">Status</div>
+            <div class="popover-row"><span class="label">Siste kontakt</span><span class="value">23.04.2026 14:47</span></div>
+            <div class="popover-row"><span class="label">Merchant</span><span class="value" style="color: var(--status-green)">✓ Riktig tilordnet</span></div>
+            <div class="popover-row"><span class="label">Uptime (7 dager)</span><span class="value">99.2%</span></div>
+          </div>`,
+        actions: ''
+      }
+    };
+
+    const cfg = statusConfig[type];
+    if (!cfg) return;
+
+    const html = `
+      <button class="popover-close" onclick="closePopover()">✕</button>
+      <div class="popover-header ${cfg.headerClass}">
+        <div class="popover-title">${cfg.badge} ${cfg.title}</div>
+        <div class="popover-subtitle">${cfg.subtitle}</div>
+      </div>
+      <div class="popover-body">
+        ${cfg.body(terminalData)}
+      </div>
+      ${cfg.actions ? `<div class="popover-actions">${cfg.actions}</div>` : ''}
+    `;
+    pop.innerHTML = html;
+
+    // Position popover
+    if (typeof triggerEl === 'string') {
+      pop.style.position = 'fixed';
+      pop.style.top = '50%';
+      pop.style.left = '50%';
+      pop.style.transform = 'translate(-50%, -50%)';
+    } else {
+      const r = triggerEl.getBoundingClientRect();
+      const viewportH = window.innerHeight;
+      const popH = 440; // estimated
+      let top = r.bottom + 8;
+      if (top + popH > viewportH - 20) { top = Math.max(20, r.top - popH - 8); }
+      pop.style.position = 'fixed';
+      pop.style.top = top + 'px';
+      pop.style.left = Math.max(16, Math.min(r.left, window.innerWidth - 420)) + 'px';
+      pop.style.transform = 'none';
+    }
+    pop.style.display = 'block';
+
+    // Close on outside click
+    setTimeout(() => {
+      const off = (e) => {
+        if (!pop.contains(e.target) && !triggerEl.contains?.(e.target)) {
+          closePopover();
+          document.removeEventListener('click', off);
+        }
+      };
+      document.addEventListener('click', off);
+    }, 0);
+  }
+
+  function closePopover() {
+    document.getElementById('popover').style.display = 'none';
+  }
+
+  // ===== Save new terminal — actually add the row to the table =====
+  let nextRowId = 36;
+  function saveNewTerminal() {
+    const apiType = document.getElementById('api-type-select').value;
+    const terminaltype = document.getElementById('new-terminaltype').value;
+    const navn = document.getElementById('new-navn').value.trim();
+    const tid = document.getElementById('new-tid').value.trim();
+
+    // Simple validation
+    const errors = [];
+    if (!apiType) errors.push('API type');
+    if (!terminaltype) errors.push('Terminaltype');
+    if (selected.size === 0) errors.push('Betalingstyper (minst én)');
+    if (!navn) errors.push('Terminalnavn');
+    if (!tid) errors.push('Terminal TID');
+
+    if (errors.length) {
+      alert('Fyll ut følgende felter:\n\n• ' + errors.join('\n• '));
+      return;
+    }
+
+    // API type label + badge styling
+    const apiLabels = { 'plorea': 'Plorea', 'amendo': 'Amendo', 'test-plorea': 'Test Plorea', 'test-amendo': 'Test Amendo' };
+    const apiClass = apiType.startsWith('test-') ? 'api-test' : (apiType === 'amendo' ? 'api-amendo' : 'api-plorea');
+    const apiLabel = apiLabels[apiType];
+
+    // Terminal type label
+    const typeLabel = terminaltype === 'terminal' ? 'Terminal' : 'Ecom';
+
+    // Create new row — starts as "pending sync" since Adyen reassign just fired
+    const tbody = document.getElementById('terminals-tbody');
+    const tr = document.createElement('tr');
+    tr.style.animation = 'none';
+    const dataJson = JSON.stringify({ name: navn, tid: tid, apiType: apiLabel }).replace(/"/g, '&quot;');
+
+    tr.innerHTML = `
+      <td class="row-id">${nextRowId}</td>
+      <td class="status-cell" onclick='openStatusPopover(this, "yellow-pending", ${JSON.stringify({name: navn, tid: tid, apiType: apiLabel})})'>
+        <span class="status-indicator status-yellow">
+          <span class="status-dot"></span>Pending sync
+        </span>
+      </td>
+      <td class="terminal-name">${escapeHtml(navn)}</td>
+      <td><span class="api-type ${apiClass}">${apiLabel}</span></td>
+      <td>${typeLabel}</td>
+      <td class="tid-cell">${escapeHtml(tid)}</td>
+      <td class="device-cell muted">—</td>
+      <td class="device-group muted">—</td>
+      <td><div class="row-actions"><button class="action-btn">✎</button><button class="action-btn danger">🗑</button></div></td>
+    `;
+
+    // Flash highlight animation via style
+    tr.style.background = '#FEF3C7';
+    tr.style.transition = 'background 2s ease-out';
+    tbody.appendChild(tr);
+    setTimeout(() => { tr.style.background = ''; }, 50);
+
+    nextRowId++;
+
+    // Close modal and reset form
+    closeModal('add-terminal-modal');
+    resetAddTerminalForm();
+
+    // Scroll to the new row
+    setTimeout(() => {
+      tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+
+    // Toast
+    showToast(`✓ "${navn}" lagret. Adyen reassign sendt til ${apiLabel} — synkroniseres innen ~3 timer.`);
+  }
+
+  function resetAddTerminalForm() {
+    document.getElementById('api-type-select').value = '';
+    document.getElementById('new-terminaltype').value = '';
+    document.getElementById('new-navn').value = '';
+    document.getElementById('new-tid').value = '';
+    selected.clear();
+    renderChips();
+    document.querySelectorAll('.ms-opt').forEach(o => o.checked = false);
+    document.getElementById('ms-all').checked = false;
+    onApiTypeChange('');
+  }
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+
+  // ===== Toast =====
+  function showToast(msg) {
+    let toast = document.getElementById('toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.style.cssText = `
+        position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+        background: #065F46; color: white; padding: 12px 20px;
+        border-radius: 8px; font-size: 13px; font-weight: 500;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        z-index: 200; max-width: 500px;
+        opacity: 0; transition: opacity 0.3s, transform 0.3s;
+      `;
+      document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => {
+      toast.style.opacity = '0';
+    }, 4000);
+  }
+</script>
+
+</body>
+</html>
