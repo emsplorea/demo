@@ -1,0 +1,2677 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Device Templates — Interactive Flow Demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-page: #F1F5F9;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #F8FAFC;
+    --bg-hover: #F8FAFC;
+
+    --text-primary: #1E293B;
+    --text-secondary: #64748B;
+    --text-muted: #94A3B8;
+    --text-inverse: #FFFFFF;
+
+    --brand: #468DAC;
+    --brand-hover: #2E6B87;
+    --brand-light: #6BB8DA;
+
+    --border: #E2E8F0;
+    --border-strong: #CBD5E1;
+
+    --success: #10B981;
+    --success-bg: #ECFDF5;
+    --warning: #F59E0B;
+    --warning-bg: #FFFBEB;
+    --error: #EF4444;
+    --error-bg: #FEF2F2;
+    --purple: #9333EA;
+    --purple-bg: #F3E8FF;
+
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
+    --shadow-xl: 0 20px 40px -8px rgba(0,0,0,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ==================== Top bar ==================== */
+  .topbar {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: var(--shadow-sm);
+  }
+  .topbar-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+  .topbar-title .badge {
+    display: inline-block;
+    background: var(--purple-bg);
+    color: #7E22CE;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 4px;
+    margin-left: 8px;
+    letter-spacing: 0.05em;
+    vertical-align: middle;
+  }
+  .topbar-meta {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .topbar-meta strong { color: var(--text-primary); }
+
+  /* ==================== Scenario picker ==================== */
+  .scenarios {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .scenarios-inner {
+    display: inline-flex;
+    gap: 8px;
+  }
+  .scenario-btn {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .scenario-btn:hover { background: var(--bg-surface); border-color: var(--border-strong); color: var(--text-primary); }
+  .scenario-btn.active {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+    font-weight: 600;
+  }
+  .scenario-btn .num {
+    background: rgba(255,255,255,0.2);
+    color: inherit;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .scenario-btn:not(.active) .num {
+    background: #E2E8F0;
+    color: var(--text-secondary);
+  }
+
+  /* ==================== Step header ==================== */
+  .step-header {
+    padding: 18px 24px 12px;
+    text-align: center;
+  }
+  .step-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+
+  /* ==================== Stage ==================== */
+  .stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow-y: auto;
+    position: relative;
+  }
+
+  /* ==================== Controls ==================== */
+  .controls {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    box-shadow: 0 -1px 2px rgba(0,0,0,0.02);
+  }
+  .step-dots {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    justify-content: center;
+  }
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--border-strong);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .dot.active { background: var(--brand); transform: scale(1.3); }
+  .dot.completed { background: var(--brand-light); }
+  .control-btn {
+    padding: 9px 16px;
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 100px;
+  }
+  .control-btn:hover:not(:disabled) {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+  .control-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .control-btn.primary {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+  }
+  .control-btn.primary:hover:not(:disabled) {
+    background: var(--brand-hover);
+    border-color: var(--brand-hover);
+    color: white;
+  }
+
+  /* ==================== Admin screen styling ==================== */
+  .admin-view {
+    width: 100%;
+    max-width: 1100px;
+    background: var(--bg-surface);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 520px;
+  }
+  .admin-sidebar {
+    background: var(--bg-subtle);
+    border-right: 1px solid var(--border);
+    padding: 16px 10px;
+  }
+  .admin-sidebar-logo {
+    font-weight: 700;
+    color: var(--brand);
+    padding: 0 10px 16px;
+    letter-spacing: -0.02em;
+    font-size: 15px;
+  }
+  .nav-section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    padding: 14px 10px 6px;
+  }
+  .nav-item {
+    padding: 7px 10px;
+    border-radius: 5px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    cursor: default;
+    font-weight: 500;
+  }
+  .nav-item.active { background: var(--brand); color: white; }
+
+  .admin-content {
+    padding: 22px 28px;
+    overflow-y: auto;
+  }
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .breadcrumb {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--bg-subtle); }
+  .btn-primary {
+    background: var(--brand);
+    color: white;
+    border-color: var(--brand);
+    font-weight: 600;
+  }
+  .btn-primary:hover { background: var(--brand-hover); }
+
+  /* Template list */
+  table.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .admin-table th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-subtle);
+  }
+  .admin-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+    vertical-align: middle;
+  }
+  .admin-table tr:hover td { background: var(--bg-hover); }
+  .admin-table tr.highlight {
+    animation: flashHighlight 2s ease-out;
+  }
+  @keyframes flashHighlight {
+    0%, 40% { background: #FEF3C7; }
+    100% { background: transparent; }
+  }
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state-icon {
+    font-size: 40px;
+    opacity: 0.3;
+    margin-bottom: 10px;
+  }
+
+  /* Template builder */
+  .builder {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .form-label .required { color: var(--error); }
+  .label-new {
+    display: inline-block;
+    background: var(--purple-bg);
+    color: #7E22CE;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-left: 5px;
+    letter-spacing: 0.04em;
+    vertical-align: middle;
+    text-transform: uppercase;
+  }
+  .form-input, .form-select {
+    padding: 8px 10px;
+    border: 1px solid var(--border-strong);
+    border-radius: 5px;
+    font-family: inherit;
+    font-size: 13px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
+  .form-input:focus, .form-select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(70, 141, 172, 0.15);
+  }
+  .form-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  .settings-group-card {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+  }
+  .settings-group-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .settings-group-title::before {
+    content: '✓';
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--success);
+    color: white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+  }
+  .settings-group-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* QR Modal */
+  .qr-modal {
+    background: var(--bg-surface);
+    border-radius: 12px;
+    padding: 28px;
+    width: 420px;
+    box-shadow: var(--shadow-xl);
+    text-align: center;
+  }
+  .qr-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .qr-modal-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 18px;
+  }
+  .qr-code-visual {
+    width: 240px;
+    height: 240px;
+    margin: 0 auto;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .qr-svg {
+    width: 100%;
+    height: 100%;
+  }
+  .qr-short-code {
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    padding: 10px;
+    background: var(--bg-subtle);
+    border-radius: 6px;
+    margin-top: 14px;
+    letter-spacing: 0.1em;
+  }
+  .qr-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  /* ==================== Terminal frame ==================== */
+  .terminal-wrap {
+    display: flex;
+    gap: 32px;
+    align-items: center;
+    max-width: 1100px;
+    width: 100%;
+    justify-content: center;
+  }
+  .terminal-context {
+    width: 280px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .terminal-context-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .terminal-context-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    box-shadow: var(--shadow-sm);
+  }
+  .terminal-context-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    font-size: 11px;
+  }
+  .terminal-context-row .label { color: var(--text-muted); }
+  .terminal-context-row .value {
+    color: var(--text-primary);
+    font-family: 'SF Mono', Monaco, monospace;
+    font-weight: 600;
+  }
+
+  .terminal-frame {
+    width: 380px;
+    height: 640px;
+    background: #1E293B;
+    border-radius: 28px;
+    padding: 18px 14px;
+    box-shadow: var(--shadow-xl), 0 0 0 2px #0F172A;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .terminal-frame::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background: #0F172A;
+    border-radius: 2px;
+  }
+  .terminal-screen {
+    width: 100%;
+    height: 100%;
+    background: white;
+    border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .terminal-statusbar {
+    background: #0F172A;
+    color: white;
+    padding: 4px 12px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .terminal-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Login screen */
+  .login-header {
+    padding: 12px 0 20px;
+    text-align: center;
+  }
+  .login-logo {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--brand);
+    letter-spacing: -0.03em;
+  }
+  .login-tenant {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+  }
+  .login-form input {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 14px;
+    background: var(--bg-subtle);
+    font-family: inherit;
+  }
+  .login-btn {
+    padding: 13px;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .login-divider {
+    text-align: center;
+    margin: 16px 0;
+    position: relative;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+  .login-divider::before,
+  .login-divider::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    width: 38%;
+    height: 1px;
+    background: var(--border);
+  }
+  .login-divider::before { left: 0; }
+  .login-divider::after { right: 0; }
+  .scan-btn {
+    padding: 14px;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 2px solid var(--brand);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 0 0 4px rgba(70,141,172,0.08);
+  }
+  .scan-badge-new {
+    font-size: 9px;
+    background: var(--purple-bg);
+    color: #7E22CE;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+  }
+
+  /* Camera / scanning screen */
+  .camera-view {
+    flex: 1;
+    background: radial-gradient(circle at center, #1E293B 0%, #0F172A 100%);
+    position: relative;
+    overflow: hidden;
+    margin: -16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .camera-simulated {
+    position: absolute;
+    inset: 0;
+    background: 
+      linear-gradient(120deg, rgba(100, 116, 139, 0.3) 0%, rgba(30, 41, 59, 0.5) 100%),
+      repeating-linear-gradient(45deg, transparent 0 10px, rgba(255,255,255,0.02) 10px 20px);
+    filter: blur(1px);
+  }
+  .scan-frame {
+    width: 220px;
+    height: 220px;
+    border: 3px solid transparent;
+    border-radius: 16px;
+    position: relative;
+    z-index: 2;
+  }
+  .scan-frame::before,
+  .scan-frame::after {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 3px solid white;
+  }
+  .scan-frame::before { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+  .scan-frame::after { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
+  .scan-frame-corners {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 40px;
+    height: 40px;
+    border-top: 3px solid white;
+    border-right: 3px solid white;
+    border-radius: 0 10px 0 0;
+  }
+  .scan-frame-corners-bl {
+    position: absolute;
+    bottom: -2px;
+    left: -2px;
+    width: 40px;
+    height: 40px;
+    border-bottom: 3px solid white;
+    border-left: 3px solid white;
+    border-radius: 0 0 0 10px;
+  }
+  .scan-laser {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #10B981 50%, transparent);
+    top: 50%;
+    animation: scanMove 2s ease-in-out infinite;
+  }
+  @keyframes scanMove {
+    0%, 100% { top: 10%; }
+    50% { top: 90%; }
+  }
+  .scan-instructions {
+    position: absolute;
+    bottom: 30px;
+    left: 20px;
+    right: 20px;
+    text-align: center;
+    color: white;
+    font-size: 12px;
+    z-index: 2;
+  }
+  .scan-cancel {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+  }
+  .scan-detected {
+    position: absolute;
+    inset: 0;
+    background: rgba(16, 185, 129, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+    color: white;
+    font-weight: 700;
+    z-index: 10;
+    animation: flashIn 0.3s ease-out;
+  }
+  @keyframes flashIn { from { opacity: 0; } to { opacity: 1; } }
+  .scan-detected-icon {
+    font-size: 52px;
+    font-weight: 100;
+    width: 80px;
+    height: 80px;
+    border: 3px solid white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.4s ease-out;
+  }
+  @keyframes popIn {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+  }
+
+  /* PIN screen */
+  .pin-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .pin-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-top: 8px;
+    letter-spacing: -0.01em;
+  }
+  .pin-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 4px;
+    margin-bottom: 20px;
+    padding: 0 20px;
+  }
+  .pin-dots {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .pin-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--border-strong);
+    background: transparent;
+    transition: all 0.15s;
+  }
+  .pin-dot.filled {
+    background: var(--brand);
+    border-color: var(--brand);
+  }
+  .pin-dots.error .pin-dot {
+    border-color: var(--error);
+    animation: shake 0.4s ease-in-out;
+  }
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+    60% { transform: translateX(-6px); }
+  }
+  .pin-keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 240px;
+  }
+  .pin-key {
+    aspect-ratio: 1;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 20px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    color: var(--text-primary);
+    transition: all 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pin-key:hover { background: var(--bg-hover); transform: scale(1.05); }
+  .pin-key:active { transform: scale(0.95); background: var(--border); }
+  .pin-key.backspace { font-size: 18px; color: var(--text-secondary); }
+  .pin-key.blank { visibility: hidden; }
+  .pin-error-text {
+    color: var(--error);
+    font-size: 12px;
+    margin-top: 10px;
+    font-weight: 500;
+  }
+
+  /* Progress screen */
+  .progress-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    text-align: center;
+    padding: 0 20px;
+  }
+  .progress-spinner {
+    width: 64px;
+    height: 64px;
+    border: 4px solid var(--border);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .progress-title {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .progress-steps {
+    list-style: none;
+    text-align: left;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+  }
+  .progress-steps li {
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .progress-steps li::before {
+    content: '✓';
+    color: var(--success);
+    font-weight: 700;
+  }
+  .progress-steps li.pending::before {
+    content: '';
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--border-strong);
+    border-top-color: var(--brand);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .progress-steps li.queued {
+    color: var(--text-muted);
+  }
+  .progress-steps li.queued::before {
+    content: '○';
+    color: var(--text-muted);
+  }
+
+  /* Group picker */
+  .group-picker-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .group-picker-header {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  .group-picker-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .group-picker-subtitle {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+  .group-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+  .group-item {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg-surface);
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .group-item:hover {
+    border-color: var(--brand);
+    background: var(--bg-subtle);
+  }
+  .group-item.current {
+    border-color: var(--brand);
+    background: #EFF6FF;
+  }
+  .group-item.current::after {
+    content: 'Nåværende';
+    font-size: 9px;
+    color: var(--brand);
+    background: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-left: auto;
+  }
+  .group-item.selected {
+    border-color: var(--success);
+    background: var(--success-bg);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+  }
+  .group-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: var(--bg-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .group-item.current .group-icon { background: var(--brand); color: white; }
+  .group-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .group-desc {
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+
+  /* Confirmation / Ready screen */
+  .ready-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .ready-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--success);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .ready-title {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .ready-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    margin-bottom: 20px;
+  }
+  .ready-summary {
+    background: var(--bg-subtle);
+    border-radius: 10px;
+    padding: 12px 14px;
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  .ready-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 11px;
+  }
+  .ready-row .label { color: var(--text-secondary); }
+  .ready-row .value { font-weight: 600; color: var(--text-primary); font-family: 'SF Mono', Monaco, monospace; }
+  .ready-continue {
+    padding: 12px 24px;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    width: 100%;
+  }
+  .ready-autoadvance {
+    font-size: 10px;
+    color: var(--text-muted);
+    margin-top: 10px;
+  }
+
+  /* Warning screen */
+  .warning-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 4px 0;
+  }
+  .warning-icon-wrap {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  .warning-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--warning-bg);
+    color: var(--warning);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    border: 3px solid var(--warning);
+  }
+  .warning-title {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    padding: 0 12px;
+    line-height: 1.4;
+    margin-bottom: 16px;
+  }
+  .warning-summary-card {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 12px;
+  }
+  .warning-summary-title {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 8px;
+  }
+  .warning-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    font-size: 12px;
+  }
+  .warning-summary-row .label { color: var(--text-secondary); }
+  .warning-summary-row .value { font-weight: 700; color: var(--text-primary); }
+  .warning-summary-row.total {
+    margin-top: 6px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+  .warning-summary-row.total .value {
+    font-size: 14px;
+    color: var(--brand);
+  }
+  .warning-explanation {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 16px;
+    padding: 0 6px;
+  }
+  .warning-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .btn-confirm-move {
+    padding: 12px;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .btn-cancel-move {
+    padding: 10px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  /* Error / recovery screen (purple for critical) */
+  .error-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 16px;
+  }
+  .error-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--error-bg);
+    color: var(--error);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 700;
+    border: 3px solid var(--error);
+    margin-bottom: 14px;
+  }
+  .error-icon.purple {
+    background: var(--purple-bg);
+    color: var(--purple);
+    border-color: var(--purple);
+  }
+  .error-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 8px;
+  }
+  .error-desc {
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 14px;
+  }
+  .error-receipt-id {
+    background: var(--purple-bg);
+    border: 1px solid var(--purple);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-family: 'SF Mono', Monaco, monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--purple);
+    margin-bottom: 16px;
+    width: 100%;
+  }
+  .error-receipt-id .label {
+    display: block;
+    font-family: inherit;
+    font-size: 9px;
+    font-weight: 700;
+    color: var(--purple);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2px;
+    opacity: 0.7;
+  }
+  .error-action {
+    padding: 12px;
+    background: var(--brand);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  /* Confirmation with print status */
+  .print-status {
+    background: var(--success-bg);
+    border: 1px solid var(--success);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #065F46;
+    text-align: left;
+    margin-bottom: 12px;
+    width: 100%;
+    line-height: 1.5;
+  }
+  .print-status.warning {
+    background: var(--warning-bg);
+    border-color: var(--warning);
+    color: #92400E;
+  }
+  .print-status-title {
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+
+  /* Kasse placeholder */
+  .kasse-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-subtle);
+    margin: -16px;
+    padding: 16px;
+  }
+  .kasse-header {
+    background: var(--bg-surface);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid var(--border);
+  }
+  .kasse-title { font-size: 12px; font-weight: 700; }
+  .kasse-group-badge {
+    font-size: 9px;
+    background: var(--brand);
+    color: white;
+    padding: 3px 7px;
+    border-radius: 4px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .kasse-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    flex: 1;
+  }
+  .kasse-product {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .kasse-product .price {
+    font-size: 10px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 2px;
+  }
+
+  /* Annotation callout */
+  .callout {
+    position: absolute;
+    background: #1E1B4B;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12px;
+    max-width: 240px;
+    line-height: 1.5;
+    box-shadow: var(--shadow-lg);
+    z-index: 5;
+  }
+  .callout::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border: 8px solid transparent;
+  }
+  .callout.left { left: -260px; top: 40%; }
+  .callout.left::after {
+    right: -16px;
+    top: 20px;
+    border-left-color: #1E1B4B;
+  }
+  .callout.right { right: -260px; top: 40%; }
+  .callout.right::after {
+    left: -16px;
+    top: 20px;
+    border-right-color: #1E1B4B;
+  }
+  .callout-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #C4B5FD;
+  }
+
+  /* Block screen (cross-tenant) */
+  .block-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .block-icon {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--warning-bg);
+    color: var(--warning);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    margin-bottom: 14px;
+    border: 3px solid var(--warning);
+  }
+  .block-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 14px;
+  }
+  .block-detail {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 14px;
+    text-align: left;
+    width: 100%;
+  }
+  .block-detail strong { color: var(--text-primary); }
+  .block-detail .highlight-bedrift {
+    display: inline-block;
+    padding: 2px 6px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-family: 'SF Mono', Monaco, monospace;
+  }
+
+  /* Hide all scenes initially */
+  .stage-scene { display: none; }
+  .stage-scene.active { display: flex; animation: fadeIn 0.3s ease-out; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-title">
+    Device Templates
+    <span class="badge">Interactive Flow Demo</span>
+  </div>
+  <div class="topbar-meta">
+    <span id="current-scenario-label">Velg et scenario for å starte</span>
+    <strong id="current-step-indicator"></strong>
+  </div>
+</div>
+
+<!-- Scenario picker -->
+<div class="scenarios">
+  <div class="scenarios-inner" id="scenarios-inner">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- Step header -->
+<div class="step-header">
+  <div class="step-title" id="step-title">Velkommen</div>
+  <div class="step-desc" id="step-desc">Bruk knappene over for å utforske flytene, eller klikk Neste for å starte med første scenario.</div>
+</div>
+
+<!-- Main stage -->
+<main class="stage" id="stage">
+  <!-- Scenes rendered into this -->
+</main>
+
+<!-- Controls -->
+<div class="controls">
+  <button class="control-btn" id="btn-prev">← Forrige</button>
+  <div class="step-dots" id="step-dots"></div>
+  <button class="control-btn primary" id="btn-next">Neste →</button>
+</div>
+
+<script>
+// ========================================================================
+// Scenario and step definitions
+// ========================================================================
+
+const scenarios = [
+  {
+    id: 1,
+    label: 'Opprett mal m/ PIN',
+    type: 'admin',
+    steps: [
+      {
+        title: 'Device Templates-seksjon',
+        desc: 'Admin navigerer til ny seksjon i Plorea Systems. Listen er tom før første mal opprettes.',
+        render: () => renderAdminList({ empty: true })
+      },
+      {
+        title: 'Template builder — metadata',
+        desc: 'Admin fyller inn malens navn, POS-type, og (valgfritt) en flytte-PIN som kreves ved scanning.',
+        render: () => renderBuilderStep1()
+      },
+      {
+        title: 'Template builder — innstillinger',
+        desc: 'Alle eksisterende simple POS / advanced POS-innstillinger er tilgjengelige. Utvikler vet hvilke.',
+        render: () => renderBuilderStep2()
+      },
+      {
+        title: 'Mal lagret',
+        desc: 'Ny mal vises umiddelbart i listen med antall devices, opprettet-info og handlinger.',
+        render: () => renderAdminList({ empty: false, highlight: true })
+      }
+    ]
+  },
+  {
+    id: 2,
+    label: 'Generer QR-kode',
+    type: 'admin',
+    steps: [
+      {
+        title: 'Device Templates — liste',
+        desc: 'Admin ser listen, klikker "Vis QR-kode" på raden for "Standard Kiosk — Messe".',
+        render: () => renderAdminList({ empty: false })
+      },
+      {
+        title: 'QR-kode modal',
+        desc: 'QR-kode genereres med signatur + kort-kode fallback. Kan printes, lastes ned som PDF eller PNG.',
+        render: () => renderQrModal()
+      }
+    ]
+  },
+  {
+    id: 3,
+    label: 'Første gangs provisionering',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'POS login-skjerm',
+        desc: 'Fersk terminal. Ny "Scan QR-kode"-knapp er synlig på login-skjermen.',
+        render: () => renderLogin()
+      },
+      {
+        title: 'Kamera åpnet',
+        desc: 'Kamera startet med QR-overlegg. App venter på at QR kommer i synsfelt.',
+        render: () => renderCamera()
+      },
+      {
+        title: 'QR oppdaget',
+        desc: 'Gyldig Plorea-mal gjenkjent. Signatur verifisert mot server.',
+        render: () => renderCamera({ detected: true })
+      },
+      {
+        title: 'Flytte-PIN påkrevd',
+        desc: 'Denne malen har PIN satt. Operatør må oppgi 4–8 sifret PIN før provisionering.',
+        render: () => renderPin({ filled: 0 })
+      },
+      {
+        title: 'PIN oppgitt og verifisert',
+        desc: 'PIN sendes hashet til server. Ved korrekt PIN utstedes kortvarig scan-token (30s).',
+        render: () => renderPin({ filled: 6 })
+      },
+      {
+        title: 'Setter opp enheten...',
+        desc: 'Alle innstillinger fra malen brukes atomisk. Progress vises mens det pågår.',
+        render: () => renderProgress({ currentStep: 1 })
+      },
+      {
+        title: 'Binder terminal via Adyen serial',
+        desc: 'App leser terminalens Adyen-serienummer, finner matchende Terminal TID i Payments → Terminals.',
+        render: () => renderProgress({ currentStep: 2 })
+      },
+      {
+        title: 'Velg Device Group',
+        desc: 'Bedriften har Device Groups konfigurert. Operatør velger hvilken gruppe terminalen tilhører.',
+        render: () => renderGroupPicker({ current: null, selected: null, options: [
+          { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+          { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' },
+          { id: 'info', name: 'Info & Service', icon: 'ℹ️', desc: '2 terminaler' }
+        ] })
+      },
+      {
+        title: 'Enheten er klar for salg',
+        desc: 'Alt er satt opp. Operatør kan gå direkte til kasse, eller skjermen auto-advancer etter 10s.',
+        render: () => renderReady({
+          terminalTid: 'S1F2-000158241144386',
+          templateName: 'Standard Kiosk — Messe',
+          group: 'Messe-Kiosker'
+        })
+      }
+    ]
+  },
+  {
+    id: 4,
+    label: 'Re-scan: samme gruppe',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Terminal allerede provisjonert',
+        desc: 'Operatør scanner QR på nytt (f.eks. ved skiftbytte). Etter PIN havner de her.',
+        render: () => renderGroupPicker({
+          current: 'messe-kiosk',
+          selected: null,
+          rescan: true,
+          options: [
+            { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+            { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' },
+            { id: 'info', name: 'Info & Service', icon: 'ℹ️', desc: '2 terminaler' }
+          ]
+        })
+      },
+      {
+        title: 'Samme gruppe valgt',
+        desc: 'Operatør trykker på nåværende gruppe. Ingen endring trigges — operatør går rett til kasse.',
+        render: () => renderGroupPicker({
+          current: 'messe-kiosk',
+          selected: 'messe-kiosk',
+          rescan: true,
+          options: [
+            { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+            { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' },
+            { id: 'info', name: 'Info & Service', icon: 'ℹ️', desc: '2 terminaler' }
+          ]
+        })
+      },
+      {
+        title: 'Tilbake til kasse',
+        desc: 'Ingen oppgjør, ingen flytting. Operatør fortsetter som normalt.',
+        render: () => renderKasse({ group: 'Messe-Kiosker' })
+      }
+    ]
+  },
+  {
+    id: 5,
+    label: 'Re-scan: ny gruppe, ingen oppgjør',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Device Group-velger (re-scan)',
+        desc: 'Terminalen har ingen usolgte transaksjoner. Operatør velger en annen gruppe.',
+        render: () => renderGroupPicker({
+          current: 'messe-kiosk',
+          selected: null,
+          rescan: true,
+          options: [
+            { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+            { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' },
+            { id: 'info', name: 'Info & Service', icon: 'ℹ️', desc: '2 terminaler' }
+          ]
+        })
+      },
+      {
+        title: 'Bar & Mat valgt',
+        desc: 'Ingen oppgjør trengs — terminalen flytter umiddelbart til ny gruppe.',
+        render: () => renderGroupPicker({
+          current: 'messe-kiosk',
+          selected: 'bar',
+          rescan: true,
+          options: [
+            { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+            { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' },
+            { id: 'info', name: 'Info & Service', icon: 'ℹ️', desc: '2 terminaler' }
+          ]
+        })
+      },
+      {
+        title: 'Flyttet',
+        desc: 'Ingen dagsoppgjør kjørt (ingen data). Terminal er nå på ny gruppe og klar for salg.',
+        render: () => renderReady({
+          fromGroup: 'Messe-Kiosker',
+          group: 'Bar & Mat',
+          moveOnly: true
+        })
+      }
+    ]
+  },
+  {
+    id: 6,
+    label: 'Re-scan: ny gruppe m/ oppgjør (OK)',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Device Group-velger',
+        desc: 'Operatør velger å flytte terminal som har usolgte transaksjoner.',
+        render: () => renderGroupPicker({
+          current: 'messe-kiosk',
+          selected: 'bar',
+          rescan: true,
+          options: [
+            { id: 'messe-kiosk', name: 'Messe-Kiosker', icon: '🎪', desc: '3 terminaler' },
+            { id: 'bar', name: 'Bar & Mat', icon: '🍻', desc: '5 terminaler' }
+          ]
+        })
+      },
+      {
+        title: 'Advarsel om usolgt omsetning',
+        desc: 'Terminal har usolgt salg på nåværende gruppe. Dagsoppgjør kjøres automatisk for denne terminalen alene før flytting.',
+        render: () => renderWarning()
+      },
+      {
+        title: 'Kjører dagsoppgjør...',
+        desc: 'Oppgjør scoped til denne terminalen. Andre terminaler på samme gruppe forblir urørt.',
+        render: () => renderSettlement()
+      },
+      {
+        title: 'Flyttet — oppgjør printet',
+        desc: 'Happy path: oppgjør kjørt, kvittering printet, terminal på ny gruppe.',
+        render: () => renderReady({
+          fromGroup: 'Messe-Kiosker',
+          group: 'Bar & Mat',
+          printStatus: 'ok',
+          receiptId: 'OPP-2026-04-24-6621'
+        })
+      }
+    ]
+  },
+  {
+    id: 7,
+    label: 'Re-scan: print feilet',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Kjører dagsoppgjør...',
+        desc: 'Samme start som scenario 6. Operatør har allerede bekreftet flyttingen.',
+        render: () => renderSettlement()
+      },
+      {
+        title: 'Oppgjør OK — men print feilet',
+        desc: 'Printer offline eller feil. Flytting tillates likevel (data er trygt). Kvittering kan sendes på SMS eller reprintes fra admin.',
+        render: () => renderReady({
+          fromGroup: 'Messe-Kiosker',
+          group: 'Bar & Mat',
+          printStatus: 'failed',
+          receiptId: 'OPP-2026-04-24-6622'
+        })
+      }
+    ]
+  },
+  {
+    id: 8,
+    label: 'Recovery: flytting feilet etter oppgjør',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Kjører dagsoppgjør...',
+        desc: 'Samme start som scenario 6. Oppgjøret committer — men så feiler selve move-commiten.',
+        render: () => renderSettlement()
+      },
+      {
+        title: 'Kritisk: oppgjør kjørt, flytting feilet',
+        desc: 'Recovery-flyt: terminal tvinges ut av login. Operatør må logge inn eller scanne på nytt for å forsøke igjen.',
+        render: () => renderSettledButNotMoved()
+      },
+      {
+        title: 'Tilbake til login',
+        desc: 'Force-logout sikrer at terminalens state re-evalueres mot backend ved neste innlogging.',
+        render: () => renderLogin({ forcedOut: true })
+      }
+    ]
+  },
+  {
+    id: 9,
+    label: 'Cross-tenant blokkering',
+    type: 'terminal',
+    steps: [
+      {
+        title: 'Kamera startet',
+        desc: 'Operatør skanner en QR-kode fra en annen bedrift enn der denne terminalen er aktiv.',
+        render: () => renderCamera()
+      },
+      {
+        title: 'QR gjenkjent — men feil bedrift',
+        desc: 'Signatur gyldig, men bedriften i QR-koden matcher ikke terminalens registrerte bedrift. PIN prompt skippes — vi blokkerer direkte.',
+        render: () => renderCamera({ detected: true, crossTenant: true })
+      },
+      {
+        title: 'Blokkert',
+        desc: 'Tydelig forklaring av hva som er feil og hva som må gjøres. Ingen state-endringer gjøres. Scan-attempt logges.',
+        render: () => renderBlocked()
+      }
+    ]
+  }
+];
+
+// ========================================================================
+// Render functions
+// ========================================================================
+
+function renderAdminList({ empty = false, highlight = false } = {}) {
+  const rows = empty ? '' : `
+    <tr class="${highlight ? 'highlight' : ''}">
+      <td><strong>Standard Kiosk — Messe</strong></td>
+      <td>Advanced POS</td>
+      <td>Einar M. Slapgård</td>
+      <td>I dag, 14:22</td>
+      <td>${highlight ? '0' : '3'} enheter</td>
+      <td style="text-align:right">
+        <button class="btn" style="padding:4px 8px; font-size:11px">📱 Vis QR-kode</button>
+        <button class="btn" style="padding:4px 8px; font-size:11px">✎</button>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Bar — Standard</strong></td>
+      <td>Advanced POS</td>
+      <td>Einar M. Slapgård</td>
+      <td>23.04.2026</td>
+      <td>5 enheter</td>
+      <td style="text-align:right">
+        <button class="btn" style="padding:4px 8px; font-size:11px">📱 Vis QR-kode</button>
+        <button class="btn" style="padding:4px 8px; font-size:11px">✎</button>
+      </td>
+    </tr>
+    <tr>
+      <td><strong>Info-skranke</strong></td>
+      <td>Simple POS</td>
+      <td>Manoel</td>
+      <td>21.04.2026</td>
+      <td>2 enheter</td>
+      <td style="text-align:right">
+        <button class="btn" style="padding:4px 8px; font-size:11px">📱 Vis QR-kode</button>
+        <button class="btn" style="padding:4px 8px; font-size:11px">✎</button>
+      </td>
+    </tr>
+  `;
+
+  return `
+    <div class="admin-view">
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-logo">plorea</div>
+        <div class="nav-section-label">Main Setup</div>
+        <div class="nav-item">Companies</div>
+        <div class="nav-item">Locations</div>
+        <div class="nav-item">Employees</div>
+        <div class="nav-item">Payments</div>
+        <div class="nav-item active">Device Templates</div>
+        <div class="nav-section-label">Modules</div>
+        <div class="nav-item">Reports</div>
+        <div class="nav-item">Orders</div>
+      </aside>
+      <div class="admin-content">
+        <div class="admin-header">
+          <div>
+            <div class="breadcrumb">POS Main Screen › Device Templates</div>
+            <div class="admin-title">Device Templates <span class="label-new">NEW</span></div>
+          </div>
+          <button class="btn btn-primary">+ Opprett mal</button>
+        </div>
+        ${empty ? `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div style="font-weight:600; color:var(--text-secondary); margin-bottom:4px">Ingen maler ennå</div>
+            <div style="font-size:11px">Klikk "Opprett mal" for å komme i gang</div>
+          </div>
+        ` : `
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Malnavn</th>
+                <th>POS-type</th>
+                <th>Opprettet av</th>
+                <th>Oppdatert</th>
+                <th>Bruk</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        `}
+      </div>
+    </div>
+  `;
+}
+
+function renderBuilderStep1() {
+  return `
+    <div class="admin-view">
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-logo">plorea</div>
+        <div class="nav-section-label">Main Setup</div>
+        <div class="nav-item">Companies</div>
+        <div class="nav-item">Locations</div>
+        <div class="nav-item">Payments</div>
+        <div class="nav-item active">Device Templates</div>
+      </aside>
+      <div class="admin-content">
+        <div class="admin-header">
+          <div>
+            <div class="breadcrumb">Device Templates › Ny mal</div>
+            <div class="admin-title">Opprett mal</div>
+          </div>
+          <div>
+            <button class="btn">Avbryt</button>
+            <button class="btn btn-primary" style="margin-left:6px">Lagre mal</button>
+          </div>
+        </div>
+
+        <div class="builder">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label class="form-label">Malnavn <span class="required">*</span></label>
+              <input class="form-input" value="Standard Kiosk — Messe" />
+              <div class="form-hint">Beskrivende navn. Må være unikt per bedrift.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">POS-type <span class="required">*</span></label>
+              <select class="form-select">
+                <option>Advanced POS</option>
+                <option>Simple POS</option>
+              </select>
+              <div class="form-hint">Avgjør hvilke innstillinger som er tilgjengelige.</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Flytte-PIN <span class="label-new">NEW</span></label>
+              <input class="form-input" type="password" value="••••••" maxlength="8" />
+              <div class="form-hint">Valgfritt. 4–8 sifre. Kreves ved QR-scanning.</div>
+            </div>
+            <div class="form-group full">
+              <label class="form-label">Beskrivelse</label>
+              <input class="form-input" value="Standardoppsett for messe-kiosker med QR-betaling" />
+            </div>
+          </div>
+
+          <div style="padding: 12px 14px; background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 8px; font-size: 12px; color: #1E40AF; line-height: 1.5">
+            <strong>Flytte-PIN forklart:</strong> Samme QR-kode kan brukes på mange terminaler, men en fotografert eller gjennomskuet QR kan misbrukes. Med PIN kan ingen fullføre provisioning eller flytting uten å kjenne koden — en enkel men effektiv barriere.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBuilderStep2() {
+  return `
+    <div class="admin-view">
+      <aside class="admin-sidebar">
+        <div class="admin-sidebar-logo">plorea</div>
+        <div class="nav-section-label">Main Setup</div>
+        <div class="nav-item">Companies</div>
+        <div class="nav-item">Payments</div>
+        <div class="nav-item active">Device Templates</div>
+      </aside>
+      <div class="admin-content">
+        <div class="admin-header">
+          <div>
+            <div class="breadcrumb">Device Templates › Ny mal › Innstillinger</div>
+            <div class="admin-title">Standard Kiosk — Messe</div>
+          </div>
+          <div>
+            <button class="btn">Avbryt</button>
+            <button class="btn btn-primary" style="margin-left:6px">Lagre mal</button>
+          </div>
+        </div>
+
+        <div style="font-size:11px; color: var(--text-secondary); margin-bottom:14px">
+          Alle innstillinger som finnes for Advanced POS er tilgjengelige nedenfor.
+          Utvikler vet hvilke feltene er — fra eksisterende device-setup UI.
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="settings-group-card">
+            <div class="settings-group-title">Meny & produkter</div>
+            <div class="settings-group-desc">Menu: "Messe-kiosk menu v3", 42 produkter, 6 kategorier.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Layout & knapper</div>
+            <div class="settings-group-desc">Grid: 4×6, kategorifarger, hurtigknapper for bestselgere.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Printer-oppsett</div>
+            <div class="settings-group-desc">Kvitteringsprinter: Star TSP100. Kjøkkenprinter: N/A.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Skatt & mva</div>
+            <div class="settings-group-desc">MVA: 15% mat, 25% andre. Tax code: standard NO.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Betaling</div>
+            <div class="settings-group-desc">Adyen, Adyen Ecom, kontant. Tips aktivert: nei.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Språk & locale</div>
+            <div class="settings-group-desc">UI: norsk. Kvittering: norsk. Tidssone: Europe/Oslo.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Sikkerhet & PIN</div>
+            <div class="settings-group-desc">Auto-logout: 10min. Ansatt-PIN påkrevd: ja.</div>
+          </div>
+          <div class="settings-group-card">
+            <div class="settings-group-title">Kvittering-oppsett</div>
+            <div class="settings-group-desc">Logo, footer-tekst, QR-kode for online-oppfølging.</div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:14px; font-size:11px; color:var(--text-muted); font-style:italic">
+          ... og alle andre felter i eksisterende simple POS / advanced POS oppsett
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderQrModal() {
+  return `
+    <div style="position:relative; width: 100%; max-width: 900px; display:flex; justify-content:center; align-items:center;">
+      <div style="position:absolute; inset:0; background: rgba(15, 23, 42, 0.3); border-radius: 12px; z-index:0"></div>
+      <div class="qr-modal" style="position:relative; z-index:1">
+        <div class="qr-modal-title">QR-kode: Standard Kiosk — Messe</div>
+        <div class="qr-modal-subtitle">Skann denne koden på en ny POS-terminal for å provisjonere</div>
+        <div class="qr-code-visual">
+          <svg class="qr-svg" viewBox="0 0 37 37" xmlns="http://www.w3.org/2000/svg">
+            ${generateQrPattern()}
+          </svg>
+        </div>
+        <div class="qr-short-code">TPL-3F7A2B</div>
+        <div style="font-size:10px; color: var(--text-muted); margin-top:6px">
+          Kort-kode kan tastes manuelt hvis scanning feiler
+        </div>
+        <div class="qr-actions">
+          <button class="btn btn-primary">🖨 Print</button>
+          <button class="btn">📄 PDF</button>
+          <button class="btn">🖼 PNG</button>
+        </div>
+        <div style="margin-top: 14px; padding: 10px; background: var(--warning-bg); border: 1px solid var(--warning); border-radius: 6px; font-size: 11px; color: #92400E; text-align: left">
+          <strong>PIN er aktivert på denne malen.</strong> Operatør må oppgi PIN etter scanning for å fullføre provisioning.
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function generateQrPattern() {
+  // Generate a pseudo-QR-like pattern for visual effect
+  const cells = [];
+  // Finder patterns (three corners)
+  const drawFinder = (x, y) => {
+    cells.push(`<rect x="${x}" y="${y}" width="7" height="7" fill="#1E293B" />`);
+    cells.push(`<rect x="${x+1}" y="${y+1}" width="5" height="5" fill="white" />`);
+    cells.push(`<rect x="${x+2}" y="${y+2}" width="3" height="3" fill="#1E293B" />`);
+  };
+  drawFinder(0, 0);
+  drawFinder(30, 0);
+  drawFinder(0, 30);
+
+  // Data cells — deterministic "random" pattern
+  const seed = 42;
+  const rand = (n) => (Math.sin(n * seed) * 10000) % 1 > 0 ? 1 : 0;
+  for (let y = 0; y < 37; y++) {
+    for (let x = 0; x < 37; x++) {
+      // Skip finder areas
+      if ((x < 8 && y < 8) || (x > 29 && y < 8) || (x < 8 && y > 29)) continue;
+      // Skip timing patterns kinda
+      if (rand(x * 37 + y)) {
+        cells.push(`<rect x="${x}" y="${y}" width="1" height="1" fill="#1E293B" />`);
+      }
+    }
+  }
+  return cells.join('');
+}
+
+function renderLogin({ forcedOut = false } = {}) {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">POS Terminal</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Modell</span><span class="value">Adyen V400M Pro</span></div>
+          <div class="terminal-context-row"><span class="label">Serienr.</span><span class="value">S1F2-...4386</span></div>
+          <div class="terminal-context-row"><span class="label">Bedrift</span><span class="value">Messe AS</span></div>
+        </div>
+        ${forcedOut ? `
+          <div style="padding: 10px 12px; background: var(--purple-bg); border: 1px solid var(--purple); border-radius: 8px; font-size: 11px; color: #6B21A8; line-height: 1.5">
+            <strong>Tvunget ut</strong> etter oppgjør-ble-kjørt-men-flytting-feilet. Operatør må logge inn igjen eller scanne QR på nytt.
+          </div>
+        ` : ''}
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Plorea POS</span>
+            <span>14:32 · 🔋 92%</span>
+          </div>
+          <div class="terminal-body">
+            <div class="login-header">
+              <div class="login-logo">plorea</div>
+              <div class="login-tenant">Messe AS — Hallen</div>
+            </div>
+            <div class="login-form">
+              <input placeholder="Ansatt-ID" />
+              <input placeholder="PIN" type="password" />
+              <button class="login-btn">Logg inn</button>
+            </div>
+            <div class="login-divider">eller</div>
+            <button class="scan-btn">
+              📷 Scan QR-kode
+              <span class="scan-badge-new">NY</span>
+            </button>
+            <div style="font-size:10px; color: var(--text-muted); text-align:center; margin-top:8px">
+              Provisioner enheten med admin-generert QR-kode
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderCamera({ detected = false, crossTenant = false } = {}) {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">${detected ? 'QR gjenkjent' : 'Scanner...'}</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Serienr.</span><span class="value">S1F2-...4386</span></div>
+          <div class="terminal-context-row"><span class="label">Bedrift</span><span class="value">Messe AS</span></div>
+          ${detected ? `
+            <div class="terminal-context-row"><span class="label">QR-bedrift</span><span class="value" style="color: ${crossTenant ? 'var(--error)' : 'var(--success)'}">${crossTenant ? 'Kafé Aurora ❌' : 'Messe AS ✓'}</span></div>
+            <div class="terminal-context-row"><span class="label">Signatur</span><span class="value" style="color: var(--success)">Gyldig ✓</span></div>
+          ` : ''}
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Scan QR-kode</span>
+            <span>14:33</span>
+          </div>
+          <div class="camera-view">
+            <div class="camera-simulated"></div>
+            <button class="scan-cancel">Avbryt</button>
+            <div class="scan-frame">
+              <div class="scan-frame-corners"></div>
+              <div class="scan-frame-corners-bl"></div>
+              ${!detected ? '<div class="scan-laser"></div>' : ''}
+            </div>
+            <div class="scan-instructions">
+              ${detected ? '' : 'Sikt kameraet mot QR-koden'}
+            </div>
+            ${detected ? `
+              <div class="scan-detected">
+                <div class="scan-detected-icon">✓</div>
+                <div style="font-size:14px">QR-kode gjenkjent</div>
+                <div style="font-size:11px; opacity: 0.85">${crossTenant ? 'Bedrift mismatch oppdaget' : 'Verifiserer signatur...'}</div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderPin({ filled = 0, error = false } = {}) {
+  const dots = Array.from({ length: 6 }, (_, i) =>
+    `<div class="pin-dot ${i < filled ? 'filled' : ''}"></div>`
+  ).join('');
+
+  const keypadDigits = ['1','2','3','4','5','6','7','8','9','','0','⌫'];
+  const keypad = keypadDigits.map(d => {
+    if (!d) return `<div class="pin-key blank"></div>`;
+    if (d === '⌫') return `<button class="pin-key backspace">⌫</button>`;
+    return `<button class="pin-key">${d}</button>`;
+  }).join('');
+
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Flytte-PIN påkrevd</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Mal</span><span class="value" style="font-family:inherit; font-size:11px">Kiosk — Messe</span></div>
+          <div class="terminal-context-row"><span class="label">PIN satt</span><span class="value" style="color:var(--success)">Ja ✓</span></div>
+          <div class="terminal-context-row"><span class="label">Verifikasjon</span><span class="value" style="font-family:inherit; font-size:11px">Server-side</span></div>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          ${filled === 6 ? '<strong style="color: var(--success)">PIN verifisert.</strong> Scan-token (30s) utstedt til downstream-flyten.' : '<strong>Rate limit:</strong> 5 feil forsøk = 5 min cooldown per terminal.'}
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Provisioning</span>
+            <span>14:33</span>
+          </div>
+          <div class="terminal-body pin-screen">
+            <div style="font-size:32px; margin-top:4px">🔒</div>
+            <div class="pin-title">Oppgi flytte-PIN</div>
+            <div class="pin-subtitle">Denne malen krever PIN for å fortsette</div>
+            <div class="pin-dots ${error ? 'error' : ''}">${dots}</div>
+            ${error ? '<div class="pin-error-text">Feil PIN — prøv igjen</div>' : ''}
+            <div class="pin-keypad">${keypad}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderProgress({ currentStep = 1 } = {}) {
+  const steps = [
+    { label: 'Laster mal fra server', status: currentStep > 1 ? 'done' : currentStep === 1 ? 'pending' : 'queued' },
+    { label: 'Binder Adyen-terminal (serienr match)', status: currentStep > 2 ? 'done' : currentStep === 2 ? 'pending' : 'queued' },
+    { label: 'Bruker innstillinger atomisk', status: currentStep > 3 ? 'done' : currentStep === 3 ? 'pending' : 'queued' },
+    { label: 'Klargjør for Device Group-valg', status: currentStep > 4 ? 'done' : 'queued' }
+  ];
+
+  const bigTitle = currentStep === 1 ? 'Setter opp enheten...' : currentStep === 2 ? 'Binder Adyen-terminal...' : 'Nesten klar...';
+
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Provisioning pågår</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Serienr.</span><span class="value">S1F2-...4386</span></div>
+          <div class="terminal-context-row"><span class="label">Matchet TID</span><span class="value" style="color: var(--success)">${currentStep >= 2 ? '✓ Funnet' : '...'}</span></div>
+          <div class="terminal-context-row"><span class="label">Atomisk</span><span class="value">Ja</span></div>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          <strong>Auto-bind:</strong> App leser terminalens Adyen-serienummer. Plorea slår opp serienr. mot Terminal TID i Payments → Terminals. Exactly-one-match → bind automatisk.
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Provisioning</span>
+            <span>14:34</span>
+          </div>
+          <div class="terminal-body progress-screen">
+            <div class="progress-spinner"></div>
+            <div class="progress-title">${bigTitle}</div>
+            <ul class="progress-steps">
+              ${steps.map(s => `<li class="${s.status}">${s.label}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderGroupPicker({ current, selected, options, rescan = false } = {}) {
+  const items = options.map(opt => {
+    const isCurrent = opt.id === current;
+    const isSelected = opt.id === selected;
+    let cls = 'group-item';
+    if (isCurrent && !isSelected) cls += ' current';
+    if (isSelected) cls += ' selected';
+    return `
+      <div class="${cls}">
+        <div class="group-icon">${opt.icon}</div>
+        <div>
+          <div class="group-name">${opt.name}</div>
+          <div class="group-desc">${opt.desc}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const contextNote = rescan
+    ? 'Re-scan: velg ny gruppe eller behold nåværende'
+    : 'Første provisionering: velg hvilken gruppe denne terminalen skal tilhøre';
+
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">${rescan ? 'Re-scan' : 'Velg Device Group'}</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Status</span><span class="value" style="font-family:inherit; font-size:11px">${rescan ? 'Allerede provisjonert' : 'Fersk terminal'}</span></div>
+          <div class="terminal-context-row"><span class="label">Grupper</span><span class="value">${options.length} tilgjengelig</span></div>
+          ${current ? `<div class="terminal-context-row"><span class="label">Nåværende</span><span class="value" style="font-family:inherit; font-size:11px">${options.find(o => o.id === current)?.name}</span></div>` : ''}
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          ${rescan && selected && selected !== current
+            ? '<strong style="color: var(--warning)">Ny gruppe valgt.</strong> Hvis terminalen har usolgt omsetning vises advarsel neste.'
+            : rescan && selected === current
+              ? '<strong>Samme gruppe.</strong> Ingen handling trengs — går direkte til kasse.'
+              : contextNote
+          }
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>${rescan ? 'Flytt terminal' : 'Oppsett'}</span>
+            <span>14:35</span>
+          </div>
+          <div class="terminal-body group-picker-screen">
+            <div class="group-picker-header">
+              <div style="font-size:28px">${rescan ? '🔄' : '📁'}</div>
+              <div class="group-picker-title">${rescan ? 'Enheten er allerede satt opp' : 'Velg Device Group'}</div>
+              <div class="group-picker-subtitle">${rescan ? 'Velg gruppe for denne terminalen' : 'Hvilken gruppe skal denne terminalen tilhøre?'}</div>
+            </div>
+            <div class="group-list">${items}</div>
+            <button style="margin-top:12px; padding:10px; background:transparent; border:1px solid var(--border); border-radius:6px; color: var(--text-secondary); font-size:12px; font-family:inherit; cursor:pointer">Avbryt</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderReady({ terminalTid, templateName, group, fromGroup, moveOnly = false, printStatus, receiptId } = {}) {
+  const title = moveOnly ? 'Terminal flyttet' : fromGroup ? 'Terminal flyttet' : 'Enheten er klar for salg';
+  const subtitle = moveOnly
+    ? `Ingen usolgt omsetning — ingen oppgjør nødvendig`
+    : fromGroup
+      ? `Fra ${fromGroup} til ${group}`
+      : 'Alle innstillinger er brukt';
+
+  let printBlock = '';
+  if (printStatus === 'ok') {
+    printBlock = `
+      <div class="print-status">
+        <div class="print-status-title">✓ Oppgjør kjørt og kvittering printet</div>
+        Oppgjørs-ID: <code>${receiptId}</code>
+      </div>`;
+  } else if (printStatus === 'failed') {
+    printBlock = `
+      <div class="print-status warning">
+        <div class="print-status-title">⚠ Oppgjør kjørt — kvittering kunne ikke printes</div>
+        Send på SMS eller print på nytt fra admin.<br/>
+        Oppgjørs-ID: <code>${receiptId}</code>
+      </div>`;
+  }
+
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Ferdig</div>
+        <div class="terminal-context-card">
+          ${terminalTid ? `<div class="terminal-context-row"><span class="label">Terminal TID</span><span class="value">${terminalTid.slice(-8)}</span></div>` : ''}
+          ${templateName ? `<div class="terminal-context-row"><span class="label">Mal</span><span class="value" style="font-family:inherit; font-size:11px">${templateName}</span></div>` : ''}
+          ${group ? `<div class="terminal-context-row"><span class="label">Gruppe</span><span class="value" style="font-family:inherit; font-size:11px">${group}</span></div>` : ''}
+          ${printStatus === 'ok' ? `<div class="terminal-context-row"><span class="label">Print</span><span class="value" style="color: var(--success)">OK ✓</span></div>` : ''}
+          ${printStatus === 'failed' ? `<div class="terminal-context-row"><span class="label">Print</span><span class="value" style="color: var(--warning)">Feilet ⚠</span></div>` : ''}
+        </div>
+        ${printStatus === 'failed' ? `
+          <div style="font-size:11px; line-height:1.5; color: #92400E; padding: 10px 12px; background: var(--warning-bg); border: 1px solid var(--warning); border-radius: 8px">
+            <strong>Printer feilet</strong> — flytting tillates likevel. Reprint fra admin eller send på e-post (funksjonalitet finnes allerede).
+          </div>
+        ` : ''}
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Ferdig</span>
+            <span>14:36</span>
+          </div>
+          <div class="terminal-body ready-screen">
+            <div class="ready-icon">✓</div>
+            <div class="ready-title">${title}</div>
+            <div class="ready-subtitle">${subtitle}</div>
+            ${printBlock}
+            <div class="ready-summary">
+              ${fromGroup ? `<div class="ready-row"><span class="label">Forrige gruppe</span><span class="value">${fromGroup}</span></div>` : ''}
+              ${group ? `<div class="ready-row"><span class="label">Ny gruppe</span><span class="value">${group}</span></div>` : ''}
+              ${templateName ? `<div class="ready-row"><span class="label">Mal</span><span class="value">${templateName}</span></div>` : ''}
+              ${terminalTid ? `<div class="ready-row"><span class="label">Terminal</span><span class="value" style="font-size:10px">${terminalTid}</span></div>` : ''}
+            </div>
+            <button class="ready-continue">Gå til kasse</button>
+            <div class="ready-autoadvance">Auto-advance om 10 sek</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderWarning() {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Advarsel: usolgt omsetning</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Scope</span><span class="value" style="font-family:inherit; font-size:11px">Denne terminal kun</span></div>
+          <div class="terminal-context-row"><span class="label">Andre terminaler</span><span class="value" style="font-family:inherit; font-size:11px">Urørt</span></div>
+          <div class="terminal-context-row"><span class="label">Atomisk</span><span class="value" style="font-family:inherit; font-size:11px">Oppgjør → flytting</span></div>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          <strong>Viktig:</strong> Dagsoppgjør er scoped til denne terminalen alene. Andre terminaler på "Messe-Kiosker" beholder sin usolgte data.
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Flytting</span>
+            <span>14:36</span>
+          </div>
+          <div class="terminal-body warning-screen">
+            <div class="warning-icon-wrap">
+              <div class="warning-icon">⚠</div>
+            </div>
+            <div class="warning-title">Denne terminalen har usolgt omsetning på <strong>Messe-Kiosker</strong></div>
+
+            <div class="warning-summary-card">
+              <div class="warning-summary-title">Usolgt omsetning</div>
+              <div class="warning-summary-row">
+                <span class="label">Transaksjoner</span>
+                <span class="value">47</span>
+              </div>
+              <div class="warning-summary-row">
+                <span class="label">Tidsrom</span>
+                <span class="value">10:12 – 14:28</span>
+              </div>
+              <div class="warning-summary-row total">
+                <span class="label">Totalt</span>
+                <span class="value">12 842,00 kr</span>
+              </div>
+            </div>
+
+            <div class="warning-explanation">
+              Dagsoppgjør kjøres automatisk for denne terminalen på nåværende gruppe før flytting. Kvittering printes hvis mulig — du kan sende på SMS eller printe på nytt fra admin senere.
+            </div>
+
+            <div class="warning-actions">
+              <button class="btn-confirm-move">Bekreft og flytt</button>
+              <button class="btn-cancel-move">Avbryt</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSettlement() {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Dagsoppgjør pågår</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Terminal TID</span><span class="value">...4386</span></div>
+          <div class="terminal-context-row"><span class="label">Scope</span><span class="value" style="font-family:inherit; font-size:11px">Kun denne</span></div>
+          <div class="terminal-context-row"><span class="label">Gammel gruppe</span><span class="value" style="font-family:inherit; font-size:11px">Messe-Kiosker</span></div>
+          <div class="terminal-context-row"><span class="label">Ny gruppe</span><span class="value" style="font-family:inherit; font-size:11px">Bar & Mat</span></div>
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Oppgjør</span>
+            <span>14:37</span>
+          </div>
+          <div class="terminal-body progress-screen">
+            <div class="progress-spinner"></div>
+            <div class="progress-title">Kjører dagsoppgjør...</div>
+            <div style="font-size:12px; color: var(--text-secondary); margin-top:6px">
+              For denne terminalen på Messe-Kiosker
+            </div>
+            <ul class="progress-steps">
+              <li>Oppgjør beregnet (47 transaksjoner)</li>
+              <li class="pending">Kvittering printes</li>
+              <li class="queued">Flytter til ny gruppe</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderSettledButNotMoved() {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title" style="color: var(--purple)">Recovery-flyt</div>
+        <div class="terminal-context-card" style="border-color: var(--purple); background: var(--purple-bg);">
+          <div style="font-size:11px; line-height:1.5; color: #6B21A8">
+            <strong>Kritisk state:</strong> oppgjør committer, men flytting-commit feiler. Terminal har ingen åpen state, men er ikke på riktig gruppe heller.
+          </div>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          <strong>Hvorfor force-logout?</strong> Pengene er "bokført" som oppgjort, men enheten er ikke flyttet. Ved ny innlogging re-evalueres state mot backend — garanti for ingen spøkelses-state.
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Feil</span>
+            <span>14:37</span>
+          </div>
+          <div class="terminal-body error-screen">
+            <div class="error-icon purple">!</div>
+            <div class="error-title">Oppgjør ble kjørt,<br/>men flyttingen feilet</div>
+            <div class="error-desc">
+              For sikkerhets skyld er du logget ut. Logg inn på nytt eller scan QR på nytt for å forsøke flyttingen igjen.
+            </div>
+            <div class="error-receipt-id">
+              <span class="label">Oppgjørs-ID</span>
+              OPP-2026-04-24-6623
+            </div>
+            <button class="error-action">OK — tilbake til login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderKasse({ group = 'Messe-Kiosker' } = {}) {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Salg aktiv</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Gruppe</span><span class="value" style="font-family:inherit; font-size:11px">${group}</span></div>
+          <div class="terminal-context-row"><span class="label">Innlogget</span><span class="value" style="font-family:inherit; font-size:11px">Operatør #42</span></div>
+          <div class="terminal-context-row"><span class="label">Status</span><span class="value" style="color: var(--success)">Klar for salg</span></div>
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Kasse · Operatør 42</span>
+            <span>14:38</span>
+          </div>
+          <div class="terminal-body kasse-screen">
+            <div class="kasse-header">
+              <div class="kasse-title">Messe — Ny ordre</div>
+              <div class="kasse-group-badge">${group}</div>
+            </div>
+            <div class="kasse-grid">
+              <div class="kasse-product">Pils 0.4<div class="price">89 kr</div></div>
+              <div class="kasse-product">Cola<div class="price">45 kr</div></div>
+              <div class="kasse-product">Pølse<div class="price">55 kr</div></div>
+              <div class="kasse-product">Hamburger<div class="price">129 kr</div></div>
+              <div class="kasse-product">Frites<div class="price">49 kr</div></div>
+              <div class="kasse-product">Is<div class="price">35 kr</div></div>
+              <div class="kasse-product">Kaffe<div class="price">39 kr</div></div>
+              <div class="kasse-product">Vann<div class="price">29 kr</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderBlocked() {
+  return `
+    <div class="terminal-wrap">
+      <div class="terminal-context">
+        <div class="terminal-context-title">Cross-tenant blokkering</div>
+        <div class="terminal-context-card">
+          <div class="terminal-context-row"><span class="label">Terminal-bedrift</span><span class="value" style="font-family:inherit; font-size:11px">Messe AS</span></div>
+          <div class="terminal-context-row"><span class="label">QR-bedrift</span><span class="value" style="font-family:inherit; font-size:11px; color: var(--error)">Kafé Aurora</span></div>
+          <div class="terminal-context-row"><span class="label">Resultat</span><span class="value" style="color: var(--error)">Blokkert</span></div>
+        </div>
+        <div style="font-size:11px; line-height:1.5; color: var(--text-secondary); padding: 10px 12px; background: var(--bg-surface); border-radius: 8px; border: 1px solid var(--border)">
+          <strong>Ingen state-endringer.</strong> Scan-attempt logges for audit. PIN ble ikke etterspurt — cross-tenant-sjekk skjer før PIN-prompt.
+        </div>
+      </div>
+      <div class="terminal-frame">
+        <div class="terminal-screen">
+          <div class="terminal-statusbar">
+            <span>Scan</span>
+            <span>14:33</span>
+          </div>
+          <div class="terminal-body block-screen">
+            <div class="block-icon">⚠</div>
+            <div class="block-title">Denne QR-koden tilhører en annen bedrift</div>
+            <div class="block-detail">
+              Denne terminalen er registrert på <span class="highlight-bedrift">Messe AS</span>, men QR-koden er laget for <span class="highlight-bedrift">Kafé Aurora</span>.
+              <br/><br/>
+              For å flytte terminalen til en annen bedrift må administrator først flytte den via <strong>Payments → Terminals</strong> i Plorea Systems.
+            </div>
+            <button class="error-action">OK</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ========================================================================
+// Controller
+// ========================================================================
+
+let currentScenarioIdx = 0;
+let currentStepIdx = 0;
+
+function init() {
+  // Render scenario picker
+  const picker = document.getElementById('scenarios-inner');
+  picker.innerHTML = scenarios.map((s, i) => `
+    <button class="scenario-btn" data-idx="${i}">
+      <span class="num">${s.id}</span>
+      ${s.label}
+    </button>
+  `).join('');
+
+  picker.querySelectorAll('.scenario-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      currentScenarioIdx = parseInt(btn.dataset.idx);
+      currentStepIdx = 0;
+      render();
+    });
+  });
+
+  // Nav buttons
+  document.getElementById('btn-prev').addEventListener('click', () => {
+    if (currentStepIdx > 0) {
+      currentStepIdx--;
+    } else if (currentScenarioIdx > 0) {
+      currentScenarioIdx--;
+      currentStepIdx = scenarios[currentScenarioIdx].steps.length - 1;
+    }
+    render();
+  });
+
+  document.getElementById('btn-next').addEventListener('click', () => {
+    const s = scenarios[currentScenarioIdx];
+    if (currentStepIdx < s.steps.length - 1) {
+      currentStepIdx++;
+    } else if (currentScenarioIdx < scenarios.length - 1) {
+      currentScenarioIdx++;
+      currentStepIdx = 0;
+    }
+    render();
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight') document.getElementById('btn-next').click();
+    if (e.key === 'ArrowLeft') document.getElementById('btn-prev').click();
+  });
+
+  render();
+}
+
+function render() {
+  const scenario = scenarios[currentScenarioIdx];
+  const step = scenario.steps[currentStepIdx];
+
+  // Update scenario picker active state
+  document.querySelectorAll('.scenario-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', i === currentScenarioIdx);
+  });
+
+  // Update top bar
+  document.getElementById('current-scenario-label').textContent = `Scenario ${scenario.id}: ${scenario.label}`;
+  document.getElementById('current-step-indicator').textContent = `— Steg ${currentStepIdx + 1} av ${scenario.steps.length}`;
+
+  // Update step header
+  document.getElementById('step-title').textContent = step.title;
+  document.getElementById('step-desc').textContent = step.desc;
+
+  // Render stage
+  document.getElementById('stage').innerHTML = `<div class="stage-scene active">${step.render()}</div>`;
+
+  // Update step dots
+  const dots = document.getElementById('step-dots');
+  dots.innerHTML = scenario.steps.map((_, i) => {
+    let cls = 'dot';
+    if (i === currentStepIdx) cls += ' active';
+    else if (i < currentStepIdx) cls += ' completed';
+    return `<div class="${cls}" data-idx="${i}"></div>`;
+  }).join('');
+  dots.querySelectorAll('.dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      currentStepIdx = parseInt(dot.dataset.idx);
+      render();
+    });
+  });
+
+  // Update button states
+  const isFirstStep = currentScenarioIdx === 0 && currentStepIdx === 0;
+  const isLastStep = currentScenarioIdx === scenarios.length - 1 && currentStepIdx === scenario.steps.length - 1;
+  document.getElementById('btn-prev').disabled = isFirstStep;
+  document.getElementById('btn-next').disabled = isLastStep;
+}
+
+init();
+</script>
+
+</body>
+</html>
