@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plorea Brazil - Module Management</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #1a1f36;
+            --primary-light: #2a3150;
+            --accent: #5b68df;
+            --accent-hover: #4a56c5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --surface: #ffffff;
+            --surface-hover: #f8fafc;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --text-muted: #94a3b8;
+            --bg: #f8fafc;
+            --shadow: 0 1px 3px rgba(0,0,0,0.06);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+            --shadow-lg: 0 10px 25px rgba(0,0,0,0.08);
+        }
+        
+        body {
+            font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+        
+        header {
+            margin-bottom: 48px;
+        }
+        
+        h1 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 24px;
+        }
+        
+        @media (max-width: 1200px) {
+            .modules-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .modules-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .container {
+                padding: 24px 16px;
+            }
+            
+            h1 {
+                font-size: 28px;
+            }
+        }
+        
+        .module-card {
+            background: var(--surface);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 28px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .module-card:hover {
+            box-shadow: var(--shadow-lg);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+        
+        .module-card.disabled {
+            opacity: 0.7;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .card-title-section {
+            flex: 1;
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .category-sales { background: #dbeafe; color: #1e40af; }
+        .category-kitchen { background: #fef3c7; color: #b45309; }
+        .category-customer { background: #dcfce7; color: #15803d; }
+        .category-communication { background: #f3e8ff; color: #7c3aed; }
+        
+        .card-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 12px;
+            letter-spacing: -0.01em;
+        }
+        
+        .card-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+        
+        .visual-placeholder {
+            width: 100%;
+            height: 140px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            background: linear-gradient(135deg, var(--bg) 0%, #e2e8f0 100%);
+        }
+        
+        .benefits {
+            margin-bottom: 20px;
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .benefit-icon {
+            color: var(--success);
+            font-weight: 700;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .usage-stats {
+            background: var(--bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-section {
+            margin-bottom: 12px;
+        }
+        
+        .stats-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stats-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+        
+        .stats-value {
+            font-size: 15px;
+            color: var(--text);
+            font-weight: 600;
+        }
+        
+        .no-data {
+            font-size: 14px;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+        
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            cursor: pointer;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            border-radius: 28px;
+            transition: 0.3s;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        input:checked + .slider {
+            background-color: var(--success);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+        
+        input:disabled + .slider {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .toggle-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        .action-btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .action-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+        
+        .action-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+        
+        .action-btn.secondary {
+            background: var(--bg);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .action-btn.secondary:hover {
+            background: var(--surface-hover);
+        }
+        
+        .action-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid;
+        }
+        
+        .badge.required {
+            background: #fef2f2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+        
+        .badge.pricing {
+            background: #f0fdf4;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+        
+        .badge.recommended {
+            background: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+        
+        .badge.popular {
+            background: #ede9fe;
+            color: #7c3aed;
+            border-color: #ddd6fe;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Platform Services</h1>
+            <p class="subtitle">Manage your restaurant's modules and features</p>
+        </header>
+        
+        <div class="modules-grid">
+            <!-- POS (Always Enabled) -->
+            <div class="module-card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-sales">Sales</span>
+                        <h2 class="card-title">POS</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">🖥️</div>
+                
+                <p class="card-description">Process orders and payments at the counter with a reliable point-of-sale system.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Fast order processing and payment handling</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Real-time inventory tracking</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Complete sales reporting</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="stats-section">
+                        <div class="stats-label">📊 Last 7 days</div>
+                        <div class="stats-value">1,247 orders • R$42,180 revenue</div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stats-label">📈 Since enabled</div>
+                        <div class="stats-value">15,832 orders • R$521,450 revenue</div>
+                    </div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge required">🔒 Required</span>
+                    <span class="badge pricing">💰 Included in plan</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked disabled>
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">Always ON</span>
+                    </div>
+                    <button class="action-btn primary">Configure</button>
+                </div>
+            </div>
+            
+            <!-- QR Ordering -->
+            <div class="module-card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-sales">Sales</span>
+                        <h2 class="card-title">QR Ordering</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">📱</div>
+                
+                <p class="card-description">Let customers order directly from their phones by scanning a QR code at their table.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Reduce wait times and staff workload</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Increase order accuracy</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Enable contactless ordering</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="stats-section">
+                        <div class="stats-label">📊 Last 7 days</div>
+                        <div class="stats-value">432 QR orders</div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stats-label">📈 Since enabled</div>
+                        <div class="stats-value">5,891 QR orders</div>
+                    </div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Pay-per-use</span>
+                    <span class="badge popular">⭐ Most used</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">ON</span>
+                    </div>
+                    <button class="action-btn secondary">Configure</button>
+                </div>
+            </div>
+            
+            <!-- Self-Service -->
+            <div class="module-card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-sales">Sales</span>
+                        <h2 class="card-title">Self-Service Kiosk</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">🖼️</div>
+                
+                <p class="card-description">Enable customers to place orders using self-service kiosks without staff assistance.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Speed up service during peak hours</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Increase average order value with visual upsells</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Free staff for other tasks</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="stats-section">
+                        <div class="stats-label">📊 Last 7 days</div>
+                        <div class="stats-value">287 kiosk orders</div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stats-label">📈 Since enabled</div>
+                        <div class="stats-value">3,214 kiosk orders</div>
+                    </div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Included in plan</span>
+                    <span class="badge recommended">🚀 Recommended</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">ON</span>
+                    </div>
+                    <button class="action-btn secondary">Configure</button>
+                </div>
+            </div>
+            
+            <!-- Cloud Print -->
+            <div class="module-card disabled">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-kitchen">Kitchen</span>
+                        <h2 class="card-title">Cloud Print</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">🖨️</div>
+                
+                <p class="card-description">Print orders automatically to any connected printer from anywhere in your restaurant.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Instant kitchen ticket printing</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Works across multiple locations</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>No local server required</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="no-data">No data yet – activate to see impact</div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Included in plan</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">OFF</span>
+                    </div>
+                    <button class="action-btn secondary" disabled>Setup</button>
+                </div>
+            </div>
+            
+            <!-- Advanced Bong Printing -->
+            <div class="module-card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-kitchen">Kitchen</span>
+                        <h2 class="card-title">Advanced Bong Printing</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">📄</div>
+                
+                <p class="card-description">Route orders intelligently to different printers based on items and preparation stations.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Organize kitchen workflow efficiently</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Send drinks to bar, food to kitchen automatically</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Reduce confusion and errors</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="stats-section">
+                        <div class="stats-label">📊 Last 7 days</div>
+                        <div class="stats-value">1,089 orders routed</div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stats-label">📈 Since enabled</div>
+                        <div class="stats-value">12,347 orders routed</div>
+                    </div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Included in plan</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">ON</span>
+                    </div>
+                    <button class="action-btn secondary">Configure</button>
+                </div>
+            </div>
+            
+            <!-- Kitchen Screen (KDS) -->
+            <div class="module-card">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-kitchen">Kitchen</span>
+                        <h2 class="card-title">Kitchen Display System</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">📺</div>
+                
+                <p class="card-description">Display incoming orders on screens in the kitchen for better visibility and workflow.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Go paperless in the kitchen</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Track preparation times accurately</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Prioritize orders visually</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="stats-section">
+                        <div class="stats-label">📊 Last 7 days</div>
+                        <div class="stats-value">1,198 orders processed</div>
+                    </div>
+                    <div class="stats-section">
+                        <div class="stats-label">📈 Since enabled</div>
+                        <div class="stats-value">14,521 orders processed</div>
+                    </div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Pay-per-use</span>
+                    <span class="badge recommended">🚀 Recommended</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">ON</span>
+                    </div>
+                    <button class="action-btn secondary">Configure</button>
+                </div>
+            </div>
+            
+            <!-- Customer Display -->
+            <div class="module-card disabled">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-customer">Customer</span>
+                        <h2 class="card-title">Customer Display Screen</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">💻</div>
+                
+                <p class="card-description">Show order details to customers on a second screen during checkout for transparency.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Build customer trust with transparency</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Reduce order disputes</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Professional checkout experience</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="no-data">No data yet – activate to see impact</div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Included in plan</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">OFF</span>
+                    </div>
+                    <button class="action-btn secondary" disabled>Setup</button>
+                </div>
+            </div>
+            
+            <!-- SMS Messages -->
+            <div class="module-card disabled">
+                <div class="card-header">
+                    <div class="card-title-section">
+                        <span class="category-badge category-communication">Communication</span>
+                        <h2 class="card-title">SMS Messages</h2>
+                    </div>
+                </div>
+                
+                <div class="visual-placeholder">💬</div>
+                
+                <p class="card-description">Send order updates and notifications to customers via text message.</p>
+                
+                <div class="benefits">
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Keep customers informed about their orders</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Send promotional messages</span>
+                    </div>
+                    <div class="benefit-item">
+                        <span class="benefit-icon">✓</span>
+                        <span>Reduce phone calls and inquiries</span>
+                    </div>
+                </div>
+                
+                <div class="usage-stats">
+                    <div class="no-data">No data yet – activate to see impact</div>
+                </div>
+                
+                <div class="badges">
+                    <span class="badge pricing">💰 Pay-per-use</span>
+                </div>
+                
+                <div class="card-footer">
+                    <div class="toggle-container">
+                        <label class="toggle-switch">
+                            <input type="checkbox" onchange="toggleModule(this)">
+                            <span class="slider"></span>
+                        </label>
+                        <span class="toggle-label">OFF</span>
+                    </div>
+                    <button class="action-btn secondary" disabled>Setup</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function toggleModule(checkbox) {
+            const card = checkbox.closest('.module-card');
+            const label = card.querySelector('.toggle-label');
+            const configBtn = card.querySelector('.action-btn');
+            
+            if (checkbox.checked) {
+                card.classList.remove('disabled');
+                label.textContent = 'ON';
+                configBtn.textContent = 'Configure';
+                configBtn.disabled = false;
+                
+                // Simulate stats appearing
+                const statsDiv = card.querySelector('.usage-stats');
+                const noData = statsDiv.querySelector('.no-data');
+                if (noData) {
+                    setTimeout(() => {
+                        noData.style.display = 'none';
+                        const newStats = document.createElement('div');
+                        newStats.innerHTML = `
+                            <div class="stats-section">
+                                <div class="stats-label">📊 Last 7 days</div>
+                                <div class="stats-value">Getting started...</div>
+                            </div>
+                        `;
+                        statsDiv.appendChild(newStats);
+                    }, 300);
+                }
+            } else {
+                card.classList.add('disabled');
+                label.textContent = 'OFF';
+                configBtn.textContent = 'Setup';
+                configBtn.disabled = true;
+            }
+        }
+    </script>
+</body>
+</html>
