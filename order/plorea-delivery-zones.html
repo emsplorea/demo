@@ -723,6 +723,41 @@ input,select,textarea{font-family:inherit;color:inherit}
 
 .body{flex:1;display:flex;overflow:hidden}
 
+/* Unsaved changes bar */
+.save-bar{
+  display:none;
+  background:linear-gradient(to right, rgba(218,218,107,.2), rgba(218,218,107,.10));
+  border-bottom:1px solid rgba(218,218,107,.55);
+  padding:11px 24px;
+  align-items:center;justify-content:space-between;
+  gap:14px;flex-shrink:0;
+  animation:slideDown .25s var(--ease);
+}
+.save-bar.show{display:flex}
+.save-bar-msg{
+  display:flex;align-items:center;gap:10px;
+  font-size:13px;font-weight:600;
+  color:#7A6700;
+}
+.save-bar-icon{font-size:16px}
+.save-bar-actions{display:flex;gap:8px}
+.save-bar-btn{
+  padding:8px 18px;border-radius:var(--radius);
+  font-size:12px;font-weight:700;
+  transition:all var(--dur);
+  font-family:inherit;cursor:pointer;
+  border:1px solid transparent;
+}
+.save-bar-btn.discard{
+  background:transparent;color:var(--text-secondary);
+  border-color:var(--color-border);
+}
+.save-bar-btn.discard:hover{background:rgba(218,107,107,.12);color:var(--color-error);border-color:rgba(218,107,107,.35)}
+.save-bar-btn.primary{background:var(--color-accent);color:#fff;border-color:var(--color-accent);box-shadow:var(--shadow-sm)}
+.save-bar-btn.primary:hover{background:var(--color-accent-hover);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+html.dark .save-bar-msg{color:#DADA6B}
+html.dark .save-bar{background:linear-gradient(to right, rgba(218,218,107,.12), rgba(218,218,107,.05))}
+
 .sidebar{width:340px;flex-shrink:0;background:var(--bg-surface);border-right:1px solid var(--color-border);display:flex;flex-direction:column;overflow:hidden}
 .sidebar-head{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--color-border-light)}
 .sidebar-head .count{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.08em}
@@ -963,6 +998,9 @@ html.dark .leaflet-tile{filter:brightness(.78) hue-rotate(180deg) invert(.92) sa
       </div>
     </div>
 
+    <!-- Unsaved changes bar -->
+    <div class="save-bar" id="save-bar"></div>
+
     <div class="body">
       <div class="sidebar">
         <div class="sidebar-head">
@@ -1009,6 +1047,9 @@ const SAMPLE_ZONES = [
 ];
 
 let zones = JSON.parse(JSON.stringify(SAMPLE_ZONES));
+let savedZones = JSON.parse(JSON.stringify(SAMPLE_ZONES));
+let savedAccount = '3030';
+let savedVat = 'follow';
 let activeZoneId = null;
 let drawingMode = false;
 let drawingPoints = [];
@@ -1218,6 +1259,101 @@ function clearHoles(zoneId) {
   z.holes = [];
   showToast('Hull fjernet');
   renderAll();
+}
+
+/* ============== SAVE / DISCARD ============== */
+function isDirty() {
+  if (JSON.stringify(zones) !== JSON.stringify(savedZones)) return true;
+  const acc = document.getElementById('account-select');
+  const vat = document.getElementById('vat-select');
+  if (acc && acc.value !== savedAccount) return true;
+  if (vat && vat.value !== savedVat) return true;
+  return false;
+}
+
+function changeCount() {
+  let n = 0;
+  // Removed zones
+  savedZones.forEach(sz => { if (!zones.find(z => z.id === sz.id)) n++; });
+  // Added or modified zones
+  zones.forEach(z => {
+    const sz = savedZones.find(x => x.id === z.id);
+    if (!sz) n++;
+    else if (JSON.stringify(z) !== JSON.stringify(sz)) n++;
+  });
+  // VAT/account
+  const acc = document.getElementById('account-select');
+  const vat = document.getElementById('vat-select');
+  if (acc && acc.value !== savedAccount) n++;
+  if (vat && vat.value !== savedVat) n++;
+  return n;
+}
+
+function saveAllChanges() {
+  savedZones = JSON.parse(JSON.stringify(zones));
+  const acc = document.getElementById('account-select');
+  const vat = document.getElementById('vat-select');
+  if (acc) savedAccount = acc.value;
+  if (vat) savedVat = vat.value;
+  showToast('✓ Endringer lagret');
+  renderSaveBar();
+}
+
+function discardAllChanges() {
+  const count = changeCount();
+  if (count === 0) return;
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `
+    <div class="modal">
+      <h3>Forkast endringer?</h3>
+      <p>${count} ulagret${count === 1 ? '' : 'e'} endring${count === 1 ? '' : 'er'} går tapt. Dette kan ikke angres.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" id="m-cancel">Avbryt</button>
+        <button class="btn btn-primary" id="m-confirm" style="background:var(--color-error)">Forkast endringer</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('app').appendChild(bg);
+  bg.querySelector('#m-cancel').addEventListener('click', () => bg.remove());
+  bg.querySelector('#m-confirm').addEventListener('click', () => {
+    zones = JSON.parse(JSON.stringify(savedZones));
+    const acc = document.getElementById('account-select');
+    const vat = document.getElementById('vat-select');
+    if (acc) acc.value = savedAccount;
+    if (vat) vat.value = savedVat;
+    activeZoneId = null;
+    editingZone = null;
+    if (drawingMode) cancelDrawing();
+    bg.remove();
+    showToast('Endringer forkastet');
+    renderAll();
+  });
+  bg.addEventListener('click', e => { if (e.target === bg) bg.remove(); });
+}
+
+function renderSaveBar() {
+  const bar = document.getElementById('save-bar');
+  if (!bar) return;
+  if (!isDirty()) {
+    bar.classList.remove('show');
+    bar.innerHTML = '';
+    return;
+  }
+  const count = changeCount();
+  bar.classList.add('show');
+  bar.innerHTML = `
+    <div class="save-bar-msg">
+      <span class="save-bar-icon">⚠</span>
+      <span>${count} ulagret${count === 1 ? '' : 'e'} endring${count === 1 ? '' : 'er'}</span>
+    </div>
+    <div class="save-bar-actions">
+      <button class="save-bar-btn discard" id="discard-btn-bar">Forkast</button>
+      <button class="save-bar-btn primary" id="save-btn-bar">Lagre endringer</button>
+    </div>
+  `;
+  document.getElementById('save-btn-bar').addEventListener('click', saveAllChanges);
+  document.getElementById('discard-btn-bar').addEventListener('click', discardAllChanges);
 }
 
 /* ============== SIDEBAR ============== */
@@ -1531,7 +1667,7 @@ function confirmDelete(id) {
   bg.innerHTML = `
     <div class="modal">
       <h3>Slette sonen "${escapeHtml(z.name)}"?</h3>
-      <p>Denne handlingen kan ikke angres. Eksisterende ordre med denne sonen påvirkes ikke.</p>
+      <p>Sonen fjernes når du lagrer endringene. Bruk "Forkast" hvis du ombestemmer deg. Eksisterende ordre påvirkes ikke.</p>
       <div class="modal-actions">
         <button class="btn btn-secondary" id="m-cancel">Avbryt</button>
         <button class="btn btn-primary" id="m-confirm" style="background:var(--color-error)">Slett sone</button>
@@ -1571,6 +1707,7 @@ function renderAll() {
   renderVertexHandles();
   renderSidebar();
   renderForm();
+  renderSaveBar();
 }
 
 /* ============== EVENTS ============== */
@@ -1591,6 +1728,11 @@ document.getElementById('theme-dark').addEventListener('click', () => {
 
 document.getElementById('reset-btn').addEventListener('click', () => {
   zones = JSON.parse(JSON.stringify(SAMPLE_ZONES));
+  savedZones = JSON.parse(JSON.stringify(SAMPLE_ZONES));
+  savedAccount = '3030';
+  savedVat = 'follow';
+  document.getElementById('account-select').value = '3030';
+  document.getElementById('vat-select').value = 'follow';
   activeZoneId = null;
   editingZone = null;
   if (drawingMode) cancelDrawing();
@@ -1599,13 +1741,11 @@ document.getElementById('reset-btn').addEventListener('click', () => {
   showToast('Demo nullstilt');
 });
 
-document.getElementById('account-select').addEventListener('change', e => {
-  const opt = e.target.options[e.target.selectedIndex];
-  showToast(`Hovedkonto endret: ${opt.text.split(' — ')[0]}`);
+document.getElementById('account-select').addEventListener('change', () => {
+  renderSaveBar();
 });
-document.getElementById('vat-select').addEventListener('change', e => {
-  const opt = e.target.options[e.target.selectedIndex];
-  showToast(`MVA-konto endret: ${opt.text}`);
+document.getElementById('vat-select').addEventListener('change', () => {
+  renderSaveBar();
 });
 
 window.addEventListener('resize', () => map.invalidateSize());
