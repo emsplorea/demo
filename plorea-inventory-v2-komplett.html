@@ -2665,73 +2665,63 @@
             </div>
         </div>
         
-        <!-- Adjustment Modal -->
+        <!-- Warehouse Adjustment Modal — multi-product (matches today's UI pattern) -->
         <div class="modal-overlay" id="adjustmentModal">
-            <div class="modal-container">
+            <div class="modal-container" style="max-width: 880px;">
                 <div class="modal-header">
-                    <div class="modal-title">⚙️ Lagerjustering</div>
+                    <div class="modal-title">⚙️ Lagerjustering — Hovedlager</div>
                     <button class="modal-close" onclick="closeAdjustmentModal()">×</button>
                 </div>
                 <div class="modal-body">
-                    <div style="padding: 1rem; background: rgba(245, 158, 11, 0.1); border: 1px solid var(--warning); border-radius: 8px; margin-bottom: 1.5rem;">
-                        <div style="font-weight: 600; margin-bottom: 0.5rem;">⚠️ Viktig</div>
-                        <div style="font-size: 0.875rem; color: var(--text-secondary);">
-                            Lagerjusteringer skal kun brukes for å korrigere feil i systemet. All normal inn- og utflyt skal registreres via varemottak og salg.
+                    <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem; line-height: 1.5;">
+                        Juster fysisk lager for hvert produkt på hovedlageret. Både opp og ned er tillatt.
+                        Per rad kan du velge om du legger inn verdien i <strong>stk</strong> eller via en <strong>forpakning</strong> (f.eks. kasser / kegger).
+                    </div>
+
+                    <div style="padding: 0.75rem 1rem; background: rgba(245, 158, 11, 0.08); border: 1px solid var(--warning); border-radius: 6px; margin-bottom: 1.25rem; font-size: 0.8rem; color: var(--text-secondary);">
+                        ⚠️ Lagerjusteringer skal kun brukes for å korrigere feil. Normal inn- og utflyt skal registreres via varemottak og salg.
+                    </div>
+
+                    <!-- Global reason + details (one for the whole batch) -->
+                    <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 1rem; margin-bottom: 1.25rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label required">Årsak til justering</label>
+                            <select class="form-input" id="adjustmentReason" onchange="updateWhAdjustmentSummary()">
+                                <option value="">Velg årsak...</option>
+                                <option value="count_error">Tellingsfeil</option>
+                                <option value="damage">Skadet vare</option>
+                                <option value="expiry">Utløpt</option>
+                                <option value="theft">Svinn/tyveri</option>
+                                <option value="system_error">Systemfeil</option>
+                                <option value="other">Annet</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Detaljer (valgfritt)</label>
+                            <input type="text" class="form-input" id="adjustmentDetails" placeholder="F.eks. månedstelling oktober">
                         </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Produkt</label>
-                        <select class="form-input" id="adjustmentProduct">
-                            <option value="">Velg produkt...</option>
-                            <!-- Will be populated by JS -->
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label">Nåværende beholdning</label>
-                        <input type="text" class="form-input" id="adjustmentCurrentQty" disabled>
-                    </div>
-                    
-                    <!-- NEW: Forpakning dropdown (same pattern as Varemottak) -->
-                    <div class="form-group" id="whAdjustmentPkgGroup" style="display: none;">
-                        <label class="form-label">Forpakning <span class="change-badge" style="font-size: 0.55rem; vertical-align: middle; margin-left: 0.3rem;">NEW</span></label>
-                        <select class="form-input" id="whAdjustmentPkgMode" onchange="onWhAdjustmentPkgModeChange()">
-                            <!-- Populated when product is chosen -->
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required" id="whAdjustmentQtyLabel">Ny korrekt beholdning <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(i stk)</span></label>
-                        <input type="number" class="form-input" id="adjustmentNewQty" min="0" placeholder="Skriv inn korrekt antall" oninput="onWhAdjustmentNewQtyInput()">
-                        <div id="whAdjustmentNewQtyHint" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; display: none;"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Årsak til justering</label>
-                        <select class="form-input" id="adjustmentReason">
-                            <option value="">Velg årsak...</option>
-                            <option value="count_error">Tellingsfeil</option>
-                            <option value="damage">Skadet vare</option>
-                            <option value="expiry">Utløpt</option>
-                            <option value="theft">Svinn/tyveri</option>
-                            <option value="system_error">Systemfeil</option>
-                            <option value="other">Annet</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Detaljer</label>
-                        <textarea class="form-input" id="adjustmentDetails" rows="3" placeholder="Beskriv årsaken til justeringen i detalj..."></textarea>
+
+                    <div style="overflow-x: auto;">
+                        <table class="stock-table">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left;">Produkt</th>
+                                    <th style="text-align: right; width: 110px;">Nåværende</th>
+                                    <th style="text-align: center; width: 200px;">Forpakning <span class="change-badge" style="font-size: 0.5rem; vertical-align: middle;">NEW</span></th>
+                                    <th style="text-align: right; width: 180px;">Fysisk lager</th>
+                                </tr>
+                            </thead>
+                            <tbody id="whAdjustmentRows">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-secondary" onclick="closeAdjustmentModal()">
-                        Avbryt
-                    </button>
-                    <button class="btn-primary" onclick="confirmAdjustment()">
-                        ✓ Bekreft justering
-                    </button>
+                    <span id="whAdjustmentChangeCount" style="margin-right: auto; font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">Ingen endringer</span>
+                    <button class="btn-secondary" onclick="closeAdjustmentModal()">Avbryt</button>
+                    <button class="btn-primary" id="whAdjustmentSaveBtn" onclick="confirmAdjustment()" disabled>✓ Lagre justering</button>
                 </div>
             </div>
         </div>
@@ -5752,184 +5742,266 @@
             closeDeliveryModal();
         }
         
+        // Warehouse Lagerjustering — multi-product flow.
+        // State: keyed by row id; each entry tracks original stk, current stk (after conversion),
+        // pkg mode ('stk' or packaging id), and the raw input value (which can be stk OR # packages).
+        let whAdjustmentState = {};
+
         function openAdjustmentDialog() {
             const modal = document.getElementById('adjustmentModal');
-            modal.classList.add('active');
-            
-            // Populate product dropdown
-            const select = document.getElementById('adjustmentProduct');
-            select.innerHTML = '<option value="">Velg produkt...</option>';
-            Object.keys(warehouseStock).forEach(product => {
-                const option = document.createElement('option');
-                option.value = product;
-                option.textContent = product;
-                select.appendChild(option);
-            });
-            
-            // Reset form
-            document.getElementById('adjustmentCurrentQty').value = '';
-            document.getElementById('adjustmentNewQty').value = '';
+
+            // Reset global fields
             document.getElementById('adjustmentReason').value = '';
             document.getElementById('adjustmentDetails').value = '';
-            document.getElementById('whAdjustmentPkgGroup').style.display = 'none';
-            document.getElementById('whAdjustmentNewQtyHint').style.display = 'none';
-            document.getElementById('whAdjustmentQtyLabel').innerHTML = 'Ny korrekt beholdning <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(i stk)</span>';
-            
-            // Rebuild packaging dropdown when product changes
-            select.onchange = function() {
-                const pkgGroup = document.getElementById('whAdjustmentPkgGroup');
-                const pkgModeSelect = document.getElementById('whAdjustmentPkgMode');
-                const qtyInput = document.getElementById('adjustmentNewQty');
-                const hint = document.getElementById('whAdjustmentNewQtyHint');
-                
-                if (this.value) {
-                    const currentQty = warehouseStock[this.value].physical_qty;
-                    document.getElementById('adjustmentCurrentQty').value = currentQty;
-                    
-                    // Rebuild packaging dropdown for this product
-                    const packagings = getPackagingsForProduct(this.value, true);
-                    if (packagings.length > 0) {
-                        pkgModeSelect.innerHTML = buildPackagingDropdownOptions(this.value, 'stk');
-                        pkgGroup.style.display = '';
-                    } else {
-                        pkgGroup.style.display = 'none';
-                    }
-                    
-                    qtyInput.value = '';
-                    qtyInput.dataset.currentStk = currentQty;
-                    qtyInput.dataset.product = this.value;
-                    onWhAdjustmentPkgModeChange();
+
+            // Build rows from warehouseStock
+            const tbody = document.getElementById('whAdjustmentRows');
+            tbody.innerHTML = '';
+            whAdjustmentState = {};
+
+            Object.keys(warehouseStock).forEach((product, idx) => {
+                const currentStock = warehouseStock[product].physical_qty;
+                const id = 'whprod-' + idx;
+
+                whAdjustmentState[id] = {
+                    name: product,
+                    original: currentStock,
+                    current: currentStock,
+                    pkgMode: 'stk',
+                    pkgInputValue: currentStock
+                };
+
+                const pkgDropdownHtml = buildPackagingDropdownOptions(product, 'stk');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${product}</td>
+                    <td style="text-align: right; color: var(--text-muted); font-variant-numeric: tabular-nums;">${currentStock} stk</td>
+                    <td style="text-align: center;">
+                        <select class="form-input pkg-row-select"
+                                data-id="${id}"
+                                onchange="onWhAdjustmentModeChange(this)"
+                                style="width: 190px; padding: 0.4rem 0.5rem; font-size: 0.8rem;">
+                            ${pkgDropdownHtml}
+                        </select>
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem;">
+                            <input type="number" class="table-input"
+                                   data-id="${id}" value="${currentStock}" min="0" step="1"
+                                   style="width: 120px; text-align: right;"
+                                   oninput="onWhAdjustmentRowInput(this)">
+                            <div data-id="${id}" data-field="stk-hint" style="font-size: 0.7rem; min-height: 0.9rem;"></div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updateWhAdjustmentSummary();
+            modal.classList.add('active');
+        }
+
+        function onWhAdjustmentModeChange(selectEl) {
+            const id = selectEl.getAttribute('data-id');
+            const state = whAdjustmentState[id];
+            if (!state) return;
+
+            const input = document.querySelector(`#whAdjustmentRows input[data-id="${id}"]`);
+            const hint = document.querySelector(`#whAdjustmentRows [data-field="stk-hint"][data-id="${id}"]`);
+            if (!input || !hint) return;
+
+            const newMode = selectEl.value;
+            state.pkgMode = newMode;
+
+            if (newMode === 'stk') {
+                input.value = state.current;
+                state.pkgInputValue = state.current;
+                hint.innerHTML = '';
+                input.setAttribute('aria-label', 'Fysisk lager (stk)');
+            } else {
+                const pkg = packagingDefinitions.find(p => p.id === parseInt(newMode, 10));
+                if (pkg) {
+                    const stkPerPkg = pkgResultPerPackage(pkg);
+                    const approxPackages = stkPerPkg > 0 ? (state.current / stkPerPkg) : 0;
+                    const rounded = Math.round(approxPackages * 100) / 100;
+                    input.value = Number.isInteger(rounded) ? rounded : rounded.toFixed(2);
+                    state.pkgInputValue = parseFloat(input.value);
+                    input.setAttribute('aria-label', `Antall ${pkg.name.toLowerCase()}`);
+                    onWhAdjustmentRowInput(input);
+                }
+            }
+            updateWhAdjustmentSummary();
+        }
+
+        function onWhAdjustmentRowInput(input) {
+            const id = input.getAttribute('data-id');
+            const state = whAdjustmentState[id];
+            if (!state) return;
+            const raw = input.value.trim();
+            const hint = document.querySelector(`#whAdjustmentRows [data-field="stk-hint"][data-id="${id}"]`);
+
+            let valid = true;
+            let stkValue = NaN;
+            if (state.pkgMode === 'stk') {
+                if (raw === '' || !/^\d+$/.test(raw)) valid = false;
+                else {
+                    const n = parseInt(raw, 10);
+                    if (n < 0) valid = false;
+                    else stkValue = n;
+                }
+            } else {
+                const n = parseFloat(raw);
+                if (isNaN(n) || n < 0) valid = false;
+                else {
+                    const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                    if (pkg) stkValue = pkgConvertToStk(pkg, n);
+                }
+            }
+
+            if (valid) {
+                state.current = stkValue;
+                state.pkgInputValue = parseFloat(raw);
+                input.style.borderColor = '';
+
+                if (stkValue !== state.original) {
+                    input.style.background = 'rgba(107, 184, 218, 0.12)';
+                    input.style.fontWeight = '600';
+                    input.style.borderColor = 'var(--accent-primary)';
                 } else {
-                    document.getElementById('adjustmentCurrentQty').value = '';
-                    pkgGroup.style.display = 'none';
-                    hint.style.display = 'none';
-                    delete qtyInput.dataset.product;
+                    input.style.background = '';
+                    input.style.fontWeight = '';
                 }
-            };
-        }
-        
-        function onWhAdjustmentPkgModeChange() {
-            const pkgModeSelect = document.getElementById('whAdjustmentPkgMode');
-            const qtyInput = document.getElementById('adjustmentNewQty');
-            const qtyLabel = document.getElementById('whAdjustmentQtyLabel');
-            if (!pkgModeSelect || !qtyInput) return;
-            
-            const mode = pkgModeSelect.value;
-            if (mode === 'stk') {
-                qtyLabel.innerHTML = 'Ny korrekt beholdning <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(i stk)</span>';
-                qtyInput.placeholder = 'Skriv inn korrekt antall';
+
+                if (state.pkgMode === 'stk') {
+                    if (hint) hint.innerHTML = '';
+                } else {
+                    const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                    if (pkg && hint) {
+                        hint.innerHTML = `<span class="pkg-row-pill">= <span class="pkg-row-pill-val">${stkValue.toLocaleString('nb-NO').replace(/,/g, ' ')}</span> stk</span>`;
+                    }
+                }
             } else {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(mode, 10));
-                if (pkg) {
-                    qtyLabel.innerHTML = `Ny korrekt beholdning <span style="font-weight: 500; color: var(--text-muted); font-size: 0.8rem;">(i ${pkg.name.toLowerCase()})</span>`;
-                    qtyInput.placeholder = `Antall ${pkg.name.toLowerCase()}`;
-                }
+                state.current = NaN;
+                input.style.borderColor = 'var(--danger)';
+                input.style.background = 'rgba(218, 107, 107, 0.1)';
+                if (hint) hint.innerHTML = '<span style="color: var(--danger); font-size: 0.7rem;">Ugyldig verdi</span>';
             }
-            onWhAdjustmentNewQtyInput();
+
+            updateWhAdjustmentSummary();
         }
-        
-        function onWhAdjustmentNewQtyInput() {
-            const pkgModeSelect = document.getElementById('whAdjustmentPkgMode');
-            const qtyInput = document.getElementById('adjustmentNewQty');
-            const hint = document.getElementById('whAdjustmentNewQtyHint');
-            if (!pkgModeSelect || !qtyInput || !hint) return;
-            
-            const raw = qtyInput.value;
-            const mode = pkgModeSelect.value;
-            
-            if (!raw || parseFloat(raw) < 0) {
-                hint.style.display = 'none';
-                return;
-            }
-            
-            if (mode === 'stk') {
-                hint.style.display = 'none';
+
+        function updateWhAdjustmentSummary() {
+            const changeCount = document.getElementById('whAdjustmentChangeCount');
+            const saveBtn = document.getElementById('whAdjustmentSaveBtn');
+            const reason = document.getElementById('adjustmentReason').value;
+            if (!changeCount || !saveBtn) return;
+
+            const ids = Object.keys(whAdjustmentState);
+            const changedIds = ids.filter(id =>
+                !Number.isNaN(whAdjustmentState[id].current) &&
+                whAdjustmentState[id].current !== whAdjustmentState[id].original
+            );
+            const anyInvalid = ids.some(id => Number.isNaN(whAdjustmentState[id].current));
+
+            if (anyInvalid) {
+                changeCount.textContent = 'Ugyldige verdier — rett før lagring';
+                changeCount.style.color = 'var(--danger)';
+                saveBtn.disabled = true;
+            } else if (changedIds.length === 0) {
+                changeCount.textContent = 'Ingen endringer';
+                changeCount.style.color = '';
+                saveBtn.disabled = true;
+            } else if (!reason) {
+                changeCount.textContent = `${changedIds.length} endring${changedIds.length === 1 ? '' : 'er'} — velg årsak for å lagre`;
+                changeCount.style.color = 'var(--warning)';
+                saveBtn.disabled = true;
             } else {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(mode, 10));
-                if (pkg) {
-                    const n = parseFloat(raw) || 0;
-                    const stk = pkgConvertToStk(pkg, n);
-                    hint.innerHTML = `= <strong style="color: var(--blue-800);">${stk.toLocaleString('nb-NO').replace(/,/g, ' ')} stk</strong> (${n} × ${pkg.name})`;
-                    hint.style.display = '';
-                }
+                changeCount.textContent = `${changedIds.length} endring${changedIds.length === 1 ? '' : 'er'}`;
+                changeCount.style.color = '';
+                saveBtn.disabled = false;
             }
         }
-        
-        // Helper to read the effective stk value from warehouse adjustment form
-        function getWhAdjustmentStk() {
-            const pkgModeSelect = document.getElementById('whAdjustmentPkgMode');
-            const qtyInput = document.getElementById('adjustmentNewQty');
-            const raw = parseFloat(qtyInput.value) || 0;
-            
-            if (!pkgModeSelect || pkgModeSelect.value === 'stk' || pkgModeSelect.parentElement.style.display === 'none') {
-                return Math.round(raw);
-            }
-            const pkg = packagingDefinitions.find(p => p.id === parseInt(pkgModeSelect.value, 10));
-            return pkg ? pkgConvertToStk(pkg, raw) : Math.round(raw);
-        }
-        
+
         function closeAdjustmentModal() {
             document.getElementById('adjustmentModal').classList.remove('active');
         }
-        
+
         function confirmAdjustment() {
-            const product = document.getElementById('adjustmentProduct').value;
             const reason = document.getElementById('adjustmentReason').value;
-            const details = document.getElementById('adjustmentDetails').value;
-            const rawInput = document.getElementById('adjustmentNewQty').value;
-            
-            if (!product || !rawInput || !reason || !details) {
-                alert('⚠️ Vennligst fyll ut alle påkrevde felter');
+            const details = document.getElementById('adjustmentDetails').value.trim();
+
+            if (!reason) {
+                alert('⚠️ Velg en årsak til justeringen');
                 return;
             }
-            
-            // Resolve packaging-aware stk value
-            const newQty = getWhAdjustmentStk();
-            if (isNaN(newQty) || newQty < 0) {
-                alert('⚠️ Ugyldig antall — må være et positivt tall');
-                return;
-            }
-            
-            // Build confirm message that includes packaging context
-            const pkgModeSelect = document.getElementById('whAdjustmentPkgMode');
-            let pkgDetail = '';
-            if (pkgModeSelect && pkgModeSelect.parentElement.style.display !== 'none' && pkgModeSelect.value !== 'stk') {
-                const pkg = packagingDefinitions.find(p => p.id === parseInt(pkgModeSelect.value, 10));
-                if (pkg) pkgDetail = `\n(${parseFloat(rawInput)} × ${pkg.name} = ${newQty} stk)`;
-            }
-            
-            if (!confirm(`Er du sikker på at du vil justere lageret for ${product}?\n\nDette vil endre beholdningen fra ${warehouseStock[product].physical_qty} til ${newQty} stk.${pkgDetail}`)) {
-                return;
-            }
-            
-            // Process adjustment
-            const before = warehouseStock[product].physical_qty;
-            const delta = newQty - before;
-            warehouseStock[product].physical_qty = newQty;
-            
-            // Log to history
-            let histNote = `Årsak: ${reason} | ${details}`;
-            if (pkgDetail) histNote += ` | ${pkgDetail.trim()}`;
-            warehouseHistory.unshift({
-                type: 'ADJUSTMENT',
-                product: product,
-                qty: delta,
-                physical_before: before,
-                physical_after: newQty,
-                timestamp: new Date().toISOString(),
-                user: 'Admin Bruker',
-                note: histNote
+
+            let changeCount = 0;
+            Object.keys(whAdjustmentState).forEach(id => {
+                const state = whAdjustmentState[id];
+                if (Number.isNaN(state.current) || state.current === state.original) return;
+
+                const product = state.name;
+                const before = state.original;
+                const after = state.current;
+                const delta = after - before;
+
+                // Apply to warehouse
+                warehouseStock[product].physical_qty = after;
+
+                // Build packaging context for history note when packaging was used
+                let pkgDetail = '';
+                if (state.pkgMode !== 'stk') {
+                    const pkg = packagingDefinitions.find(p => p.id === parseInt(state.pkgMode, 10));
+                    if (pkg) pkgDetail = ` (${state.pkgInputValue} × ${pkg.name} = ${after} stk)`;
+                }
+
+                let histNote = `Årsak: ${reason}`;
+                if (details) histNote += ` | ${details}`;
+                if (pkgDetail) histNote += ` |${pkgDetail}`;
+
+                warehouseHistory.unshift({
+                    type: 'ADJUSTMENT',
+                    product: product,
+                    qty: delta,
+                    physical_before: before,
+                    physical_after: after,
+                    timestamp: new Date().toISOString(),
+                    user: 'Admin Bruker',
+                    note: histNote
+                });
+
+                changeCount++;
             });
-            
-            // Keep only last 10
+
+            // Trim history to last 10
             while (warehouseHistory.length > 10) warehouseHistory.pop();
-            
-            // Update displays
+
+            // Refresh views and close
             renderWarehouseStock();
             renderWarehouseHistory();
-            
-            alert(`✓ Lagerjustering registrert!\n\n${product}: ${before} → ${newQty} (${delta >= 0 ? '+' : ''}${delta})`);
             closeAdjustmentModal();
+
+            // Toast confirmation (matches today's "Stock adjusted successfully" pattern)
+            showWhAdjustmentToast(`✓ ${changeCount} produkt${changeCount === 1 ? '' : 'er'} justert`);
+        }
+
+        function showWhAdjustmentToast(msg) {
+            let toast = document.getElementById('whAdjustmentToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'whAdjustmentToast';
+                toast.style.cssText = 'position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--gray-900); color: white; padding: 12px 22px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 9999;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 2500);
         }
         
         // ============================================
