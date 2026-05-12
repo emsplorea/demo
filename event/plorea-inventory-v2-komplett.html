@@ -2241,6 +2241,125 @@
             background: linear-gradient(90deg, var(--blue-default), var(--blue-700));
             border-radius: 999px;
         }
+        
+        /* Reports filter — redesigned layout */
+        .report-filter-row {
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 1.25rem;
+        }
+        @media (max-width: 900px) {
+            .report-filter-row { grid-template-columns: 1fr; }
+        }
+        .report-filter-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.65rem 0.7rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            min-height: 41px;
+            box-sizing: border-box;
+        }
+        .report-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            cursor: pointer;
+            line-height: 1.35;
+            padding: 0.15rem 0;
+        }
+        .report-toggle input {
+            margin: 0;
+            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+        .report-toggle small {
+            color: var(--text-muted);
+            font-weight: 400;
+            font-size: 0.78rem;
+        }
+        
+        /* Reports filter — collapsed summary bar */
+        .report-summary-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.85rem 1.25rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--elevation-1);
+        }
+        .report-summary-content {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1;
+            min-width: 0;
+            flex-wrap: wrap;
+        }
+        .report-summary-chunk {
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            padding: 0.25rem 1rem 0.25rem 0;
+            min-width: 0;
+        }
+        .report-summary-chunk:first-child { padding-left: 0; }
+        .report-summary-chunk > div { min-width: 0; }
+        .report-summary-icon {
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+        .report-summary-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 0.2rem;
+        }
+        .report-summary-value {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.2;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 360px;
+        }
+        .report-summary-divider {
+            width: 1px;
+            align-self: stretch;
+            background: var(--border);
+            margin: 0.2rem 0;
+            flex-shrink: 0;
+        }
+        .report-summary-edit-btn {
+            flex-shrink: 0;
+            font-size: 0.82rem;
+            padding: 0.55rem 1rem;
+        }
+        @media (max-width: 900px) {
+            .report-summary-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .report-summary-edit-btn { align-self: flex-end; }
+            .report-summary-divider { display: none; }
+            .report-summary-content { gap: 0.5rem; }
+            .report-summary-chunk { padding-right: 0; }
+        }
     </style>
 </head>
 <body>
@@ -3745,24 +3864,28 @@
                 <div class="content-subtitle">Detaljert event-rapport med valgfri enhetsgruppe-filtrering, salgsbrudd og audit-tidslinje</div>
             </div>
 
-            <!-- Filter Bar -->
-            <div class="form-section" style="margin-bottom: 1.5rem;">
+            <!-- Filter Bar (EXPANDED) -->
+            <div class="form-section" id="reportFilterExpanded" style="margin-bottom: 1.25rem;">
                 <div class="section-title">🔎 Velg rapportgrunnlag</div>
-                <div style="display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 1rem; align-items: end;">
-                    <div class="form-group" style="margin-bottom: 0;">
-                        <label class="form-label required">Event</label>
-                        <select class="form-input" id="reportEventSelect">
-                            <option value="">Velg event...</option>
-                            <option value="vif-bodoe">VIF–Bodø/Glimt · Eliteserien · 12. mai 2026 (19:00–22:30)</option>
-                            <option value="vif-rosenborg">VIF–Rosenborg · Eliteserien · 5. mai 2026 (19:00–22:30)</option>
-                            <option value="vif-brann">VIF–Brann · Eliteserien · 28. apr 2026 (19:00–22:30)</option>
-                            <option value="vif-lillestrom">VIF–Lillestrøm · Eliteserien · 21. apr 2026 (18:00–21:30)</option>
-                            <option value="concert-1">Sommerkonsert 2025 · Konsertarena · 14. jun 2025 (17:00–23:30)</option>
-                        </select>
-                    </div>
+
+                <!-- Row 1: Event selector (full width) -->
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                    <label class="form-label required">Event</label>
+                    <select class="form-input" id="reportEventSelect" style="font-size: 0.95rem;">
+                        <option value="">Velg event...</option>
+                        <option value="vif-bodoe">VIF–Bodø/Glimt · Eliteserien · 12. mai 2026 (19:00–22:30)</option>
+                        <option value="vif-rosenborg">VIF–Rosenborg · Eliteserien · 5. mai 2026 (19:00–22:30)</option>
+                        <option value="vif-brann">VIF–Brann · Eliteserien · 28. apr 2026 (19:00–22:30)</option>
+                        <option value="vif-lillestrom">VIF–Lillestrøm · Eliteserien · 21. apr 2026 (18:00–21:30)</option>
+                        <option value="concert-1">Sommerkonsert 2025 · Konsertarena · 14. jun 2025 (17:00–23:30)</option>
+                    </select>
+                </div>
+
+                <!-- Row 2: DGs (left) + Inkluder-i-rapport toggles (right) -->
+                <div class="report-filter-row">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label class="form-label">Enhetsgrupper inkludert</label>
-                        <div id="reportDGChips" style="display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0.5rem 0.6rem; min-height: 41px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px;">
+                        <div id="reportDGChips" class="report-filter-box">
                             <label class="report-dg-chip" data-dg="kiosk-1">
                                 <input type="checkbox" checked data-dg="kiosk-1"> Kiosk Nord
                             </label>
@@ -3774,21 +3897,64 @@
                             </label>
                         </div>
                     </div>
-                    <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
-                        <button class="btn-secondary" onclick="resetReportFilters()">Nullstill</button>
-                        <button class="btn-primary" onclick="generateEventReport()">📊 Generer rapport</button>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Inkluder i rapport</label>
+                        <div class="report-filter-box" style="flex-direction: column; gap: 0.5rem;">
+                            <label class="report-toggle">
+                                <input type="checkbox" id="reportIncludeAudit" checked>
+                                <span>Audit-tidslinje <small>(justeringer, transfers, opptellinger)</small></span>
+                            </label>
+                            <label class="report-toggle">
+                                <input type="checkbox" id="reportIncludeStopPct" checked>
+                                <span>Stop-%-hendelser</span>
+                            </label>
+                            <label class="report-toggle">
+                                <input type="checkbox" id="reportIncludeChannels" checked>
+                                <span>Kanalbrudd <small>(POS / QR / Vipps / AP)</small></span>
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem; align-items: center; flex-wrap: wrap;">
-                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
-                        <input type="checkbox" id="reportIncludeAudit" checked> Inkluder audit-tidslinje (justeringer, transfers, opptellinger)
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
-                        <input type="checkbox" id="reportIncludeStopPct" checked> Inkluder Stop-%-hendelser
-                    </label>
-                    <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; color: var(--text-secondary); cursor: pointer;">
-                        <input type="checkbox" id="reportIncludeChannels" checked> Bryt ned per kanal (POS / QR / Vipps / AP)
-                    </label>
+
+                <!-- Row 3: Action buttons -->
+                <div style="display: flex; gap: 0.5rem; justify-content: flex-end; padding-top: 1rem; margin-top: 1.25rem; border-top: 1px solid var(--border-light);">
+                    <button class="btn-secondary" onclick="resetReportFilters()">Nullstill</button>
+                    <button class="btn-primary" onclick="generateEventReport()">📊 Generer rapport</button>
+                </div>
+            </div>
+
+            <!-- Filter Bar (COLLAPSED SUMMARY — shown after Generer) -->
+            <div id="reportFilterSummary" style="display: none;">
+                <div class="report-summary-bar">
+                    <div class="report-summary-content">
+                        <div class="report-summary-chunk">
+                            <span class="report-summary-icon">📊</span>
+                            <div>
+                                <div class="report-summary-label">Event</div>
+                                <div class="report-summary-value" id="summaryEventLabel">—</div>
+                            </div>
+                        </div>
+                        <div class="report-summary-divider"></div>
+                        <div class="report-summary-chunk">
+                            <span class="report-summary-icon">🏪</span>
+                            <div>
+                                <div class="report-summary-label">Enhetsgrupper</div>
+                                <div class="report-summary-value" id="summaryDGsLabel">—</div>
+                            </div>
+                        </div>
+                        <div class="report-summary-divider"></div>
+                        <div class="report-summary-chunk">
+                            <span class="report-summary-icon">⚙️</span>
+                            <div>
+                                <div class="report-summary-label">Tilvalg</div>
+                                <div class="report-summary-value" id="summaryOptionsLabel">—</div>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn-secondary report-summary-edit-btn" onclick="expandReportFilter()">
+                        ✎ Endre filter
+                    </button>
                 </div>
             </div>
 
@@ -8462,6 +8628,31 @@
             document.getElementById('reportIncludeChannels').checked = true;
             document.getElementById('reportContent').style.display = 'none';
             document.getElementById('reportEmptyState').style.display = '';
+            // Always show expanded filter, hide summary
+            document.getElementById('reportFilterExpanded').style.display = '';
+            document.getElementById('reportFilterSummary').style.display = 'none';
+        }
+        
+        // Re-open the expanded filter without clearing the current report
+        function expandReportFilter() {
+            document.getElementById('reportFilterExpanded').style.display = '';
+            document.getElementById('reportFilterSummary').style.display = 'none';
+            document.getElementById('reportFilterExpanded').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        
+        // Collapse the expanded filter into the summary bar (called from generate)
+        function collapseReportFilter(eventLabel, dgNames, optionsLabel) {
+            document.getElementById('summaryEventLabel').textContent = eventLabel;
+            document.getElementById('summaryEventLabel').title = eventLabel;
+            const dgText = dgNames.length === 1
+                ? dgNames[0]
+                : (dgNames.length <= 3 ? dgNames.join(', ') : `${dgNames.length} grupper · ${dgNames.slice(0, 2).join(', ')}…`);
+            document.getElementById('summaryDGsLabel').textContent = dgText;
+            document.getElementById('summaryDGsLabel').title = dgNames.join(', ');
+            document.getElementById('summaryOptionsLabel').textContent = optionsLabel;
+            document.getElementById('summaryOptionsLabel').title = optionsLabel;
+            document.getElementById('reportFilterExpanded').style.display = 'none';
+            document.getElementById('reportFilterSummary').style.display = '';
         }
         
         function fmtCurrency(amount) {
@@ -8659,7 +8850,22 @@
             // Reveal report
             document.getElementById('reportEmptyState').style.display = 'none';
             document.getElementById('reportContent').style.display = 'block';
-            document.getElementById('reportContent').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Collapse the filter into the summary bar to save space
+            const eventSelectEl = document.getElementById('reportEventSelect');
+            const eventLabel = eventSelectEl.options[eventSelectEl.selectedIndex].text;
+            const dgNamesArr = selectedDGs.map(id => dgNames[id]);
+            const optionFlags = [];
+            if (includeAudit) optionFlags.push('Audit-tidslinje');
+            if (includeStopPct) optionFlags.push('Stop-%-hendelser');
+            if (includeChannels) optionFlags.push('Kanalbrudd');
+            const optionsLabel = optionFlags.length === 0
+                ? 'Ingen tilvalg'
+                : (optionFlags.length === 3 ? 'Alle tilvalg på' : optionFlags.join(' · '));
+            collapseReportFilter(eventLabel, dgNamesArr, optionsLabel);
+            
+            // Scroll the now-collapsed summary into view (it's right above the report header)
+            document.getElementById('reportFilterSummary').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
         
         function exportReport(format) {
