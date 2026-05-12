@@ -3435,6 +3435,90 @@
             </div>
         </div>
 
+        <!-- Opptelling Modal (post-event physical count) — PLBR-1284 -->
+        <div class="modal-overlay" id="opptellingModal">
+            <div class="modal-container" style="max-width: 1100px;">
+                <div class="modal-header">
+                    <div>
+                        <div class="modal-title" id="opptellingModalTitle">📋 Registrer opptelling</div>
+                        <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.25rem;" id="opptellingModalSubtitle">Kiosk Nord · Eliteserien Bodø/Glimt</div>
+                    </div>
+                    <button class="modal-close" onclick="closeOpptellingModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Status badge + last edited info -->
+                    <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.9rem; background: var(--bg-main); border-radius: 6px; margin-bottom: 1rem;">
+                        <div id="opptellingStatusPill" style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.55rem; background: rgba(218, 218, 107, 0.18); color: #8a8a3a; border-radius: 4px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;">🟡 Pending telling</div>
+                        <div id="opptellingLastEdited" style="font-size: 0.78rem; color: var(--text-muted); display: none;"></div>
+                        <a id="opptellingHistoryLink" style="margin-left: auto; font-size: 0.78rem; color: var(--text-secondary); cursor: pointer; text-decoration: none; border-bottom: 1px dashed var(--text-secondary); display: none;" onclick="showOpptellingHistory()">📜 Vis historikk</a>
+                    </div>
+
+                    <!-- Helper text -->
+                    <div style="font-size: 0.82rem; color: var(--text-secondary); padding: 0.75rem 0.9rem; background: rgba(59, 130, 246, 0.06); border-left: 3px solid #3b82f6; border-radius: 4px; margin-bottom: 1rem;">
+                        Forventet stk er systemets beregning basert på start, påfyll, salg (inkl. brekk fra POS), transfers og justeringer. Bekreft eller korriger Faktisk telt for hver vare. <strong>POS-brekk er allerede trukket fra</strong> — du trenger ikke registrere det her.
+                    </div>
+
+                    <!-- Bulk action -->
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.85rem;">
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">
+                            <span id="opptellingRowCounter"><strong>0</strong> varer</span>
+                        </div>
+                        <button class="btn-secondary" onclick="setAllStemmer()" style="font-size: 0.85rem; padding: 0.45rem 0.85rem;">✓ Alle stemmer</button>
+                    </div>
+
+                    <!-- Product table -->
+                    <table class="stock-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 30%;">Produkt</th>
+                                <th style="width: 9%;">Forpakning</th>
+                                <th style="width: 10%;">Forventet</th>
+                                <th style="width: 13%;">Faktisk telt</th>
+                                <th style="width: 9%;">Avvik</th>
+                                <th style="width: 29%;">Notat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="opptellingTableBody">
+                            <!-- Populated by renderOpptellingTable -->
+                        </tbody>
+                    </table>
+
+                    <!-- Show-all toggle for products without movement -->
+                    <div id="opptellingShowAll" style="text-align: center; margin-top: 0.75rem; display: none;">
+                        <a onclick="toggleOpptellingShowAll()" style="color: var(--text-secondary); font-size: 0.8rem; cursor: pointer; text-decoration: none; border-bottom: 1px dashed var(--text-secondary);" id="opptellingShowAllLink">Vis alle (0 skjult)</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeOpptellingModal()">Avbryt</button>
+                    <button class="btn-primary" id="opptellingConfirmBtn" onclick="confirmOpptelling()">Bekreft opptelling</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Override Modal — "Sett FINAL uten telling" — PLBR-1284 -->
+        <div class="modal-overlay" id="overrideModal">
+            <div class="modal-container" style="max-width: 560px;">
+                <div class="modal-header">
+                    <div class="modal-title">Sett rapport til FINAL uten å fullføre opptelling?</div>
+                    <button class="modal-close" onclick="closeOverrideModal()">×</button>
+                </div>
+                <div class="modal-body">
+                    <div style="padding: 0.85rem 1rem; background: rgba(218, 107, 107, 0.08); border-left: 3px solid var(--danger); border-radius: 4px; margin-bottom: 1rem; font-size: 0.85rem;" id="overrideWarningText">
+                        Enhetsgruppen er <strong>ikke telt fysisk</strong>. Hvis du fortsetter, settes rapporten til FINAL med en audit-flagg som markerer at telling ble hoppet over. <strong>Du kan ikke endre dette senere.</strong>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" style="font-size: 0.85rem;">Begrunnelse</label>
+                        <textarea class="form-input" id="overrideReason" rows="3" placeholder="Hvorfor settes rapporten til FINAL uten telling? (min 10 tegn)" oninput="validateOverrideReason()" style="font-family: inherit; resize: vertical;"></textarea>
+                        <div style="font-size: 0.72rem; color: var(--text-muted); margin-top: 0.25rem;" id="overrideReasonCounter">0 / 10 tegn</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeOverrideModal()">Avbryt</button>
+                    <button class="btn-danger" id="overrideConfirmBtn" onclick="confirmOverride()" disabled>Bekreft og sett FINAL</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Event Management Page -->
         <div class="page-section" id="event-management">
             <div class="two-column">
@@ -3969,32 +4053,50 @@
                     
                     <!-- Closed Event Section -->
                     <div id="closedEventSection" style="display: none;">
-                        <div style="padding: 2rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; text-align: center;">
-                            <div style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-muted);">
-                                ✓ Event avsluttet
+                        <!-- Reconciliation status banner -->
+                        <div id="reconciliationBanner" style="display: flex; align-items: center; justify-content: space-between; padding: 1rem 1.25rem; background: rgba(218, 218, 107, 0.1); border-left: 4px solid var(--warning); border-radius: 6px; margin-bottom: 1.25rem;">
+                            <div>
+                                <div style="font-weight: 700; font-size: 0.95rem; color: var(--text);" id="reconciliationStatusBadge">🟡 PENDING TELLING</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.2rem;" id="reconciliationStatusDesc">Registrer fysisk opptelling for å sette rapport til FINAL.</div>
                             </div>
-                            <div style="color: var(--text-secondary); margin-bottom: 2rem;">
-                                Eventet er permanent låst. Start et nytt event for å fortsette salg.
-                            </div>
-                            <button class="btn-primary" onclick="startEvent()">Start nytt event</button>
+                            <div style="font-size: 0.7rem; color: var(--text-muted); font-style: italic;">Operasjonell rapport · ikke Z-rapport eller regnskap</div>
                         </div>
-                        
-                        <div class="form-section" style="margin-top: 2rem;">
-                            <div class="section-title">📋 Avslutningsrapport</div>
+
+                        <!-- Post-close action card (varies based on opptelling state) -->
+                        <div id="postCloseActionCard" style="padding: 1.75rem 2rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
+                            <!-- Populated by renderClosedEvent -->
+                        </div>
+
+                        <!-- Override link (shown only when opptelling.status === 'pending') -->
+                        <div id="overrideLinkContainer" style="text-align: right; margin-top: 0.75rem; display: none;">
+                            <a onclick="openOverrideModal()" style="color: var(--text-muted); font-size: 0.8rem; cursor: pointer; text-decoration: none; border-bottom: 1px dashed var(--text-muted);">Sett rapport til FINAL uten telling →</a>
+                        </div>
+
+                        <!-- Lageravstemming table -->
+                        <div class="form-section" style="margin-top: 1.75rem;">
+                            <div class="section-title">📋 Lageravstemming</div>
+                            <div style="font-size: 0.78rem; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                                Start + Påfylt − Solgt + Transfers + Justert = Forventet. <strong>Telt</strong> er faktisk telt fysisk lager. <strong>Avvik</strong> = Telt − Forventet.
+                            </div>
                             <table class="stock-table">
                                 <thead>
                                     <tr>
                                         <th>Produkt</th>
-                                        <th>Åpningslager</th>
-                                        <th>Sluttlager</th>
+                                        <th>Start</th>
                                         <th>Solgt</th>
-                                        <th>Differanse</th>
+                                        <th>Forventet</th>
+                                        <th>Faktisk telt</th>
+                                        <th>Avvik</th>
                                     </tr>
                                 </thead>
                                 <tbody id="closingReportTable">
-                                    <!-- Will be populated by JS -->
+                                    <!-- Populated by JS -->
                                 </tbody>
                             </table>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 1.75rem;">
+                            <button class="btn-primary" onclick="startEvent()">Start nytt event</button>
                         </div>
                     </div>
                 </div>
@@ -5001,26 +5103,479 @@
         
         function renderClosedEvent(dgId) {
             const event = eventData[dgId];
+            const opp = getOpptelling(dgId);
+            const dgName = deviceGroupData[dgId].name;
+
+            // 1. Update reconciliation status banner
+            const banner = document.getElementById('reconciliationBanner');
+            const badge = document.getElementById('reconciliationStatusBadge');
+            const desc = document.getElementById('reconciliationStatusDesc');
+
+            if (opp.status === 'completed') {
+                banner.style.background = 'rgba(107, 218, 178, 0.1)';
+                banner.style.borderLeftColor = 'var(--success)';
+                badge.textContent = '🟢 FINAL';
+                desc.textContent = `Opptelling fullført ${formatTime(opp.countedAt)} av ${opp.countedBy}. Rapporten er klar.`;
+            } else if (opp.status === 'skipped') {
+                banner.style.background = 'rgba(107, 114, 128, 0.1)';
+                banner.style.borderLeftColor = '#9ca3af';
+                badge.textContent = '🔒 FINAL · TELLING HOPPET OVER';
+                desc.textContent = `Satt FINAL uten telling ${formatTime(opp.skippedAt)} av ${opp.skippedBy}.`;
+            } else {
+                banner.style.background = 'rgba(218, 218, 107, 0.1)';
+                banner.style.borderLeftColor = 'var(--warning)';
+                badge.textContent = '🟡 PENDING TELLING';
+                desc.textContent = 'Registrer fysisk opptelling for å sette rapport til FINAL.';
+            }
+
+            // 2. Update post-close action card
+            const card = document.getElementById('postCloseActionCard');
+            if (opp.status === 'completed') {
+                card.innerHTML = `
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="font-size: 1.75rem;">✓</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">Opptelling fullført</div>
+                            <div style="font-size: 0.83rem; color: var(--text-secondary);">
+                                ${opp.diffCount} avvik registrert · Sist redigert ${formatTime(opp.countedAt)} av ${opp.countedBy}
+                            </div>
+                        </div>
+                        <button class="btn-secondary" onclick="openOpptellingModal('${dgId}')">✏️ Rediger opptelling</button>
+                    </div>
+                `;
+            } else if (opp.status === 'skipped') {
+                card.innerHTML = `
+                    <div style="display: flex; align-items: flex-start; gap: 1rem;">
+                        <div style="font-size: 1.5rem;">🔒</div>
+                        <div style="flex: 1;">
+                            <div style="font-size: 1rem; font-weight: 700; margin-bottom: 0.25rem;">FINAL uten telling</div>
+                            <div style="font-size: 0.83rem; color: var(--text-secondary); margin-bottom: 0.35rem;">
+                                Satt ${formatTime(opp.skippedAt)} av ${opp.skippedBy}
+                            </div>
+                            <div style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;">
+                                Begrunnelse: "${opp.skipReason}"
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.5rem;">Eventet er stoppet — vil du registrere opptelling nå?</div>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1.25rem;">
+                            Bekreft eller korriger sluttlager per produkt for å sette rapporten til FINAL.
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 0.75rem;">
+                            <button class="btn-primary" onclick="openOpptellingModal('${dgId}')">📋 Registrer opptelling</button>
+                            <button class="btn-secondary" onclick="dismissOpptellingCTA()">Senere</button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // 3. Override link visibility
+            document.getElementById('overrideLinkContainer').style.display = (opp.status === 'pending') ? 'block' : 'none';
+
+            // 4. Render the Lageravstemming table with the new columns
             const tbody = document.getElementById('closingReportTable');
             tbody.innerHTML = '';
-            
+
             const products = Object.keys(event.openingStock);
             products.forEach(product => {
-                const opening = event.openingStock[product];
-                const closing = event.currentStock[product];
-                const sold = opening - closing;
-                const diff = 0; // In real system, would show discrepancies
-                
+                const start = event.openingStock[product];
+                const forventet = event.currentStock[product] !== undefined ? event.currentStock[product] : start;
+                const solgt = start - forventet;
+                const telt = opp.productCounts[product]?.telt;
+                const teltDisplay = telt !== undefined && telt !== null ? telt : '—';
+                const avvik = (telt !== undefined && telt !== null) ? telt - forventet : null;
+                let avvikColor = 'var(--text-muted)';
+                let avvikDisplay = '—';
+                if (avvik !== null) {
+                    if (avvik === 0) { avvikColor = 'var(--success)'; avvikDisplay = '0'; }
+                    else if (avvik < 0) { avvikColor = 'var(--danger)'; avvikDisplay = avvik; }
+                    else { avvikColor = '#b58b00'; avvikDisplay = '+' + avvik; }
+                }
+
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${product}</td>
-                    <td><span class="stock-value">${opening}</span></td>
-                    <td><span class="stock-value">${closing}</span></td>
-                    <td><span class="stock-value">${sold}</span></td>
-                    <td><span class="stock-value" style="color: ${diff === 0 ? 'var(--success)' : 'var(--danger)'};">${diff === 0 ? '✓' : diff}</span></td>
+                    <td><span class="stock-value">${start}</span></td>
+                    <td><span class="stock-value">${solgt}</span></td>
+                    <td><span class="stock-value" style="font-style: italic; color: var(--text-secondary);">${forventet}</span></td>
+                    <td><span class="stock-value" style="font-weight: 700;">${teltDisplay}</span></td>
+                    <td><span class="stock-value" style="color: ${avvikColor}; font-weight: 700;">${avvikDisplay}</span></td>
                 `;
                 tbody.appendChild(row);
             });
+        }
+
+        // ============================================
+        // Opptelling functions — PLBR-1284
+        // ============================================
+
+        // Lazy-init opptelling state for a DG. Stored on eventData[dgId].opptelling.
+        function getOpptelling(dgId) {
+            const event = eventData[dgId];
+            if (!event.opptelling) {
+                event.opptelling = {
+                    status: 'pending',         // 'pending' | 'completed' | 'skipped'
+                    countedAt: null,
+                    countedBy: null,
+                    diffCount: 0,
+                    productCounts: {},          // { productName: { telt: N, notat: { category, text } } }
+                    history: [],                // audit entries
+                    skippedAt: null,
+                    skippedBy: null,
+                    skipReason: null,
+                    ctaDismissed: false
+                };
+            }
+            return event.opptelling;
+        }
+
+        // Working draft state — populated when modal opens, committed on confirm
+        let opptellingDraft = null;
+        let opptellingDraftDG = null;
+        let opptellingShowAllProducts = false;
+
+        function openOpptellingModal(dgId) {
+            opptellingDraftDG = dgId;
+            const event = eventData[dgId];
+            const opp = getOpptelling(dgId);
+            const dgName = deviceGroupData[dgId].name;
+
+            // Build draft — prefill with previous values if editing, otherwise with Forventet
+            opptellingDraft = {};
+            Object.keys(event.openingStock).forEach(product => {
+                const forventet = event.currentStock[product] !== undefined ? event.currentStock[product] : event.openingStock[product];
+                const previousCount = opp.productCounts[product];
+                opptellingDraft[product] = {
+                    forventet: forventet,
+                    telt: previousCount?.telt !== undefined ? previousCount.telt : forventet,
+                    notat: previousCount?.notat ? {...previousCount.notat} : { category: null, text: '' }
+                };
+            });
+
+            opptellingShowAllProducts = false;
+
+            // Title + subtitle
+            document.getElementById('opptellingModalTitle').textContent = opp.status === 'completed'
+                ? '✏️ Rediger opptelling' : '📋 Registrer opptelling';
+            document.getElementById('opptellingModalSubtitle').textContent = `${dgName} · Event ${formatTime(event.startedAt).split(' ')[0]}`;
+
+            // Status pill
+            const pill = document.getElementById('opptellingStatusPill');
+            const lastEdited = document.getElementById('opptellingLastEdited');
+            const historyLink = document.getElementById('opptellingHistoryLink');
+            if (opp.status === 'completed') {
+                pill.innerHTML = '🟢 TELT';
+                pill.style.background = 'rgba(107, 218, 178, 0.18)';
+                pill.style.color = '#1f7a52';
+                lastEdited.style.display = 'block';
+                lastEdited.textContent = `Sist redigert ${formatTime(opp.countedAt)} av ${opp.countedBy}`;
+                historyLink.style.display = opp.history.length > 0 ? 'inline' : 'none';
+            } else {
+                pill.innerHTML = '🟡 PENDING TELLING';
+                pill.style.background = 'rgba(218, 218, 107, 0.18)';
+                pill.style.color = '#8a8a3a';
+                lastEdited.style.display = 'none';
+                historyLink.style.display = 'none';
+            }
+
+            renderOpptellingTable();
+            document.getElementById('opptellingModal').classList.add('active');
+        }
+
+        function closeOpptellingModal() {
+            document.getElementById('opptellingModal').classList.remove('active');
+            opptellingDraft = null;
+            opptellingDraftDG = null;
+        }
+
+        function renderOpptellingTable() {
+            const tbody = document.getElementById('opptellingTableBody');
+            tbody.innerHTML = '';
+            const event = eventData[opptellingDraftDG];
+            const products = Object.keys(opptellingDraft);
+
+            // Filter: show products with movement, plus all if toggle is on
+            const visibleProducts = opptellingShowAllProducts
+                ? products
+                : products.filter(p => {
+                    const start = event.openingStock[p];
+                    return start > 0;
+                });
+            const hiddenCount = products.length - visibleProducts.length;
+
+            visibleProducts.forEach(product => {
+                const draft = opptellingDraft[product];
+                const avvik = draft.telt - draft.forventet;
+                let avvikColor = 'var(--success)';
+                let avvikDisplay = '0';
+                if (avvik < 0) { avvikColor = 'var(--danger)'; avvikDisplay = avvik; }
+                else if (avvik > 0) { avvikColor = '#b58b00'; avvikDisplay = '+' + avvik; }
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product}</td>
+                    <td style="font-size: 0.8rem; color: var(--text-secondary);">stk</td>
+                    <td><span class="stock-value" style="font-style: italic; color: var(--text-secondary);">${draft.forventet}</span></td>
+                    <td>
+                        <input type="number" class="stock-input" value="${draft.telt}" min="0"
+                               onchange="updateOpptellingTelt('${product.replace(/'/g, "\\'")}', this.value)"
+                               style="width: 80px;">
+                    </td>
+                    <td><span class="stock-value" style="color: ${avvikColor}; font-weight: 700;">${avvikDisplay}</span></td>
+                    <td>
+                        ${avvik !== 0 ? renderNotatField(product, draft.notat) : '<span style="color: var(--text-muted); font-size: 0.78rem;">—</span>'}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+
+            // Counter
+            const totalRows = visibleProducts.length;
+            const diffCount = visibleProducts.filter(p => opptellingDraft[p].telt !== opptellingDraft[p].forventet).length;
+            const counter = document.getElementById('opptellingRowCounter');
+            counter.innerHTML = diffCount === 0
+                ? `<strong>${totalRows}</strong> varer · alle stemmer`
+                : `<strong>${totalRows}</strong> varer · <strong style="color: var(--danger);">${diffCount}</strong> med avvik`;
+
+            // Show-all toggle
+            const showAllDiv = document.getElementById('opptellingShowAll');
+            const showAllLink = document.getElementById('opptellingShowAllLink');
+            if (hiddenCount > 0 && !opptellingShowAllProducts) {
+                showAllDiv.style.display = 'block';
+                showAllLink.textContent = `Vis alle (${hiddenCount} skjult)`;
+            } else if (opptellingShowAllProducts && products.length > visibleProducts.length === false && hiddenCount === 0) {
+                showAllDiv.style.display = opptellingShowAllProducts ? 'block' : 'none';
+                showAllLink.textContent = 'Skjul produkter uten bevegelse';
+            } else {
+                showAllDiv.style.display = 'none';
+            }
+
+            // Confirm button enablement: all rows with Avvik ≠ 0 must have a notat category
+            validateOpptellingConfirm();
+        }
+
+        function renderNotatField(product, notat) {
+            const safeProduct = product.replace(/'/g, "\\'");
+            const cats = [
+                { value: '', label: 'Velg årsak...' },
+                { value: 'brekk', label: 'Brekk ikke registrert i POS' },
+                { value: 'mottak', label: 'Mottak ikke registrert' },
+                { value: 'tellingsfeil', label: 'Tellingsfeil' },
+                { value: 'annet', label: 'Annet (fritekst)' }
+            ];
+            const options = cats.map(c => `<option value="${c.value}" ${notat.category === c.value ? 'selected' : ''}>${c.label}</option>`).join('');
+            const showText = notat.category === 'annet';
+            return `
+                <select class="form-input" onchange="updateOpptellingNotat('${safeProduct}', 'category', this.value)" style="font-size: 0.78rem; padding: 0.3rem 0.5rem; height: auto; margin-bottom: ${showText ? '0.3rem' : '0'};">
+                    ${options}
+                </select>
+                ${showText ? `<input type="text" class="form-input" placeholder="Beskriv (min 3 tegn)" value="${notat.text}" oninput="updateOpptellingNotat('${safeProduct}', 'text', this.value)" style="font-size: 0.78rem; padding: 0.3rem 0.5rem; height: auto;">` : ''}
+            `;
+        }
+
+        function updateOpptellingTelt(product, value) {
+            const v = parseInt(value) || 0;
+            opptellingDraft[product].telt = Math.max(0, v);
+            renderOpptellingTable();
+        }
+
+        function updateOpptellingNotat(product, field, value) {
+            if (field === 'category') {
+                opptellingDraft[product].notat.category = value || null;
+                // Reset free text if leaving "annet"
+                if (value !== 'annet') opptellingDraft[product].notat.text = '';
+                renderOpptellingTable();
+            } else {
+                opptellingDraft[product].notat.text = value;
+                validateOpptellingConfirm();
+            }
+        }
+
+        function validateOpptellingConfirm() {
+            const btn = document.getElementById('opptellingConfirmBtn');
+            const products = Object.keys(opptellingDraft);
+            let valid = true;
+            for (const p of products) {
+                const d = opptellingDraft[p];
+                const avvik = d.telt - d.forventet;
+                if (avvik !== 0) {
+                    if (!d.notat.category) { valid = false; break; }
+                    if (d.notat.category === 'annet' && d.notat.text.trim().length < 3) { valid = false; break; }
+                }
+            }
+            btn.disabled = !valid;
+            btn.style.opacity = valid ? '1' : '0.5';
+            btn.style.cursor = valid ? 'pointer' : 'not-allowed';
+        }
+
+        function setAllStemmer() {
+            const products = Object.keys(opptellingDraft);
+            products.forEach(p => {
+                opptellingDraft[p].telt = opptellingDraft[p].forventet;
+                opptellingDraft[p].notat = { category: null, text: '' };
+            });
+            renderOpptellingTable();
+            showOpptellingToast(`✓ Alle ${products.length} varer satt til forventet — klikk Bekreft opptelling for å lagre`);
+        }
+
+        function toggleOpptellingShowAll() {
+            opptellingShowAllProducts = !opptellingShowAllProducts;
+            renderOpptellingTable();
+        }
+
+        function confirmOpptelling() {
+            if (document.getElementById('opptellingConfirmBtn').disabled) return;
+
+            const dgId = opptellingDraftDG;
+            const opp = getOpptelling(dgId);
+            const now = new Date().toISOString();
+            const actor = 'Admin Bruker';
+
+            // Compute diff for audit history
+            const products = Object.keys(opptellingDraft);
+            let diffCount = 0;
+            const changedRows = [];
+
+            products.forEach(p => {
+                const draft = opptellingDraft[p];
+                const previous = opp.productCounts[p];
+                const newCount = { telt: draft.telt, notat: draft.notat.category ? { ...draft.notat } : null };
+                if (draft.telt !== draft.forventet) diffCount++;
+                if (!previous || previous.telt !== newCount.telt || JSON.stringify(previous.notat) !== JSON.stringify(newCount.notat)) {
+                    changedRows.push({
+                        product: p,
+                        oldTelt: previous?.telt ?? null,
+                        newTelt: newCount.telt,
+                        oldNotat: previous?.notat ?? null,
+                        newNotat: newCount.notat
+                    });
+                }
+                opp.productCounts[p] = newCount;
+            });
+
+            const isFirst = opp.status === 'pending';
+
+            // Audit entry
+            opp.history.push({
+                type: isFirst ? 'opptelling_confirm' : 'opptelling_edit',
+                at: now,
+                by: actor,
+                rowCount: products.length,
+                diffCount: diffCount,
+                changes: changedRows
+            });
+
+            opp.status = 'completed';
+            opp.countedAt = now;
+            opp.countedBy = actor;
+            opp.diffCount = diffCount;
+
+            closeOpptellingModal();
+            renderEventView(dgId);
+
+            const dgName = deviceGroupData[dgId].name;
+            const msg = isFirst
+                ? `✓ Opptelling fullført for ${dgName} · ${diffCount} avvik registrert`
+                : `✓ Opptelling redigert for ${dgName} · ${changedRows.length} rader endret`;
+            showOpptellingToast(msg);
+        }
+
+        function dismissOpptellingCTA() {
+            const dgId = currentEventDG;
+            const opp = getOpptelling(dgId);
+            opp.ctaDismissed = true;
+            // Re-render to swap CTA with a less prominent state
+            renderEventView(dgId);
+            showOpptellingToast('Opptelling utsatt — du kan registrere den senere fra Event Management');
+        }
+
+        function showOpptellingHistory() {
+            const dgId = opptellingDraftDG;
+            const opp = getOpptelling(dgId);
+            if (opp.history.length === 0) {
+                alert('Ingen historikk ennå');
+                return;
+            }
+            const lines = opp.history.map((h, i) => {
+                const typeLabel = h.type === 'opptelling_confirm' ? '📋 Opptelling fullført' : '✏️ Opptelling redigert';
+                const changeDetail = h.type === 'opptelling_edit' && h.changes.length > 0
+                    ? '\n   Endringer:\n   ' + h.changes.map(c => `• ${c.product}: ${c.oldTelt ?? '—'} → ${c.newTelt}`).join('\n   ')
+                    : `\n   ${h.rowCount} varer · ${h.diffCount} avvik`;
+                return `${i + 1}. ${typeLabel} · ${formatTime(h.at)} · ${h.by}${changeDetail}`;
+            }).join('\n\n');
+            alert('📜 Opptelling-historikk\n\n' + lines);
+        }
+
+        // ============================================
+        // Override functions — "Sett FINAL uten telling"
+        // ============================================
+
+        function openOverrideModal() {
+            const dgId = currentEventDG;
+            const opp = getOpptelling(dgId);
+            if (opp.status !== 'pending') return;
+
+            document.getElementById('overrideReason').value = '';
+            document.getElementById('overrideReasonCounter').textContent = '0 / 10 tegn';
+            document.getElementById('overrideConfirmBtn').disabled = true;
+            document.getElementById('overrideWarningText').innerHTML = `
+                Enhetsgruppen <strong>${deviceGroupData[dgId].name}</strong> er ikke telt fysisk. Hvis du fortsetter, settes rapporten til FINAL med en audit-flagg som markerer at telling ble hoppet over. <strong>Du kan ikke endre dette senere.</strong>
+            `;
+            document.getElementById('overrideModal').classList.add('active');
+        }
+
+        function closeOverrideModal() {
+            document.getElementById('overrideModal').classList.remove('active');
+        }
+
+        function validateOverrideReason() {
+            const val = document.getElementById('overrideReason').value.trim();
+            document.getElementById('overrideReasonCounter').textContent = `${val.length} / 10 tegn`;
+            document.getElementById('overrideConfirmBtn').disabled = val.length < 10;
+        }
+
+        function confirmOverride() {
+            const reason = document.getElementById('overrideReason').value.trim();
+            if (reason.length < 10) return;
+
+            const dgId = currentEventDG;
+            const opp = getOpptelling(dgId);
+            const now = new Date().toISOString();
+            const actor = 'Admin Bruker';
+
+            opp.status = 'skipped';
+            opp.skippedAt = now;
+            opp.skippedBy = actor;
+            opp.skipReason = reason;
+            opp.history.push({
+                type: 'final_without_count',
+                at: now,
+                by: actor,
+                reason: reason
+            });
+
+            closeOverrideModal();
+            renderEventView(dgId);
+            showOpptellingToast(`🔒 Rapport satt til FINAL uten telling for ${deviceGroupData[dgId].name}`);
+        }
+
+        // Simple toast helper for opptelling actions
+        function showOpptellingToast(message) {
+            let toast = document.getElementById('opptellingToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'opptellingToast';
+                toast.style.cssText = 'position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 0.85rem 1.25rem; border-radius: 6px; font-size: 0.88rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); z-index: 10000; opacity: 0; transition: opacity 0.2s;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = message;
+            requestAnimationFrame(() => { toast.style.opacity = '1'; });
+            clearTimeout(toast._t);
+            toast._t = setTimeout(() => { toast.style.opacity = '0'; }, 2800);
         }
         
         function calculateAvailable(physical, reserved, stopPercent) {
