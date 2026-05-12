@@ -7174,8 +7174,15 @@
                 DEGRADED: 0
             };
             
+            // Muted alerts count as effectively OK for KPI purposes
+            // (operator picked option 2 — KPI = active warnings only)
+            const mutedSet = getMutedSet(kioskId);
             monitorData.products.forEach(p => {
-                statusCounts[p.status]++;
+                if (p.status !== 'OK' && mutedSet.has(p.name)) {
+                    statusCounts.OK++;
+                } else {
+                    statusCounts[p.status]++;
+                }
             });
             
             // Determine overall status
@@ -7198,7 +7205,10 @@
             }
             
             const isActive = dgData.eventStatus === 'active';
-            const hasProblems = statusCounts.LAV > 0 || statusCounts.KRITISK > 0 || statusCounts.DEGRADED > 0;
+            const mutedProblemCount = getMutedProblems(kioskId).length;
+            // Drill-down is still accessible if everything is muted, so operator
+            // can review the muted list and unmute if needed.
+            const hasProblems = statusCounts.LAV > 0 || statusCounts.KRITISK > 0 || statusCounts.DEGRADED > 0 || mutedProblemCount > 0;
             
             card.innerHTML = `
                 <div class="kiosk-header">
@@ -7226,7 +7236,13 @@
                     <div class="kpi-card ${statusClass} ${hasProblems ? 'clickable' : ''}" ${hasProblems ? `onclick="showStopPercentDetails('${kioskId}')"` : ''}>
                         <div class="kpi-label">⚠️ Stop-% Status</div>
                         <div class="kpi-value" style="color: ${overallColor}; font-size: 1.25rem;">${overallStatus}</div>
-                        <div class="kpi-trend">${hasProblems ? 'Klikk for detaljer' : 'Alle produkter OK'}</div>
+                        <div class="kpi-trend">${
+                            hasProblems
+                                ? (mutedProblemCount > 0
+                                    ? `${mutedProblemCount} muted · klikk for detaljer`
+                                    : 'Klikk for detaljer')
+                                : 'Alle produkter OK'
+                        }</div>
                     </div>
                 </div>
             `;
@@ -7234,16 +7250,109 @@
             return card;
         }
         
+        // ============================================
+        // MUTE ALERT — Stop-% drill-down acknowledge (event-scoped)
+        // ============================================
+        // Operator may mute a (kiosk × product) pair so it stops appearing
+        // in the Stop-% drill-down list AND stops counting toward the
+        // Stop-% KPI. Decisions baked in:
+        //   • Mute does NOT unblock QR — Stop-% blocking continues.
+        //   • Escalation (LAV → KRITISK) does NOT auto-unmute.
+        //   • KPI count reflects active (non-muted) warnings only.
+        //   • State is shared across operators (single source per event).
+        //   • Every mute/unmute is logged for audit.
+        const mutedStopPctAlerts = {};   // { [kioskId]: Set<productName> }
+        const muteAuditLog = [];          // [{ kioskId, productName, action, timestamp, actor }]
+        
+        function getMutedSet(kioskId) {
+            if (!mutedStopPctAlerts[kioskId]) {
+                mutedStopPctAlerts[kioskId] = new Set();
+            }
+            return mutedStopPctAlerts[kioskId];
+        }
+        
+        // Status !== 'OK' products on this kiosk that the operator has NOT muted.
+        function getActiveProblems(kioskId) {
+            const monitorData = liveMonitoringData[kioskId];
+            if (!monitorData) return [];
+            const muted = getMutedSet(kioskId);
+            return monitorData.products.filter(p => p.status !== 'OK' && !muted.has(p.name));
+        }
+        
+        // Status !== 'OK' products on this kiosk that the operator HAS muted.
+        function getMutedProblems(kioskId) {
+            const monitorData = liveMonitoringData[kioskId];
+            if (!monitorData) return [];
+            const muted = getMutedSet(kioskId);
+            return monitorData.products.filter(p => p.status !== 'OK' && muted.has(p.name));
+        }
+        
+        // Highest active severity remaining after mute filtering.
+        function getEffectiveStopStatus(kioskId) {
+            const active = getActiveProblems(kioskId);
+            if (active.some(p => p.status === 'KRITISK')) return 'KRITISK';
+            if (active.some(p => p.status === 'LAV')) return 'LAV';
+            if (active.some(p => p.status === 'DEGRADED')) return 'DEGRADED';
+            return 'OK';
+        }
+        
+        function muteStopPctAlert(kioskId, productName) {
+            getMutedSet(kioskId).add(productName);
+            muteAuditLog.push({
+                kioskId, productName, action: 'mute',
+                timestamp: new Date().toISOString(),
+                actor: 'Trine H.'  // demo actor
+            });
+            const dgName = deviceGroupData[kioskId]?.name || kioskId;
+            showStopPctMuteToast(`🔕 ${productName} mutet for ${dgName}`);
+            showStopPercentDetails(kioskId);  // re-render drill-down
+            // Refresh main dashboard so KPI counts reflect new state
+            if (typeof renderKioskMonitoring === 'function') renderKioskMonitoring();
+            if (typeof renderLiveMonitoringV2 === 'function') renderLiveMonitoringV2();
+        }
+        
+        function unmuteStopPctAlert(kioskId, productName) {
+            getMutedSet(kioskId).delete(productName);
+            muteAuditLog.push({
+                kioskId, productName, action: 'unmute',
+                timestamp: new Date().toISOString(),
+                actor: 'Trine H.'
+            });
+            showStopPctMuteToast(`🔔 ${productName} er synlig igjen`);
+            showStopPercentDetails(kioskId);
+            if (typeof renderKioskMonitoring === 'function') renderKioskMonitoring();
+            if (typeof renderLiveMonitoringV2 === 'function') renderLiveMonitoringV2();
+        }
+        
+        function showStopPctMuteToast(msg) {
+            let toast = document.getElementById('stopPctMuteToast');
+            if (!toast) {
+                toast = document.createElement('div');
+                toast.id = 'stopPctMuteToast';
+                toast.style.cssText = 'position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--gray-900); color: white; padding: 12px 22px; border-radius: 8px; font-size: 0.875rem; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.25); opacity: 0; pointer-events: none; transition: all 0.3s ease; z-index: 10001;';
+                document.body.appendChild(toast);
+            }
+            toast.textContent = msg;
+            requestAnimationFrame(() => {
+                toast.style.opacity = '1';
+                toast.style.transform = 'translateX(-50%) translateY(0)';
+            });
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px)';
+            }, 2500);
+        }
+        
         function showStopPercentDetails(kioskId) {
             const dgData = deviceGroupData[kioskId];
             const monitorData = liveMonitoringData[kioskId];
-            
             if (!dgData || !monitorData) return;
             
-            // Filter products with issues
-            const problemProducts = monitorData.products.filter(p => p.status !== 'OK');
+            const allProblems = monitorData.products.filter(p => p.status !== 'OK');
+            const active = getActiveProblems(kioskId);
+            const muted = getMutedProblems(kioskId);
             
-            if (problemProducts.length === 0) {
+            if (allProblems.length === 0) {
                 alert('Ingen problemer funnet!');
                 return;
             }
@@ -7252,67 +7361,136 @@
             const title = document.getElementById('drillDownTitle');
             const content = document.getElementById('drillDownContent');
             
-            title.textContent = `⚠️ ${dgData.name} - Produkter med advarsler`;
+            title.textContent = `⚠️ ${dgData.name} — Produkter med advarsler`;
+            
+            const counterText = muted.length > 0
+                ? `<strong>${active.length}</strong> aktive · <strong>${muted.length}</strong> muted av totalt ${allProblems.length}`
+                : `<strong>${active.length}</strong> aktive varsler`;
             
             let html = `
-                <div style="margin-bottom: 1rem; padding: 1rem; background: rgba(232, 168, 69, 0.1); border: 1px solid var(--warning); border-radius: 8px;">
-                    <strong>ℹ️ Stop-% Status Forklaring:</strong><br>
-                    <span style="font-size: 0.875rem; color: var(--text-secondary);">
-                        Disse produktene har nådd eller nærmer seg Stop-% grensen. 
-                        QR-salg kan være begrenset eller blokkert for å beskytte lageret.
-                    </span>
+                <div style="margin-bottom: 1rem; padding: 0.85rem 1rem; background: rgba(232, 168, 69, 0.08); border-left: 3px solid var(--warning); border-radius: 6px;">
+                    <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                        <strong style="color: var(--text-primary);">ℹ️ Stop-%-status:</strong>
+                        ${counterText}
+                    </div>
+                    <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.35rem;">
+                        Mute fjerner varen fra denne lista og KPI-tellingen for dette eventet — <strong>påvirker ikke selve QR-blokkeringen</strong>.
+                    </div>
                 </div>
-                <table class="stock-table">
-                    <thead>
-                        <tr>
-                            <th>Produkt</th>
-                            <th>Available</th>
-                            <th>Cap (Stop-%)</th>
-                            <th>Reserved</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
             `;
             
-            problemProducts.forEach(product => {
-                const statusColor = product.status === 'KRITISK' ? 'var(--danger)' : 
-                                   product.status === 'LAV' ? 'var(--warning)' : 'var(--text-muted)';
-                const statusIcon = product.status === 'KRITISK' ? '🔴' : 
-                                  product.status === 'LAV' ? '🟡' : '🟢';
-                
+            // Active problems table
+            if (active.length > 0) {
                 html += `
-                    <tr>
-                        <td><strong>${product.name}</strong></td>
-                        <td><span class="stock-value" style="color: ${statusColor}; font-weight: 700;">${product.available}</span></td>
-                        <td><span class="stock-value">${product.cap}</span></td>
-                        <td><span class="stock-value">${product.reserved}</span></td>
-                        <td>
-                            <span style="color: ${statusColor}; font-weight: 600;">
-                                ${statusIcon} ${product.status}
-                            </span>
-                        </td>
-                    </tr>
+                    <table class="stock-table">
+                        <thead>
+                            <tr>
+                                <th>Produkt</th>
+                                <th>Available</th>
+                                <th>Cap (Stop-%)</th>
+                                <th>Reserved</th>
+                                <th>Status</th>
+                                <th style="text-align: right; width: 110px;">Handling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                 `;
-            });
+                
+                active.forEach(product => {
+                    const statusColor = product.status === 'KRITISK' ? 'var(--danger)' :
+                                       product.status === 'LAV' ? 'var(--warning)' : 'var(--text-muted)';
+                    const statusIcon = product.status === 'KRITISK' ? '🔴' :
+                                      product.status === 'LAV' ? '🟡' : '🟢';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${product.name}</strong></td>
+                            <td><span class="stock-value" style="color: ${statusColor}; font-weight: 700;">${product.available}</span></td>
+                            <td><span class="stock-value">${product.cap}</span></td>
+                            <td><span class="stock-value">${product.reserved}</span></td>
+                            <td><span style="color: ${statusColor}; font-weight: 600;">${statusIcon} ${product.status}</span></td>
+                            <td style="text-align: right;">
+                                <button class="btn-secondary" onclick='muteStopPctAlert(${JSON.stringify(kioskId)}, ${JSON.stringify(product.name)})' style="padding: 0.4rem 0.7rem; font-size: 0.8rem;" title="Skjul fra varslingslista for dette eventet">
+                                    🔕 Mute
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table>`;
+            } else {
+                // Everything is muted
+                html += `
+                    <div style="padding: 1.5rem; text-align: center; background: var(--bg-main); border: 1px dashed var(--border); border-radius: 8px; color: var(--text-secondary); margin-bottom: 1rem;">
+                        <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔕</div>
+                        <strong style="color: var(--text-primary);">Alle ${allProblems.length} varslene er muted for dette eventet</strong>
+                        <div style="font-size: 0.875rem; margin-top: 0.5rem;">
+                            Stop-%-blokkering er fortsatt aktiv i bakgrunnen. Ekspander muted-lista under for å reaktivere varsler.
+                        </div>
+                    </div>
+                `;
+            }
             
-            html += `
-                    </tbody>
-                </table>
-                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
-                    <strong>💡 Anbefalte tiltak:</strong>
-                    <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
-                        <li>Overfør beholdning fra andre enhetsgrupper</li>
-                        <li>Kjør en telling for å bekrefte faktisk lagerbeholdning</li>
-                        <li>Vurder å starte nytt event med påfylling fra hovedlager</li>
-                    </ul>
-                </div>
-                <div style="margin-top: 1.25rem; display: flex; justify-content: flex-start;">
-                    <button class="btn-primary" onclick='openPrefilledTransferFromStopPct(${JSON.stringify(kioskId)}, ${JSON.stringify(problemProducts)})' style="padding: 0.7rem 1.25rem; font-size: 0.875rem;">
-                        🔄 Transfer stock
-                    </button>
-                </div>
-            `;
+            // Muted list (collapsible)
+            if (muted.length > 0) {
+                html += `
+                    <details ${active.length === 0 ? 'open' : ''} style="margin-top: 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-main);">
+                        <summary style="padding: 0.75rem 1rem; cursor: pointer; font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">
+                            🔕 Muted i dette eventet (${muted.length})
+                        </summary>
+                        <div style="padding: 0 1rem 0.75rem;">
+                            <table class="stock-table" style="margin-top: 0.5rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Produkt</th>
+                                        <th>Status</th>
+                                        <th style="text-align: right; width: 130px;">Handling</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                `;
+                
+                muted.forEach(product => {
+                    const statusColor = product.status === 'KRITISK' ? 'var(--danger)' :
+                                       product.status === 'LAV' ? 'var(--warning)' : 'var(--text-muted)';
+                    const statusIcon = product.status === 'KRITISK' ? '🔴' :
+                                      product.status === 'LAV' ? '🟡' : '🟢';
+                    
+                    html += `
+                        <tr>
+                            <td><strong style="opacity: 0.75;">${product.name}</strong></td>
+                            <td><span style="color: ${statusColor}; opacity: 0.75; font-weight: 600;">${statusIcon} ${product.status}</span></td>
+                            <td style="text-align: right;">
+                                <button class="btn-secondary" onclick='unmuteStopPctAlert(${JSON.stringify(kioskId)}, ${JSON.stringify(product.name)})' style="padding: 0.4rem 0.7rem; font-size: 0.8rem;">
+                                    🔔 Vis igjen
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `</tbody></table></div></details>`;
+            }
+            
+            // Recommended actions + Transfer button — only if there are still active problems
+            if (active.length > 0) {
+                html += `
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px;">
+                        <strong>💡 Anbefalte tiltak:</strong>
+                        <ul style="margin-left: 1.5rem; margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">
+                            <li>Overfør beholdning fra andre enhetsgrupper</li>
+                            <li>Kjør en telling for å bekrefte faktisk lagerbeholdning</li>
+                            <li>Vurder å starte nytt event med påfylling fra hovedlager</li>
+                        </ul>
+                    </div>
+                    <div style="margin-top: 1.25rem; display: flex; justify-content: flex-start;">
+                        <button class="btn-primary" onclick='openPrefilledTransferFromStopPct(${JSON.stringify(kioskId)}, ${JSON.stringify(active)})' style="padding: 0.7rem 1.25rem; font-size: 0.875rem;">
+                            🔄 Transfer stock
+                        </button>
+                    </div>
+                `;
+            }
             
             content.innerHTML = html;
             modal.classList.add('active');
@@ -7428,12 +7606,15 @@
                 throughput += d.throughputOM;
                 if (mon) {
                     totalProducts += mon.products.length;
-                    warnedProducts += mon.products.filter(p => p.status !== 'OK').length;
+                    // KPI counts only active (non-muted) warnings per operator's spec.
+                    warnedProducts += getActiveProblems(k).length;
                 }
-                if (d.chipStatus === 'critical') {
+                // Aggregate Stop-% status: use effective severity (post-mute), not chipStatus mock.
+                const effStop = getEffectiveStopStatus(k);
+                if (effStop === 'KRITISK') {
                     aggregateStop = 'CRITICAL';
                     criticalCount++;
-                } else if (d.chipStatus === 'warning' && aggregateStop !== 'CRITICAL') {
+                } else if (effStop === 'LAV' && aggregateStop !== 'CRITICAL') {
                     aggregateStop = 'WARNING';
                 }
             });
@@ -7541,11 +7722,25 @@
             row.className = 'lm-kiosk-row';
             
             const isClosed = d.chipStatus === 'closed';
-            const stopLower = (d.stopStatus || 'OK').toLowerCase();
+            // Derive Stop-% display from liveMonitoringData filtered by mute state
+            // so the row matches what the drill-down + KPI strip show.
+            const effStop = isClosed ? 'OK' : getEffectiveStopStatus(kioskId);
+            const activeCount = isClosed ? 0 : getActiveProblems(kioskId).length;
+            const mutedCount = isClosed ? 0 : getMutedProblems(kioskId).length;
+            const stopLower = effStop.toLowerCase();
             const stopCellClass = stopLower === 'kritisk' ? '' : stopLower === 'lav' ? 'warning' : 'ok';
             const stopValueClass = stopLower === 'kritisk' ? 'critical' : stopLower === 'lav' ? 'warning' : 'ok';
-            const stopClickable = d.stopStatus !== 'OK' && !isClosed;
+            // Cell stays clickable when any muted items exist, so operator can review/unmute.
+            const stopClickable = !isClosed && (activeCount > 0 || mutedCount > 0);
             const stopLabelColor = stopLower === 'kritisk' ? 'var(--danger)' : stopLower === 'lav' ? '#a88900' : 'var(--text-muted)';
+            const stopDisplay = effStop + (activeCount > 0 ? ' (' + activeCount + ')' : '');
+            const stopHint = isClosed
+                ? 'Kiosk lukket'
+                : (activeCount === 0 && mutedCount === 0
+                    ? 'Alle produkter OK'
+                    : (mutedCount > 0
+                        ? mutedCount + ' muted · klikk for detaljer →'
+                        : 'Klikk for detaljer →'));
             
             let sparklineSvg = '<div class="lm-metric-sub">—</div>';
             if (d.revSparkline && d.revSparkline.length > 1) {
@@ -7618,8 +7813,8 @@
                     </div>
                     <div class="lm-metric status-cell ${stopCellClass}"${stopClickable ? ` onclick="showStopPercentDetails('${kioskId}')"` : ''}>
                         <div class="lm-metric-label" style="color: ${stopLabelColor};">⚠ Stop-% Status</div>
-                        <div class="lm-metric-value ${stopValueClass}">${d.stopStatus}${d.stopCount > 0 ? ' (' + d.stopCount + ')' : ''}</div>
-                        <div class="lm-metric-hint">${stopClickable ? 'Klikk for detaljer →' : (isClosed ? 'Kiosk lukket' : 'Alle produkter OK')}</div>
+                        <div class="lm-metric-value ${stopValueClass}">${stopDisplay}</div>
+                        <div class="lm-metric-hint">${stopHint}</div>
                     </div>
                 </div>
             `;
