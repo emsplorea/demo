@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plorea — QR / Online Order Welcome Screen Proposal</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  /* Tokens mirrored from plorea-online-order-checkout.html */
+  :root{
+    --bg-page:#FAFAFA;
+    --bg-surface:#FFF;
+    --bg-hover:#F1F5F9;
+    --bg-raised:#FFF;
+    --text-primary:#1A1A1A;
+    --text-secondary:#666;
+    --text-muted:#9AA0A6;
+    --text-link:#2E6B87;
+    --color-border:#E9E9E9;
+    --color-border-strong:#D9D9D9;
+    --color-accent:#2E6B87;
+    --color-accent-dark:#1D4A5F;
+    --color-primary:#6BB8DA;
+    --color-primary-hover:#4FA3C8;
+    --color-success:#6BDAB2;
+    --color-success-bg:#D1FAE5;
+    --color-success-dark:#1E8E5F;
+    --color-warning:#F59E0B;
+    --color-warning-bg:#FEF3C7;
+    --r-sm:6px;--r:8px;--r-md:10px;--r-lg:14px;--r-xl:20px;--r-full:9999px;
+    --elevation-1:0 1px 4px rgba(0,0,0,.07),0 0 0 1px rgba(0,0,0,.04);
+    --elevation-2:0 4px 16px rgba(0,0,0,.08),0 0 0 1px rgba(0,0,0,.04);
+    --elevation-3:0 12px 40px rgba(0,0,0,.12),0 0 0 1px rgba(0,0,0,.04);
+    --vipps:#FF5B24;
+    --ease-out:cubic-bezier(.16,1,.3,1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Plus Jakarta Sans',-apple-system,sans-serif;
+    background:linear-gradient(180deg,#1B1A1F 0%,#0E0D11 100%);
+    min-height:100vh;
+    color:rgba(255,255,255,.85);
+    padding:40px 24px 60px;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* Page header */
+  .page-hd{
+    max-width:1400px;margin:0 auto 36px;
+    display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;
+  }
+  .page-hd .title{font-size:28px;font-weight:800;color:#fff;letter-spacing:-0.02em;line-height:1.1}
+  .page-hd .title small{display:block;font-size:13px;font-weight:500;color:rgba(255,255,255,.5);margin-top:6px;letter-spacing:0}
+  .page-hd .stamp{
+    font-size:11px;color:rgba(255,255,255,.4);
+    letter-spacing:0.12em;text-transform:uppercase;font-weight:700;
+    border:1px solid rgba(255,255,255,.1);padding:6px 10px;border-radius:var(--r-sm)
+  }
+
+  /* Grid of phones */
+  .grid{
+    max-width:1400px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:48px 32px;
+    align-items:start;justify-items:center;
+  }
+
+  /* Phone */
+  .phone-wrap{position:relative;width:fit-content}
+  .phone-label{
+    position:absolute;top:-32px;left:0;right:0;
+    text-align:center;color:rgba(255,255,255,.55);
+    font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;
+  }
+  .phone-label b{color:#fff;letter-spacing:0.04em;font-weight:800}
+  .phone{
+    width:390px;height:760px;
+    background:var(--bg-page);
+    border-radius:36px;overflow:hidden;
+    box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 8px #1A1A1F,0 0 0 9px rgba(255,255,255,.06);
+    display:flex;flex-direction:column;position:relative;
+  }
+  /* Notch */
+  .phone::before{
+    content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+    width:120px;height:22px;background:#1A1A1F;
+    border-radius:0 0 14px 14px;z-index:50;
+  }
+
+  /* Phone header */
+  .ph-hdr{
+    padding:30px 20px 14px;
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--bg-surface);
+  }
+  .venue-logo{
+    display:flex;align-items:center;gap:10px;
+  }
+  .venue-mark{
+    width:36px;height:36px;border-radius:var(--r-md);
+    background:linear-gradient(135deg,var(--color-accent) 0%,var(--color-accent-dark) 100%);
+    color:#fff;display:flex;align-items:center;justify-content:center;
+    font-family:'Sora',sans-serif;font-weight:700;font-size:16px;letter-spacing:-0.02em;
+    box-shadow:var(--elevation-1);
+  }
+  .venue-name{
+    font-weight:800;font-size:15px;color:var(--text-primary);
+    letter-spacing:-0.01em;line-height:1.1;
+  }
+  .venue-name small{
+    display:block;font-size:10px;font-weight:600;color:var(--text-muted);
+    letter-spacing:0.06em;text-transform:uppercase;margin-top:2px;
+  }
+  .lang-pick{
+    display:flex;align-items:center;gap:5px;
+    padding:6px 9px;border-radius:var(--r);
+    border:1px solid var(--color-border);background:var(--bg-surface);
+    font-size:12px;font-weight:600;color:var(--text-secondary);
+    cursor:pointer;transition:all 160ms var(--ease-out);
+  }
+  .lang-pick:hover{border-color:var(--color-border-strong)}
+
+  /* Hero */
+  .hero{
+    flex:1;overflow-y:auto;
+    padding:24px 24px 16px;
+    display:flex;flex-direction:column;
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    font-size:11px;font-weight:700;color:var(--color-accent);
+    letter-spacing:0.16em;text-transform:uppercase;
+    margin-bottom:14px;align-self:flex-start;
+  }
+  .eyebrow::before{
+    content:'';width:6px;height:6px;border-radius:99px;background:var(--color-accent);
+  }
+  .eyebrow .sep{
+    width:3px;height:3px;border-radius:99px;background:var(--text-muted);
+    margin:0 2px;
+  }
+  .eyebrow .table-num{
+    color:var(--text-primary);font-weight:800;letter-spacing:0.08em;
+  }
+  .h1{
+    font-size:30px;font-weight:800;color:var(--text-primary);
+    letter-spacing:-0.025em;line-height:1.1;margin-bottom:8px;
+  }
+  .h1 .wave{display:inline-block;animation:wave 2s ease-in-out infinite}
+  @keyframes wave{0%,100%{transform:rotate(0)}25%{transform:rotate(14deg)}75%{transform:rotate(-8deg)}}
+  .tagline{
+    font-size:14px;color:var(--text-secondary);
+    line-height:1.5;margin-bottom:22px;
+  }
+
+  /* Status banner — venue open/closed */
+  .status-banner{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:var(--r-md);
+    background:var(--color-success-bg);border:1px solid #B7EFD9;
+    margin-bottom:16px;
+  }
+  .status-banner.closed{background:var(--color-warning-bg);border-color:#FCD96B}
+  .status-banner .dot{
+    width:8px;height:8px;border-radius:99px;
+    background:var(--color-success-dark);
+    box-shadow:0 0 0 4px rgba(30,142,95,.18);
+    flex-shrink:0;
+  }
+  .status-banner.closed .dot{
+    background:var(--color-warning);
+    box-shadow:0 0 0 4px rgba(245,158,11,.18);
+  }
+  .status-banner .text{
+    font-size:12px;font-weight:600;color:var(--color-success-dark);
+    line-height:1.3;
+  }
+  .status-banner.closed .text{color:#92660E}
+  .status-banner .text b{font-weight:800}
+
+  /* Info chips */
+  .chips{
+    display:flex;flex-direction:column;gap:8px;margin-bottom:auto;padding-bottom:16px;
+  }
+  .chip{
+    display:flex;align-items:center;gap:12px;
+    padding:11px 12px;border-radius:var(--r-md);
+    background:var(--bg-surface);border:1px solid var(--color-border);
+  }
+  .chip-icon{
+    width:34px;height:34px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg-hover);border-radius:var(--r);
+    font-size:16px;
+  }
+  .chip-body{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+  .chip-label{
+    font-size:10px;font-weight:700;color:var(--text-muted);
+    text-transform:uppercase;letter-spacing:0.08em;
+  }
+  .chip-value{font-size:13px;font-weight:700;color:var(--text-primary)}
+  .chip-value .accent{color:var(--color-accent)}
+  .pay-icons{
+    display:flex;gap:5px;margin-top:1px;align-items:center;
+  }
+  .pay-icons .vipps-pill{
+    background:var(--vipps);color:#fff;font-size:9px;font-weight:800;
+    padding:2px 5px;border-radius:3px;letter-spacing:0.02em;
+  }
+  .pay-icons .chip-mini{
+    font-size:11px;font-weight:700;color:var(--text-secondary);
+    padding:1px 5px;border:1px solid var(--color-border);border-radius:3px;
+    background:var(--bg-page);
+  }
+
+  /* CTA stack */
+  .cta-stack{
+    padding:14px 20px 10px;background:var(--bg-surface);
+    border-top:1px solid var(--color-border);
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .bp{
+    width:100%;padding:14px 16px;border:none;
+    border-radius:var(--r-lg);font-size:15px;font-weight:700;
+    cursor:pointer;font-family:inherit;
+    transition:all 160ms var(--ease-out);
+    display:flex;align-items:center;justify-content:center;gap:8px;
+  }
+  .bp.ac{
+    background:var(--color-accent);color:#fff;
+    box-shadow:0 4px 12px rgba(46,107,135,.25);
+  }
+  .bp.ac:hover{background:var(--color-accent-dark);transform:translateY(-1px)}
+  .bp.ac:active{transform:translateY(0)}
+  .bp.ac .arrow{font-size:17px;transition:transform 160ms var(--ease-out)}
+  .bp.ac:hover .arrow{transform:translateX(3px)}
+  .bp.secondary{
+    background:var(--bg-surface);color:var(--text-primary);
+    border:1px solid var(--color-border);font-weight:600;font-size:13px;
+    padding:11px 14px;
+  }
+  .bp.secondary:hover{background:var(--bg-hover);border-color:var(--color-border-strong)}
+  .bp.secondary .icon-prefix{font-size:14px;color:var(--text-secondary)}
+
+  /* Legal footer */
+  .legal{
+    padding:8px 20px 16px;text-align:center;background:var(--bg-surface);
+  }
+  .legal-links{
+    display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:10px;
+  }
+  .legal-links a{
+    font-size:11px;color:var(--text-secondary);text-decoration:none;
+    padding:4px 8px;font-weight:500;
+    transition:color 120ms var(--ease-out);
+  }
+  .legal-links a:hover{color:var(--color-accent);text-decoration:underline}
+  .legal-links .div{
+    display:inline-block;width:1px;height:10px;background:var(--color-border);
+    align-self:center;margin:0 0;
+  }
+  .powered-by{
+    font-size:10px;color:var(--text-muted);
+    letter-spacing:0.04em;font-weight:500;
+  }
+  .powered-by b{color:#6BB8DA;font-weight:800;letter-spacing:-0.02em}
+
+  /* Logged-in greeting */
+  .greeting{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 12px;border-radius:var(--r-md);
+    background:linear-gradient(180deg,#F1F8FB 0%,#E8F3F8 100%);
+    border:1px solid #C7E0EC;margin-bottom:16px;
+  }
+  .greeting .avatar{
+    width:32px;height:32px;border-radius:99px;
+    background:var(--color-accent);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;font-size:13px;flex-shrink:0;
+  }
+  .greeting .greeting-text{font-size:13px;color:var(--text-primary);line-height:1.3}
+  .greeting .greeting-text b{font-weight:800}
+  .greeting .greeting-text small{display:block;color:var(--text-secondary);font-size:11px;font-weight:500;margin-top:2px}
+
+  /* Annotations column */
+  .annotations{
+    width:100%;max-width:380px;
+    color:rgba(255,255,255,.78);font-size:13px;line-height:1.6;
+    padding:12px 0;
+  }
+  .annotations h2{
+    font-size:20px;color:#fff;margin-bottom:8px;font-weight:800;
+    letter-spacing:-0.01em;
+  }
+  .annotations .lead{
+    color:rgba(255,255,255,.55);font-size:13px;margin-bottom:24px;line-height:1.5;
+  }
+  .annotations h3{
+    font-size:11px;color:#6BB8DA;margin-top:24px;margin-bottom:10px;
+    text-transform:uppercase;letter-spacing:0.12em;font-weight:800;
+    padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.08);
+  }
+  .annotations h3:first-child{margin-top:0}
+  .annotations ul{list-style:none;padding:0}
+  .annotations li{
+    padding:6px 0 6px 20px;position:relative;color:rgba(255,255,255,.72);
+  }
+  .annotations li::before{
+    content:'';position:absolute;left:0;top:13px;
+    width:6px;height:1px;background:rgba(107,184,218,.6);
+  }
+  .annotations li b{color:#fff;font-weight:700}
+  .annotations code{
+    font-family:'Sora',monospace;font-size:11px;
+    background:rgba(255,255,255,.06);padding:1px 6px;border-radius:4px;
+    color:#6BB8DA;border:1px solid rgba(255,255,255,.04);
+  }
+  .annotations .callout{
+    background:rgba(107,184,218,.06);border-left:3px solid #6BB8DA;
+    padding:12px 14px;border-radius:0 var(--r) var(--r) 0;
+    margin:14px 0;font-size:12px;color:rgba(255,255,255,.78);
+  }
+  .annotations .callout b{color:#fff;font-weight:700}
+
+  /* Responsive */
+  @media (max-width:1300px){
+    .grid{grid-template-columns:1fr;}
+    .annotations{max-width:520px}
+  }
+  @media (max-width:500px){
+    .phone{width:340px;height:680px}
+    body{padding:30px 12px 40px}
+  }
+</style>
+</head>
+<body>
+
+<header class="page-hd">
+  <div class="title">
+    QR / Online Order — Welcome Screen Proposal
+    <small>Forslag til felles oppstartsskjerm med legal-lenker · matcher demo-tokens</small>
+  </div>
+  <div class="stamp">Plorea Demo · v1</div>
+</header>
+
+<main class="grid">
+
+  <!-- Variant A: QR scan from table -->
+  <div class="phone-wrap">
+    <div class="phone-label">QR-scan fra bord · <b>Bord 12</b></div>
+    <div class="phone">
+      <header class="ph-hdr">
+        <div class="venue-logo">
+          <div class="venue-mark">M</div>
+          <div class="venue-name">
+            Messe
+            <small>Arena · Oslo</small>
+          </div>
+        </div>
+        <button class="lang-pick">🇳🇴 NO ▾</button>
+      </header>
+
+      <div class="hero">
+        <div class="eyebrow">
+          MESSE
+          <span class="sep"></span>
+          <span class="table-num">BORD 12</span>
+        </div>
+
+        <h1 class="h1">Velkommen! <span class="wave">👋</span></h1>
+        <p class="tagline">Bestill direkte til bordet ditt — vi tar imot Vipps og kort.</p>
+
+        <div class="status-banner">
+          <div class="dot"></div>
+          <div class="text"><b>Åpent nå</b> · stenger 23:00</div>
+        </div>
+
+        <div class="chips">
+          <div class="chip">
+            <div class="chip-icon">⏱️</div>
+            <div class="chip-body">
+              <div class="chip-label">Estimert levering</div>
+              <div class="chip-value">ca. <span class="accent">30 min</span> til bordet</div>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="chip-icon">💳</div>
+            <div class="chip-body">
+              <div class="chip-label">Betaling</div>
+              <div class="pay-icons">
+                <span class="vipps-pill">Vipps</span>
+                <span class="chip-mini">Kort</span>
+                <span class="chip-mini">Apple Pay</span>
+                <span class="chip-mini">Google Pay</span>
+              </div>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="chip-icon">🎟️</div>
+            <div class="chip-body">
+              <div class="chip-label">Event i kveld</div>
+              <div class="chip-value">VIF — Brann · kl. 20:00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-stack">
+        <button class="bp ac">Gå til menyen <span class="arrow">→</span></button>
+        <button class="bp secondary"><span class="icon-prefix">👤</span> Logg inn for raskere bestilling</button>
+      </div>
+
+      <div class="legal">
+        <div class="legal-links">
+          <a href="#">Vilkår for bruk</a>
+          <span class="div"></span>
+          <a href="#">Leveringsbetingelser</a>
+          <span class="div"></span>
+          <a href="#">Personvern</a>
+        </div>
+        <div class="powered-by">powered by <b>plorea.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Variant B: Online order, returning logged-in user -->
+  <div class="phone-wrap">
+    <div class="phone-label">Online order · <b>logget inn bruker</b></div>
+    <div class="phone">
+      <header class="ph-hdr">
+        <div class="venue-logo">
+          <div class="venue-mark">M</div>
+          <div class="venue-name">
+            Messe
+            <small>Arena · Oslo</small>
+          </div>
+        </div>
+        <button class="lang-pick">🇳🇴 NO ▾</button>
+      </header>
+
+      <div class="hero">
+        <div class="eyebrow">
+          MESSE
+          <span class="sep"></span>
+          <span>ONLINE ORDER</span>
+        </div>
+
+        <h1 class="h1">Hei igjen, Einar!</h1>
+        <p class="tagline">Klar for å bestille? Forrige levering var Storgata 14.</p>
+
+        <div class="greeting">
+          <div class="avatar">E</div>
+          <div class="greeting-text">
+            <b>Leverer til:</b> Storgata 14, 7030 Trondheim
+            <small>🏠 Hjemme · Standard adresse</small>
+          </div>
+        </div>
+
+        <div class="chips">
+          <div class="chip">
+            <div class="chip-icon">🛵</div>
+            <div class="chip-body">
+              <div class="chip-label">Estimert levering</div>
+              <div class="chip-value">ca. <span class="accent">35–45 min</span></div>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="chip-icon">💳</div>
+            <div class="chip-body">
+              <div class="chip-label">Betaling</div>
+              <div class="pay-icons">
+                <span class="vipps-pill">Vipps</span>
+                <span class="chip-mini">Kort</span>
+                <span class="chip-mini">Apple Pay</span>
+              </div>
+            </div>
+          </div>
+          <div class="chip">
+            <div class="chip-icon">📦</div>
+            <div class="chip-body">
+              <div class="chip-label">Minste ordreverdi</div>
+              <div class="chip-value">150 kr · gratis levering over 350 kr</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-stack">
+        <button class="bp ac">Gå til menyen <span class="arrow">→</span></button>
+        <button class="bp secondary"><span class="icon-prefix">🏠</span> Bytt leveringsadresse</button>
+      </div>
+
+      <div class="legal">
+        <div class="legal-links">
+          <a href="#">Vilkår for bruk</a>
+          <span class="div"></span>
+          <a href="#">Leveringsbetingelser</a>
+          <span class="div"></span>
+          <a href="#">Personvern</a>
+        </div>
+        <div class="powered-by">powered by <b>plorea.</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Annotations -->
+  <aside class="annotations">
+    <h2>Hva dette forslaget løser</h2>
+    <p class="lead">Én delt velkomstskjerm som tilpasser seg konteksten (QR/online, innlogget/utlogget, åpent/stengt) og bygger tillit gjennom synlige legal-lenker.</p>
+
+    <h3>Grunnstruktur (felles)</h3>
+    <ul>
+      <li><b>Venue-header</b>: lokasjonens merke, ikke Plorea-logoen</li>
+      <li><b>Eyebrow</b> som speiler konteksten: <code>MESSE · BORD 12</code> for QR, <code>MESSE · ONLINE ORDER</code> for web</li>
+      <li><b>H1 i weight 800</b> — varm, kort hilsen som setter tonen</li>
+      <li><b>Status-banner</b> — åpen/stengt, åpningstider</li>
+      <li><b>3 info-chips</b> — leveringstid, betaling, kontekst (event/min ordre)</li>
+      <li><b>Primary CTA</b> i accent-farge (#2E6B87), aldri den lyse primary-blå</li>
+      <li><b>Sekundær handling</b> i kontekst (logg inn / bytt adresse)</li>
+      <li><b>Legal-footer</b> alltid synlig, separert med tynne divider-prikker</li>
+    </ul>
+
+    <h3>Hva som varierer</h3>
+    <ul>
+      <li><b>QR</b>: bord-nummer i eyebrow, leveringstid "til bordet", event-info hvis arena</li>
+      <li><b>Online</b>: ingen bord-nummer, leveringstid med spenn, minste ordreverdi-info</li>
+      <li><b>Innlogget</b>: H1 bytter til "Hei igjen, [navn]", standard-adresse vises i greeting-kort</li>
+      <li><b>Utlogget</b>: H1 er "Velkommen!", sekundær CTA er "Logg inn for raskere bestilling"</li>
+      <li><b>Stengt</b>: status-banner blir gul, sekundær info om når åpner igjen, CTA endrer evt. til "Se meny" (read-only)</li>
+    </ul>
+
+    <h3>Legal-lenkene</h3>
+    <ul>
+      <li><b>Vilkår for bruk</b> — generell ToS for online-ordering-tjenesten</li>
+      <li><b>Leveringsbetingelser</b> — leveringsområde, leveringstider, minste ordre, gebyrer, retur, klager</li>
+      <li><b>Personvern</b> — GDPR-info, hva som lagres ved konto-opprettelse</li>
+    </ul>
+    <div class="callout">
+      <b>Hvor de hører hjemme i flyten:</b> Lenkene i footer er passive — alltid tilgjengelig, aldri i veien. Når brukeren legger inn ordren skal det fortsatt være et eksplisitt sjekkboks-aksept med samme lenker på checkout-siden (matcher norsk e-handelsforskrift).
+    </div>
+
+    <h3>Mobile-first detaljer</h3>
+    <ul>
+      <li>Hero fyller hele viewporten (ikke 41% som dagens implementering)</li>
+      <li>CTA-stack er "lim" i bunn — alltid innenfor tommel-rekkevidde</li>
+      <li>Info-chips bruker vertikal stack — bedre på smale skjermer enn horisontal</li>
+      <li>Header er sticky-able (kan settes <code>position:sticky</code> uten layout-skift)</li>
+    </ul>
+
+    <h3>Konfigurasjons-felt per lokasjon</h3>
+    <ul>
+      <li><code>venue.logoUrl</code> — venue-merke (kan rendres med initial som fallback)</li>
+      <li><code>venue.name</code> + <code>venue.subtitle</code> — "Messe" / "Arena · Oslo"</li>
+      <li><code>welcome.headline</code> — overstyrbar tekst, fallback "Velkommen!"</li>
+      <li><code>welcome.tagline</code> — sublinje (dagens "Test text"-felt, men med bedre fallback)</li>
+      <li><code>delivery.estimateMinutes</code> — leveringstid</li>
+      <li><code>delivery.minOrderAmount</code> + <code>delivery.freeDeliveryThreshold</code></li>
+      <li><code>hours.weekly</code> — åpningstider for status-banner</li>
+      <li><code>contextChip</code> — fritekstfelt for venue-spesifikk info (event, kampanje)</li>
+      <li><code>legal.termsUrl</code>, <code>legal.deliveryUrl</code>, <code>legal.privacyUrl</code> — overstyrbare per bedrift hvis de har egne</li>
+    </ul>
+
+    <h3>Anbefalt sett med Jira-oppgaver</h3>
+    <div class="callout">
+      <b>1. Refaktorer QR-landingen til hospitality-velkomst</b> · M · matcher denne demoen pixel-for-pixel<br><br>
+      <b>2. Tilsvarende velkomstskjerm for online order entry</b> · M · før menyen vises<br><br>
+      <b>3. Legal-lenker som footer-komponent</b> · S · gjenbrukbar på QR, online, checkout<br><br>
+      <b>4. Venue config-utvidelse</b> · M · backend-impact · alle feltene listet over<br><br>
+      <b>5. Innloggings-state for velkomstskjerm</b> · S · "Hei igjen, [navn]" når <code>currentUser</code> finnes
+    </div>
+
+    <p style="margin-top:20px;color:rgba(255,255,255,.4);font-size:11px;font-style:italic">
+      Demo bygd med samme tokens som plorea-online-order-checkout.html. Klar til hosting på emsplorea.github.io for å diskutere med Iuri/Jaylton.
+    </p>
+  </aside>
+
+</main>
+
+</body>
+</html>
