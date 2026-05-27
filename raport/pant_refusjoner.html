@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pant Refusjoner — Plorea</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600&family=Plus+Jakarta+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6BB8DA;
+  --success: #4CB782;
+  --warning: #E5B454;
+  --bg: #0E1419;
+  --bg-elev-1: #161D24;
+  --bg-elev-2: #1E2730;
+  --bg-elev-3: #28323C;
+  --border: #28323C;
+  --border-strong: #3A4651;
+  --text: #E8EEF3;
+  --text-muted: #9AA8B4;
+  --text-dim: #6B7785;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ===== Header ===== */
+.header {
+  background: var(--bg-elev-1);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-mark {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--primary), #4FA0C6);
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  color: #0E1419;
+  font-size: 14px;
+}
+.brand-name {
+  font-family: 'Sora', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+}
+.breadcrumb {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid var(--border);
+}
+.breadcrumb span { color: var(--text); }
+
+/* ===== Page header ===== */
+.page-header {
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.page-title {
+  font-family: 'Sora', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.page-subtitle {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+/* ===== Filter bar ===== */
+.filter-bar {
+  background: var(--bg-elev-1);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.filter-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.date-input {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  outline: none;
+  color-scheme: dark;
+  cursor: pointer;
+}
+.date-input:hover { border-color: var(--border-strong); }
+.date-input:focus { border-color: var(--primary); }
+.date-sep { color: var(--text-dim); font-size: 13px; }
+.filter-spacer { flex: 1; }
+
+.btn {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.15s;
+}
+.btn:hover { background: var(--bg-elev-3); border-color: var(--border-strong); }
+.btn-primary {
+  background: var(--primary);
+  color: #0E1419;
+  border-color: var(--primary);
+}
+.btn-primary:hover { background: #4FA0C6; border-color: #4FA0C6; }
+
+/* ===== Summary line ===== */
+.summary-line {
+  padding: 16px 24px;
+  display: flex;
+  gap: 32px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.summary-item-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.summary-item-value {
+  font-family: 'Sora', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.summary-item-value .currency {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 4px;
+  font-weight: 400;
+  font-family: 'JetBrains Mono', monospace;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot-warning { background: var(--warning); }
+.dot-primary { background: var(--primary); }
+
+/* ===== Table ===== */
+.table-wrap {
+  padding: 20px 24px 32px;
+}
+.data-table-container {
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead {
+  background: var(--bg-elev-2);
+}
+th {
+  text-align: left;
+  padding: 11px 16px;
+  font-weight: 500;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+th.right, td.right { text-align: right; }
+
+tbody tr { border-bottom: 1px solid var(--border); }
+tbody tr.day-end { border-bottom: 2px solid var(--bg-elev-3); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg-elev-2); }
+
+td {
+  padding: 11px 16px;
+  vertical-align: middle;
+}
+td.num {
+  font-family: 'JetBrains Mono', monospace;
+  font-feature-settings: 'tnum';
+  font-weight: 500;
+}
+td.muted { color: var(--text-muted); }
+.amount {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+  font-feature-settings: 'tnum';
+}
+.currency {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: 3px;
+  font-weight: 400;
+}
+
+.date-cell {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 500;
+}
+.date-cell .weekday {
+  color: var(--text-dim);
+  font-size: 11px;
+  margin-left: 6px;
+  font-weight: 400;
+}
+.date-cell.continuation {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.type-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+}
+.type-badge .dot { flex-shrink: 0; }
+
+.sum-row {
+  background: var(--bg-elev-2);
+  border-top: 2px solid var(--border-strong) !important;
+}
+.sum-row td {
+  font-weight: 600;
+  padding-top: 14px;
+  padding-bottom: 14px;
+}
+.sum-row.unredeemed { color: var(--warning); }
+.sum-row.refunded { color: var(--primary); }
+
+.empty-row td {
+  padding: 60px 20px;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+.help-note {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: var(--bg-elev-1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 10px;
+}
+.help-note .icon {
+  color: var(--primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="brand-mark">P</div>
+  <div class="brand-name">Plorea System</div>
+  <div class="breadcrumb">Rapporter / <span>Pant Refusjoner</span></div>
+</header>
+
+<div class="page-header">
+  <h1 class="page-title">Pant Refusjoner</h1>
+  <p class="page-subtitle">Per dag: pant ikke levert (kunden beholdt flaskene) vs. pant refundert (kunden leverte og fikk pengene tilbake)</p>
+</div>
+
+<div class="filter-bar">
+  <div class="filter-group">
+    <span class="filter-label">Fra</span>
+    <input type="date" class="date-input" id="dateFrom" value="2026-05-01">
+    <span class="date-sep">→</span>
+    <span class="filter-label">Til</span>
+    <input type="date" class="date-input" id="dateTo" value="2026-05-22">
+  </div>
+
+  <div class="filter-spacer"></div>
+
+  <button class="btn btn-primary" id="downloadBtn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Last ned CSV
+  </button>
+</div>
+
+<div class="summary-line">
+  <div class="summary-item">
+    <span class="summary-item-label"><span class="dot dot-warning"></span>Pant ikke levert</span>
+    <span class="summary-item-value" id="sumUnredeemed">— <span class="currency">kr</span></span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-item-label"><span class="dot dot-primary"></span>Pant refundert</span>
+    <span class="summary-item-value" id="sumRefunded">— <span class="currency">kr</span></span>
+  </div>
+  <div class="summary-item">
+    <span class="summary-item-label">Total pant solgt</span>
+    <span class="summary-item-value" id="sumTotal">— <span class="currency">kr</span></span>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <div class="data-table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Dato</th>
+          <th>Type</th>
+          <th class="right">Antall ordrer</th>
+          <th class="right">Antall enheter</th>
+          <th class="right">Sum kr</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="help-note">
+    <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <div>
+      Rapporten grupperer per <strong>ordredato</strong>. Pant er "refundert" hvis det finnes en Tomra-refusjon for ordren, uavhengig av når refusjonen skjedde. Tall for nylige dager kan endre seg etterhvert som kunder kommer tilbake og leverer pant.
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== Mock data =====
+// Generate orders with pant for May 2026, some refunded, some not
+const orders = [];
+let orderIdSeed = 408100;
+
+const weekdayNames = ['Søndag', 'Mandag', 'Tirsdag', 'Onsdag', 'Torsdag', 'Fredag', 'Lørdag'];
+
+for (let day = 1; day <= 22; day++) {
+  const dateStr = `2026-05-${String(day).padStart(2,'0')}`;
+  const dateObj = new Date(dateStr);
+  const dow = dateObj.getDay();
+  const isWeekend = dow === 0 || dow === 6;
+  const isMatchDay = [8, 15, 21, 22].includes(day);
+
+  let orderCount = 80 + Math.floor(Math.random() * 40);
+  if (isWeekend) orderCount += 30;
+  if (isMatchDay) orderCount += 120;
+
+  for (let i = 0; i < orderCount; i++) {
+    let unitPrice, qty;
+    if (isMatchDay && Math.random() < 0.65) {
+      unitPrice = 10;
+      qty = 1 + Math.floor(Math.random() * 4);
+    } else {
+      unitPrice = Math.random() < 0.55 ? 2 : 3;
+      qty = 1 + Math.floor(Math.random() * 3);
+    }
+
+    // Refund rate: 60-70% return, lower on match days (festival behavior)
+    const refundRate = isMatchDay ? 0.55 : 0.68;
+    const isRefunded = Math.random() < refundRate;
+
+    orders.push({
+      orderId: ++orderIdSeed,
+      date: dateStr,
+      qty,
+      unitPrice,
+      total: qty * unitPrice,
+      refunded: isRefunded
+    });
+  }
+}
+
+// ===== Format helpers =====
+function fmtKr(n) {
+  return n.toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtInt(n) {
+  return n.toLocaleString('nb-NO');
+}
+function fmtDate(iso) {
+  const [y, m, d] = iso.split('-');
+  return `${d}.${m}.${y}`;
+}
+function getWeekday(iso) {
+  return weekdayNames[new Date(iso).getDay()];
+}
+
+// ===== Aggregation =====
+function aggregate() {
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+
+  const filtered = orders.filter(o => o.date >= from && o.date <= to);
+  const byDay = {};
+
+  filtered.forEach(o => {
+    if (!byDay[o.date]) {
+      byDay[o.date] = {
+        unredeemed: { orders: new Set(), qty: 0, total: 0 },
+        refunded:   { orders: new Set(), qty: 0, total: 0 }
+      };
+    }
+    const bucket = o.refunded ? byDay[o.date].refunded : byDay[o.date].unredeemed;
+    bucket.orders.add(o.orderId);
+    bucket.qty += o.qty;
+    bucket.total += o.total;
+  });
+
+  return byDay;
+}
+
+// ===== Render =====
+function render() {
+  const byDay = aggregate();
+  const tbody = document.getElementById('tbody');
+  const dates = Object.keys(byDay).sort().reverse();
+
+  if (dates.length === 0) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">Ingen pant-data i valgt periode</td></tr>`;
+    document.getElementById('sumUnredeemed').innerHTML = '0,00 <span class="currency">kr</span>';
+    document.getElementById('sumRefunded').innerHTML = '0,00 <span class="currency">kr</span>';
+    document.getElementById('sumTotal').innerHTML = '0,00 <span class="currency">kr</span>';
+    return;
+  }
+
+  let totalUnredeemed = 0, totalRefunded = 0;
+  let totalUnredeemedQty = 0, totalRefundedQty = 0;
+  let totalUnredeemedOrders = 0, totalRefundedOrders = 0;
+
+  const rowsHtml = dates.map(date => {
+    const d = byDay[date];
+    totalUnredeemed += d.unredeemed.total;
+    totalRefunded += d.refunded.total;
+    totalUnredeemedQty += d.unredeemed.qty;
+    totalRefundedQty += d.refunded.qty;
+    totalUnredeemedOrders += d.unredeemed.orders.size;
+    totalRefundedOrders += d.refunded.orders.size;
+
+    return `
+      <tr>
+        <td class="date-cell">${fmtDate(date)}<span class="weekday">${getWeekday(date)}</span></td>
+        <td><span class="type-badge"><span class="dot dot-warning"></span>Pant ikke levert</span></td>
+        <td class="right num">${fmtInt(d.unredeemed.orders.size)}</td>
+        <td class="right num">${fmtInt(d.unredeemed.qty)}</td>
+        <td class="right"><span class="amount">${fmtKr(d.unredeemed.total)}</span><span class="currency">kr</span></td>
+      </tr>
+      <tr class="day-end">
+        <td class="date-cell continuation">${fmtDate(date)}</td>
+        <td><span class="type-badge"><span class="dot dot-primary"></span>Pant refundert</span></td>
+        <td class="right num">${fmtInt(d.refunded.orders.size)}</td>
+        <td class="right num">${fmtInt(d.refunded.qty)}</td>
+        <td class="right"><span class="amount">${fmtKr(d.refunded.total)}</span><span class="currency">kr</span></td>
+      </tr>
+    `;
+  }).join('');
+
+  const sumHtml = `
+    <tr class="sum-row unredeemed">
+      <td>Sum</td>
+      <td><span class="type-badge"><span class="dot dot-warning"></span>Pant ikke levert</span></td>
+      <td class="right num">${fmtInt(totalUnredeemedOrders)}</td>
+      <td class="right num">${fmtInt(totalUnredeemedQty)}</td>
+      <td class="right"><span class="amount">${fmtKr(totalUnredeemed)}</span><span class="currency">kr</span></td>
+    </tr>
+    <tr class="sum-row refunded">
+      <td>Sum</td>
+      <td><span class="type-badge"><span class="dot dot-primary"></span>Pant refundert</span></td>
+      <td class="right num">${fmtInt(totalRefundedOrders)}</td>
+      <td class="right num">${fmtInt(totalRefundedQty)}</td>
+      <td class="right"><span class="amount">${fmtKr(totalRefunded)}</span><span class="currency">kr</span></td>
+    </tr>
+  `;
+
+  tbody.innerHTML = rowsHtml + sumHtml;
+
+  document.getElementById('sumUnredeemed').innerHTML = `${fmtKr(totalUnredeemed)} <span class="currency">kr</span>`;
+  document.getElementById('sumRefunded').innerHTML = `${fmtKr(totalRefunded)} <span class="currency">kr</span>`;
+  document.getElementById('sumTotal').innerHTML = `${fmtKr(totalUnredeemed + totalRefunded)} <span class="currency">kr</span>`;
+}
+
+// ===== CSV download =====
+function downloadCsv() {
+  const byDay = aggregate();
+  const from = document.getElementById('dateFrom').value;
+  const to = document.getElementById('dateTo').value;
+  const dates = Object.keys(byDay).sort().reverse();
+
+  const headers = ['Dato', 'Type', 'Antall ordrer', 'Antall enheter', 'Sum kr'];
+  const rows = [];
+
+  let totalUnredeemed = 0, totalRefunded = 0;
+  let totalUnredeemedQty = 0, totalRefundedQty = 0;
+  let totalUnredeemedOrders = 0, totalRefundedOrders = 0;
+
+  dates.forEach(date => {
+    const d = byDay[date];
+    rows.push([date, 'Pant ikke levert', d.unredeemed.orders.size, d.unredeemed.qty, d.unredeemed.total.toFixed(2).replace('.', ',')]);
+    rows.push([date, 'Pant refundert', d.refunded.orders.size, d.refunded.qty, d.refunded.total.toFixed(2).replace('.', ',')]);
+    totalUnredeemed += d.unredeemed.total;
+    totalRefunded += d.refunded.total;
+    totalUnredeemedQty += d.unredeemed.qty;
+    totalRefundedQty += d.refunded.qty;
+    totalUnredeemedOrders += d.unredeemed.orders.size;
+    totalRefundedOrders += d.refunded.orders.size;
+  });
+
+  // Sum rows
+  rows.push(['SUM', 'Pant ikke levert', totalUnredeemedOrders, totalUnredeemedQty, totalUnredeemed.toFixed(2).replace('.', ',')]);
+  rows.push(['SUM', 'Pant refundert', totalRefundedOrders, totalRefundedQty, totalRefunded.toFixed(2).replace('.', ',')]);
+
+  const csv = [headers, ...rows]
+    .map(row => row.map(cell => {
+      const s = String(cell);
+      return s.includes(';') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+    }).join(';'))
+    .join('\n');
+
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `pant_refusjoner_${from}_${to}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ===== Events =====
+document.getElementById('dateFrom').addEventListener('change', render);
+document.getElementById('dateTo').addEventListener('change', render);
+document.getElementById('downloadBtn').addEventListener('click', downloadCsv);
+
+render();
+</script>
+
+</body>
+</html>
