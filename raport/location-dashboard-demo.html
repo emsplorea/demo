@@ -221,16 +221,23 @@ html.dark .kpi-icon { color:var(--color-primary); }
 .ch-bar-fill { height:100%; border-radius:var(--r-full); transition:width var(--dur-slow) var(--ease-out); }
 
 /* Opening-hours heatmap */
+.heat-card-head { display:flex; align-items:center; gap:12px; }
 .heat-legend { display:flex; align-items:center; gap:8px; }
 .heat-legend-label { font-size:11px; color:var(--color-text-muted); font-weight:600; }
-.heat-legend-scale { width:90px; height:10px; border-radius:var(--r-full); background:linear-gradient(90deg, var(--color-bg-subtle), var(--color-primary) 55%, var(--color-accent)); border:1px solid var(--color-border); }
+.heat-legend-scale { width:80px; height:10px; border-radius:var(--r-full); background:linear-gradient(90deg, var(--color-bg-subtle), var(--color-primary) 55%, var(--color-accent)); border:1px solid var(--color-border); }
+.heat-expand-btn { display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border:1px solid var(--color-border); border-radius:var(--r-sm); background:var(--color-bg-subtle); color:var(--color-text-secondary); transition:all var(--dur-fast); }
+.heat-expand-btn:hover { color:var(--color-primary); border-color:var(--color-primary); }
+.heat-expand-btn svg { width:15px; height:15px; }
+
 .heatmap-scroll { overflow-x:auto; padding-bottom:4px; }
-.heatmap { display:grid; grid-template-columns:auto repeat(7,minmax(34px,1fr)); gap:3px; min-width:560px; }
-.heat-corner { }
-.heat-col-head { text-align:center; font-size:11px; font-weight:700; color:var(--color-text-secondary); padding:4px 0; }
-.heat-row-head { font-size:10.5px; font-weight:600; color:var(--color-text-muted); font-family:'JetBrains Mono',monospace; padding-right:8px; display:flex; align-items:center; justify-content:flex-end; }
-.heat-cell { aspect-ratio:1.6; border-radius:4px; min-height:18px; cursor:default; transition:transform var(--dur-fast) var(--ease-out); position:relative; }
-.heat-cell:hover { transform:scale(1.12); z-index:2; box-shadow:var(--elev-2); }
+/* Layout: 1 day-label column + 10 hour columns. Compact cells fit a PC screen. */
+.heatmap { display:grid; grid-template-columns:42px repeat(10, minmax(0, 1fr)); gap:3px; }
+.heat-corner {}
+.heat-col-head { text-align:center; font-size:10px; font-weight:700; color:var(--color-text-secondary); font-family:'JetBrains Mono',monospace; padding:2px 0; }
+.heat-row-head { font-size:11px; font-weight:700; color:var(--color-text-secondary); padding-right:8px; display:flex; align-items:center; justify-content:flex-end; }
+.heat-cell { aspect-ratio:1.4; border-radius:3px; min-height:16px; cursor:default; transition:transform var(--dur-fast) var(--ease-out); position:relative; }
+.heat-cell.heat-closed { background:repeating-linear-gradient(45deg, var(--color-border-light), var(--color-border-light) 3px, transparent 3px, transparent 6px); opacity:0.5; }
+.heat-cell:not(.heat-closed):hover { transform:scale(1.18); z-index:2; box-shadow:var(--elev-2); }
 .heat-cell[data-tip]:hover::after {
   content:attr(data-tip);
   position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%);
@@ -242,6 +249,27 @@ html.dark .kpi-icon { color:var(--color-primary); }
 .heat-insight strong { color:var(--color-text-primary); font-weight:700; }
 .heat-insight svg { width:15px; height:15px; color:var(--color-secondary); flex-shrink:0; }
 html.dark .heat-insight svg { color:var(--color-primary); }
+
+/* Maximize modal */
+.heat-modal { position:fixed; inset:0; z-index:500; display:none; align-items:center; justify-content:center; padding:32px; }
+.heat-modal.show { display:flex; }
+.heat-modal-backdrop { position:absolute; inset:0; background:rgba(15,23,42,0.55); }
+.heat-modal-body { position:relative; background:var(--color-bg-surface); border:1px solid var(--color-border); border-radius:var(--r-lg); box-shadow:var(--elev-3); width:100%; max-width:1100px; max-height:90vh; overflow:auto; padding:24px; animation:heatIn .2s var(--ease-out); }
+@keyframes heatIn { from{opacity:0; transform:scale(0.97);} to{opacity:1; transform:scale(1);} }
+.heat-modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
+.heat-modal-head h2 { font-size:18px; }
+.heat-modal-close { width:34px; height:34px; border:1px solid var(--color-border); border-radius:var(--r-md); background:var(--color-bg-subtle); color:var(--color-text-secondary); font-size:18px; line-height:1; transition:all var(--dur-fast); }
+.heat-modal-close:hover { color:var(--color-error-text); border-color:var(--color-error); }
+/* In the modal, cells get larger and labels bigger */
+.heat-modal .heatmap { grid-template-columns:54px repeat(10, minmax(0,1fr)); gap:5px; }
+.heat-modal .heat-cell { border-radius:5px; min-height:30px; }
+.heat-modal .heat-col-head { font-size:12px; }
+.heat-modal .heat-row-head { font-size:13px; }
+
+@media (max-width:768px){
+  .heat-modal { padding:0; }
+  .heat-modal-body { max-width:100%; max-height:100vh; height:100vh; border-radius:0; }
+}
 
 /* Insight banner */
 .insight { display:flex; align-items:flex-start; gap:12px; padding:14px 16px; border-radius:var(--r-md); background:color-mix(in srgb,var(--color-primary) 8%,transparent); border:1px solid color-mix(in srgb,var(--color-primary) 22%,transparent); margin-bottom:24px; }
@@ -446,14 +474,19 @@ html.dark .insight svg { color:var(--color-primary); }
       <div class="grid">
         <div class="card col-12">
           <div class="card-header">
-            <div><span class="card-title">Revenue by weekday &amp; hour</span><div class="card-subtitle">Average revenue per hour over the selected period — darker = busier</div></div>
-            <div class="heat-legend">
-              <span class="heat-legend-label">Low</span>
-              <span class="heat-legend-scale"></span>
-              <span class="heat-legend-label">High</span>
+            <div><span class="card-title">Revenue by weekday &amp; hour</span><div class="card-subtitle">Within opening hours · darker = busier · click to enlarge</div></div>
+            <div class="heat-card-head">
+              <div class="heat-legend">
+                <span class="heat-legend-label">Low</span>
+                <span class="heat-legend-scale"></span>
+                <span class="heat-legend-label">High</span>
+              </div>
+              <button class="heat-expand-btn" onclick="openHeatModal()" title="Maximize">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+              </button>
             </div>
           </div>
-          <div class="heatmap-scroll">
+          <div class="heatmap-scroll" onclick="openHeatModal()" style="cursor:zoom-in;">
             <div class="heatmap" id="heatmap"></div>
           </div>
           <div class="heat-insight" id="heatInsight"></div>
@@ -461,6 +494,24 @@ html.dark .insight svg { color:var(--color-primary); }
       </div>
     </div>
   </main>
+</div>
+
+<!-- Heatmap maximize modal -->
+<div class="heat-modal" id="heatModal">
+  <div class="heat-modal-backdrop" onclick="closeHeatModal()"></div>
+  <div class="heat-modal-body">
+    <div class="heat-modal-head">
+      <div>
+        <h2>Revenue by weekday &amp; hour</h2>
+        <div class="card-subtitle" id="heatModalSub">Within opening hours · darker = busier</div>
+      </div>
+      <button class="heat-modal-close" onclick="closeHeatModal()" title="Close">×</button>
+    </div>
+    <div class="heatmap-scroll">
+      <div class="heatmap" id="heatmapModal"></div>
+    </div>
+    <div class="heat-insight" id="heatInsightModal"></div>
+  </div>
 </div>
 
 <script>
@@ -696,26 +747,35 @@ function renderLists(d){
 }
 
 // ── Opening-hours heatmap ──
-// Weekday × hour average revenue. Bar/restaurant pattern: open 10:00–24:00,
-// busy evenings, peak Fri/Sat. Values are illustrative (kr per hour, averaged).
-const HEAT_HOURS = [10,11,12,13,14,15,16,17,18,19,20,21,22,23];
+// Reflects the location's configured Opening Hours.
+// Dirty Nelly: all days open 17:00; close 00:00, except Fri/Sat close 03:00.
+// Hours after midnight (00,01,02) only count for days whose close crosses midnight.
 const HEAT_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-// base hourly shape (relative weight), then scaled per weekday
-const HEAT_SHAPE = [0.2,0.4,0.7,0.6,0.4,0.4,0.6,0.9,1.3,1.7,2.1,2.6,2.4,1.6];
-const HEAT_DAY_FACTOR = [0.6,0.55,0.65,0.85,1.5,1.8,1.0]; // Mon..Sun
+// Opening config per day: { open, close } in 24h; close<open means "next day"
+const OPENING_HOURS = {
+  Mon:{open:17,close:24}, Tue:{open:17,close:24}, Wed:{open:17,close:24}, Thu:{open:17,close:24},
+  Fri:{open:17,close:27}, Sat:{open:17,close:27}, Sun:{open:17,close:24}, // 27 = 03:00 next day
+};
+// Columns span the union of all open hours: 17..23, then 00,01,02 (=24,25,26)
+const HEAT_HOURS = [17,18,19,20,21,22,23,24,25,26]; // 24=00:00, 25=01:00, 26=02:00
+function hourLabel(h){ return String(h % 24).padStart(2,'0'); }
+function isOpen(day, h){ const o=OPENING_HOURS[day]; return h>=o.open && h<o.close; }
 
-function buildHeatData(periodAvgPerOpenHour){
-  // Returns matrix [day][hourIndex] of kr values
-  return HEAT_DAYS.map((_,di)=>
-    HEAT_HOURS.map((_,hi)=> Math.round(periodAvgPerOpenHour * HEAT_SHAPE[hi] * HEAT_DAY_FACTOR[di]))
+// Relative trade shape by hour-of-evening (index aligns to HEAT_HOURS)
+const HEAT_SHAPE = { 17:0.5, 18:0.9, 19:1.4, 20:1.9, 21:2.4, 22:2.2, 23:1.7, 24:1.3, 25:0.9, 26:0.5 };
+const HEAT_DAY_FACTOR = { Mon:0.55, Tue:0.5, Wed:0.6, Thu:0.85, Fri:1.6, Sat:1.9, Sun:0.95 };
+
+function buildHeatData(avg){
+  // matrix[day][hourIndex] = kr value, or null when closed
+  return HEAT_DAYS.map(day =>
+    HEAT_HOURS.map(h => isOpen(day,h) ? Math.round(avg * HEAT_SHAPE[h] * HEAT_DAY_FACTOR[day]) : null)
   );
 }
 
 function heatColor(v, max){
-  // interpolate bg-subtle → primary → accent
+  if (v === null) return 'transparent';       // closed
   const t = max>0 ? Math.min(v/max,1) : 0;
   if (t === 0) return 'var(--color-bg-subtle)';
-  // two-stop blend using color-mix for theme-awareness
   if (t < 0.55){
     const pct = Math.round((t/0.55)*100);
     return `color-mix(in srgb, var(--color-primary) ${pct}%, var(--color-bg-subtle))`;
@@ -725,40 +785,55 @@ function heatColor(v, max){
   }
 }
 
+function buildHeatmapHTML(matrix, max){
+  let html = '<div class="heat-corner"></div>';
+  HEAT_HOURS.forEach(h => html += `<div class="heat-col-head">${hourLabel(h)}</div>`);
+  HEAT_DAYS.forEach((day,di)=>{
+    html += `<div class="heat-row-head">${day}</div>`;
+    HEAT_HOURS.forEach((h,hi)=>{
+      const v = matrix[di][hi];
+      if (v === null){
+        html += `<div class="heat-cell heat-closed" title="${day} ${hourLabel(h)}:00 · Closed"></div>`;
+      } else {
+        const tip = `${day} ${hourLabel(h)}:00 · ${fmtKr(v)}`;
+        html += `<div class="heat-cell" style="background:${heatColor(v,max)}" data-tip="${tip}"></div>`;
+      }
+    });
+  });
+  return html;
+}
+
 function renderHeatmap(d){
   const el = document.getElementById('heatmap');
   if (!el) return;
-  // derive an average per open-hour from the period's total sales
-  const openHoursPerWeek = HEAT_DAYS.length * HEAT_HOURS.length;
+  const openCellCount = HEAT_DAYS.reduce((sum,day)=> sum + HEAT_HOURS.filter(h=>isOpen(day,h)).length, 0);
   let weeklySales;
-  if (currentPeriod === 'monthly') weeklySales = d.totalSales / 39; // ~9 months
-  else if (currentPeriod === 'weekly') weeklySales = d.totalSales;
-  else if (currentPeriod === 'custom') weeklySales = d.totalSales; // ~1 week
-  else weeklySales = d.totalSales * 7; // daily → approximate a week
-  const avgPerOpenHour = (weeklySales / openHoursPerWeek) * 1.0;
+  if (currentPeriod === 'monthly') weeklySales = d.totalSales / 39;
+  else if (currentPeriod === 'daily') weeklySales = d.totalSales * 7;
+  else weeklySales = d.totalSales;
+  const avg = (weeklySales / openCellCount) / 1.4;
 
-  const matrix = buildHeatData(avgPerOpenHour / 1.1); // normalize against shape mean
-  const max = Math.max(...matrix.flat());
+  const matrix = buildHeatData(avg);
+  const max = Math.max(...matrix.flat().filter(v=>v!==null));
 
-  let html = '<div class="heat-corner"></div>';
-  HEAT_DAYS.forEach(day => html += `<div class="heat-col-head">${day}</div>`);
-  HEAT_HOURS.forEach((hr,hi)=>{
-    html += `<div class="heat-row-head">${String(hr).padStart(2,'0')}</div>`;
-    HEAT_DAYS.forEach((day,di)=>{
-      const v = matrix[di][hi];
-      const tip = `${day} ${String(hr).padStart(2,'0')}:00 · ${fmtKr(v)}`;
-      html += `<div class="heat-cell" style="background:${heatColor(v,max)}" data-tip="${tip}"></div>`;
-    });
-  });
+  const html = buildHeatmapHTML(matrix, max);
   el.innerHTML = html;
+  const modalEl = document.getElementById('heatmapModal');
+  if (modalEl) modalEl.innerHTML = html;
 
-  // find peak cell for insight
-  let peak={v:-1}; matrix.forEach((row,di)=>row.forEach((v,hi)=>{ if(v>peak.v) peak={v,di,hi}; }));
-  const quietDay = HEAT_DAY_FACTOR.indexOf(Math.min(...HEAT_DAY_FACTOR));
-  document.getElementById('heatInsight').innerHTML =
-    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-     <span>Peak trade is <strong>${HEAT_DAYS[peak.di]} around ${String(HEAT_HOURS[peak.hi]).padStart(2,'0')}:00</strong>. <strong>${HEAT_DAYS[quietDay]}</strong> is the quietest day — consider lighter staffing or a promotion.</span>`;
+  let peak={v:-1};
+  matrix.forEach((row,di)=>row.forEach((v,hi)=>{ if(v!==null && v>peak.v) peak={v,di,hi}; }));
+  const quietDay = Object.keys(HEAT_DAY_FACTOR).reduce((a,b)=> HEAT_DAY_FACTOR[b]<HEAT_DAY_FACTOR[a]?b:a);
+  const insight = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+     <span>Open from <strong>17:00</strong> (Fri/Sat until 03:00). Peak trade is <strong>${HEAT_DAYS[peak.di]} around ${hourLabel(HEAT_HOURS[peak.hi])}:00</strong>. <strong>${quietDay}</strong> is the quietest day — consider lighter staffing or a promotion.</span>`;
+  document.getElementById('heatInsight').innerHTML = insight;
+  const mi = document.getElementById('heatInsightModal');
+  if (mi) mi.innerHTML = insight;
 }
+
+function openHeatModal(){ document.getElementById('heatModal').classList.add('show'); document.body.style.overflow='hidden'; }
+function closeHeatModal(){ document.getElementById('heatModal').classList.remove('show'); document.body.style.overflow=''; }
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeHeatModal(); });
 
 function renderChannels(d){
   const el = document.getElementById('channelBars');
@@ -877,17 +952,17 @@ function exportCSV(){
   ws5['!cols'] = [{wch:8},{wch:18},{wch:14},{wch:12}];
   XLSX.utils.book_append_sheet(wb, ws5, 'Top performers');
 
-  // Sheet 6 — Opening-hours heatmap (weekday × hour, kr)
-  const openHoursPerWeek = 7 * 14;
-  let weeklySales;
-  if (currentPeriod === 'monthly') weeklySales = d.totalSales / 39;
-  else if (currentPeriod === 'daily') weeklySales = d.totalSales * 7;
-  else weeklySales = d.totalSales;
-  const avgPerOpenHour = (weeklySales / openHoursPerWeek);
-  const heatMatrix = buildHeatData(avgPerOpenHour / 1.1);
+  // Sheet 6 — Opening-hours heatmap (weekday × hour, kr; blank = closed)
+  const openCellCount = HEAT_DAYS.reduce((s,day)=> s + HEAT_HOURS.filter(h=>isOpen(day,h)).length, 0);
+  let weeklySalesH;
+  if (currentPeriod === 'monthly') weeklySalesH = d.totalSales / 39;
+  else if (currentPeriod === 'daily') weeklySalesH = d.totalSales * 7;
+  else weeklySalesH = d.totalSales;
+  const heatAvg = (weeklySalesH / openCellCount) / 1.4;
+  const heatMatrix = buildHeatData(heatAvg);
   const heatRows = [['Hour', ...HEAT_DAYS]];
   HEAT_HOURS.forEach((hr,hi)=>{
-    heatRows.push([String(hr).padStart(2,'0')+':00', ...HEAT_DAYS.map((_,di)=>heatMatrix[di][hi])]);
+    heatRows.push([hourLabel(hr)+':00', ...HEAT_DAYS.map((_,di)=> heatMatrix[di][hi]===null ? '' : heatMatrix[di][hi])]);
   });
   const ws6 = XLSX.utils.aoa_to_sheet(heatRows);
   ws6['!cols'] = [{wch:8}, ...HEAT_DAYS.map(()=>({wch:9}))];
