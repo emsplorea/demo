@@ -1808,6 +1808,282 @@ html.dark .pay-icon { color: var(--color-primary); }
   100% { background-position: -200% 0; }
 }
 </style>
+<style>
+/* ───── Notifications / Release Notes (added) ───── */
+.nrf-bell{position:relative;width:38px;height:38px;border-radius:var(--r-full);border:1px solid transparent;background:transparent;color:var(--color-text-secondary);display:grid;place-items:center;transition:all var(--dur-fast) var(--ease-out)}
+.nrf-bell:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.nrf-bell:focus-visible{outline:none;box-shadow:var(--focus-ring)}
+.nrf-bell svg{width:20px;height:20px;transform-origin:50% 4px}
+.nrf-bell.has-unread svg{animation:nrfRing 4.5s var(--ease-out) infinite}
+@keyframes nrfRing{0%,86%,100%{transform:rotate(0)}88%{transform:rotate(12deg)}90%{transform:rotate(-10deg)}92%{transform:rotate(7deg)}94%{transform:rotate(-5deg)}96%{transform:rotate(2deg)}}
+.nrf-badge{position:absolute;top:2px;right:2px;min-width:17px;height:17px;padding:0 4px;border-radius:var(--r-full);background:var(--color-error);color:#fff;font-size:10px;font-weight:800;display:grid;place-items:center;border:2px solid var(--color-bg-surface)}
+.nrf-badge.nrf-hide{display:none}
+body.nrf-ovl .nrf-bell.has-unread svg{animation:none}
+
+.nrf-scrim{position:fixed;inset:0;background:transparent;z-index:300;display:none}
+.nrf-scrim.show{display:block}
+.nrf-panel{position:fixed;top:60px;right:24px;width:384px;max-width:calc(100vw - 32px);background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);box-shadow:var(--elev-3);z-index:310;overflow:hidden;display:none}
+.nrf-panel.show{display:block;animation:nrfPop .24s var(--ease-out)}
+@keyframes nrfPop{from{opacity:0;transform:translateY(-8px) scale(.98)}to{opacity:1;transform:none}}
+.nrf-phead{padding:15px 17px 12px;border-bottom:1px solid var(--color-border)}
+.nrf-ptitle{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.nrf-ptitle h3{font-family:'Sora',sans-serif;font-size:15.5px;font-weight:700;color:var(--color-text-primary)}
+.nrf-markall{border:0;background:transparent;color:var(--color-accent);font:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:4px 6px;border-radius:6px}
+.nrf-markall:hover{background:var(--color-bg-hover)}
+.nrf-markall:disabled{color:var(--color-text-muted);cursor:default;background:transparent}
+.nrf-psub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.nrf-fseg{display:inline-flex;margin-top:11px;background:var(--color-bg-subtle);border:1px solid var(--color-border-light);border-radius:var(--r-full);padding:3px}
+.nrf-fseg button{border:0;background:transparent;font:inherit;font-size:11.5px;font-weight:700;color:var(--color-text-secondary);padding:5px 13px;border-radius:var(--r-full);cursor:pointer}
+.nrf-fseg button.on{background:var(--color-bg-surface);color:var(--color-accent);box-shadow:var(--elev-1)}
+.nrf-list{max-height:min(60vh,432px);overflow-y:auto;padding:6px}
+.nrf-note{display:flex;gap:11px;padding:11px;border-radius:var(--r-md);cursor:pointer;transition:background var(--dur-fast) var(--ease-out)}
+.nrf-note:hover{background:var(--color-bg-hover)}
+.nrf-note .nrf-dot{width:8px;height:8px;border-radius:50%;background:var(--color-primary);flex-shrink:0;margin-top:7px;box-shadow:0 0 0 4px color-mix(in srgb,var(--color-primary) 22%,transparent)}
+.nrf-note.read .nrf-dot{background:transparent;box-shadow:none}
+.nrf-nbody{flex:1;min-width:0}
+.nrf-ntop{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:3px}
+.nrf-note h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:13.5px;font-weight:700;color:var(--color-text-primary);line-height:1.35;margin:0}
+.nrf-note.read h4{font-weight:600;color:var(--color-text-secondary)}
+.nrf-nsum{font-size:12.5px;color:var(--color-text-secondary);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nrf-nmeta{font-size:11px;color:var(--color-text-muted);margin-top:5px;display:flex;align-items:center;gap:7px}
+.nrf-cat{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:var(--r-full);white-space:nowrap;background:color-mix(in srgb,var(--cb) 16%,transparent);color:var(--c)}
+.nrf-cat .nrf-pip{width:5px;height:5px;border-radius:50%;background:var(--cb)}
+.nrf-cat-feature{--c:#226586;--cb:#6BB8DA}html.dark .nrf-cat-feature{--c:#8FCDE6}
+.nrf-cat-improve{--c:#2E8765;--cb:#6BDAB2}html.dark .nrf-cat-improve{--c:#6BDAB2}
+.nrf-cat-fix{--c:#5B3FA6;--cb:#9479E0}html.dark .nrf-cat-fix{--c:#B9A6F0}
+.nrf-cat-important{--c:#B24D4D;--cb:#DA6B6B}html.dark .nrf-cat-important{--c:#E89090}
+.nrf-cat-ops{--c:#87742E;--cb:#DADA6B}html.dark .nrf-cat-ops{--c:#CFCF7A}
+.nrf-new{font-size:9.5px;font-weight:800;letter-spacing:.06em;color:#fff;background:var(--color-primary);padding:2px 7px;border-radius:var(--r-full)}
+.nrf-note.read .nrf-new{display:none}
+.nrf-empty{padding:38px 20px;text-align:center;color:var(--color-text-muted);font-size:13px}
+.nrf-pfoot{padding:10px 16px;border-top:1px solid var(--color-border);text-align:center}
+.nrf-pfoot button{border:0;background:transparent;color:var(--color-accent);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer}
+
+.nrf-mscrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:320;display:none;opacity:0;transition:opacity var(--dur-default) var(--ease-out)}
+.nrf-mscrim.show{display:block;opacity:1}
+.nrf-modal{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(640px,calc(100vw - 32px));max-height:88vh;background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);box-shadow:var(--elev-3);z-index:330;display:none;flex-direction:column;overflow:hidden}
+.nrf-modal.show{display:flex;animation:nrfModalIn .26s var(--ease-out)}
+@keyframes nrfModalIn{from{opacity:0;transform:translate(-50%,-47%) scale(.98)}to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+.nrf-mhead{padding:20px 24px 16px;border-bottom:1px solid var(--color-border);position:relative}
+.nrf-mhead h2{font-family:'Sora',sans-serif;font-size:21px;font-weight:700;color:var(--color-text-primary);padding-right:34px;margin:11px 0 0}
+.nrf-mwhen{font-size:12.5px;color:var(--color-text-secondary);margin-top:7px;display:flex;gap:9px;flex-wrap:wrap}
+.nrf-mclose{position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:var(--r-full);border:1px solid var(--color-border);background:var(--color-bg-subtle);color:var(--color-text-secondary);display:grid;place-items:center;cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.nrf-mclose:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.nrf-mbody{padding:20px 24px 26px;overflow-y:auto}
+.nrf-lead{font-size:15px;color:var(--color-text-primary);font-weight:500;margin:0 0 16px;line-height:1.55}
+.nrf-mbody p{margin:0 0 12px;color:var(--color-text-secondary)}
+.nrf-sub{font-family:'Sora',sans-serif;font-size:13.5px;font-weight:700;color:var(--color-accent);margin:18px 0 9px}
+.nrf-steps{counter-reset:s;display:grid;gap:8px;margin:4px 0 14px;padding:0}
+.nrf-steps li{list-style:none;position:relative;padding:10px 13px 10px 44px;background:var(--color-bg-subtle);border:1px solid var(--color-border-light);border-radius:var(--r-md);font-size:13px;color:var(--color-text-primary)}
+.nrf-steps li::before{counter-increment:s;content:counter(s);position:absolute;left:11px;top:50%;transform:translateY(-50%);width:23px;height:23px;border-radius:var(--r-full);background:var(--color-primary);color:#fff;font-weight:800;font-size:12px;display:grid;place-items:center}
+.nrf-shot{border:1px solid var(--color-border);border-radius:var(--r-lg);overflow:hidden;margin:13px 0;box-shadow:var(--elev-1)}
+.nrf-shot svg{display:block;width:100%;height:auto}
+.nrf-shot .nrf-cap{font-size:12px;color:var(--color-text-muted);padding:9px 13px;border-top:1px solid var(--color-border);background:var(--color-bg-subtle)}
+.nrf-mfoot{padding:13px 24px;border-top:1px solid var(--color-border);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.nrf-receipt{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--color-success-text)}
+.nrf-receipt svg{width:16px;height:16px}
+.nrf-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;font:inherit;font-size:12.5px;font-weight:700;border-radius:var(--r-md);border:1.5px solid var(--color-primary);background:var(--color-primary);color:#fff;cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.nrf-btn:hover{background:var(--color-secondary);border-color:var(--color-secondary)}
+.nrf-grip{display:none}
+@media(max-width:600px){
+  .nrf-panel{top:auto;bottom:0;right:0;left:0;width:100%;max-width:100%;border-radius:var(--r-xl) var(--r-xl) 0 0}
+  .nrf-panel.show{animation:nrfSheet .28s var(--ease-out)}
+  .nrf-scrim.show{background:rgba(15,23,42,.5)}
+  .nrf-modal{top:auto;bottom:0;left:0;transform:none;width:100%;max-width:100%;max-height:92vh;border-radius:var(--r-xl) var(--r-xl) 0 0}
+  .nrf-modal.show{animation:nrfSheet .28s var(--ease-out)}
+  @keyframes nrfSheet{from{transform:translateY(100%)}to{transform:none}}
+  .nrf-grip{display:block;width:38px;height:4px;border-radius:99px;background:var(--color-border);margin:9px auto 0}
+}
+</style>
+<style>
+/* ───── Edit profile page (added) ───── */
+.ep-page{padding:32px 32px 130px;max-width:880px;width:100%;margin:0 auto}
+.ep-card{background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-lg);box-shadow:var(--elev-1);margin-bottom:18px;overflow:hidden}
+.ep-card-h{padding:18px 22px 0}
+.ep-card-h h3{font-family:'Sora',sans-serif;font-size:16px;font-weight:700;color:var(--color-text-primary);margin:0}
+.ep-card-h p{font-size:13px;color:var(--color-text-secondary);margin:3px 0 0}
+.ep-card-b{padding:18px 22px 22px}
+.ep-avatar-row{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.ep-avatar-lg{width:84px;height:84px;border-radius:var(--r-full);background:linear-gradient(135deg,#6BB8DA,#468DAC);display:grid;place-items:center;color:#fff;font-family:'Sora',sans-serif;font-weight:700;font-size:30px;flex-shrink:0;overflow:hidden;box-shadow:var(--elev-2)}
+.ep-avatar-lg img{width:100%;height:100%;object-fit:cover}
+.ep-avatar-actions{display:flex;flex-direction:column;gap:8px}
+.ep-avatar-actions .ep-row{display:flex;gap:8px;flex-wrap:wrap}
+.ep-hint{font-size:12px;color:var(--color-text-muted)}
+.ep-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 18px}
+.ep-field{display:flex;flex-direction:column;gap:6px}
+.ep-field.full{grid-column:1/-1}
+.ep-field label{font-size:12.5px;font-weight:700;color:var(--color-text-primary)}
+.ep-help{font-size:11.5px;color:var(--color-text-muted);font-weight:500}
+.ep-input,.ep-select{width:100%;padding:10px 12px;border:1.5px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-surface);font-size:14px;color:var(--color-text-primary);transition:border-color var(--dur-fast) var(--ease-out),box-shadow var(--dur-fast) var(--ease-out)}
+.ep-input:focus,.ep-select:focus{outline:none;border-color:var(--color-primary);box-shadow:var(--focus-ring)}
+.ep-input:disabled{background:var(--color-bg-subtle);color:var(--color-text-muted)}
+.ep-input.err{border-color:var(--color-error)}
+.ep-errmsg{font-size:11.5px;color:var(--color-error-text);font-weight:600;display:none}
+.ep-field.invalid .ep-errmsg{display:block}
+.ep-phone{display:flex;gap:8px}.ep-phone .ep-cc{width:104px;flex-shrink:0}
+.ep-iw{position:relative}
+.ep-iw .ep-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--color-text-secondary);font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px}
+.ep-iw .ep-toggle:hover{background:var(--color-bg-hover)}
+.ep-verified{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:var(--color-success-text);background:color-mix(in srgb,var(--color-success) 16%,transparent);padding:2px 8px;border-radius:var(--r-full)}
+.ep-label-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ep-strength{display:flex;gap:4px;margin-top:2px}
+.ep-strength i{height:4px;flex:1;border-radius:99px;background:var(--color-border)}
+.ep-strength.s1 i:nth-child(1){background:var(--color-error)}
+.ep-strength.s2 i:nth-child(-n+2){background:var(--color-warning)}
+.ep-strength.s3 i:nth-child(-n+3){background:#8FCBA8}
+.ep-strength.s4 i{background:var(--color-success)}
+.ep-strength-label{font-size:11.5px;color:var(--color-text-muted);margin-top:5px}
+.ep-seg{display:inline-flex;background:var(--color-bg-subtle);border:1px solid var(--color-border-light);border-radius:var(--r-md);padding:3px;gap:2px}
+.ep-seg button{border:0;background:transparent;font:inherit;font-size:13px;font-weight:700;color:var(--color-text-secondary);padding:8px 16px;border-radius:var(--r-sm);display:flex;align-items:center;gap:7px;cursor:pointer}
+.ep-seg button.on{background:var(--color-bg-surface);color:var(--color-accent);box-shadow:var(--elev-1)}
+.ep-seg button svg{width:15px;height:15px}
+.ep-otp-dest{margin-top:10px;font-size:13px;color:var(--color-text-secondary)}.ep-otp-dest b{color:var(--color-text-primary);font-weight:700}
+.ep-trow{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--color-border-light)}
+.ep-trow:first-child{border-top:0;padding-top:4px}
+.ep-trow .tt{font-size:13.5px;font-weight:600;color:var(--color-text-primary)}
+.ep-trow .td{font-size:12.5px;color:var(--color-text-secondary);margin-top:2px}
+.ep-switch{position:relative;width:42px;height:24px;flex-shrink:0}
+.ep-switch input{opacity:0;width:0;height:0}
+.ep-switch .tk{position:absolute;inset:0;background:var(--color-border);border-radius:99px;transition:background var(--dur-default) var(--ease-out);cursor:pointer}
+.ep-switch .tk::before{content:"";position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:var(--elev-1);transition:transform var(--dur-default) var(--ease-out)}
+.ep-switch input:checked+.tk{background:var(--color-primary)}
+.ep-switch input:checked+.tk::before{transform:translateX(18px)}
+.ep-switch input:disabled+.tk{opacity:.55}
+.ep-divider{height:1px;background:var(--color-border-light);margin:18px 0}
+.ep-linkbtn{border:1.5px solid var(--color-border);background:var(--color-bg-surface);color:var(--color-text-secondary);padding:9px 16px;border-radius:var(--r-md);font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.ep-linkbtn:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.ep-linkbtn.danger{color:var(--color-error-text);border-color:color-mix(in srgb,var(--color-error) 35%,transparent)}
+.ep-linkbtn.danger:hover{background:color-mix(in srgb,var(--color-error) 10%,transparent)}
+.ep-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:11px 20px;font:inherit;font-size:13px;font-weight:700;border-radius:var(--r-md);border:1.5px solid transparent;cursor:pointer;transition:all var(--dur-fast) var(--ease-out)}
+.ep-btn-primary{background:var(--color-primary);color:#fff;border-color:var(--color-primary)}
+.ep-btn-primary:hover{background:var(--color-secondary);border-color:var(--color-secondary)}
+.ep-btn-ghost{background:transparent;color:var(--color-text-secondary);border-color:var(--color-border)}
+.ep-btn-ghost:hover{background:var(--color-bg-hover);color:var(--color-text-primary)}
+.ep-savebar{position:fixed;left:240px;right:0;bottom:0;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 32px;background:var(--color-bg-surface);border-top:1px solid var(--color-border);box-shadow:0 -6px 20px rgba(15,23,42,.07);transform:translateY(120%);transition:transform var(--dur-default) var(--ease-out)}
+.ep-savebar.show{transform:none}
+.ep-savebar .msg{display:flex;align-items:center;gap:9px;font-size:13px;font-weight:600;color:var(--color-text-secondary)}
+.ep-savebar .dot{width:8px;height:8px;border-radius:50%;background:var(--color-warning);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-warning) 25%,transparent)}
+.ep-savebar .acts{display:flex;gap:10px}
+.ep-toast{position:fixed;bottom:90px;left:calc(50% + 120px);transform:translateX(-50%) translateY(20px);z-index:90;display:flex;align-items:center;gap:10px;background:var(--color-text-primary);color:var(--color-bg-surface);padding:12px 18px;border-radius:var(--r-full);box-shadow:var(--elev-3);font-size:13.5px;font-weight:600;opacity:0;pointer-events:none;transition:opacity var(--dur-default) var(--ease-out),transform var(--dur-default) var(--ease-out)}
+.ep-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.ep-toast svg{width:18px;height:18px;color:var(--color-success)}
+@media(max-width:768px){.ep-savebar{left:0}.ep-toast{left:50%}.ep-page{padding:22px 16px 130px}}
+@media(max-width:680px){.ep-grid{grid-template-columns:1fr}}
+</style>
+<style>
+/* ───── Account settings page (added) ───── */
+.as-theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:540px}
+.as-theme{border:1.5px solid var(--color-border);border-radius:var(--r-md);padding:12px;cursor:pointer;background:var(--color-bg-surface);text-align:left;transition:all var(--dur-fast) var(--ease-out)}
+.as-theme:hover{border-color:var(--color-text-muted)}
+.as-theme.on{border-color:var(--color-primary);box-shadow:var(--focus-ring)}
+.as-theme .sw{height:46px;border-radius:8px;border:1px solid var(--color-border);margin-bottom:9px;overflow:hidden;display:flex}
+.as-theme .sw .a{flex:0 0 34%}.as-theme .sw .b{flex:1}
+.as-theme.light .sw .a{background:#1A1F2C}.as-theme.light .sw .b{background:#F4F6F9}
+.as-theme.dark .sw .a{background:#0F1117}.as-theme.dark .sw .b{background:#16181F}
+.as-theme.system .sw .a{background:linear-gradient(135deg,#1A1F2C 50%,#0F1117 50%)}.as-theme.system .sw .b{background:linear-gradient(135deg,#F4F6F9 50%,#16181F 50%)}
+.as-theme .nm{font-size:13px;font-weight:700;color:var(--color-text-primary)}
+.as-theme .ds{font-size:11.5px;color:var(--color-text-muted)}
+.as-acc-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.as-acc-count{font-size:13px;color:var(--color-text-secondary)}.as-acc-count b{color:var(--color-text-primary)}
+.as-search{max-width:260px}
+.as-acc-list{display:flex;flex-direction:column;gap:8px}
+.as-acc-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-surface)}
+.as-acc-ava{width:38px;height:38px;border-radius:var(--r-md);background:linear-gradient(135deg,#6BB8DA,#468DAC);display:grid;place-items:center;color:#fff;font-weight:800;font-size:13px;flex-shrink:0}
+.as-acc-main{flex:1;min-width:0}
+.as-acc-name{font-size:14px;font-weight:700;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.as-acc-city{font-size:12px;color:var(--color-text-muted)}
+.as-acc-right{display:flex;align-items:center;gap:14px;flex-wrap:wrap;justify-content:flex-end}
+.as-perms{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:280px}
+.as-perm{font-size:10.5px;font-weight:700;color:var(--color-text-secondary);background:var(--color-bg-subtle);border:1px solid var(--color-border-light);padding:2px 8px;border-radius:var(--r-full)}
+.as-role{font-size:11px;font-weight:800;padding:4px 11px;border-radius:var(--r-full);white-space:nowrap}
+.as-role.owner{background:color-mix(in srgb,#9479E0 16%,transparent);color:#5B3FA6}
+html.dark .as-role.owner{color:#B9A6F0}
+.as-role.admin{background:color-mix(in srgb,var(--color-primary) 18%,transparent);color:var(--color-accent)}
+html.dark .as-role.admin{color:#8FCDE6}
+.as-role.manager{background:color-mix(in srgb,var(--color-success) 18%,transparent);color:var(--color-success-text)}
+.as-role.staff{background:var(--color-bg-subtle);color:var(--color-text-secondary);border:1px solid var(--color-border)}
+.as-note{font-size:12px;color:var(--color-text-muted);margin-top:12px;display:flex;align-items:center;gap:7px}
+.as-note svg{flex-shrink:0}
+.as-empty{padding:24px;text-align:center;color:var(--color-text-muted);font-size:13px}
+.as-sess-row,.as-method{display:flex;align-items:center;gap:13px;padding:13px 0;border-top:1px solid var(--color-border-light)}
+.as-sess-row:first-child,.as-method:first-child{border-top:0;padding-top:2px}
+.as-sess-ic,.as-method-ic{width:36px;height:36px;border-radius:var(--r-md);display:grid;place-items:center;flex-shrink:0}
+.as-sess-ic{background:var(--color-bg-subtle);color:var(--color-text-secondary)}
+.as-sess-ic svg{width:18px;height:18px}
+.as-method-ic{font-weight:800;color:#fff;font-size:15px}
+.as-sess-main,.as-method-main{flex:1;min-width:0}
+.as-sess-dev,.as-method-nm{font-size:13.5px;font-weight:600;color:var(--color-text-primary)}
+.as-sess-meta,.as-method-ds{font-size:12px;color:var(--color-text-muted)}
+.as-current{font-size:10px;font-weight:800;color:var(--color-success-text);background:color-mix(in srgb,var(--color-success) 16%,transparent);padding:3px 9px;border-radius:var(--r-full);white-space:nowrap}
+@media(max-width:560px){.as-theme-grid{grid-template-columns:1fr}.as-acc-right{width:100%;justify-content:flex-start}.as-perms{justify-content:flex-start}}
+</style>
+<style>
+/* ───── Help & support page (added) ───── */
+.hs-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--color-primary) 15%,var(--color-bg-surface)),var(--color-bg-surface));border:1px solid var(--color-border);border-radius:var(--r-lg);padding:30px 24px;text-align:center;margin-bottom:18px}
+.hs-hero h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0 0 4px}
+.hs-hero p{font-size:13.5px;color:var(--color-text-secondary);margin:0 0 16px}
+.hs-searchwrap{position:relative;max-width:520px;margin:0 auto}
+.hs-searchwrap svg{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--color-text-muted)}
+.hs-search{width:100%;padding:13px 14px 13px 44px;border:1.5px solid var(--color-border);border-radius:var(--r-full);background:var(--color-bg-surface);font-size:14px;color:var(--color-text-primary)}
+.hs-search:focus{outline:none;border-color:var(--color-primary);box-shadow:var(--focus-ring)}
+.hs-chips{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-top:13px}
+.hs-chip{font:inherit;font-size:12px;font-weight:600;color:var(--color-text-secondary);background:var(--color-bg-surface);border:1px solid var(--color-border);padding:5px 12px;border-radius:var(--r-full);cursor:pointer}
+.hs-chip:hover{border-color:var(--color-primary);color:var(--color-accent)}
+.hs-cat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.hs-cat{display:flex;flex-direction:column;gap:8px;padding:16px;border:1px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-surface);cursor:pointer;text-align:left;transition:all var(--dur-fast) var(--ease-out)}
+.hs-cat:hover{border-color:var(--color-primary);box-shadow:var(--elev-1)}
+.hs-cat.on{border-color:var(--color-primary);background:color-mix(in srgb,var(--color-primary) 8%,var(--color-bg-surface))}
+.hs-cat-ic{width:34px;height:34px;border-radius:var(--r-md);background:color-mix(in srgb,var(--color-primary) 16%,transparent);color:var(--color-accent);display:grid;place-items:center}
+.hs-cat-ic svg{width:18px;height:18px}
+.hs-cat .nm{font-size:13.5px;font-weight:700;color:var(--color-text-primary)}
+.hs-cat .ct{font-size:11.5px;color:var(--color-text-muted)}
+@media(max-width:900px){.hs-cat-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.hs-cat-grid{grid-template-columns:1fr}}
+.hs-faq{border:1px solid var(--color-border);border-radius:var(--r-md);overflow:hidden;background:var(--color-bg-surface)}
+.hs-faq+.hs-faq{margin-top:8px}
+.hs-faq-q{width:100%;display:flex;align-items:center;gap:12px;padding:14px 16px;background:transparent;border:0;text-align:left;cursor:pointer}
+.hs-faq-q:hover{background:var(--color-bg-hover)}
+.hs-faq-q .q{flex:1;font-size:14px;font-weight:600;color:var(--color-text-primary)}
+.hs-faq-q .chev{width:18px;height:18px;color:var(--color-text-muted);transition:transform var(--dur-default) var(--ease-out);flex-shrink:0}
+.hs-faq.open .hs-faq-q .chev{transform:rotate(180deg)}
+.hs-faq-cat{font-size:10px;font-weight:800;letter-spacing:.03em;text-transform:uppercase;color:var(--color-accent);background:color-mix(in srgb,var(--color-primary) 14%,transparent);padding:3px 8px;border-radius:var(--r-full);white-space:nowrap}
+.hs-faq-a{display:none;padding:0 16px 16px;font-size:13.5px;color:var(--color-text-secondary);line-height:1.6}
+.hs-faq.open .hs-faq-a{display:block}
+.hs-faq-a p{margin:0 0 10px}
+.hs-meta{font-size:11px;color:var(--color-text-muted);margin-top:8px;display:flex;align-items:center;gap:8px}
+.hs-helpful{display:flex;align-items:center;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--color-border-light);font-size:12.5px;color:var(--color-text-secondary)}
+.hs-helpful button{border:1px solid var(--color-border);background:var(--color-bg-surface);border-radius:var(--r-md);padding:5px 12px;cursor:pointer;color:var(--color-text-secondary);font-weight:600;font-size:12px}
+.hs-helpful button:hover{border-color:var(--color-primary);color:var(--color-accent)}
+.hs-helpful button.picked{border-color:var(--color-primary);color:var(--color-accent);background:color-mix(in srgb,var(--color-primary) 10%,transparent)}
+.hs-2col{display:grid;grid-template-columns:1.15fr 1fr;gap:18px;align-items:start}
+@media(max-width:840px){.hs-2col{grid-template-columns:1fr}}
+.hs-xsales{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--color-text-secondary);background:var(--color-bg-subtle);border:1px solid var(--color-border-light);padding:4px 10px;border-radius:var(--r-full)}
+.hs-xsales b{color:#2E6B87}
+.hs-ticket-row{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--color-border-light)}
+.hs-ticket-row:first-child{border-top:0}
+.hs-ticket-main{flex:1;min-width:0}
+.hs-ticket-id{font-size:11px;color:var(--color-text-muted)}
+.hs-ticket-sub{font-size:13px;font-weight:600;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hs-status{font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:var(--r-full);white-space:nowrap}
+.hs-status.open{background:color-mix(in srgb,var(--color-primary) 16%,transparent);color:var(--color-accent)}
+.hs-status.progress{background:color-mix(in srgb,var(--color-warning) 24%,transparent);color:var(--color-warning-text)}
+.hs-status.resolved{background:color-mix(in srgb,var(--color-success) 18%,transparent);color:var(--color-success-text)}
+.hs-info-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-top:1px solid var(--color-border-light)}
+.hs-info-row:first-child{border-top:0;padding-top:2px}
+.hs-info-ic{width:34px;height:34px;border-radius:var(--r-md);background:var(--color-bg-subtle);display:grid;place-items:center;color:var(--color-text-secondary);flex-shrink:0}
+.hs-info-ic svg{width:17px;height:17px}
+.hs-info-main{flex:1;min-width:0}
+.hs-info-lbl{font-size:11.5px;color:var(--color-text-muted)}
+.hs-info-val{font-size:14px;font-weight:600;color:var(--color-text-primary)}
+.hs-info-val a{color:var(--color-accent);text-decoration:none}
+.hs-hours{font-size:13px;color:var(--color-text-secondary);display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin-top:5px}
+.hs-hours .d{font-weight:600;color:var(--color-text-primary)}
+.hs-statusline{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary)}
+.hs-statusline .dot{width:8px;height:8px;border-radius:50%;background:var(--color-success);box-shadow:0 0 0 4px color-mix(in srgb,var(--color-success) 22%,transparent)}
+.hs-empty{padding:24px;text-align:center;color:var(--color-text-muted);font-size:13px}
+.hs-textarea{width:100%;padding:10px 12px;border:1.5px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-surface);font:inherit;font-size:14px;color:var(--color-text-primary);resize:vertical}
+.hs-textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:var(--focus-ring)}
+</style>
 </head>
 <body>
 
@@ -1932,12 +2208,35 @@ html.dark .pay-icon { color: var(--color-primary); }
           Live
         </div>
         <span class="clock-display" id="clock">--:--:--</span>
+        <button class="nrf-bell has-unread" id="nrfBell" aria-label="What's new">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="nrf-badge" id="nrfBadge">3</span>
+        </button>
         <div class="theme-toggle">
           <button class="active" onclick="setTheme('light', this)">☀ Light</button>
           <button onclick="setTheme('dark', this)">☾ Dark</button>
         </div>
       </div>
     </header>
+
+    <!-- Notifications: scrim + panel (release notes) -->
+    <div class="nrf-scrim" id="nrfScrim"></div>
+    <div class="nrf-panel" id="nrfPanel" role="dialog" aria-label="What's new">
+      <div class="nrf-grip"></div>
+      <div class="nrf-phead">
+        <div class="nrf-ptitle">
+          <h3>What's new</h3>
+          <button class="nrf-markall" id="nrfMarkAll">Mark all as read</button>
+        </div>
+        <div class="nrf-psub" id="nrfSub"></div>
+        <div class="nrf-fseg" id="nrfFseg">
+          <button class="on" data-f="all">All</button>
+          <button data-f="unread">Unread</button>
+        </div>
+      </div>
+      <div class="nrf-list" id="nrfList"></div>
+      <div class="nrf-pfoot"><button id="nrfHistory">See all history</button></div>
+    </div>
 
     <!-- ═══════════════════════════════════
          PAGE 1 — CHOOSE LOCATION
@@ -2705,6 +3004,231 @@ html.dark .pay-icon { color: var(--color-primary); }
       </div>
     </div>
 
+    <!-- ═══════════════════════════════════
+         PAGE 4 — EDIT PROFILE
+    ═══════════════════════════════════ -->
+    <div class="page-view" id="pageProfile">
+      <div class="ep-page">
+        <div class="page-header"><div class="page-header-text">
+          <div class="page-header-eyebrow">Account</div>
+          <h1>Edit profile</h1>
+          <p>Update your personal details, sign-in security and notification preferences. Changes apply to your account across all locations you have access to.</p>
+        </div></div>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Profile photo</h3><p>Shown next to your name in the app.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-avatar-row">
+              <div class="ep-avatar-lg" id="epAvaLg">EM</div>
+              <div class="ep-avatar-actions">
+                <div class="ep-row"><button class="ep-linkbtn" id="epUpload">Upload photo</button><button class="ep-linkbtn" id="epRemove">Remove</button></div>
+                <span class="ep-hint">JPG or PNG, square, at least 200×200px.</span>
+              </div>
+              <input type="file" id="epFile" accept="image/*" hidden>
+            </div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Personal information</h3><p>Your name and contact details.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-grid">
+              <div class="ep-field"><label for="epFname">First name</label><input class="ep-input" id="epFname" type="text" value="Einar" data-ep></div>
+              <div class="ep-field"><label for="epLname">Last name</label><input class="ep-input" id="epLname" type="text" value="Mortensen" data-ep></div>
+              <div class="ep-field full"><div class="ep-label-row"><label for="epEmail">Email</label><span class="ep-verified">✓ Verified</span></div><input class="ep-input" id="epEmail" type="email" value="ems@plorea.com" data-ep><span class="ep-errmsg">Enter a valid email address.</span></div>
+              <div class="ep-field full"><label for="epMobile">Mobile number</label><div class="ep-phone"><select class="ep-select ep-cc" id="epCc" data-ep><option value="+47" selected>🇳🇴 +47</option><option value="+46">🇸🇪 +46</option><option value="+45">🇩🇰 +45</option><option value="+44">🇬🇧 +44</option></select><input class="ep-input" id="epMobile" type="tel" value="412 34 567" data-ep></div><span class="ep-help">Used for sign-in codes (OTP) when SMS is your verification method.</span></div>
+              <div class="ep-field"><label for="epRole">Role</label><input class="ep-input" id="epRole" type="text" value="Administrator" disabled><span class="ep-help">Managed by your organisation.</span></div>
+              <div class="ep-field"><label for="epLang">Language</label><select class="ep-select" id="epLang" data-ep><option>English</option><option>Norsk Bokmål</option></select></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Security</h3><p>Password and two-step verification.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-grid">
+              <div class="ep-field full"><label for="epCurpw">Current password</label><div class="ep-iw"><input class="ep-input" id="epCurpw" type="password" placeholder="••••••••" data-ep><button class="ep-toggle" data-target="epCurpw">Show</button></div></div>
+              <div class="ep-field"><label for="epNewpw">New password</label><div class="ep-iw"><input class="ep-input" id="epNewpw" type="password" placeholder="At least 8 characters" data-ep><button class="ep-toggle" data-target="epNewpw">Show</button></div><div class="ep-strength" id="epStrength"><i></i><i></i><i></i><i></i></div><div class="ep-strength-label" id="epStrengthLabel">Use 8+ characters with letters, numbers and symbols.</div></div>
+              <div class="ep-field"><label for="epConfpw">Confirm new password</label><div class="ep-iw"><input class="ep-input" id="epConfpw" type="password" placeholder="Repeat new password" data-ep><button class="ep-toggle" data-target="epConfpw">Show</button></div><span class="ep-errmsg">Passwords do not match.</span></div>
+            </div>
+            <div class="ep-divider"></div>
+            <div class="ep-field full" style="gap:10px">
+              <div class="ep-label-row"><label>Two-step verification (OTP)</label></div>
+              <div class="ep-seg" id="epOtpSeg">
+                <button class="on" data-otp="email"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>Email</button>
+                <button data-otp="sms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>SMS</button>
+              </div>
+              <div class="ep-otp-dest" id="epOtpDest">We'll send sign-in codes to <b>e••@plorea.com</b>.</div>
+            </div>
+            <div class="ep-divider"></div>
+            <button class="ep-linkbtn danger" id="epSignout">Sign out of all other devices</button>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Notifications</h3><p>Choose what we email you about.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-trow"><div><div class="tt">New release notes</div><div class="td">Get an email when a new release note is published in the app.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfRelease" checked data-ep><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Product tips &amp; best practices</div><div class="td">Occasional tips on getting more out of Plorea.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfTips" data-ep><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Important account &amp; security alerts</div><div class="td">Always on — required for account safety.</div></div><label class="ep-switch"><input type="checkbox" checked disabled><span class="tk"></span></label></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="ep-savebar" id="epSaveBar">
+        <div class="msg"><span class="dot"></span><span>You have unsaved changes</span></div>
+        <div class="acts"><button class="ep-btn ep-btn-ghost" id="epDiscard">Discard</button><button class="ep-btn ep-btn-primary" id="epSave">Save changes</button></div>
+      </div>
+      <div class="ep-toast" id="epToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="epToastMsg">Profile updated</span></div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PAGE 5 — ACCOUNT SETTINGS
+    ═══════════════════════════════════ -->
+    <div class="page-view" id="pageAccount">
+      <div class="ep-page">
+        <div class="page-header"><div class="page-header-text">
+          <div class="page-header-eyebrow">Account</div>
+          <h1>Account settings</h1>
+          <p>Preferences for how Plorea looks and behaves, the locations you can access, and your sign-in &amp; sessions.</p>
+        </div></div>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Appearance</h3><p>Applies instantly on this device.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-field" style="gap:10px"><label>Theme</label>
+              <div class="as-theme-grid" id="asThemeGrid">
+                <button class="as-theme system" data-theme="system"><div class="sw"><div class="a"></div><div class="b"></div></div><div class="nm">System</div><div class="ds">Match device</div></button>
+                <button class="as-theme light on" data-theme="light"><div class="sw"><div class="a"></div><div class="b"></div></div><div class="nm">Light</div><div class="ds">Always light</div></button>
+                <button class="as-theme dark" data-theme="dark"><div class="sw"><div class="a"></div><div class="b"></div></div><div class="nm">Dark</div><div class="ds">Always dark</div></button>
+              </div>
+            </div>
+            <div class="ep-divider"></div>
+            <div class="ep-field" style="gap:10px"><label>Interface density</label>
+              <div class="ep-seg" id="asDensity"><button class="on" data-d="comfortable">Comfortable</button><button data-d="compact">Compact</button></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Language &amp; region</h3><p>Affects language, dates and number formatting.</p></div>
+          <div class="ep-card-b"><div class="ep-grid">
+            <div class="ep-field"><label for="asLang">Language</label><select class="ep-select" id="asLang" data-as><option>English</option><option>Norsk Bokmål</option></select></div>
+            <div class="ep-field"><label for="asTz">Time zone</label><select class="ep-select" id="asTz" data-as><option>Europe/Oslo (CET)</option><option>Europe/Stockholm (CET)</option><option>Europe/London (GMT)</option></select></div>
+            <div class="ep-field"><label for="asTime">Time format</label><select class="ep-select" id="asTime" data-as><option>24-hour (13:30)</option><option>12-hour (1:30 PM)</option></select></div>
+            <div class="ep-field"><label for="asWeek">First day of week</label><select class="ep-select" id="asWeek" data-as><option>Monday</option><option>Sunday</option></select></div>
+          </div></div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Startup</h3><p>Where Plorea opens after you sign in.</p></div>
+          <div class="ep-card-b"><div class="ep-grid">
+            <div class="ep-field"><label for="asStart">After sign-in, open</label><select class="ep-select" id="asStart" data-as><option>Choose Location</option><option>Last used location</option><option>A specific location</option></select></div>
+            <div class="ep-field"><label for="asDefLoc">Default location</label><select class="ep-select" id="asDefLoc" data-as></select><span class="ep-help">Used when “A specific location” is selected.</span></div>
+          </div></div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Your locations &amp; access</h3><p>The locations you can open and your role at each.</p></div>
+          <div class="ep-card-b">
+            <div class="as-acc-head">
+              <div class="as-acc-count">You have access to <b id="asAccCount">0</b> locations</div>
+              <input class="ep-input as-search" id="asAccSearch" type="search" placeholder="Search locations…">
+            </div>
+            <div class="as-acc-list" id="asAccList"></div>
+            <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Roles and access are managed by your organisation. Contact an admin to request changes.</div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Sign-in methods</h3><p>How you sign in to Plorea.</p></div>
+          <div class="ep-card-b">
+            <div class="as-method"><div class="as-method-ic" style="background:#468DAC">@</div><div class="as-method-main"><div class="as-method-nm">Email &amp; password</div><div class="as-method-ds">ems@plorea.com · last changed 3 weeks ago</div></div><span class="as-current">Active</span></div>
+            <div class="as-method"><div class="as-method-ic" style="background:#FF5B24">V</div><div class="as-method-main"><div class="as-method-nm">Vipps</div><div class="as-method-ds">Sign in quickly with Vipps</div></div><button class="ep-linkbtn" id="asVipps">Connect</button></div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Active sessions</h3><p>Devices currently signed in to your account.</p></div>
+          <div class="ep-card-b" id="asSessList"></div>
+          <div class="ep-card-b" style="padding-top:0"><button class="ep-linkbtn danger" id="asSignoutAll">Sign out of all other devices</button></div>
+        </section>
+      </div>
+
+      <div class="ep-savebar" id="asSaveBar"><div class="msg"><span class="dot"></span><span>You have unsaved changes</span></div><div class="acts"><button class="ep-btn ep-btn-ghost" id="asDiscard">Discard</button><button class="ep-btn ep-btn-primary" id="asSave">Save changes</button></div></div>
+      <div class="ep-toast" id="asToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="asToastMsg">Settings saved</span></div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         PAGE 6 — HELP & SUPPORT
+    ═══════════════════════════════════ -->
+    <div class="page-view" id="pageHelp">
+      <div class="ep-page">
+        <div class="page-header"><div class="page-header-text">
+          <div class="page-header-eyebrow">Support</div>
+          <h1>Help &amp; support</h1>
+          <p>Search the help centre, browse guides, create a support ticket, or see how to reach us.</p>
+        </div></div>
+
+        <div class="hs-hero">
+          <h2>How can we help?</h2>
+          <p>Guides and answers, kept up to date automatically with each release.</p>
+          <div class="hs-searchwrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input class="hs-search" id="hsSearch" type="search" placeholder="Search help articles…">
+          </div>
+          <div class="hs-chips" id="hsChips"></div>
+        </div>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Browse by topic</h3><p>Pick a category to filter the articles below.</p></div>
+          <div class="ep-card-b"><div class="hs-cat-grid" id="hsCatGrid"></div></div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3 id="hsFaqTitle">Popular articles</h3><p>Step-by-step guides and frequent questions.</p></div>
+          <div class="ep-card-b"><div id="hsFaqList"></div></div>
+        </section>
+
+        <div class="hs-2col">
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>Contact support</h3><p>Create a ticket — tracked in xSales.</p></div>
+            <div class="ep-card-b">
+              <div style="margin-bottom:14px"><span class="hs-xsales">Powered by <b>xSales</b></span></div>
+              <div class="ep-grid" style="gap:14px 16px">
+                <div class="ep-field full"><label for="hsSub">Subject</label><input class="ep-input" id="hsSub" type="text" placeholder="Briefly describe the issue"></div>
+                <div class="ep-field"><label for="hsCat">Category</label><select class="ep-select" id="hsCat"><option>General</option><option>POS</option><option>Online ordering</option><option>Payments &amp; terminals</option><option>Reports &amp; settlement</option><option>Devices</option><option>Account</option></select></div>
+                <div class="ep-field"><label for="hsPrio">Priority</label><select class="ep-select" id="hsPrio"><option>Normal</option><option>High</option><option>Urgent</option></select></div>
+                <div class="ep-field full"><label for="hsDesc">Description</label><textarea class="hs-textarea" id="hsDesc" rows="4" placeholder="What happened? Steps to reproduce, location, device…"></textarea></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;flex-wrap:wrap">
+                <button class="ep-linkbtn" id="hsAttach">Attach screenshot</button>
+                <button class="ep-btn ep-btn-primary" id="hsSubmit">Submit ticket</button>
+              </div>
+              <div class="ep-divider"></div>
+              <div style="font-size:12.5px;font-weight:700;color:var(--color-text-secondary);margin-bottom:4px">Your recent tickets</div>
+              <div id="hsTickets"></div>
+              <div style="margin-top:12px"><a class="ep-linkbtn" href="https://xsales.no" target="_blank" rel="noopener">Open xSales portal ↗</a></div>
+            </div>
+          </section>
+
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>About Plorea</h3><p>How to reach us.</p></div>
+            <div class="ep-card-b">
+              <div class="hs-info-row"><div class="hs-info-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><div class="hs-info-main"><div class="hs-info-lbl">Support phone</div><div class="hs-info-val"><a href="tel:+4773600000">+47 73 60 00 00</a></div></div></div>
+              <div class="hs-info-row"><div class="hs-info-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div class="hs-info-main"><div class="hs-info-lbl">Email</div><div class="hs-info-val"><a href="mailto:support@plorea.com">support@plorea.com</a></div></div></div>
+              <div class="hs-info-row"><div class="hs-info-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="hs-info-main"><div class="hs-info-lbl">Opening hours</div><div class="hs-hours"><span class="d">Mon–Fri</span><span>08:00–16:00</span><span class="d">Sat–Sun</span><span>Closed</span><span class="d">Emergency</span><span>24/7 for critical POS downtime</span></div></div></div>
+              <div class="hs-info-row"><div class="hs-info-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="hs-info-main"><div class="hs-info-lbl">Address</div><div class="hs-info-val">Plorea AS · Trondheim, Norway</div></div></div>
+              <div class="ep-divider"></div>
+              <div class="hs-statusline"><span class="dot"></span> All systems operational</div>
+              <div style="margin-top:12px"><button class="ep-linkbtn" id="hsWhatsNew">See what's new ↗</button></div>
+            </div>
+          </section>
+        </div>
+      </div>
+      <div class="ep-toast" id="hsToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="hsToastMsg">Done</span></div>
+    </div>
+
   </main>
 </div>
 
@@ -3018,13 +3542,13 @@ function userMenuAction(action) {
       goToLocations();
       break;
     case 'edit-profile':
-      alert('Edit profile — opens the profile editor\n\n(Demo only)');
+      goToProfile();
       break;
     case 'account-settings':
-      alert('Account settings — language, theme, notifications\n\n(Demo only)');
+      goToAccount();
       break;
     case 'help':
-      alert('Help & support\n\n(Demo only)');
+      goToHelp();
       break;
     case 'logout':
       if (confirm('Log out of Plorea?')) {
@@ -4051,5 +4575,414 @@ document.addEventListener('keydown', (e) => {
   if (acted) e.preventDefault();
 });
 </script>
+  <!-- Notifications: detail modal (release note) -->
+  <div class="nrf-mscrim" id="nrfMscrim"></div>
+  <div class="nrf-modal" id="nrfModal" role="dialog" aria-modal="true" aria-label="Release note">
+    <div class="nrf-mhead">
+      <div class="nrf-grip"></div>
+      <button class="nrf-mclose" id="nrfMclose" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      <div id="nrfMmeta"></div>
+      <h2 id="nrfMtitle"></h2>
+      <div class="nrf-mwhen" id="nrfMwhen"></div>
+    </div>
+    <div class="nrf-mbody" id="nrfMbody"></div>
+    <div class="nrf-mfoot">
+      <span class="nrf-receipt" id="nrfReceipt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="nrfReceiptTxt">Marked as read</span></span>
+      <button class="nrf-btn" id="nrfMdone">Done</button>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    function shot(kind){
+      const c1='#EBF6FB',c2='#E8F7F1',c3='#EEEAFB',blue='#6BB8DA',grn='#6BDAB2';
+      let inner='';
+      if(kind==='dashboard'){
+        inner=`<rect x='16' y='16' width='120' height='10' rx='5' fill='#d6dbe6'/><rect x='16' y='40' width='150' height='60' rx='10' fill='${c1}'/><rect x='178' y='40' width='150' height='60' rx='10' fill='${c2}'/><rect x='340' y='40' width='150' height='60' rx='10' fill='${c3}'/><rect x='502' y='40' width='110' height='60' rx='10' fill='#F7F4E2'/><rect x='16' y='116' width='360' height='118' rx='10' fill='#fff' stroke='#e7e9f0'/><polyline points='34,210 90,170 150,188 210,140 270,160 330,120' fill='none' stroke='${blue}' stroke-width='3'/><circle cx='540' cy='178' r='52' fill='none' stroke='${grn}' stroke-width='20'/><circle cx='540' cy='178' r='52' fill='none' stroke='${blue}' stroke-width='20' stroke-dasharray='150 400'/>`;
+      } else if(kind==='checkout'){
+        inner=`<rect x='16' y='16' width='180' height='10' rx='5' fill='#d6dbe6'/><rect x='16' y='40' width='380' height='40' rx='10' fill='${c1}'/><rect x='16' y='90' width='380' height='40' rx='10' fill='#f3f4f8'/><rect x='16' y='140' width='380' height='40' rx='10' fill='#f3f4f8'/><rect x='416' y='40' width='196' height='180' rx='12' fill='#fff' stroke='#e7e9f0'/><rect x='436' y='62' width='120' height='9' rx='4' fill='#dde1ea'/><rect x='436' y='150' width='156' height='34' rx='9' fill='${blue}'/>`;
+      } else if(kind==='bell'){
+        inner=`<rect x='430' y='12' width='180' height='150' rx='12' fill='#fff' stroke='#e7e9f0'/><rect x='448' y='30' width='90' height='10' rx='5' fill='#d6dbe6'/><circle cx='462' cy='66' r='5' fill='${blue}'/><rect x='476' y='58' width='110' height='8' rx='4' fill='#e3e6ee'/><rect x='476' y='72' width='80' height='7' rx='3' fill='#eef0f5'/><circle cx='462' cy='104' r='5' fill='${blue}'/><rect x='476' y='96' width='110' height='8' rx='4' fill='#e3e6ee'/><rect x='476' y='110' width='80' height='7' rx='3' fill='#eef0f5'/><circle cx='584' cy='24' r='10' fill='#DA6B6B'/><rect x='16' y='30' width='150' height='10' rx='5' fill='#d6dbe6'/><rect x='16' y='60' width='380' height='90' rx='10' fill='${c1}'/>`;
+      } else {
+        inner=`<rect x='16' y='20' width='200' height='10' rx='5' fill='#d6dbe6'/><rect x='16' y='50' width='596' height='120' rx='10' fill='${c2}'/>`;
+      }
+      const cap={dashboard:'New cross-location sales overview',checkout:'Delivery option in checkout',bell:'Notifications in the header',generic:'Overview'}[kind]||'Overview';
+      return `<div class="nrf-shot"><svg viewBox="0 0 628 250" xmlns="http://www.w3.org/2000/svg"><rect width="628" height="250" fill="#fbfcfe"/>${inner}</svg><div class="nrf-cap">Screenshot — ${cap}</div></div>`;
+    }
+
+    const CAT={
+      feature:{l:'New feature',c:'nrf-cat-feature'},
+      improve:{l:'Improvement',c:'nrf-cat-improve'},
+      fix:{l:'Fix',c:'nrf-cat-fix'},
+      important:{l:'Important',c:'nrf-cat-important'},
+      ops:{l:'Operations',c:'nrf-cat-ops'}
+    };
+
+    const NOTES=[
+     {id:'n8',ver:'v2.4.0',cat:'feature',date:'28 May 2026',title:'Cross-location sales overview',
+      short:'A new dashboard on Choose Location that combines sales figures across all locations you have access to.',
+      lead:'You no longer need to open each location separately to see how things are going. Choose Location now has a combined sales overview across all the locations you can access.',
+      body:`<p>The overview shows key figures, trends and top sellers together, and you can filter by location, period and weekdays. The existing dashboard inside a single location is unchanged.</p>`,
+      steps:['Go to Choose Location after signing in.','Open Dashboard in the menu.','All your locations are selected by default — use the filter to narrow down.','Press Apply filters to update the figures.'],shots:['dashboard']},
+     {id:'n7',ver:'v2.3.4',cat:'improve',date:'20 May 2026',title:'Faster menu loading',
+      short:'The menu overview now loads up to 40% faster on large menus.',
+      lead:'We optimised how the menu overview loads. On locations with many products and groups you will notice clearly shorter waiting times.',
+      body:`<p>The change applies to both admin and POS. No setup is needed — the improvement is active automatically.</p>`,steps:[],shots:[]},
+     {id:'n6',ver:'v2.3.3',cat:'fix',date:'14 May 2026',title:'Fixed cash discrepancy on daily settlement',
+      short:'Cash discrepancy was in some cases counted twice on the daily settlement. This is now fixed.',
+      lead:'We fixed an issue where cash discrepancy could be counted twice on the daily settlement for some settlements.',
+      body:`<p>Earlier settlements are not changed automatically. If you saw this on a previous settlement, contact support and we will help verify the figures.</p>`,steps:[],shots:[]},
+     {id:'n5',ver:'v2.3.0',cat:'feature',date:'6 May 2026',title:'Delivery in online ordering',
+      short:'Customers can now choose delivery with a delivery zone and shipping product directly in checkout.',
+      lead:'Online ordering now supports delivery. The customer enters an address, and the system finds the right delivery zone and adds shipping as its own line in the order.',
+      body:`<p>Delivery is set up per location with delivery zones and a shipping product. Once configured, the Delivery tab appears in checkout for the customer.</p>`,
+      steps:['Set up delivery zones on the location.','Link a shipping product to delivery.','The customer selects Delivery in checkout and enters an address.'],shots:['checkout']},
+     {id:'n4',ver:'v2.2.6',cat:'important',date:'29 Apr 2026',title:'New login with one-time code (OTP)',
+      short:'Sign-in now requires a one-time code by email or SMS. See what this means for your staff.',
+      lead:'To improve security we are introducing a one-time code (OTP) at sign-in. When logging in we send a code that must be entered to complete sign-in.',
+      body:`<p>Make sure staff have the correct email or mobile number registered before the change takes effect, so they receive the code. Contact support if you need help updating contact details.</p>`,
+      steps:['Check that all staff have a valid email/mobile.','At next sign-in a one-time code is sent.','Enter the code to complete sign-in.'],shots:['bell']},
+     {id:'n3',ver:'v2.2.5',cat:'ops',date:'22 Apr 2026',title:'Planned maintenance 24 Apr, 02:00–04:00',
+      short:'Short downtime overnight. The POS works offline during the window.',
+      lead:'We are performing planned maintenance overnight on 24 April between 02:00 and 04:00. Admin may be briefly unavailable during this window.',
+      body:`<p>The POS keeps working offline, and sales sync automatically when the system is back. No action is needed on your part.</p>`,steps:[],shots:[]},
+     {id:'n2',ver:'v2.2.4',cat:'improve',date:'15 Apr 2026',title:'Improved product search',
+      short:'Search now finds products by name, PLU and barcode.',
+      lead:'The product list search has been improved. You can now search by product name, PLU number and barcode in the same field.',
+      body:`<p>Results are ranked so the most relevant products appear first. The improvement applies to both admin and POS.</p>`,steps:[],shots:[]},
+     {id:'n1',ver:'v2.2.0',cat:'feature',date:'2 Apr 2026',title:'Packaging & inventory module',
+      short:'Track stock and packaging sizes directly in admin.',
+      lead:'The new Packaging module lets you track stock and define packaging sizes, so inventory stays up to date as products are sold.',
+      body:`<p>You will find the module under Modules in admin. Contact support if you would like help getting started.</p>`,steps:[],shots:['generic']}
+    ];
+
+    const seen=new Set(['n1','n2','n3','n4','n5']); // unread: n6, n7, n8
+    let filter='all';
+    const $=id=>document.getElementById(id);
+    const bell=$('nrfBell'),badge=$('nrfBadge'),panel=$('nrfPanel'),scrim=$('nrfScrim'),list=$('nrfList'),
+      sub=$('nrfSub'),markAll=$('nrfMarkAll'),modal=$('nrfModal'),mscrim=$('nrfMscrim');
+    const unread=()=>NOTES.filter(n=>!seen.has(n.id)).length;
+
+    function renderBell(){
+      const u=unread();
+      badge.textContent=u>9?'9+':u;
+      badge.classList.toggle('nrf-hide',u===0);
+      bell.classList.toggle('has-unread',u>0);
+    }
+    function renderList(){
+      const u=unread();
+      sub.textContent=u===0?'You are all caught up':`${u} unread update${u===1?'':'s'}`;
+      markAll.disabled=u===0;
+      const items=NOTES.filter(n=>filter==='unread'?!seen.has(n.id):true);
+      if(!items.length){list.innerHTML=`<div class="nrf-empty">No unread messages.<br>Switch to “All” to see the history.</div>`;return;}
+      list.innerHTML=items.map(n=>{
+        const read=seen.has(n.id),c=CAT[n.cat];
+        return `<div class="nrf-note ${read?'read':''}" data-id="${n.id}"><span class="nrf-dot"></span><div class="nrf-nbody"><div class="nrf-ntop"><span class="nrf-cat ${c.c}"><span class="nrf-pip"></span>${c.l}</span><span class="nrf-new">NEW</span></div><h4>${n.title}</h4><div class="nrf-nsum">${n.short}</div><div class="nrf-nmeta"><span class="mono">${n.ver}</span>·<span>${n.date}</span></div></div></div>`;
+      }).join('');
+      list.querySelectorAll('.nrf-note').forEach(el=>el.addEventListener('click',()=>openDetail(el.dataset.id)));
+    }
+    function openPanel(){renderList();panel.classList.add('show');scrim.classList.add('show');}
+    function closePanel(){panel.classList.remove('show');scrim.classList.remove('show');}
+    function openDetail(id){
+      const n=NOTES.find(x=>x.id===id);if(!n)return;const c=CAT[n.cat];
+      closePanel();
+      $('nrfMmeta').innerHTML=`<span class="nrf-cat ${c.c}"><span class="nrf-pip"></span>${c.l}</span>`;
+      $('nrfMtitle').textContent=n.title;
+      $('nrfMwhen').innerHTML=`<span class="mono">${n.ver}</span><span>•</span><span>${n.date}</span>`;
+      let html=`<p class="nrf-lead">${n.lead}</p>${n.body||''}`;
+      if(n.steps&&n.steps.length)html+=`<h3 class="nrf-sub">How to</h3><ol class="nrf-steps">${n.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`;
+      if(n.shots&&n.shots.length)html+=n.shots.map(shot).join('');
+      $('nrfMbody').innerHTML=html;$('nrfMbody').scrollTop=0;
+      const wasUnread=!seen.has(id);seen.add(id);
+      const r=$('nrfReceipt');r.style.opacity=wasUnread?'1':'.6';$('nrfReceiptTxt').textContent=wasUnread?'Marked as read':'Previously read';
+      document.body.classList.add('nrf-ovl');
+      modal.classList.add('show');mscrim.classList.add('show');
+      renderBell();
+    }
+    function closeModal(){modal.classList.remove('show');mscrim.classList.remove('show');document.body.classList.remove('nrf-ovl');}
+
+    bell.addEventListener('click',e=>{e.stopPropagation();panel.classList.contains('show')?closePanel():openPanel();});
+    scrim.addEventListener('click',closePanel);
+    $('nrfFseg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;filter=b.dataset.f;$('nrfFseg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderList();});
+    markAll.addEventListener('click',()=>{NOTES.forEach(n=>seen.add(n.id));renderBell();renderList();});
+    $('nrfHistory').addEventListener('click',()=>{filter='all';$('nrfFseg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.f==='all'));renderList();list.scrollTo({top:0});});
+    $('nrfMclose').addEventListener('click',closeModal);
+    $('nrfMdone').addEventListener('click',closeModal);
+    mscrim.addEventListener('click',closeModal);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeModal();closePanel();}});
+
+    renderBell();
+  })();
+  </script>
+  <script>
+  /* ───── Edit profile logic (added) ───── */
+  (function(){
+    var $=function(id){return document.getElementById(id);};
+    var fields=[], initial=new Map(), avatarImg=null, initialAvatar=null, otp='email', otpBaseline='email', toastT;
+    var grad='linear-gradient(135deg,#6BB8DA,#468DAC)';
+
+    function baseline(){
+      fields=[].slice.call(document.querySelectorAll('#pageProfile [data-ep]'));
+      initial=new Map();
+      fields.forEach(function(f){ initial.set(f, f.type==='checkbox'?f.checked:f.value); });
+      initialAvatar=avatarImg; otpBaseline=otp;
+    }
+    function dirty(){
+      var d=(avatarImg!==initialAvatar)||(otp!==otpBaseline);
+      fields.forEach(function(f){ var v=f.type==='checkbox'?f.checked:f.value; if(v!==initial.get(f)) d=true; });
+      return d;
+    }
+    function refreshBar(){ $('epSaveBar').classList.toggle('show', dirty()); }
+    function initials(){ var a=(($('epFname').value.trim()[0]||'')+($('epLname').value.trim()[0]||'')); return (a||'E').toUpperCase(); }
+    function renderAvatar(){
+      var big=$('epAvaLg');
+      if(avatarImg){ big.style.background='none'; big.innerHTML='<img src="'+avatarImg+'" alt="">'; }
+      else { big.style.background=grad; big.textContent=initials(); }
+    }
+    function strength(){
+      var v=$('epNewpw').value, el=$('epStrength'), lbl=$('epStrengthLabel'), s=0;
+      if(v.length>=8)s++; if(/[A-Z]/.test(v)&&/[a-z]/.test(v))s++; if(/\d/.test(v))s++; if(/[^A-Za-z0-9]/.test(v))s++;
+      if(!v.length)s=0;
+      el.className='ep-strength'+(s?(' s'+s):'');
+      lbl.textContent=!v.length?'Use 8+ characters with letters, numbers and symbols.':['Very weak','Weak','Fair','Good','Strong'][s];
+      var cf=$('epConfpw'); cf.closest('.ep-field').classList.toggle('invalid', cf.value.length>0 && cf.value!==v);
+    }
+    function maskEmail(v){ var p=v.split('@'); if(p.length<2) return v; return (p[0]?p[0][0]:'')+'\u2022\u2022@'+p[1]; }
+    function maskPhone(cc,v){ var d=v.replace(/\D/g,''); return cc+' \u2022\u2022\u2022 \u2022\u2022 '+d.slice(-3); }
+    function syncDest(){ $('epOtpDest').innerHTML = otp==='email' ? "We'll send sign-in codes to <b>"+maskEmail($('epEmail').value)+"</b>." : "We'll send sign-in codes to <b>"+maskPhone($('epCc').value,$('epMobile').value)+"</b>."; }
+    function validate(){
+      var ok=true, email=$('epEmail'), eField=email.closest('.ep-field');
+      var emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+      eField.classList.toggle('invalid',!emailOk); email.classList.toggle('err',!emailOk); if(!emailOk)ok=false;
+      var np=$('epNewpw').value, cf=$('epConfpw');
+      if(np.length){ if(np.length<8)ok=false; var m=cf.value===np; cf.closest('.ep-field').classList.toggle('invalid',!m); if(!m)ok=false; }
+      return ok;
+    }
+    function toast(msg){ $('epToastMsg').textContent=msg; var t=$('epToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2400); }
+    function reflectSidebar(){
+      var nm=($('epFname').value+' '+($('epLname').value.trim()[0]||'')).trim();
+      var sn=document.querySelector('.sidebar-user-name'); if(sn) sn.textContent=nm;
+      var uh=document.querySelector('.umh-name'); if(uh) uh.textContent=nm;
+      var av=document.querySelector('.sidebar-user-avatar');
+      if(av){ if(avatarImg){ av.style.background='none'; av.innerHTML='<img src="'+avatarImg+'" alt="" style="width:100%;height:100%;object-fit:cover">'; } else { av.style.background=''; av.textContent=initials(); } }
+    }
+
+    document.addEventListener('input', function(e){
+      var t=e.target; if(!t.closest||!t.closest('#pageProfile')) return;
+      if(!avatarImg && (t.id==='epFname'||t.id==='epLname')) renderAvatar();
+      if(t.id==='epNewpw'||t.id==='epConfpw') strength();
+      if(t.id==='epEmail'||t.id==='epMobile') syncDest();
+      refreshBar();
+    });
+    document.addEventListener('change', function(e){
+      var t=e.target; if(!t.closest||!t.closest('#pageProfile')) return;
+      if(t.id==='epCc') syncDest();
+      refreshBar();
+    });
+
+    $('epUpload').addEventListener('click', function(){ $('epFile').click(); });
+    $('epFile').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ avatarImg=r.result; renderAvatar(); refreshBar(); }; r.readAsDataURL(f); });
+    $('epRemove').addEventListener('click', function(){ avatarImg=null; renderAvatar(); refreshBar(); $('epFile').value=''; });
+    document.querySelectorAll('#pageProfile .ep-toggle').forEach(function(b){ b.addEventListener('click', function(){ var t=$(b.dataset.target); var show=t.type==='password'; t.type=show?'text':'password'; b.textContent=show?'Hide':'Show'; }); });
+    $('epOtpSeg').addEventListener('click', function(e){ var b=e.target.closest('button'); if(!b) return; otp=b.dataset.otp; $('epOtpSeg').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); syncDest(); refreshBar(); });
+    $('epSave').addEventListener('click', function(){ if(!validate()){ var bad=document.querySelector('#pageProfile .ep-field.invalid, #pageProfile .ep-input.err'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; } reflectSidebar(); ['epCurpw','epNewpw','epConfpw'].forEach(function(id){$(id).value='';}); strength(); baseline(); refreshBar(); toast('Profile updated'); });
+    $('epDiscard').addEventListener('click', function(){ fields.forEach(function(f){ if(f.type==='checkbox') f.checked=initial.get(f); else f.value=initial.get(f); }); avatarImg=initialAvatar; otp=otpBaseline; $('epOtpSeg').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.otp===otp);}); document.querySelectorAll('#pageProfile .ep-field.invalid').forEach(function(el){el.classList.remove('invalid');}); document.querySelectorAll('#pageProfile .ep-input.err').forEach(function(el){el.classList.remove('err');}); renderAvatar(); syncDest(); strength(); refreshBar(); });
+    $('epSignout').addEventListener('click', function(){ toast('Signed out of all other devices'); });
+
+    window.goToProfile=function(){
+      showPage('pageProfile');
+      document.querySelectorAll('.sidebar-link').forEach(function(l){l.classList.remove('active');});
+      var c=document.getElementById('topCrumb'); if(c) c.innerHTML='<span>Account</span><span class="crumb-sep">/</span><span class="crumb-current">Edit profile</span>';
+      var lb=document.getElementById('liveBadge'); if(lb) lb.style.display='none';
+      renderAvatar(); syncDest(); strength(); baseline(); refreshBar();
+    };
+
+    baseline(); renderAvatar(); syncDest(); strength();
+  })();
+  </script>
+  <script>
+  /* ───── Account settings logic (added) ───── */
+  (function(){
+    var $=function(id){return document.getElementById(id);};
+    var ACCESS=[
+      {n:'Plorea Demo',c:'Sparbu',role:'owner',perms:['POS','Admin','Reports','Settlement','Settings']},
+      {n:'Røros Hotell',c:'Røros',role:'admin',perms:['POS','Admin','Reports','Settlement','Settings']},
+      {n:'Chop Sticks',c:'Trondheim',role:'manager',perms:['POS','Reports','Settlement']},
+      {n:'Café Mash',c:'Bergen',role:'manager',perms:['POS','Reports']},
+      {n:'Stabæk Fotball',c:'Bærum',role:'admin',perms:['POS','Admin','Reports','Settlement']},
+      {n:'Kontoret',c:'Trondheim',role:'staff',perms:['POS']},
+      {n:'Messe',c:'Trondheim',role:'staff',perms:['POS']}
+    ];
+    var SESSIONS=[
+      {dev:'Chrome · macOS',meta:'Trondheim, Norway · Current session',cur:true,ic:'laptop'},
+      {dev:'Plorea POS · iPad',meta:'Røros Hotell · Active 2 hours ago',ic:'tablet'},
+      {dev:'Safari · iPhone',meta:'Oslo, Norway · Active yesterday',ic:'phone'}
+    ];
+    var fields=[], initial=new Map(), densityVal='comfortable', densityBaseline='comfortable', toastT, asSearch;
+
+    function ini(n){var p=n.trim().split(/\s+/);return (((p[0]?p[0][0]:'')+(p[1]?p[1][0]:'')).toUpperCase())||'?';}
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+    function renderAccess(){
+      var qv=(asSearch.value||'').toLowerCase().trim();
+      var rows=ACCESS.filter(function(a){return !qv || (a.n+' '+a.c).toLowerCase().indexOf(qv)>=0;});
+      $('asAccCount').textContent=ACCESS.length;
+      var list=$('asAccList');
+      if(!rows.length){ list.innerHTML='<div class="as-empty">No locations match your search.</div>'; return; }
+      list.innerHTML=rows.map(function(a){
+        var perms=a.perms.map(function(p){return '<span class="as-perm">'+p+'</span>';}).join('');
+        return '<div class="as-acc-row"><div class="as-acc-ava">'+ini(a.n)+'</div><div class="as-acc-main"><div class="as-acc-name">'+a.n+'</div><div class="as-acc-city">'+a.c+'</div></div><div class="as-acc-right"><span class="as-role '+a.role+'">'+cap(a.role)+'</span><div class="as-perms">'+perms+'</div></div></div>';
+      }).join('');
+    }
+    function sessIcon(k){
+      if(k==='tablet') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>';
+      if(k==='phone') return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/></svg>';
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M2 20h20"/></svg>';
+    }
+    function renderSessions(){
+      $('asSessList').innerHTML=SESSIONS.map(function(s,i){
+        var right=s.cur?'<span class="as-current">This device</span>':'<button class="ep-linkbtn" data-sess="'+i+'">Sign out</button>';
+        return '<div class="as-sess-row"><div class="as-sess-ic">'+sessIcon(s.ic)+'</div><div class="as-sess-main"><div class="as-sess-dev">'+s.dev+'</div><div class="as-sess-meta">'+s.meta+'</div></div>'+right+'</div>';
+      }).join('');
+    }
+    function fillDefLoc(){ $('asDefLoc').innerHTML=ACCESS.map(function(a){return '<option>'+a.n+'</option>';}).join(''); }
+
+    function baseline(){ fields=[].slice.call(document.querySelectorAll('#pageAccount [data-as]')); initial=new Map(); fields.forEach(function(f){initial.set(f,f.value);}); densityBaseline=densityVal; }
+    function dirty(){ var d=densityVal!==densityBaseline; fields.forEach(function(f){ if(f.value!==initial.get(f)) d=true; }); return d; }
+    function refreshBar(){ $('asSaveBar').classList.toggle('show',dirty()); }
+    function toast(m){ $('asToastMsg').textContent=m; var t=$('asToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2400); }
+
+    function applyTheme(t){
+      var dark = t==='dark' || (t==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      document.documentElement.classList.toggle('dark',dark);
+      var tb=document.querySelectorAll('.theme-toggle button'); if(tb.length>=2){ tb[0].classList.toggle('active',!dark); tb[1].classList.toggle('active',dark); }
+      if(typeof updateChartColors==='function'){ try{updateChartColors();}catch(e){} }
+    }
+
+    document.addEventListener('change',function(e){ var t=e.target; if(t.closest && t.closest('#pageAccount') && t.hasAttribute && t.hasAttribute('data-as')) refreshBar(); });
+
+    asSearch=$('asAccSearch');
+    asSearch.addEventListener('input',renderAccess);
+    $('asThemeGrid').addEventListener('click',function(e){ var b=e.target.closest('.as-theme'); if(!b) return; $('asThemeGrid').querySelectorAll('.as-theme').forEach(function(x){x.classList.toggle('on',x===b);}); applyTheme(b.dataset.theme); });
+    $('asDensity').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; densityVal=b.dataset.d; $('asDensity').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); refreshBar(); });
+    $('asVipps').addEventListener('click',function(){ toast('Vipps connected'); });
+    $('asSignoutAll').addEventListener('click',function(){ toast('Signed out of all other devices'); });
+    $('asSave').addEventListener('click',function(){ baseline(); refreshBar(); toast('Settings saved'); });
+    $('asDiscard').addEventListener('click',function(){ fields.forEach(function(f){ f.value=initial.get(f); }); densityVal=densityBaseline; $('asDensity').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.d===densityVal);}); refreshBar(); });
+    $('asSessList').addEventListener('click',function(e){ var b=e.target.closest('[data-sess]'); if(!b) return; b.closest('.as-sess-row').remove(); toast('Session signed out'); });
+
+    window.goToAccount=function(){
+      showPage('pageAccount');
+      document.querySelectorAll('.sidebar-link').forEach(function(l){l.classList.remove('active');});
+      var c=$('topCrumb'); if(c) c.innerHTML='<span>Account</span><span class="crumb-sep">/</span><span class="crumb-current">Account settings</span>';
+      var lb=$('liveBadge'); if(lb) lb.style.display='none';
+      renderAccess(); baseline(); refreshBar();
+    };
+
+    fillDefLoc(); renderAccess(); renderSessions(); baseline();
+  })();
+  </script>
+  <script>
+  /* ───── Help & support logic (added) ───── */
+  (function(){
+    var $=function(id){return document.getElementById(id);};
+    var CATS=[
+      {k:'getting-started',label:'Getting started',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="m10 9 5 3-5 3z"/></svg>'},
+      {k:'pos',label:'POS',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>'},
+      {k:'online-ordering',label:'Online ordering',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/><path d="M2 3h3l2.6 12.4a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L22 7H6"/></svg>'},
+      {k:'inventory',label:'Inventory',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5"/></svg>'},
+      {k:'payments',label:'Payments',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>'},
+      {k:'reports',label:'Reports',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 5-6"/></svg>'},
+      {k:'devices',label:'Devices',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>'},
+      {k:'account',label:'Account',ic:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'}
+    ];
+    var CATLABEL={}; CATS.forEach(function(c){CATLABEL[c.k]=c.label;});
+
+    function shot(label){
+      return '<div class="nrf-shot"><svg viewBox="0 0 628 210" xmlns="http://www.w3.org/2000/svg"><rect width="628" height="210" fill="#fbfcfe"/><rect x="16" y="16" width="150" height="10" rx="5" fill="#d6dbe6"/><rect x="16" y="40" width="596" height="44" rx="10" fill="#EBF6FB"/><rect x="16" y="96" width="370" height="38" rx="10" fill="#f3f4f8"/><rect x="16" y="144" width="370" height="38" rx="10" fill="#f3f4f8"/><rect x="402" y="96" width="210" height="86" rx="10" fill="#ffffff" stroke="#e7e9f0"/><rect x="422" y="146" width="170" height="24" rx="8" fill="#6BB8DA"/></svg><div class="nrf-cap">'+label+'</div></div>';
+    }
+
+    var ARTICLES=[
+      {id:'a1',cat:'getting-started',q:'How do I open the POS for a location?',a:'<p>You open the POS from the location grid. You only see the locations your account has access to.</p>',steps:['Go to Choose Location.','Find the location and select it.','Click <b>Go to POS</b> (sign in with your one-time code if prompted).'],ver:'v2.2.0',updated:'2 Apr 2026'},
+      {id:'a2',cat:'online-ordering',q:'How do I set up delivery zones for online ordering?',a:'<p>Delivery zones define where you deliver and the delivery fee that is added at checkout as a shipping line.</p>',steps:['Open Admin → Online ordering → Delivery.','Draw a zone on the map and give it a name.','Select the shipping product used as the delivery fee.','Save and publish.'],shot:'Delivery zones — map editor',ver:'v2.3.0',updated:'6 May 2026'},
+      {id:'a3',cat:'pos',q:'How do I add a product to the menu?',a:'<p>Products are managed per location in the Admin panel.</p>',steps:['Go to Admin → Products.','Click <b>New product</b> and fill in name, price and VAT.','Assign it to a category and save.'],ver:'v2.1.0',updated:'18 Mar 2026'},
+      {id:'a4',cat:'reports',q:'How do I read the daily settlement (Oppgjør)?',a:'<p>The daily settlement lists each day\u2019s takings per payment type and flags any deviation between expected and actual amounts. Open Admin → Oppgjør → Daily takings to see the list, then click a day for the full breakdown.</p>',ver:'v2.2.0',updated:'24 Apr 2026'},
+      {id:'a5',cat:'payments',q:'How do I connect an Adyen payment terminal?',a:'<p>Terminals are paired to a location and use the Adyen API type configured per company/location.</p>',steps:['Go to Admin → Payments → Terminals.','Click <b>Add terminal</b> and enter the serial number.','Wait for the status indicator to turn green (healthy).'],shot:'Terminal status — healthy',ver:'v2.3.0',updated:'9 May 2026'},
+      {id:'a6',cat:'inventory',q:'How does the Packaging module (Forpakning) work?',a:'<p>Stock is counted as whole packages plus loose pieces. You enter the number of packages and any loose units separately, so you never end up with impossible fractional packages.</p>',ver:'v2.3.0',updated:'12 May 2026'},
+      {id:'a7',cat:'devices',q:'How do I apply a device template?',a:'<p>Device templates apply to physical POS devices only (Advanced POS and Simple POS). QR Code and Self Service are not affected.</p>',steps:['Go to Admin → Devices.','Open a device and choose <b>Apply template</b>.','Pick a template and confirm.'],ver:'v2.2.0',updated:'29 Apr 2026'},
+      {id:'a8',cat:'account',q:'How do I turn on two-step verification (OTP)?',a:'<p>You can receive sign-in codes by email or SMS.</p>',steps:['Open the user menu → Edit profile.','Under Security, choose Email or SMS.','Make sure the destination email or mobile number is correct.'],ver:'v2.3.0',updated:'2 Jun 2026'},
+      {id:'a9',cat:'getting-started',q:'Where do I see what\u2019s new?',a:'<p>New features and fixes appear as release notes behind the bell icon in the top bar. A badge shows how many you haven\u2019t read yet. Each release note also links to the related help article.</p>',ver:'v2.3.0',updated:'2 Jun 2026'}
+    ];
+
+    var TICKETS=[
+      {id:'XS-10482',sub:'Receipt printer not connecting at Røros',status:'progress',statusLabel:'In progress'},
+      {id:'XS-10391',sub:'Question about VAT report export',status:'resolved',statusLabel:'Resolved'}
+    ];
+    var CHIPS=['Delivery setup','Payment terminal','Daily settlement','Add a product'];
+    var activeCat=null, hsSearch;
+
+    function catCount(c){var n=0;ARTICLES.forEach(function(a){if(a.cat===c)n++;});return n;}
+    function renderCats(){
+      $('hsCatGrid').innerHTML=CATS.map(function(c){
+        var n=catCount(c.k);
+        return '<button class="hs-cat'+(activeCat===c.k?' on':'')+'" data-cat="'+c.k+'"><div class="hs-cat-ic">'+c.ic+'</div><div class="nm">'+c.label+'</div><div class="ct">'+n+' article'+(n===1?'':'s')+'</div></button>';
+      }).join('');
+    }
+    function renderChips(){
+      $('hsChips').innerHTML=CHIPS.map(function(t){return '<button class="hs-chip" data-chip="'+t+'">'+t+'</button>';}).join('');
+    }
+    function renderFaq(){
+      var qv=(hsSearch.value||'').toLowerCase().trim();
+      var rows=ARTICLES.filter(function(a){
+        var inCat=!activeCat||a.cat===activeCat;
+        var inQ=!qv||((a.q+' '+a.a).toLowerCase().indexOf(qv)>=0);
+        return inCat&&inQ;
+      });
+      $('hsFaqTitle').textContent=activeCat?CATLABEL[activeCat]:(qv?'Search results':'Popular articles');
+      var list=$('hsFaqList');
+      if(!rows.length){ list.innerHTML='<div class="hs-empty">No articles match. Try a different search, or create a ticket below.</div>'; return; }
+      list.innerHTML=rows.map(function(a){
+        var steps=(a.steps&&a.steps.length)?'<ol class="nrf-steps">'+a.steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol>':'';
+        var sh=a.shot?shot(a.shot):'';
+        return '<div class="hs-faq" data-id="'+a.id+'"><button class="hs-faq-q"><span class="hs-faq-cat">'+CATLABEL[a.cat]+'</span><span class="q">'+a.q+'</span><svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button><div class="hs-faq-a">'+a.a+steps+sh+'<div class="hs-meta"><span>'+a.ver+'</span><span>·</span><span>Updated '+a.updated+'</span></div><div class="hs-helpful"><span>Was this helpful?</span><button data-h="y">Yes</button><button data-h="n">No</button></div></div></div>';
+      }).join('');
+    }
+    function renderTickets(){
+      $('hsTickets').innerHTML=TICKETS.map(function(t){
+        return '<div class="hs-ticket-row"><div class="hs-ticket-main"><div class="hs-ticket-id">'+t.id+'</div><div class="hs-ticket-sub">'+t.sub+'</div></div><span class="hs-status '+t.status+'">'+t.statusLabel+'</span></div>';
+      }).join('');
+    }
+    function toast(m){ $('hsToastMsg').textContent=m; var t=$('hsToast'); t.classList.add('show'); clearTimeout(window._hsT); window._hsT=setTimeout(function(){t.classList.remove('show');},2600); }
+
+    hsSearch=$('hsSearch');
+    hsSearch.addEventListener('input',renderFaq);
+    $('hsChips').addEventListener('click',function(e){ var b=e.target.closest('[data-chip]'); if(!b) return; hsSearch.value=b.dataset.chip; activeCat=null; renderCats(); renderFaq(); });
+    $('hsCatGrid').addEventListener('click',function(e){ var b=e.target.closest('[data-cat]'); if(!b) return; activeCat=(activeCat===b.dataset.cat)?null:b.dataset.cat; renderCats(); renderFaq(); });
+    $('hsFaqList').addEventListener('click',function(e){
+      var hb=e.target.closest('.hs-helpful button');
+      if(hb){ var grp=hb.parentNode; grp.querySelectorAll('button').forEach(function(x){x.classList.remove('picked');}); hb.classList.add('picked'); toast('Thanks for your feedback'); return; }
+      var q=e.target.closest('.hs-faq-q'); if(q) q.parentNode.classList.toggle('open');
+    });
+    $('hsAttach').addEventListener('click',function(){ toast('Screenshot attached (demo)'); });
+    $('hsSubmit').addEventListener('click',function(){
+      var sub=$('hsSub').value.trim(); if(!sub){ $('hsSub').focus(); return; }
+      var id='XS-'+(10500+Math.floor(Math.random()*490));
+      TICKETS.unshift({id:id,sub:sub,status:'open',statusLabel:'Open'});
+      renderTickets(); $('hsSub').value=''; $('hsDesc').value='';
+      toast('Ticket '+id+' created — tracked in xSales');
+    });
+    $('hsWhatsNew').addEventListener('click',function(){ var b=document.getElementById('nrfBell'); if(b) b.click(); });
+
+    window.goToHelp=function(){
+      showPage('pageHelp');
+      document.querySelectorAll('.sidebar-link').forEach(function(l){l.classList.remove('active');});
+      var c=$('topCrumb'); if(c) c.innerHTML='<span>Support</span><span class="crumb-sep">/</span><span class="crumb-current">Help &amp; support</span>';
+      var lb=$('liveBadge'); if(lb) lb.style.display='none';
+      activeCat=null; if(hsSearch) hsSearch.value='';
+      renderCats(); renderChips(); renderFaq(); renderTickets();
+    };
+
+    renderCats(); renderChips(); renderFaq(); renderTickets();
+  })();
+  </script>
 </body>
 </html>
