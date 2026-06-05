@@ -2451,6 +2451,7 @@ html.theme-transition *::after {
       <a class="nav-link" onclick="nav('storybook')""><span class="dot"></span>Storybook</a>
       <a class="nav-link" onclick="nav('contract')""><span class="dot"></span>Component Contract</a>
       <a class="nav-link" onclick="nav('workflow')""><span class="dot"></span>Developer Workflow</a>
+      <a class="nav-link" onclick="nav('migration-enforcement')"><span class="dot"></span>Migration Enforcement</a>
       <a class="nav-link" onclick="nav('versioning')""><span class="dot"></span>Versioning</a>
       <a class="nav-link" onclick="nav('future')""><span class="dot"></span>Future Evolution</a>
     </div>
@@ -5984,6 +5985,112 @@ html.theme-transition *::after {
     <div class="callout callout-info" style="margin-top:20px;">
       <strong>Import rule</strong>
       <code>import { OrderCard, PButton } from '@plorea/components'</code> — this is the only valid import pattern in application code. Direct imports from <code>daisyui</code> are not permitted.
+    </div>
+  </section>
+
+
+  <!-- MIGRATION ENFORCEMENT -->
+  <section class="section" id="migration-enforcement">
+    <div class="section-head">
+      <div class="label">Governance</div>
+      <h2>Migration Enforcement &amp; CI Rules</h2>
+    </div>
+
+    <p class="body">This section defines how the Plorea UI Framework is enforced during day-to-day development. The goal is not only to describe the preferred UI direction, but to prevent new design debt while legacy screens are migrated incrementally.</p>
+
+    <div class="callout callout-info">
+      <strong>Operating principle</strong>
+      New code follows the framework immediately. Existing code is migrated when touched, with high-risk or high-traffic surfaces prioritized first.
+    </div>
+
+    <div class="grid-2" style="margin-top:18px;">
+      <div class="card">
+        <div class="card-label">New code</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--color-text-secondary);line-height:1.55;">
+          <li>✓ Product UI must use <code>@plorea/components</code>.</li>
+          <li>✓ New buttons must use <code>PButton</code>.</li>
+          <li>✓ New dialogs and overlays must use <code>PModal</code> or the approved dialog wrapper.</li>
+          <li>✓ New styles must use design tokens or approved Tailwind token classes.</li>
+          <li>✓ Accessibility behaviour must be verified for keyboard, focus and screen-reader use.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-label">Not allowed in new code</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:13px;color:var(--color-text-secondary);line-height:1.55;">
+          <li>✗ Direct daisyUI usage in product screens.</li>
+          <li>✗ Raw hex values outside token definitions.</li>
+          <li>✗ New usage of legacy <code>common/Modal</code>.</li>
+          <li>✗ One-off button, badge or card implementations when a P-component exists.</li>
+          <li>✗ Visual-only compliance without keyboard and ARIA verification.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sub">Existing code migration</h3>
+    <table class="policy-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>Rule</th>
+          <th>Target state</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Legacy modals</td>
+          <td>Replace legacy modal usage when the screen is touched or when accessibility work is planned.</td>
+          <td><code>PModal</code> owns focus handling, role, aria-modal and close behaviour.</td>
+        </tr>
+        <tr>
+          <td>daisyUI classes</td>
+          <td>Remove direct product-level usage incrementally. Foundation wrappers may still use daisyUI internally.</td>
+          <td>Applications import Plorea components, not vendor primitives.</td>
+        </tr>
+        <tr>
+          <td>Tokens</td>
+          <td>Move repeated colours, spacing, radius and shadows to the token layer.</td>
+          <td><code>tokens.css</code> is the source of truth.</td>
+        </tr>
+        <tr>
+          <td>Component drift</td>
+          <td>When a local component duplicates an approved P-component, migrate or delete it.</td>
+          <td>One canonical component per UI responsibility.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 class="sub">CI enforcement path</h3>
+    <div class="hierarchy-stack">
+      <div class="hierarchy-item h-top">
+        <div class="hierarchy-num">1</div>
+        <div>
+          <div class="hierarchy-name">Warning phase</div>
+          <div class="arch-layer-desc">Design lint runs in CI but reports warnings while the remaining legacy violations are reduced.</div>
+        </div>
+        <div class="hierarchy-desc">Current migration mode</div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">2</div>
+        <div>
+          <div class="hierarchy-name">Threshold phase</div>
+          <div class="arch-layer-desc">Agree an allowed baseline for legacy violations. New violations must not increase the count.</div>
+        </div>
+        <div class="hierarchy-desc">Pre-blocking mode</div>
+      </div>
+      <div class="hierarchy-item">
+        <div class="hierarchy-num">3</div>
+        <div>
+          <div class="hierarchy-name">Blocking phase</div>
+          <div class="arch-layer-desc">Design lint becomes blocking in pull requests and deployment pipelines.</div>
+        </div>
+        <div class="hierarchy-desc">Target mode</div>
+      </div>
+    </div>
+
+    <div class="callout callout-warn" style="margin-top:20px;">
+      <strong>Important</strong>
+      This section governs UI and design-system migration only. Critical product risks such as money calculations, payment flow, API validation and security hardening remain tracked in the technical-debt backlog.
     </div>
   </section>
 
