@@ -47,6 +47,7 @@
   .cell .img-area{font-size:24px; margin-bottom:4px;}
   .cell .tot-price{font-size:11px; color:var(--muted); font-weight:500; margin-top:2px;}
   .cell.is-category{ background:linear-gradient(135deg, #1e293b, #312e81); border-color:#6366f1; border-style:solid;}
+  .cell.is-customcat{ background:linear-gradient(135deg, #1e293b, #164e63); border-color:#22d3ee; border-style:solid;}
   .cell.is-multi{ background:linear-gradient(135deg,#1e293b,#7c2d12); border-color:#fb923c; border-style:solid;}
   .tab{
     display:inline-flex;align-items:center;gap:8px;
@@ -121,6 +122,7 @@
     <span class="opacity-30 mx-1">·</span>
     <span class="opacity-60">Gruppe:</span> <span class="font-medium text-slate-200">MessePOS</span>
     <button onclick="openDuplicateGroup()" class="ml-2 text-sky-400 hover:text-sky-300 text-xs">Dupliser gruppe</button>
+    <button onclick="openDefaultColorsModal()" class="ml-2 text-sky-400 hover:text-sky-300 text-xs">Standardfarger</button>
   </div>
   <div class="ms-auto flex items-center gap-2">
     <button id="btn-preview" class="text-sm bg-sky-500 hover:bg-sky-400 text-white font-medium px-3 py-1.5 rounded-lg">
@@ -237,6 +239,12 @@
     <div id="cat-info" class="hidden bg-indigo-950/30 border border-indigo-700/50 rounded-lg p-3 text-xs">
       <div class="font-semibold text-indigo-300 mb-2">Kategori-knapp</div>
       <div class="text-slate-300">Trykk på knappen åpner kategorien <span id="cat-name" class="font-medium">Mineralvann</span> på POS. Varer i kategorien vises som en undermeny.</div>
+    </div>
+    <div id="cc-info" class="hidden bg-cyan-950/30 border border-cyan-700/50 rounded-lg p-3 text-xs">
+      <div class="font-semibold text-cyan-300 mb-2">Egen kategori</div>
+      <div class="text-slate-300 mb-2"><span id="cc-info-name" class="font-medium">Div</span> — mappe-knapp som åpner en undermeny med håndplukkede varer.</div>
+      <div id="cc-info-items" class="space-y-1 text-slate-300 max-h-32 overflow-auto"></div>
+      <button class="mt-2 text-cyan-300 hover:text-cyan-200 underline" onclick="editActiveCustomCat()">Endre innhold</button>
     </div>
     <div>
       <div class="text-xs text-slate-400 mb-1">Farge</div>
@@ -493,6 +501,71 @@
   </div>
 </div>
 
+<!-- Modal: Standardfarger pr. kategori -->
+<div id="modal-defcolors" class="modal-bg">
+  <div class="modal-card" style="max-width:640px">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold">Standardfarger pr. kategori</h2>
+        <div class="text-xs text-slate-400">Velg en fast farge for hver menykategori. Når en vare i kategorien legges som favoritt, settes denne fargen automatisk.</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-defcolors')">×</button>
+    </div>
+    <div class="p-5 space-y-3">
+      <div id="defcolors-rows" class="space-y-2"></div>
+      <div class="text-xs text-slate-400 border-t border-slate-700 pt-3">
+        Standardfargen gjelder for <strong>nye knapper</strong> som legges til etterpå. Eksisterende knapper beholder fargen sin. Du kan alltid overstyre per knapp i sidepanelet.
+      </div>
+    </div>
+    <div class="p-4 border-t border-slate-700 flex items-center gap-2">
+      <button class="text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg ml-auto" onclick="closeModal('modal-defcolors'); toast('Standardfarger lagret'); logAction('endret standardfarger pr. kategori')">Ferdig</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Egen kategori (custom category) -->
+<div id="modal-customcat" class="modal-bg">
+  <div class="modal-card" style="max-width:720px">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold" id="cc-modal-title">Ny egen kategori</h2>
+        <div class="text-xs text-slate-400">Mappe-knapp med håndplukkede varer som åpnes som undermeny på POS</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-customcat')">×</button>
+    </div>
+    <div class="p-5 space-y-4">
+      <div class="grid grid-cols-3 gap-3">
+        <div class="col-span-2">
+          <label class="field-label">Navn på kategorien</label>
+          <input id="cc-name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" placeholder="f.eks. Div, Happy hour, Strands favoritter">
+        </div>
+        <div>
+          <label class="field-label">Ikon</label>
+          <div id="cc-icons" class="flex flex-wrap gap-1.5"></div>
+        </div>
+      </div>
+      <div>
+        <label class="field-label">Varer i kategorien</label>
+        <input id="cc-search" placeholder="Søk for å filtrere produkter…" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm mb-2" oninput="renderCustomCatProducts()">
+        <div class="grid grid-cols-2 gap-2 max-h-72 overflow-auto pr-1" id="cc-product-list"></div>
+      </div>
+      <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-sm flex items-center justify-between">
+        <span class="text-slate-400">Varer valgt</span>
+        <span id="cc-count" class="font-mono">0</span>
+      </div>
+      <div class="text-xs text-slate-400">
+        Varene vises i samme rekkefølge som du valgte dem. På POS-en åpner knappen en undermeny.
+        Egne kategorier hører til denne favorittgruppen og kopieres ved Dupliser gruppe.
+      </div>
+    </div>
+    <div class="p-4 border-t border-slate-700 flex items-center gap-2">
+      <button class="text-sm text-rose-300 hover:text-rose-200 px-3 py-2 mr-auto hidden" id="cc-delete-btn" onclick="deleteCustomCat()">Slett kategorien</button>
+      <button class="text-sm text-slate-400 hover:text-slate-200 px-3 py-2" onclick="closeModal('modal-customcat')">Avbryt</button>
+      <button class="text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg" onclick="saveCustomCat()">Lagre kategori</button>
+    </div>
+  </div>
+</div>
+
 <!-- Modal: Audit log -->
 <div id="modal-log" class="modal-bg">
   <div class="modal-card" style="max-width:560px">
@@ -587,6 +660,24 @@ let multiButtons = [
   { id:'m1', name:'Kollega-runde', items:[{pid:23,qty:2},{pid:24,qty:1}] },
 ];
 
+// Custom categories — admin-defined "folder" with hand-picked items mixed across normal categories
+let customCategories = [
+  { id:'cc1', name:'Div', icon:'📁', itemIds:[3, 8, 16, 19] },
+  { id:'cc2', name:'Happy hour', icon:'🍻', itemIds:[23, 24, 14] },
+];
+function customCatById(id){ return customCategories.find(x => x.id === id); }
+
+// Standardfarger pr. menykategori (per gruppe). Brukes som default når en vare legges på en knapp.
+// Admin kan overstyre pr. celle etterpå.
+let categoryDefaultColors = {
+  mat:   '#fef9c3',   // gul for kjøtt/mat
+  drink: '#bae6fd',   // blå for mineralvann/drikke
+  snacks: null,
+  dessert: null,
+  merch: null,
+  misc: null,
+};
+
 // State
 let state = {
   activeTab: 0,
@@ -617,11 +708,12 @@ function seedCells(cols, rows, items){
   const grid = [];
   for(let r=0;r<rows;r++){ const row=[]; for(let c=0;c<cols;c++) row.push(null); grid.push(row); }
   items.forEach(([r,c,obj])=>{
-    // obj: { p: product_id } | { m: multi_id } | { c: category_id }
+    // obj: { p: product_id } | { m: multi_id } | { c: category_id } | { cc: custom_cat_id }
     grid[r][c] = {
       productId: obj.p || null,
       multiId: obj.m || null,
       categoryId: obj.c || null,
+      customCategoryId: obj.cc || null,
       color:null, hidden:false, font:14, span:1, spanRows:1
     };
   });
@@ -633,6 +725,15 @@ function productById(id){ return PRODUCTS.find(p=>p.id===id); }
 function catById(id){ return CATS.find(c=>c.id===id); }
 function multiById(id){ return multiButtons.find(m=>m.id===id); }
 function catColor(catId){ const c = CATS.find(x=>x.id===catId); return c? c.color : '#f1f5f9'; }
+function getReadableText(hex){
+  if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return null;
+  let h = hex.slice(1);
+  if (h.length === 3) h = h.split('').map(x=>x+x).join('');
+  if (h.length !== 6) return null;
+  const r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+  const lum = (0.299*r + 0.587*g + 0.114*b) / 255;
+  return lum > 0.6 ? '#0f172a' : '#f8fafc';
+}
 function isCellMultiHidden(cell){
   if (!cell?.multiId) return false;
   const m = multiById(cell.multiId);
@@ -749,8 +850,22 @@ function renderGrid(){
           if (showImg && cat?.icon) content = `<div class="img-area">${cat.icon}</div>`;
           content += `<div style="line-height:1.2">${cat.name}</div>`;
           el.innerHTML += '<span class="type-icon">📂 →</span>';
+        } else if (cell.customCategoryId){
+          el.classList.add('is-customcat');
+          const cc = customCatById(cell.customCategoryId);
+          if (cc){
+            if (showImg) content = `<div class="img-area">${cc.icon||'📁'}</div>`;
+            content += `<div style="line-height:1.2">${cc.name}</div>`;
+            content += `<div class="tot-price">${cc.itemIds.length} varer →</div>`;
+            el.innerHTML += '<span class="type-icon">📁★</span>';
+          }
         }
-        if (cell.color) content += `<span class="swatch" style="background:${cell.color}"></span>`;
+        if (cell.color){
+          el.style.background = cell.color;
+          el.style.borderColor = cell.color;
+          const txt = getReadableText(cell.color);
+          if (txt) el.style.color = txt;
+        }
         el.innerHTML += content;
         el.draggable = true;
         el.addEventListener('dragstart', (e) => {
@@ -769,10 +884,12 @@ function renderGrid(){
         el.classList.remove('dragover');
         const pidStr = e.dataTransfer.getData('text/product');
         const catStr = e.dataTransfer.getData('text/category');
+        const ccStr = e.dataTransfer.getData('text/customcat');
         const multiStr = e.dataTransfer.getData('text/multi');
         const cellStr = e.dataTransfer.getData('text/cell');
         if (pidStr){ placeProducts(JSON.parse(pidStr), r, c); }
         else if (catStr){ placeCategory(catStr, r, c); }
+        else if (ccStr){ placeCustomCat(ccStr, r, c); }
         else if (multiStr){ placeMulti(multiStr, r, c); }
         else if (cellStr){ const from = JSON.parse(cellStr); swapCells(from.r, from.c, r, c); }
       });
@@ -808,20 +925,54 @@ function renderPicker(){
   } else if (state.pickerTab === 'categories'){
     const help = document.createElement('div');
     help.className = 'text-xs text-slate-400 mb-3';
-    help.innerHTML = '<strong>Kategori-knapp:</strong> én knapp som åpner en undermeny med alle varene i kategorien. Bruk når listen er lang og kategorisert er bedre enn flat.';
+    help.innerHTML = '<strong>Kategori-knapp:</strong> én knapp som åpner en undermeny på POS.';
     content.appendChild(help);
+
+    // Section 1: built-in menu categories
+    const h1 = document.createElement('div');
+    h1.className = 'section-title mt-2';
+    h1.innerText = 'Innebygde menykategorier';
+    content.appendChild(h1);
     CATS.forEach(c => {
       const el = document.createElement('div');
       el.className = 'product mb-2';
       el.draggable = true;
       el.innerHTML = `<div class="ph" style="background:${c.color}">${c.icon}</div>
         <div class="flex-1 min-w-0"><div class="text-sm font-medium">${c.name}</div>
-        <div class="text-xs text-slate-400">${PRODUCTS.filter(p=>p.cat===c.id).length} varer</div></div>
+        <div class="text-xs text-slate-400">${PRODUCTS.filter(p=>p.cat===c.id).length} varer i menyen</div></div>
         <span class="text-slate-500 text-sm">→</span>`;
       el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/category', c.id); el.style.opacity=.4; });
       el.addEventListener('dragend', ()=>{ el.style.opacity=1; });
       content.appendChild(el);
     });
+
+    // Section 2: custom favorite categories
+    const h2 = document.createElement('div');
+    h2.className = 'section-title mt-5';
+    h2.innerText = 'Egne kategorier i denne gruppen';
+    content.appendChild(h2);
+    const ccHelp = document.createElement('div');
+    ccHelp.className = 'text-xs text-slate-400 mb-2';
+    ccHelp.innerHTML = 'Mappe-knapp du selv lager med håndplukkede varer på tvers av menykategorier. F.eks. "Div" med litt drikke + litt mat.';
+    content.appendChild(ccHelp);
+    customCategories.forEach(cc => {
+      const el = document.createElement('div');
+      el.className = 'product mb-2';
+      el.style.borderColor = '#22d3ee44';
+      el.draggable = true;
+      el.innerHTML = `<div class="ph" style="background:#cffafe">${cc.icon||'📁'}</div>
+        <div class="flex-1 min-w-0"><div class="text-sm font-medium">${cc.name}</div>
+        <div class="text-xs text-slate-400">${cc.itemIds.length} varer · <a class="text-cyan-400 hover:underline" href="#" onclick="event.preventDefault(); event.stopPropagation(); openCustomCatModal('${cc.id}')">Endre innhold</a></div></div>
+        <span class="text-slate-500 text-sm">★→</span>`;
+      el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/customcat', cc.id); el.style.opacity=.4; });
+      el.addEventListener('dragend', ()=>{ el.style.opacity=1; });
+      content.appendChild(el);
+    });
+    const newBtn = document.createElement('button');
+    newBtn.className = 'w-full mt-3 bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 rounded-lg py-2 text-sm';
+    newBtn.innerHTML = '+ Lag ny egen kategori';
+    newBtn.onclick = () => openCustomCatModal();
+    content.appendChild(newBtn);
   } else if (state.pickerTab === 'multi'){
     const help = document.createElement('div');
     help.className = 'text-xs text-slate-400 mb-3';
@@ -1007,6 +1158,12 @@ function renderPosPreview(){
           const ct = catById(cell.categoryId);
           el.style.background = cell.color || ct.color;
           el.innerHTML = `<div class="pos-img">${ct.icon}</div><div>${ct.name}</div><div style="opacity:.6;font-size:10px">→</div>`;
+        } else if (cell.customCategoryId){
+          const cc = customCatById(cell.customCategoryId);
+          if (cc){
+            el.style.background = cell.color || '#cffafe';
+            el.innerHTML = `<div class="pos-img">${cc.icon||'📁'}</div><div>${cc.name}</div><div style="opacity:.6;font-size:10px">${cc.itemIds.length} stk →</div>`;
+          }
         }
       }
       grid.appendChild(el);
@@ -1068,7 +1225,9 @@ function placeProducts(ids, startR, startC){
     if (inTab.has(id)){ toast(productById(id).name + ' er allerede på fanen'); continue; }
     while (r < tab.rows && tab.cells[r][c]){ c++; if (c >= tab.cols){ c = 0; r++; } }
     if (r >= tab.rows){ toast('Ikke plass — utvid rader eller fjern noe først'); break; }
-    tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
+    const _p = productById(id);
+    const _defColor = _p ? (categoryDefaultColors[_p.cat] || null) : null;
+    tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, customCategoryId:null, color:_defColor, hidden:false, font:14, span:1, spanRows:1 };
     inTab.add(id); placed++; c++;
     if (c >= tab.cols){ c = 0; r++; }
   }
@@ -1079,14 +1238,23 @@ function placeProducts(ids, startR, startC){
 function placeCategory(catId, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
-  tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, color:null, hidden:false, font:14, span:1, spanRows:1 };
+  const _defColor = categoryDefaultColors[catId] || null;
+  tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, customCategoryId:null, color:_defColor, hidden:false, font:14, span:1, spanRows:1 };
   logAction('la til kategori-knapp "'+catById(catId).name+'"');
   render(); toast('Kategori-knapp lagt til');
+}
+function placeCustomCat(ccId, r, c){
+  const tab = activeTab();
+  if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  tab.cells[r][c] = { productId:null, multiId:null, categoryId:null, customCategoryId:ccId, color:null, hidden:false, font:14, span:1, spanRows:1 };
+  const cc = customCatById(ccId);
+  logAction('la til egen kategori "'+(cc?cc.name:'?')+'"');
+  render(); toast('Egen kategori lagt til');
 }
 function placeMulti(mid, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
-  tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
+  tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, customCategoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
   logAction('la til sammensatt knapp "'+multiById(mid).name+'"');
   render(); toast('Sammensatt knapp lagt til');
 }
@@ -1105,6 +1273,7 @@ function openCellPanel(r, c){
   let title = 'Vare', badge = '';
   document.getElementById('multi-info').classList.add('hidden');
   document.getElementById('cat-info').classList.add('hidden');
+  document.getElementById('cc-info').classList.add('hidden');
   if (cell.productId){
     const p = productById(cell.productId);
     title = p ? p.name : 'Vare'; badge = 'Vare';
@@ -1130,6 +1299,23 @@ function openCellPanel(r, c){
     title = ct.name; badge = 'Kategori';
     document.getElementById('cat-info').classList.remove('hidden');
     document.getElementById('cat-name').innerText = ct.name;
+  } else if (cell.customCategoryId){
+    const cc = customCatById(cell.customCategoryId);
+    title = cc ? cc.name : 'Egen kategori'; badge = 'Egen kategori';
+    document.getElementById('cc-info').classList.remove('hidden');
+    document.getElementById('cc-info-name').innerText = cc ? cc.name : '?';
+    const itemsEl = document.getElementById('cc-info-items');
+    itemsEl.innerHTML = '';
+    if (cc){
+      cc.itemIds.forEach(pid => {
+        const p = productById(pid);
+        const row = document.createElement('div');
+        row.className = 'flex justify-between';
+        row.innerHTML = `<span>${p ? p.name : '?'}</span><span class="font-mono text-slate-400">${p ? p.price+',-' : ''}</span>`;
+        itemsEl.appendChild(row);
+      });
+    }
+    state.activeCustomCatId = cell.customCategoryId;
   }
   document.getElementById('cell-panel-title').innerText = title;
   document.getElementById('cell-panel-type-badge').innerText = badge;
@@ -1402,6 +1588,153 @@ function saveMultiButton(){
   closeModal('modal-multi');
   logAction('opprettet sammensatt knapp "'+name+'"');
   render(); toast('Sammensatt knapp opprettet');
+}
+
+// --- Default colors per category modal ---
+function openDefaultColorsModal(){
+  renderDefaultColorsRows();
+  openModal('modal-defcolors');
+}
+function renderDefaultColorsRows(){
+  const wrap = document.getElementById('defcolors-rows');
+  wrap.innerHTML = '';
+  CATS.forEach(c => {
+    const current = categoryDefaultColors[c.id];
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-3 bg-slate-800/40 border border-slate-700 rounded-lg p-3';
+    row.innerHTML = `
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style="background:${c.color}">${c.icon}</div>
+      <div class="text-sm font-medium w-20 shrink-0">${c.name}</div>
+      <div class="flex flex-wrap gap-1.5 flex-1" id="dc-swatches-${c.id}"></div>
+      <div class="w-12 h-7 rounded shrink-0 flex items-center justify-center text-[10px]" style="background:${current||'transparent'}; border:1.5px ${current?'solid':'dashed'} ${current?'#38bdf8':'#475569'}; color:${current ? (getReadableText(current)||'#0f172a') : '#64748b'}">${current ? 'satt' : 'ingen'}</div>
+    `;
+    const sw = row.querySelector(`#dc-swatches-${c.id}`);
+    COLORS.forEach(col => {
+      const b = document.createElement('button');
+      b.style.cssText = `width:22px;height:22px;border-radius:6px;background:${col};border:1.5px solid ${current===col?'#38bdf8':'#334155'};cursor:pointer;`;
+      b.onclick = () => { categoryDefaultColors[c.id] = col; renderDefaultColorsRows(); };
+      sw.appendChild(b);
+    });
+    // custom color picker
+    const customLabel = document.createElement('label');
+    const isCustom = current && !COLORS.includes(current);
+    customLabel.style.cssText = `width:22px;height:22px;border-radius:6px;background:${isCustom?current:'conic-gradient(#ef4444,#f59e0b,#eab308,#22c55e,#3b82f6,#8b5cf6,#ec4899,#ef4444)'};border:1.5px solid ${isCustom?'#38bdf8':'#334155'};cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:bold;position:relative;text-shadow:0 0 3px rgba(0,0,0,.7);`;
+    customLabel.innerHTML = isCustom ? '' : '+';
+    customLabel.title = 'Egendefinert farge';
+    const ci = document.createElement('input');
+    ci.type = 'color'; ci.value = (current && current.startsWith('#') && current.length === 7) ? current : '#fde68a';
+    ci.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
+    ci.onchange = (e) => { categoryDefaultColors[c.id] = e.target.value; renderDefaultColorsRows(); };
+    customLabel.appendChild(ci);
+    sw.appendChild(customLabel);
+    // clear
+    const clear = document.createElement('button');
+    clear.style.cssText = `width:22px;height:22px;border-radius:6px;background:transparent;border:1.5px dashed #475569;color:#64748b;font-size:12px;`;
+    clear.innerText = '×'; clear.title = 'Fjern standardfarge';
+    clear.onclick = () => { categoryDefaultColors[c.id] = null; renderDefaultColorsRows(); };
+    sw.appendChild(clear);
+
+    wrap.appendChild(row);
+  });
+}
+
+// --- Custom category modal ---
+const CC_ICONS = ['📁','⭐','🍻','🎉','🏆','🌟','🔥','💎','🎁','🥳','🌈','🌮','🍱','🥡','📦','🎯'];
+let ccDraft = { id:null, name:'', icon:'📁', itemIds:[] };
+
+function openCustomCatModal(id){
+  if (id){
+    const cc = customCatById(id);
+    ccDraft = { id: cc.id, name: cc.name, icon: cc.icon||'📁', itemIds: cc.itemIds.slice() };
+    document.getElementById('cc-modal-title').innerText = 'Endre egen kategori';
+    document.getElementById('cc-delete-btn').classList.remove('hidden');
+  } else {
+    ccDraft = { id:null, name:'', icon:'📁', itemIds:[] };
+    document.getElementById('cc-modal-title').innerText = 'Ny egen kategori';
+    document.getElementById('cc-delete-btn').classList.add('hidden');
+  }
+  document.getElementById('cc-name').value = ccDraft.name;
+  document.getElementById('cc-search').value = '';
+  renderCustomCatIcons();
+  renderCustomCatProducts();
+  updateCustomCatCount();
+  openModal('modal-customcat');
+}
+function renderCustomCatIcons(){
+  const wrap = document.getElementById('cc-icons');
+  wrap.innerHTML = '';
+  CC_ICONS.forEach(ic => {
+    const b = document.createElement('button');
+    b.style.cssText = `width:30px;height:30px;border-radius:6px;background:${ic===ccDraft.icon?'#0c4a6e':'#1e293b'};border:1px solid ${ic===ccDraft.icon?'#38bdf8':'#334155'};font-size:16px;`;
+    b.innerText = ic;
+    b.onclick = () => { ccDraft.icon = ic; renderCustomCatIcons(); };
+    wrap.appendChild(b);
+  });
+}
+function renderCustomCatProducts(){
+  const q = (document.getElementById('cc-search').value || '').toLowerCase();
+  const wrap = document.getElementById('cc-product-list');
+  wrap.innerHTML = '';
+  const filtered = PRODUCTS.filter(p => !q || p.name.toLowerCase().includes(q) || p.sku.includes(q) || p.cat.includes(q));
+  filtered.forEach(p => {
+    const checked = ccDraft.itemIds.includes(p.id);
+    const el = document.createElement('label');
+    el.style.cssText = `display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;border:1px solid ${checked?'#22d3ee':'#334155'};background:${checked?'#083344':'#1e293b'};cursor:pointer;`;
+    el.innerHTML = `
+      <input type="checkbox" ${checked?'checked':''} class="accent-cyan-500">
+      <span style="background:${catColor(p.cat)};width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#0f172a;font-weight:bold;">${p.image||p.name[0]}</span>
+      <span class="text-sm flex-1 truncate">${p.name}</span>
+      <span class="text-xs text-slate-400">${p.price},-</span>`;
+    el.querySelector('input').onchange = (e) => {
+      if (e.target.checked){
+        if (!ccDraft.itemIds.includes(p.id)) ccDraft.itemIds.push(p.id);
+      } else {
+        ccDraft.itemIds = ccDraft.itemIds.filter(x => x !== p.id);
+      }
+      el.style.borderColor = e.target.checked ? '#22d3ee' : '#334155';
+      el.style.background = e.target.checked ? '#083344' : '#1e293b';
+      updateCustomCatCount();
+    };
+    wrap.appendChild(el);
+  });
+}
+function updateCustomCatCount(){
+  document.getElementById('cc-count').innerText = ccDraft.itemIds.length;
+}
+function saveCustomCat(){
+  const name = document.getElementById('cc-name').value.trim();
+  if (!name){ toast('Sett et navn'); return; }
+  if (!ccDraft.itemIds.length){ toast('Velg minst én vare'); return; }
+  if (ccDraft.id){
+    const cc = customCatById(ccDraft.id);
+    cc.name = name; cc.icon = ccDraft.icon; cc.itemIds = ccDraft.itemIds.slice();
+    logAction('endret egen kategori "'+name+'"');
+    toast('Kategori oppdatert');
+  } else {
+    const id = 'cc' + (customCategories.length+1) + '_' + Date.now().toString(36);
+    customCategories.push({ id, name, icon: ccDraft.icon, itemIds: ccDraft.itemIds.slice() });
+    logAction('opprettet egen kategori "'+name+'"');
+    toast('Egen kategori opprettet');
+  }
+  closeModal('modal-customcat');
+  render();
+}
+function deleteCustomCat(){
+  if (!ccDraft.id) return;
+  if (!confirm('Slette "'+ccDraft.name+'"? Knapper som bruker denne kategorien blir også fjernet.')) return;
+  // Remove the cc itself
+  customCategories = customCategories.filter(x => x.id !== ccDraft.id);
+  // Remove any cells using it across all tabs in the group
+  state.tabs.forEach(t => t.cells.forEach((row, r) => row.forEach((cell, c) => {
+    if (cell && cell.customCategoryId === ccDraft.id) t.cells[r][c] = null;
+  })));
+  closeModal('modal-customcat');
+  logAction('slettet egen kategori "'+ccDraft.name+'"');
+  render(); toast('Slettet');
+}
+function editActiveCustomCat(){
+  if (!state.activeCustomCatId) return;
+  openCustomCatModal(state.activeCustomCatId);
 }
 
 // --- Audit
