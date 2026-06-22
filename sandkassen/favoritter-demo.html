@@ -752,35 +752,70 @@ function snapshot(){
     activeTab: state.activeTab
   };
 }
+
+// Undo-modell: hver loggføring kan ha et snapshot festet til seg.
+// Angre fra en logg-entry rullbar tilbake til snapshot for DEN entry-en
+// og fjerner alle senere endringer fra historikken.
+let _pendingSnapshot = null;
+
 function pushUndoSnapshot(){
-  if (!state.undoStack) state.undoStack = [];
-  state.undoStack.push(snapshot());
-  if (state.undoStack.length > 40) state.undoStack.shift();
-  updateUndoButton();
+  _pendingSnapshot = snapshot();
 }
-function undo(){
-  if (!state.undoStack?.length){ toast('Ingenting å angre'); return; }
-  const prev = state.undoStack.pop();
-  state.tabs = prev.tabs;
-  multiButtons = prev.multiButtons;
-  customCategories = prev.customCategories;
-  categoryDefaultColors = prev.categoryDefaultColors;
-  state.activeTab = prev.activeTab;
+function discardPendingSnapshot(){
+  _pendingSnapshot = null;
+}
+
+function stripHtmlBrief(s){
+  const d = document.createElement('div'); d.innerHTML = s;
+  return d.innerText.replace(/\s+/g,' ').trim().slice(0,90);
+}
+
+function undoToEntry(idx){
+  const target = state.audit[idx];
+  if (!target?.undoable || !target?.snapshot){ toast('Denne handlingen kan ikke angres'); return; }
+  const removed = state.audit.length - idx;
+  // Restore the snapshot (pre-state of this entry)
+  const snap = target.snapshot;
+  state.tabs = structuredClone(snap.tabs);
+  multiButtons = structuredClone(snap.multiButtons);
+  customCategories = structuredClone(snap.customCategories);
+  categoryDefaultColors = {...snap.categoryDefaultColors};
+  state.activeTab = snap.activeTab;
   state.selected.clear();
   state.activeCellKey = null;
   closeCellPanel();
+  // Truncate audit from idx onward
+  state.audit = state.audit.slice(0, idx);
+  // Add summary entry (non-undoable)
+  const targetLabel = stripHtmlBrief(target.what);
+  const summary = removed === 1
+    ? '<span class="text-orange-300">↶ angret «' + targetLabel + '»</span>'
+    : '<span class="text-orange-300">↶ rullet tilbake til før «' + targetLabel + '» (' + (removed) + ' endringer fjernet)</span>';
+  state.audit.push({who:'Einar', when:'nå', what: summary, undoable:false, snapshot:null});
   render();
   updateUndoButton();
-  state.audit.push({who:'Einar', when:'nå', what:'<span class="text-orange-300">↶ angret forrige handling</span>'});
   toast('Angret');
+  // Refresh open log modal if visible
+  const logModal = document.getElementById('modal-log');
+  if (logModal && logModal.classList.contains('show')) openAuditLog();
 }
+
+function undo(){
+  // Global Angre: angre den nyeste undoable entryen
+  for (let i = state.audit.length - 1; i >= 0; i--){
+    if (state.audit[i].undoable){ undoToEntry(i); return; }
+  }
+  toast('Ingenting å angre');
+}
+
 function updateUndoButton(){
   const btn = document.getElementById('undo-btn');
   if (!btn) return;
-  if (state.undoStack?.length){
+  const undoableCount = state.audit ? state.audit.filter(a => a.undoable).length : 0;
+  if (undoableCount > 0){
     btn.disabled = false;
     btn.classList.remove('opacity-30');
-    btn.title = 'Angre ('+state.undoStack.length+' tilgjengelig)';
+    btn.title = 'Angre siste handling ('+undoableCount+' kan angres i loggen)';
   } else {
     btn.disabled = true;
     btn.classList.add('opacity-30');
@@ -1299,7 +1334,7 @@ function placeProducts(ids, startR, startC){
     const names = placed.map(x=>'"'+x.name+'"').join(', ');
     logAction('la til '+names+' på fane "'+tab.name+'" (start '+(placed[0].r+1)+','+(placed[0].c+1)+')');
   } else {
-    state.undoStack.pop(); updateUndoButton(); // rollback snapshot if nothing happened
+    discardPendingSnapshot(); // rollback snapshot if nothing happened
   }
   render();
   if (placed.length) toast(placed.length + (placed.length===1?' vare':' varer') + ' lagt til');
@@ -1423,9 +1458,16 @@ function openCellPanel(r, c){
   colorInput.type = 'color';
   colorInput.value = isCustom ? cell.color : '#fde68a';
   colorInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
-  let _customOldColor = cell.color;
+  const _customOldColor = cell.color;
+  const _customPreSnapshot = snapshot();
   colorInput.oninput = (e) => { cell.color = e.target.value; renderGrid(); renderPosPreview(); customLabel.style.background = e.target.value; customLabel.innerHTML = ''; };
-  colorInput.onchange = (e) => { pushUndoSnapshot(); const snap=state.undoStack[state.undoStack.length-1]; if (snap.tabs[state.activeTab].cells[r] && snap.tabs[state.activeTab].cells[r][c]) snap.tabs[state.activeTab].cells[r][c].color = _customOldColor; cell.color = e.target.value; openCellPanel(r,c); render(); toast('Egendefinert farge satt'); logAction('endret farge på '+cellLabel(cell)+': '+colorSwatch(_customOldColor)+' → '+colorSwatch(e.target.value)); };
+  colorInput.onchange = (e) => {
+    _pendingSnapshot = _customPreSnapshot;
+    cell.color = e.target.value;
+    openCellPanel(r,c); render();
+    toast('Egendefinert farge satt');
+    logAction('endret farge på '+cellLabel(cell)+': '+colorSwatch(_customOldColor)+' → '+colorSwatch(e.target.value));
+  };
   customLabel.appendChild(colorInput);
   colorRow.appendChild(customLabel);
   // Clear color
@@ -1497,26 +1539,28 @@ function adjustSpanRows(d){
 }
 
 let _fontChangeTimer = null;
+let _fontPreSnapshot = null;
+let _fontPreOldValue = null;
 function onFontChange(v){
   document.getElementById('font-val').innerText = v + 'px';
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
   const cell = activeTab().cells[r][c];
   if (!cell) return;
-  const oldFont = cell.font || 14;
+  // First slider movement captures the pre-drag snapshot
+  if (_fontPreSnapshot === null){
+    _fontPreSnapshot = snapshot();
+    _fontPreOldValue = cell.font || 14;
+  }
   cell.font = parseInt(v);
   renderGrid(); renderPosPreview();
-  // debounce log + undo so dragging slider isn't logging every step
   clearTimeout(_fontChangeTimer);
   _fontChangeTimer = setTimeout(() => {
-    if (cell.font !== oldFont){
-      pushUndoSnapshot(); // capture state AFTER finished dragging; rollback below
-      // re-pop and set previous state's font to oldFont
-      const snap = state.undoStack[state.undoStack.length-1];
-      const prevTab = snap.tabs[state.activeTab];
-      if (prevTab && prevTab.cells[r] && prevTab.cells[r][c]) prevTab.cells[r][c].font = oldFont;
-      logAction('endret tekst-størrelse på '+cellLabel(cell)+' fra '+oldFont+'px til '+cell.font+'px');
+    if (cell.font !== _fontPreOldValue){
+      _pendingSnapshot = _fontPreSnapshot;
+      logAction('endret tekst-størrelse på '+cellLabel(cell)+' fra '+_fontPreOldValue+'px til '+cell.font+'px');
     }
+    _fontPreSnapshot = null; _fontPreOldValue = null;
   }, 400);
 }
 
@@ -1655,7 +1699,7 @@ function saveTabModal(){
       logAction('endret fane "'+name+'": '+changes.join(', '));
       toast('Fane oppdatert');
     } else {
-      state.undoStack.pop(); updateUndoButton();
+      discardPendingSnapshot();
       toast('Ingen endringer');
     }
   }
@@ -1721,7 +1765,12 @@ function saveMultiButton(){
 // --- Default colors per category modal ---
 let _defColorsBeforeOpen = null;
 function openDefaultColorsModal(){
+  openDefaultColorsModalWrapper();
+}
+let _defColorsPreSnapshot = null;
+function openDefaultColorsModalWrapper(){
   _defColorsBeforeOpen = {...categoryDefaultColors};
+  _defColorsPreSnapshot = snapshot();
   renderDefaultColorsRows();
   openModal('modal-defcolors');
 }
@@ -1734,17 +1783,14 @@ function saveDefaultColors(){
     if (oldC !== newC) changes.push(c.name+': '+colorSwatch(oldC)+' → '+colorSwatch(newC));
   });
   if (changes.length){
-    // Rollback inline change and push the snapshot before re-applying
-    const newValues = {...categoryDefaultColors};
-    categoryDefaultColors = _defColorsBeforeOpen;
-    pushUndoSnapshot();
-    categoryDefaultColors = newValues;
+    _pendingSnapshot = _defColorsPreSnapshot;
     logAction('endret standardfarger pr. kategori: '+changes.join('; '));
     toast('Standardfarger lagret');
   } else {
     toast('Ingen endringer');
   }
   _defColorsBeforeOpen = null;
+  _defColorsPreSnapshot = null;
 }
 function renderDefaultColorsRows(){
   const wrap = document.getElementById('defcolors-rows');
@@ -1867,7 +1913,7 @@ function saveCustomCat(){
     if (oldNames !== itemNames) changes.push('innhold "'+oldNames+'" → "'+itemNames+'"');
     cc.name = name; cc.icon = ccDraft.icon; cc.itemIds = ccDraft.itemIds.slice();
     if (changes.length) logAction('endret egen kategori "'+name+'": '+changes.join(', '));
-    else { state.undoStack.pop(); updateUndoButton(); }
+    else { discardPendingSnapshot(); }
     toast('Kategori oppdatert');
   } else {
     const id = 'cc' + (customCategories.length+1) + '_' + Date.now().toString(36);
@@ -1900,17 +1946,33 @@ function editActiveCustomCat(){
 function openAuditLog(){
   const list = document.getElementById('audit-list');
   list.innerHTML = '';
-  state.audit.slice().reverse().forEach(a => {
+  if (!state.audit.length){
+    list.innerHTML = '<div class="text-center text-slate-500 text-sm py-6">Ingen handlinger ennå</div>';
+  }
+  state.audit.slice().reverse().forEach((a, revIdx) => {
+    const i = state.audit.length - 1 - revIdx;
     const row = document.createElement('div');
     row.className = 'flex items-start gap-3 py-2 border-b border-slate-800';
-    row.innerHTML = `<div class="text-sky-400 text-xs font-mono w-20 shrink-0">${a.when}</div>
-      <div><span class="font-medium">${a.who}</span> <span class="text-slate-400">${a.what}</span></div>`;
+    const undoBtn = a.undoable && a.snapshot
+      ? `<button onclick="undoToEntry(${i})" class="text-[11px] text-orange-300 hover:text-orange-200 bg-orange-950/30 border border-orange-700/50 hover:border-orange-500 rounded px-2 py-1 ml-2 shrink-0 self-start" title="Angre denne og alle senere endringer">↶ Angre</button>`
+      : '';
+    row.innerHTML = `
+      <div class="text-sky-400 text-xs font-mono w-16 shrink-0 pt-1">${a.when}</div>
+      <div class="flex-1 text-sm"><span class="font-medium">${a.who}</span> <span class="text-slate-300">${a.what}</span></div>
+      ${undoBtn}`;
     list.appendChild(row);
   });
   openModal('modal-log');
 }
 function logAction(what){
-  state.audit.push({who:'Einar', when:'nå', what});
+  state.audit.push({
+    who:'Einar', when:'nå', what,
+    undoable: !!_pendingSnapshot,
+    snapshot: _pendingSnapshot
+  });
+  _pendingSnapshot = null;
+  if (state.audit.length > 100) state.audit.shift();
+  updateUndoButton();
 }
 
 // --- Duplicate
@@ -2018,7 +2080,7 @@ function applyBulkColor(color){
     const cell = tab.cells[r][c];
     if (cell){ cell.color = color; n++; }
   });
-  if (!n){ state.undoStack.pop(); updateUndoButton(); }
+  if (!n){ discardPendingSnapshot(); }
   render();
   toast(n + ' celler oppdatert');
   if (n) logAction('endret farge på '+n+' celler i fane "'+tab.name+'" til '+colorSwatch(color));
@@ -2037,7 +2099,7 @@ document.getElementById('bulk-hide').addEventListener('click', () => {
     const [r,c] = k.split('-').map(Number);
     const cell = tab.cells[r][c]; if (cell) { cell.hidden = anyVisible; n++; }
   });
-  if (!n){ state.undoStack.pop(); updateUndoButton(); }
+  if (!n){ discardPendingSnapshot(); }
   render(); toast(anyVisible ? 'Skjult' : 'Synlig');
   if (n) logAction((anyVisible?'skjulte ':'synliggjorde ')+n+' knapper på fane "'+tab.name+'"');
 });
