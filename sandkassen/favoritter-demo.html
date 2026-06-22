@@ -128,6 +128,7 @@
     <button id="btn-preview" class="text-sm bg-sky-500 hover:bg-sky-400 text-white font-medium px-3 py-1.5 rounded-lg">
       Vis POS-forhåndsvisning
     </button>
+    <button id="undo-btn" disabled onclick="undo()" class="text-sm text-slate-400 hover:text-slate-200 px-2 py-1.5 opacity-30" title="Ingenting å angre">↶ Angre</button>
     <button onclick="openAuditLog()" class="text-sm text-slate-400 hover:text-slate-200 px-2 py-1.5">
       Logg
     </button>
@@ -518,7 +519,7 @@
       </div>
     </div>
     <div class="p-4 border-t border-slate-700 flex items-center gap-2">
-      <button class="text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg ml-auto" onclick="closeModal('modal-defcolors'); toast('Standardfarger lagret'); logAction('endret standardfarger pr. kategori')">Ferdig</button>
+      <button class="text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg ml-auto" onclick="saveDefaultColors()">Ferdig</button>
     </div>
   </div>
 </div>
@@ -725,6 +726,67 @@ function productById(id){ return PRODUCTS.find(p=>p.id===id); }
 function catById(id){ return CATS.find(c=>c.id===id); }
 function multiById(id){ return multiButtons.find(m=>m.id===id); }
 function catColor(catId){ const c = CATS.find(x=>x.id===catId); return c? c.color : '#f1f5f9'; }
+function colorName(c){
+  if (!c) return 'ingen';
+  const m = {'#fde68a':'gul','#fca5a5':'rød','#a7f3d0':'grønn','#a5b4fc':'lilla','#fdba74':'oransje','#f9a8d4':'rosa','#bae6fd':'blå','#d9f99d':'lime','#ffffff':'hvit','#fef9c3':'gul','#cffafe':'cyan'};
+  return m[c.toLowerCase()] || ('egendefinert '+c);
+}
+function colorSwatch(c){
+  if (!c) return '<em class="text-slate-500">ingen</em>';
+  return `<span style="display:inline-block;width:11px;height:11px;border-radius:3px;background:${c};border:1px solid #475569;vertical-align:middle;margin:0 3px 2px 3px"></span><span class="text-slate-300">${colorName(c)}</span>`;
+}
+function cellLabel(cell){
+  if (!cell) return '<em>tom celle</em>';
+  if (cell.productId) return '"'+productById(cell.productId)?.name+'"';
+  if (cell.multiId) return '"'+multiById(cell.multiId)?.name+'" (sammensatt)';
+  if (cell.categoryId) return '"'+catById(cell.categoryId)?.name+'" (kategori)';
+  if (cell.customCategoryId) return '"'+customCatById(cell.customCategoryId)?.name+'" (egen kategori)';
+  return '?';
+}
+function snapshot(){
+  return {
+    tabs: structuredClone(state.tabs),
+    multiButtons: structuredClone(multiButtons),
+    customCategories: structuredClone(customCategories),
+    categoryDefaultColors: {...categoryDefaultColors},
+    activeTab: state.activeTab
+  };
+}
+function pushUndoSnapshot(){
+  if (!state.undoStack) state.undoStack = [];
+  state.undoStack.push(snapshot());
+  if (state.undoStack.length > 40) state.undoStack.shift();
+  updateUndoButton();
+}
+function undo(){
+  if (!state.undoStack?.length){ toast('Ingenting å angre'); return; }
+  const prev = state.undoStack.pop();
+  state.tabs = prev.tabs;
+  multiButtons = prev.multiButtons;
+  customCategories = prev.customCategories;
+  categoryDefaultColors = prev.categoryDefaultColors;
+  state.activeTab = prev.activeTab;
+  state.selected.clear();
+  state.activeCellKey = null;
+  closeCellPanel();
+  render();
+  updateUndoButton();
+  state.audit.push({who:'Einar', when:'nå', what:'<span class="text-orange-300">↶ angret forrige handling</span>'});
+  toast('Angret');
+}
+function updateUndoButton(){
+  const btn = document.getElementById('undo-btn');
+  if (!btn) return;
+  if (state.undoStack?.length){
+    btn.disabled = false;
+    btn.classList.remove('opacity-30');
+    btn.title = 'Angre ('+state.undoStack.length+' tilgjengelig)';
+  } else {
+    btn.disabled = true;
+    btn.classList.add('opacity-30');
+    btn.title = 'Ingenting å angre';
+  }
+}
 function getReadableText(hex){
   if (!hex || typeof hex !== 'string' || !hex.startsWith('#')) return null;
   let h = hex.slice(1);
@@ -759,9 +821,10 @@ function renderTabs(){
       const fromIdx = parseInt(e.dataTransfer.getData('text/tab'));
       const toIdx = parseInt(el.dataset.tabIdx);
       if(isNaN(fromIdx) || isNaN(toIdx) || fromIdx === toIdx) return;
+      pushUndoSnapshot();
       const [m] = state.tabs.splice(fromIdx,1); state.tabs.splice(toIdx,0,m);
       state.activeTab = toIdx;
-      logAction('flyttet fane "'+m.name+'" til posisjon ' + (toIdx+1));
+      logAction('flyttet fane "'+m.name+'" fra posisjon '+(fromIdx+1)+' til posisjon ' + (toIdx+1));
       render(); toast('Fanerekkefølge oppdatert');
     });
     row.insertBefore(el, document.getElementById('add-tab'));
@@ -1218,9 +1281,10 @@ function onCellClick(e, r, c){
 
 function placeProducts(ids, startR, startC){
   const tab = activeTab();
-  let r = startR, c = startC, placed = 0;
+  let r = startR, c = startC, placed = [];
   const inTab = new Set();
   tab.cells.forEach(row => row.forEach(cell => cell?.productId && inTab.add(cell.productId)));
+  pushUndoSnapshot();
   for (const id of ids){
     if (inTab.has(id)){ toast(productById(id).name + ' er allerede på fanen'); continue; }
     while (r < tab.rows && tab.cells[r][c]){ c++; if (c >= tab.cols){ c = 0; r++; } }
@@ -1228,42 +1292,57 @@ function placeProducts(ids, startR, startC){
     const _p = productById(id);
     const _defColor = _p ? (categoryDefaultColors[_p.cat] || null) : null;
     tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, customCategoryId:null, color:_defColor, hidden:false, font:14, span:1, spanRows:1 };
-    inTab.add(id); placed++; c++;
+    inTab.add(id); placed.push({name: _p?.name, r, c}); c++;
     if (c >= tab.cols){ c = 0; r++; }
   }
-  logAction(placed+' varer lagt til på "'+tab.name+'"');
+  if (placed.length){
+    const names = placed.map(x=>'"'+x.name+'"').join(', ');
+    logAction('la til '+names+' på fane "'+tab.name+'" (start '+(placed[0].r+1)+','+(placed[0].c+1)+')');
+  } else {
+    state.undoStack.pop(); updateUndoButton(); // rollback snapshot if nothing happened
+  }
   render();
-  if (placed) toast(placed + (placed===1?' vare':' varer') + ' lagt til');
+  if (placed.length) toast(placed.length + (placed.length===1?' vare':' varer') + ' lagt til');
 }
 function placeCategory(catId, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  pushUndoSnapshot();
   const _defColor = categoryDefaultColors[catId] || null;
   tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, customCategoryId:null, color:_defColor, hidden:false, font:14, span:1, spanRows:1 };
-  logAction('la til kategori-knapp "'+catById(catId).name+'"');
+  logAction('la til kategori-knapp "'+catById(catId).name+'" på fane "'+tab.name+'" celle ('+(r+1)+','+(c+1)+')');
   render(); toast('Kategori-knapp lagt til');
 }
 function placeCustomCat(ccId, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  pushUndoSnapshot();
   tab.cells[r][c] = { productId:null, multiId:null, categoryId:null, customCategoryId:ccId, color:null, hidden:false, font:14, span:1, spanRows:1 };
   const cc = customCatById(ccId);
-  logAction('la til egen kategori "'+(cc?cc.name:'?')+'"');
+  logAction('la til egen kategori "'+(cc?cc.name:'?')+'" på fane "'+tab.name+'" celle ('+(r+1)+','+(c+1)+')');
   render(); toast('Egen kategori lagt til');
 }
 function placeMulti(mid, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  pushUndoSnapshot();
   tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, customCategoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
-  logAction('la til sammensatt knapp "'+multiById(mid).name+'"');
+  logAction('la til sammensatt knapp "'+multiById(mid).name+'" på fane "'+tab.name+'" celle ('+(r+1)+','+(c+1)+')');
   render(); toast('Sammensatt knapp lagt til');
 }
 
 function swapCells(fromR, fromC, toR, toC){
   const tab = activeTab();
+  pushUndoSnapshot();
+  const fromCell = tab.cells[fromR][fromC];
   const tmp = tab.cells[toR][toC];
-  tab.cells[toR][toC] = tab.cells[fromR][fromC];
+  tab.cells[toR][toC] = fromCell;
   tab.cells[fromR][fromC] = tmp;
+  if (tmp){
+    logAction('byttet plass: '+cellLabel(fromCell)+' ('+(fromR+1)+','+(fromC+1)+') ↔ '+cellLabel(tmp)+' ('+(toR+1)+','+(toC+1)+') i fane "'+tab.name+'"');
+  } else {
+    logAction('flyttet '+cellLabel(fromCell)+' fra ('+(fromR+1)+','+(fromC+1)+') til ('+(toR+1)+','+(toC+1)+') i fane "'+tab.name+'"');
+  }
   render(); toast(tmp ? 'Byttet plass' : 'Flyttet');
 }
 
@@ -1331,7 +1410,7 @@ function openCellPanel(r, c){
   COLORS.forEach(col => {
     const sw = document.createElement('button');
     sw.style.cssText = `width:28px;height:28px;border-radius:8px;background:${col};border:2px solid ${cell.color===col?'#38bdf8':'#334155'};`;
-    sw.onclick = () => { cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); logAction('endret farge på "'+title+'"'); };
+    sw.onclick = () => { const oldColor = cell.color; pushUndoSnapshot(); cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); logAction('endret farge på '+cellLabel(cell)+' i fane "'+activeTab().name+'": '+colorSwatch(oldColor)+' → '+colorSwatch(col)); };
     colorRow.appendChild(sw);
   });
   // Custom color picker (rainbow swatch with "+")
@@ -1344,15 +1423,16 @@ function openCellPanel(r, c){
   colorInput.type = 'color';
   colorInput.value = isCustom ? cell.color : '#fde68a';
   colorInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
+  let _customOldColor = cell.color;
   colorInput.oninput = (e) => { cell.color = e.target.value; renderGrid(); renderPosPreview(); customLabel.style.background = e.target.value; customLabel.innerHTML = ''; };
-  colorInput.onchange = (e) => { cell.color = e.target.value; openCellPanel(r,c); render(); toast('Egendefinert farge satt'); logAction('satt egendefinert farge på "'+title+'"'); };
+  colorInput.onchange = (e) => { pushUndoSnapshot(); const snap=state.undoStack[state.undoStack.length-1]; if (snap.tabs[state.activeTab].cells[r] && snap.tabs[state.activeTab].cells[r][c]) snap.tabs[state.activeTab].cells[r][c].color = _customOldColor; cell.color = e.target.value; openCellPanel(r,c); render(); toast('Egendefinert farge satt'); logAction('endret farge på '+cellLabel(cell)+': '+colorSwatch(_customOldColor)+' → '+colorSwatch(e.target.value)); };
   customLabel.appendChild(colorInput);
   colorRow.appendChild(customLabel);
   // Clear color
   const clear = document.createElement('button');
   clear.style.cssText = `width:28px;height:28px;border-radius:8px;background:transparent;border:2px dashed #475569;color:#64748b;font-size:14px;`;
   clear.innerText = '×'; clear.title = 'Fjern farge';
-  clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
+  clear.onclick = () => { const oldColor = cell.color; pushUndoSnapshot(); cell.color = null; openCellPanel(r,c); render(); if (oldColor) logAction('fjernet farge på '+cellLabel(cell)+' (var '+colorSwatch(oldColor)+')'); };
   colorRow.appendChild(clear);
 
   document.getElementById('cell-panel').classList.add('open');
@@ -1364,7 +1444,6 @@ function adjustSpan(d){
   const tab = activeTab();
   const cell = tab.cells[r][c];
   const spanRows = cell.spanRows || 1;
-  // Maks spenn = så mange tomme celler som finnes til høyre + selve cellen, for hver rad cellen dekker
   let maxSpan = tab.cols - c;
   for (let cc = c+1; cc < tab.cols; cc++){
     let blocked = false;
@@ -1373,12 +1452,17 @@ function adjustSpan(d){
     }
     if (blocked){ maxSpan = cc - c; break; }
   }
-  const newSpan = Math.max(1, Math.min(maxSpan, (cell.span||1) + d));
-  if (d > 0 && newSpan === (cell.span||1) && newSpan < tab.cols - c){
+  const oldSpan = cell.span || 1;
+  const newSpan = Math.max(1, Math.min(maxSpan, oldSpan + d));
+  if (d > 0 && newSpan === oldSpan && newSpan < tab.cols - c){
     toast('Kan ikke spenne videre til høyre — neste celle er opptatt');
     return;
   }
-  cell.span = newSpan;
+  if (newSpan !== oldSpan){
+    pushUndoSnapshot();
+    cell.span = newSpan;
+    logAction('endret kolonne-spenn på '+cellLabel(cell)+' fra '+oldSpan+' til '+newSpan);
+  }
   document.getElementById('span-display').innerText = cell.span;
   render();
 }
@@ -1397,22 +1481,43 @@ function adjustSpanRows(d){
     }
     if (blocked){ maxSpanRows = rr - r; break; }
   }
-  const newSpanRows = Math.max(1, Math.min(maxSpanRows, (cell.spanRows||1) + d));
-  if (d > 0 && newSpanRows === (cell.spanRows||1) && newSpanRows < tab.rows - r){
+  const oldSpanRows = cell.spanRows || 1;
+  const newSpanRows = Math.max(1, Math.min(maxSpanRows, oldSpanRows + d));
+  if (d > 0 && newSpanRows === oldSpanRows && newSpanRows < tab.rows - r){
     toast('Kan ikke spenne videre nedover — neste rad er opptatt');
     return;
   }
-  cell.spanRows = newSpanRows;
+  if (newSpanRows !== oldSpanRows){
+    pushUndoSnapshot();
+    cell.spanRows = newSpanRows;
+    logAction('endret rad-spenn på '+cellLabel(cell)+' fra '+oldSpanRows+' til '+newSpanRows);
+  }
   document.getElementById('span-rows-display').innerText = cell.spanRows;
   render();
 }
 
+let _fontChangeTimer = null;
 function onFontChange(v){
   document.getElementById('font-val').innerText = v + 'px';
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
   const cell = activeTab().cells[r][c];
-  if (cell){ cell.font = parseInt(v); renderGrid(); renderPosPreview(); }
+  if (!cell) return;
+  const oldFont = cell.font || 14;
+  cell.font = parseInt(v);
+  renderGrid(); renderPosPreview();
+  // debounce log + undo so dragging slider isn't logging every step
+  clearTimeout(_fontChangeTimer);
+  _fontChangeTimer = setTimeout(() => {
+    if (cell.font !== oldFont){
+      pushUndoSnapshot(); // capture state AFTER finished dragging; rollback below
+      // re-pop and set previous state's font to oldFont
+      const snap = state.undoStack[state.undoStack.length-1];
+      const prevTab = snap.tabs[state.activeTab];
+      if (prevTab && prevTab.cells[r] && prevTab.cells[r][c]) prevTab.cells[r][c].font = oldFont;
+      logAction('endret tekst-størrelse på '+cellLabel(cell)+' fra '+oldFont+'px til '+cell.font+'px');
+    }
+  }, 400);
 }
 
 function placeAtNextFree(ids){
@@ -1429,7 +1534,6 @@ function moveSelection(targetR, targetC){
   const tab = activeTab();
   const selected = [...state.selected].map(k => k.split('-').map(Number));
   if (!selected.length) return;
-  // Only move cells that have content
   const withContent = selected.filter(([r,c]) => tab.cells[r][c]);
   if (!withContent.length){ state.selected.clear(); render(); return; }
   const minR = Math.min(...withContent.map(([r])=>r));
@@ -1444,26 +1548,35 @@ function moveSelection(targetR, targetC){
       toast('Destinasjons-cellen er opptatt'); return;
     }
   }
+  pushUndoSnapshot();
+  const names = moves.map(m => cellLabel(m.content)).join(', ');
   withContent.forEach(([r,c]) => tab.cells[r][c] = null);
   moves.forEach(m => tab.cells[m.toR][m.toC] = m.content);
   state.selected = new Set(moves.map(m => m.toR+'-'+m.toC));
   render(); toast(moves.length+' celler flyttet');
-  logAction('flyttet '+moves.length+' celler som blokk');
+  logAction('flyttet '+moves.length+' celler som blokk i fane "'+tab.name+'" til ('+(targetR+1)+','+(targetC+1)+'): '+names);
 }
 function toggleHidden(){
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
-  const cell = activeTab().cells[r][c];
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+  pushUndoSnapshot();
   cell.hidden = !cell.hidden;
   openCellPanel(r,c); render();
   toast(cell.hidden ? 'Skjult på POS' : 'Synlig på POS');
+  logAction((cell.hidden?'skjulte ':'synliggjorde ')+cellLabel(cell)+' på fane "'+tab.name+'" celle ('+(r+1)+','+(c+1)+')');
 }
 function removeFromCell(){
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
-  activeTab().cells[r][c] = null;
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+  const label = cellLabel(cell);
+  pushUndoSnapshot();
+  tab.cells[r][c] = null;
   closeCellPanel(); render(); toast('Fjernet');
-  logAction('fjernet knapp fra ('+r+','+c+')');
+  logAction('fjernet '+label+' fra fane "'+tab.name+'" celle ('+(r+1)+','+(c+1)+')');
 }
 
 // -------------- Modals --------------
@@ -1517,21 +1630,34 @@ function saveTabModal(){
       days: [...document.querySelectorAll('#weekdays .day.on')].map(d=>parseInt(d.dataset.d))
     };
   }
+  pushUndoSnapshot();
   if (state.editingTabIdx == null){
     state.tabs.push({ name, cols, rows, time, cells: seedCells(cols, rows, []) });
     state.activeTab = state.tabs.length-1;
-    logAction('opprettet fane "'+name+'"');
+    logAction('opprettet fane "'+name+'" ('+cols+'×'+rows+(time?', tidsstyrt '+time.from+'–'+time.to+' '+dayString(time.days):'')+')');
     toast('Fane opprettet');
   } else {
     const t = state.tabs[state.editingTabIdx];
+    const changes = [];
+    if (t.name !== name) changes.push('navn "'+t.name+'" → "'+name+'"');
+    if (t.cols !== cols) changes.push('kolonner '+t.cols+'→'+cols);
+    if (t.rows !== rows) changes.push('rader '+t.rows+'→'+rows);
+    const oldTimeStr = t.time ? (t.time.from+'–'+t.time.to+' '+dayString(t.time.days)) : 'ikke tidsstyrt';
+    const newTimeStr = time ? (time.from+'–'+time.to+' '+dayString(time.days)) : 'ikke tidsstyrt';
+    if (oldTimeStr !== newTimeStr) changes.push('tidsstyring "'+oldTimeStr+'" → "'+newTimeStr+'"');
     t.name = name; t.time = time;
     if (t.cols !== cols || t.rows !== rows){
       const cells = [];
       for(let r=0;r<rows;r++){ const row=[]; for(let c=0;c<cols;c++){ row.push((r<t.rows && c<t.cols) ? t.cells[r][c] : null); } cells.push(row); }
       t.cols = cols; t.rows = rows; t.cells = cells;
     }
-    logAction('endret fane "'+name+'"');
-    toast('Fane oppdatert');
+    if (changes.length){
+      logAction('endret fane "'+name+'": '+changes.join(', '));
+      toast('Fane oppdatert');
+    } else {
+      state.undoStack.pop(); updateUndoButton();
+      toast('Ingen endringer');
+    }
   }
   closeModal('modal-tab');
   render();
@@ -1583,17 +1709,42 @@ function saveMultiButton(){
   const name = document.getElementById('multi-name').value.trim();
   if (!name){ toast('Sett et navn'); return; }
   if (!multiDraft.length){ toast('Legg til minst én vare'); return; }
+  pushUndoSnapshot();
   const id = 'm' + (multiButtons.length+1);
   multiButtons.push({id, name, items: multiDraft.slice()});
   closeModal('modal-multi');
-  logAction('opprettet sammensatt knapp "'+name+'"');
+  const itemList = multiDraft.map(it=>{const p=productById(it.pid); return it.qty+'× '+(p?p.name:'?')}).join(', ');
+  logAction('opprettet sammensatt knapp "'+name+'" med '+itemList);
   render(); toast('Sammensatt knapp opprettet');
 }
 
 // --- Default colors per category modal ---
+let _defColorsBeforeOpen = null;
 function openDefaultColorsModal(){
+  _defColorsBeforeOpen = {...categoryDefaultColors};
   renderDefaultColorsRows();
   openModal('modal-defcolors');
+}
+function saveDefaultColors(){
+  closeModal('modal-defcolors');
+  const changes = [];
+  CATS.forEach(c => {
+    const oldC = _defColorsBeforeOpen ? _defColorsBeforeOpen[c.id] : null;
+    const newC = categoryDefaultColors[c.id];
+    if (oldC !== newC) changes.push(c.name+': '+colorSwatch(oldC)+' → '+colorSwatch(newC));
+  });
+  if (changes.length){
+    // Rollback inline change and push the snapshot before re-applying
+    const newValues = {...categoryDefaultColors};
+    categoryDefaultColors = _defColorsBeforeOpen;
+    pushUndoSnapshot();
+    categoryDefaultColors = newValues;
+    logAction('endret standardfarger pr. kategori: '+changes.join('; '));
+    toast('Standardfarger lagret');
+  } else {
+    toast('Ingen endringer');
+  }
+  _defColorsBeforeOpen = null;
 }
 function renderDefaultColorsRows(){
   const wrap = document.getElementById('defcolors-rows');
@@ -1705,15 +1856,23 @@ function saveCustomCat(){
   const name = document.getElementById('cc-name').value.trim();
   if (!name){ toast('Sett et navn'); return; }
   if (!ccDraft.itemIds.length){ toast('Velg minst én vare'); return; }
+  pushUndoSnapshot();
+  const itemNames = ccDraft.itemIds.map(pid => productById(pid)?.name).filter(Boolean).join(', ');
   if (ccDraft.id){
     const cc = customCatById(ccDraft.id);
+    const oldNames = cc.itemIds.map(pid => productById(pid)?.name).filter(Boolean).join(', ');
+    const changes = [];
+    if (cc.name !== name) changes.push('navn "'+cc.name+'" → "'+name+'"');
+    if (cc.icon !== ccDraft.icon) changes.push('ikon '+cc.icon+' → '+ccDraft.icon);
+    if (oldNames !== itemNames) changes.push('innhold "'+oldNames+'" → "'+itemNames+'"');
     cc.name = name; cc.icon = ccDraft.icon; cc.itemIds = ccDraft.itemIds.slice();
-    logAction('endret egen kategori "'+name+'"');
+    if (changes.length) logAction('endret egen kategori "'+name+'": '+changes.join(', '));
+    else { state.undoStack.pop(); updateUndoButton(); }
     toast('Kategori oppdatert');
   } else {
     const id = 'cc' + (customCategories.length+1) + '_' + Date.now().toString(36);
     customCategories.push({ id, name, icon: ccDraft.icon, itemIds: ccDraft.itemIds.slice() });
-    logAction('opprettet egen kategori "'+name+'"');
+    logAction('opprettet egen kategori "'+name+'" ('+ccDraft.icon+') med varer: '+itemNames);
     toast('Egen kategori opprettet');
   }
   closeModal('modal-customcat');
@@ -1722,14 +1881,14 @@ function saveCustomCat(){
 function deleteCustomCat(){
   if (!ccDraft.id) return;
   if (!confirm('Slette "'+ccDraft.name+'"? Knapper som bruker denne kategorien blir også fjernet.')) return;
-  // Remove the cc itself
-  customCategories = customCategories.filter(x => x.id !== ccDraft.id);
-  // Remove any cells using it across all tabs in the group
+  pushUndoSnapshot();
+  let affectedCount = 0;
   state.tabs.forEach(t => t.cells.forEach((row, r) => row.forEach((cell, c) => {
-    if (cell && cell.customCategoryId === ccDraft.id) t.cells[r][c] = null;
+    if (cell && cell.customCategoryId === ccDraft.id) { t.cells[r][c] = null; affectedCount++; }
   })));
+  customCategories = customCategories.filter(x => x.id !== ccDraft.id);
   closeModal('modal-customcat');
-  logAction('slettet egen kategori "'+ccDraft.name+'"');
+  logAction('slettet egen kategori "'+ccDraft.name+'"'+(affectedCount?' (fjernet '+affectedCount+' knapp(er) på fanene)':''));
   render(); toast('Slettet');
 }
 function editActiveCustomCat(){
@@ -1758,9 +1917,10 @@ function logAction(what){
 function openDuplicateGroup(){ openModal('modal-dup'); }
 function doDuplicate(){
   const newName = document.getElementById('dup-name').value || 'Kopi';
+  pushUndoSnapshot();
   closeModal('modal-dup');
   toast('Kopi opprettet: "'+newName+'"');
-  logAction('kopierte gruppen til "'+newName+'"');
+  logAction('kopierte favorittgruppen <strong>"MessePOS"</strong> til <strong>"'+newName+'"</strong> (inkl. faner, knapper, sammensatte og egne kategorier)');
 }
 
 function loadTemplate(){
@@ -1851,41 +2011,61 @@ function showBulkColorPopover(btn){
 
 function applyBulkColor(color){
   const tab = activeTab();
+  pushUndoSnapshot();
   let n = 0;
   state.selected.forEach(k => {
     const [r,c] = k.split('-').map(Number);
     const cell = tab.cells[r][c];
     if (cell){ cell.color = color; n++; }
   });
+  if (!n){ state.undoStack.pop(); updateUndoButton(); }
   render();
   toast(n + ' celler oppdatert');
-  logAction('endret farge på '+n+' celler');
+  if (n) logAction('endret farge på '+n+' celler i fane "'+tab.name+'" til '+colorSwatch(color));
 }
 document.getElementById('bulk-hide').addEventListener('click', () => {
   if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
+  const tab = activeTab();
   let anyVisible = false;
   state.selected.forEach(k => {
     const [r,c] = k.split('-').map(Number);
-    const cell = activeTab().cells[r][c]; if (cell && !cell.hidden) anyVisible = true;
+    const cell = tab.cells[r][c]; if (cell && !cell.hidden) anyVisible = true;
   });
+  pushUndoSnapshot();
+  let n = 0;
   state.selected.forEach(k => {
     const [r,c] = k.split('-').map(Number);
-    const cell = activeTab().cells[r][c]; if (cell) cell.hidden = anyVisible;
+    const cell = tab.cells[r][c]; if (cell) { cell.hidden = anyVisible; n++; }
   });
+  if (!n){ state.undoStack.pop(); updateUndoButton(); }
   render(); toast(anyVisible ? 'Skjult' : 'Synlig');
+  if (n) logAction((anyVisible?'skjulte ':'synliggjorde ')+n+' knapper på fane "'+tab.name+'"');
 });
 document.getElementById('bulk-clear').addEventListener('click', () => {
   if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
+  const tab = activeTab();
+  pushUndoSnapshot();
+  const labels = [];
   state.selected.forEach(k => {
     const [r,c] = k.split('-').map(Number);
-    activeTab().cells[r][c] = null;
+    const cell = tab.cells[r][c];
+    if (cell) labels.push(cellLabel(cell));
+    tab.cells[r][c] = null;
   });
   state.selected.clear();
   render(); toast('Tømte cellene');
+  logAction('tømte '+labels.length+' celler på fane "'+tab.name+'": '+labels.join(', '));
 });
 
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape'){ state.selected.clear(); state.selectedProducts?.clear(); closeCellPanel(); document.querySelectorAll('.modal-bg.show').forEach(m=>m.classList.remove('show')); render(); }
+  if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey){
+    // Don't intercept when typing in inputs
+    const t = e.target?.tagName?.toLowerCase();
+    if (t === 'input' || t === 'textarea' || e.target?.isContentEditable) return;
+    e.preventDefault();
+    undo();
+  }
 });
 
 let toastTimer;
