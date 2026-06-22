@@ -2,7 +2,7 @@
 <html lang="nb">
 <head>
 <meta charset="utf-8">
-<title>Plorea Favoritter – Forslag til ny UX</title>
+<title>Plorea Favoritter — Forslag til ny UX (v2)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
@@ -20,11 +20,11 @@
     background:var(--panel);
     border:1px dashed var(--line);
     border-radius:14px;
-    display:flex;align-items:center;justify-content:center;
-    color:var(--muted); font-size:14px; text-align:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    color:var(--muted); font-size:13px; text-align:center;
     transition:border-color .15s,background .15s,transform .1s;
     cursor:pointer;
-    user-select:none; padding:6px;
+    user-select:none; padding:6px; position:relative;
   }
   .cell.has-item{
     border-style:solid;
@@ -36,20 +36,32 @@
   .cell.selected{ outline:2px solid var(--accent); outline-offset:2px; }
   .cell.inactive::after{ content:"Skjult"; position:absolute; top:6px; right:6px;
     background:#7f1d1d; color:#fff; font-size:10px; padding:1px 6px; border-radius:6px; letter-spacing:.4px;}
-  .cell{position:relative;}
+  .cell.hidden-by-stock{
+    opacity:.4; border-style:dashed; border-color:#a16207;
+  }
+  .cell.hidden-by-stock::after{ content:"Skjules — vare slutt"; position:absolute; top:6px; right:6px;
+    background:#7c2d12; color:#fff; font-size:10px; padding:1px 6px; border-radius:6px; letter-spacing:.4px;}
   .cell .qty{position:absolute;top:6px;left:6px; background:#0ea5e9; color:#fff; font-size:11px; padding:1px 6px; border-radius:6px; font-weight:700;}
   .cell .swatch{position:absolute;bottom:6px;right:6px;width:10px;height:10px;border-radius:50%; box-shadow:0 0 0 2px var(--panel);}
+  .cell .type-icon{position:absolute;top:6px;right:6px; font-size:10px;color:var(--muted);}
+  .cell .img-area{font-size:24px; margin-bottom:4px;}
+  .cell .tot-price{font-size:11px; color:var(--muted); font-weight:500; margin-top:2px;}
+  .cell.is-category{ background:linear-gradient(135deg, #1e293b, #312e81); border-color:#6366f1; border-style:solid;}
+  .cell.is-multi{ background:linear-gradient(135deg,#1e293b,#7c2d12); border-color:#fb923c; border-style:solid;}
   .tab{
     display:inline-flex;align-items:center;gap:8px;
-    padding:8px 14px;border-radius:10px;
+    padding:8px 12px;border-radius:10px;
     background:var(--panel); border:1px solid var(--line);
     cursor:grab; user-select:none;
-    font-size:14px;
+    font-size:14px; position:relative;
   }
   .tab.active{ background:#0c4a6e;border-color:var(--accent);}
-  .tab .drag{opacity:.5;}
+  .tab .drag{opacity:.4; cursor:grab;}
+  .tab .time-badge{color:#fb923c; font-size:10px; background:#1c1917; padding:1px 5px; border-radius:5px;}
+  .tab .stale-badge{color:var(--muted); font-size:10px;}
   .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#0b1220;border:1px solid var(--line);font-size:12px;color:var(--muted);cursor:pointer;}
   .chip.on{background:#0c4a6e;color:#fff;border-color:var(--accent);}
+  .chip.warn{ color:#fb923c; border-color:#7c2d12; }
   .product{
     display:flex;align-items:center;gap:10px;
     padding:10px;border-radius:12px;
@@ -58,34 +70,37 @@
   }
   .product.added{ opacity:.5;}
   .product.selected{ outline:2px solid var(--accent); }
-  .product .ph{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0f172a; font-weight:800; font-size:12px;}
-  .pos{
-    background:#0a0f1e; border:1px solid #1f2937; border-radius:16px; padding:14px;
-  }
+  .product .ph{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0f172a; font-weight:800; font-size:18px;}
+  .product .img-dot{ width:8px; height:8px; border-radius:50%; background:#34d399; }
+  .product .img-dot.none{ background:#475569; }
+  .pos{ background:#0a0f1e; border:1px solid #1f2937; border-radius:16px; padding:14px;}
   .pos .pos-cell{
     background:#fff; color:#0f172a; aspect-ratio:1/1; border-radius:10px;
     display:flex;flex-direction:column; align-items:center; justify-content:center; font-size:12px; text-align:center; padding:4px;
     font-weight:600; line-height:1.15;
   }
   .pos .pos-cell.empty{background:#111827; color:#374151;}
-  .pos .pos-cell.cat-mat{background:#fee2e2;}
-  .pos .pos-cell.cat-drink{background:#dbeafe;}
-  .pos .pos-cell.cat-snacks{background:#fef3c7;}
-  .pos .pos-cell.cat-dessert{background:#ede9fe;}
-  .pos .pos-cell.cat-merch{background:#ecfeff;}
-  .pos .pos-cell.cat-misc{background:#f1f5f9;}
+  .pos .pos-cell .pos-img{font-size:18px;}
   .toast{
     position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
     background:#0c4a6e; color:#fff; padding:10px 16px; border-radius:10px;
     border:1px solid var(--accent);
     box-shadow:0 10px 30px rgba(0,0,0,.4);
-    font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s;
+    font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s; z-index: 100;
   }
   .toast.show{opacity:1;}
   .badge{font-size:10px; padding:1px 6px; border-radius:6px; background:#1f2937; color:var(--muted); letter-spacing:.4px;}
   .kbd{font-family:ui-monospace,monospace; background:#0b1220; border:1px solid var(--line); border-bottom-width:2px; padding:1px 6px; border-radius:6px; font-size:11px;}
-  .grid-rows{display:grid; gap:10px;}
-  /* Subtle scrollbars */
+  .modal-bg{ position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:60; display:none; align-items:center; justify-content:center; padding:20px;}
+  .modal-bg.show{display:flex;}
+  .modal-card{ background:#0f172a; border:1px solid var(--line); border-radius:16px; max-width:780px; width:100%; max-height:90vh; overflow:auto; box-shadow:0 30px 60px rgba(0,0,0,.5);}
+  .section-title{ font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:8px;}
+  .field-label{ font-size:13px; color:var(--text); margin-bottom:4px; display:block;}
+  .field-help{ font-size:11px; color:var(--muted); }
+  .radio-card{ display:flex; align-items:start; gap:8px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; cursor:pointer; transition:.1s;}
+  .radio-card:hover{ border-color:var(--line2);}
+  .radio-card.on{ border-color:var(--accent); background:#0c4a6e;}
+  .help-icon{ display:inline-flex; align-items:center; justify-content:center; width:14px; height:14px; border-radius:50%; background:#1f2937; color:var(--muted); font-size:10px; font-weight:bold; margin-left:4px; cursor:help; border:1px solid var(--line); }
   ::-webkit-scrollbar{width:10px;height:10px;}
   ::-webkit-scrollbar-thumb{background:#1f2937;border-radius:8px;}
   ::-webkit-scrollbar-track{background:transparent;}
@@ -97,78 +112,107 @@
   <div class="flex items-center gap-2">
     <div class="w-8 h-8 rounded bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 font-bold">P</div>
     <div class="text-sm leading-tight">
-      <div class="font-semibold">Favoritt-oppsett</div>
-      <div class="text-slate-400 text-xs">Demo · ny UX-prototype</div>
+      <div class="font-semibold">Favoritt-oppsett <span class="badge ml-1">v2 — demo</span></div>
+      <div class="text-slate-400 text-xs">Forslag til ny UX, oppdatert med beslutninger</div>
     </div>
   </div>
   <div class="text-xs text-slate-400 ms-3">
     <span class="opacity-60">Lokasjon:</span> <span class="font-medium text-slate-200">Messe</span>
     <span class="opacity-30 mx-1">·</span>
     <span class="opacity-60">Gruppe:</span> <span class="font-medium text-slate-200">MessePOS</span>
+    <button onclick="openDuplicateGroup()" class="ml-2 text-sky-400 hover:text-sky-300 text-xs">Dupliser gruppe</button>
   </div>
   <div class="ms-auto flex items-center gap-2">
     <button id="btn-preview" class="text-sm bg-sky-500 hover:bg-sky-400 text-white font-medium px-3 py-1.5 rounded-lg">
       Vis POS-forhåndsvisning
     </button>
-    <div class="text-xs text-slate-400 flex items-center gap-1">
-      <span class="kbd">Ctrl</span><span>+</span><span class="kbd">S</span> lagres automatisk
-    </div>
+    <button onclick="openAuditLog()" class="text-sm text-slate-400 hover:text-slate-200 px-2 py-1.5">
+      Logg
+    </button>
   </div>
 </header>
 
 <!-- Tabs row -->
 <div class="border-b border-slate-700 px-5 py-3 bg-slate-900 flex items-center gap-2 flex-wrap" id="tabs-row">
   <span class="text-xs text-slate-500 mr-1">Faner:</span>
-  <!-- tabs injected -->
   <button id="add-tab" class="tab" style="background:transparent;border-style:dashed;color:#94a3b8;">+ Ny fane</button>
   <div class="ms-auto text-xs text-slate-400 flex items-center gap-3">
     <label class="flex items-center gap-2">
       <input id="filter-not-added" type="checkbox" checked class="accent-sky-500">
       <span>Skjul produkter som allerede er lagt til</span>
     </label>
+    <label class="flex items-center gap-2">
+      <input id="show-images" type="checkbox" checked class="accent-sky-500">
+      <span>Vis bilder på admin-knappene</span>
+    </label>
   </div>
 </div>
 
-<main class="grid" style="grid-template-columns: 1fr 360px; height: calc(100vh - 116px);">
+<main class="grid" style="grid-template-columns: 1fr 380px; height: calc(100vh - 116px);">
 
   <!-- Center: grid -->
   <section class="overflow-auto p-5">
-    <div class="flex items-center gap-3 mb-4">
-      <div class="text-sm text-slate-300">
-        <span id="active-tab-name" class="font-semibold text-slate-100">Mat</span>
-        <span class="text-slate-500 mx-2">·</span>
-        <span class="text-slate-400">Layout</span>
-        <span class="font-mono text-slate-300 ml-1" id="layout-cols">7</span>
-        <span class="text-slate-500">×</span>
-        <span class="font-mono text-slate-300" id="layout-rows">4</span>
-      </div>
-      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(1,0)">+ kolonne</button>
-      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(-1,0)">− kolonne</button>
-      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(0,1)">+ rad</button>
-      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(0,-1)">− rad</button>
-      <div class="ms-auto flex items-center gap-2 text-xs">
-        <span class="text-slate-500" id="selection-counter">0 valgt</span>
-        <button id="bulk-color" class="chip">Endre farge</button>
-        <button id="bulk-hide" class="chip">Skjul/vis</button>
-        <button id="bulk-clear" class="chip">Tøm celler</button>
+
+    <!-- Empty-group onboarding (hidden once tabs exist) -->
+    <div id="onboarding" class="hidden mt-10 max-w-xl mx-auto bg-slate-900 border border-slate-700 rounded-2xl p-6 text-center">
+      <div class="text-4xl mb-3">👋</div>
+      <h2 class="text-lg font-semibold mb-2">Tom favorittgruppe</h2>
+      <p class="text-sm text-slate-400 mb-4">Gjør tre ting for å komme i gang. Du kan endre alt etterpå.</p>
+      <ol class="text-left text-sm space-y-2 mb-6 mx-auto inline-block">
+        <li><span class="text-sky-400 font-mono">1.</span> Lag en fane og velg layout</li>
+        <li><span class="text-sky-400 font-mono">2.</span> Dra inn de mest brukte varene fra panelet til høyre</li>
+        <li><span class="text-sky-400 font-mono">3.</span> Lag flere faner hvis dere har egne menyer for ulike tider</li>
+      </ol>
+      <div class="flex gap-2 justify-center">
+        <button class="bg-sky-500 hover:bg-sky-400 text-white text-sm rounded-lg px-4 py-2" onclick="openTabModal()">Lag første fane</button>
+        <button class="text-sm text-slate-400 hover:text-slate-200 px-4 py-2" onclick="loadTemplate()">Start fra mal</button>
       </div>
     </div>
 
-    <div id="grid" class="grid gap-2.5"></div>
+    <div id="editor-shell">
+      <div class="flex items-center gap-3 mb-4 flex-wrap">
+        <div class="text-sm text-slate-300 flex items-center gap-2">
+          <span id="active-tab-name" class="font-semibold text-slate-100">Mat</span>
+          <span id="active-tab-time" class="hidden text-orange-400 text-xs bg-orange-950/40 px-2 py-0.5 rounded">⏱ 11:00–15:00 · alle dager</span>
+          <span class="text-slate-500 mx-2">·</span>
+          <span class="text-slate-400">Layout</span>
+          <span class="font-mono text-slate-300 ml-1" id="layout-cols">7</span>
+          <span class="text-slate-500">×</span>
+          <span class="font-mono text-slate-300" id="layout-rows">4</span>
+          <span class="help-icon" title="Antall kolonner og rader på rutenettet. Endres via Endre fane.">?</span>
+        </div>
+        <button onclick="openTabModal(state.activeTab)" class="text-xs text-slate-400 hover:text-slate-200">Endre fane</button>
+        <div class="ms-auto flex items-center gap-2 text-xs">
+          <span class="text-slate-500" id="selection-counter">0 valgt</span>
+          <button id="bulk-color" class="chip">Endre farge</button>
+          <button id="bulk-hide" class="chip">Skjul/vis</button>
+          <button id="bulk-clear" class="chip">Tøm celler</button>
+        </div>
+      </div>
 
-    <p class="mt-4 text-xs text-slate-500">
-      Tips: <span class="kbd">Shift</span>+klikk for å markere flere celler. Dra vare fra panelet til høyre eller mellom celler.
-      Trykk <span class="kbd">Esc</span> for å avbryte markering.
-    </p>
+      <div id="grid" class="grid gap-2.5"></div>
+
+      <p class="mt-4 text-xs text-slate-500">
+        Tips: <span class="kbd">Shift</span>+klikk for å markere flere celler. Dra produkt fra panelet eller mellom celler. <span class="kbd">Esc</span> for å avbryte.
+      </p>
+    </div>
   </section>
 
-  <!-- Right: product picker -->
+  <!-- Right: picker -->
   <aside class="border-l border-slate-700 bg-slate-900/60 flex flex-col">
-    <div class="p-3 border-b border-slate-700">
-      <input id="search" placeholder="Søk varenavn, varenr, allergen, varegruppe…" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500">
+    <div class="border-b border-slate-700">
+      <div class="flex text-sm">
+        <button data-picker-tab="items" class="picker-tab flex-1 px-3 py-2.5 border-b-2 border-sky-500 text-white">Varer</button>
+        <button data-picker-tab="categories" class="picker-tab flex-1 px-3 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200">Kategorier</button>
+        <button data-picker-tab="bestsellers" class="picker-tab flex-1 px-3 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200">★ Mest solgt</button>
+        <button data-picker-tab="multi" class="picker-tab flex-1 px-3 py-2.5 border-b-2 border-transparent text-slate-400 hover:text-slate-200">≡ Sammensatt</button>
+      </div>
+    </div>
+    <div class="p-3 border-b border-slate-700" id="picker-search-wrap">
+      <input id="search" placeholder="Søk navn, varenr, allergen, varegruppe…" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500">
       <div class="flex flex-wrap gap-1.5 mt-2" id="cat-chips"></div>
     </div>
-    <div class="p-3 overflow-auto flex-1" id="product-list"></div>
+    <div class="p-3 overflow-auto flex-1" id="picker-content"></div>
     <div class="p-3 border-t border-slate-700 text-xs text-slate-400 flex items-center justify-between">
       <span id="picker-status">Dra et produkt inn i griden</span>
       <button id="select-all" class="text-sky-400 hover:underline">Marker alle synlige</button>
@@ -176,16 +220,27 @@
   </aside>
 </main>
 
-<!-- Cell context panel (slides from right) -->
+<!-- Cell context panel -->
 <div id="cell-panel" class="fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-700 transform translate-x-full transition-transform z-40 shadow-2xl">
   <div class="p-4 border-b border-slate-700 flex items-center gap-2">
     <div class="font-semibold text-slate-100" id="cell-panel-title">Vare</div>
+    <span id="cell-panel-type-badge" class="badge"></span>
     <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeCellPanel()">×</button>
   </div>
   <div class="p-4 space-y-4 text-sm">
+    <div id="multi-info" class="hidden bg-orange-950/30 border border-orange-700/50 rounded-lg p-3 text-xs">
+      <div class="font-semibold text-orange-300 mb-2">Sammensatt knapp</div>
+      <div id="multi-list" class="space-y-1 text-slate-300"></div>
+      <div class="border-t border-orange-800 mt-2 pt-2 flex justify-between"><span class="text-slate-400">Totalsum</span><span id="multi-total" class="font-mono">—</span></div>
+      <div class="mt-2 text-slate-500">Knappen skjules på POS hvis én av varene blir deaktivert.</div>
+    </div>
+    <div id="cat-info" class="hidden bg-indigo-950/30 border border-indigo-700/50 rounded-lg p-3 text-xs">
+      <div class="font-semibold text-indigo-300 mb-2">Kategori-knapp</div>
+      <div class="text-slate-300">Trykk på knappen åpner kategorien <span id="cat-name" class="font-medium">Mineralvann</span> på POS. Varer i kategorien vises som en undermeny.</div>
+    </div>
     <div>
       <div class="text-xs text-slate-400 mb-1">Farge</div>
-      <div id="color-row" class="flex gap-2"></div>
+      <div id="color-row" class="flex gap-2 flex-wrap"></div>
     </div>
     <div>
       <div class="text-xs text-slate-400 mb-1">Spenn over (kolonner)</div>
@@ -204,14 +259,14 @@
       <button class="chip on" onclick="toggleHidden()" id="hide-toggle">Synlig på POS</button>
     </div>
     <div class="border-t border-slate-700 pt-3 text-xs text-slate-500">
-      Endringer lagres automatisk. <span class="text-slate-400">Berører kun denne favoritten</span> — ikke produktets globale aktiv-flagg.
+      <strong>Skjul-til-bare-her</strong>: berører kun denne favoritt-knappen, ikke produktets globale aktiv-flagg.
     </div>
     <button class="w-full bg-rose-500/20 border border-rose-500/40 text-rose-300 rounded-lg py-2" onclick="removeFromCell()">Fjern fra fanen</button>
   </div>
 </div>
 
 <!-- POS preview drawer -->
-<div id="pos-drawer" class="fixed top-0 right-0 h-full w-[440px] bg-slate-950 border-l border-slate-800 transform translate-x-full transition-transform z-50 shadow-2xl">
+<div id="pos-drawer" class="fixed top-0 right-0 h-full w-[480px] bg-slate-950 border-l border-slate-800 transform translate-x-full transition-transform z-50 shadow-2xl">
   <div class="p-4 border-b border-slate-800 flex items-center gap-2">
     <div class="font-semibold text-slate-100">Slik ser kassen ut</div>
     <span class="badge ml-1">Live</span>
@@ -219,125 +274,374 @@
   </div>
   <div class="p-3">
     <div class="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-3">
-      <div class="flex gap-2 mb-3 text-xs">
-        <div class="px-3 py-1 rounded bg-sky-500 text-white" id="preview-tabname">Mat</div>
-        <div class="px-3 py-1 rounded bg-slate-800 text-slate-300">Drikke</div>
-        <div class="px-3 py-1 rounded bg-slate-800 text-slate-300">Dessert</div>
-      </div>
+      <div id="pos-tabs" class="flex gap-2 mb-3 text-xs"></div>
       <div class="pos">
         <div id="pos-grid" class="grid gap-1.5"></div>
       </div>
       <div class="text-center text-slate-500 text-[10px] mt-2">terminal.ploreasystems.com · Messe</div>
     </div>
     <div class="text-xs text-slate-400 leading-relaxed">
-      Forhåndsvisningen oppdateres umiddelbart når du gjør endringer i admin-griden.
+      Forhåndsvisningen oppdateres umiddelbart. Sammensatte knapper viser totalsum, kategori-knapper viser kategori-navn.
     </div>
   </div>
 </div>
-<div id="pos-drawer-style"></div>
+
+<!-- Modal: Ny fane / Faneoppsett -->
+<div id="modal-tab" class="modal-bg">
+  <div class="modal-card">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold" id="modal-tab-title">Ny fane</h2>
+        <div class="text-xs text-slate-400">Faneoppsett – fanen blir en kategori-tab på POS</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-tab')">×</button>
+    </div>
+    <div class="p-5 space-y-6">
+
+      <!-- Identitet -->
+      <div>
+        <div class="section-title">Identitet</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="col-span-2">
+            <label class="field-label">Navn <span class="text-rose-400">*</span></label>
+            <input id="tab-name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" placeholder="f.eks. Mat">
+          </div>
+          <div class="col-span-2">
+            <label class="field-label">Beskrivelse (intern)
+              <span class="help-icon" title="Vises ikke på POS. Bruk til notater til kollegaer.">?</span>
+            </label>
+            <input id="tab-desc" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" placeholder="f.eks. Hovedretter, gjelder hele dagen">
+          </div>
+          <div class="col-span-2">
+            <label class="field-label">Fanebilde (ikon på fanebar)
+              <span class="help-icon" title="Lite bilde som vises ved siden av navnet på POS-ens fanevelger.">?</span>
+            </label>
+            <div class="flex items-center gap-3">
+              <div class="w-16 h-16 rounded-lg bg-slate-800 border border-dashed border-slate-600 flex items-center justify-center text-slate-500 text-2xl">🖼️</div>
+              <button class="text-sm bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 hover:border-slate-500">Last opp bilde</button>
+              <div class="text-xs text-slate-400">Anbefalt 200×200, PNG/JPG</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Layout -->
+      <div>
+        <div class="section-title">Layout</div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="field-label">Knappestil</label>
+            <div class="space-y-2">
+              <label class="radio-card on" data-radio="button_style" data-val="grid">
+                <input type="radio" name="button_style" value="grid" checked>
+                <div><div class="font-medium text-sm">Små knapper (rutenett)</div><div class="field-help">Mange varer synlige samtidig</div></div>
+              </label>
+              <label class="radio-card" data-radio="button_style" data-val="list">
+                <input type="radio" name="button_style" value="list">
+                <div><div class="font-medium text-sm">Store knapper (liste)</div><div class="field-help">Færre varer, store trykkmål</div></div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="field-label">Vis bilder</label>
+            <div class="space-y-2">
+              <label class="radio-card on" data-radio="image_setup" data-val="0">
+                <input type="radio" name="image_setup" value="0" checked>
+                <div><div class="font-medium text-sm">Uten bilder</div><div class="field-help">Mer plass til tekst, raskere</div></div>
+              </label>
+              <label class="radio-card" data-radio="image_setup" data-val="1">
+                <input type="radio" name="image_setup" value="1">
+                <div><div class="font-medium text-sm">Med bilder</div><div class="field-help">Bedre for selvbetjening</div></div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="field-label">Skjermstørrelse
+              <span class="help-icon" title="Påvirker antall mulige kolonner og standard touch-størrelse.">?</span>
+            </label>
+            <div class="space-y-2">
+              <label class="radio-card on" data-radio="device_type" data-val="pc">
+                <input type="radio" name="device_type" value="pc" checked>
+                <div><div class="font-medium text-sm">Stor (PC / Tablet)</div><div class="field-help">5–8 kolonner</div></div>
+              </label>
+              <label class="radio-card" data-radio="device_type" data-val="mobile">
+                <input type="radio" name="device_type" value="mobile">
+                <div><div class="font-medium text-sm">Liten (Mobil / Kiosk)</div><div class="field-help">1–6 kolonner</div></div>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="field-label">Antall kolonner</label>
+            <input type="range" id="tab-cols" min="1" max="8" value="7" class="w-full accent-sky-500" oninput="document.getElementById('cols-val').innerText = this.value; updateTabModalPreview()">
+            <div class="text-xs text-slate-400 mt-1">Valgt: <span id="cols-val" class="font-mono">7</span> kolonner</div>
+
+            <label class="field-label mt-3">Antall rader</label>
+            <input type="range" id="tab-rows" min="1" max="8" value="4" class="w-full accent-sky-500" oninput="document.getElementById('rows-val').innerText = this.value; updateTabModalPreview()">
+            <div class="text-xs text-slate-400 mt-1">Valgt: <span id="rows-val" class="font-mono">4</span> rader</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tidsstyring -->
+      <div>
+        <div class="section-title">Tilgjengelighet</div>
+        <label class="flex items-center gap-2 mb-3">
+          <input id="time-toggle" type="checkbox" class="accent-sky-500" onchange="document.getElementById('time-box').classList.toggle('hidden', !this.checked)">
+          <span class="text-sm">Tidsstyrt fane
+            <span class="help-icon" title="Fanen vises kun innenfor tidsrommet og dagene du angir. Brukes f.eks. til lunsj-meny, alkohol-meny om kvelden, eller en mandagsmeny.">?</span>
+          </span>
+        </label>
+        <div id="time-box" class="hidden bg-slate-800/50 border border-slate-700 rounded-lg p-3 space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="field-label">Fra klokkeslett</label>
+              <input id="time-from" type="time" value="11:00" class="bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div>
+              <label class="field-label">Til klokkeslett</label>
+              <input id="time-to" type="time" value="15:00" class="bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-sm">
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Ukedager</label>
+            <div class="flex gap-1" id="weekdays">
+              <button class="day on" data-d="1">M</button>
+              <button class="day on" data-d="2">T</button>
+              <button class="day on" data-d="3">O</button>
+              <button class="day on" data-d="4">T</button>
+              <button class="day on" data-d="5">F</button>
+              <button class="day" data-d="6">L</button>
+              <button class="day" data-d="0">S</button>
+            </div>
+          </div>
+          <div>
+            <label class="field-label">Datointervall (valgfritt)</label>
+            <div class="flex items-center gap-2">
+              <input type="date" class="bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-sm">
+              <span class="text-slate-500">til</span>
+              <input type="date" class="bg-slate-800 border border-slate-700 rounded px-3 py-1.5 text-sm">
+            </div>
+            <div class="text-xs text-slate-400 mt-1">Tom = uten begrensning. Bruk f.eks. for jul-meny.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live preview -->
+      <div>
+        <div class="section-title">Forhåndsvisning</div>
+        <div class="bg-slate-950 border border-slate-800 rounded-xl p-3">
+          <div id="tab-modal-preview" class="grid gap-1.5"></div>
+          <div class="text-xs text-slate-500 mt-2 text-center">Slik ser rutenettet ut tomt — varer kommer i neste steg</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="p-4 border-t border-slate-700 flex items-center gap-2">
+      <button class="text-sm text-slate-400 hover:text-slate-200 px-3 py-2" onclick="closeModal('modal-tab')">Avbryt</button>
+      <button class="ms-auto text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg" onclick="saveTabModal()">Lagre fane</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Sammensatt knapp -->
+<div id="modal-multi" class="modal-bg">
+  <div class="modal-card" style="max-width:680px">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold">Ny sammensatt knapp</h2>
+        <div class="text-xs text-slate-400">Én knapp som legger flere varer i kurven (macro)</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-multi')">×</button>
+    </div>
+    <div class="p-5 space-y-4">
+      <div>
+        <label class="field-label">Navn på knappen</label>
+        <input id="multi-name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" placeholder="f.eks. Kollega-runde">
+      </div>
+      <div>
+        <label class="field-label">Varer i bunten</label>
+        <div id="multi-rows" class="space-y-2"></div>
+        <button class="text-sm text-sky-400 hover:text-sky-300 mt-2" onclick="addMultiRow()">+ Legg til vare</button>
+      </div>
+      <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-3 text-sm flex items-center justify-between">
+        <span class="text-slate-400">Totalsum (vises på knappen og i kurven)</span>
+        <span id="multi-modal-total" class="font-mono text-lg">0,-</span>
+      </div>
+      <div class="text-xs text-slate-400 space-y-1">
+        <div>• Hver vare havner som <strong>egen linje</strong> i kurven. Kassereren kan justere kvanta etterpå.</div>
+        <div>• Knappen skjules automatisk hvis én av varene blir deaktivert.</div>
+        <div>• Ingen kampanjepris — totalen er alltid summen av enhetsprisene.</div>
+      </div>
+    </div>
+    <div class="p-4 border-t border-slate-700 flex items-center gap-2">
+      <button class="text-sm text-slate-400 hover:text-slate-200 px-3 py-2" onclick="closeModal('modal-multi')">Avbryt</button>
+      <button class="ms-auto text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg" onclick="saveMultiButton()">Lag knapp</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Audit log -->
+<div id="modal-log" class="modal-bg">
+  <div class="modal-card" style="max-width:560px">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold">Endringslogg</h2>
+        <div class="text-xs text-slate-400">Hvem gjorde hva, og når</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-log')">×</button>
+    </div>
+    <div class="p-3">
+      <div class="space-y-1 text-sm" id="audit-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Duplicate group -->
+<div id="modal-dup" class="modal-bg">
+  <div class="modal-card" style="max-width:520px">
+    <div class="p-5 border-b border-slate-700 flex items-center gap-2">
+      <div>
+        <h2 class="text-lg font-semibold">Kopier favorittgruppe</h2>
+        <div class="text-xs text-slate-400">Lager en kopi som du kan endre uten å påvirke originalen</div>
+      </div>
+      <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeModal('modal-dup')">×</button>
+    </div>
+    <div class="p-5 space-y-3">
+      <div>
+        <label class="field-label">Navn på den nye gruppen</label>
+        <input id="dup-name" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm" value="MessePOS — kopi">
+      </div>
+      <div class="text-xs text-slate-400">
+        Alt kopieres: faner, kategori-/sammensatte-/vare-knapper, farger, fontstørrelser, tidsstyring. <strong>Originalen røres ikke.</strong>
+      </div>
+    </div>
+    <div class="p-4 border-t border-slate-700 flex items-center gap-2">
+      <button class="text-sm text-slate-400 hover:text-slate-200 px-3 py-2" onclick="closeModal('modal-dup')">Avbryt</button>
+      <button class="ms-auto text-sm bg-sky-500 hover:bg-sky-400 text-white px-4 py-2 rounded-lg" onclick="doDuplicate()">Lag kopi</button>
+    </div>
+  </div>
+</div>
 
 <div id="toast" class="toast">Lagret</div>
 
+<style>
+  .day{ width:32px; height:32px; border-radius:8px; background:#1e293b; border:1px solid #334155; color:#94a3b8; font-weight:600; cursor:pointer; }
+  .day.on{ background:#0c4a6e; border-color:#38bdf8; color:#fff;}
+  .open{transform:translateX(0) !important;}
+</style>
+
 <script>
-// -------------- demo data ----------------
-const COLORS = ['#fde68a','#fca5a5','#a7f3d0','#a5b4fc','#fdba74','#f9a8d4','#bae6fd','#d9f99d','#ffffff'];
+// -------------- data ----------------
 const CATS = [
-  {id:'mat', name:'Mat', color:'#fee2e2'},
-  {id:'drink', name:'Drikke', color:'#dbeafe'},
-  {id:'snacks', name:'Snacks', color:'#fef3c7'},
-  {id:'dessert', name:'Dessert', color:'#ede9fe'},
-  {id:'merch', name:'Merch', color:'#ecfeff'},
-  {id:'misc', name:'Annet', color:'#f1f5f9'},
+  {id:'mat', name:'Mat', color:'#fee2e2', icon:'🍔'},
+  {id:'drink', name:'Drikke', color:'#dbeafe', icon:'🥤'},
+  {id:'snacks', name:'Snacks', color:'#fef3c7', icon:'🍿'},
+  {id:'dessert', name:'Dessert', color:'#ede9fe', icon:'🍰'},
+  {id:'merch', name:'Merch', color:'#ecfeff', icon:'🧢'},
+  {id:'misc', name:'Annet', color:'#f1f5f9', icon:'📦'},
 ];
 const PRODUCTS = [
-  {id:1, sku:'100039', name:'Cheeseburger', cat:'mat', price:189, color:'#fca5a5'},
-  {id:2, sku:'100041', name:'Bacon Burger',  cat:'mat', price:209},
-  {id:3, sku:'100049', name:'Pølse', cat:'mat', price:65},
-  {id:4, sku:'100050', name:'Pizza Margherita', cat:'mat', price:189},
-  {id:5, sku:'100051', name:'Pizza Pepperoni', cat:'mat', price:209},
-  {id:6, sku:'100052', name:'Kebab',          cat:'mat', price:179},
-  {id:7, sku:'100053', name:'Caesarsalat',    cat:'mat', price:159},
-  {id:8, sku:'100060', name:'Coca-Cola',      cat:'drink', price:38},
-  {id:9, sku:'100061', name:'Cola Zero',      cat:'drink', price:38},
-  {id:10,sku:'100062', name:'Fanta',          cat:'drink', price:38},
-  {id:11,sku:'100063', name:'Sprite',         cat:'drink', price:38},
-  {id:12,sku:'100064', name:'Vann',           cat:'drink', price:25},
-  {id:13,sku:'100070', name:'Kaffe',          cat:'drink', price:35},
-  {id:14,sku:'100071', name:'Latte',          cat:'drink', price:49},
-  {id:15,sku:'100072', name:'Cappuccino',     cat:'drink', price:49},
-  {id:16,sku:'100080', name:'Popcorn',        cat:'snacks', price:45},
-  {id:17,sku:'100081', name:'Kims salt',      cat:'snacks', price:30},
-  {id:18,sku:'100082', name:'Kims paprika',   cat:'snacks', price:30},
-  {id:19,sku:'100090', name:'Muffins',        cat:'dessert', price:30},
-  {id:20,sku:'100091', name:'Iskrem',         cat:'dessert', price:35},
-  {id:21,sku:'100100', name:'VIF caps',       cat:'merch', price:250},
-  {id:22,sku:'100101', name:'VIF skjerf',     cat:'merch', price:299},
+  {id:1, sku:'100039', name:'Cheeseburger', cat:'mat', price:189, image:'🍔', sold:142, active:true},
+  {id:2, sku:'100041', name:'Bacon Burger',  cat:'mat', price:209, image:'🍔', sold:98},
+  {id:3, sku:'100049', name:'Pølse',        cat:'mat', price:65, image:'🌭', sold:312},
+  {id:4, sku:'100050', name:'Pizza Margherita', cat:'mat', price:189, image:'🍕', sold:201},
+  {id:5, sku:'100051', name:'Pizza Pepperoni',  cat:'mat', price:209, image:'🍕', sold:178},
+  {id:6, sku:'100052', name:'Kebab',         cat:'mat', price:179, image:'🌯', sold:67},
+  {id:7, sku:'100053', name:'Caesarsalat',   cat:'mat', price:159, image:null, sold:34},
+  {id:8, sku:'100060', name:'Coca-Cola',     cat:'drink', price:38, image:'🥤', sold:489},
+  {id:9, sku:'100061', name:'Cola Zero',     cat:'drink', price:38, image:'🥤', sold:301},
+  {id:10,sku:'100062', name:'Fanta',         cat:'drink', price:38, image:'🥤', sold:201},
+  {id:11,sku:'100063', name:'Sprite',        cat:'drink', price:38, image:'🥤', sold:188},
+  {id:12,sku:'100064', name:'Vann',          cat:'drink', price:25, image:null, sold:412},
+  {id:13,sku:'100070', name:'Kaffe',         cat:'drink', price:35, image:'☕', sold:155},
+  {id:14,sku:'100071', name:'Latte',         cat:'drink', price:49, image:'☕', sold:88},
+  {id:15,sku:'100072', name:'Cappuccino',    cat:'drink', price:49, image:'☕', sold:71},
+  {id:16,sku:'100080', name:'Popcorn',       cat:'snacks', price:45, image:'🍿', sold:97},
+  {id:17,sku:'100081', name:'Kims salt',     cat:'snacks', price:30, image:null, sold:42},
+  {id:18,sku:'100082', name:'Kims paprika',  cat:'snacks', price:30, image:null, sold:38},
+  {id:19,sku:'100090', name:'Muffins',       cat:'dessert', price:30, image:'🧁', sold:54},
+  {id:20,sku:'100091', name:'Iskrem',        cat:'dessert', price:35, image:'🍨', sold:122},
+  {id:21,sku:'100100', name:'VIF caps',      cat:'merch', price:250, image:null, sold:8},
+  {id:22,sku:'100101', name:'VIF skjerf',    cat:'merch', price:299, image:null, sold:5},
+  {id:23,sku:'100110', name:'Pils 0,4',      cat:'drink', price:89, image:'🍺', sold:267},
+  {id:24,sku:'100111', name:'Rødvin glass',  cat:'drink', price:119, image:'🍷', sold:78},
 ];
 
-// Initial tabs (admin model)
+const COLORS = ['#fde68a','#fca5a5','#a7f3d0','#a5b4fc','#fdba74','#f9a8d4','#bae6fd','#d9f99d','#ffffff'];
+
+// Multi-item buttons (macros)
+let multiButtons = [
+  { id:'m1', name:'Kollega-runde', items:[{pid:23,qty:2},{pid:24,qty:1}] },
+];
+
+// State
 let state = {
   activeTab: 0,
   tabs: [
-    { name:'Mat',    cols:7, rows:4, cells: seedCells(7,4, [
-        [0,0, 1, '#fca5a5'],
-        [0,1, 2, '#fca5a5'],
-        [0,2, 3],
-        [0,3, 4, '#fed7aa'],
-        [0,4, 5, '#fed7aa'],
-        [0,5, 6],
-        [0,6, 7, '#a7f3d0'],
-        [1,0, 8],
-        [1,1, 9],
-        [1,2, 10],
-        [1,3, 11],
-        [1,4, 12, '#bae6fd'],
-      ]) },
-    { name:'Drikke', cols:7, rows:4, cells: seedCells(7,4, [
-        [0,0, 8], [0,1, 9], [0,2, 10], [0,3, 11], [0,4, 12], [0,5, 13], [0,6, 14],
-        [1,0, 15]
+    { name:'Mat', cols:7, rows:4, time: null, image:'🍔', cells: seedCells(7,4, [
+        [0,0,{p:1}], [0,1,{p:2}], [0,2,{p:3}], [0,3,{p:4}], [0,4,{p:5}], [0,5,{p:6}],
+        [1,0,{p:8}], [1,1,{p:9}], [1,4,{m:'m1'}],
+        [2,3,{c:'drink'}]
     ]) },
-    { name:'Dessert', cols:7, rows:4, cells: seedCells(7,4, [
-        [0,0, 19, '#ede9fe'],[0,1, 20, '#ede9fe']
-    ])},
+    { name:'Lunsj', cols:7, rows:4, time:{from:'11:00', to:'15:00', days:[1,2,3,4,5]}, image:'🥗',
+      cells: seedCells(7,4, [ [0,0,{p:7}], [0,1,{p:4}], [0,2,{p:8}] ]) },
+    { name:'Kveld 18+', cols:7, rows:4, time:{from:'18:00', to:'02:00', days:[5,6]}, image:'🍺',
+      cells: seedCells(7,4, [ [0,0,{p:23}], [0,1,{p:24}], [0,2,{m:'m1'}] ]) },
   ],
-  selected: new Set(), // "row-col"
-  activeCellKey: null,
-  filterCat: null,
+  selected:new Set(),
+  activeCellKey:null,
+  filterCat:null,
+  pickerTab:'items',
+  audit:[
+    {who:'Einar', when:'i dag 14:02', what:'opprettet fanen "Kveld 18+"'},
+    {who:'Einar', when:'i dag 14:05', what:'la til Pils 0,4 i fane "Kveld 18+"'},
+    {who:'Lisa',  when:'i går 09:30', what:'flyttet Cola Zero fra (0,1) til (1,1)'},
+    {who:'Lisa',  when:'2 dager siden', what:'opprettet sammensatt knapp "Kollega-runde"'},
+  ],
 };
 
 function seedCells(cols, rows, items){
   const grid = [];
-  for(let r=0;r<rows;r++){
-    const row=[];
-    for(let c=0;c<cols;c++) row.push(null);
-    grid.push(row);
-  }
-  items.forEach(([r,c,id,color])=>{
-    grid[r][c] = { productId: id, color: color||null, hidden:false, font:14, span:1 };
+  for(let r=0;r<rows;r++){ const row=[]; for(let c=0;c<cols;c++) row.push(null); grid.push(row); }
+  items.forEach(([r,c,obj])=>{
+    // obj: { p: product_id } | { m: multi_id } | { c: category_id }
+    grid[r][c] = {
+      productId: obj.p || null,
+      multiId: obj.m || null,
+      categoryId: obj.c || null,
+      color:null, hidden:false, font:14, span:1
+    };
   });
   return grid;
 }
 
 function activeTab(){ return state.tabs[state.activeTab]; }
 function productById(id){ return PRODUCTS.find(p=>p.id===id); }
+function catById(id){ return CATS.find(c=>c.id===id); }
+function multiById(id){ return multiButtons.find(m=>m.id===id); }
 function catColor(catId){ const c = CATS.find(x=>x.id===catId); return c? c.color : '#f1f5f9'; }
+function isCellMultiHidden(cell){
+  if (!cell?.multiId) return false;
+  const m = multiById(cell.multiId);
+  return m && m.items.some(it => { const p = productById(it.pid); return p && p.active === false; });
+}
 
 // -------------- render --------------
 function renderTabs(){
   const row = document.getElementById('tabs-row');
-  // clear existing tab buttons, keep + and right side
   [...row.querySelectorAll('.tab.dyn')].forEach(el => el.remove());
   state.tabs.forEach((t, i) => {
     const el = document.createElement('div');
     el.className = 'tab dyn' + (i === state.activeTab ? ' active' : '');
     el.dataset.tabIdx = i;
-    el.innerHTML = `<span class="drag">⋮⋮</span><span class="name">${t.name}</span><span class="text-xs opacity-50">${t.cols}×${t.rows}</span>`;
+    const timeBadge = t.time ? `<span class="time-badge" title="Tidsstyrt: ${t.time.from}–${t.time.to}">⏱</span>` : '';
+    el.innerHTML = `<span class="drag">⋮⋮</span><span style="font-size:14px">${t.image||'📁'}</span><span class="name">${t.name}</span>${timeBadge}<span class="stale-badge">${t.cols}×${t.rows}</span>`;
     el.draggable = true;
-    el.addEventListener('click', () => { state.activeTab = i; state.selected.clear(); state.activeCellKey = null; render(); });
-    el.addEventListener('dblclick', (e) => {
-      const newName = prompt('Nytt fanenavn:', t.name);
-      if(newName){ t.name = newName; render(); toast('Fane omdøpt'); }
-    });
+    el.addEventListener('click', () => { state.activeTab = i; state.selected.clear(); state.activeCellKey = null; closeCellPanel(); render(); });
+    el.addEventListener('dblclick', () => openTabModal(i));
     el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/tab', String(i)); });
     el.addEventListener('dragover', (e)=>e.preventDefault());
     el.addEventListener('drop', (e)=>{
@@ -346,20 +650,47 @@ function renderTabs(){
       if(isNaN(fromIdx) || isNaN(toIdx) || fromIdx === toIdx) return;
       const [m] = state.tabs.splice(fromIdx,1); state.tabs.splice(toIdx,0,m);
       state.activeTab = toIdx;
+      logAction('flyttet fane "'+m.name+'" til posisjon ' + (toIdx+1));
       render(); toast('Fanerekkefølge oppdatert');
     });
     row.insertBefore(el, document.getElementById('add-tab'));
   });
-  document.getElementById('active-tab-name').innerText = activeTab().name;
-  document.getElementById('layout-cols').innerText = activeTab().cols;
-  document.getElementById('layout-rows').innerText = activeTab().rows;
+
+  // Empty state
+  const editor = document.getElementById('editor-shell');
+  const onboard = document.getElementById('onboarding');
+  if (!state.tabs.length){
+    editor.classList.add('hidden'); onboard.classList.remove('hidden');
+  } else {
+    editor.classList.remove('hidden'); onboard.classList.add('hidden');
+    const t = activeTab();
+    document.getElementById('active-tab-name').innerText = t.name;
+    document.getElementById('layout-cols').innerText = t.cols;
+    document.getElementById('layout-rows').innerText = t.rows;
+    const tb = document.getElementById('active-tab-time');
+    if (t.time){
+      tb.innerText = '⏱ ' + t.time.from + '–' + t.time.to + ' · ' + dayString(t.time.days);
+      tb.classList.remove('hidden');
+    } else { tb.classList.add('hidden'); }
+  }
+}
+
+function dayString(days){
+  if (!days || !days.length) return 'ingen';
+  if (days.length === 7) return 'alle dager';
+  if (days.join(',') === '1,2,3,4,5') return 'mandag–fredag';
+  if (days.join(',') === '5,6' || days.join(',') === '6,0' || days.join(',') === '5,6,0') return 'helg';
+  const dn = ['S','M','T','O','T','F','L'];
+  return days.map(d=>dn[d]).join(' ');
 }
 
 function renderGrid(){
+  if (!state.tabs.length) return;
   const grid = document.getElementById('grid');
   const tab = activeTab();
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
   grid.innerHTML = '';
+  const showImg = document.getElementById('show-images').checked;
   for(let r=0; r<tab.rows; r++){
     for(let c=0; c<tab.cols; c++){
       const cell = tab.cells[r][c];
@@ -368,12 +699,32 @@ function renderGrid(){
       el.className = 'cell';
       if (cell) el.classList.add('has-item');
       if (cell?.hidden) el.classList.add('inactive');
+      if (cell && isCellMultiHidden(cell)) el.classList.add('hidden-by-stock');
       if (state.selected.has(key)) el.classList.add('selected');
       el.dataset.r = r; el.dataset.c = c;
       if (cell){
-        const p = productById(cell.productId);
-        el.innerHTML = `<div style="line-height:1.2">${p ? p.name : 'Ukjent'}</div>
-          ${cell.color ? `<span class="swatch" style="background:${cell.color}"></span>` : ''}`;
+        let content = '';
+        if (cell.productId){
+          const p = productById(cell.productId);
+          if (showImg && p?.image) content = `<div class="img-area">${p.image}</div>`;
+          content += `<div style="line-height:1.2">${p ? p.name : 'Ukjent'}</div>`;
+        } else if (cell.multiId){
+          el.classList.add('is-multi');
+          const m = multiById(cell.multiId);
+          const total = m.items.reduce((s,it)=>{const p = productById(it.pid); return s+(p ? p.price * it.qty : 0)}, 0);
+          if (showImg) content = `<div class="img-area">≡</div>`;
+          content += `<div style="line-height:1.2">${m.name}</div>`;
+          content += `<div class="tot-price">${total},-</div>`;
+          el.innerHTML += '<span class="type-icon">≡</span>';
+        } else if (cell.categoryId){
+          el.classList.add('is-category');
+          const cat = catById(cell.categoryId);
+          if (showImg && cat?.icon) content = `<div class="img-area">${cat.icon}</div>`;
+          content += `<div style="line-height:1.2">${cat.name}</div>`;
+          el.innerHTML += '<span class="type-icon">📂 →</span>';
+        }
+        if (cell.color) content += `<span class="swatch" style="background:${cell.color}"></span>`;
+        el.innerHTML += content;
         el.draggable = true;
         el.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/cell', JSON.stringify({r,c}));
@@ -390,36 +741,103 @@ function renderGrid(){
         e.preventDefault();
         el.classList.remove('dragover');
         const pidStr = e.dataTransfer.getData('text/product');
+        const catStr = e.dataTransfer.getData('text/category');
+        const multiStr = e.dataTransfer.getData('text/multi');
         const cellStr = e.dataTransfer.getData('text/cell');
-        if (pidStr){
-          placeProducts(JSON.parse(pidStr), r, c);
-        } else if (cellStr){
-          const from = JSON.parse(cellStr);
-          swapCells(from.r, from.c, r, c);
-        }
+        if (pidStr){ placeProducts(JSON.parse(pidStr), r, c); }
+        else if (catStr){ placeCategory(catStr, r, c); }
+        else if (multiStr){ placeMulti(multiStr, r, c); }
+        else if (cellStr){ const from = JSON.parse(cellStr); swapCells(from.r, from.c, r, c); }
       });
       grid.appendChild(el);
     }
   }
-  // Selection counter
   document.getElementById('selection-counter').innerText = state.selected.size + ' valgt';
 }
 
-function renderProducts(){
-  const list = document.getElementById('product-list');
-  list.innerHTML = '';
+function renderPicker(){
+  const content = document.getElementById('picker-content');
+  const searchWrap = document.getElementById('picker-search-wrap');
+  searchWrap.style.display = state.pickerTab === 'items' || state.pickerTab === 'bestsellers' ? 'block' : 'none';
+  document.querySelectorAll('.picker-tab').forEach(b => {
+    if (b.dataset.pickerTab === state.pickerTab){
+      b.classList.remove('text-slate-400','border-transparent'); b.classList.add('text-white','border-sky-500');
+    } else {
+      b.classList.add('text-slate-400','border-transparent'); b.classList.remove('text-white','border-sky-500');
+    }
+  });
+
+  content.innerHTML = '';
+
+  if (state.pickerTab === 'items'){
+    renderProducts(PRODUCTS, false);
+  } else if (state.pickerTab === 'bestsellers'){
+    const top = [...PRODUCTS].sort((a,b)=>(b.sold||0)-(a.sold||0)).slice(0,12);
+    const header = document.createElement('div');
+    header.className = 'bg-amber-950/30 border border-amber-700/40 rounded-lg p-3 mb-3 text-xs text-amber-200';
+    header.innerHTML = '★ <strong>Forslag basert på faktisk salg sist 30 dager.</strong> Dette er kun et hjelpeverktøy — systemet endrer ikke favorittene dine automatisk.';
+    content.appendChild(header);
+    renderProducts(top, true);
+  } else if (state.pickerTab === 'categories'){
+    const help = document.createElement('div');
+    help.className = 'text-xs text-slate-400 mb-3';
+    help.innerHTML = '<strong>Kategori-knapp:</strong> én knapp som åpner en undermeny med alle varene i kategorien. Bruk når listen er lang og kategorisert er bedre enn flat.';
+    content.appendChild(help);
+    CATS.forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'product mb-2';
+      el.draggable = true;
+      el.innerHTML = `<div class="ph" style="background:${c.color}">${c.icon}</div>
+        <div class="flex-1 min-w-0"><div class="text-sm font-medium">${c.name}</div>
+        <div class="text-xs text-slate-400">${PRODUCTS.filter(p=>p.cat===c.id).length} varer</div></div>
+        <span class="text-slate-500 text-sm">→</span>`;
+      el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/category', c.id); el.style.opacity=.4; });
+      el.addEventListener('dragend', ()=>{ el.style.opacity=1; });
+      content.appendChild(el);
+    });
+  } else if (state.pickerTab === 'multi'){
+    const help = document.createElement('div');
+    help.className = 'text-xs text-slate-400 mb-3';
+    help.innerHTML = '<strong>Sammensatte knapper i denne gruppen.</strong> Én knapp legger flere varer i kurven (macro), f.eks. "Kollega-runde" = 2 × Pils + 1 × Vin. Sammensatte knapper er <strong>per favorittgruppe</strong> — kopieres med ved Dupliser gruppe.';
+    content.appendChild(help);
+    multiButtons.forEach(m => {
+      const total = m.items.reduce((s,it)=>{const p=productById(it.pid); return s + (p?p.price*it.qty:0)},0);
+      const el = document.createElement('div');
+      el.className = 'product mb-2';
+      el.draggable = true;
+      el.innerHTML = `<div class="ph" style="background:#fdba74">≡</div>
+        <div class="flex-1 min-w-0"><div class="text-sm font-medium">${m.name}</div>
+        <div class="text-xs text-slate-400">${m.items.map(it=>{const p=productById(it.pid); return it.qty+'× '+(p?p.name:'?')}).join(' · ')}</div>
+        <div class="text-xs text-orange-300">Total ${total},-</div></div>`;
+      el.addEventListener('dragstart',(e)=>{ e.dataTransfer.setData('text/multi', m.id); el.style.opacity=.4; });
+      el.addEventListener('dragend', ()=>{ el.style.opacity=1; });
+      content.appendChild(el);
+    });
+    const newBtn = document.createElement('button');
+    newBtn.className = 'w-full mt-3 bg-orange-500/20 border border-orange-500/40 text-orange-300 rounded-lg py-2 text-sm';
+    newBtn.innerHTML = '+ Lag ny sammensatt knapp';
+    newBtn.onclick = openMultiModal;
+    content.appendChild(newBtn);
+  }
+}
+
+function renderProducts(productList, isBest){
+  const content = document.getElementById('picker-content');
   const q = (document.getElementById('search').value || '').toLowerCase();
   const hideAdded = document.getElementById('filter-not-added').checked;
+  const showImg = document.getElementById('show-images').checked;
   const addedIds = new Set();
-  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c && addedIds.add(c.productId))));
-  const filtered = PRODUCTS.filter(p => {
+  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c && c.productId && addedIds.add(c.productId))));
+  const filtered = productList.filter(p => {
     if (state.filterCat && p.cat !== state.filterCat) return false;
     if (hideAdded && addedIds.has(p.id)) return false;
     if (q && !(p.name.toLowerCase().includes(q) || p.sku.includes(q) || p.cat.includes(q))) return false;
     return true;
   });
   if (!filtered.length){
-    list.innerHTML = '<div class="text-center text-slate-500 text-sm py-8">Ingen produkter matcher</div>';
+    const empty = document.createElement('div'); empty.className='text-center text-slate-500 text-sm py-8';
+    empty.innerHTML = 'Ingen produkter matcher';
+    content.appendChild(empty);
     return;
   }
   filtered.forEach(p => {
@@ -427,13 +845,16 @@ function renderProducts(){
     el.className = 'product mb-2';
     if (state.selectedProducts?.has(p.id)) el.classList.add('selected');
     el.draggable = true;
+    const imgVisual = (showImg && p.image) ? p.image : (p.name[0]||'?');
     el.innerHTML = `
-      <div class="ph" style="background:${catColor(p.cat)}">${p.name[0]}</div>
+      <div class="ph" style="background:${catColor(p.cat)}">${imgVisual}</div>
       <div class="flex-1 min-w-0">
         <div class="text-sm font-medium truncate">${p.name}</div>
         <div class="text-xs text-slate-400 flex items-center gap-1">
           <span class="badge">${p.sku}</span>
           <span>${p.price},-</span>
+          ${isBest ? `<span class="badge" style="background:#451a03;color:#fbbf24">${p.sold} solgt</span>` : ''}
+          <span class="img-dot ${p.image?'':'none'}" title="${p.image?'Har bilde':'Mangler bilde'}"></span>
         </div>
       </div>
     `;
@@ -446,29 +867,24 @@ function renderProducts(){
         state.selectedProducts.clear();
         if (!had) state.selectedProducts.add(p.id);
       }
-      updatePickerStatus(); renderProducts();
+      updatePickerStatus(); renderPicker();
     });
     el.addEventListener('dragstart', (e) => {
       let ids;
-      if (state.selectedProducts?.size > 1 && state.selectedProducts.has(p.id)){
-        ids = [...state.selectedProducts];
-      } else {
-        ids = [p.id];
-      }
+      if (state.selectedProducts?.size > 1 && state.selectedProducts.has(p.id)){ ids = [...state.selectedProducts]; }
+      else { ids = [p.id]; }
       e.dataTransfer.setData('text/product', JSON.stringify(ids));
       el.style.opacity = .4;
     });
     el.addEventListener('dragend', () => el.style.opacity = 1);
-    list.appendChild(el);
+    content.appendChild(el);
   });
   updatePickerStatus();
 }
 
 function updatePickerStatus(){
   const n = state.selectedProducts?.size || 0;
-  document.getElementById('picker-status').innerText = n
-    ? `${n} valgt — dra inn i griden`
-    : 'Dra et produkt inn i griden';
+  document.getElementById('picker-status').innerText = n ? `${n} valgt — dra inn i griden` : 'Dra et produkt inn i griden';
 }
 
 function renderCatChips(){
@@ -477,35 +893,70 @@ function renderCatChips(){
   const allChip = document.createElement('button');
   allChip.className = 'chip' + (state.filterCat===null?' on':'');
   allChip.innerText = 'Alle';
-  allChip.onclick = () => { state.filterCat = null; renderCatChips(); renderProducts(); };
+  allChip.onclick = () => { state.filterCat = null; renderCatChips(); renderPicker(); };
   wrap.appendChild(allChip);
   CATS.forEach(c => {
     const el = document.createElement('button');
     el.className = 'chip' + (state.filterCat===c.id?' on':'');
     el.innerHTML = `<span class="w-2 h-2 rounded-full" style="background:${c.color}"></span> ${c.name}`;
-    el.onclick = () => { state.filterCat = c.id; renderCatChips(); renderProducts(); };
+    el.onclick = () => { state.filterCat = c.id; renderCatChips(); renderPicker(); };
     wrap.appendChild(el);
   });
 }
 
 function renderPosPreview(){
   const tab = activeTab();
-  document.getElementById('preview-tabname').innerText = tab.name;
+  if (!tab) return;
+  const tabsBar = document.getElementById('pos-tabs');
+  tabsBar.innerHTML = '';
+  // Filter out tabs not active right now (e.g. age 18+ at lunch)
+  const now = new Date();
+  const hhmm = now.getHours()*60 + now.getMinutes();
+  const dow = now.getDay();
+  state.tabs.forEach((t, idx) => {
+    let active = !t.time;
+    if (t.time){
+      const [fh,fm]=t.time.from.split(':').map(Number);
+      const [th,tm]=t.time.to.split(':').map(Number);
+      const fromMin = fh*60+fm; const toMin = th*60+tm;
+      const inRange = toMin < fromMin ? (hhmm >= fromMin || hhmm <= toMin) : (hhmm >= fromMin && hhmm <= toMin);
+      active = inRange && t.time.days.includes(dow);
+    }
+    if (!active) return;
+    const el = document.createElement('div');
+    el.className = 'px-3 py-1 rounded ' + (idx === state.activeTab ? 'bg-sky-500 text-white' : 'bg-slate-800 text-slate-300');
+    el.innerHTML = `${t.image||''} ${t.name}`;
+    tabsBar.appendChild(el);
+  });
+
   const grid = document.getElementById('pos-grid');
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
   grid.innerHTML = '';
+  const showImg = document.getElementById('show-images').checked;
   for(let r=0;r<tab.rows;r++){
     for(let c=0;c<tab.cols;c++){
       const cell = tab.cells[r][c];
       const el = document.createElement('div');
       el.className = 'pos-cell';
-      if (!cell || cell.hidden) {
+      const hidden = !cell || cell.hidden || isCellMultiHidden(cell);
+      if (hidden){
         el.classList.add('empty');
       } else {
-        const p = productById(cell.productId);
-        el.style.background = cell.color || catColor(p.cat);
-        el.innerHTML = `<div>${p ? p.name : '?'}</div>
-          <div style="opacity:.6;font-size:10px;font-weight:500;margin-top:2px">${p ? p.price + ',-' : ''}</div>`;
+        if (cell.productId){
+          const p = productById(cell.productId);
+          el.style.background = cell.color || catColor(p.cat);
+          let imgHtml = (showImg && p.image) ? `<div class="pos-img">${p.image}</div>` : '';
+          el.innerHTML = imgHtml + `<div>${p ? p.name : '?'}</div><div style="opacity:.6;font-size:10px;font-weight:500;margin-top:2px">${p ? p.price + ',-' : ''}</div>`;
+        } else if (cell.multiId){
+          const m = multiById(cell.multiId);
+          const total = m.items.reduce((s,it)=>{const p=productById(it.pid); return s + (p?p.price*it.qty:0)},0);
+          el.style.background = cell.color || '#fdba74';
+          el.innerHTML = `<div class="pos-img">≡</div><div>${m.name}</div><div style="opacity:.6;font-size:10px;font-weight:500;margin-top:2px">${total},-</div>`;
+        } else if (cell.categoryId){
+          const ct = catById(cell.categoryId);
+          el.style.background = cell.color || ct.color;
+          el.innerHTML = `<div class="pos-img">${ct.icon}</div><div>${ct.name}</div><div style="opacity:.6;font-size:10px">→</div>`;
+        }
       }
       grid.appendChild(el);
     }
@@ -515,7 +966,7 @@ function renderPosPreview(){
 function render(){
   renderTabs();
   renderGrid();
-  renderProducts();
+  renderPicker();
   renderCatChips();
   renderPosPreview();
 }
@@ -534,51 +985,50 @@ function onCellClick(e, r, c){
   }
 
   if (!cell){
-    // Place selected products from picker
     if (state.selectedProducts?.size){
       placeProducts([...state.selectedProducts], r, c);
       state.selectedProducts.clear();
-      renderProducts();
+      renderPicker();
       return;
     }
     toast('Tom celle — dra et produkt fra panelet til høyre');
     return;
   }
 
-  // Open cell panel
   state.activeCellKey = key;
   openCellPanel(r, c);
 }
 
 function placeProducts(ids, startR, startC){
   const tab = activeTab();
-  let r = startR, c = startC;
-  let placed = 0;
-  // Build set of already-placed product ids in this tab for de-dupe
+  let r = startR, c = startC, placed = 0;
   const inTab = new Set();
-  tab.cells.forEach(row => row.forEach(cell => cell && inTab.add(cell.productId)));
+  tab.cells.forEach(row => row.forEach(cell => cell?.productId && inTab.add(cell.productId)));
   for (const id of ids){
-    if (inTab.has(id)){
-      toast(productById(id).name + ' er allerede på fanen');
-      continue;
-    }
-    // Find next available cell starting from (r,c)
-    while (r < tab.rows && tab.cells[r][c]){
-      c++;
-      if (c >= tab.cols){ c = 0; r++; }
-    }
-    if (r >= tab.rows){
-      toast('Ikke plass — utvid rader eller fjern noe først');
-      break;
-    }
-    tab.cells[r][c] = { productId: id, color:null, hidden:false, font:14, span:1 };
-    inTab.add(id);
-    placed++;
-    c++;
+    if (inTab.has(id)){ toast(productById(id).name + ' er allerede på fanen'); continue; }
+    while (r < tab.rows && tab.cells[r][c]){ c++; if (c >= tab.cols){ c = 0; r++; } }
+    if (r >= tab.rows){ toast('Ikke plass — utvid rader eller fjern noe først'); break; }
+    tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, color:null, hidden:false, font:14, span:1 };
+    inTab.add(id); placed++; c++;
     if (c >= tab.cols){ c = 0; r++; }
   }
+  logAction(placed+' varer lagt til på "'+tab.name+'"');
   render();
   if (placed) toast(placed + (placed===1?' vare':' varer') + ' lagt til');
+}
+function placeCategory(catId, r, c){
+  const tab = activeTab();
+  if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, color:null, hidden:false, font:14, span:1 };
+  logAction('la til kategori-knapp "'+catById(catId).name+'"');
+  render(); toast('Kategori-knapp lagt til');
+}
+function placeMulti(mid, r, c){
+  const tab = activeTab();
+  if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
+  tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, color:null, hidden:false, font:14, span:1 };
+  logAction('la til sammensatt knapp "'+multiById(mid).name+'"');
+  render(); toast('Sammensatt knapp lagt til');
 }
 
 function swapCells(fromR, fromC, toR, toC){
@@ -586,35 +1036,60 @@ function swapCells(fromR, fromC, toR, toC){
   const tmp = tab.cells[toR][toC];
   tab.cells[toR][toC] = tab.cells[fromR][fromC];
   tab.cells[fromR][fromC] = tmp;
-  render();
-  toast(tmp ? 'Byttet plass' : 'Flyttet vare');
+  render(); toast(tmp ? 'Byttet plass' : 'Flyttet');
 }
 
 function openCellPanel(r, c){
   const tab = activeTab();
   const cell = tab.cells[r][c];
-  const p = productById(cell.productId);
-  document.getElementById('cell-panel-title').innerText = p ? p.name : 'Vare';
+  let title = 'Vare', badge = '';
+  document.getElementById('multi-info').classList.add('hidden');
+  document.getElementById('cat-info').classList.add('hidden');
+  if (cell.productId){
+    const p = productById(cell.productId);
+    title = p ? p.name : 'Vare'; badge = 'Vare';
+  } else if (cell.multiId){
+    const m = multiById(cell.multiId);
+    title = m.name; badge = 'Sammensatt';
+    document.getElementById('multi-info').classList.remove('hidden');
+    const list = document.getElementById('multi-list');
+    list.innerHTML = '';
+    let total = 0;
+    m.items.forEach(it => {
+      const p = productById(it.pid);
+      const sub = p ? p.price * it.qty : 0;
+      total += sub;
+      const row = document.createElement('div');
+      row.className = 'flex justify-between';
+      row.innerHTML = `<span>${it.qty} × ${p ? p.name : '?'}</span><span class="font-mono">${sub},-</span>`;
+      list.appendChild(row);
+    });
+    document.getElementById('multi-total').innerText = total + ',-';
+  } else if (cell.categoryId){
+    const ct = catById(cell.categoryId);
+    title = ct.name; badge = 'Kategori';
+    document.getElementById('cat-info').classList.remove('hidden');
+    document.getElementById('cat-name').innerText = ct.name;
+  }
+  document.getElementById('cell-panel-title').innerText = title;
+  document.getElementById('cell-panel-type-badge').innerText = badge;
   document.getElementById('font-slider').value = cell.font || 14;
   document.getElementById('font-val').innerText = (cell.font || 14) + 'px';
   document.getElementById('span-display').innerText = cell.span || 1;
   const hideBtn = document.getElementById('hide-toggle');
   if (cell.hidden){ hideBtn.classList.remove('on'); hideBtn.innerText = 'Skjult på POS'; }
   else { hideBtn.classList.add('on'); hideBtn.innerText = 'Synlig på POS'; }
-  // Color swatches
   const colorRow = document.getElementById('color-row');
   colorRow.innerHTML = '';
   COLORS.forEach(col => {
     const sw = document.createElement('button');
     sw.style.cssText = `width:28px;height:28px;border-radius:8px;background:${col};border:2px solid ${cell.color===col?'#38bdf8':'#334155'};`;
-    sw.onclick = () => { cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); };
+    sw.onclick = () => { cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); logAction('endret farge på "'+title+'"'); };
     colorRow.appendChild(sw);
   });
   const clear = document.createElement('button');
   clear.style.cssText = `width:28px;height:28px;border-radius:8px;background:transparent;border:2px dashed #475569;color:#64748b;font-size:14px;`;
-  clear.innerText = '×';
-  clear.title = 'Fjern farge';
-  clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
+  clear.innerText = '×'; clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
   colorRow.appendChild(clear);
 
   document.getElementById('cell-panel').classList.add('open');
@@ -633,79 +1108,203 @@ function toggleHidden(){
   const [r,c] = state.activeCellKey.split('-').map(Number);
   const cell = activeTab().cells[r][c];
   cell.hidden = !cell.hidden;
-  openCellPanel(r,c);
-  render();
+  openCellPanel(r,c); render();
   toast(cell.hidden ? 'Skjult på POS' : 'Synlig på POS');
 }
 function removeFromCell(){
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
   activeTab().cells[r][c] = null;
-  closeCellPanel();
-  render();
-  toast('Fjernet');
+  closeCellPanel(); render(); toast('Fjernet');
+  logAction('fjernet knapp fra ('+r+','+c+')');
 }
 
-function adjustLayout(dCols, dRows){
-  const tab = activeTab();
-  const newCols = Math.max(2, Math.min(12, tab.cols + dCols));
-  const newRows = Math.max(2, Math.min(12, tab.rows + dRows));
-  const cells = [];
-  for(let r=0;r<newRows;r++){
-    const row=[];
-    for(let c=0;c<newCols;c++){
-      if (r<tab.rows && c<tab.cols) row.push(tab.cells[r][c]);
-      else row.push(null);
-    }
-    cells.push(row);
+// -------------- Modals --------------
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+// --- Tab modal
+function openTabModal(idx){
+  state.editingTabIdx = (idx===undefined ? null : idx);
+  const t = idx!=null ? state.tabs[idx] : null;
+  document.getElementById('modal-tab-title').innerText = t ? 'Endre fane' : 'Ny fane';
+  document.getElementById('tab-name').value = t? t.name : '';
+  document.getElementById('tab-desc').value = '';
+  document.getElementById('tab-cols').value = t? t.cols : 7;
+  document.getElementById('tab-rows').value = t? t.rows : 4;
+  document.getElementById('cols-val').innerText = t? t.cols : 7;
+  document.getElementById('rows-val').innerText = t? t.rows : 4;
+  document.getElementById('time-toggle').checked = !!t?.time;
+  document.getElementById('time-box').classList.toggle('hidden', !t?.time);
+  if (t?.time){
+    document.getElementById('time-from').value = t.time.from;
+    document.getElementById('time-to').value = t.time.to;
+    document.querySelectorAll('#weekdays .day').forEach(d=>{
+      d.classList.toggle('on', t.time.days.includes(parseInt(d.dataset.d)));
+    });
   }
-  tab.cols = newCols; tab.rows = newRows; tab.cells = cells;
+  updateTabModalPreview();
+  openModal('modal-tab');
+}
+function updateTabModalPreview(){
+  const cols = parseInt(document.getElementById('tab-cols').value);
+  const rows = parseInt(document.getElementById('tab-rows').value);
+  const grid = document.getElementById('tab-modal-preview');
+  grid.style.gridTemplateColumns = `repeat(${cols},minmax(0,1fr))`;
+  grid.innerHTML = '';
+  for(let i=0;i<cols*rows;i++){
+    const el = document.createElement('div');
+    el.style.cssText = 'aspect-ratio:1/1;background:#1e293b;border:1px dashed #334155;border-radius:6px;';
+    grid.appendChild(el);
+  }
+}
+function saveTabModal(){
+  const name = document.getElementById('tab-name').value.trim() || 'Ny fane';
+  const cols = parseInt(document.getElementById('tab-cols').value);
+  const rows = parseInt(document.getElementById('tab-rows').value);
+  let time = null;
+  if (document.getElementById('time-toggle').checked){
+    time = {
+      from: document.getElementById('time-from').value,
+      to: document.getElementById('time-to').value,
+      days: [...document.querySelectorAll('#weekdays .day.on')].map(d=>parseInt(d.dataset.d))
+    };
+  }
+  if (state.editingTabIdx == null){
+    state.tabs.push({ name, cols, rows, time, cells: seedCells(cols, rows, []) });
+    state.activeTab = state.tabs.length-1;
+    logAction('opprettet fane "'+name+'"');
+    toast('Fane opprettet');
+  } else {
+    const t = state.tabs[state.editingTabIdx];
+    t.name = name; t.time = time;
+    if (t.cols !== cols || t.rows !== rows){
+      const cells = [];
+      for(let r=0;r<rows;r++){ const row=[]; for(let c=0;c<cols;c++){ row.push((r<t.rows && c<t.cols) ? t.cells[r][c] : null); } cells.push(row); }
+      t.cols = cols; t.rows = rows; t.cells = cells;
+    }
+    logAction('endret fane "'+name+'"');
+    toast('Fane oppdatert');
+  }
+  closeModal('modal-tab');
   render();
 }
 
-// CSS open class for drawers
-const dStyle = document.createElement('style');
-dStyle.textContent = `.open{transform:translateX(0) !important;}`;
-document.head.appendChild(dStyle);
+// Weekday toggle
+document.querySelectorAll('#weekdays .day').forEach(d => d.addEventListener('click', () => d.classList.toggle('on')));
+// Radio cards
+document.querySelectorAll('.radio-card').forEach(rc => rc.addEventListener('click', () => {
+  document.querySelectorAll(`.radio-card[data-radio="${rc.dataset.radio}"]`).forEach(x => x.classList.remove('on'));
+  rc.classList.add('on');
+  rc.querySelector('input').checked = true;
+  if (rc.dataset.radio === 'device_type'){
+    const isMobile = rc.dataset.val === 'mobile';
+    document.getElementById('tab-cols').max = isMobile ? 6 : 8;
+  }
+}));
 
-// preview drawer
+// --- Multi modal
+let multiDraft = [];
+function openMultiModal(){
+  multiDraft = [{pid: PRODUCTS[0].id, qty:1}];
+  document.getElementById('multi-name').value = '';
+  renderMultiRows();
+  openModal('modal-multi');
+}
+function renderMultiRows(){
+  const wrap = document.getElementById('multi-rows');
+  wrap.innerHTML = '';
+  multiDraft.forEach((row, i) => {
+    const el = document.createElement('div');
+    el.className = 'flex items-center gap-2 bg-slate-800/50 border border-slate-700 rounded-lg p-2';
+    const opts = PRODUCTS.map(p=>`<option value="${p.id}" ${p.id===row.pid?'selected':''}>${p.name} (${p.price},-)</option>`).join('');
+    el.innerHTML = `
+      <select class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm flex-1" onchange="multiDraft[${i}].pid=parseInt(this.value); updateMultiTotal()">${opts}</select>
+      <input type="number" min="1" value="${row.qty}" class="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm w-20" oninput="multiDraft[${i}].qty=parseInt(this.value||1); updateMultiTotal()">
+      <button class="text-rose-400 text-lg leading-none" onclick="multiDraft.splice(${i},1); renderMultiRows()">×</button>
+    `;
+    wrap.appendChild(el);
+  });
+  updateMultiTotal();
+}
+function addMultiRow(){ multiDraft.push({pid:PRODUCTS[0].id, qty:1}); renderMultiRows(); }
+function updateMultiTotal(){
+  const total = multiDraft.reduce((s,it)=>{const p=productById(it.pid); return s+(p?p.price*it.qty:0)},0);
+  document.getElementById('multi-modal-total').innerText = total + ',-';
+}
+function saveMultiButton(){
+  const name = document.getElementById('multi-name').value.trim();
+  if (!name){ toast('Sett et navn'); return; }
+  if (!multiDraft.length){ toast('Legg til minst én vare'); return; }
+  const id = 'm' + (multiButtons.length+1);
+  multiButtons.push({id, name, items: multiDraft.slice()});
+  closeModal('modal-multi');
+  logAction('opprettet sammensatt knapp "'+name+'"');
+  render(); toast('Sammensatt knapp opprettet');
+}
+
+// --- Audit
+function openAuditLog(){
+  const list = document.getElementById('audit-list');
+  list.innerHTML = '';
+  state.audit.slice().reverse().forEach(a => {
+    const row = document.createElement('div');
+    row.className = 'flex items-start gap-3 py-2 border-b border-slate-800';
+    row.innerHTML = `<div class="text-sky-400 text-xs font-mono w-20 shrink-0">${a.when}</div>
+      <div><span class="font-medium">${a.who}</span> <span class="text-slate-400">${a.what}</span></div>`;
+    list.appendChild(row);
+  });
+  openModal('modal-log');
+}
+function logAction(what){
+  state.audit.push({who:'Einar', when:'nå', what});
+}
+
+// --- Duplicate
+function openDuplicateGroup(){ openModal('modal-dup'); }
+function doDuplicate(){
+  const newName = document.getElementById('dup-name').value || 'Kopi';
+  closeModal('modal-dup');
+  toast('Kopi opprettet: "'+newName+'"');
+  logAction('kopierte gruppen til "'+newName+'"');
+}
+
+function loadTemplate(){
+  state.tabs = [
+    { name:'Mat', cols:7, rows:4, time:null, image:'🍔', cells:seedCells(7,4,[[0,0,{p:1}],[0,1,{p:4}],[0,2,{p:8}]]) }
+  ];
+  state.activeTab = 0; render(); toast('Mal lastet');
+}
+
+// Picker tab switching
+document.querySelectorAll('.picker-tab').forEach(b => {
+  b.addEventListener('click', () => { state.pickerTab = b.dataset.pickerTab; renderPicker(); });
+});
+
 document.getElementById('btn-preview').addEventListener('click', () => {
   document.getElementById('pos-drawer').classList.toggle('open');
 });
 
-// search & filter
-document.getElementById('search').addEventListener('input', renderProducts);
-document.getElementById('filter-not-added').addEventListener('change', renderProducts);
+document.getElementById('search').addEventListener('input', renderPicker);
+document.getElementById('filter-not-added').addEventListener('change', renderPicker);
+document.getElementById('show-images').addEventListener('change', () => { render(); });
+
+document.getElementById('add-tab').addEventListener('click', () => openTabModal());
 document.getElementById('select-all').addEventListener('click', () => {
   if (!state.selectedProducts) state.selectedProducts = new Set();
-  [...document.querySelectorAll('#product-list .product')].forEach((_, i) => {
-    // get rendered ids
-  });
-  // simpler: select all currently filtered
   const q = (document.getElementById('search').value || '').toLowerCase();
   const hideAdded = document.getElementById('filter-not-added').checked;
   const addedIds = new Set();
-  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c && addedIds.add(c.productId))));
+  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c?.productId && addedIds.add(c.productId))));
   PRODUCTS.filter(p => {
     if (state.filterCat && p.cat !== state.filterCat) return false;
     if (hideAdded && addedIds.has(p.id)) return false;
     if (q && !(p.name.toLowerCase().includes(q) || p.sku.includes(q) || p.cat.includes(q))) return false;
     return true;
   }).forEach(p => state.selectedProducts.add(p.id));
-  renderProducts();
-  toast(state.selectedProducts.size + ' valgt');
+  renderPicker(); toast(state.selectedProducts.size + ' valgt');
 });
 
-// add tab
-document.getElementById('add-tab').addEventListener('click', () => {
-  const name = prompt('Navn på ny fane:', 'Ny fane');
-  if (!name) return;
-  state.tabs.push({ name, cols:7, rows:4, cells: seedCells(7,4, []) });
-  state.activeTab = state.tabs.length-1;
-  render();
-});
-
-// Bulk actions
 document.getElementById('bulk-color').addEventListener('click', () => {
   if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
   const color = prompt('Velg farge (hex), tom for å fjerne:', '#fde68a');
@@ -739,12 +1338,10 @@ document.getElementById('bulk-clear').addEventListener('click', () => {
   render(); toast('Tømte cellene');
 });
 
-// Escape clears selection
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape'){ state.selected.clear(); state.selectedProducts?.clear(); closeCellPanel(); render(); }
+  if (e.key === 'Escape'){ state.selected.clear(); state.selectedProducts?.clear(); closeCellPanel(); document.querySelectorAll('.modal-bg.show').forEach(m=>m.classList.remove('show')); render(); }
 });
 
-// Toast helper
 let toastTimer;
 function toast(msg){
   const t = document.getElementById('toast');
