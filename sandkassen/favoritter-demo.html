@@ -242,17 +242,27 @@
       <div class="text-xs text-slate-400 mb-1">Farge</div>
       <div id="color-row" class="flex gap-2 flex-wrap"></div>
     </div>
-    <div>
-      <div class="text-xs text-slate-400 mb-1">Spenn over (kolonner)</div>
-      <div class="flex items-center gap-2">
-        <button class="chip" onclick="adjustSpan(-1)">−</button>
-        <span id="span-display" class="font-mono">1</span>
-        <button class="chip" onclick="adjustSpan(1)">+</button>
+    <div class="grid grid-cols-2 gap-3">
+      <div>
+        <div class="text-xs text-slate-400 mb-1">Spenn ➡ kolonner</div>
+        <div class="flex items-center gap-2">
+          <button class="chip" onclick="adjustSpan(-1)">−</button>
+          <span id="span-display" class="font-mono">1</span>
+          <button class="chip" onclick="adjustSpan(1)">+</button>
+        </div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-400 mb-1">Spenn ⬇ rader</div>
+        <div class="flex items-center gap-2">
+          <button class="chip" onclick="adjustSpanRows(-1)">−</button>
+          <span id="span-rows-display" class="font-mono">1</span>
+          <button class="chip" onclick="adjustSpanRows(1)">+</button>
+        </div>
       </div>
     </div>
     <div>
       <div class="text-xs text-slate-400 mb-1">Tekst-størrelse</div>
-      <input type="range" min="10" max="22" value="14" id="font-slider" class="w-full accent-sky-500" oninput="document.getElementById('font-val').innerText = this.value + 'px'">
+      <input type="range" min="10" max="22" value="14" id="font-slider" class="w-full accent-sky-500" oninput="onFontChange(this.value)">
       <div class="text-xs text-slate-400 mt-1">Nåværende: <span id="font-val">14px</span></div>
     </div>
     <div class="flex items-center gap-2">
@@ -612,7 +622,7 @@ function seedCells(cols, rows, items){
       productId: obj.p || null,
       multiId: obj.m || null,
       categoryId: obj.c || null,
-      color:null, hidden:false, font:14, span:1
+      color:null, hidden:false, font:14, span:1, spanRows:1
     };
   });
   return grid;
@@ -689,6 +699,7 @@ function renderGrid(){
   const grid = document.getElementById('grid');
   const tab = activeTab();
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
+  grid.style.gridAutoRows = 'minmax(0, 1fr)';
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
   const covered = new Set();
@@ -697,13 +708,21 @@ function renderGrid(){
       if (covered.has(r+'-'+c)) continue;
       const cell = tab.cells[r][c];
       const span = (cell && cell.span > 1) ? Math.min(cell.span, tab.cols - c) : 1;
-      if (span > 1){
-        for (let cc = c+1; cc < c+span; cc++) covered.add(r+'-'+cc);
+      const spanRows = (cell && cell.spanRows > 1) ? Math.min(cell.spanRows, tab.rows - r) : 1;
+      if (span > 1 || spanRows > 1){
+        for (let rr = r; rr < r+spanRows; rr++){
+          for (let cc = c; cc < c+span; cc++){
+            if (rr === r && cc === c) continue;
+            covered.add(rr+'-'+cc);
+          }
+        }
       }
       const el = document.createElement('div');
       const key = r+'-'+c;
       el.className = 'cell';
       if (span > 1) el.style.gridColumn = 'span ' + span;
+      if (spanRows > 1) el.style.gridRow = 'span ' + spanRows;
+      if (cell && cell.font) el.style.fontSize = cell.font + 'px';
       if (cell) el.classList.add('has-item');
       if (cell?.hidden) el.classList.add('inactive');
       if (cell && isCellMultiHidden(cell)) el.classList.add('hidden-by-stock');
@@ -876,6 +895,14 @@ function renderProducts(productList, isBest){
       }
       updatePickerStatus(); renderPicker();
     });
+    el.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      // Place this product (and any other currently-selected) into next free cell(s)
+      const ids = (state.selectedProducts?.size > 1 && state.selectedProducts.has(p.id)) ? [...state.selectedProducts] : [p.id];
+      placeAtNextFree(ids);
+      state.selectedProducts?.clear();
+      renderPicker();
+    });
     el.addEventListener('dragstart', (e) => {
       let ids;
       if (state.selectedProducts?.size > 1 && state.selectedProducts.has(p.id)){ ids = [...state.selectedProducts]; }
@@ -938,6 +965,7 @@ function renderPosPreview(){
 
   const grid = document.getElementById('pos-grid');
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
+  grid.style.gridAutoRows = 'minmax(0,1fr)';
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
   const posCovered = new Set();
@@ -946,12 +974,20 @@ function renderPosPreview(){
       if (posCovered.has(r+'-'+c)) continue;
       const cell = tab.cells[r][c];
       const span = (cell && cell.span > 1) ? Math.min(cell.span, tab.cols - c) : 1;
-      if (span > 1){
-        for (let cc = c+1; cc < c+span; cc++) posCovered.add(r+'-'+cc);
+      const spanRows = (cell && cell.spanRows > 1) ? Math.min(cell.spanRows, tab.rows - r) : 1;
+      if (span > 1 || spanRows > 1){
+        for (let rr = r; rr < r+spanRows; rr++){
+          for (let cc = c; cc < c+span; cc++){
+            if (rr === r && cc === c) continue;
+            posCovered.add(rr+'-'+cc);
+          }
+        }
       }
       const el = document.createElement('div');
       el.className = 'pos-cell';
       if (span > 1) el.style.gridColumn = 'span ' + span;
+      if (spanRows > 1) el.style.gridRow = 'span ' + spanRows;
+      if (cell && cell.font) el.style.fontSize = cell.font + 'px';
       const hidden = !cell || cell.hidden || isCellMultiHidden(cell);
       if (hidden){
         el.classList.add('empty');
@@ -999,13 +1035,22 @@ function onCellClick(e, r, c){
   }
 
   if (!cell){
+    // If we have selected cells with content, move them as a block to here
+    if (state.selected.size > 0){
+      const tab = activeTab();
+      const anyContent = [...state.selected].some(k => {
+        const [rr,cc] = k.split('-').map(Number);
+        return tab.cells[rr] && tab.cells[rr][cc];
+      });
+      if (anyContent){ moveSelection(r, c); return; }
+    }
     if (state.selectedProducts?.size){
       placeProducts([...state.selectedProducts], r, c);
       state.selectedProducts.clear();
       renderPicker();
       return;
     }
-    toast('Tom celle — dra et produkt fra panelet til høyre');
+    toast('Tom celle — dra et produkt fra panelet, eller marker celler med Shift+klikk og trykk her for å flytte');
     return;
   }
 
@@ -1022,7 +1067,7 @@ function placeProducts(ids, startR, startC){
     if (inTab.has(id)){ toast(productById(id).name + ' er allerede på fanen'); continue; }
     while (r < tab.rows && tab.cells[r][c]){ c++; if (c >= tab.cols){ c = 0; r++; } }
     if (r >= tab.rows){ toast('Ikke plass — utvid rader eller fjern noe først'); break; }
-    tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, color:null, hidden:false, font:14, span:1 };
+    tab.cells[r][c] = { productId:id, multiId:null, categoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
     inTab.add(id); placed++; c++;
     if (c >= tab.cols){ c = 0; r++; }
   }
@@ -1033,14 +1078,14 @@ function placeProducts(ids, startR, startC){
 function placeCategory(catId, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
-  tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, color:null, hidden:false, font:14, span:1 };
+  tab.cells[r][c] = { productId:null, multiId:null, categoryId:catId, color:null, hidden:false, font:14, span:1, spanRows:1 };
   logAction('la til kategori-knapp "'+catById(catId).name+'"');
   render(); toast('Kategori-knapp lagt til');
 }
 function placeMulti(mid, r, c){
   const tab = activeTab();
   if (tab.cells[r][c]) { toast('Cellen er ikke tom'); return; }
-  tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, color:null, hidden:false, font:14, span:1 };
+  tab.cells[r][c] = { productId:null, multiId:mid, categoryId:null, color:null, hidden:false, font:14, span:1, spanRows:1 };
   logAction('la til sammensatt knapp "'+multiById(mid).name+'"');
   render(); toast('Sammensatt knapp lagt til');
 }
@@ -1090,6 +1135,7 @@ function openCellPanel(r, c){
   document.getElementById('font-slider').value = cell.font || 14;
   document.getElementById('font-val').innerText = (cell.font || 14) + 'px';
   document.getElementById('span-display').innerText = cell.span || 1;
+  document.getElementById('span-rows-display').innerText = cell.spanRows || 1;
   const hideBtn = document.getElementById('hide-toggle');
   if (cell.hidden){ hideBtn.classList.remove('on'); hideBtn.innerText = 'Skjult på POS'; }
   else { hideBtn.classList.add('on'); hideBtn.innerText = 'Synlig på POS'; }
@@ -1101,9 +1147,25 @@ function openCellPanel(r, c){
     sw.onclick = () => { cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); logAction('endret farge på "'+title+'"'); };
     colorRow.appendChild(sw);
   });
+  // Custom color picker (rainbow swatch with "+")
+  const customLabel = document.createElement('label');
+  const isCustom = cell.color && !COLORS.includes(cell.color);
+  customLabel.style.cssText = `width:28px;height:28px;border-radius:8px;background:${isCustom ? cell.color : 'conic-gradient(#ef4444,#f59e0b,#eab308,#22c55e,#3b82f6,#8b5cf6,#ec4899,#ef4444)'};border:2px solid ${isCustom?'#38bdf8':'#334155'};cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:bold;position:relative;text-shadow:0 0 3px rgba(0,0,0,.7)`;
+  customLabel.innerHTML = isCustom ? '' : '+';
+  customLabel.title = 'Egendefinert farge';
+  const colorInput = document.createElement('input');
+  colorInput.type = 'color';
+  colorInput.value = isCustom ? cell.color : '#fde68a';
+  colorInput.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
+  colorInput.oninput = (e) => { cell.color = e.target.value; renderGrid(); renderPosPreview(); customLabel.style.background = e.target.value; customLabel.innerHTML = ''; };
+  colorInput.onchange = (e) => { cell.color = e.target.value; openCellPanel(r,c); render(); toast('Egendefinert farge satt'); logAction('satt egendefinert farge på "'+title+'"'); };
+  customLabel.appendChild(colorInput);
+  colorRow.appendChild(customLabel);
+  // Clear color
   const clear = document.createElement('button');
   clear.style.cssText = `width:28px;height:28px;border-radius:8px;background:transparent;border:2px dashed #475569;color:#64748b;font-size:14px;`;
-  clear.innerText = '×'; clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
+  clear.innerText = '×'; clear.title = 'Fjern farge';
+  clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
   colorRow.appendChild(clear);
 
   document.getElementById('cell-panel').classList.add('open');
@@ -1114,19 +1176,92 @@ function adjustSpan(d){
   const [r,c] = state.activeCellKey.split('-').map(Number);
   const tab = activeTab();
   const cell = tab.cells[r][c];
-  // Maks spenn = så mange tomme celler som finnes til høyre + selve cellen
+  const spanRows = cell.spanRows || 1;
+  // Maks spenn = så mange tomme celler som finnes til høyre + selve cellen, for hver rad cellen dekker
   let maxSpan = tab.cols - c;
   for (let cc = c+1; cc < tab.cols; cc++){
-    if (tab.cells[r][cc]) { maxSpan = cc - c; break; }
+    let blocked = false;
+    for (let rr = r; rr < r+spanRows; rr++){
+      if (tab.cells[rr] && tab.cells[rr][cc]) { blocked = true; break; }
+    }
+    if (blocked){ maxSpan = cc - c; break; }
   }
   const newSpan = Math.max(1, Math.min(maxSpan, (cell.span||1) + d));
   if (d > 0 && newSpan === (cell.span||1) && newSpan < tab.cols - c){
-    toast('Kan ikke spenne videre — neste celle er opptatt');
+    toast('Kan ikke spenne videre til høyre — neste celle er opptatt');
     return;
   }
   cell.span = newSpan;
   document.getElementById('span-display').innerText = cell.span;
   render();
+}
+
+function adjustSpanRows(d){
+  if (!state.activeCellKey) return;
+  const [r,c] = state.activeCellKey.split('-').map(Number);
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+  const span = cell.span || 1;
+  let maxSpanRows = tab.rows - r;
+  for (let rr = r+1; rr < tab.rows; rr++){
+    let blocked = false;
+    for (let cc = c; cc < c+span; cc++){
+      if (tab.cells[rr] && tab.cells[rr][cc]) { blocked = true; break; }
+    }
+    if (blocked){ maxSpanRows = rr - r; break; }
+  }
+  const newSpanRows = Math.max(1, Math.min(maxSpanRows, (cell.spanRows||1) + d));
+  if (d > 0 && newSpanRows === (cell.spanRows||1) && newSpanRows < tab.rows - r){
+    toast('Kan ikke spenne videre nedover — neste rad er opptatt');
+    return;
+  }
+  cell.spanRows = newSpanRows;
+  document.getElementById('span-rows-display').innerText = cell.spanRows;
+  render();
+}
+
+function onFontChange(v){
+  document.getElementById('font-val').innerText = v + 'px';
+  if (!state.activeCellKey) return;
+  const [r,c] = state.activeCellKey.split('-').map(Number);
+  const cell = activeTab().cells[r][c];
+  if (cell){ cell.font = parseInt(v); renderGrid(); renderPosPreview(); }
+}
+
+function placeAtNextFree(ids){
+  const tab = activeTab();
+  for (let r=0; r<tab.rows; r++){
+    for (let c=0; c<tab.cols; c++){
+      if (!tab.cells[r][c]){ placeProducts(ids, r, c); return; }
+    }
+  }
+  toast('Ingen tomme celler — utvid rader først');
+}
+
+function moveSelection(targetR, targetC){
+  const tab = activeTab();
+  const selected = [...state.selected].map(k => k.split('-').map(Number));
+  if (!selected.length) return;
+  // Only move cells that have content
+  const withContent = selected.filter(([r,c]) => tab.cells[r][c]);
+  if (!withContent.length){ state.selected.clear(); render(); return; }
+  const minR = Math.min(...withContent.map(([r])=>r));
+  const minC = Math.min(...withContent.map(([,c])=>c));
+  const sourceSet = new Set(withContent.map(([r,c])=>r+'-'+c));
+  const moves = withContent.map(([r,c]) => ({ fromR:r, fromC:c, toR: targetR + (r-minR), toC: targetC + (c-minC), content: tab.cells[r][c] }));
+  for (const m of moves){
+    if (m.toR < 0 || m.toR >= tab.rows || m.toC < 0 || m.toC >= tab.cols){
+      toast('Markeringen passer ikke innenfor griden'); return;
+    }
+    if (!sourceSet.has(m.toR+'-'+m.toC) && tab.cells[m.toR][m.toC]){
+      toast('Destinasjons-cellen er opptatt'); return;
+    }
+  }
+  withContent.forEach(([r,c]) => tab.cells[r][c] = null);
+  moves.forEach(m => tab.cells[m.toR][m.toC] = m.content);
+  state.selected = new Set(moves.map(m => m.toR+'-'+m.toC));
+  render(); toast(moves.length+' celler flyttet');
+  logAction('flyttet '+moves.length+' celler som blokk');
 }
 function toggleHidden(){
   if (!state.activeCellKey) return;
@@ -1330,16 +1465,68 @@ document.getElementById('select-all').addEventListener('click', () => {
   renderPicker(); toast(state.selectedProducts.size + ' valgt');
 });
 
-document.getElementById('bulk-color').addEventListener('click', () => {
+document.getElementById('bulk-color').addEventListener('click', (e) => {
   if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
-  const color = prompt('Velg farge (hex), tom for å fjerne:', '#fde68a');
+  showBulkColorPopover(e.currentTarget);
+});
+
+function showBulkColorPopover(btn){
+  document.getElementById('bulk-color-popover')?.remove();
+  const pop = document.createElement('div');
+  pop.id = 'bulk-color-popover';
+  pop.style.cssText = 'position:absolute; z-index:60; background:#0f172a; border:1px solid #334155; border-radius:10px; padding:10px; display:flex; gap:6px; flex-wrap:wrap; max-width:260px; box-shadow:0 10px 30px rgba(0,0,0,.5);';
+  COLORS.forEach(col => {
+    const sw = document.createElement('button');
+    sw.style.cssText = `width:26px;height:26px;border-radius:6px;background:${col};border:1px solid #334155;cursor:pointer;`;
+    sw.onclick = () => { applyBulkColor(col); pop.remove(); };
+    pop.appendChild(sw);
+  });
+  // Custom color
+  const customLabel = document.createElement('label');
+  customLabel.style.cssText = 'width:26px;height:26px;border-radius:6px;background:conic-gradient(#ef4444,#f59e0b,#eab308,#22c55e,#3b82f6,#8b5cf6,#ec4899,#ef4444);border:1px solid #334155;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:bold;position:relative;text-shadow:0 0 3px rgba(0,0,0,.7)';
+  customLabel.innerHTML = '+';
+  customLabel.title = 'Egendefinert farge';
+  const ci = document.createElement('input');
+  ci.type = 'color'; ci.value = '#fde68a';
+  ci.style.cssText = 'position:absolute;inset:0;opacity:0;cursor:pointer;';
+  ci.onchange = (e) => { applyBulkColor(e.target.value); pop.remove(); };
+  customLabel.appendChild(ci);
+  pop.appendChild(customLabel);
+  // Clear
+  const clear = document.createElement('button');
+  clear.style.cssText = 'width:26px;height:26px;border-radius:6px;background:transparent;border:1px dashed #475569;color:#64748b;font-size:14px;';
+  clear.innerText = '×'; clear.title = 'Fjern farge';
+  clear.onclick = () => { applyBulkColor(null); pop.remove(); };
+  pop.appendChild(clear);
+
+  document.body.appendChild(pop);
+  const rect = btn.getBoundingClientRect();
+  let left = rect.left;
+  if (left + 280 > window.innerWidth) left = window.innerWidth - 290;
+  pop.style.top = (rect.bottom + 6) + 'px';
+  pop.style.left = left + 'px';
+  setTimeout(() => {
+    document.addEventListener('click', function handler(ev){
+      if (!pop.contains(ev.target) && ev.target !== btn){
+        pop.remove();
+        document.removeEventListener('click', handler);
+      }
+    });
+  }, 0);
+}
+
+function applyBulkColor(color){
+  const tab = activeTab();
+  let n = 0;
   state.selected.forEach(k => {
     const [r,c] = k.split('-').map(Number);
-    const cell = activeTab().cells[r][c];
-    if (cell) cell.color = color || null;
+    const cell = tab.cells[r][c];
+    if (cell){ cell.color = color; n++; }
   });
-  render(); toast(state.selected.size + ' celler oppdatert');
-});
+  render();
+  toast(n + ' celler oppdatert');
+  logAction('endret farge på '+n+' celler');
+}
 document.getElementById('bulk-hide').addEventListener('click', () => {
   if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
   let anyVisible = false;
