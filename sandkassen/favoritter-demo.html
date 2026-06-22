@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<title>Plorea Favoritter – Forslag til ny UX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#1e293b; --panel2:#0b1220;
+    --line:#334155; --line2:#475569;
+    --text:#e2e8f0; --muted:#94a3b8;
+    --accent:#38bdf8; --accent2:#22d3ee; --good:#34d399;
+    --warn:#fb923c; --bad:#f87171;
+  }
+  html,body{height:100%;}
+  body{font-family:ui-sans-serif,system-ui,-apple-system,"Plus Jakarta Sans",Segoe UI,sans-serif;background:var(--bg);color:var(--text);}
+  .cell{
+    aspect-ratio:1/1;
+    background:var(--panel);
+    border:1px dashed var(--line);
+    border-radius:14px;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--muted); font-size:14px; text-align:center;
+    transition:border-color .15s,background .15s,transform .1s;
+    cursor:pointer;
+    user-select:none; padding:6px;
+  }
+  .cell.has-item{
+    border-style:solid;
+    border-color:var(--line2);
+    background:linear-gradient(180deg,#1e293b,#0f172a);
+    color:var(--text); font-weight:600;
+  }
+  .cell.dragover{ border-color:var(--accent); background:#0c4a6e; color:#fff; }
+  .cell.selected{ outline:2px solid var(--accent); outline-offset:2px; }
+  .cell.inactive::after{ content:"Skjult"; position:absolute; top:6px; right:6px;
+    background:#7f1d1d; color:#fff; font-size:10px; padding:1px 6px; border-radius:6px; letter-spacing:.4px;}
+  .cell{position:relative;}
+  .cell .qty{position:absolute;top:6px;left:6px; background:#0ea5e9; color:#fff; font-size:11px; padding:1px 6px; border-radius:6px; font-weight:700;}
+  .cell .swatch{position:absolute;bottom:6px;right:6px;width:10px;height:10px;border-radius:50%; box-shadow:0 0 0 2px var(--panel);}
+  .tab{
+    display:inline-flex;align-items:center;gap:8px;
+    padding:8px 14px;border-radius:10px;
+    background:var(--panel); border:1px solid var(--line);
+    cursor:grab; user-select:none;
+    font-size:14px;
+  }
+  .tab.active{ background:#0c4a6e;border-color:var(--accent);}
+  .tab .drag{opacity:.5;}
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;background:#0b1220;border:1px solid var(--line);font-size:12px;color:var(--muted);cursor:pointer;}
+  .chip.on{background:#0c4a6e;color:#fff;border-color:var(--accent);}
+  .product{
+    display:flex;align-items:center;gap:10px;
+    padding:10px;border-radius:12px;
+    background:var(--panel); border:1px solid var(--line);
+    cursor:grab; user-select:none;
+  }
+  .product.added{ opacity:.5;}
+  .product.selected{ outline:2px solid var(--accent); }
+  .product .ph{width:38px;height:38px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#0f172a; font-weight:800; font-size:12px;}
+  .pos{
+    background:#0a0f1e; border:1px solid #1f2937; border-radius:16px; padding:14px;
+  }
+  .pos .pos-cell{
+    background:#fff; color:#0f172a; aspect-ratio:1/1; border-radius:10px;
+    display:flex;flex-direction:column; align-items:center; justify-content:center; font-size:12px; text-align:center; padding:4px;
+    font-weight:600; line-height:1.15;
+  }
+  .pos .pos-cell.empty{background:#111827; color:#374151;}
+  .pos .pos-cell.cat-mat{background:#fee2e2;}
+  .pos .pos-cell.cat-drink{background:#dbeafe;}
+  .pos .pos-cell.cat-snacks{background:#fef3c7;}
+  .pos .pos-cell.cat-dessert{background:#ede9fe;}
+  .pos .pos-cell.cat-merch{background:#ecfeff;}
+  .pos .pos-cell.cat-misc{background:#f1f5f9;}
+  .toast{
+    position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
+    background:#0c4a6e; color:#fff; padding:10px 16px; border-radius:10px;
+    border:1px solid var(--accent);
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+    font-size:13px; opacity:0; pointer-events:none; transition:opacity .2s;
+  }
+  .toast.show{opacity:1;}
+  .badge{font-size:10px; padding:1px 6px; border-radius:6px; background:#1f2937; color:var(--muted); letter-spacing:.4px;}
+  .kbd{font-family:ui-monospace,monospace; background:#0b1220; border:1px solid var(--line); border-bottom-width:2px; padding:1px 6px; border-radius:6px; font-size:11px;}
+  .grid-rows{display:grid; gap:10px;}
+  /* Subtle scrollbars */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-thumb{background:#1f2937;border-radius:8px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+</style>
+</head>
+<body class="overflow-hidden">
+
+<header class="border-b border-slate-700 px-5 py-3 flex items-center gap-4 bg-slate-900">
+  <div class="flex items-center gap-2">
+    <div class="w-8 h-8 rounded bg-sky-500/20 border border-sky-500/40 flex items-center justify-center text-sky-400 font-bold">P</div>
+    <div class="text-sm leading-tight">
+      <div class="font-semibold">Favoritt-oppsett</div>
+      <div class="text-slate-400 text-xs">Demo · ny UX-prototype</div>
+    </div>
+  </div>
+  <div class="text-xs text-slate-400 ms-3">
+    <span class="opacity-60">Lokasjon:</span> <span class="font-medium text-slate-200">Messe</span>
+    <span class="opacity-30 mx-1">·</span>
+    <span class="opacity-60">Gruppe:</span> <span class="font-medium text-slate-200">MessePOS</span>
+  </div>
+  <div class="ms-auto flex items-center gap-2">
+    <button id="btn-preview" class="text-sm bg-sky-500 hover:bg-sky-400 text-white font-medium px-3 py-1.5 rounded-lg">
+      Vis POS-forhåndsvisning
+    </button>
+    <div class="text-xs text-slate-400 flex items-center gap-1">
+      <span class="kbd">Ctrl</span><span>+</span><span class="kbd">S</span> lagres automatisk
+    </div>
+  </div>
+</header>
+
+<!-- Tabs row -->
+<div class="border-b border-slate-700 px-5 py-3 bg-slate-900 flex items-center gap-2 flex-wrap" id="tabs-row">
+  <span class="text-xs text-slate-500 mr-1">Faner:</span>
+  <!-- tabs injected -->
+  <button id="add-tab" class="tab" style="background:transparent;border-style:dashed;color:#94a3b8;">+ Ny fane</button>
+  <div class="ms-auto text-xs text-slate-400 flex items-center gap-3">
+    <label class="flex items-center gap-2">
+      <input id="filter-not-added" type="checkbox" checked class="accent-sky-500">
+      <span>Skjul produkter som allerede er lagt til</span>
+    </label>
+  </div>
+</div>
+
+<main class="grid" style="grid-template-columns: 1fr 360px; height: calc(100vh - 116px);">
+
+  <!-- Center: grid -->
+  <section class="overflow-auto p-5">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="text-sm text-slate-300">
+        <span id="active-tab-name" class="font-semibold text-slate-100">Mat</span>
+        <span class="text-slate-500 mx-2">·</span>
+        <span class="text-slate-400">Layout</span>
+        <span class="font-mono text-slate-300 ml-1" id="layout-cols">7</span>
+        <span class="text-slate-500">×</span>
+        <span class="font-mono text-slate-300" id="layout-rows">4</span>
+      </div>
+      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(1,0)">+ kolonne</button>
+      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(-1,0)">− kolonne</button>
+      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(0,1)">+ rad</button>
+      <button class="text-xs text-slate-400 hover:text-slate-200" onclick="adjustLayout(0,-1)">− rad</button>
+      <div class="ms-auto flex items-center gap-2 text-xs">
+        <span class="text-slate-500" id="selection-counter">0 valgt</span>
+        <button id="bulk-color" class="chip">Endre farge</button>
+        <button id="bulk-hide" class="chip">Skjul/vis</button>
+        <button id="bulk-clear" class="chip">Tøm celler</button>
+      </div>
+    </div>
+
+    <div id="grid" class="grid gap-2.5"></div>
+
+    <p class="mt-4 text-xs text-slate-500">
+      Tips: <span class="kbd">Shift</span>+klikk for å markere flere celler. Dra vare fra panelet til høyre eller mellom celler.
+      Trykk <span class="kbd">Esc</span> for å avbryte markering.
+    </p>
+  </section>
+
+  <!-- Right: product picker -->
+  <aside class="border-l border-slate-700 bg-slate-900/60 flex flex-col">
+    <div class="p-3 border-b border-slate-700">
+      <input id="search" placeholder="Søk varenavn, varenr, allergen, varegruppe…" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm placeholder-slate-500 focus:outline-none focus:border-sky-500">
+      <div class="flex flex-wrap gap-1.5 mt-2" id="cat-chips"></div>
+    </div>
+    <div class="p-3 overflow-auto flex-1" id="product-list"></div>
+    <div class="p-3 border-t border-slate-700 text-xs text-slate-400 flex items-center justify-between">
+      <span id="picker-status">Dra et produkt inn i griden</span>
+      <button id="select-all" class="text-sky-400 hover:underline">Marker alle synlige</button>
+    </div>
+  </aside>
+</main>
+
+<!-- Cell context panel (slides from right) -->
+<div id="cell-panel" class="fixed top-0 right-0 h-full w-80 bg-slate-900 border-l border-slate-700 transform translate-x-full transition-transform z-40 shadow-2xl">
+  <div class="p-4 border-b border-slate-700 flex items-center gap-2">
+    <div class="font-semibold text-slate-100" id="cell-panel-title">Vare</div>
+    <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="closeCellPanel()">×</button>
+  </div>
+  <div class="p-4 space-y-4 text-sm">
+    <div>
+      <div class="text-xs text-slate-400 mb-1">Farge</div>
+      <div id="color-row" class="flex gap-2"></div>
+    </div>
+    <div>
+      <div class="text-xs text-slate-400 mb-1">Spenn over (kolonner)</div>
+      <div class="flex items-center gap-2">
+        <button class="chip" onclick="adjustSpan(-1)">−</button>
+        <span id="span-display" class="font-mono">1</span>
+        <button class="chip" onclick="adjustSpan(1)">+</button>
+      </div>
+    </div>
+    <div>
+      <div class="text-xs text-slate-400 mb-1">Tekst-størrelse</div>
+      <input type="range" min="10" max="22" value="14" id="font-slider" class="w-full accent-sky-500" oninput="document.getElementById('font-val').innerText = this.value + 'px'">
+      <div class="text-xs text-slate-400 mt-1">Nåværende: <span id="font-val">14px</span></div>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="chip on" onclick="toggleHidden()" id="hide-toggle">Synlig på POS</button>
+    </div>
+    <div class="border-t border-slate-700 pt-3 text-xs text-slate-500">
+      Endringer lagres automatisk. <span class="text-slate-400">Berører kun denne favoritten</span> — ikke produktets globale aktiv-flagg.
+    </div>
+    <button class="w-full bg-rose-500/20 border border-rose-500/40 text-rose-300 rounded-lg py-2" onclick="removeFromCell()">Fjern fra fanen</button>
+  </div>
+</div>
+
+<!-- POS preview drawer -->
+<div id="pos-drawer" class="fixed top-0 right-0 h-full w-[440px] bg-slate-950 border-l border-slate-800 transform translate-x-full transition-transform z-50 shadow-2xl">
+  <div class="p-4 border-b border-slate-800 flex items-center gap-2">
+    <div class="font-semibold text-slate-100">Slik ser kassen ut</div>
+    <span class="badge ml-1">Live</span>
+    <button class="ms-auto text-slate-400 hover:text-white text-xl leading-none" onclick="document.getElementById('pos-drawer').classList.remove('open')">×</button>
+  </div>
+  <div class="p-3">
+    <div class="bg-slate-900 rounded-xl p-3 border border-slate-800 mb-3">
+      <div class="flex gap-2 mb-3 text-xs">
+        <div class="px-3 py-1 rounded bg-sky-500 text-white" id="preview-tabname">Mat</div>
+        <div class="px-3 py-1 rounded bg-slate-800 text-slate-300">Drikke</div>
+        <div class="px-3 py-1 rounded bg-slate-800 text-slate-300">Dessert</div>
+      </div>
+      <div class="pos">
+        <div id="pos-grid" class="grid gap-1.5"></div>
+      </div>
+      <div class="text-center text-slate-500 text-[10px] mt-2">terminal.ploreasystems.com · Messe</div>
+    </div>
+    <div class="text-xs text-slate-400 leading-relaxed">
+      Forhåndsvisningen oppdateres umiddelbart når du gjør endringer i admin-griden.
+    </div>
+  </div>
+</div>
+<div id="pos-drawer-style"></div>
+
+<div id="toast" class="toast">Lagret</div>
+
+<script>
+// -------------- demo data ----------------
+const COLORS = ['#fde68a','#fca5a5','#a7f3d0','#a5b4fc','#fdba74','#f9a8d4','#bae6fd','#d9f99d','#ffffff'];
+const CATS = [
+  {id:'mat', name:'Mat', color:'#fee2e2'},
+  {id:'drink', name:'Drikke', color:'#dbeafe'},
+  {id:'snacks', name:'Snacks', color:'#fef3c7'},
+  {id:'dessert', name:'Dessert', color:'#ede9fe'},
+  {id:'merch', name:'Merch', color:'#ecfeff'},
+  {id:'misc', name:'Annet', color:'#f1f5f9'},
+];
+const PRODUCTS = [
+  {id:1, sku:'100039', name:'Cheeseburger', cat:'mat', price:189, color:'#fca5a5'},
+  {id:2, sku:'100041', name:'Bacon Burger',  cat:'mat', price:209},
+  {id:3, sku:'100049', name:'Pølse', cat:'mat', price:65},
+  {id:4, sku:'100050', name:'Pizza Margherita', cat:'mat', price:189},
+  {id:5, sku:'100051', name:'Pizza Pepperoni', cat:'mat', price:209},
+  {id:6, sku:'100052', name:'Kebab',          cat:'mat', price:179},
+  {id:7, sku:'100053', name:'Caesarsalat',    cat:'mat', price:159},
+  {id:8, sku:'100060', name:'Coca-Cola',      cat:'drink', price:38},
+  {id:9, sku:'100061', name:'Cola Zero',      cat:'drink', price:38},
+  {id:10,sku:'100062', name:'Fanta',          cat:'drink', price:38},
+  {id:11,sku:'100063', name:'Sprite',         cat:'drink', price:38},
+  {id:12,sku:'100064', name:'Vann',           cat:'drink', price:25},
+  {id:13,sku:'100070', name:'Kaffe',          cat:'drink', price:35},
+  {id:14,sku:'100071', name:'Latte',          cat:'drink', price:49},
+  {id:15,sku:'100072', name:'Cappuccino',     cat:'drink', price:49},
+  {id:16,sku:'100080', name:'Popcorn',        cat:'snacks', price:45},
+  {id:17,sku:'100081', name:'Kims salt',      cat:'snacks', price:30},
+  {id:18,sku:'100082', name:'Kims paprika',   cat:'snacks', price:30},
+  {id:19,sku:'100090', name:'Muffins',        cat:'dessert', price:30},
+  {id:20,sku:'100091', name:'Iskrem',         cat:'dessert', price:35},
+  {id:21,sku:'100100', name:'VIF caps',       cat:'merch', price:250},
+  {id:22,sku:'100101', name:'VIF skjerf',     cat:'merch', price:299},
+];
+
+// Initial tabs (admin model)
+let state = {
+  activeTab: 0,
+  tabs: [
+    { name:'Mat',    cols:7, rows:4, cells: seedCells(7,4, [
+        [0,0, 1, '#fca5a5'],
+        [0,1, 2, '#fca5a5'],
+        [0,2, 3],
+        [0,3, 4, '#fed7aa'],
+        [0,4, 5, '#fed7aa'],
+        [0,5, 6],
+        [0,6, 7, '#a7f3d0'],
+        [1,0, 8],
+        [1,1, 9],
+        [1,2, 10],
+        [1,3, 11],
+        [1,4, 12, '#bae6fd'],
+      ]) },
+    { name:'Drikke', cols:7, rows:4, cells: seedCells(7,4, [
+        [0,0, 8], [0,1, 9], [0,2, 10], [0,3, 11], [0,4, 12], [0,5, 13], [0,6, 14],
+        [1,0, 15]
+    ]) },
+    { name:'Dessert', cols:7, rows:4, cells: seedCells(7,4, [
+        [0,0, 19, '#ede9fe'],[0,1, 20, '#ede9fe']
+    ])},
+  ],
+  selected: new Set(), // "row-col"
+  activeCellKey: null,
+  filterCat: null,
+};
+
+function seedCells(cols, rows, items){
+  const grid = [];
+  for(let r=0;r<rows;r++){
+    const row=[];
+    for(let c=0;c<cols;c++) row.push(null);
+    grid.push(row);
+  }
+  items.forEach(([r,c,id,color])=>{
+    grid[r][c] = { productId: id, color: color||null, hidden:false, font:14, span:1 };
+  });
+  return grid;
+}
+
+function activeTab(){ return state.tabs[state.activeTab]; }
+function productById(id){ return PRODUCTS.find(p=>p.id===id); }
+function catColor(catId){ const c = CATS.find(x=>x.id===catId); return c? c.color : '#f1f5f9'; }
+
+// -------------- render --------------
+function renderTabs(){
+  const row = document.getElementById('tabs-row');
+  // clear existing tab buttons, keep + and right side
+  [...row.querySelectorAll('.tab.dyn')].forEach(el => el.remove());
+  state.tabs.forEach((t, i) => {
+    const el = document.createElement('div');
+    el.className = 'tab dyn' + (i === state.activeTab ? ' active' : '');
+    el.dataset.tabIdx = i;
+    el.innerHTML = `<span class="drag">⋮⋮</span><span class="name">${t.name}</span><span class="text-xs opacity-50">${t.cols}×${t.rows}</span>`;
+    el.draggable = true;
+    el.addEventListener('click', () => { state.activeTab = i; state.selected.clear(); state.activeCellKey = null; render(); });
+    el.addEventListener('dblclick', (e) => {
+      const newName = prompt('Nytt fanenavn:', t.name);
+      if(newName){ t.name = newName; render(); toast('Fane omdøpt'); }
+    });
+    el.addEventListener('dragstart', (e)=>{ e.dataTransfer.setData('text/tab', String(i)); });
+    el.addEventListener('dragover', (e)=>e.preventDefault());
+    el.addEventListener('drop', (e)=>{
+      const fromIdx = parseInt(e.dataTransfer.getData('text/tab'));
+      const toIdx = parseInt(el.dataset.tabIdx);
+      if(isNaN(fromIdx) || isNaN(toIdx) || fromIdx === toIdx) return;
+      const [m] = state.tabs.splice(fromIdx,1); state.tabs.splice(toIdx,0,m);
+      state.activeTab = toIdx;
+      render(); toast('Fanerekkefølge oppdatert');
+    });
+    row.insertBefore(el, document.getElementById('add-tab'));
+  });
+  document.getElementById('active-tab-name').innerText = activeTab().name;
+  document.getElementById('layout-cols').innerText = activeTab().cols;
+  document.getElementById('layout-rows').innerText = activeTab().rows;
+}
+
+function renderGrid(){
+  const grid = document.getElementById('grid');
+  const tab = activeTab();
+  grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
+  grid.innerHTML = '';
+  for(let r=0; r<tab.rows; r++){
+    for(let c=0; c<tab.cols; c++){
+      const cell = tab.cells[r][c];
+      const el = document.createElement('div');
+      const key = r+'-'+c;
+      el.className = 'cell';
+      if (cell) el.classList.add('has-item');
+      if (cell?.hidden) el.classList.add('inactive');
+      if (state.selected.has(key)) el.classList.add('selected');
+      el.dataset.r = r; el.dataset.c = c;
+      if (cell){
+        const p = productById(cell.productId);
+        el.innerHTML = `<div style="line-height:1.2">${p ? p.name : 'Ukjent'}</div>
+          ${cell.color ? `<span class="swatch" style="background:${cell.color}"></span>` : ''}`;
+        el.draggable = true;
+        el.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/cell', JSON.stringify({r,c}));
+          el.style.opacity = .4;
+        });
+        el.addEventListener('dragend', () => el.style.opacity = 1);
+      } else {
+        el.innerHTML = '<span style="font-size:22px">+</span>';
+      }
+      el.addEventListener('click', (e) => onCellClick(e, r, c));
+      el.addEventListener('dragover', (e) => { e.preventDefault(); el.classList.add('dragover'); });
+      el.addEventListener('dragleave', () => el.classList.remove('dragover'));
+      el.addEventListener('drop', (e) => {
+        e.preventDefault();
+        el.classList.remove('dragover');
+        const pidStr = e.dataTransfer.getData('text/product');
+        const cellStr = e.dataTransfer.getData('text/cell');
+        if (pidStr){
+          placeProducts(JSON.parse(pidStr), r, c);
+        } else if (cellStr){
+          const from = JSON.parse(cellStr);
+          swapCells(from.r, from.c, r, c);
+        }
+      });
+      grid.appendChild(el);
+    }
+  }
+  // Selection counter
+  document.getElementById('selection-counter').innerText = state.selected.size + ' valgt';
+}
+
+function renderProducts(){
+  const list = document.getElementById('product-list');
+  list.innerHTML = '';
+  const q = (document.getElementById('search').value || '').toLowerCase();
+  const hideAdded = document.getElementById('filter-not-added').checked;
+  const addedIds = new Set();
+  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c && addedIds.add(c.productId))));
+  const filtered = PRODUCTS.filter(p => {
+    if (state.filterCat && p.cat !== state.filterCat) return false;
+    if (hideAdded && addedIds.has(p.id)) return false;
+    if (q && !(p.name.toLowerCase().includes(q) || p.sku.includes(q) || p.cat.includes(q))) return false;
+    return true;
+  });
+  if (!filtered.length){
+    list.innerHTML = '<div class="text-center text-slate-500 text-sm py-8">Ingen produkter matcher</div>';
+    return;
+  }
+  filtered.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'product mb-2';
+    if (state.selectedProducts?.has(p.id)) el.classList.add('selected');
+    el.draggable = true;
+    el.innerHTML = `
+      <div class="ph" style="background:${catColor(p.cat)}">${p.name[0]}</div>
+      <div class="flex-1 min-w-0">
+        <div class="text-sm font-medium truncate">${p.name}</div>
+        <div class="text-xs text-slate-400 flex items-center gap-1">
+          <span class="badge">${p.sku}</span>
+          <span>${p.price},-</span>
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', (e) => {
+      if (!state.selectedProducts) state.selectedProducts = new Set();
+      if (e.shiftKey || e.metaKey || e.ctrlKey){
+        state.selectedProducts.has(p.id) ? state.selectedProducts.delete(p.id) : state.selectedProducts.add(p.id);
+      } else {
+        const had = state.selectedProducts.has(p.id) && state.selectedProducts.size === 1;
+        state.selectedProducts.clear();
+        if (!had) state.selectedProducts.add(p.id);
+      }
+      updatePickerStatus(); renderProducts();
+    });
+    el.addEventListener('dragstart', (e) => {
+      let ids;
+      if (state.selectedProducts?.size > 1 && state.selectedProducts.has(p.id)){
+        ids = [...state.selectedProducts];
+      } else {
+        ids = [p.id];
+      }
+      e.dataTransfer.setData('text/product', JSON.stringify(ids));
+      el.style.opacity = .4;
+    });
+    el.addEventListener('dragend', () => el.style.opacity = 1);
+    list.appendChild(el);
+  });
+  updatePickerStatus();
+}
+
+function updatePickerStatus(){
+  const n = state.selectedProducts?.size || 0;
+  document.getElementById('picker-status').innerText = n
+    ? `${n} valgt — dra inn i griden`
+    : 'Dra et produkt inn i griden';
+}
+
+function renderCatChips(){
+  const wrap = document.getElementById('cat-chips');
+  wrap.innerHTML = '';
+  const allChip = document.createElement('button');
+  allChip.className = 'chip' + (state.filterCat===null?' on':'');
+  allChip.innerText = 'Alle';
+  allChip.onclick = () => { state.filterCat = null; renderCatChips(); renderProducts(); };
+  wrap.appendChild(allChip);
+  CATS.forEach(c => {
+    const el = document.createElement('button');
+    el.className = 'chip' + (state.filterCat===c.id?' on':'');
+    el.innerHTML = `<span class="w-2 h-2 rounded-full" style="background:${c.color}"></span> ${c.name}`;
+    el.onclick = () => { state.filterCat = c.id; renderCatChips(); renderProducts(); };
+    wrap.appendChild(el);
+  });
+}
+
+function renderPosPreview(){
+  const tab = activeTab();
+  document.getElementById('preview-tabname').innerText = tab.name;
+  const grid = document.getElementById('pos-grid');
+  grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
+  grid.innerHTML = '';
+  for(let r=0;r<tab.rows;r++){
+    for(let c=0;c<tab.cols;c++){
+      const cell = tab.cells[r][c];
+      const el = document.createElement('div');
+      el.className = 'pos-cell';
+      if (!cell || cell.hidden) {
+        el.classList.add('empty');
+      } else {
+        const p = productById(cell.productId);
+        el.style.background = cell.color || catColor(p.cat);
+        el.innerHTML = `<div>${p ? p.name : '?'}</div>
+          <div style="opacity:.6;font-size:10px;font-weight:500;margin-top:2px">${p ? p.price + ',-' : ''}</div>`;
+      }
+      grid.appendChild(el);
+    }
+  }
+}
+
+function render(){
+  renderTabs();
+  renderGrid();
+  renderProducts();
+  renderCatChips();
+  renderPosPreview();
+}
+
+// -------------- interactions --------------
+function onCellClick(e, r, c){
+  const key = r+'-'+c;
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+
+  if (e.shiftKey){
+    if (state.selected.has(key)) state.selected.delete(key);
+    else state.selected.add(key);
+    renderGrid();
+    return;
+  }
+
+  if (!cell){
+    // Place selected products from picker
+    if (state.selectedProducts?.size){
+      placeProducts([...state.selectedProducts], r, c);
+      state.selectedProducts.clear();
+      renderProducts();
+      return;
+    }
+    toast('Tom celle — dra et produkt fra panelet til høyre');
+    return;
+  }
+
+  // Open cell panel
+  state.activeCellKey = key;
+  openCellPanel(r, c);
+}
+
+function placeProducts(ids, startR, startC){
+  const tab = activeTab();
+  let r = startR, c = startC;
+  let placed = 0;
+  // Build set of already-placed product ids in this tab for de-dupe
+  const inTab = new Set();
+  tab.cells.forEach(row => row.forEach(cell => cell && inTab.add(cell.productId)));
+  for (const id of ids){
+    if (inTab.has(id)){
+      toast(productById(id).name + ' er allerede på fanen');
+      continue;
+    }
+    // Find next available cell starting from (r,c)
+    while (r < tab.rows && tab.cells[r][c]){
+      c++;
+      if (c >= tab.cols){ c = 0; r++; }
+    }
+    if (r >= tab.rows){
+      toast('Ikke plass — utvid rader eller fjern noe først');
+      break;
+    }
+    tab.cells[r][c] = { productId: id, color:null, hidden:false, font:14, span:1 };
+    inTab.add(id);
+    placed++;
+    c++;
+    if (c >= tab.cols){ c = 0; r++; }
+  }
+  render();
+  if (placed) toast(placed + (placed===1?' vare':' varer') + ' lagt til');
+}
+
+function swapCells(fromR, fromC, toR, toC){
+  const tab = activeTab();
+  const tmp = tab.cells[toR][toC];
+  tab.cells[toR][toC] = tab.cells[fromR][fromC];
+  tab.cells[fromR][fromC] = tmp;
+  render();
+  toast(tmp ? 'Byttet plass' : 'Flyttet vare');
+}
+
+function openCellPanel(r, c){
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+  const p = productById(cell.productId);
+  document.getElementById('cell-panel-title').innerText = p ? p.name : 'Vare';
+  document.getElementById('font-slider').value = cell.font || 14;
+  document.getElementById('font-val').innerText = (cell.font || 14) + 'px';
+  document.getElementById('span-display').innerText = cell.span || 1;
+  const hideBtn = document.getElementById('hide-toggle');
+  if (cell.hidden){ hideBtn.classList.remove('on'); hideBtn.innerText = 'Skjult på POS'; }
+  else { hideBtn.classList.add('on'); hideBtn.innerText = 'Synlig på POS'; }
+  // Color swatches
+  const colorRow = document.getElementById('color-row');
+  colorRow.innerHTML = '';
+  COLORS.forEach(col => {
+    const sw = document.createElement('button');
+    sw.style.cssText = `width:28px;height:28px;border-radius:8px;background:${col};border:2px solid ${cell.color===col?'#38bdf8':'#334155'};`;
+    sw.onclick = () => { cell.color = col; openCellPanel(r,c); render(); toast('Farge endret'); };
+    colorRow.appendChild(sw);
+  });
+  const clear = document.createElement('button');
+  clear.style.cssText = `width:28px;height:28px;border-radius:8px;background:transparent;border:2px dashed #475569;color:#64748b;font-size:14px;`;
+  clear.innerText = '×';
+  clear.title = 'Fjern farge';
+  clear.onclick = () => { cell.color = null; openCellPanel(r,c); render(); };
+  colorRow.appendChild(clear);
+
+  document.getElementById('cell-panel').classList.add('open');
+}
+function closeCellPanel(){ document.getElementById('cell-panel').classList.remove('open'); state.activeCellKey = null; }
+function adjustSpan(d){
+  if (!state.activeCellKey) return;
+  const [r,c] = state.activeCellKey.split('-').map(Number);
+  const cell = activeTab().cells[r][c];
+  cell.span = Math.max(1, Math.min(activeTab().cols, (cell.span||1) + d));
+  document.getElementById('span-display').innerText = cell.span;
+  render();
+}
+function toggleHidden(){
+  if (!state.activeCellKey) return;
+  const [r,c] = state.activeCellKey.split('-').map(Number);
+  const cell = activeTab().cells[r][c];
+  cell.hidden = !cell.hidden;
+  openCellPanel(r,c);
+  render();
+  toast(cell.hidden ? 'Skjult på POS' : 'Synlig på POS');
+}
+function removeFromCell(){
+  if (!state.activeCellKey) return;
+  const [r,c] = state.activeCellKey.split('-').map(Number);
+  activeTab().cells[r][c] = null;
+  closeCellPanel();
+  render();
+  toast('Fjernet');
+}
+
+function adjustLayout(dCols, dRows){
+  const tab = activeTab();
+  const newCols = Math.max(2, Math.min(12, tab.cols + dCols));
+  const newRows = Math.max(2, Math.min(12, tab.rows + dRows));
+  const cells = [];
+  for(let r=0;r<newRows;r++){
+    const row=[];
+    for(let c=0;c<newCols;c++){
+      if (r<tab.rows && c<tab.cols) row.push(tab.cells[r][c]);
+      else row.push(null);
+    }
+    cells.push(row);
+  }
+  tab.cols = newCols; tab.rows = newRows; tab.cells = cells;
+  render();
+}
+
+// CSS open class for drawers
+const dStyle = document.createElement('style');
+dStyle.textContent = `.open{transform:translateX(0) !important;}`;
+document.head.appendChild(dStyle);
+
+// preview drawer
+document.getElementById('btn-preview').addEventListener('click', () => {
+  document.getElementById('pos-drawer').classList.toggle('open');
+});
+
+// search & filter
+document.getElementById('search').addEventListener('input', renderProducts);
+document.getElementById('filter-not-added').addEventListener('change', renderProducts);
+document.getElementById('select-all').addEventListener('click', () => {
+  if (!state.selectedProducts) state.selectedProducts = new Set();
+  [...document.querySelectorAll('#product-list .product')].forEach((_, i) => {
+    // get rendered ids
+  });
+  // simpler: select all currently filtered
+  const q = (document.getElementById('search').value || '').toLowerCase();
+  const hideAdded = document.getElementById('filter-not-added').checked;
+  const addedIds = new Set();
+  state.tabs.forEach(t => t.cells.forEach(row => row.forEach(c => c && addedIds.add(c.productId))));
+  PRODUCTS.filter(p => {
+    if (state.filterCat && p.cat !== state.filterCat) return false;
+    if (hideAdded && addedIds.has(p.id)) return false;
+    if (q && !(p.name.toLowerCase().includes(q) || p.sku.includes(q) || p.cat.includes(q))) return false;
+    return true;
+  }).forEach(p => state.selectedProducts.add(p.id));
+  renderProducts();
+  toast(state.selectedProducts.size + ' valgt');
+});
+
+// add tab
+document.getElementById('add-tab').addEventListener('click', () => {
+  const name = prompt('Navn på ny fane:', 'Ny fane');
+  if (!name) return;
+  state.tabs.push({ name, cols:7, rows:4, cells: seedCells(7,4, []) });
+  state.activeTab = state.tabs.length-1;
+  render();
+});
+
+// Bulk actions
+document.getElementById('bulk-color').addEventListener('click', () => {
+  if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
+  const color = prompt('Velg farge (hex), tom for å fjerne:', '#fde68a');
+  state.selected.forEach(k => {
+    const [r,c] = k.split('-').map(Number);
+    const cell = activeTab().cells[r][c];
+    if (cell) cell.color = color || null;
+  });
+  render(); toast(state.selected.size + ' celler oppdatert');
+});
+document.getElementById('bulk-hide').addEventListener('click', () => {
+  if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
+  let anyVisible = false;
+  state.selected.forEach(k => {
+    const [r,c] = k.split('-').map(Number);
+    const cell = activeTab().cells[r][c]; if (cell && !cell.hidden) anyVisible = true;
+  });
+  state.selected.forEach(k => {
+    const [r,c] = k.split('-').map(Number);
+    const cell = activeTab().cells[r][c]; if (cell) cell.hidden = anyVisible;
+  });
+  render(); toast(anyVisible ? 'Skjult' : 'Synlig');
+});
+document.getElementById('bulk-clear').addEventListener('click', () => {
+  if (!state.selected.size){ toast('Marker celler med Shift+klikk først'); return; }
+  state.selected.forEach(k => {
+    const [r,c] = k.split('-').map(Number);
+    activeTab().cells[r][c] = null;
+  });
+  state.selected.clear();
+  render(); toast('Tømte cellene');
+});
+
+// Escape clears selection
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape'){ state.selected.clear(); state.selectedProducts?.clear(); closeCellPanel(); render(); }
+});
+
+// Toast helper
+let toastTimer;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.innerText = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+render();
+</script>
+</body>
+</html>
