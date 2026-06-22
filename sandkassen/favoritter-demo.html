@@ -691,12 +691,19 @@ function renderGrid(){
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
+  const covered = new Set();
   for(let r=0; r<tab.rows; r++){
     for(let c=0; c<tab.cols; c++){
+      if (covered.has(r+'-'+c)) continue;
       const cell = tab.cells[r][c];
+      const span = (cell && cell.span > 1) ? Math.min(cell.span, tab.cols - c) : 1;
+      if (span > 1){
+        for (let cc = c+1; cc < c+span; cc++) covered.add(r+'-'+cc);
+      }
       const el = document.createElement('div');
       const key = r+'-'+c;
       el.className = 'cell';
+      if (span > 1) el.style.gridColumn = 'span ' + span;
       if (cell) el.classList.add('has-item');
       if (cell?.hidden) el.classList.add('inactive');
       if (cell && isCellMultiHidden(cell)) el.classList.add('hidden-by-stock');
@@ -933,11 +940,18 @@ function renderPosPreview(){
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
+  const posCovered = new Set();
   for(let r=0;r<tab.rows;r++){
     for(let c=0;c<tab.cols;c++){
+      if (posCovered.has(r+'-'+c)) continue;
       const cell = tab.cells[r][c];
+      const span = (cell && cell.span > 1) ? Math.min(cell.span, tab.cols - c) : 1;
+      if (span > 1){
+        for (let cc = c+1; cc < c+span; cc++) posCovered.add(r+'-'+cc);
+      }
       const el = document.createElement('div');
       el.className = 'pos-cell';
+      if (span > 1) el.style.gridColumn = 'span ' + span;
       const hidden = !cell || cell.hidden || isCellMultiHidden(cell);
       if (hidden){
         el.classList.add('empty');
@@ -1098,8 +1112,19 @@ function closeCellPanel(){ document.getElementById('cell-panel').classList.remov
 function adjustSpan(d){
   if (!state.activeCellKey) return;
   const [r,c] = state.activeCellKey.split('-').map(Number);
-  const cell = activeTab().cells[r][c];
-  cell.span = Math.max(1, Math.min(activeTab().cols, (cell.span||1) + d));
+  const tab = activeTab();
+  const cell = tab.cells[r][c];
+  // Maks spenn = så mange tomme celler som finnes til høyre + selve cellen
+  let maxSpan = tab.cols - c;
+  for (let cc = c+1; cc < tab.cols; cc++){
+    if (tab.cells[r][cc]) { maxSpan = cc - c; break; }
+  }
+  const newSpan = Math.max(1, Math.min(maxSpan, (cell.span||1) + d));
+  if (d > 0 && newSpan === (cell.span||1) && newSpan < tab.cols - c){
+    toast('Kan ikke spenne videre — neste celle er opptatt');
+    return;
+  }
+  cell.span = newSpan;
   document.getElementById('span-display').innerText = cell.span;
   render();
 }
