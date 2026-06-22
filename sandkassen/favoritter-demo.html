@@ -699,7 +699,6 @@ function renderGrid(){
   const grid = document.getElementById('grid');
   const tab = activeTab();
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
-  grid.style.gridAutoRows = 'minmax(0, 1fr)';
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
   const covered = new Set();
@@ -722,6 +721,8 @@ function renderGrid(){
       el.className = 'cell';
       if (span > 1) el.style.gridColumn = 'span ' + span;
       if (spanRows > 1) el.style.gridRow = 'span ' + spanRows;
+      // Aspect-ratio må matche span × spanRows så cellen passer eksakt i sin del av rutenettet uten å presse andre rader
+      if (span !== 1 || spanRows !== 1) el.style.aspectRatio = span + ' / ' + spanRows;
       if (cell && cell.font) el.style.fontSize = cell.font + 'px';
       if (cell) el.classList.add('has-item');
       if (cell?.hidden) el.classList.add('inactive');
@@ -965,7 +966,6 @@ function renderPosPreview(){
 
   const grid = document.getElementById('pos-grid');
   grid.style.gridTemplateColumns = `repeat(${tab.cols}, minmax(0,1fr))`;
-  grid.style.gridAutoRows = 'minmax(0,1fr)';
   grid.innerHTML = '';
   const showImg = document.getElementById('show-images').checked;
   const posCovered = new Set();
@@ -987,6 +987,7 @@ function renderPosPreview(){
       el.className = 'pos-cell';
       if (span > 1) el.style.gridColumn = 'span ' + span;
       if (spanRows > 1) el.style.gridRow = 'span ' + spanRows;
+      if (span !== 1 || spanRows !== 1) el.style.aspectRatio = span + ' / ' + spanRows;
       if (cell && cell.font) el.style.fontSize = cell.font + 'px';
       const hidden = !cell || cell.hidden || isCellMultiHidden(cell);
       if (hidden){
