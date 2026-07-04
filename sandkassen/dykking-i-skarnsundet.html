@@ -246,7 +246,8 @@
 
   /* ---------- Låste lag ---------- */
   .locktarget{position:relative;overflow:hidden;border-radius:16px}
-  .deepgroup{display:grid;gap:0}
+  .deepgroup,.coralgroup,.knowgroup{display:grid;gap:0}
+  .coralgroup{border:1px solid rgba(255,122,61,.22);border-radius:18px;padding:.4rem clamp(.4rem,2vw,1rem)}
   .locklayer{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;justify-content:center;
     gap:.7rem;padding:clamp(1.4rem,4vw,2.4rem);border-radius:14px;
     background:rgba(5,21,18,.86);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);text-align:left}
@@ -255,10 +256,13 @@
   .locklayer h4{font-family:var(--sans);font-stretch:114%;font-weight:800;text-transform:uppercase;font-size:clamp(1.1rem,3vw,1.4rem)}
   .locklayer p{font-size:.94rem;color:var(--foam-soft);max-width:42em}
   .locklayer .btn{margin-top:.4rem;align-self:flex-start;padding:.7rem 1.3rem;font-size:.86rem}
-  /* Nitrox: dyp sone låst som teknisk profil */
-  body[data-mode="nitrox"] .locktarget .locklayer.nx{display:flex}
-  /* Trimix uten korallvett-bekreftelse: port */
-  body[data-mode="trimix"]:not(.vett-ok) .locktarget .locklayer.tx{display:flex}
+  /* Korallvett kreves for å se korallene — uansett dybde og gass */
+  body:not(.vett-ok) .coralgroup>.locklayer.vett{display:flex}
+  .locklayer.vett .tag{color:var(--tech)}
+  /* Nitrox: dype lag (40 m+) som teknisk profil — vises når korallvett er bekreftet */
+  body.vett-ok[data-mode="nitrox"] .coralgroup .deepgroup>.locklayer.nx{display:flex}
+  /* #dypet kunnskapslag: Trimix-styrt (informativt, uavhengig av vett) */
+  body[data-mode="nitrox"] .knowgroup>.locklayer.nx{display:flex}
   /* Standard (uten JS / reduced-motion): alt åpent */
 
   /* ---------- Tom bildeplass (fylles med dine bilder) ---------- */
@@ -558,7 +562,7 @@ setTimeout(function(){
 </section>
 
 <!-- ============ VELG PROFIL ============ -->
-<section class="sec" id="velg" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
+<section class="sec scene-dim" id="velg" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="mono eyebrow">Velg profil</p>
@@ -594,7 +598,7 @@ setTimeout(function(){
 </section>
 
 <!-- ============ FØR DU FÅR BLI MED NED (KORALLVETT) ============ -->
-<section class="sec" id="bli-med" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
+<section class="sec scene-dim" id="bli-med" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
   <div class="wrap">
     <div class="sec-head reveal">
       <p class="mono eyebrow">Før du får bli med ned</p>
@@ -613,8 +617,8 @@ setTimeout(function(){
         <li>Jeg dokumenterer skade forsiktig og melder fra.</li>
       </ul>
       <div class="gate-actions">
-        <button class="btn btn-tech btn-vett" id="vett-confirm">Jeg bekrefter korallvettreglene</button>
-        <span class="confirmnote">✓ Bekreftet — den dype profilen er åpnet</span>
+        <button class="btn btn-tech btn-vett" id="vett-confirm" data-vett>Jeg bekrefter korallvettreglene</button>
+        <span class="confirmnote">✓ Bekreftet — korallsonene er åpnet</span>
       </div>
     </div>
   </div>
@@ -655,6 +659,16 @@ setTimeout(function(){
       </div>
     </div>
 
+    <!-- KORALLSONENE · krever korallvett-bekreftelse uansett dybde -->
+    <div class="coralgroup locktarget reveal">
+      <div class="locklayer vett">
+        <span class="tag">Korallvett kreves</span>
+        <h4>Bekreft korallvettreglene for å gå ned på korallene</h4>
+        <p>Uansett dybde: før du får se korallsonene, bekrefter du predive-reglene for korallvern.
+        Kaldtvannskorallene vokser langsomt — en liten skade kan være synlig i generasjoner.</p>
+        <button class="btn btn-tech" data-vett>Bekreft korallvettreglene</button>
+      </div>
+
     <div class="zone reveal" data-imgslot="forste-korallag-18-30">
       <div class="depth">18–30 m<small>Første korallag</small></div>
       <div class="body">
@@ -688,8 +702,8 @@ setTimeout(function(){
       </div>
     </div>
 
-    <!-- DYPE LAG · låst i Nitrox, korallvett-port i Trimix (40–65 m) -->
-    <div class="deepgroup locktarget reveal">
+      <!-- DYPE LAG · i tillegg låst i Nitrox som teknisk profil (40–65 m) -->
+      <div class="deepgroup locktarget">
       <div class="locklayer nx">
         <span class="tag">Låst · krever teknisk profil</span>
         <h4>Under Nitrox-grensen på 40 meter</h4>
@@ -697,13 +711,6 @@ setTimeout(function(){
         sertifisering, gassplanlegging og team. Den som skal hit ned, vet at det krever en annen gass. Bytt til
         Trimix-visning for å se hva som står under deg.</p>
         <button class="btn btn-tech" data-gas="trimix">Åpne i Trimix-profil</button>
-      </div>
-      <div class="locklayer tx">
-        <span class="tag">Teknisk profil · korallvett kreves</span>
-        <h4>Bekreft korallvettreglene for å åpne dypet</h4>
-        <p>De dypeste, mest sårbare sonene åpnes først når du har bekreftet predive-reglene for korallvern.
-        Ett centimeter skade her er ti til tjue års tapt vekst.</p>
-        <button class="btn btn-tech" id="vett-confirm-2">Bekreft korallvettreglene</button>
       </div>
 
       <div class="zone deep" data-imgslot="dykkerkartlagt-40-60">
@@ -739,6 +746,7 @@ setTimeout(function(){
           </figure>
           <p class="note">Tidl. Lophelia pertusa · aldersrekord i Norge &gt; 9 000 år</p>
         </div>
+      </div>
       </div>
     </div>
 
@@ -855,7 +863,7 @@ setTimeout(function(){
     sammenstilt i rapportgrunnlaget strekker seg fra ca. 20 meter til over 180 meter. Våre egne dykketransekter
     dokumenterer primært 20–70 meter, mens dypere sjikt er dokumentert med ROV og annen kartlegging.</p>
 
-    <div class="deepgroup locktarget reveal">
+    <div class="knowgroup locktarget reveal">
       <div class="locklayer nx">
         <span class="tag">Teknisk profil åpner kunnskapslagene</span>
         <h4>Kunnskapsprofilen ned mot 250 m</h4>
@@ -895,7 +903,7 @@ setTimeout(function(){
 </section>
 
 <!-- ============ UTENFOR VERNEOMRÅDET · TAUTERRYGGEN ============ -->
-<section class="sec" id="tauterryggen" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+<section class="sec scene-dim" id="tauterryggen" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
   <div class="wrap">
     <div class="sidegren reveal">
       <div class="txt">
@@ -1074,15 +1082,14 @@ setTimeout(function(){
   }
   function confirmVett(){
     document.body.classList.add('vett-ok');
-    // hvis man bekrefter vett men er i Nitrox, løft til Trimix så dypet faktisk vises
-    if(document.body.dataset.mode!=='trimix')setMode('trimix');
-    else if(typeof update==='function')update();
+    // Korallvett gjelder uansett gass — vi bytter IKKE profil automatisk
+    if(typeof update==='function')update();
   }
-  // Klikk på alle modus-knapper (nav, gauge, gasscards, låselag)
+  // Klikk på alle modus-knapper (nav, gauge, gasscards, låselag) og korallvett-knapper
   document.addEventListener('click',e=>{
     const g=e.target.closest('[data-gas]');
     if(g){setMode(g.dataset.gas);}
-    if(e.target.closest('#vett-confirm')||e.target.closest('#vett-confirm-2'))confirmVett();
+    if(e.target.closest('[data-vett]'))confirmVett();
   });
 
   /* ---- Gassanalyse / profilvelger (overlay) ---- */
