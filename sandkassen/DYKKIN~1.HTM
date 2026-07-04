@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dykking i Skarnsundet — Bare Dykk</title>
+<script>document.documentElement.classList.add('js');</script>
+<meta name="description" content="Opplev kaldtvannsdykking i Skarnsundet marine verneområde. Velg profil — Nitrox eller Trimix — og se hvor mye av sundet du er kvalifisert til å oppleve. Dokumentert av oss, meter for meter.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Cormorant:ital,wght@1,500;1,600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --surface:#E9F1EB; --surface-2:#DEEAE3;
+    --ink:#0B1F1A; --ink-soft:rgba(11,31,26,.64);
+    --foam:#EDF6F0; --foam-soft:rgba(237,246,240,.6);
+    --line:rgba(237,246,240,.15); --line-ink:rgba(11,31,26,.16);
+    --signal:#FF7A3D; --signal-hi:#FF9057;
+    --coral:#F2C9BC; --ray:#BFE9DB;
+    --tech:#6FB7FF; --tech-soft:rgba(111,183,255,.16);
+    --card:rgba(237,246,240,.045);
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'Archivo',system-ui,sans-serif;
+    --serif:'Cormorant',Georgia,serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);font-weight:410;color:var(--foam);background:#0A2B27;
+    line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  ::selection{background:var(--signal);color:var(--ink)}
+  a{color:inherit;text-decoration:none}
+  :focus-visible{outline:2px solid var(--signal);outline-offset:3px;border-radius:4px}
+  img{max-width:100%;display:block}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+
+  /* ---------- Vannsøyle ---------- */
+  #water{position:fixed;inset:0;z-index:-4;background:#0A2B27}
+  #water::after{content:"";position:absolute;inset:0;
+    background:radial-gradient(120% 65% at 50% -10%,rgba(237,246,240,.08),transparent 60%),
+               radial-gradient(150% 90% at 50% 118%,rgba(0,0,0,.4),transparent 55%)}
+  #snow{position:fixed;inset:0;z-index:-3;pointer-events:none;opacity:0;transition:opacity .6s linear}
+  #snow span{position:absolute;bottom:-6vh;border-radius:50%;background:rgba(237,246,240,.5);
+    animation:rise linear infinite}
+  @keyframes rise{to{transform:translateY(-114vh)}}
+
+  /* ---------- Typo ---------- */
+  .mono{font-family:var(--mono);font-weight:500;font-size:.72rem;letter-spacing:.16em;text-transform:uppercase}
+  .display{font-family:var(--sans);font-stretch:122%;font-weight:850;text-transform:uppercase;
+    line-height:.93;letter-spacing:-.014em}
+  .serif{font-family:var(--serif);font-style:italic;font-weight:500;text-transform:none;letter-spacing:0;line-height:.9}
+  h2.display{font-size:clamp(2.1rem,7.5vw,4.6rem);margin:.9rem 0 1.1rem}
+  h2 .serif{font-size:1.14em;color:var(--coral)}
+  .lede{font-size:clamp(1rem,2.4vw,1.2rem);max-width:35em;color:var(--foam-soft);font-weight:430}
+  .sec{position:relative;padding:clamp(4.5rem,11vh,9rem) clamp(1.2rem,5vw,4rem)}
+  .wrap{max-width:1220px;margin:0 auto}
+  .eyebrow{display:flex;align-items:center;gap:.9rem;color:var(--signal)}
+  .eyebrow::before{content:"";width:2.4rem;height:1px;background:currentColor;flex:0 0 auto}
+  .sec-head{display:flex;flex-direction:column;gap:.2rem;margin-bottom:clamp(1.8rem,4vw,3rem)}
+
+  /* ---------- Nav ---------- */
+  nav{position:fixed;top:0;left:0;right:0;z-index:90;display:flex;justify-content:space-between;align-items:center;
+    padding:.85rem clamp(1.2rem,4vw,2.2rem);color:var(--foam);transition:background .4s,box-shadow .4s}
+  nav.deep{background:rgba(5,21,18,.7);backdrop-filter:blur(14px);box-shadow:0 1px 0 var(--line)}
+  .brand{font-family:var(--sans);font-stretch:122%;font-weight:900;font-size:1.05rem;letter-spacing:.04em;text-transform:uppercase}
+  .brand b{color:var(--signal)}
+  .navlinks{display:flex;gap:1.5rem;align-items:center}
+  .navlinks a{font-family:var(--mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+  .navlinks a:hover{opacity:1;color:var(--signal)}
+  .navlinks .back{opacity:.7}
+  @media(max-width:860px){.navlinks a:not(.back){display:none}}
+
+  /* ---------- Modus-bryter (nav + gauge) ---------- */
+  .modeswitch{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;
+    font-family:var(--mono);font-size:.6rem;letter-spacing:.12em;text-transform:uppercase}
+  .modeswitch button{padding:.42rem .8rem;color:var(--foam-soft);transition:background .2s,color .2s;white-space:nowrap}
+  .modeswitch button[aria-pressed="true"]{color:var(--ink);background:var(--signal)}
+  .modeswitch button.tx[aria-pressed="true"]{background:var(--tech);color:#04121c}
+  nav .modeswitch{margin-left:.4rem}
+  @media(max-width:520px){nav .modeswitch button{padding:.4rem .6rem}}
+
+  /* ---------- Dykkecomputer ---------- */
+  #gauge{position:fixed;right:clamp(.7rem,2.5vw,1.5rem);bottom:clamp(.8rem,3vh,1.5rem);z-index:95;
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;
+    background:rgba(5,21,18,.87);color:var(--foam);border:1px solid var(--line);
+    border-radius:16px;padding:.6rem .85rem;display:flex;gap:.9rem;align-items:center;flex-wrap:wrap;
+    max-width:min(92vw,360px);backdrop-filter:blur(10px);opacity:0;transform:translateY(10px);
+    transition:opacity .45s,transform .45s;pointer-events:none}
+  #gauge.on{opacity:1;transform:none;pointer-events:auto}
+  #gauge .num{display:flex;flex-direction:column;gap:.15rem}
+  #gauge .num small{font-size:.54rem;letter-spacing:.22em;color:var(--foam-soft)}
+  #gauge .d{font-size:1.02rem;color:var(--signal);min-width:5.4ch}
+  #gauge .tv{font-size:.85rem}
+  #gauge .ph{font-size:.72rem;color:var(--coral);letter-spacing:.14em;min-width:7.5ch}
+  #gauge .gas{font-size:.78rem;color:var(--foam);min-width:6ch}
+  body[data-mode="trimix"] #gauge .gas{color:var(--tech)}
+  #gauge canvas{display:block;opacity:.95}
+  #gauge .gwrap{display:flex;flex-direction:column;gap:.3rem}
+
+  /* ---------- Hero ---------- */
+  .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;
+    padding:0;color:var(--foam);isolation:isolate;overflow:hidden}
+  .hero-media{position:absolute;inset:0;z-index:-3;background:linear-gradient(160deg,#123E37,#06231F)}
+  .hero-media img{width:100%;height:100%;object-fit:cover;animation:kenburns 26s ease-in-out infinite alternate}
+  @keyframes kenburns{from{transform:scale(1.05)}to{transform:scale(1.18) translate(-1.5%,1.5%)}}
+  #rays{position:absolute;inset:0;width:100%;height:100%;z-index:-2;mix-blend-mode:screen}
+  .hero-shade{position:absolute;inset:0;z-index:-1;
+    background:linear-gradient(180deg,rgba(5,21,18,.5),rgba(5,21,18,.16) 34%,rgba(5,21,18,.34) 62%,rgba(5,21,18,.92))}
+  .hero-inner{padding:7rem clamp(1.2rem,5vw,4rem) 0;width:100%;max-width:1220px;margin:0 auto}
+  .hero .eyebrow{margin-bottom:1.3rem}
+  .hero h1{font-size:clamp(2.8rem,11vw,8rem)}
+  .hero h1 .l{display:block;overflow:hidden}
+  .hero h1 .l>span{display:block;transition:transform .9s cubic-bezier(.2,.7,.2,1)}
+  html.js .hero h1 .l>span{transform:translateY(110%)}
+  .hero h1 .l:nth-child(2)>span{transition-delay:.12s}
+  body.ready .hero h1 .l>span{transform:none}
+  .hero h1 .serif{color:var(--coral);font-size:1.12em}
+  .hero-sub{display:flex;flex-wrap:wrap;gap:1.4rem 3rem;align-items:flex-end;justify-content:space-between;margin-top:1.6rem}
+  .hero .lede{color:rgba(237,246,240,.8)}
+  .cta-row{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.6rem}
+  .btn{display:inline-flex;align-items:center;gap:.55rem;border-radius:999px;padding:.9rem 1.6rem;
+    font-weight:650;font-size:.93rem;transition:transform .18s,background .18s,border-color .18s;border:1px solid transparent}
+  .btn:hover{transform:translateY(-2px) scale(1.02)}
+  .btn-primary{background:var(--signal);color:var(--ink)}
+  .btn-primary:hover{background:var(--signal-hi)}
+  .btn-ghost{border-color:rgba(237,246,240,.5)}
+  .btn-ghost:hover{border-color:var(--foam)}
+  .btn-tech{background:var(--tech);color:#04121c}
+  .btn-tech:hover{background:#8ac6ff}
+  .credit{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(237,246,240,.55);margin-top:1.3rem}
+  .scrollcue{margin-top:2rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(237,246,240,.6);display:flex;align-items:center;gap:.6rem}
+  .scrollcue .a{animation:bob 2.2s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(4px)}}
+
+  /* ---------- Hvorfor / intro ---------- */
+  .intro-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(1.8rem,4vw,3.4rem);align-items:start}
+  @media(max-width:900px){.intro-grid{grid-template-columns:1fr}}
+  .why{border:1px solid var(--line);border-radius:20px;background:var(--card);padding:1.5rem 1.6rem 1.7rem}
+  .why .mono{color:var(--coral)}
+  .why h3{font-family:var(--sans);font-stretch:114%;font-weight:800;text-transform:uppercase;font-size:1.05rem;margin:.6rem 0 1rem}
+  .why ul{list-style:none;display:grid;gap:.55rem}
+  .why li{font-size:.94rem;color:var(--foam-soft);padding-left:1.3rem;position:relative}
+  .why li::before{content:"";position:absolute;left:0;top:.6em;width:.5rem;height:.5rem;border:1px solid var(--signal);transform:rotate(45deg)}
+  .why .fine{margin-top:1.1rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:var(--foam-soft);line-height:1.7}
+  .pull{border-left:2px solid var(--signal);padding-left:1.3rem;margin-top:1.8rem;
+    font-family:var(--serif);font-style:italic;font-size:clamp(1.3rem,3.2vw,1.8rem);line-height:1.25;color:var(--foam)}
+
+  /* ---------- Profilvelger (inline) ---------- */
+  .profilepick{border:1px solid var(--line);border-radius:22px;background:var(--card);
+    padding:clamp(1.4rem,4vw,2.4rem);display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  @media(max-width:760px){.profilepick{grid-template-columns:1fr}}
+  .gascard{border:1px solid var(--line);border-radius:16px;padding:1.4rem 1.4rem 1.5rem;background:rgba(237,246,240,.03);
+    display:flex;flex-direction:column;gap:.5rem;text-align:left;transition:border-color .2s,transform .2s,background .2s}
+  .gascard:hover{transform:translateY(-3px)}
+  .gascard .tag{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase}
+  .gascard.nx .tag{color:var(--signal)}
+  .gascard.tx .tag{color:var(--tech)}
+  .gascard h3{font-family:var(--sans);font-stretch:116%;font-weight:800;text-transform:uppercase;font-size:1.25rem;letter-spacing:.01em}
+  .gascard .mod{font-family:var(--mono);font-size:.7rem;letter-spacing:.06em;color:var(--foam)}
+  .gascard p{font-size:.92rem;color:var(--foam-soft)}
+  .gascard .pick{margin-top:.6rem;align-self:flex-start;border-radius:999px;padding:.55rem 1.1rem;font-weight:650;font-size:.85rem;border:1px solid transparent}
+  .gascard.nx .pick{background:var(--signal);color:var(--ink)}
+  .gascard.tx .pick{background:var(--tech);color:#04121c}
+  .gascard.nx[aria-current="true"]{border-color:var(--signal);background:rgba(255,122,61,.07)}
+  .gascard.tx[aria-current="true"]{border-color:var(--tech);background:var(--tech-soft)}
+  .gascard .current{font-family:var(--mono);font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--foam-soft);opacity:0}
+  .gascard[aria-current="true"] .current{opacity:1}
+  .disclaimer{margin-top:1.2rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.06em;line-height:1.8;
+    color:var(--foam-soft);border-left:2px solid var(--line);padding-left:1rem}
+
+  /* ---------- Korallvett-port ---------- */
+  .gate{border:1px solid var(--line);border-radius:22px;background:var(--card);padding:clamp(1.6rem,4vw,2.6rem)}
+  .gate .lede{margin-bottom:1.4rem}
+  .vettlist{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1.6rem;margin-bottom:1.5rem}
+  @media(max-width:700px){.vettlist{grid-template-columns:1fr}}
+  .vettlist li{display:flex;gap:.7rem;align-items:baseline;font-size:.96rem;color:var(--foam);
+    padding-bottom:.6rem;border-bottom:1px dashed var(--line)}
+  .vettlist li::before{content:"○";color:var(--signal);font-family:var(--mono)}
+  body.vett-ok .vettlist li::before{content:"✓"}
+  .gate-actions{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center}
+  .gate .confirmnote{font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--signal);opacity:0;transition:opacity .3s}
+  body.vett-ok .gate .confirmnote{opacity:1}
+  body.vett-ok .gate .btn-vett{background:rgba(111,183,255,.12);border-color:var(--tech);color:var(--tech)}
+
+  /* ---------- Over vann vs under vann ---------- */
+  .overwater{color:var(--ink)}
+  .overwater .lede{color:var(--ink-soft)}
+  .overwater .eyebrow{color:#B34A22}
+  .overwater h2 .serif{color:#B34A22}
+  .overwater .mono{color:var(--ink-soft)}
+  .overwater .why,.overwater .step,.overwater .level,.overwater .prep-aside{
+    border-color:var(--line-ink);background:rgba(11,31,26,.035)}
+  .overwater .why .mono,.overwater .step .n,.overwater .level .mono,
+  .overwater .zonesrc,.overwater .daynote,.overwater .why .fine{color:#B34A22}
+  .overwater .why h3,.overwater .step h4,.overwater .level h3,.overwater .prep-aside h3{color:var(--ink)}
+  .overwater .why li,.overwater .step p,.overwater .level p,.overwater .prep-aside p{color:var(--ink-soft)}
+  .overwater .why li::before{border-color:var(--signal)}
+  .overwater .pull{color:var(--ink);border-left-color:var(--signal)}
+  .overwater .checklist li{color:var(--ink);border-bottom-color:var(--line-ink)}
+  .overwater .btn-ghost{border-color:var(--line-ink);color:var(--ink)}
+  .overwater .btn-ghost:hover{border-color:var(--ink)}
+  .overwater .foot,.overwater .foot a{color:var(--ink-soft)}
+  .overwater .foot{border-top-color:var(--line-ink)}
+
+  /* ---------- Seksjons-scene (lys/mørk bakgrunnsplate) ---------- */
+  .scene-light{background:var(--surface)}
+  .scene-dim{background:linear-gradient(180deg, #2E6054, #123E37)}
+
+  /* ---------- Dybdesone-opplevelse ---------- */
+  .zones{max-width:1220px;margin:0 auto;padding:0 clamp(1.2rem,5vw,4rem)}
+  .zone-intro{max-width:34em;margin-bottom:2.4rem}
+  .zone{display:grid;grid-template-columns:96px 1fr;gap:clamp(1rem,3vw,2rem);
+    padding:clamp(1.6rem,4vw,2.6rem) 0;border-top:1px solid var(--line);position:relative}
+  @media(max-width:620px){.zone{grid-template-columns:64px 1fr;gap:.9rem}}
+  .zone .depth{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;
+    font-size:clamp(1.1rem,3.4vw,1.6rem);color:var(--signal);letter-spacing:.02em;
+    position:sticky;top:5.4rem;align-self:start;line-height:1.1}
+  .zone .depth small{display:block;font-size:.5em;letter-spacing:.16em;color:var(--foam-soft);margin-top:.35rem;text-transform:uppercase}
+  .zone .body h3{font-family:var(--sans);font-stretch:116%;font-weight:800;text-transform:uppercase;
+    font-size:clamp(1.05rem,2.6vw,1.35rem);letter-spacing:.01em;margin-bottom:.5rem;line-height:1.1}
+  .zone .body>p{color:var(--foam-soft);font-size:.96rem;max-width:44em;margin-bottom:1rem}
+  .zone .species{display:flex;flex-wrap:wrap;gap:.5rem}
+  .sp{display:inline-flex;align-items:baseline;gap:.5rem;border:1px solid var(--line);border-radius:999px;
+    padding:.4rem .85rem;background:var(--card);transition:border-color .2s,background .2s}
+  .sp:hover{border-color:rgba(255,122,61,.5);background:rgba(237,246,240,.05)}
+  .sp b{font-weight:600;font-size:.86rem;color:var(--foam)}
+  .sp i{font-family:var(--serif);font-style:italic;font-size:.92rem;color:var(--coral);font-weight:600}
+  .sp .rl{font-family:var(--mono);font-size:.56rem;letter-spacing:.1em;padding:.12rem .4rem;border-radius:999px;border:1px solid currentColor;text-transform:uppercase}
+  .sp .nt{color:#F2C9BC}.sp .lc{color:#7BD88F}.sp .dd{color:#E9C46A}
+  .zone .note{margin-top:.9rem;font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--foam-soft)}
+  .zone.bottom{border-top-color:rgba(255,122,61,.4)}
+  .zonesrc{border-top:1px solid var(--line);margin-top:1rem;padding-top:1.4rem;
+    font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--foam-soft)}
+  .zone-photo{margin-top:1.1rem;border-radius:14px;overflow:hidden;border:1px solid var(--line);max-width:520px}
+  .zone-photo img{width:100%;height:auto}
+  .zone-photo figcaption{font-family:var(--mono);font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--foam-soft);padding:.55rem .8rem;background:rgba(5,21,18,.4)}
+  .depth-band{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);
+    min-height:min(46vh,360px);display:flex;align-items:flex-end;isolation:isolate;margin-bottom:1.4rem;
+    background:linear-gradient(160deg,#123E37,#06231F)}
+  .depth-band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+  .depth-band::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(4,16,13,.2),rgba(4,16,13,.82))}
+  .depth-band .cap{padding:clamp(1.2rem,4vw,2.2rem)}
+  .depth-band .cap .mono{color:var(--coral)}
+  .depth-band .cap p{font-family:var(--serif);font-style:italic;font-size:clamp(1.3rem,3.4vw,2rem);line-height:1.2;max-width:22ch;margin-top:.4rem}
+
+  /* ---------- Låste lag ---------- */
+  .locktarget{position:relative;overflow:hidden;border-radius:16px}
+  .deepgroup{display:grid;gap:0}
+  .locklayer{position:absolute;inset:0;z-index:5;display:none;flex-direction:column;justify-content:center;
+    gap:.7rem;padding:clamp(1.4rem,4vw,2.4rem);border-radius:14px;
+    background:rgba(5,21,18,.86);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);text-align:left}
+  .locklayer .tag{font-family:var(--mono);font-size:.64rem;letter-spacing:.18em;text-transform:uppercase;color:var(--signal)}
+  .locklayer.tx .tag{color:var(--tech)}
+  .locklayer h4{font-family:var(--sans);font-stretch:114%;font-weight:800;text-transform:uppercase;font-size:clamp(1.1rem,3vw,1.4rem)}
+  .locklayer p{font-size:.94rem;color:var(--foam-soft);max-width:42em}
+  .locklayer .btn{margin-top:.4rem;align-self:flex-start;padding:.7rem 1.3rem;font-size:.86rem}
+  /* Nitrox: dyp sone låst som teknisk profil */
+  body[data-mode="nitrox"] .locktarget .locklayer.nx{display:flex}
+  /* Trimix uten korallvett-bekreftelse: port */
+  body[data-mode="trimix"]:not(.vett-ok) .locktarget .locklayer.tx{display:flex}
+  /* Standard (uten JS / reduced-motion): alt åpent */
+
+  /* ---------- Tom bildeplass (fylles med dine bilder) ---------- */
+  .imgslot-empty{margin-top:1.1rem;border:1px dashed rgba(237,246,240,.28);border-radius:14px;
+    min-height:150px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.4rem;
+    background:repeating-linear-gradient(135deg,rgba(237,246,240,.02),rgba(237,246,240,.02) 12px,transparent 12px,transparent 24px);
+    max-width:520px;text-align:center;padding:1.2rem}
+  .imgslot-empty .ic{font-size:1.3rem;opacity:.6}
+  .imgslot-empty .lab{font-family:var(--mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--foam-soft)}
+  .imgslot-empty .sub{font-family:var(--mono);font-size:.54rem;letter-spacing:.06em;color:rgba(237,246,240,.4);text-transform:uppercase}
+  .overwater .imgslot-empty{border-color:var(--line-ink)}
+  .overwater .imgslot-empty .lab{color:var(--ink-soft)}
+
+  /* Vendepunkt / bunn-markør */
+  .turn{max-width:1220px;margin:0 auto;padding:2.2rem clamp(1.2rem,5vw,4rem)}
+  .turn .box{border-top:1px dashed var(--line);border-bottom:1px dashed var(--line);padding:2rem 0;
+    display:flex;flex-wrap:wrap;gap:.7rem 1.4rem;align-items:baseline}
+  .turn .m{font-family:var(--mono);font-weight:500;letter-spacing:.28em;text-transform:uppercase;
+    font-size:clamp(.9rem,2.8vw,1.2rem);color:var(--signal)}
+  .turn .t{font-size:.98rem;color:var(--foam-soft)}
+
+  /* ---------- Dyp kunnskapsprofil ---------- */
+  .deepknow{max-width:1220px;margin:0 auto;padding:0 clamp(1.2rem,5vw,4rem)}
+  .strata{display:grid;gap:0;margin-top:1.6rem;border:1px solid var(--line);border-radius:18px;overflow:hidden}
+  .stratum{display:grid;grid-template-columns:130px 1fr;gap:clamp(1rem,3vw,2rem);
+    padding:1.2rem clamp(1.1rem,3vw,1.8rem);border-top:1px solid var(--line);align-items:baseline}
+  .stratum:first-child{border-top:0}
+  @media(max-width:620px){.stratum{grid-template-columns:92px 1fr;gap:.9rem}}
+  .stratum .rng{font-family:var(--mono);font-weight:500;font-variant-numeric:tabular-nums;font-size:1rem;letter-spacing:.02em}
+  .stratum .rng small{display:block;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;color:var(--foam-soft);margin-top:.3rem}
+  .stratum .lab h4{font-family:var(--sans);font-stretch:114%;font-weight:760;text-transform:uppercase;font-size:.98rem;margin-bottom:.25rem}
+  .stratum .lab p{font-size:.92rem;color:var(--foam-soft);max-width:48em}
+  .stratum[data-band="dive"] .rng{color:var(--signal)}
+  .stratum[data-band="tech"] .rng{color:var(--tech)}
+  .stratum[data-band="know"] .rng{color:#E9C46A}
+  .stratum[data-band="fjord"] .rng{color:var(--foam-soft)}
+  .stratum[data-band="fjord"]{background:linear-gradient(90deg,rgba(3,14,11,.6),transparent)}
+  .knowtag{display:inline-block;font-family:var(--mono);font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;
+    padding:.15rem .5rem;border-radius:999px;border:1px solid currentColor;margin-left:.5rem;vertical-align:middle}
+
+  /* ---------- Tauterryggen-modul ---------- */
+  .sidegren{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.4rem,4vw,3rem);align-items:center}
+  @media(max-width:820px){.sidegren{grid-template-columns:1fr}}
+  .sidegren .txt h3{font-family:var(--sans);font-stretch:116%;font-weight:800;text-transform:uppercase;font-size:clamp(1.3rem,3.4vw,1.9rem);margin:.4rem 0 .8rem;line-height:1.05}
+  .sidegren .txt p{color:var(--foam-soft);font-size:.98rem;margin-bottom:1rem}
+  .sidegren .facts{list-style:none;display:grid;gap:.5rem;margin-top:.4rem}
+  .sidegren .facts li{font-size:.9rem;color:var(--foam-soft);padding-left:1.2rem;position:relative}
+  .sidegren .facts li::before{content:"";position:absolute;left:0;top:.6em;width:.45rem;height:.45rem;border:1px solid var(--coral);transform:rotate(45deg)}
+  .sidegren .facts b{color:var(--foam);font-weight:600}
+  .sidegren .visual{border:1px solid var(--line);border-radius:18px;background:linear-gradient(160deg,#123E37,#06231F);
+    min-height:min(46vh,360px);position:relative;overflow:hidden;display:flex;align-items:flex-end}
+  .sidegren .visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .sidegren .visual figcaption{position:relative;z-index:1;padding:1rem 1.2rem;font-family:var(--mono);font-size:.58rem;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--foam-soft);background:linear-gradient(180deg,transparent,rgba(4,16,13,.85))}
+
+  /* ---------- Bilde-band ---------- */
+  .band{position:relative;border-radius:24px;overflow:hidden;border:1px solid var(--line);
+    min-height:min(60vh,480px);display:flex;align-items:flex-end;isolation:isolate;margin-top:1rem;
+    background:linear-gradient(160deg,#123E37,#06231F)}
+  .band img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+  .band::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,rgba(4,16,13,.2),rgba(4,16,13,.85))}
+  .band .cap{padding:clamp(1.4rem,4vw,2.6rem)}
+  .band .cap .mono{color:var(--coral)}
+  .band .cap p{font-family:var(--serif);font-style:italic;font-size:clamp(1.4rem,3.6vw,2.4rem);line-height:1.2;max-width:24ch;margin-top:.5rem}
+
+  /* ---------- Dagen (tidslinje) ---------- */
+  .day{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
+  @media(max-width:900px){.day{grid-template-columns:1fr}}
+  .step{border:1px solid var(--line);border-radius:16px;padding:1.3rem 1.3rem 1.4rem;background:var(--card);position:relative}
+  .step .n{font-family:var(--mono);font-size:.66rem;letter-spacing:.16em;color:var(--signal)}
+  .step h4{font-family:var(--sans);font-stretch:112%;font-weight:760;text-transform:uppercase;font-size:.98rem;margin:.55rem 0 .4rem;letter-spacing:.01em}
+  .step p{font-size:.9rem;color:var(--foam-soft)}
+  .daynote{margin-top:1.6rem;font-family:var(--mono);font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;color:var(--foam-soft)}
+
+  /* ---------- Hvem passer det for (nivåer) ---------- */
+  .levels{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem}
+  @media(max-width:820px){.levels{grid-template-columns:1fr}}
+  .level{border:1px solid var(--line);border-radius:18px;padding:1.5rem 1.6rem;background:var(--card);transition:border-color .2s,transform .2s}
+  .level:hover{border-color:rgba(255,122,61,.5);transform:translateY(-3px)}
+  .level .mono{color:var(--coral)}
+  .level h3{font-family:var(--sans);font-stretch:116%;font-weight:800;text-transform:uppercase;font-size:1.12rem;margin:.5rem 0 .6rem}
+  .level p{font-size:.93rem;color:var(--foam-soft)}
+
+  /* ---------- Forberedelser (utstyrsjekk) ---------- */
+  .prep-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(1.4rem,4vw,3rem);align-items:start}
+  @media(max-width:820px){.prep-grid{grid-template-columns:1fr}}
+  .checklist{list-style:none;display:grid;gap:.65rem}
+  .checklist li{display:flex;gap:.8rem;align-items:baseline;font-size:.98rem;color:var(--foam);
+    padding-bottom:.65rem;border-bottom:1px dashed var(--line)}
+  .checklist li::before{content:"✓";color:var(--signal);font-family:var(--mono);font-weight:500}
+  .prep-aside{border:1px solid var(--line);border-radius:18px;padding:1.5rem 1.6rem;background:var(--card)}
+  .prep-aside h3{font-family:var(--sans);font-stretch:114%;font-weight:800;text-transform:uppercase;font-size:1.05rem;margin-bottom:.7rem}
+  .prep-aside p{font-size:.94rem;color:var(--foam-soft);margin-bottom:1rem}
+
+  /* ---------- Planlegg CTA ---------- */
+  #plan{padding:0}
+  .banner{position:relative;min-height:min(72vh,560px);display:flex;align-items:center;justify-content:center;
+    text-align:center;isolation:isolate;overflow:hidden;background:linear-gradient(160deg,#123E37,#06231F)}
+  .banner img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+  .banner::after{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(90% 90% at 50% 50%,rgba(4,16,13,.3),rgba(4,16,13,.88))}
+  .banner h2{font-size:clamp(2.4rem,8vw,5.4rem)}
+  .banner .lede{margin:0 auto}
+  .banner .cta-row{justify-content:center}
+  .banner .tel{margin-top:1.3rem;font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--foam-soft)}
+  .banner .tel a{color:var(--signal)}
+
+  /* ---------- Footer ---------- */
+  .foot{border-top:1px solid var(--line);padding:2.6rem clamp(1.2rem,5vw,4rem);
+    display:flex;justify-content:space-between;gap:1.4rem;flex-wrap:wrap;
+    font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--foam-soft)}
+  .foot a:hover{color:var(--signal)}
+
+  .reveal{transition:opacity .8s ease,transform .8s ease}
+  html.js .reveal{opacity:0;transform:translateY(24px)}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.d1{transition-delay:.1s}.reveal.d2{transition-delay:.2s}.reveal.d3{transition-delay:.3s}
+
+  /* ---------- Gassanalyse / profilvelger (overlay) ---------- */
+  #boot{position:fixed;inset:0;z-index:200;background:#051512;color:var(--foam);
+    display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.2rem;
+    padding:1.5rem;transition:opacity .55s ease,visibility .55s}
+  #boot.done{opacity:0;visibility:hidden}
+  html:not(.js) #boot{display:none}
+  #boot .brand{font-family:var(--sans);font-stretch:122%;font-weight:900;font-size:1.2rem;letter-spacing:.04em;text-transform:uppercase}
+  #boot .brand b{color:var(--signal)}
+  #boot .label{font-family:var(--mono);font-size:.66rem;letter-spacing:.3em;text-transform:uppercase;color:var(--foam-soft);text-align:center}
+  #boot .choose{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:min(720px,92vw);width:100%}
+  @media(max-width:640px){#boot .choose{grid-template-columns:1fr}}
+  #boot .opt{border:1px solid var(--line);border-radius:16px;padding:1.4rem 1.4rem 1.5rem;text-align:left;
+    display:flex;flex-direction:column;gap:.45rem;transition:border-color .2s,transform .2s,background .2s;background:rgba(237,246,240,.02)}
+  #boot .opt:hover{transform:translateY(-3px)}
+  #boot .opt .t{font-family:var(--mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase}
+  #boot .opt.nx .t{color:var(--signal)}#boot .opt.tx .t{color:var(--tech)}
+  #boot .opt h3{font-family:var(--sans);font-stretch:116%;font-weight:800;text-transform:uppercase;font-size:1.35rem}
+  #boot .opt .mod{font-family:var(--mono);font-size:.68rem;color:var(--foam)}
+  #boot .opt p{font-size:.88rem;color:var(--foam-soft)}
+  #boot .opt .go{margin-top:.5rem;align-self:flex-start;font-family:var(--mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase}
+  #boot .opt.nx .go{color:var(--signal)}#boot .opt.tx .go{color:var(--tech)}
+  #boot .an{display:flex;gap:clamp(1.4rem,6vw,2.6rem)}
+  #boot .cell{display:flex;align-items:baseline;gap:.5rem;font-family:var(--mono)}
+  #boot .cell small{font-size:.68rem;letter-spacing:.22em;color:var(--foam-soft);text-transform:uppercase}
+  #boot .cell span{font-size:clamp(2.3rem,8.5vw,4rem);font-weight:500;color:var(--signal);
+    font-variant-numeric:tabular-nums;min-width:4.4ch;text-align:right}
+  #boot .track{width:min(260px,68vw);height:1px;background:var(--line);position:relative;overflow:hidden}
+  #boot .track i{position:absolute;inset:0;background:var(--signal);transform-origin:left;transform:scaleX(0)}
+  #boot .verdict{font-family:var(--mono);font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--foam-soft);opacity:0;transition:opacity .35s;text-align:center;max-width:34em;line-height:1.7}
+  #boot .verdict.show{opacity:1}
+  #boot .verdict b{color:var(--foam);font-weight:500}
+  #boot .skip{font-family:var(--mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--foam-soft);
+    border:1px solid var(--line);border-radius:999px;padding:.5rem 1rem;margin-top:.3rem}
+  #boot .skip:hover{color:var(--foam);border-color:var(--foam-soft)}
+  #boot .bootdisc{font-family:var(--mono);font-size:.56rem;letter-spacing:.06em;color:rgba(237,246,240,.4);text-align:center;max-width:40em;line-height:1.7;text-transform:none}
+
+  @media(prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *,*::before,*::after{animation:none!important;transition:none!important}
+    #snow,#boot{display:none}
+    .reveal{opacity:1;transform:none}
+    .hero h1 .l>span{transform:none}
+  }
+</style>
+</head>
+<body data-mode="nitrox">
+
+<noscript><style>#gauge,#boot{display:none}.hero h1 .l>span{transform:none}.reveal{opacity:1;transform:none}.locklayer{display:none!important}</style></noscript>
+
+<script>
+/* Failsafe: hvis hovedskriptet ikke fullfører (blokkert/feil), vis alt innhold og fjern overlay */
+setTimeout(function(){
+  if(window.__enhanced)return;
+  try{
+    document.querySelectorAll('.reveal').forEach(function(e){e.classList.add('in');});
+    document.body.classList.add('ready');
+    var b=document.getElementById('boot');
+    if(b){b.classList.add('done');setTimeout(function(){if(b&&b.remove)b.remove();},700);}
+  }catch(e){}
+},4000);
+</script>
+
+<div id="boot" aria-hidden="true">
+  <span class="brand">BARE<b>DYKK</b></span>
+  <span class="label">Analyser gassen før nedstigning</span>
+
+  <div class="choose" id="boot-choose">
+    <button class="opt nx" data-gas="nitrox">
+      <span class="t">Nitrox</span>
+      <h3>EAN28</h3>
+      <span class="mod">MOD ~40 m · pO₂ 1,4</span>
+      <p>For sportsdykkere og viderekomne. Viser de øvre lagene av sundet — vegger, tareskog, strøm og tilgjengelige korallhabitater.</p>
+      <span class="go">Velg Nitrox →</span>
+    </button>
+    <button class="opt tx" data-gas="trimix">
+      <span class="t">Trimix</span>
+      <h3>Tx 15/55</h3>
+      <span class="mod">END ~17 m @ 60 m · pO₂ 1,3</span>
+      <p>For kvalifiserte tekniske team. Åpner den dype profilen ned mot 60 meter — og fjordveggen som fortsetter videre ned i mørket.</p>
+      <span class="go">Velg Trimix →</span>
+    </button>
+  </div>
+
+  <div class="an" id="boot-an" hidden>
+    <div class="cell"><small>O₂</small><span id="an-o2">20,9</span><small>%</small></div>
+    <div class="cell"><small>He</small><span id="an-he">0,0</span><small>%</small></div>
+  </div>
+  <span class="track" id="boot-track" hidden><i id="bar-i"></i></span>
+  <span class="verdict" id="an-ok"></span>
+  <button class="skip" id="boot-skip">Hopp over · vis alt innhold</button>
+  <p class="bootdisc">Dybdeprofilen på denne siden er en visuell kunnskapsprofil, ikke en dykkeplan. Alle dykk planlegges individuelt.</p>
+</div>
+
+<div id="water" aria-hidden="true"></div>
+<div id="snow" aria-hidden="true"></div>
+
+<nav aria-label="Hovedmeny">
+  <a class="brand" href="https://baredykk.no/">BARE<b>DYKK</b></a>
+  <div class="navlinks">
+    <a href="#ned">Ned</a>
+    <a href="#opp">Opp</a>
+    <a href="#dypet">Dypet</a>
+    <a href="#niva">For hvem</a>
+    <div class="modeswitch" role="group" aria-label="Velg profil">
+      <button data-gas="nitrox" class="nx" aria-pressed="true">Nitrox</button>
+      <button data-gas="trimix" class="tx" aria-pressed="false">Trimix</button>
+    </div>
+    <a class="back btn btn-primary" href="#plan" style="padding:.55rem 1.1rem">Planlegg turen</a>
+  </div>
+</nav>
+
+<div id="gauge" aria-hidden="true">
+  <span class="num"><small>Dybde</small><span class="d">0.0 M</span></span>
+  <span class="num"><small>Vann</small><span class="tv">12.6°</span></span>
+  <span class="num"><small>Gass</small><span class="gas">EAN28</span></span>
+  <span class="num"><small>Fase</small><span class="ph">OVERFLATE</span></span>
+  <span class="num"><small>Profil</small><canvas id="prof" width="92" height="30"></canvas></span>
+</div>
+
+<!-- ============ 0 M · OVERFLATEN ============ -->
+<header class="sec hero" id="topp" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE" style="padding:0">
+  <div class="hero-media">
+    <img src="https://baredykk.no/wp-content/uploads/2024/06/Photo-Cred-Julian-Muhlenhaus-JM105782-scaled.webp"
+         alt="Dykker i Skarnsundet" fetchpriority="high">
+  </div>
+  <canvas id="rays" aria-hidden="true"></canvas>
+  <div class="hero-shade" aria-hidden="true"></div>
+  <div class="hero-inner">
+    <p class="mono eyebrow">Dykking i Skarnsundet · marint verneområde · Trøndelag</p>
+    <h1 class="display">
+      <span class="l"><span>Skarnsundet —</span></span>
+      <span class="l"><span class="serif">dypere enn du tror.</span></span>
+    </h1>
+    <div class="hero-sub">
+      <p class="lede">Fra tareskog og vegger til kaldtvannskoraller som fortsetter ned i mørket. Velg profil —
+      Nitrox eller Trimix — og se hvor mye av sundet du er kvalifisert til å oppleve.</p>
+      <div>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#velg">Velg profil</a>
+          <a class="btn btn-ghost" href="#bli-med">Les dykkevettreglene</a>
+        </div>
+        <p class="credit">Foto · Julian Mühlenhaus / Bare Dykk</p>
+      </div>
+    </div>
+    <div class="scrollcue"><span class="a">↓</span> Bla for å stige ned</div>
+  </div>
+</header>
+
+<!-- ============ HVORFOR · INTRO ============ -->
+<section class="sec overwater" id="hvorfor" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Hvorfor Skarnsundet</p>
+      <h2 class="display">Et vernet sund<br>i <span class="serif">bevegelse</span></h2>
+    </div>
+    <div class="intro-grid">
+      <div class="reveal">
+        <p class="lede">Skarnsundet er et smalt tidevannssund som binder sammen deler av Trondheimsfjord-systemet.
+        Det bevegelige vannet transporterer næring gjennom området og gir grunnlag for tette samfunn av
+        fastsittende marint liv. Det betyr også at timing er alt: enkelte lokaliteter kan bare dykkes i egnede
+        tidevannsvinduer, mens andre gir mer skjermede alternativer.</p>
+        <p class="pull">Hva du får se avhenger av erfaring, gassvalg, sertifisering — og hvordan du oppfører deg i vannet.</p>
+      </div>
+      <aside class="why reveal d1">
+        <span class="mono">I og rundt sundet</span>
+        <h3>Dette kan du oppleve</h3>
+        <ul>
+          <li>Bratt undervannsterreng og strømutsatte vegger</li>
+          <li>Tareskog på grunt vann</li>
+          <li>Fargerike anemoner og filtrerende dyreliv</li>
+          <li>Nakensnegler og mindre marine arter</li>
+          <li>Hornkoraller og andre kaldtvannskoraller</li>
+          <li>Dypere korallstrukturer for trente dykkere</li>
+          <li>Sesongbetonte møter med lokal fisk</li>
+        </ul>
+        <p class="fine">Sikten varierer med årstid, vær, plankton og tidevann. God sikt er ofte mulig, men kan ikke garanteres.</p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VELG PROFIL ============ -->
+<section class="sec" id="velg" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Velg profil</p>
+      <h2 class="display">Analyser gassen<br>før <span class="serif">nedstigning</span></h2>
+      <p class="lede">Ikke alle dykkere skal se hele veggen. Skarnsundet kan oppleves på flere nivåer — fra sportsdykk
+      i kaldt, klart fjordvann til tekniske profiler langs dype korallvegger. Gassen du puster er den ærlige grensen:
+      den bestemmer hvor dypt profilen din åpner seg.</p>
+    </div>
+    <div class="profilepick reveal">
+      <button class="gascard nx" data-gas="nitrox" aria-current="true">
+        <span class="tag">Nitrox · sport &amp; viderekomne</span>
+        <h3>EAN28</h3>
+        <span class="mod">MOD ~40 m @ pO₂ 1,4</span>
+        <p>Viser de øvre lagene av sundet: tareskog, vegger, strøm og tilgjengelige korallhabitater ned til rundt
+        40 meter. Vi holder det enkelt ved gassanalysen — EAN28 dekker sportsprofilen med god margin.</p>
+        <span class="current">● Aktiv profil</span>
+        <span class="pick">Velg Nitrox</span>
+      </button>
+      <button class="gascard tx" data-gas="trimix" aria-current="false">
+        <span class="tag">Trimix · kvalifiserte team</span>
+        <h3>Tx 15/55</h3>
+        <span class="mod">END ~17 m @ 60 m · pO₂ 1,3</span>
+        <p>Åpner den dype profilen: tekniske dybder og dype korallsoner mot 60 meter — og det mørke fjordlandskapet
+        som fortsetter langt under vanlig sportsdykking. Den som skal dypere enn gassen tillater, vet selv at det krever en annen gass.</p>
+        <span class="current">● Aktiv profil</span>
+        <span class="pick">Velg Trimix</span>
+      </button>
+    </div>
+    <p class="disclaimer reveal">Dybdeprofilen på denne siden er en visuell kunnskapsprofil, ikke en dykkeplan. Alle dykk
+    planlegges individuelt etter sertifisering, erfaring, team, gass, vær, strøm, sikt og lokale forhold. Dypere
+    profiler gjennomføres kun med kvalifiserte tekniske dykkere og etter egen planlegging.</p>
+  </div>
+</section>
+
+<!-- ============ FØR DU FÅR BLI MED NED (KORALLVETT) ============ -->
+<section class="sec" id="bli-med" data-d="0" data-rt0="0" data-rt1="0" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Før du får bli med ned</p>
+      <h2 class="display">Et godt dykk<br>etterlater <span class="serif">ingen spor</span></h2>
+    </div>
+    <div class="gate reveal">
+      <p class="lede">Skarnsundet og Tauterryggen huser langsomt voksende kaldtvannskoraller. En liten skade kan
+      være synlig i generasjoner. Derfor går alle som dykker med Bare Dykk gjennom en predive-briefing med
+      korallvett, oppdriftskontroll, strømvurdering og regler for foto og video.</p>
+      <ul class="vettlist">
+        <li>Jeg berører ikke koraller, bunn eller vegg.</li>
+        <li>Jeg holder slanger, lykter, kamera og stageflasker streamlinet.</li>
+        <li>Jeg stabiliserer meg i vannsøylen — aldri mot bunn eller korall.</li>
+        <li>Jeg bruker zoom og avstand fremfor å svømme nærmere.</li>
+        <li>Jeg avbryter dykket dersom kontrollen ikke er god nok.</li>
+        <li>Jeg dokumenterer skade forsiktig og melder fra.</li>
+      </ul>
+      <div class="gate-actions">
+        <button class="btn btn-tech btn-vett" id="vett-confirm">Jeg bekrefter korallvettreglene</button>
+        <span class="confirmnote">✓ Bekreftet — den dype profilen er åpnet</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ NED GJENNOM KORALLSKOGEN (MODUSSTYRT PROFIL) ============ -->
+<section class="sec" id="ned" data-from="0" data-to="65" data-rt0="1" data-rt1="30" data-phase="NEDSTIGNING">
+  <div class="zones">
+    <div class="zone-intro reveal">
+      <p class="mono eyebrow">Profilen din · det du passerer</p>
+      <h2 class="display" style="margin-top:.6rem">Ned gjennom<br><span class="serif">korallskogen</span></h2>
+      <p class="lede">Skarnsundet er kartlagt meter for meter. Dette er den faktiske vertikale lagdelingen av
+      korallene — og hvor mye av den du ser, avhenger av gassen du valgte.</p>
+      <p class="mono profil-note" id="profil-note" style="margin-top:1rem;color:var(--signal)"></p>
+    </div>
+
+    <figure class="depth-band reveal" data-imgslot="nedstigning">
+      <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-06-at-19.17.33.webp" alt="Dykker synker ned langs veggen i Skarnsundet">
+      <div class="cap">
+        <span class="mono">Nedstigning · lyset slipper</span>
+        <p>Fra dagslys til dyp — veggen stuper, og korallskogen åpner seg.</p>
+      </div>
+    </figure>
+
+    <!-- ØVRE LAG · åpne i begge profiler (0–40 m) -->
+    <div class="zone reveal" data-imgslot="tareskog-0-15">
+      <div class="depth">0–15 m<small>Tareskog</small></div>
+      <div class="body">
+        <h3>Fra overflaten ned i skogen</h3>
+        <p>Briefing og tidevann på overflaten; så synker du ned i tareskogen — lys, bevegelse og kaldtvann.
+        Nakensnegler på tarebladene og småfisk i ly av den tette vegetasjonen.</p>
+        <div class="species">
+          <span class="sp"><i>Tritonia griegi</i><b>Nakensnegl</b></span>
+          <span class="sp"><b>Tareskog</b></span>
+          <span class="sp"><b>Småfisk</b></span>
+        </div>
+        <figure class="imgslot-empty"><span class="ic">▧</span><span class="lab">Bildeplass · 0–15 m tareskog</span><span class="sub">send bilde – plasseres her</span></figure>
+      </div>
+    </div>
+
+    <div class="zone reveal" data-imgslot="forste-korallag-18-30">
+      <div class="depth">18–30 m<small>Første korallag</small></div>
+      <div class="body">
+        <h3>Skogen begynner</h3>
+        <p>Grunnere enn de fleste tror koraller kan stå, åpner hornkorallskogen seg. Gule sjøbusker dukker opp
+        fra rundt 28 meter og blir tettere nedover. Blant de grunneste korallforekomstene som er kjent fra
+        litteraturen.</p>
+        <div class="species">
+          <span class="sp"><i>Paramuricea placomus</i><b>Sjøbusk</b><span class="rl lc">LC</span></span>
+          <span class="sp"><i>Primnoa resedaeformis</i><b>Risengrynkorall</b><span class="rl lc">LC</span></span>
+        </div>
+        <figure class="zone-photo" data-imgslot="forste-korallag-18-30">
+          <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2021/09/Paragorgia-arborea-15-09-2021_.webp" alt="Sjøtre (Paragorgia arborea) på veggen">
+          <figcaption>Paragorgia arborea · sjøtre · dokumentert i Skarnsundet</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="zone reveal" data-imgslot="videregaende-30-40">
+      <div class="depth">30–40 m<small>Videregående · Nitrox-grensen</small></div>
+      <div class="body">
+        <h3>Et sjøtre der det ikke burde stå</h3>
+        <p>På 36 meter står et rødt sjøtre nær en meter i diameter — blant de grunneste dokumenterte individene
+        av arten som finnes i litteraturen (NINA finner de tette samfunnene først på 130–140 m). Dypere vegger,
+        mer strøm, mer planlegging. Her går Nitrox-grensen: begrensningen er gassen, ikke veggen.</p>
+        <div class="species">
+          <span class="sp"><i>Paragorgia arborea</i><b>Sjøtre</b><span class="rl nt">NT</span></span>
+        </div>
+        <p class="note">Vekst 1,2–3,0 cm/år · funnet av Ella Smevik-Slapgård · innenfor EAN28 (MOD ~40 m)</p>
+        <figure class="imgslot-empty"><span class="ic">▧</span><span class="lab">Bildeplass · 30–40 m sjøtre / vegg</span><span class="sub">send bilde – plasseres her</span></figure>
+      </div>
+    </div>
+
+    <!-- DYPE LAG · låst i Nitrox, korallvett-port i Trimix (40–65 m) -->
+    <div class="deepgroup locktarget reveal">
+      <div class="locklayer nx">
+        <span class="tag">Låst · krever teknisk profil</span>
+        <h4>Under Nitrox-grensen på 40 meter</h4>
+        <p>Disse lagene ligger dypere enn EAN28 tillater, og vises bare i teknisk profil. Dybdene krever riktig
+        sertifisering, gassplanlegging og team. Den som skal hit ned, vet at det krever en annen gass. Bytt til
+        Trimix-visning for å se hva som står under deg.</p>
+        <button class="btn btn-tech" data-gas="trimix">Åpne i Trimix-profil</button>
+      </div>
+      <div class="locklayer tx">
+        <span class="tag">Teknisk profil · korallvett kreves</span>
+        <h4>Bekreft korallvettreglene for å åpne dypet</h4>
+        <p>De dypeste, mest sårbare sonene åpnes først når du har bekreftet predive-reglene for korallvern.
+        Ett centimeter skade her er ti til tjue års tapt vekst.</p>
+        <button class="btn btn-tech" id="vett-confirm-2">Bekreft korallvettreglene</button>
+      </div>
+
+      <div class="zone deep" data-imgslot="dykkerkartlagt-40-60">
+        <div class="depth">40–60 m<small>Dykkerkartlagt sone</small></div>
+        <div class="body">
+          <h3>Vegger av korall</h3>
+          <p>Sammenhengende hardbunnskorallskog: risengrynkorall som et teppe over fjellknauser, i kløfter og opp
+          langs veggene, med sjøbusk rettet mot strømmen. Kvalifiserer som Hardbunnkorallskog (NT). Dette er
+          Bare Dykks egne dokumenterte dykketransekter.</p>
+          <div class="species">
+            <span class="sp"><i>Primnoa resedaeformis</i><b>Risengrynkorall</b><span class="rl lc">LC</span></span>
+            <span class="sp"><i>Paramuricea placomus</i><b>Sjøbusk</b><span class="rl lc">LC</span></span>
+          </div>
+          <figure class="imgslot-empty"><span class="ic">▧</span><span class="lab">Bildeplass · 40–60 m korallvegg</span><span class="sub">send bilde – plasseres her</span></figure>
+        </div>
+      </div>
+
+      <div class="zone deep bottom" data-imgslot="oyekorall-60-65">
+        <div class="depth">60–65 m<small>Dypet</small></div>
+        <div class="body">
+          <h3>Øyekorallen — revbyggeren</h3>
+          <p>Her nede, der planen tar helt over, står øyekorallen: den ekte revbyggeren, med et kalkskjelett som
+          vokser 0,5–1 mm i året og kan bli over 9 000 år gammelt. Rundt den, spredte sjøtre på 64 meter. Ett
+          centimeter skade her er ti til tjue års tapt vekst.</p>
+          <div class="species">
+            <span class="sp"><i>Desmophyllum pertusum</i><b>Øyekorall</b><span class="rl nt">NT</span></span>
+            <span class="sp"><i>Paragorgia arborea</i><b>Sjøtre</b><span class="rl nt">NT</span></span>
+            <span class="sp"><i>Madrepora oculata</i><b>Sikksakkorall</b><span class="rl dd">DD</span></span>
+          </div>
+          <figure class="zone-photo" data-imgslot="oyekorall-60-65">
+            <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2021/09/Lophelia-pertusa-02-07-2014_1.webp" alt="Øyekorall (Desmophyllum pertusum) - revbyggeren">
+            <figcaption>Desmophyllum pertusum · øyekorall · revbyggeren fra 18 m</figcaption>
+          </figure>
+          <p class="note">Tidl. Lophelia pertusa · aldersrekord i Norge &gt; 9 000 år</p>
+        </div>
+      </div>
+    </div>
+
+    <p class="zonesrc reveal">Kilde: Bare Dykk AS — Faglig sammenstilling 2020–2025, faggrunnlag for Statsforvalteren i Trøndelag</p>
+  </div>
+</section>
+
+<!-- ============ VENDEPUNKT ============ -->
+<section class="turn" data-from="60" data-to="55" data-rt0="30" data-rt1="35" data-phase="OPPSTIGNING">
+  <div class="box reveal">
+    <span class="m">Snur på bunnen</span>
+    <span class="t">Vi har sett det dypeste. Nå stiger vi — og livet korallene bærer, kommer til syne lag for lag.</span>
+  </div>
+</section>
+
+<!-- ============ OPP GJENNOM LIVET ============ -->
+<section class="sec" id="opp" data-from="40" data-to="18" data-rt0="36" data-rt1="79" data-phase="OPPSTIGNING">
+  <div class="zones">
+    <div class="zone-intro reveal">
+      <p class="mono eyebrow">På vei opp · livet korallene bærer</p>
+      <h2 class="display" style="margin-top:.6rem">Korallene bygger<br><span class="serif">et helt samfunn</span></h2>
+      <p class="lede">Korallene i Skarnsundet er azooxantellate — de lever ikke av sollys, men av å filtrere plankton
+      fra strømmen. Det de gir tilbake er struktur: tredimensjonale leveområder som skjuler, forer og fostrer alt
+      annet liv rundt seg. På vei opp er det dette du ser.</p>
+    </div>
+
+    <div class="zone reveal">
+      <div class="depth">I skjul<small>Virvelløse</small></div>
+      <div class="body">
+        <h3>Mellom forgreningene</h3>
+        <p>De forgreinede koloniene fungerer som skjul, festeunderlag og oppvekstområde. Mellom grenene lever
+        krepsdyr, børstemark og slangestjerner; på overflaten sitter svamper, hydroider og mosdyr. Kråkeboller
+        beiter i utkanten. Skades kolonien, tapes ikke bare korallen — men alle mikrohabitatene den bærer.</p>
+        <div class="species">
+          <span class="sp"><b>Slangestjerner</b></span>
+          <span class="sp"><b>Børstemark</b></span>
+          <span class="sp"><b>Krepsdyr</b></span>
+          <span class="sp"><b>Kråkeboller</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone reveal">
+      <div class="depth">På veggen<small>Svamp &amp; anemoner</small></div>
+      <div class="body">
+        <h3>Kalksvamp og traktsvamp</h3>
+        <p>Der korallskogen er tettest står også store svamper — kalksvamper mellom koloniene, traktsvamp langs
+        veggene — og fargerike anemoner som fanger næring fra det bevegelige vannet. Svampfaunaen er en egen
+        indikator på et intakt, strømrikt hardbunnssamfunn.</p>
+        <div class="species">
+          <span class="sp"><i>Geodia</i><b>Kalksvamp</b></span>
+          <span class="sp"><i>Phakellia ventilabrum</i><b>Traktsvamp</b></span>
+          <span class="sp"><i>Urticina eques</i><b>Sjøanemone</b></span>
+        </div>
+        <figure class="zone-photo">
+          <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2021/09/Pachycerianthus-multiplicatus-15-09-2021_23.webp" alt="Sylinderanemone (Pachycerianthus multiplicatus)">
+          <figcaption>Pachycerianthus multiplicatus · sylinderanemone · assosiert fauna</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <div class="zone reveal">
+      <div class="depth">I jakt<small>Fisk</small></div>
+      <div class="body">
+        <h3>Rovfisken som hører til</h3>
+        <p>Korallhabitatet er jaktområde. Lusuer står i ly av strukturen, steinbit patruljerer hardbunnen som
+        predator, og sei og torsk trekker gjennom vannsøylen over. Dette er ikke tilfeldig fauna — det er arter
+        som er økologisk knyttet til strukturen korallene bygger.</p>
+        <div class="species">
+          <span class="sp"><i>Sebastes sp.</i><b>Lusuer</b></span>
+          <span class="sp"><i>Anarhichas lupus</i><b>Steinbit</b><span class="rl lc">LC</span></span>
+          <span class="sp"><b>Havmus</b></span>
+          <span class="sp"><b>Sei &amp; torsk</b></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="zone reveal">
+      <div class="depth">Grunt<small>Tareskog</small></div>
+      <div class="body">
+        <h3>Tilbake i lyset</h3>
+        <p>De siste meterne opp kommer tareskogen — grønnere, lysere, i bevegelse med strømmen. Nakensnegler
+        krabber på tarebladene, og småfisk søker ly i den tette vegetasjonen. Sikkerhetsstopp her er sjelden kjedelig.</p>
+        <div class="species">
+          <span class="sp"><i>Tritonia griegi</i><b>Nakensnegl</b></span>
+          <span class="sp"><b>Tareskog</b></span>
+          <span class="sp"><b>Småfisk</b></span>
+        </div>
+        <figure class="zone-photo">
+          <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2021/09/Tritonia-griegi-15-09-2021_6.webp" alt="Nakensnegl (Tritonia griegi) på tarblad">
+          <figcaption>Tritonia griegi · nakensnegl · lever på sjøtreet</figcaption>
+        </figure>
+      </div>
+    </div>
+
+    <p class="zonesrc reveal">Assosiert fauna dokumentert i Skarnsundet · Bare Dykk AS 2020–2025 · jf. Buhl-Mortensen et al. 2010, Roberts et al. 2009</p>
+  </div>
+</section>
+
+<!-- ============ DYPET FORTSETTER (KUNNSKAPSPROFIL) ============ -->
+<section class="sec scene-dim" id="dypet" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="deepknow">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Under kartlagt dykkerprofil</p>
+      <h2 class="display">Veggene fortsetter<br>mot <span class="serif">250 meter</span></h2>
+      <p class="lede">Skarnsundet er ikke en grunn vegg som slutter der dykket slutter. Under de dykkerkartlagte
+      korallsonene fortsetter fjordlandskapet videre ned i mørket. På enkelte steder går sundet ned mot rundt
+      250 meter. Det gir området en dramatisk topografi — og forklarer hvorfor dype vannmasser, strøm og bratte
+      vegger former livet vi møter grunnere.</p>
+    </div>
+
+    <p class="lede reveal" style="max-width:52em;margin-bottom:.4rem">Den visuelle profilen viser både dykkbare
+    opplevelseslag og dypere <b>kunnskapslag</b> — ikke én sammenhengende dykkeplan. Korallforekomstene som er
+    sammenstilt i rapportgrunnlaget strekker seg fra ca. 20 meter til over 180 meter. Våre egne dykketransekter
+    dokumenterer primært 20–70 meter, mens dypere sjikt er dokumentert med ROV og annen kartlegging.</p>
+
+    <div class="deepgroup locktarget reveal">
+      <div class="locklayer nx">
+        <span class="tag">Teknisk profil åpner kunnskapslagene</span>
+        <h4>Kunnskapsprofilen ned mot 250 m</h4>
+        <p>De dype lagene — fra dykkerkartlagt sone til ROV-dokumenterte forekomster og fjorddypet — vises i
+        teknisk profil. Bytt til Trimix for å se hele det vertikale bildet fortsette forbi 100 meter.</p>
+        <button class="btn btn-tech" data-gas="trimix">Åpne kunnskapsprofilen</button>
+      </div>
+      <div class="strata">
+      <div class="stratum" data-band="dive">
+        <div class="rng">0–20 m<small>Sportsdykk</small></div>
+        <div class="lab"><h4>Tareskog og lys</h4><p>Bevegelse, kaldtvann og de grunneste korallmøtene. Åpen i begge profiler.</p></div>
+      </div>
+      <div class="stratum" data-band="dive">
+        <div class="rng">20–40 m<small>Øvre korallsone</small></div>
+        <div class="lab"><h4>Hornkoraller og hardbunnssamfunn</h4><p>Strømutsatte vegger, sjøbusk og sjøtre. Kjernen i Nitrox-profilen.</p></div>
+      </div>
+      <div class="stratum" data-band="tech">
+        <div class="rng">40–70 m<small>Dykkerkartlagt</small></div>
+        <div class="lab"><h4>Dype vegger og tettere korallskog<span class="knowtag">Feltobservasjon</span></h4><p>Bare Dykks egne dykketransekter. Tekniske profiler, Trimix-visning.</p></div>
+      </div>
+      <div class="stratum" data-band="tech">
+        <div class="rng">70–100 m<small>Teknisk kapasitet</small></div>
+        <div class="lab"><h4>Dype profiler på forespørsel<span class="knowtag">Kapasitet</span></h4><p>Det er mulig å dykke dypere her — vi har bare ikke sett behovet, fordi vi finner så mye vakkert grunnere. For kvalifiserte team som planlegger slikt, kan vi bistå.</p></div>
+      </div>
+      <div class="stratum" data-band="know">
+        <div class="rng">100–180 m<small>Kunnskapslag</small></div>
+        <div class="lab"><h4>ROV- og rapportgrunnlag<span class="knowtag">Ikke guidet dykk</span></h4><p>Korallforekomster dokumentert av NINA og annen kartlegging — ikke noe vi tar kunder til, men en del av det vertikale bildet.</p></div>
+      </div>
+      <div class="stratum" data-band="fjord">
+        <div class="rng">180–250 m<small>Fjorddyp</small></div>
+        <div class="lab"><h4>Veggene fortsetter<span class="knowtag">Under kartlagt profil</span></h4><p>Det mørke fjordlandskapet under all dykkeaktivitet. Presentert som topografi — ikke som et dykk.</p></div>
+      </div>
+      </div>
+    </div>
+    <p class="zonesrc reveal">Vertikalt bilde ca. 20 m → over 180 m · Bare Dykk (20–70 m) og NINA/ROV (dypere sjikt) · sammenstilt 2020–2025</p>
+  </div>
+</section>
+
+<!-- ============ UTENFOR VERNEOMRÅDET · TAUTERRYGGEN ============ -->
+<section class="sec" id="tauterryggen" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sidegren reveal">
+      <div class="txt">
+        <p class="mono eyebrow">Også utenfor vernegrensen</p>
+        <h3>Skarnsundet er kjernen — ikke hele historien</h3>
+        <p>Vi dykker også utenfor det marine verneområdet, der strøm, bunnform og fjorddybde skaper stor variasjon
+        i marint liv. Noen områder har brede hardbunnspartier, andre bratte fall, svamp, anemoner og større
+        korallstrukturer. Hvilke steder vi bruker, velges etter erfaring, vær, strøm, sikt og hensynet til sårbare
+        naturverdier.</p>
+        <ul class="facts">
+          <li>Tauterryggen er et eget <b>marint verneområde</b> med sterk egen historie.</li>
+          <li>Selligrunnen på ca. <b>39 meter</b> — blant de grunneste dokumenterte øyekorallforekomstene kjent fra litteraturen.</li>
+          <li>NINA har identifisert <b>fire polygoner</b> med korallforekomster, samlet areal ca. <b>100 daa</b>.</li>
+        </ul>
+      </div>
+      <figure class="visual">
+        <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2021/09/Paragorgia-arborea-15-09-2021_.webp" alt="Korallforekomst utenfor verneområdet">
+        <figcaption>Sjøtre · dokumentert i regionen · Bare Dykk</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DYKKEDAGEN ============ -->
+<section class="sec overwater" id="dagen" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Hvordan er en dykkedag?</p>
+      <h2 class="display">Dagen former seg<br>etter <span class="serif">tidevannet</span></h2>
+      <p class="lede">Det finnes ingen fast timeplan — tidevann, vær og planlagt profil former dagen. En sportsdag
+      kan romme to dykk når forhold og bunntid tillater det; en dypere teknisk dag bygges rundt ett hoveddykk.</p>
+    </div>
+    <div class="day">
+      <article class="step reveal"><span class="n">01</span><h4>Vurder forhold &amp; lokalitet</h4><p>Vi leser tidevann, vær og planlagt sted, og velger riktig lokalitet for dagen.</p></article>
+      <article class="step reveal d1"><span class="n">02</span><h4>Klargjør team &amp; utstyr</h4><p>Utstyrssjekk og gassklargjøring før vi går ut.</p></article>
+      <article class="step reveal d2"><span class="n">03</span><h4>Brief &amp; båttransport</h4><p>Tydelig plan før vi drar ut, så alle vet profilen.</p></article>
+      <article class="step reveal"><span class="n">04</span><h4>Det planlagte dykket</h4><p>Etterfulgt av overflatepause og ny gassklargjøring.</p></article>
+      <article class="step reveal d1"><span class="n">05</span><h4>Andre dykk der det passer</h4><p>Når forhold og logistikk tillater — deretter skylling og tørking.</p></article>
+      <article class="step reveal d2"><span class="n">06</span><h4>Klar til neste dag</h4><p>Utstyret tørkes og klargjøres. Avgangstider justeres etter tidevannsvinduene.</p></article>
+    </div>
+    <p class="daynote reveal">Avgangstider kan endres i løpet av oppholdet etter hvert som tidevannsvinduene forskyver seg.</p>
+  </div>
+</section>
+
+<!-- ============ BILDE-BAND ============ -->
+<section class="sec" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE" style="padding-top:0">
+  <div class="wrap">
+    <figure class="band reveal">
+      <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2026/01/WhatsApp-Image-2026-01-06-at-19.17.33.webp" alt="Dykker i grønt fjordvann">
+      <figcaption class="cap">
+        <span class="mono">Kaldtvannserfaring</span>
+        <p>Tørrdrakt er standardvalget — vannet er kaldt hele året.</p>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ FOR HVEM ============ -->
+<section class="sec overwater" id="niva" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Fra sportsdykkere til tekniske team</p>
+      <h2 class="display">Sundet møter deg<br>der du <span class="serif">er</span></h2>
+    </div>
+    <div class="levels">
+      <article class="level reveal">
+        <span class="mono">Sportsdykkere</span>
+        <h3>Vegger og marint liv</h3>
+        <p>Opplev vegger, marint liv og utvalgte korallhabitater uten å gå inn i tekniske dybder. Ha et sertifikat
+        som passer planlagt dybde; tørrdrakterfaring anbefales sterkt. Tilvenningsdykk kan avtales for dykkere som er nye med norske forhold.</p>
+      </article>
+      <article class="level reveal d1">
+        <span class="mono">Viderekomne</span>
+        <h3>Bevegelig vann</h3>
+        <p>Med erfaring fra kaldtvann, båt og strøm får du tilgang til et bredere utvalg av lokaliteter — bevegelig
+        vann, dypere vegger, driftdykk og bruk av overflatemarkør (DSMB).</p>
+      </article>
+      <article class="level reveal">
+        <span class="mono">Tekniske dykkere</span>
+        <h3>Dypere profiler</h3>
+        <p>Med riktig sertifisering kan du utforske dypere korallhabitater og mer komplekse profiler. Vi støtter
+        open-circuit- og rebreather-team med gassfylling, flasker, bailout-logistikk, DPV-er og flerdagsplanlegging.</p>
+      </article>
+      <article class="level reveal d1">
+        <span class="mono">Klubber &amp; grupper</span>
+        <h3>Skreddersydd tur</h3>
+        <p>Vi tar imot dykkeklubber og etablerte team for en privat eller skreddersydd tur. Programmet tilpasses
+        ulike erfaringsnivåer; grupper med forskjellige mål kan deles i egne dykkelag.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FORBEREDELSER ============ -->
+<section class="sec overwater" id="prep" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <p class="mono eyebrow">Kaldtvannserfaring</p>
+      <h2 class="display">Planlegg for <span class="serif">kaldt vann</span></h2>
+      <p class="lede">Vanntemperaturen er normalt kald gjennom hele året, og tørrdrakt er standardvalget for det
+      meste av dykkingen. Slik forbereder du deg.</p>
+    </div>
+    <div class="prep-grid">
+      <ul class="checklist reveal">
+        <li>En egnet tørrdrakt og undertøy</li>
+        <li>Kaldtvannsregulatorer</li>
+        <li>Hette og passende hansker</li>
+        <li>En pålitelig dykkelykt</li>
+        <li>Overflatemarkør (DSMB) og snelle</li>
+        <li>En dykkecomputer tilpasset profilen din</li>
+      </ul>
+      <aside class="prep-aside reveal d1">
+        <h3>Leieutstyr</h3>
+        <p>Komplett eller delvis leieutstyr kan avtales på forhånd, så du slipper å frakte alt selv.</p>
+        <div class="cta-row" style="margin-top:0">
+          <a class="btn btn-ghost" href="https://baredykk.no/dykkeutstyr-leie/">Se utstyrsleie</a>
+          <a class="btn btn-ghost" href="https://baredykk.no/kaldtvannsdykking/">Guide til kaldtvann</a>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MER ENN DYKKING ============ -->
+<section class="sec overwater" id="mer" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE" style="padding-top:0">
+  <div class="wrap">
+    <div class="band reveal" style="min-height:min(52vh,420px)">
+      <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2025/12/WhatsApp-Bilde-2025-07-25-kl.-21.55.54_e2029251-scaled.webp" alt="Dykkesenteret ved Skarnsundet">
+      <div class="cap">
+        <span class="mono">Mer enn dykking</span>
+        <p>Bo rett ved senteret — kjøkken, sosiale soner og tørkerom. Laget for lange helger, klubbturer og tekniske uker.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLANLEGG ============ -->
+<section class="sec" id="plan" data-d="0" data-rt0="100" data-rt1="100" data-phase="OVERFLATE">
+  <div class="banner">
+    <img loading="lazy" src="https://baredykk.no/wp-content/uploads/2024/06/Photo-Cred-Julian-Muhlenhaus-JM105782-scaled.webp" alt="Dykking i Skarnsundet">
+    <div class="wrap reveal" style="padding:clamp(3rem,8vh,5rem) clamp(1.2rem,5vw,4rem)">
+      <p class="mono eyebrow" style="justify-content:center">Planlegg dykkingen i Skarnsundet</p>
+      <h2 class="display">Fortell oss<br><span class="serif">om turen din</span></h2>
+      <p class="lede" style="margin:0 auto 1.5rem;max-width:30em">Send oss datoer, teamet ditt og hvilken type
+      dykking du ønsker — sport eller teknisk. Vi svarer med tilgjengelighet og et realistisk program — helt uforpliktende.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://baredykk.no/kontakt/">Ta kontakt</a>
+        <a class="btn btn-ghost" href="https://baredykk.no/hva-er-inkludert/">Hva er inkludert</a>
+      </div>
+      <p class="tel">E-post <a href="mailto:info@baredykk.no">info@baredykk.no</a> · ring <a href="tel:+4745802787">+47 458 02 787</a></p>
+    </div>
+  </div>
+</section>
+
+<footer class="foot overwater">
+  <span>© 2026 Bare Dykk AS · Framverranvegen 242, 7690 Mosvik · org. 924 412 747</span>
+  <span><a href="https://baredykk.no/dykkesenteret/">Dykkesenteret</a> · <a href="https://baredykk.no/teknisk-dykking/">Teknisk dykking</a> · <a href="https://baredykk.no/planlegg-dykketuren/">Planlegg turen</a></span>
+</footer>
+
+<script>
+(function(){
+  const rm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.body.classList.add('ready');
+
+  /* ---------- Modus-håndtering ---------- */
+  const gasSpan=document.querySelector('#gauge .gas'),profilNote=document.getElementById('profil-note');
+  function setMode(m,scroll){
+    document.body.dataset.mode=m;
+    document.querySelectorAll('.modeswitch button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.gas===m));
+    document.querySelectorAll('.gascard').forEach(c=>c.setAttribute('aria-current',c.dataset.gas===m));
+    if(gasSpan)gasSpan.textContent=m==='trimix'?'Tx 15/55':'EAN28';
+    if(profilNote)profilNote.textContent=m==='trimix'
+      ? 'Du puster Tx 15/55 — hele profilen er åpen ned mot 65 m, og kunnskapslagene fortsetter videre mot 250 m.'
+      : 'Du puster EAN28 — profilen din åpner de øvre lagene ned til ~40 m. Dypere lag krever teknisk profil.';
+    if(typeof update==='function')update();
+  }
+  function confirmVett(){
+    document.body.classList.add('vett-ok');
+    // hvis man bekrefter vett men er i Nitrox, løft til Trimix så dypet faktisk vises
+    if(document.body.dataset.mode!=='trimix')setMode('trimix');
+    else if(typeof update==='function')update();
+  }
+  // Klikk på alle modus-knapper (nav, gauge, gasscards, låselag)
+  document.addEventListener('click',e=>{
+    const g=e.target.closest('[data-gas]');
+    if(g){setMode(g.dataset.gas);}
+    if(e.target.closest('#vett-confirm')||e.target.closest('#vett-confirm-2'))confirmVett();
+  });
+
+  /* ---- Gassanalyse / profilvelger (overlay) ---- */
+  const boot=document.getElementById('boot');
+  const RUN_ANALYSIS=(gas)=>{
+    const choose=document.getElementById('boot-choose'),
+          an=document.getElementById('boot-an'),track=document.getElementById('boot-track'),
+          o2=document.getElementById('an-o2'),he=document.getElementById('an-he'),
+          bi=document.getElementById('bar-i'),ok=document.getElementById('an-ok');
+    const isTx=gas==='trimix';
+    const O2end=isTx?15.0:28.0, Heend=isTx?55.0:0.0;
+    choose.hidden=true; an.hidden=false; track.hidden=false;
+    ok.innerHTML=isTx
+      ? '<b>Tx 15/55</b> · O₂ / He analysert · Trimix valgt · teknisk profil åpnet ✓'
+      : '<b>EAN28</b> · O₂ analysert · Nitrox valgt · dyp profil låst ✓';
+    const t0=performance.now(),dur=1250;
+    const fmt=v=>v.toFixed(1).replace('.',',');
+    (function tick(t){
+      const p=Math.min((t-t0)/dur,1),e=1-Math.pow(1-p,3);
+      const po=Math.min(p/.72,1),eo=1-Math.pow(1-po,3);
+      o2.textContent=fmt(20.9+(O2end-20.9)*eo+(1-po)*.35*Math.sin(t*.045));
+      const ph=Math.max(0,Math.min((p-.12)/.88,1)),eh=1-Math.pow(1-ph,3);
+      he.textContent=fmt(Math.max(0,Heend*eh+(1-ph)*.9*Math.sin(t*.06+2)));
+      bi.style.transform=`scaleX(${e})`;
+      if(p<1)requestAnimationFrame(tick);
+      else{o2.textContent=fmt(O2end);he.textContent=fmt(Heend);
+           ok.classList.add('show');
+           setMode(gas);
+           setTimeout(()=>{boot.classList.add('done');
+             setTimeout(()=>boot.remove(),700);},900);}
+    })(t0);
+  };
+  if(boot){
+    if(rm){setMode('trimix');document.body.classList.add('vett-ok');boot.remove();}
+    else{
+      document.getElementById('boot-choose').addEventListener('click',e=>{
+        const b=e.target.closest('[data-gas]');if(b)RUN_ANALYSIS(b.dataset.gas);
+      });
+      document.getElementById('boot-skip').addEventListener('click',()=>{
+        setMode('trimix');document.body.classList.add('vett-ok');
+        boot.classList.add('done');setTimeout(()=>boot.remove(),700);
+      });
+    }
+  } else { setMode('nitrox'); }
+
+  /* ---- Marin snø ---- */
+  const snow=document.getElementById('snow');
+  if(!rm){for(let k=0;k<24;k++){
+    const s=document.createElement('span');
+    const sz=(1.5+Math.random()*2.5).toFixed(1);
+    s.style.left=(Math.random()*100).toFixed(2)+'%';
+    s.style.width=s.style.height=sz+'px';
+    s.style.opacity=(.25+Math.random()*.5).toFixed(2);
+    s.style.animationDuration=(10+Math.random()*14).toFixed(1)+'s';
+    s.style.animationDelay=(-Math.random()*20).toFixed(1)+'s';
+    snow.appendChild(s);}}
+
+  /* ---- Dybde- + runtime-modell ---- */
+  const secs=[...document.querySelectorAll('[data-phase]')];
+  let pts=[];
+  function measure(){
+    pts=[];
+    secs.forEach(el=>{
+      const top=el.offsetTop,h=el.offsetHeight;
+      const rt0=el.dataset.rt0!==undefined?+el.dataset.rt0:null;
+      const rt1=el.dataset.rt1!==undefined?+el.dataset.rt1:null;
+      if(el.dataset.d!==undefined){const d=+el.dataset.d;
+        pts.push({y:top+h*.15,d,rt:rt0},{y:top+h*.85,d,rt:rt1});}
+      else{pts.push({y:top,d:+el.dataset.from,rt:rt0},{y:top+h,d:+el.dataset.to,rt:rt1});}
+    });
+    pts.sort((a,b)=>a.y-b.y);
+  }
+  function sampleAt(y){
+    if(!pts.length)return{d:0,rt:0};
+    if(y<=pts[0].y)return{d:pts[0].d,rt:pts[0].rt||0};
+    for(let k=0;k<pts.length-1;k++){const a=pts[k],b=pts[k+1];
+      if(y<=b.y){const t=(b.y===a.y)?0:(y-a.y)/(b.y-a.y);
+        const ra=a.rt==null?0:a.rt, rb=b.rt==null?ra:b.rt;
+        return{d:a.d+(b.d-a.d)*t, rt:ra+(rb-ra)*t};}}
+    const l=pts[pts.length-1];return{d:l.d,rt:l.rt||100};
+  }
+  function phaseAt(probe){
+    let ph=secs[0].dataset.phase;
+    for(const el of secs){if(el.offsetTop-innerHeight*.5<=probe)ph=el.dataset.phase;else break;}
+    return ph;
+  }
+  const stops=[[0,[233,241,235]],[5,[150,190,178]],[14,[46,96,84]],[24,[20,64,56]],[38,[11,44,38]],[52,[6,26,22]],[60,[3,14,11]]];
+  function colorAt(d){
+    if(d<=stops[0][0])return stops[0][1];
+    for(let k=0;k<stops.length-1;k++){const[d1,c1]=stops[k],[d2,c2]=stops[k+1];
+      if(d<=d2){const t=(d-d1)/(d2-d1);return c1.map((v,j)=>Math.round(v+(c2[j]-v)*t));}}
+    return stops[stops.length-1][1];
+  }
+
+  /* ---- To gassprofiler: [runtime, dybde] ---- */
+  // Trimix 15/55 til 60 m (MultiDeco-lignende)
+  const PLAN_TX={pts:[[0,0],[3,60],[30,60],[35,30],[36,30],[37,27],[39,24],[41,21],
+              [43,18],[47,15],[51,12],[57,12],[58,9],[66,9],[67,6],[79,6],
+              [80,3],[100,3],[100,0]],rtmax:100,dmax:60};
+  // EAN28 til 40 m — enklere sportsprofil (bunntid begrenset av gass, ikke deko-tung)
+  const PLAN_NX={pts:[[0,0],[3,40],[22,40],[24,21],[27,18],[31,15],[37,12],
+              [42,9],[43,6],[55,6],[56,3],[70,3],[70,0]],rtmax:70,dmax:40};
+  function curPlan(){return document.body.dataset.mode==='trimix'?PLAN_TX:PLAN_NX;}
+  const prof=document.getElementById('prof'),pc=prof&&prof.getContext('2d');
+  function drawProfile(rtFrac){
+    if(!pc)return;
+    const P=curPlan(),PLAN=P.pts,RTMAX=P.rtmax,DMAX=P.dmax;
+    const rtNow=rtFrac*RTMAX;
+    const w=prof.width,h=prof.height,pad=3;
+    const X=rt=>pad+(rt/RTMAX)*(w-2*pad);
+    const Y=d=>pad+(d/DMAX)*(h-2*pad);
+    pc.clearRect(0,0,w,h);
+    pc.strokeStyle='rgba(237,246,240,.28)';pc.lineWidth=1.3;pc.lineJoin='round';pc.lineCap='round';
+    pc.beginPath();PLAN.forEach(([rt,d],k)=>{const x=X(rt),y=Y(d);k?pc.lineTo(x,y):pc.moveTo(x,y);});pc.stroke();
+    const col=document.body.dataset.mode==='trimix'?'#6FB7FF':'#FF7A3D';
+    pc.strokeStyle=col;pc.beginPath();
+    let started=false,lx=X(0),ly=Y(0);
+    for(let k=0;k<PLAN.length;k++){
+      let[rt,d]=PLAN[k];
+      if(rt<=rtNow){const x=X(rt),y=Y(d);started?pc.lineTo(x,y):pc.moveTo(x,y);started=true;lx=x;ly=y;}
+      else{
+        const[prt,pd]=PLAN[k-1]||[0,0];
+        if(rtNow>prt){const t=(rtNow-prt)/(rt-prt);const x=X(rtNow),y=Y(pd+(d-pd)*t);
+          started?pc.lineTo(x,y):pc.moveTo(x,y);lx=x;ly=y;}
+        break;
+      }
+    }
+    pc.stroke();
+    pc.fillStyle=col;pc.beginPath();pc.arc(lx,ly,2.4,0,7);pc.fill();
+  }
+
+  const water=document.getElementById('water'),gauge=document.getElementById('gauge'),
+        gd=gauge.querySelector('.d'),gt=gauge.querySelector('.tv'),
+        gph=gauge.querySelector('.ph'),nav=document.querySelector('nav');
+  let ticking=false;
+  window.update=function(){
+    ticking=false;
+    const probe=scrollY+innerHeight*.45;
+    const s=sampleAt(probe);
+    // Nitrox: dybdemåleren klamper til 40 m — profilen din stopper der gassen gjør
+    let d=Math.max(0,s.d);
+    if(document.body.dataset.mode!=='trimix')d=Math.min(d,40);
+    const c=colorAt(d);
+    water.style.background=`rgb(${c[0]},${c[1]},${c[2]})`;
+    gd.textContent=d<.5?'0.0 M':d.toFixed(1)+' M';
+    gt.textContent=(12.6-Math.min(d,60)/60*5.2).toFixed(1)+'°';
+    gph.textContent=phaseAt(probe);
+    gauge.classList.toggle('on',scrollY>innerHeight*.4);
+    nav.classList.toggle('deep',scrollY>40);
+    if(!rm)snow.style.opacity=(Math.min(Math.max((d-6)/12,0),1)*.55).toFixed(2);
+    // runtime som andel (0..1) — profilen skaleres per gass
+    drawProfile(Math.max(0,Math.min(s.rt/100,1)));
+  };
+  addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});
+  addEventListener('resize',()=>{measure();update();});
+  addEventListener('load',()=>{measure();update();});
+  setMode(document.body.dataset.mode||'nitrox');
+  measure();update();
+
+  /* ---- Reveal ---- */
+  const io=new IntersectionObserver(es=>es.forEach(e=>{
+    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+  }),{threshold:.14});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  /* ---- Lysstråler + bobler i hero ---- */
+  const cv=document.getElementById('rays');
+  if(cv&&!rm){
+    const cx=cv.getContext('2d');let W,H,run=true;
+    const dpr=Math.min(devicePixelRatio||1,1.5);
+    function size(){W=cv.clientWidth;H=cv.clientHeight;cv.width=W*dpr;cv.height=H*dpr;cx.setTransform(dpr,0,0,dpr,0,0);}
+    size();addEventListener('resize',size);
+    const rays=Array.from({length:6},(_,k)=>({x:.1+k*.16+Math.random()*.06,w:60+Math.random()*90,
+      sp:.00008+Math.random()*.00012,ph:Math.random()*6.28,a:.05+Math.random()*.05}));
+    const bub=Array.from({length:15},()=>({x:Math.random(),y:Math.random(),r:1+Math.random()*2.6,
+      v:.0006+Math.random()*.0012,w:Math.random()*6.28}));
+    new IntersectionObserver(e=>{run=e[0].isIntersecting;},{threshold:0}).observe(cv);
+    (function loop(t){
+      requestAnimationFrame(loop);if(!run)return;
+      cx.clearRect(0,0,W,H);
+      rays.forEach(r=>{
+        const x=(r.x+Math.sin(t*r.sp+r.ph)*.04)*W;
+        const g=cx.createLinearGradient(x,0,x+r.w*.5,H);
+        g.addColorStop(0,`rgba(191,233,219,${r.a})`);g.addColorStop(.75,'rgba(191,233,219,0)');
+        cx.fillStyle=g;cx.beginPath();
+        cx.moveTo(x-r.w*.18,0);cx.lineTo(x+r.w*.18,0);cx.lineTo(x+r.w*.9,H);cx.lineTo(x-r.w*.9,H);
+        cx.closePath();cx.fill();
+      });
+      cx.fillStyle='rgba(237,246,240,.5)';
+      bub.forEach(b=>{b.y-=b.v;if(b.y<-.05){b.y=1.05;b.x=Math.random();}
+        const x=(b.x+Math.sin(t*.001+b.w)*.008)*W;
+        cx.globalAlpha=.12+b.r*.07;cx.beginPath();cx.arc(x,b.y*H,b.r,0,7);cx.fill();});
+      cx.globalAlpha=1;
+    })(0);
+  }
+
+  window.__enhanced=true;
+})();
+</script>
+</body>
+</html>
