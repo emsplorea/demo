@@ -1236,6 +1236,7 @@ setTimeout(function(){
     if(!rm)snow.style.opacity=(Math.min(Math.max((d-6)/12,0),1)*.55).toFixed(2);
     // runtime som andel (0..1) — profilen skaleres per gass
     drawProfile(Math.max(0,Math.min(s.rt/100,1)));
+    if(typeof revealInView==='function')revealInView();
   };
   addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(update);}},{passive:true});
   addEventListener('resize',()=>{measure();update();});
@@ -1243,11 +1244,25 @@ setTimeout(function(){
   setMode(document.body.dataset.mode||'nitrox');
   measure();update();
 
-  /* ---- Reveal ---- */
-  const io=new IntersectionObserver(es=>es.forEach(e=>{
-    if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
-  }),{threshold:.14});
-  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  /* ---- Reveal (robust: scroll-basert + IO + garanti, aldri avhengig av ett miljø) ---- */
+  function revealInView(){
+    document.querySelectorAll('.reveal:not(.in)').forEach(function(el){
+      const r=el.getBoundingClientRect();
+      if(r.top<innerHeight*0.96 && r.bottom>-60) el.classList.add('in');
+    });
+  }
+  if('IntersectionObserver' in window){
+    const io=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}
+    }),{threshold:.05});
+    document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+  }
+  addEventListener('scroll',revealInView,{passive:true});
+  addEventListener('load',revealInView);
+  revealInView();
+  /* Garanti: hvis verken scroll eller IO utløses (f.eks. i innebygd forhåndsviser),
+     vis alt innhold uansett innen kort tid */
+  setTimeout(function(){document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));},1600);
 
   /* ---- Lysstråler + bobler i hero ---- */
   const cv=document.getElementById('rays');
