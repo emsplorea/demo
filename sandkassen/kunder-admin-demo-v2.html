@@ -1,0 +1,1442 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kunder – Admin (demo v2)</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>
+  body { background:#f5f6f8; }
+  .navbar-brand { font-weight:600; letter-spacing:.3px; }
+  .demo-badge { font-size:.7rem; letter-spacing:.5px; }
+  .card { border:none; box-shadow:0 1px 3px rgba(16,24,40,.08); }
+  .table th { font-size:.78rem; text-transform:uppercase; letter-spacing:.4px; color:#667085; white-space:nowrap; }
+  .table td { vertical-align:middle; }
+  .table tbody tr.clickable { cursor:pointer; }
+  .table tbody tr.clickable:hover { background:#f9fafb; }
+  .avatar { width:34px; height:34px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+            font-size:.8rem; font-weight:600; color:#fff; flex:0 0 34px; }
+  .row-deleted td { opacity:.55; }
+  .row-deleted .customer-name { text-decoration:line-through; }
+  .offcanvas-wide { width:760px !important; }
+  .addr-card { background:#f9fafb; border:1px solid #eaecf0; border-radius:.5rem; }
+  .form-label { font-size:.82rem; font-weight:600; color:#344054; margin-bottom:.25rem; }
+  .required::after { content:" *"; color:#d92d20; }
+  .sortable { cursor:pointer; user-select:none; }
+  .sortable .bi { font-size:.7rem; opacity:.5; }
+  .pagination { margin:0; }
+  .empty-state { color:#98a2b3; }
+  .badge-soft-green { background:#ecfdf3; color:#027a48; }
+  .badge-soft-red { background:#fef3f2; color:#b42318; }
+  .badge-soft-gray { background:#f2f4f7; color:#475467; }
+  .badge-soft-amber { background:#fffaeb; color:#b54708; }
+  .badge-soft-blue { background:#eff8ff; color:#175cd3; }
+  .section-head { font-size:.75rem; text-transform:uppercase; letter-spacing:.5px; font-weight:700; color:#667085; }
+
+  /* Grupper */
+  .grp-chip { display:inline-flex; align-items:center; gap:.35rem; font-size:.75rem; font-weight:600;
+              padding:.15rem .5rem; border-radius:1rem; white-space:nowrap; }
+  .grp-dot { width:7px; height:7px; border-radius:50%; flex:0 0 7px; }
+  .grp-pick { border:1px solid #eaecf0; border-radius:.5rem; padding:.5rem .65rem; cursor:pointer;
+              display:flex; align-items:center; gap:.5rem; transition:all .12s; }
+  .grp-pick:hover { border-color:#b2ccff; background:#f9fbff; }
+  .grp-pick.on { border-color:#1570ef; background:#eff8ff; }
+  .grp-pick input { pointer-events:none; }
+
+  /* Adressesøk */
+  .addr-suggest { position:absolute; z-index:1080; left:0; right:0; top:100%; background:#fff;
+                  border:1px solid #eaecf0; border-radius:.5rem; box-shadow:0 8px 24px rgba(16,24,40,.12);
+                  max-height:230px; overflow:auto; display:none; }
+  .addr-suggest.show { display:block; }
+  .addr-suggest-item { padding:.5rem .75rem; cursor:pointer; font-size:.85rem; display:flex; gap:.5rem; align-items:flex-start; }
+  .addr-suggest-item:hover, .addr-suggest-item.active { background:#f2f7ff; }
+  .addr-suggest-item .bi { color:#98a2b3; margin-top:.15rem; }
+  .addr-suggest-foot { border-top:1px solid #f2f4f7; padding:.35rem .75rem; font-size:.7rem; color:#98a2b3; }
+  .addr-verified { font-size:.7rem; color:#027a48; }
+
+  /* Statistikk */
+  .stat { background:#f9fafb; border:1px solid #eaecf0; border-radius:.5rem; padding:.65rem .75rem; }
+  .stat-val { font-size:1.05rem; font-weight:700; color:#101828; line-height:1.2; }
+  .stat-lbl { font-size:.7rem; color:#667085; text-transform:uppercase; letter-spacing:.4px; }
+
+  /* Aktivitetslogg */
+  .act { display:flex; gap:.65rem; padding:.6rem 0; border-bottom:1px solid #f2f4f7; }
+  .act:last-child { border-bottom:none; }
+  .act-ic { width:28px; height:28px; border-radius:50%; background:#f2f4f7; color:#475467;
+            display:flex; align-items:center; justify-content:center; font-size:.75rem; flex:0 0 28px; }
+
+  .dup-banner { background:#fffaeb; border:1px solid #fedf89; border-radius:.5rem; }
+  .nav-tabs .nav-link { font-size:.85rem; font-weight:600; }
+  .order-row { cursor:pointer; }
+  code.k { background:#f2f4f7; padding:.05rem .3rem; border-radius:.25rem; font-size:.78rem; }
+</style>
+</head>
+<body>
+
+<nav class="navbar navbar-dark" style="background:#101828;">
+  <div class="container-fluid px-4">
+    <span class="navbar-brand">Plorea POS <span class="text-white-50 fw-normal">/ Admin</span></span>
+    <span class="badge text-bg-warning demo-badge">DEMO v2 / MOCKUP</span>
+  </div>
+</nav>
+
+<div class="container-fluid px-4 py-4" style="max-width:1320px;">
+
+  <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+    <div>
+      <h4 class="mb-0 fw-semibold">Kunder</h4>
+      <div class="text-secondary small" id="countLabel"></div>
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-outline-secondary" onclick="openGroupsAdmin()"><i class="bi bi-tags me-1"></i>Kundegrupper</button>
+      <button class="btn btn-outline-secondary" onclick="openMergeFinder()"><i class="bi bi-people me-1"></i>Finn duplikater
+        <span class="badge text-bg-warning ms-1" id="dupCount"></span></button>
+      <button class="btn btn-primary" onclick="openCreate()"><i class="bi bi-plus-lg me-1"></i>Ny kunde</button>
+    </div>
+  </div>
+
+  <div class="card mb-3">
+    <div class="card-body py-3">
+      <div class="row g-2 align-items-center">
+        <div class="col-md-3">
+          <div class="input-group">
+            <span class="input-group-text bg-white"><i class="bi bi-search"></i></span>
+            <input type="text" id="search" class="form-control border-start-0" placeholder="Søk navn, telefon, e-post, ID …" oninput="state.page=1;render()">
+          </div>
+        </div>
+        <div class="col-md-2 col-6">
+          <select id="filterStatus" class="form-select" onchange="state.page=1;render()">
+            <option value="active">Aktive kunder</option>
+            <option value="deleted">Slettede kunder</option>
+            <option value="all">Alle</option>
+          </select>
+        </div>
+        <div class="col-md-2 col-6">
+          <select id="filterGroup" class="form-select" onchange="state.page=1;render()"></select>
+        </div>
+        <div class="col-md-2 col-6">
+          <select id="filterVerified" class="form-select" onchange="state.page=1;render()">
+            <option value="">E-post: alle</option>
+            <option value="1">E-post verifisert</option>
+            <option value="0">E-post ikke verifisert</option>
+          </select>
+        </div>
+        <div class="col-md-2 col-6">
+          <select id="filterSpend" class="form-select" onchange="state.page=1;render()">
+            <option value="">Forbruk: alle</option>
+            <option value="has">Har handlet</option>
+            <option value="none">Aldri handlet</option>
+          </select>
+        </div>
+        <div class="col-md-1 text-md-end text-secondary small" id="filterHits"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table mb-0">
+        <thead>
+          <tr>
+            <th class="ps-4 sortable" onclick="setSort('name')">Navn <i class="bi bi-arrow-down-up"></i></th>
+            <th>Kontakt</th>
+            <th>Grupper</th>
+            <th class="sortable text-end" onclick="setSort('_spend')">Forbruk <i class="bi bi-arrow-down-up"></i></th>
+            <th class="text-end">Ordrer</th>
+            <th>Siste kjøp</th>
+            <th>Status</th>
+            <th class="text-end pe-4"></th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="d-flex justify-content-between align-items-center p-3 border-top flex-wrap gap-2">
+      <div class="text-secondary small" id="pageInfo"></div>
+      <ul class="pagination pagination-sm" id="pager"></ul>
+    </div>
+  </div>
+
+  <div class="text-secondary small mt-3">
+    <i class="bi bi-info-circle me-1"></i>
+    Demo. Adressesøket er en stub som etterligner Google Places – i produksjon gjenbrukes integrasjonen som allerede finnes i systemet.
+  </div>
+</div>
+
+<!-- ══════════ Offcanvas: kunde ══════════ -->
+<div class="offcanvas offcanvas-end offcanvas-wide" tabindex="-1" id="editPanel">
+  <div class="offcanvas-header border-bottom">
+    <div class="d-flex align-items-center gap-3">
+      <span class="avatar" id="panelAvatar" style="background:#475467">–</span>
+      <div>
+        <h5 class="offcanvas-title mb-0" id="panelTitle">Ny kunde</h5>
+        <div class="text-secondary small" id="panelSub"></div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+  </div>
+
+  <div class="px-3 pt-2 border-bottom">
+    <ul class="nav nav-tabs border-0" id="custTabs">
+      <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabDetails" type="button">Detaljer</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabOrders" type="button" id="tabOrdersBtn">Ordrer</button></li>
+      <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabActivity" type="button">Aktivitet</button></li>
+    </ul>
+  </div>
+
+  <div class="offcanvas-body pt-3">
+    <div id="dupWarn"></div>
+    <div class="tab-content">
+
+      <!-- ───── Detaljer ───── -->
+      <div class="tab-pane fade show active" id="tabDetails">
+        <form id="customerForm" onsubmit="saveCustomer(event)">
+          <div class="section-head mb-2">Kundeinformasjon</div>
+          <div class="mb-3">
+            <label class="form-label required">Navn</label>
+            <input class="form-control" id="f_name" required maxlength="120" placeholder="Fornavn Etternavn" oninput="checkDuplicates()">
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-4">
+              <label class="form-label">Landkode</label>
+              <select class="form-select" id="f_cc">
+                <option value="NO" selected>NO (+47)</option>
+                <option value="SE">SE (+46)</option>
+                <option value="DK">DK (+45)</option>
+                <option value="DE">DE (+49)</option>
+              </select>
+            </div>
+            <div class="col-8">
+              <label class="form-label">Telefon</label>
+              <input class="form-control" id="f_phone" maxlength="30" placeholder="912 34 567" oninput="checkDuplicates()">
+              <div class="form-text">Lagres også som E.164 (<code class="k">phone_e164</code>) automatisk.</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">E-post</label>
+            <div class="input-group">
+              <input type="email" class="form-control" id="f_email" maxlength="120" placeholder="navn@eksempel.no" oninput="checkDuplicates()">
+              <span class="input-group-text bg-white" id="emailVerifiedIcon" title="Verifisert status"></span>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label">Fødselsdato</label>
+            <input type="date" class="form-control" id="f_birthdate">
+          </div>
+
+          <!-- Grupper -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="section-head mb-0">Kundegrupper</div>
+            <button type="button" class="btn btn-sm btn-link p-0" onclick="openGroupsAdmin()">Administrer grupper</button>
+          </div>
+          <div class="row g-2 mb-2" id="groupPicker"></div>
+          <div class="form-text mb-4">En kunde kan tilhøre flere grupper.</div>
+
+          <!-- Samtykke -->
+          <div class="section-head mb-2">Samtykke til markedsføring</div>
+          <div class="addr-card p-3 mb-2">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="f_consent_email">
+              <label class="form-check-label small" for="f_consent_email">E-post – tilbud og nyheter</label>
+            </div>
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="checkbox" id="f_consent_sms">
+              <label class="form-check-label small" for="f_consent_sms">SMS – tilbud og nyheter</label>
+            </div>
+            <div class="small text-secondary" id="consentMeta"></div>
+          </div>
+          <div class="form-text mb-4">
+            Kvitteringer er transaksjonelle og krever ikke samtykke. Markedsføring gjør det
+            (markedsføringsloven § 15) – derfor logges hvem som satte samtykket og når.
+            <b>Finnes ikke i dagens <code>customers</code>-tabell</b> og må lagres etterprøvbart,
+            ikke som et flagg i <code>options</code>.
+          </div>
+
+          <!-- Adresser -->
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="section-head mb-0">Adresser</div>
+            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addAddressRow()"><i class="bi bi-plus"></i> Legg til adresse</button>
+          </div>
+          <div id="addrList" class="d-flex flex-column gap-3 mb-4"></div>
+
+          <!-- Kundeforhold hos dette selskapet (customers_companies) -->
+          <div class="section-head mb-2">Kundeforhold hos Plorea Demo</div>
+          <div class="addr-card p-3 mb-4">
+            <div class="row g-2">
+              <div class="col-md-7">
+                <label class="form-label">Faktura-e-post</label>
+                <input class="form-control form-control-sm" id="f_invoice_email" placeholder="faktura@bedrift.no">
+              </div>
+              <div class="col-md-5">
+                <label class="form-label">Kundenr. i kassa</label>
+                <input class="form-control form-control-sm" id="f_ext_pos" placeholder="Valgfritt">
+              </div>
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="f_allow_invoice">
+              <label class="form-check-label small" for="f_allow_invoice">Kan handle på faktura</label>
+            </div>
+            <div class="form-check mt-1">
+              <input class="form-check-input" type="checkbox" id="f_blacklisted">
+              <label class="form-check-label small" for="f_blacklisted">Sperret – blokkeres i kassa</label>
+            </div>
+            <div class="form-text mt-2">
+              Disse feltene finnes allerede i <code>customers_companies</code>, men vises ikke i dagens
+              kundeadmin. Kunden er delt på tvers av selskaper – dette gjelder kun dette selskapet.
+            </div>
+          </div>
+
+          <!-- Notat -->
+          <div class="section-head mb-2">Internt notat</div>
+          <textarea class="form-control mb-1" id="f_note" rows="2" maxlength="500" placeholder="Synlig kun for ansatte."></textarea>
+          <div class="form-text mb-4">Ikke skriv sensitive personopplysninger her.</div>
+
+          <div class="d-flex gap-2 border-top pt-3 pb-2">
+            <button type="submit" class="btn btn-primary flex-fill">Lagre kunde</button>
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="offcanvas">Avbryt</button>
+          </div>
+          <div id="dangerZone" class="pt-2 d-flex flex-column gap-2"></div>
+        </form>
+      </div>
+
+      <!-- ───── Ordrer ───── -->
+      <div class="tab-pane fade" id="tabOrders">
+        <div class="row g-2 mb-3" id="orderStats"></div>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="section-head mb-0">Ordrehistorikk</div>
+          <div class="d-flex gap-2 align-items-center">
+            <select class="form-select form-select-sm" id="orderLocFilter" style="width:auto" onchange="renderOrders()"></select>
+            <button class="btn btn-sm btn-outline-secondary" onclick="toast('CSV lastet ned (demo)','success')"><i class="bi bi-download"></i></button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm">
+            <thead><tr>
+              <th>Ordre</th><th>Dato</th><th>Sted</th><th>Betaling</th>
+              <th class="text-end">Beløp</th><th></th><th class="text-end"></th>
+            </tr></thead>
+            <tbody id="orderBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ───── Aktivitet ───── -->
+      <div class="tab-pane fade" id="tabActivity">
+        <div class="section-head mb-2">Endringer og hendelser</div>
+        <div id="activityList"></div>
+        <div class="form-text mt-3">
+          Logger endring av kontaktopplysninger, gruppemedlemskap, samtykke, kvitteringsutsending,
+          sletting og gjenoppretting – med hvem og når.
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: kundegrupper ══════════ -->
+<div class="modal fade" id="groupsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Kundegrupper</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle mb-0">
+            <thead><tr><th>Gruppe</th><th>Beskrivelse</th><th class="text-end">Kunder</th><th class="text-end"></th></tr></thead>
+            <tbody id="groupsBody"></tbody>
+          </table>
+        </div>
+        <div class="addr-card p-3">
+          <div class="section-head mb-2" id="grpFormTitle">Ny gruppe</div>
+          <div class="row g-2">
+            <div class="col-md-4">
+              <label class="form-label">Navn</label>
+              <input class="form-control form-control-sm" id="g_name" maxlength="40" placeholder="Stamkunde">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label">Beskrivelse</label>
+              <input class="form-control form-control-sm" id="g_desc" maxlength="80" placeholder="Kunder med fast avtale">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label">Farge</label>
+              <select class="form-select form-select-sm" id="g_color"></select>
+            </div>
+          </div>
+          <div class="d-flex gap-2 mt-3">
+            <button class="btn btn-sm btn-primary" onclick="saveGroup()" id="grpSaveBtn">Opprett gruppe</button>
+            <button class="btn btn-sm btn-outline-secondary d-none" onclick="resetGroupForm()" id="grpCancelBtn">Avbryt</button>
+          </div>
+        </div>
+        <div class="alert alert-secondary mt-3 mb-0 small">
+          <i class="bi bi-info-circle me-1"></i>
+          Gruppene er gjenbrukbare og eies av selskapet (<code>company_id</code>) – navnet velger kunden selv.
+          En kunde kan stå i flere grupper. <b>Rabattmatrise kommer senere</b> og knyttes til gruppe-id-en;
+          derfor må gruppen være en rad med egen id fra dag én, ikke en verdi i <code>options</code>-json.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: ordredetaljer ══════════ -->
+<div class="modal fade" id="orderModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title mb-0" id="omTitle">Ordre</h5>
+          <div class="text-secondary small" id="omSub"></div>
+        </div>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="omBody"></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Lukk</button>
+        <button class="btn btn-primary btn-sm" id="omReceiptBtn"><i class="bi bi-send me-1"></i>Send kvittering</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: send kvittering ══════════ -->
+<div class="modal fade" id="receiptModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Send kvittering</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-secondary small mb-3" id="rcOrderInfo"></div>
+        <div class="btn-group w-100 mb-3" role="group">
+          <input type="radio" class="btn-check" name="rcChannel" id="rcEmail" value="email" checked onchange="renderReceiptTarget()">
+          <label class="btn btn-outline-primary" for="rcEmail"><i class="bi bi-envelope me-1"></i>E-post</label>
+          <input type="radio" class="btn-check" name="rcChannel" id="rcSms" value="sms" onchange="renderReceiptTarget()">
+          <label class="btn btn-outline-primary" for="rcSms"><i class="bi bi-chat-dots me-1"></i>SMS</label>
+        </div>
+        <div id="rcTarget"></div>
+        <div id="rcHistory" class="mt-3"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Avbryt</button>
+        <button class="btn btn-primary btn-sm" id="rcSendBtn" onclick="sendReceipt()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: slett ══════════ -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body p-4">
+        <div class="d-flex gap-3">
+          <div class="avatar" style="background:#fee4e2;color:#d92d20;"><i class="bi bi-trash"></i></div>
+          <div>
+            <h6 class="mb-1">Slett kunde?</h6>
+            <p class="text-secondary small mb-0"><span id="deleteName" class="fw-semibold"></span> markeres som slettet
+            (soft delete, <code class="k">deleted_at</code>). Kunden skjules fra lister, men ordrehistorikk beholdes
+            og kunden kan gjenopprettes.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Avbryt</button>
+        <button class="btn btn-danger btn-sm" onclick="confirmDelete()">Slett kunde</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: GDPR ══════════ -->
+<div class="modal fade" id="gdprModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Personopplysninger</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <p class="small text-secondary">Kunden har rett til innsyn og til å bli slettet. Dette er to ulike ting,
+        og «Slett kunde» over dekker bare det første behovet.</p>
+        <div class="addr-card p-3 mb-3">
+          <div class="fw-semibold small mb-1"><i class="bi bi-download me-1"></i>Eksporter alle data</div>
+          <div class="small text-secondary mb-2">Kundeopplysninger, adresser, gruppemedlemskap, samtykkehistorikk og ordrehistorikk som JSON.</div>
+          <button class="btn btn-sm btn-outline-primary" onclick="toast('Eksport generert (demo)','success')">Last ned eksport</button>
+        </div>
+        <div class="addr-card p-3" style="border-color:#fecdca;background:#fffbfa">
+          <div class="fw-semibold small mb-1 text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Anonymiser kunde</div>
+          <div class="small text-secondary mb-2">
+            Navn, telefon, e-post, fødselsdato og adresser fjernes permanent. Ordrene beholdes uten kobling til person,
+            slik at regnskap og bokføringsplikt fortsatt er intakt. <b>Kan ikke angres.</b>
+          </div>
+          <button class="btn btn-sm btn-outline-danger" onclick="toast('Anonymisering krever bekreftelse (demo)','danger')">Anonymiser</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ Modal: duplikater ══════════ -->
+<div class="modal fade" id="mergeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Mulige duplikater</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="mergeBody"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container position-fixed bottom-0 end-0 p-3" id="toasts"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Demo v2 – kundeadmin
+   Nytt i denne versjonen: kundegrupper, adressesøk med autofyll,
+   ordreoversikt med kvitteringsutsending, samt forslagene:
+   forbruksstatistikk, samtykke, duplikathåndtering, aktivitetslogg,
+   internt notat og GDPR-eksport/anonymisering.
+   ═══════════════════════════════════════════════════════════ */
+
+const AVATAR_COLORS = ['#7f56d9','#1570ef','#0e9384','#dc6803','#c11574','#475467'];
+const GROUP_COLORS = [
+  {name:'Lilla', hex:'#7f56d9'}, {name:'Blå', hex:'#1570ef'}, {name:'Grønn', hex:'#0e9384'},
+  {name:'Oransje', hex:'#dc6803'}, {name:'Rosa', hex:'#c11574'}, {name:'Grå', hex:'#475467'}
+];
+const LOCATIONS = ['Trondheim Torg','Solsiden','Byåsen','Nettbutikk'];
+const PAYMENTS = ['Visa','MasterCard','Vipps','Kontant'];
+
+/* ---------- Kundegrupper ---------- */
+let groups = [
+  { id:1, name:'Stamkunde',  desc:'Handler jevnlig',            color:'#0e9384' },
+  { id:2, name:'Bedrift',    desc:'Faktureres månedlig',        color:'#1570ef' },
+  { id:3, name:'Ansatt',     desc:'Personalrabatt',             color:'#7f56d9' },
+  { id:4, name:'Nyhetsbrev', desc:'Har takket ja til e-post',   color:'#dc6803' },
+];
+
+/* ---------- Kunder ---------- */
+function a(label,street,zip,city,isDefault,lat,lng){
+  return {label,street,zip,city,is_default:isDefault,lat:lat||null,lng:lng||null,place_id:lat?'demo_place':null};
+}
+function mk(id,name,email,verified,phone,created,birth,addrs,groupIds,note){
+  return { id,name,email,email_verified:!!verified,phone,country_code:'NO',
+           phone_e164:'+47'+phone, birthdate:birth, created_at:created, deleted_at:null,
+           addresses:addrs, group_ids:groupIds||[], note:note||'',
+           consent_email:false, consent_sms:false, consent_at:null, consent_by:null,
+           cc:{ invoice_email:'', allow_invoice:false, blacklisted:false, external_pos_no:'' },
+           activity:[] };
+}
+
+let customers = [
+  mk(1001,'Anne Kristin Berg','anne.berg@gmail.com',1,'93412876','2026-01-14','1978-04-02',[a('Hjemme','Storgata 14','7013','Trondheim',true,63.4305,10.3951)],[1,4]),
+  mk(1002,'Ola Nordmann','ola.nordmann@online.no',1,'41230987','2026-02-03','1985-11-19',[a('Hjemme','Kirkegata 3','7600','Levanger',true,63.7465,11.2999),a('Hytta','Fjellveien 88','7340','Oppdal',false)],[1]),
+  mk(1003,'Silje Haugen','silje.haugen@hotmail.com',0,'90876123','2026-02-18','1992-07-30',[a('Hjemme','Elvegata 21B','7716','Steinkjer',true)],[]),
+  mk(1004,'Petter Aas','petter.aas@outlook.com',1,'47651298','2026-03-05','1969-01-08',[],[2]),
+  mk(1005,'Maria Solberg','maria.solberg@gmail.com',1,'92345671','2026-03-11','1990-09-12',[a('Hjemme','Innherredsveien 5','7014','Trondheim',true,63.4372,10.4185)],[1,3]),
+  mk(1006,'Jonas Lie','jonas.lie@gmail.com',0,'98123456','2026-03-22','2001-05-25',[a('Studenthybel','Klostergata 40','7030','Trondheim',true)],[]),
+  mk(1007,'Ingrid Moe','ingrid.moe@icloud.com',1,'45678234','2026-04-02','1983-12-01',[a('Hjemme','Sjøgata 9','7900','Rørvik',true)],[4]),
+  mk(1008,'Trond Viken','trond.viken@gmail.com',1,'91234509','2026-04-15','1975-06-17',[a('Hjemme','Havnegata 12','7010','Trondheim',true)],[1]),
+  mk(1009,'Camilla Strand','camilla.strand@gmail.com',0,'46789012','2026-04-28','1996-02-14',[],[]),
+  mk(1010,'Bjørn Eide','bjorn.eide@online.no',1,'99887766','2026-05-06','1958-08-23',[a('Hjemme','Byåsveien 130','7020','Trondheim',true)],[1,2]),
+  mk(1011,'Kari Løken','kari.loken@gmail.com',1,'41029384','2026-05-19','1988-03-05',[a('Hjemme','Verftsgata 2','6416','Molde',true)],[]),
+  mk(1012,'Erik Sandnes','erik.sandnes@gmail.com',0,'94567823','2026-06-01','1993-10-11',[a('Hjemme','Nedre Bakklandet 60','7014','Trondheim',true)],[4]),
+  mk(1013,'Lise Wold','lise.wold@hotmail.com',1,'92871634','2026-06-14','1980-07-07',[a('Hjemme','Prinsens gate 22','7011','Trondheim',true),a('Jobb','Munkegata 1','7013','Trondheim',false)],[2]),
+  mk(1014,'Håkon Berge','hakon.berge@gmail.com',1,'40506070','2026-06-27','1971-04-29',[],[]),
+  mk(1015,'Emma Fossum','emma.fossum@gmail.com',0,'46012357','2026-07-08','2003-01-16',[a('Hjemme','Weidemanns vei 8','7043','Trondheim',true)],[3]),
+  mk(1016,'Nils Petter Holm','np.holm@online.no',1,'95123467','2026-07-19','1965-09-03',[a('Hjemme','Gamle Kongevei 33','7043','Trondheim',true)],[1]),
+  mk(1017,'Sofie Dahl','sofie.dahl@gmail.com',1,'48293745','2026-07-28','1998-12-24',[a('Hjemme','Ilaparken 4','7018','Trondheim',true)],[]),
+  mk(1018,'Magnus Rønning','magnus.ronning@gmail.com',0,'90111213','2026-08-02','1987-05-18',[],[]),
+  mk(1019,'Thea Vik','thea.vik@icloud.com',1,'93141516','2026-08-06','1995-11-02',[a('Hjemme','Østre Berg 17','7049','Trondheim',true)],[4]),
+  mk(1020,'Anders Bakke','anders.bakke@gmail.com',1,'91718192','2026-08-10','1979-02-27',[a('Hjemme','Singsakerbakken 2','7030','Trondheim',true)],[1]),
+  /* to bevisste duplikater for å vise duplikatfunnet */
+  mk(1021,'Anne K. Berg','anne.berg@gmail.com',0,'93412876','2026-08-11','1978-04-02',[],[]),
+  mk(1022,'Ola Nordman','ola.n@online.no',0,'41230987','2026-08-12',null,[],[]),
+];
+customers[3].deleted_at = '2026-06-30';
+customers[8].deleted_at = '2026-07-22';
+customers[9].cc  = {invoice_email:'faktura@eide-as.no', allow_invoice:true,  blacklisted:false, external_pos_no:'K-1042'};
+customers[17].cc = {invoice_email:'', allow_invoice:false, blacklisted:true,  external_pos_no:''};
+customers[12].cc = {invoice_email:'post@lisewold.no', allow_invoice:true, blacklisted:false, external_pos_no:'K-1187'};
+customers[0].consent_email = true; customers[0].consent_at='2026-01-14'; customers[0].consent_by='Kassa – Solsiden';
+customers[6].consent_email = true; customers[6].consent_at='2026-04-02'; customers[6].consent_by='Nettbutikk';
+
+/* ---------- Ordrer (deterministisk mock) ---------- */
+let orders = [];
+(function seedOrders(){
+  let oid = 50120;
+  customers.forEach((c, ci) => {
+    if (c.id >= 1021) return;                 // duplikatene har ingen ordre
+    const n = (ci * 7 + 3) % 9;               // 0–8 ordrer
+    for (let i = 0; i < n; i++){
+      const day   = 1 + ((ci * 3 + i * 5) % 27);
+      const month = 1 + ((ci + i * 2) % 8);
+      const nLines = 1 + ((ci + i) % 4);
+      const lines = Array.from({length: nLines}, (_, li) => ({
+        name: ['Kaffe latte','Croissant','Dagens suppe','Focaccia','Smoothie','Kanelbolle','Salat','Te'][(ci + li + i) % 8],
+        qty: 1 + ((li + i) % 3),
+        unit: [45,39,159,89,79,45,139,35][(ci + li + i) % 8]
+      }));
+      const gross = lines.reduce((s,l)=>s+l.qty*l.unit, 0);   // total = summen av linjene
+      orders.push({
+        id: ++oid,
+        customer_id: c.id,
+        date: `2026-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`,
+        location: LOCATIONS[(ci + i) % LOCATIONS.length],
+        payment: PAYMENTS[(ci * 2 + i) % PAYMENTS.length],
+        gross,
+        refunded: (ci + i) % 17 === 0,
+        lines,
+        receipts: []
+      });
+    }
+  });
+  orders[2].receipts.push({ch:'email', to:'anne.berg@gmail.com', at:'2026-02-01 14:22', by:'Einar M'});
+})();
+
+/* ---------- Hjelpere ---------- */
+const state = { page:1, perPage:10, sortKey:'name', sortDir:1, editingId:null, deleteId:null,
+                groupEditId:null, receiptOrderId:null, pendingGroupIds:[] };
+const panel      = new bootstrap.Offcanvas('#editPanel');
+const delModal   = new bootstrap.Modal('#deleteModal');
+const groupsMdl  = new bootstrap.Modal('#groupsModal');
+const orderMdl   = new bootstrap.Modal('#orderModal');
+const receiptMdl = new bootstrap.Modal('#receiptModal');
+const gdprMdl    = new bootstrap.Modal('#gdprModal');
+const mergeMdl   = new bootstrap.Modal('#mergeModal');
+
+const esc = s => (s??'').toString().replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = d => { if(!d) return '–'; const [y,m,dd]=d.split('-'); return `${dd}.${m}.${y}`; };
+const initials = n => n.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const kr = n => 'kr ' + n.toLocaleString('nb-NO', {minimumFractionDigits:2, maximumFractionDigits:2});
+const today = () => new Date().toISOString().slice(0,10);
+const groupById = id => groups.find(g=>g.id===id);
+
+function ordersFor(id){ return orders.filter(o=>o.customer_id===id).sort((a,b)=>b.date.localeCompare(a.date)); }
+function spendFor(id){ return ordersFor(id).filter(o=>!o.refunded).reduce((s,o)=>s+o.gross,0); }
+function lastOrderDate(id){ const o = ordersFor(id)[0]; return o ? o.date : null; }
+
+function logActivity(c, icon, text){
+  c.activity.unshift({ icon, text, at:new Date().toISOString().slice(0,16).replace('T',' '), by:'Einar M' });
+}
+
+/* ═══════════ Liste ═══════════ */
+function filtered(){
+  const q   = document.getElementById('search').value.trim().toLowerCase();
+  const st  = document.getElementById('filterStatus').value;
+  const ver = document.getElementById('filterVerified').value;
+  const grp = document.getElementById('filterGroup').value;
+  const sp  = document.getElementById('filterSpend').value;
+  return customers.filter(c=>{
+    if (st==='active'  && c.deleted_at) return false;
+    if (st==='deleted' && !c.deleted_at) return false;
+    if (ver!=='' && c.email_verified !== (ver==='1')) return false;
+    if (grp==='none' && c.group_ids.length) return false;
+    if (grp && grp!=='none' && !c.group_ids.includes(+grp)) return false;
+    const has = ordersFor(c.id).length > 0;
+    if (sp==='has'  && !has) return false;
+    if (sp==='none' &&  has) return false;
+    if (!q) return true;
+    return c.name.toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q)
+        || (c.phone||'').replace(/\s/g,'').includes(q.replace(/\s/g,'')) || String(c.id)===q;
+  }).sort((x,y)=>{
+    if (state.sortKey==='_spend') return (spendFor(x.id)-spendFor(y.id)) * state.sortDir;
+    return (''+x[state.sortKey]).localeCompare(''+y[state.sortKey],'nb') * state.sortDir;
+  });
+}
+function setSort(k){ if(state.sortKey===k) state.sortDir*=-1; else {state.sortKey=k;state.sortDir=1;} render(); }
+function go(p){ state.page=p; render(); }
+
+function groupChips(ids, small){
+  if (!ids.length) return '<span class="text-secondary small">–</span>';
+  return ids.map(id=>{
+    const g = groupById(id); if(!g) return '';
+    return `<span class="grp-chip" style="background:${g.color}1a;color:${g.color}">
+      <span class="grp-dot" style="background:${g.color}"></span>${esc(g.name)}</span>`;
+  }).join(' ');
+}
+
+function render(){
+  syncGroupFilter();
+  const rows = filtered();
+  const totalActive = customers.filter(c=>!c.deleted_at).length;
+  document.getElementById('countLabel').textContent =
+    `${totalActive} aktive kunder · ${customers.length-totalActive} slettet · ${groups.length} grupper`;
+  document.getElementById('filterHits').textContent = `${rows.length} treff`;
+  document.getElementById('dupCount').textContent = findDuplicates().length || '';
+
+  const start = (state.page-1)*state.perPage;
+  const pageRows = rows.slice(start, start+state.perPage);
+  const tbody = document.getElementById('tbody');
+
+  if (!pageRows.length){
+    tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 empty-state">
+      <i class="bi bi-people fs-3 d-block mb-2"></i>Ingen kunder matcher filteret.</td></tr>`;
+  } else {
+    tbody.innerHTML = pageRows.map(c=>{
+      const col = AVATAR_COLORS[c.id % AVATAR_COLORS.length];
+      const cnt = ordersFor(c.id).length;
+      const sp  = spendFor(c.id);
+      const last= lastOrderDate(c.id);
+      return `<tr class="clickable ${c.deleted_at?'row-deleted':''}" onclick="openEdit(${c.id})">
+        <td class="ps-4">
+          <div class="d-flex align-items-center gap-2">
+            <span class="avatar" style="background:${col}">${initials(c.name)}</span>
+            <div>
+              <div class="fw-semibold customer-name">${esc(c.name)}</div>
+              <div class="text-secondary small">#${c.id}</div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <div class="small">${esc(c.email)||'<span class="text-secondary">–</span>'}
+            ${c.email ? (c.email_verified
+              ? '<i class="bi bi-patch-check-fill text-primary ms-1" title="E-post verifisert"></i>'
+              : '<i class="bi bi-patch-exclamation text-warning ms-1" title="Ikke verifisert"></i>') : ''}</div>
+          <div class="text-secondary small">${esc(c.phone)? '+47 '+esc(c.phone):'–'}</div>
+        </td>
+        <td>${groupChips(c.group_ids)}</td>
+        <td class="text-end small ${sp?'fw-semibold':''}">${sp?kr(sp):'<span class="text-secondary">–</span>'}</td>
+        <td class="text-end small">${cnt||'<span class="text-secondary">–</span>'}</td>
+        <td class="small">${last?fmtDate(last):'<span class="text-secondary">–</span>'}</td>
+        <td>${c.deleted_at
+            ? `<span class="badge badge-soft-red">Slettet ${fmtDate(c.deleted_at)}</span>`
+            : (c.cc && c.cc.blacklisted
+                ? '<span class="badge badge-soft-red">Sperret</span>'
+                : '<span class="badge badge-soft-green">Aktiv</span>')}
+          ${(c.cc && c.cc.allow_invoice) ? '<span class="badge badge-soft-blue ms-1">Faktura</span>' : ''}</td>
+        <td class="text-end pe-4" onclick="event.stopPropagation()">
+          <div class="dropdown">
+            <button class="btn btn-sm btn-light" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+            <ul class="dropdown-menu dropdown-menu-end">
+              <li><a class="dropdown-item" onclick="openEdit(${c.id})"><i class="bi bi-pencil me-2"></i>Rediger</a></li>
+              <li><a class="dropdown-item" onclick="openEdit(${c.id},'orders')"><i class="bi bi-receipt me-2"></i>Se ordrer</a></li>
+              ${c.deleted_at
+                ? `<li><a class="dropdown-item text-success" onclick="restoreCustomer(${c.id})"><i class="bi bi-arrow-counterclockwise me-2"></i>Gjenopprett</a></li>`
+                : `<li><a class="dropdown-item text-danger" onclick="askDelete(${c.id})"><i class="bi bi-trash me-2"></i>Slett</a></li>`}
+            </ul>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  const pages = Math.max(1, Math.ceil(rows.length/state.perPage));
+  if (state.page>pages) state.page=pages;
+  document.getElementById('pageInfo').textContent =
+    rows.length ? `Viser ${start+1}–${Math.min(start+state.perPage, rows.length)} av ${rows.length}` : '';
+  let html = `<li class="page-item ${state.page===1?'disabled':''}"><a class="page-link" onclick="go(${state.page-1})">‹</a></li>`;
+  for(let p=1;p<=pages;p++) html += `<li class="page-item ${p===state.page?'active':''}"><a class="page-link" onclick="go(${p})">${p}</a></li>`;
+  html += `<li class="page-item ${state.page===pages?'disabled':''}"><a class="page-link" onclick="go(${state.page+1})">›</a></li>`;
+  document.getElementById('pager').innerHTML = html;
+}
+
+function syncGroupFilter(){
+  const sel = document.getElementById('filterGroup');
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">Gruppe: alle</option><option value="none">Uten gruppe</option>` +
+    groups.map(g=>`<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  sel.value = cur;
+}
+
+/* ═══════════ Opprett / rediger ═══════════ */
+function openCreate(){
+  state.editingId = null;
+  state.pendingGroupIds = [];
+  document.getElementById('panelTitle').textContent = 'Ny kunde';
+  document.getElementById('panelSub').textContent = '';
+  document.getElementById('panelAvatar').textContent = '+';
+  document.getElementById('panelAvatar').style.background = '#475467';
+  document.getElementById('customerForm').reset();
+  document.getElementById('addrList').innerHTML = '';
+  document.getElementById('dangerZone').innerHTML = '';
+  document.getElementById('dupWarn').innerHTML = '';
+  document.getElementById('consentMeta').textContent = 'Ikke registrert.';
+  document.getElementById('emailVerifiedIcon').innerHTML = '<i class="bi bi-dash text-secondary"></i>';
+  document.getElementById('tabOrdersBtn').classList.add('disabled');
+  document.querySelector('#custTabs .nav-link').click();
+  renderGroupPicker();
+  addAddressRow();
+  renderActivity(null);
+  panel.show();
+}
+
+function openEdit(id, tab){
+  const c = customers.find(x=>x.id===id); if(!c) return;
+  state.editingId = id;
+  state.pendingGroupIds = [...c.group_ids];
+  document.getElementById('panelTitle').textContent = c.name;
+  document.getElementById('panelSub').innerHTML =
+    `#${c.id} · opprettet ${fmtDate(c.created_at)} · ${ordersFor(id).length} ordrer · ${kr(spendFor(id))} totalt`;
+  const av = document.getElementById('panelAvatar');
+  av.textContent = initials(c.name);
+  av.style.background = AVATAR_COLORS[c.id % AVATAR_COLORS.length];
+
+  document.getElementById('f_name').value = c.name;
+  document.getElementById('f_phone').value = c.phone||'';
+  document.getElementById('f_cc').value = c.country_code||'NO';
+  document.getElementById('f_email').value = c.email||'';
+  document.getElementById('f_birthdate').value = c.birthdate||'';
+  document.getElementById('f_note').value = c.note||'';
+  const cc = c.cc || (c.cc = {invoice_email:'',allow_invoice:false,blacklisted:false,external_pos_no:''});
+  document.getElementById('f_invoice_email').value = cc.invoice_email||'';
+  document.getElementById('f_ext_pos').value = cc.external_pos_no||'';
+  document.getElementById('f_allow_invoice').checked = !!cc.allow_invoice;
+  document.getElementById('f_blacklisted').checked = !!cc.blacklisted;
+  document.getElementById('f_consent_email').checked = !!c.consent_email;
+  document.getElementById('f_consent_sms').checked = !!c.consent_sms;
+  document.getElementById('consentMeta').textContent = c.consent_at
+    ? `Samtykke registrert ${fmtDate(c.consent_at)} via ${c.consent_by}.`
+    : 'Ikke registrert.';
+  document.getElementById('emailVerifiedIcon').innerHTML = c.email_verified
+    ? '<i class="bi bi-patch-check-fill text-primary" title="Verifisert"></i>'
+    : '<i class="bi bi-patch-exclamation text-warning" title="Ikke verifisert"></i>';
+
+  const list = document.getElementById('addrList');
+  list.innerHTML = '';
+  c.addresses.forEach(ad=>addAddressRow(ad));
+  if (!c.addresses.length) addAddressRow();
+
+  document.getElementById('dangerZone').innerHTML = `
+    <button type="button" class="btn btn-outline-secondary w-100" onclick="gdprMdl.show()">
+      <i class="bi bi-shield-lock me-1"></i>Personopplysninger (eksport / anonymisering)</button>
+    ` + (c.deleted_at
+      ? `<button type="button" class="btn btn-outline-success w-100" onclick="restoreCustomer(${c.id});panel.hide()">
+           <i class="bi bi-arrow-counterclockwise me-1"></i>Gjenopprett kunde</button>`
+      : `<button type="button" class="btn btn-outline-danger w-100" onclick="panel.hide();askDelete(${c.id})">
+           <i class="bi bi-trash me-1"></i>Slett kunde</button>`);
+
+  document.getElementById('tabOrdersBtn').classList.remove('disabled');
+  document.getElementById('dupWarn').innerHTML = '';
+  renderGroupPicker();
+  renderOrders();
+  renderActivity(c);
+  checkDuplicates();
+
+  const btns = document.querySelectorAll('#custTabs .nav-link');
+  (tab==='orders' ? btns[1] : btns[0]).click();
+  panel.show();
+}
+
+/* ---------- Gruppevelger ---------- */
+function renderGroupPicker(){
+  document.getElementById('groupPicker').innerHTML = groups.map(g=>{
+    const on = state.pendingGroupIds.includes(g.id);
+    return `<div class="col-6"><div class="grp-pick ${on?'on':''}" onclick="toggleGroup(${g.id})">
+      <input class="form-check-input mt-0" type="checkbox" ${on?'checked':''}>
+      <span class="grp-dot" style="background:${g.color}"></span>
+      <div class="flex-fill">
+        <div class="small fw-semibold">${esc(g.name)}</div>
+        <div class="text-secondary" style="font-size:.72rem">${esc(g.desc)}</div>
+      </div></div></div>`;
+  }).join('') || '<div class="col-12 text-secondary small">Ingen grupper opprettet ennå.</div>';
+}
+function toggleGroup(id){
+  const i = state.pendingGroupIds.indexOf(id);
+  if (i>=0) state.pendingGroupIds.splice(i,1); else state.pendingGroupIds.push(id);
+  renderGroupPicker();
+}
+
+/* ═══════════ Adresser + Google Places-stub ═══════════ */
+/* I produksjon byttes PLACES ut med den eksisterende Google Maps-integrasjonen.
+   Kontrakten er den samme: søketekst inn, forslag ut, og ved valg fylles
+   gate, postnr., poststed og koordinater automatisk. */
+const PLACES = [
+  {street:'Storgata 14',            zip:'7013', city:'Trondheim', lat:63.4305, lng:10.3951},
+  {street:'Storgata 22',            zip:'7013', city:'Trondheim', lat:63.4309, lng:10.3960},
+  {street:'Storgata 5',             zip:'7600', city:'Levanger',  lat:63.7460, lng:11.2985},
+  {street:'Munkegata 1',            zip:'7013', city:'Trondheim', lat:63.4300, lng:10.3939},
+  {street:'Munkegata 26',           zip:'7011', city:'Trondheim', lat:63.4318, lng:10.3944},
+  {street:'Innherredsveien 5',      zip:'7014', city:'Trondheim', lat:63.4372, lng:10.4185},
+  {street:'Innherredsveien 103',    zip:'7042', city:'Trondheim', lat:63.4401, lng:10.4290},
+  {street:'Prinsens gate 22',       zip:'7011', city:'Trondheim', lat:63.4297, lng:10.3925},
+  {street:'Nedre Bakklandet 60',    zip:'7014', city:'Trondheim', lat:63.4288, lng:10.4022},
+  {street:'Kongens gate 11',        zip:'7013', city:'Trondheim', lat:63.4312, lng:10.3928},
+  {street:'Klostergata 40',         zip:'7030', city:'Trondheim', lat:63.4249, lng:10.3873},
+  {street:'Byåsveien 130',          zip:'7020', city:'Trondheim', lat:63.4133, lng:10.3546},
+  {street:'Kirkegata 3',            zip:'7600', city:'Levanger',  lat:63.7465, lng:11.2999},
+  {street:'Sjøgata 9',              zip:'7900', city:'Rørvik',    lat:64.8620, lng:11.2380},
+  {street:'Verftsgata 2',           zip:'6416', city:'Molde',     lat:62.7375, lng:7.1591},
+  {street:'Fjellveien 88',          zip:'7340', city:'Oppdal',    lat:62.5947, lng:9.6890},
+
+];
+
+/* Fylke/område pr. poststed – i produksjon kommer dette fra Places address_components
+   (administrative_area_level_1 → state, sublocality → area, country → country_id). */
+const CITY_META = {
+  'Trondheim': {state:'Trøndelag',        area:'Midtbyen',   country:'NO'},
+  'Levanger' : {state:'Trøndelag',        area:'Levanger',   country:'NO'},
+  'Rørvik'   : {state:'Trøndelag',        area:'Nærøysund',  country:'NO'},
+  'Molde'    : {state:'Møre og Romsdal',  area:'Molde',      country:'NO'},
+  'Oppdal'   : {state:'Trøndelag',        area:'Oppdal',     country:'NO'}
+};
+/* Google leverer gate og husnummer som separate komponenter (route + street_number).
+   Vi lagrer dem separat, akkurat som customers_addresses gjør i dag. */
+function splitStreet(s){
+  const m = (s||'').match(/^(.*?)[\s]+([0-9]+[A-Za-z]?)$/);
+  return m ? {street:m[1], number:m[2]} : {street:s||'', number:''};
+}
+function placeId(p){ return 'ChIJ' + String(p.zip + p.street).replace(/\D/g,'').padEnd(8,'0').slice(0,8) + 'PloreaDemo'; }
+
+function addAddressRow(ad={label:'',street:'',street_number:'',zip:'',city:'',area:'',state:'',country:'NO',is_default:false,lat:null,lng:null,place_id:''}){
+  ad = Object.assign({street_number:'',area:'',state:'',country:'NO',place_id:''}, ad);
+  const uid = 'ad' + Math.random().toString(36).slice(2,8);
+  const wrap = document.createElement('div');
+  wrap.className = 'addr-card p-3';
+  wrap.innerHTML = `
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <input class="form-control form-control-sm w-50 addr-label" placeholder="Etikett (Hjemme, Jobb …)" value="${esc(ad.label)}">
+      <div class="d-flex align-items-center gap-2">
+        <div class="form-check form-check-sm mb-0">
+          <input class="form-check-input addr-default" type="radio" name="defaultAddr" ${ad.is_default?'checked':''} title="Standardadresse">
+          <label class="form-check-label small text-secondary">Standard</label>
+        </div>
+        <button type="button" class="btn btn-sm btn-light text-danger" onclick="this.closest('.addr-card').remove()"><i class="bi bi-x-lg"></i></button>
+      </div>
+    </div>
+    <div class="position-relative mb-2">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-white"><i class="bi bi-geo-alt"></i></span>
+        <input class="form-control addr-street" id="${uid}" placeholder="Begynn å skrive gateadresse …"
+               autocomplete="off" value="${esc(ad.street)}"
+               oninput="placeSearch(this)" onkeydown="placeKey(event,this)" onblur="placeBlur(this)">
+      </div>
+      <div class="addr-suggest"></div>
+    </div>
+    <div class="row g-2">
+      <div class="col-3"><input class="form-control form-control-sm addr-number" placeholder="Nr." value="${esc(ad.street_number)}"></div>
+      <div class="col-3"><input class="form-control form-control-sm addr-zip" placeholder="Postnr." value="${esc(ad.zip)}"></div>
+      <div class="col-6"><input class="form-control form-control-sm addr-city" placeholder="Poststed" value="${esc(ad.city)}"></div>
+      <div class="col-4"><input class="form-control form-control-sm addr-area" placeholder="Område" value="${esc(ad.area)}"></div>
+      <div class="col-5"><input class="form-control form-control-sm addr-state" placeholder="Fylke" value="${esc(ad.state)}"></div>
+      <div class="col-3">
+        <select class="form-select form-select-sm addr-country">
+          <option value="NO" ${ad.country!=='SE'&&ad.country!=='DK'?'selected':''}>Norge</option>
+          <option value="SE" ${ad.country==='SE'?'selected':''}>Sverige</option>
+          <option value="DK" ${ad.country==='DK'?'selected':''}>Danmark</option>
+        </select>
+      </div>
+    </div>
+    <div class="mt-2 addr-meta">${ad.lat
+      ? `<span class="addr-verified"><i class="bi bi-check-circle-fill me-1"></i>Bekreftet posisjon ${ad.lat.toFixed(4)}, ${ad.lng.toFixed(4)}${ad.place_id?` · place_id ${esc(ad.place_id)}`:''}</span>`
+      : `<span class="text-secondary" style="font-size:.7rem">Ingen posisjon lagret – velg et forslag for å hente koordinater.</span>`}</div>`;
+  document.getElementById('addrList').appendChild(wrap);
+}
+
+function placeSearch(input){
+  const box = input.closest('.position-relative').querySelector('.addr-suggest');
+  const q = input.value.trim().toLowerCase();
+  if (q.length < 2){ box.classList.remove('show'); return; }
+  const hits = PLACES.filter(p => (p.street+' '+p.city+' '+p.zip).toLowerCase().includes(q)).slice(0,6);
+  if (!hits.length){ box.classList.remove('show'); return; }
+  box.innerHTML = hits.map((p,i)=>`
+    <div class="addr-suggest-item ${i===0?'active':''}" data-i="${PLACES.indexOf(p)}"
+         onmousedown="pickPlace(this)">
+      <i class="bi bi-geo-alt"></i>
+      <div><div class="fw-semibold">${esc(p.street)}</div>
+      <div class="text-secondary" style="font-size:.75rem">${esc(p.zip)} ${esc(p.city)}</div></div>
+    </div>`).join('') +
+    `<div class="addr-suggest-foot"><i class="bi bi-google me-1"></i>Forslag fra Google Places (demo-stub)</div>`;
+  box.classList.add('show');
+}
+function placeKey(e, input){
+  const box = input.closest('.position-relative').querySelector('.addr-suggest');
+  if (!box.classList.contains('show')) return;
+  const items = [...box.querySelectorAll('.addr-suggest-item')];
+  let idx = items.findIndex(i=>i.classList.contains('active'));
+  if (e.key==='ArrowDown'){ e.preventDefault(); idx=Math.min(idx+1, items.length-1); }
+  else if (e.key==='ArrowUp'){ e.preventDefault(); idx=Math.max(idx-1, 0); }
+  else if (e.key==='Enter'){ e.preventDefault(); if(items[idx]) pickPlace(items[idx]); return; }
+  else if (e.key==='Escape'){ box.classList.remove('show'); return; }
+  else return;
+  items.forEach(i=>i.classList.remove('active'));
+  if (items[idx]) items[idx].classList.add('active');
+}
+function placeBlur(input){
+  const box = input.closest('.position-relative').querySelector('.addr-suggest');
+  setTimeout(()=>box.classList.remove('show'), 120);
+}
+function pickPlace(el){
+  const p = PLACES[+el.dataset.i];
+  const card = el.closest('.addr-card');
+  const s = splitStreet(p.street);
+  const meta = CITY_META[p.city] || {state:'', area:'', country:'NO'};
+  card.querySelector('.addr-street').value  = s.street;
+  card.querySelector('.addr-number').value  = s.number;
+  card.querySelector('.addr-zip').value     = p.zip;
+  card.querySelector('.addr-city').value    = p.city;
+  card.querySelector('.addr-area').value    = meta.area;
+  card.querySelector('.addr-state').value   = meta.state;
+  card.querySelector('.addr-country').value = meta.country;
+  const pid = placeId(p);
+  card.querySelector('.addr-meta').innerHTML =
+    `<span class="addr-verified"><i class="bi bi-check-circle-fill me-1"></i>Bekreftet posisjon ${p.lat.toFixed(4)}, ${p.lng.toFixed(4)} · place_id ${pid}</span>`;
+  card.dataset.lat = p.lat; card.dataset.lng = p.lng; card.dataset.placeId = pid;
+  card.dataset.address = `${p.street}, ${p.zip} ${p.city}, Norge`;
+  card.querySelector('.addr-suggest').classList.remove('show');
+  if (!card.querySelector('.addr-label').value) card.querySelector('.addr-label').value = 'Hjemme';
+}
+
+function collectAddresses(){
+  return [...document.querySelectorAll('#addrList .addr-card')].map(el=>({
+    label: el.querySelector('.addr-label').value.trim(),
+    street: el.querySelector('.addr-street').value.trim(),
+    street_number: el.querySelector('.addr-number').value.trim(),
+    zip: el.querySelector('.addr-zip').value.trim(),
+    city: el.querySelector('.addr-city').value.trim(),
+    area: el.querySelector('.addr-area').value.trim(),
+    state: el.querySelector('.addr-state').value.trim(),
+    country: el.querySelector('.addr-country').value,
+    is_default: el.querySelector('.addr-default').checked,
+    lat: el.dataset.lat ? +el.dataset.lat : null,
+    lng: el.dataset.lng ? +el.dataset.lng : null,
+    place_id: el.dataset.placeId || '',
+    address: el.dataset.address || '',
+  })).filter(ad=>ad.street||ad.city||ad.zip);
+}
+
+/* ═══════════ Duplikater ═══════════ */
+function normPhone(p){ return (p||'').replace(/\D/g,''); }
+function findDuplicates(){
+  const pairs = [];
+  const live = customers.filter(c=>!c.deleted_at);
+  for (let i=0;i<live.length;i++) for (let j=i+1;j<live.length;j++){
+    const A=live[i], B=live[j]; const reasons=[];
+    if (A.email && B.email && A.email.toLowerCase()===B.email.toLowerCase()) reasons.push('samme e-post');
+    if (normPhone(A.phone) && normPhone(A.phone)===normPhone(B.phone)) reasons.push('samme telefon');
+    if (A.birthdate && A.birthdate===B.birthdate) reasons.push('samme fødselsdato');
+    if (reasons.length) pairs.push({A,B,reasons});
+  }
+  return pairs;
+}
+function checkDuplicates(){
+  const el = document.getElementById('dupWarn');
+  const email = document.getElementById('f_email').value.trim().toLowerCase();
+  const phone = normPhone(document.getElementById('f_phone').value);
+  const hit = customers.find(c=> c.id!==state.editingId && !c.deleted_at &&
+    ((email && (c.email||'').toLowerCase()===email) || (phone && normPhone(c.phone)===phone)));
+  el.innerHTML = hit ? `<div class="dup-banner p-2 px-3 mb-3 small d-flex align-items-center gap-2">
+      <i class="bi bi-exclamation-triangle text-warning"></i>
+      <div class="flex-fill">Samme kontaktinfo finnes allerede på <b>${esc(hit.name)}</b> (#${hit.id}).</div>
+      <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openEdit(${hit.id})">Åpne</button>
+    </div>` : '';
+}
+function openMergeFinder(){
+  const pairs = findDuplicates();
+  document.getElementById('mergeBody').innerHTML = pairs.length ? pairs.map(p=>`
+    <div class="addr-card p-3 mb-2">
+      <div class="d-flex justify-content-between align-items-start gap-3">
+        <div class="flex-fill">
+          <div class="small"><b>${esc(p.A.name)}</b> <span class="text-secondary">#${p.A.id} · ${ordersFor(p.A.id).length} ordrer</span></div>
+          <div class="small"><b>${esc(p.B.name)}</b> <span class="text-secondary">#${p.B.id} · ${ordersFor(p.B.id).length} ordrer</span></div>
+          <div class="mt-1">${p.reasons.map(r=>`<span class="badge badge-soft-amber me-1">${r}</span>`).join('')}</div>
+        </div>
+        <button class="btn btn-sm btn-outline-primary" onclick="openMergePair(${p.A.id},${p.B.id})">Slå sammen</button>
+      </div>
+    </div>`).join('') +
+    `<div class="alert alert-secondary small mb-0 mt-2">Ved sammenslåing beholdes én kunde. Ordrer, adresser,
+     gruppemedlemskap og samtykke flyttes over, og den andre anonymiseres. Rekkefølgen må være entydig –
+     hvilken e-post og hvilket telefonnummer som vinner må velges eksplisitt, ikke gjettes.</div>`
+    : '<div class="text-secondary small">Ingen sannsynlige duplikater funnet.</div>';
+  mergeMdl.show();
+}
+
+/* --- Sammenslåing: eksplisitt valg, ingen gjetting --- */
+function openMergePair(idA, idB){
+  const A = customers.find(c=>c.id===idA), B = customers.find(c=>c.id===idB);
+  if(!A || !B) return;
+  const card = (c, other) => `
+    <label class="addr-card p-3 d-block h-100" style="cursor:pointer">
+      <div class="d-flex align-items-start gap-2">
+        <input type="radio" name="mergeKeep" value="${c.id}" class="form-check-input mt-1"
+               ${c.id===idA?'checked':''} onchange="renderMergePreview()">
+        <div>
+          <div class="fw-semibold">${esc(c.name)} <span class="text-secondary fw-normal">#${c.id}</span></div>
+          <div class="small text-secondary">${esc(c.email||'–')}<br>${esc(c.phone ? (c.phone_e164||('+47 '+c.phone)) : '–')}</div>
+          <div class="small text-secondary mt-1">${ordersFor(c.id).length} ordrer · ${kr(spendFor(c.id))} ·
+            opprettet ${fmtDate(c.created_at)}</div>
+        </div>
+      </div>
+    </label>`;
+  document.getElementById('mergeBody').innerHTML = `
+    <div class="section-head mb-2">Hvilken kunde skal beholdes?</div>
+    <div class="row g-2 mb-3">
+      <div class="col-6">${card(A,B)}</div>
+      <div class="col-6">${card(B,A)}</div>
+    </div>
+    <div class="section-head mb-2">Kontaktinfo som skal gjelde</div>
+    <div class="row g-2 mb-3">
+      <div class="col-6">
+        <label class="form-label small mb-1">E-post</label>
+        <select class="form-select form-select-sm" id="mergeEmail">
+          ${[A,B].filter(c=>c.email).map(c=>`<option value="${esc(c.email)}">${esc(c.email)} (#${c.id})</option>`).join('')}
+        </select>
+      </div>
+      <div class="col-6">
+        <label class="form-label small mb-1">Telefon</label>
+        <select class="form-select form-select-sm" id="mergePhone">
+          ${[A,B].filter(c=>c.phone).map(c=>`<option value="${esc(c.phone)}">${esc(c.phone_e164||('+47 '+c.phone))} (#${c.id})</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div id="mergePreview"></div>
+    <div class="d-flex justify-content-end gap-2 mt-3">
+      <button class="btn btn-sm btn-light" onclick="openMergeFinder()">Tilbake</button>
+      <button class="btn btn-sm btn-primary" onclick="doMerge(${idA},${idB})">Slå sammen</button>
+    </div>`;
+  state.mergePair = [idA, idB];
+  renderMergePreview();
+}
+function renderMergePreview(){
+  if(!state.mergePair) return;
+  const keepId = +document.querySelector('input[name=mergeKeep]:checked').value;
+  const loseId = state.mergePair.find(id=>id!==keepId);
+  const keep = customers.find(c=>c.id===keepId), lose = customers.find(c=>c.id===loseId);
+  document.getElementById('mergePreview').innerHTML = `
+    <div class="alert alert-secondary small mb-0">
+      <b>#${lose.id} ${esc(lose.name)}</b> flyttes inn i <b>#${keep.id} ${esc(keep.name)}</b>:
+      ${ordersFor(lose.id).length} ordrer, ${(lose.addresses||[]).length} adresser og
+      ${(lose.group_ids||[]).length} gruppemedlemskap overføres.
+      Samtykke overføres kun der det er registrert – et manglende samtykke arves aldri.
+      #${lose.id} anonymiseres, og hendelsen logges på #${keep.id}.
+    </div>`;
+}
+function doMerge(idA, idB){
+  const keepId = +document.querySelector('input[name=mergeKeep]:checked').value;
+  const loseId = [idA,idB].find(id=>id!==keepId);
+  const keep = customers.find(c=>c.id===keepId), lose = customers.find(c=>c.id===loseId);
+  const email = document.getElementById('mergeEmail')?.value || keep.email;
+  const phone = document.getElementById('mergePhone')?.value || keep.phone;
+  const movedOrders = ordersFor(loseId).length;
+
+  orders.forEach(o=>{ if(o.customer_id===loseId) o.customer_id=keepId; });
+  keep.addresses = (keep.addresses||[]).concat(lose.addresses||[]);
+  keep.group_ids = Array.from(new Set((keep.group_ids||[]).concat(lose.group_ids||[])));
+  keep.consent_email = keep.consent_email || lose.consent_email;
+  keep.consent_sms   = keep.consent_sms   || lose.consent_sms;
+  keep.email = email; keep.phone = phone;
+  if (lose.email_verified && email===lose.email) keep.email_verified = true;
+
+  lose.deleted_at = new Date().toISOString().slice(0,10);
+  lose.merged_into = keepId;
+  lose.name = 'Sammenslått kunde'; lose.email=''; lose.phone=''; lose.birthdate='';
+  lose.addresses=[]; lose.group_ids=[];
+
+  logActivity(keep,'people',`Slått sammen med #${loseId}. ${movedOrders} ordrer, adresser og gruppemedlemskap flyttet over. Valgt e-post ${email||'–'}, telefon ${phone||'–'}.`);
+  render();
+  toast(`Kundene er slått sammen til #${keepId}`,'success');
+  state.mergePair = null;
+  openMergeFinder();
+}
+
+/* ═══════════ Lagre / slett ═══════════ */
+function saveCustomer(e){
+  e.preventDefault();
+  const data = {
+    name: document.getElementById('f_name').value.trim(),
+    phone: document.getElementById('f_phone').value.trim(),
+    country_code: document.getElementById('f_cc').value,
+    email: document.getElementById('f_email').value.trim(),
+    birthdate: document.getElementById('f_birthdate').value || null,
+    note: document.getElementById('f_note').value.trim(),
+    addresses: collectAddresses(),
+    group_ids: [...state.pendingGroupIds],
+    consent_email: document.getElementById('f_consent_email').checked,
+    consent_sms: document.getElementById('f_consent_sms').checked,
+    cc: {
+      invoice_email:   document.getElementById('f_invoice_email').value.trim(),
+      external_pos_no: document.getElementById('f_ext_pos').value.trim(),
+      allow_invoice:   document.getElementById('f_allow_invoice').checked,
+      blacklisted:     document.getElementById('f_blacklisted').checked,
+    },
+  };
+  if (state.editingId){
+    const c = customers.find(x=>x.id===state.editingId);
+    const before = { g:[...c.group_ids], ce:c.consent_email, cs:c.consent_sms, bl:c.cc?.blacklisted, ai:c.cc?.allow_invoice };
+    Object.assign(c, data);
+    if (JSON.stringify(before.g)!==JSON.stringify(c.group_ids))
+      logActivity(c,'tags','Gruppemedlemskap endret til: ' + (c.group_ids.map(i=>groupById(i)?.name).join(', ')||'ingen'));
+    if (before.ce!==c.consent_email || before.cs!==c.consent_sms){
+      c.consent_at = today(); c.consent_by = 'Admin';
+      logActivity(c,'check2-square',`Samtykke oppdatert – e-post: ${c.consent_email?'ja':'nei'}, SMS: ${c.consent_sms?'ja':'nei'}`);
+    }
+    if (before.bl!==c.cc.blacklisted)
+      logActivity(c,'slash-circle', c.cc.blacklisted ? 'Kunden sperret i kassa' : 'Sperring opphevet');
+    if (before.ai!==c.cc.allow_invoice)
+      logActivity(c,'receipt', c.cc.allow_invoice ? 'Fakturakjøp aktivert' : 'Fakturakjøp deaktivert');
+    logActivity(c,'pencil','Kundeopplysninger endret');
+    toast('Kunde oppdatert','success');
+  } else {
+    const id = Math.max(...customers.map(c=>c.id))+1;
+    const c = { id, ...data, email_verified:false, phone_e164:'+47'+data.phone,
+                created_at: today(), deleted_at:null, consent_at: (data.consent_email||data.consent_sms)?today():null,
+                consent_by:'Admin', activity:[] };
+    logActivity(c,'plus-lg','Kunde opprettet');
+    customers.unshift(c);
+    toast('Kunde opprettet','success');
+  }
+  panel.hide(); render();
+}
+
+function askDelete(id){
+  state.deleteId = id;
+  document.getElementById('deleteName').textContent = customers.find(x=>x.id===id)?.name||'';
+  delModal.show();
+}
+function confirmDelete(){
+  const c = customers.find(x=>x.id===state.deleteId);
+  if (c){ c.deleted_at = today(); logActivity(c,'trash','Kunde slettet (soft delete)'); toast('Kunde slettet – kan gjenopprettes','danger'); }
+  delModal.hide(); render();
+}
+function restoreCustomer(id){
+  const c = customers.find(x=>x.id===id);
+  if (c){ c.deleted_at = null; logActivity(c,'arrow-counterclockwise','Kunde gjenopprettet'); toast('Kunde gjenopprettet','success'); }
+  render();
+}
+
+/* ═══════════ Kundegrupper ═══════════ */
+function openGroupsAdmin(){ resetGroupForm(); renderGroupsTable(); groupsMdl.show(); }
+function renderGroupsTable(){
+  const sel = document.getElementById('g_color');
+  if (!sel.options.length) sel.innerHTML = GROUP_COLORS.map(c=>`<option value="${c.hex}">${c.name}</option>`).join('');
+  document.getElementById('groupsBody').innerHTML = groups.map(g=>{
+    const n = customers.filter(c=>!c.deleted_at && c.group_ids.includes(g.id)).length;
+    return `<tr>
+      <td><span class="grp-chip" style="background:${g.color}1a;color:${g.color}">
+          <span class="grp-dot" style="background:${g.color}"></span>${esc(g.name)}</span></td>
+      <td class="small text-secondary">${esc(g.desc)}</td>
+      <td class="text-end small">${n}</td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-light" onclick="editGroup(${g.id})"><i class="bi bi-pencil"></i></button>
+        <button class="btn btn-sm btn-light text-danger" onclick="deleteGroup(${g.id})"><i class="bi bi-trash"></i></button>
+      </td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="text-secondary small py-3">Ingen grupper ennå.</td></tr>';
+}
+function resetGroupForm(){
+  state.groupEditId = null;
+  document.getElementById('g_name').value = '';
+  document.getElementById('g_desc').value = '';
+  document.getElementById('grpFormTitle').textContent = 'Ny gruppe';
+  document.getElementById('grpSaveBtn').textContent = 'Opprett gruppe';
+  document.getElementById('grpCancelBtn').classList.add('d-none');
+}
+function editGroup(id){
+  const g = groupById(id); if(!g) return;
+  state.groupEditId = id;
+  document.getElementById('g_name').value = g.name;
+  document.getElementById('g_desc').value = g.desc;
+  document.getElementById('g_color').value = g.color;
+  document.getElementById('grpFormTitle').textContent = 'Rediger gruppe';
+  document.getElementById('grpSaveBtn').textContent = 'Lagre endringer';
+  document.getElementById('grpCancelBtn').classList.remove('d-none');
+}
+function saveGroup(){
+  const name = document.getElementById('g_name').value.trim();
+  if (!name){ toast('Gruppen må ha et navn','danger'); return; }
+  const dup = groups.find(g=>g.name.toLowerCase()===name.toLowerCase() && g.id!==state.groupEditId);
+  if (dup){ toast('Det finnes allerede en gruppe med dette navnet','danger'); return; }
+  const desc = document.getElementById('g_desc').value.trim();
+  const color = document.getElementById('g_color').value;
+  if (state.groupEditId){
+    Object.assign(groupById(state.groupEditId), {name, desc, color});
+    toast('Gruppe oppdatert','success');
+  } else {
+    groups.push({ id: Math.max(0,...groups.map(g=>g.id))+1, name, desc, color });
+    toast('Gruppe opprettet','success');
+  }
+  resetGroupForm(); renderGroupsTable(); renderGroupPicker(); render();
+}
+function deleteGroup(id){
+  const n = customers.filter(c=>c.group_ids.includes(id)).length;
+  if (n && !confirm(`${n} kunder er knyttet til denne gruppen. Fjerne gruppen fra dem og slette den?`)) return;
+  groups = groups.filter(g=>g.id!==id);
+  customers.forEach(c=> c.group_ids = c.group_ids.filter(g=>g!==id));
+  state.pendingGroupIds = state.pendingGroupIds.filter(g=>g!==id);
+  toast('Gruppe slettet','danger');
+  renderGroupsTable(); renderGroupPicker(); render();
+}
+
+/* ═══════════ Ordrer ═══════════ */
+function renderOrders(){
+  const c = customers.find(x=>x.id===state.editingId);
+  const stats = document.getElementById('orderStats');
+  const body = document.getElementById('orderBody');
+  const locSel = document.getElementById('orderLocFilter');
+  if (!c){ stats.innerHTML=''; body.innerHTML=''; return; }
+
+  const all = ordersFor(c.id);
+  if (!locSel.options.length || locSel.dataset.for !== String(c.id)){
+    locSel.dataset.for = String(c.id);
+    locSel.innerHTML = '<option value="">Alle steder</option>' +
+      [...new Set(all.map(o=>o.location))].map(l=>`<option>${esc(l)}</option>`).join('');
+  }
+  const loc = locSel.value;
+  const rows = loc ? all.filter(o=>o.location===loc) : all;
+
+  const spend = spendFor(c.id);
+  const avg = all.length ? spend/all.filter(o=>!o.refunded).length : 0;
+  stats.innerHTML = `
+    <div class="col-3"><div class="stat"><div class="stat-val">${all.length}</div><div class="stat-lbl">Ordrer</div></div></div>
+    <div class="col-3"><div class="stat"><div class="stat-val">${kr(spend)}</div><div class="stat-lbl">Totalt</div></div></div>
+    <div class="col-3"><div class="stat"><div class="stat-val">${all.length?kr(avg):'–'}</div><div class="stat-lbl">Snitt</div></div></div>
+    <div class="col-3"><div class="stat"><div class="stat-val">${all.length?fmtDate(all[0].date):'–'}</div><div class="stat-lbl">Siste kjøp</div></div></div>`;
+
+  body.innerHTML = rows.length ? rows.map(o=>`
+    <tr class="order-row" onclick="openOrder(${o.id})">
+      <td class="small fw-semibold">#${o.id}</td>
+      <td class="small">${fmtDate(o.date)}</td>
+      <td class="small">${esc(o.location)}</td>
+      <td class="small">${esc(o.payment)}</td>
+      <td class="text-end small ${o.refunded?'text-decoration-line-through text-secondary':''}">${kr(o.gross)}</td>
+      <td>${o.refunded?'<span class="badge badge-soft-red">Refundert</span>':''}
+          ${o.receipts.length?`<span class="badge badge-soft-blue" title="Kvittering sendt ${o.receipts.length} ganger"><i class="bi bi-send"></i> ${o.receipts.length}</span>`:''}</td>
+      <td class="text-end" onclick="event.stopPropagation()">
+        <button class="btn btn-sm btn-light" title="Send kvittering" onclick="openReceipt(${o.id})"><i class="bi bi-envelope"></i></button>
+      </td>
+    </tr>`).join('')
+    : `<tr><td colspan="7" class="text-center py-4 empty-state">
+         <i class="bi bi-receipt fs-4 d-block mb-2"></i>Ingen ordrer registrert på denne kunden.</td></tr>`;
+}
+
+function openOrder(id){
+  const o = orders.find(x=>x.id===id); if(!o) return;
+  const net = o.lines.reduce((s,l)=>s+l.qty*l.unit,0);
+  document.getElementById('omTitle').textContent = `Ordre #${o.id}`;
+  document.getElementById('omSub').textContent = `${fmtDate(o.date)} · ${o.location} · ${o.payment}`;
+  document.getElementById('omBody').innerHTML = `
+    ${o.refunded?'<div class="alert alert-danger py-2 small">Denne ordren er refundert.</div>':''}
+    <table class="table table-sm">
+      <thead><tr><th>Vare</th><th class="text-end">Ant.</th><th class="text-end">Pris</th><th class="text-end">Sum</th></tr></thead>
+      <tbody>${o.lines.map(l=>`<tr>
+        <td class="small">${esc(l.name)}</td>
+        <td class="text-end small">${l.qty}</td>
+        <td class="text-end small">${kr(l.unit)}</td>
+        <td class="text-end small">${kr(l.qty*l.unit)}</td></tr>`).join('')}
+      </tbody>
+      <tfoot>
+        <tr><td colspan="3" class="text-end small text-secondary">Sum varer</td><td class="text-end small">${kr(net)}</td></tr>
+        <tr><td colspan="3" class="text-end small text-secondary">Herav mva. (15 %)</td><td class="text-end small">${kr(o.gross*15/115)}</td></tr>
+        <tr><td colspan="3" class="text-end fw-semibold">Totalt</td><td class="text-end fw-semibold">${kr(o.gross)}</td></tr>
+      </tfoot>
+    </table>
+    ${o.receipts.length ? `<div class="section-head mb-1">Sendte kvitteringer</div>
+      <ul class="list-unstyled small mb-0">${o.receipts.map(r=>
+        `<li class="text-secondary"><i class="bi bi-${r.ch==='sms'?'chat-dots':'envelope'} me-1"></i>
+         ${esc(r.to)} · ${esc(r.at)} · ${esc(r.by)}</li>`).join('')}</ul>` : ''}`;
+  document.getElementById('omReceiptBtn').onclick = ()=>{ orderMdl.hide(); openReceipt(o.id); };
+  orderMdl.show();
+}
+
+/* ---------- Kvittering ---------- */
+function openReceipt(orderId){
+  state.receiptOrderId = orderId;
+  const o = orders.find(x=>x.id===orderId);
+  document.getElementById('rcOrderInfo').innerHTML =
+    `Ordre <b>#${o.id}</b> · ${fmtDate(o.date)} · ${esc(o.location)} · <b>${kr(o.gross)}</b>`;
+  document.getElementById('rcEmail').checked = true;
+  renderReceiptTarget();
+  receiptMdl.show();
+}
+function renderReceiptTarget(){
+  const o = orders.find(x=>x.id===state.receiptOrderId);
+  const c = customers.find(x=>x.id===o.customer_id);
+  const ch = document.querySelector('input[name=rcChannel]:checked').value;
+  const stored = ch==='email' ? c.email : (c.phone ? '+47 '+c.phone : '');
+  const verified = ch==='email' ? c.email_verified : !!c.phone;
+  const box = document.getElementById('rcTarget');
+
+  box.innerHTML = stored ? `
+    <div class="addr-card p-3">
+      <div class="form-check mb-2">
+        <input class="form-check-input" type="radio" name="rcTo" id="rcToStored" value="stored" checked onchange="toggleCustomTo()">
+        <label class="form-check-label small" for="rcToStored">
+          <b>${esc(stored)}</b>
+          ${verified ? '<span class="badge badge-soft-green ms-1">Bekreftet</span>'
+                     : '<span class="badge badge-soft-amber ms-1">Ikke bekreftet</span>'}
+        </label>
+      </div>
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="rcTo" id="rcToOther" value="other" onchange="toggleCustomTo()">
+        <label class="form-check-label small" for="rcToOther">Send til en annen ${ch==='email'?'e-postadresse':'mobil'}</label>
+      </div>
+      <input class="form-control form-control-sm mt-2 d-none" id="rcCustom"
+             placeholder="${ch==='email'?'navn@eksempel.no':'+47 912 34 567'}">
+    </div>
+    <div class="form-text mt-2">
+      Sendes via den e-post-/SMS-tjenesten systemet allerede bruker for kvitteringer.
+      Sending til en annen adresse enn kundens lagrede krever et bevisst valg, og logges på kunden.
+    </div>`
+  : `<div class="alert alert-warning py-2 small mb-0">
+       Kunden har ingen ${ch==='email'?'e-postadresse':'mobilnummer'} registrert.
+       Legg det inn på Detaljer-fanen først, eller send til en annen mottaker.
+     </div>
+     <input class="form-control form-control-sm mt-2" id="rcCustom"
+            placeholder="${ch==='email'?'navn@eksempel.no':'+47 912 34 567'}">`;
+
+  const hist = o.receipts.filter(r=>r.ch===ch);
+  document.getElementById('rcHistory').innerHTML = hist.length
+    ? `<div class="section-head mb-1">Tidligere sendt</div>` + hist.map(r=>
+      `<div class="small text-secondary">${esc(r.to)} · ${esc(r.at)} · ${esc(r.by)}</div>`).join('')
+    : '';
+}
+function toggleCustomTo(){
+  const other = document.getElementById('rcToOther');
+  const inp = document.getElementById('rcCustom');
+  if (!inp) return;
+  inp.classList.toggle('d-none', !(other && other.checked));
+  if (other && other.checked) inp.focus();
+}
+function sendReceipt(){
+  const o = orders.find(x=>x.id===state.receiptOrderId);
+  const c = customers.find(x=>x.id===o.customer_id);
+  const ch = document.querySelector('input[name=rcChannel]:checked').value;
+  const other = document.getElementById('rcToOther');
+  const custom = document.getElementById('rcCustom');
+  const stored = ch==='email' ? c.email : (c.phone ? '+47 '+c.phone : '');
+  const to = (other && other.checked) || !stored ? (custom?.value.trim()||'') : stored;
+  if (!to){ toast('Mangler mottaker','danger'); return; }
+  const at = new Date().toISOString().slice(0,16).replace('T',' ');
+  o.receipts.push({ ch, to, at, by:'Einar M' });
+  logActivity(c, ch==='sms'?'chat-dots':'envelope', `Kvittering for ordre #${o.id} sendt til ${to}`);
+  receiptMdl.hide();
+  toast(`Kvittering sendt på ${ch==='sms'?'SMS':'e-post'} til ${to}`,'success');
+  renderOrders(); renderActivity(c);
+}
+
+/* ═══════════ Aktivitetslogg ═══════════ */
+function renderActivity(c){
+  const el = document.getElementById('activityList');
+  if (!c){ el.innerHTML = '<div class="text-secondary small">Ingen aktivitet ennå.</div>'; return; }
+  const base = [{icon:'plus-lg', text:'Kunde opprettet', at:c.created_at+' 09:00', by:'System'}];
+  const items = [...c.activity, ...base];
+  el.innerHTML = items.map(a=>`
+    <div class="act">
+      <div class="act-ic"><i class="bi bi-${a.icon}"></i></div>
+      <div class="flex-fill">
+        <div class="small">${esc(a.text)}</div>
+        <div class="text-secondary" style="font-size:.72rem">${esc(a.at)} · ${esc(a.by)}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════ Toast ═══════════ */
+function toast(msg,type){
+  const el = document.createElement('div');
+  el.className = `toast align-items-center text-bg-${type==='danger'?'dark':'success'} border-0 show`;
+  el.innerHTML = `<div class="d-flex"><div class="toast-body">${esc(msg)}</div>
+    <button class="btn-close btn-close-white me-2 m-auto" onclick="this.closest('.toast').remove()"></button></div>`;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(()=>el.remove(), 3500);
+}
+
+render();
+</script>
+</body>
+</html>
