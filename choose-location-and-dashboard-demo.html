@@ -2028,6 +2028,74 @@ html.dark .as-role.admin{color:#8FCDE6}
 @media(max-width:560px){.as-theme-grid{grid-template-columns:1fr}.as-acc-right{width:100%;justify-content:flex-start}.as-perms{justify-content:flex-start}}
 </style>
 <style>
+/* ───── Ownership, secure fields, account status, user administration (added v2) ───── */
+.ep-owner-note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--color-border);border-left:3px solid var(--color-primary);background:var(--color-bg-subtle);border-radius:var(--r-md);font-size:12.5px;color:var(--color-text-secondary);margin-bottom:18px;line-height:1.55}
+.ep-owner-note svg{width:16px;height:16px;flex-shrink:0;color:var(--color-primary);margin-top:1px}
+.ep-owner-note b{color:var(--color-text-primary)}
+.ep-inlinelink{border:0;background:none;padding:0;font:inherit;font-weight:700;color:var(--color-primary);cursor:pointer;text-decoration:underline}
+.ep-secure-row{display:flex;align-items:center;gap:13px;padding:13px 14px;border:1px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-subtle);flex-wrap:wrap}
+.ep-secure-ic{width:34px;height:34px;border-radius:var(--r-md);display:grid;place-items:center;background:color-mix(in srgb,var(--color-primary) 16%,transparent);color:var(--color-primary);flex-shrink:0}
+.ep-secure-ic svg{width:17px;height:17px}
+.ep-secure-main{flex:1;min-width:180px}
+.ep-secure-t{font-size:13.5px;font-weight:700;color:var(--color-text-primary)}
+.ep-secure-d{font-size:12px;color:var(--color-text-secondary);margin-top:2px;line-height:1.5}
+.ep-sc-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.ep-btn-danger{background:var(--color-error);color:#fff;border-color:var(--color-error)}
+.ep-btn-danger:hover{filter:brightness(.92)}
+.ep-btn:disabled{opacity:.45;cursor:not-allowed}
+.as-note{display:block;font-size:12px;color:var(--color-text-secondary);background:var(--color-bg-subtle);border-radius:var(--r-md);padding:10px 12px;margin-top:14px;line-height:1.6}
+.as-note svg{flex-shrink:0;vertical-align:-2px;margin-right:7px}
+.as-note b{color:var(--color-text-primary)}
+.as-stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px 18px}
+.as-stat .k{font-size:11px;font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em}
+.as-stat .v{font-size:13.5px;color:var(--color-text-primary);margin-top:4px;font-weight:600}
+.as-badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:var(--r-full);background:var(--color-bg-subtle);color:var(--color-text-secondary);border:1px solid var(--color-border)}
+.as-badge.ok{background:color-mix(in srgb,var(--color-success) 18%,transparent);color:var(--color-success-text);border-color:transparent}
+.as-badge.warn{background:color-mix(in srgb,var(--color-warning) 22%,transparent);color:var(--color-warning-text);border-color:transparent}
+.as-badge.danger{background:color-mix(in srgb,var(--color-error) 16%,transparent);color:var(--color-error-text);border-color:transparent}
+.as-badge.super{background:linear-gradient(135deg,#6BB8DA,#468DAC);color:#fff;border-color:transparent}
+@media(max-width:680px){.as-stat-grid{grid-template-columns:1fr 1fr}}
+/* user administration */
+.ua-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ua-list{display:flex;flex-direction:column;gap:8px}
+.ua-row{display:flex;align-items:center;gap:13px;padding:12px 14px;border:1px solid var(--color-border);border-radius:var(--r-md);background:var(--color-bg-surface);width:100%;text-align:left;font:inherit;cursor:pointer;transition:border-color var(--dur-fast) var(--ease-out),background var(--dur-fast) var(--ease-out)}
+.ua-row:hover{border-color:var(--color-primary);background:var(--color-bg-hover,rgba(107,184,218,.07))}
+.ua-row:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}
+.ua-ava{width:36px;height:36px;border-radius:var(--r-full);display:grid;place-items:center;background:linear-gradient(135deg,#6BB8DA,#468DAC);color:#fff;font-weight:700;font-size:13px;flex-shrink:0}
+.ua-ava.off{background:var(--color-border);color:var(--color-text-secondary)}
+.ua-main{flex:1;min-width:0}
+.ua-nm{font-size:13.5px;font-weight:700;color:var(--color-text-primary)}
+.ua-em{font-size:12px;color:var(--color-text-secondary)}
+.ua-tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.ua-chev{width:17px;height:17px;color:var(--color-text-muted);flex-shrink:0}
+.ua-gate{display:flex;gap:9px;align-items:flex-start;margin-top:14px;padding:11px 13px;border-radius:var(--r-md);background:color-mix(in srgb,var(--color-warning) 16%,transparent);font-size:12.5px;color:var(--color-text-primary);line-height:1.55}
+.ua-gate svg{width:16px;height:16px;flex-shrink:0;margin-top:1px;color:var(--color-warning-text)}
+.ua-viewas{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:var(--r-md);padding:6px 10px}
+.ua-viewas select{border:0;background:transparent;font:inherit;font-size:12px;font-weight:700;color:var(--color-text-primary);cursor:pointer}
+.ua-scrim{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:120;opacity:0;pointer-events:none;transition:opacity var(--dur-default) var(--ease-out)}
+.ua-scrim.show{opacity:1;pointer-events:auto}
+.ua-modal{position:fixed;z-index:130;left:50%;top:50%;transform:translate(-50%,-46%);width:min(540px,calc(100vw - 32px));max-height:88vh;overflow:auto;background:var(--color-bg-surface);border:1px solid var(--color-border);border-radius:var(--r-xl);box-shadow:var(--elev-3);padding:26px;opacity:0;pointer-events:none;transition:opacity var(--dur-default) var(--ease-out),transform var(--dur-default) var(--ease-out)}
+.ua-modal.show{opacity:1;pointer-events:auto;transform:translate(-50%,-50%)}
+.ua-step{display:none}.ua-step.on{display:block}
+.ua-warn-ic{width:46px;height:46px;border-radius:var(--r-full);display:grid;place-items:center;background:color-mix(in srgb,var(--color-error) 15%,transparent);color:var(--color-error-text);margin-bottom:14px}
+.ua-warn-ic.info{background:color-mix(in srgb,var(--color-primary) 16%,transparent);color:var(--color-primary)}
+.ua-warn-ic svg{width:24px;height:24px}
+.ua-modal h3{font-family:'Sora',sans-serif;font-size:18px;margin:0 0 8px;color:var(--color-text-primary);line-height:1.35}
+.ua-modal p{font-size:13.5px;color:var(--color-text-secondary);margin:0 0 14px;line-height:1.6}
+.ua-modal p b{color:var(--color-text-primary)}
+.ua-warnlist{margin:0 0 16px;padding-left:18px;font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.ua-warnlist li{margin-bottom:6px}
+.ua-warnlist b{color:var(--color-text-primary)}
+.ua-check{display:flex;gap:9px;align-items:flex-start;font-size:13px;color:var(--color-text-primary);padding:11px 13px;border:1.5px solid var(--color-border);border-radius:var(--r-md);cursor:pointer;line-height:1.5}
+.ua-check input{margin-top:2px;accent-color:var(--color-primary);width:16px;height:16px;flex-shrink:0}
+.ua-acts{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+.ua-code{width:100%;letter-spacing:.45em;text-align:center;font-size:20px;font-weight:700;padding:13px}
+.ua-attempts{font-size:12.5px;font-weight:700;color:var(--color-error-text);min-height:18px;margin-top:8px}
+.ua-demo{margin-top:16px;font-size:11.5px;color:var(--color-text-muted);border:1px dashed var(--color-border);border-radius:var(--r-md);padding:8px 10px;line-height:1.5}
+.ua-target{color:var(--color-text-primary)}
+@media(max-width:680px){.ua-modal{padding:20px}}
+</style>
+<style>
 /* ───── Help & support page (added) ───── */
 .hs-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--color-primary) 15%,var(--color-bg-surface)),var(--color-bg-surface));border:1px solid var(--color-border);border-radius:var(--r-lg);padding:30px 24px;text-align:center;margin-bottom:18px}
 .hs-hero h2{font-family:'Sora',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0 0 4px}
@@ -2146,6 +2214,10 @@ html.dark .as-role.admin{color:#8FCDE6}
     <div class="sidebar-group">
       <div class="sidebar-group-label">Admin</div>
     </div>
+    <button class="sidebar-link" id="navUsers" onclick="goToUsers()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      User administration
+    </button>
     <button class="sidebar-link" onclick="navStub('Settings')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33h0a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       Settings
@@ -3011,25 +3083,30 @@ html.dark .as-role.admin{color:#8FCDE6}
     </div>
 
     <!-- ═══════════════════════════════════
-         PAGE 4 — EDIT PROFILE
+         PAGE 4 — LOCATION PROFILE
     ═══════════════════════════════════ -->
     <div class="page-view" id="pageProfile">
       <div class="ep-page">
         <div class="page-header"><div class="page-header-text">
           <button class="ep-backlink" id="epBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back to Account settings</button>
           <div class="page-header-eyebrow">Your locations &amp; access</div>
-          <h1>Edit profile — <span id="epLocName">Røros Hotell</span></h1>
-          <p>Your profile at this location. Photo, short code and display initials apply here only; your name and contact details are shared across every location you have access to.</p>
+          <h1>Location profile — <span id="epLocName">Røros Hotell</span></h1>
+          <p>Everything on this page applies to you at this location only.</p>
         </div></div>
 
+        <div class="ep-owner-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          <div><b>Your name, email, mobile number and notification settings are not here.</b> They belong to your account and are the same at every location — change them in <button class="ep-inlinelink" id="epGoAccount" type="button">Account settings</button>.</div>
+        </div>
+
         <section class="ep-card">
-          <div class="ep-card-h"><h3>Profile photo</h3><p>Shown next to your name at this location.</p></div>
+          <div class="ep-card-h"><h3>Photo at this location</h3><p>Shown next to your name here. Your account photo is used unless you set a different one.</p></div>
           <div class="ep-card-b">
             <div class="ep-avatar-row">
               <div class="ep-avatar-lg" id="epAvaLg">EM</div>
               <div class="ep-avatar-actions">
-                <div class="ep-row"><button class="ep-linkbtn" id="epUpload">Upload photo</button><button class="ep-linkbtn" id="epRemove">Remove</button></div>
-                <span class="ep-hint">JPG or PNG, square, at least 200×200px.</span>
+                <div class="ep-row"><button class="ep-linkbtn" id="epUpload">Upload a different photo</button><button class="ep-linkbtn" id="epRemove">Use account photo</button></div>
+                <span class="ep-hint" id="epPhotoSrc">Using your account photo.</span>
               </div>
               <input type="file" id="epFile" accept="image/*" hidden>
             </div>
@@ -3037,24 +3114,37 @@ html.dark .as-role.admin{color:#8FCDE6}
         </section>
 
         <section class="ep-card">
-          <div class="ep-card-h"><h3>Personal information</h3><p>Your name and contact details. Shared across all your locations.</p></div>
+          <div class="ep-card-h"><h3>Short code</h3><p>Your personal code for identifying yourself at the till at <b class="ep-loc-inline">this location</b>.</p></div>
           <div class="ep-card-b">
-            <div class="ep-grid">
-              <div class="ep-field"><label for="epFname">First name</label><input class="ep-input" id="epFname" type="text" value="Einar" data-ep></div>
-              <div class="ep-field"><label for="epLname">Last name</label><input class="ep-input" id="epLname" type="text" value="Mortensen" data-ep></div>
-              <div class="ep-field full"><div class="ep-label-row"><label for="epEmail">Email</label><span class="ep-verified">✓ Verified</span></div><input class="ep-input" id="epEmail" type="email" value="ems@plorea.com" data-ep><span class="ep-errmsg">Enter a valid email address.</span></div>
-              <div class="ep-field full"><label for="epMobile">Mobile number</label><div class="ep-phone"><select class="ep-select ep-cc" id="epCc" data-ep><option value="+47" selected>🇳🇴 +47</option><option value="+46">🇸🇪 +46</option><option value="+45">🇩🇰 +45</option><option value="+44">🇬🇧 +44</option></select><input class="ep-input" id="epMobile" type="tel" value="412 34 567" data-ep></div><span class="ep-help">Used for sign-in codes (OTP) when SMS is your verification method.</span></div>
-              <div class="ep-field"><label for="epRole">Role</label><input class="ep-input" id="epRole" type="text" value="Administrator" disabled><span class="ep-help">Your role at this location. Managed by your organisation.</span></div>
+            <div class="ep-secure-row">
+              <div class="ep-secure-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+              <div class="ep-secure-main">
+                <div class="ep-secure-t" id="epScStatus">Short code is set</div>
+                <div class="ep-secure-d" id="epScMeta">Last changed 12 Mar 2026 · The code is never shown again — not to you, not to an admin, and not anywhere in the page. The only way to get a new one is to set one.</div>
+              </div>
+              <button class="ep-linkbtn" id="epScChange">Change code</button>
             </div>
+
+            <div id="epScForm" hidden>
+              <div class="ep-divider"></div>
+              <div class="ep-grid">
+                <div class="ep-field"><label for="epScNew">New short code</label><div class="ep-iw"><input class="ep-input" id="epScNew" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" placeholder="4–8 digits"><button class="ep-toggle" type="button" data-sctoggle="epScNew">Show</button></div><span class="ep-errmsg">Use 4–8 digits.</span></div>
+                <div class="ep-field"><label for="epScConf">Confirm new short code</label><div class="ep-iw"><input class="ep-input" id="epScConf" type="password" inputmode="numeric" autocomplete="new-password" maxlength="8" placeholder="Repeat the code"><button class="ep-toggle" type="button" data-sctoggle="epScConf">Show</button></div><span class="ep-errmsg">Codes do not match.</span></div>
+              </div>
+              <div class="ep-sc-acts"><button class="ep-btn ep-btn-ghost" id="epScCancel" type="button">Cancel</button><button class="ep-btn ep-btn-primary" id="epScSave" type="button">Set new code</button></div>
+            </div>
+
+            <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> If you forget your short code, an admin can reset it so you can set a new one. Nobody can look up the old one.</div>
           </div>
         </section>
 
         <section class="ep-card">
-          <div class="ep-card-h"><h3>Short code</h3><p>Your personal code at this location.</p></div>
+          <div class="ep-card-h"><h3>How you appear here</h3><p>Initials on receipts, quick-login visibility, and a short note for colleagues at this location.</p></div>
           <div class="ep-card-b">
             <div class="ep-grid">
-              <div class="ep-field"><label for="epShortCode">Short code</label><input class="ep-input" id="epShortCode" type="text" inputmode="numeric" autocomplete="off" value="4821" data-ep><span class="ep-errmsg">Use 4–8 digits.</span><span class="ep-help">Used to identify you at the till at <b class="ep-loc-inline">this location</b>. It is not shared with other locations.</span></div>
               <div class="ep-field"><label for="epShortName">Display initials</label><input class="ep-input" id="epShortName" type="text" maxlength="4" value="EM" data-ep><span class="ep-help">Up to 4 characters, shown on receipts and in reports.</span></div>
+              <div class="ep-field"><label for="epPriority">Quick-login position</label><input class="ep-input" id="epPriority" type="text" value="2 of 14" disabled><span class="ep-help">Your place in the quick-login list. Set by an admin at this location.</span></div>
+              <div class="ep-field full"><label for="epAbout">About you at this location</label><textarea class="hs-textarea" id="epAbout" rows="3" maxlength="280" data-ep placeholder="Optional — e.g. your section, shift or speciality"></textarea><span class="ep-help"><span id="epAboutCount">0</span>/280 characters. Visible to colleagues at this location only.</span></div>
             </div>
             <div class="ep-divider"></div>
             <div class="ep-trow"><div><div class="tt">Show me in quick login</div><div class="td">Your name appears on the quick-login screen at this location.</div></div><label class="ep-switch"><input type="checkbox" id="epQuickLogin" checked data-ep><span class="tk"></span></label></div>
@@ -3062,11 +3152,20 @@ html.dark .as-role.admin{color:#8FCDE6}
         </section>
 
         <section class="ep-card">
-          <div class="ep-card-h"><h3>Notifications</h3><p>Choose what we email you about. Shared across all your locations.</p></div>
+          <div class="ep-card-h"><h3>Role &amp; access at this location</h3><p>Managed by an admin here. Shown so you can see what you have.</p></div>
           <div class="ep-card-b">
-            <div class="ep-trow"><div><div class="tt">New release notes</div><div class="td">Get an email when a new release note is published in the app.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfRelease" checked data-ep><span class="tk"></span></label></div>
-            <div class="ep-trow"><div><div class="tt">Product tips &amp; best practices</div><div class="td">Occasional tips on getting more out of Plorea.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfTips" data-ep><span class="tk"></span></label></div>
-            <div class="ep-trow"><div><div class="tt">Important account &amp; security alerts</div><div class="td">Always on — required for account safety.</div></div><label class="ep-switch"><input type="checkbox" checked disabled><span class="tk"></span></label></div>
+            <div class="ep-grid">
+              <div class="ep-field"><label for="epRole">Role</label><input class="ep-input" id="epRole" type="text" value="Administrator" disabled></div>
+              <div class="ep-field"><label for="epGroup">Permission group</label><input class="ep-input" id="epGroup" type="text" value="Location admins" disabled></div>
+              <div class="ep-field"><label for="epAddr">Address / department</label><input class="ep-input" id="epAddr" type="text" value="Røros Hotell — Main building" disabled></div>
+              <div class="ep-field"><label for="epExt">External ID</label><input class="ep-input" id="epExt" type="text" value="RH-0042" disabled><span class="ep-help">Used when this location syncs staff with another system.</span></div>
+            </div>
+            <div class="ep-divider"></div>
+            <div class="ep-trow"><div><div class="tt">Admin panel access</div><div class="td">Can open the admin panel for this location.</div></div><label class="ep-switch"><input type="checkbox" id="epCapAdmin" checked disabled><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Admin view on POS</div><div class="td">Sees admin-only figures and functions on the POS device.</div></div><label class="ep-switch"><input type="checkbox" id="epCapAdminView" checked disabled><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Booking</div><div class="td">Can create and manage bookings at this location.</div></div><label class="ep-switch"><input type="checkbox" id="epCapBooking" checked disabled><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Online booking</div><div class="td">Can manage bookings that arrive from online channels.</div></div><label class="ep-switch"><input type="checkbox" id="epCapOnline" disabled><span class="tk"></span></label></div>
+            <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Ask an admin at this location to change your role or access.</div>
           </div>
         </section>
       </div>
@@ -3078,6 +3177,7 @@ html.dark .as-role.admin{color:#8FCDE6}
       <div class="ep-toast" id="epToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="epToastMsg">Profile updated</span></div>
     </div>
 
+
     <!-- ═══════════════════════════════════
          PAGE 5 — ACCOUNT SETTINGS
     ═══════════════════════════════════ -->
@@ -3086,8 +3186,45 @@ html.dark .as-role.admin{color:#8FCDE6}
         <div class="page-header"><div class="page-header-text">
           <div class="page-header-eyebrow">Account</div>
           <h1>Account settings</h1>
-          <p>Preferences for how Plorea looks and behaves, the locations you can access, and your sign-in &amp; sessions.</p>
+          <p>Your personal information, how Plorea looks and behaves, the locations you can access, and your sign-in &amp; sessions.</p>
         </div></div>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Personal information</h3><p>Owned by your account. The same at every company and location you have access to.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-avatar-row" style="margin-bottom:22px">
+              <div class="ep-avatar-lg" id="asAvaLg">EM</div>
+              <div class="ep-avatar-actions">
+                <div class="ep-row"><button class="ep-linkbtn" id="asUpload">Upload photo</button><button class="ep-linkbtn" id="asRemove">Remove</button></div>
+                <span class="ep-hint">JPG or PNG, square, at least 200×200px. Used at every location unless you set a different photo there.</span>
+              </div>
+              <input type="file" id="asFile" accept="image/*" hidden>
+            </div>
+            <div class="ep-grid">
+              <div class="ep-field"><label for="epFname">First name</label><input class="ep-input" id="epFname" type="text" value="Einar" data-as><span class="ep-errmsg">First name is required.</span></div>
+              <div class="ep-field"><label for="epLname">Last name</label><input class="ep-input" id="epLname" type="text" value="Mortensen" data-as><span class="ep-errmsg">Last name is required.</span></div>
+              <div class="ep-field full"><div class="ep-label-row"><label for="epEmail">Email</label><span class="ep-verified" id="asEmailVerified">✓ Verified</span></div><input class="ep-input" id="epEmail" type="email" value="ems@plorea.com" data-as><span class="ep-errmsg">Enter a valid email address.</span><span class="ep-help">Used to sign in, to receive sign-in codes, and to confirm sensitive changes. A new address must be confirmed before it takes effect.</span></div>
+              <div class="ep-field full"><label for="epMobile">Mobile number</label><div class="ep-phone"><select class="ep-select ep-cc" id="epCc" data-as><option value="+47" selected>🇳🇴 +47</option><option value="+46">🇸🇪 +46</option><option value="+45">🇩🇰 +45</option><option value="+44">🇬🇧 +44</option></select><input class="ep-input" id="epMobile" type="tel" value="412 34 567" data-as></div><span class="ep-help">Used for sign-in codes (OTP) when SMS is your verification method.</span></div>
+              <div class="ep-field full"><label for="asBio">About you</label><textarea class="hs-textarea" id="asBio" rows="3" maxlength="280" data-as placeholder="Optional — a short line about you">Operations at Plorea. Works mostly with hotels and event venues.</textarea><span class="ep-help"><span id="asBioCount">0</span>/280 characters. Shown with your account everywhere you have access.</span></div>
+            </div>
+            <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Your short code, display initials and quick-login setting belong to each location — set those under <b>Your locations &amp; access</b> below.</div>
+          </div>
+        </section>
+
+        <section class="ep-card">
+          <div class="ep-card-h"><h3>Account status</h3><p>Read-only. Managed by Plorea and your organisation.</p></div>
+          <div class="ep-card-b">
+            <div class="as-stat-grid">
+              <div class="as-stat"><div class="k">Status</div><div class="v" id="asStatStatus"><span class="as-badge ok">Active</span></div></div>
+              <div class="as-stat"><div class="k">Access level</div><div class="v" id="asStatLevel"><span class="as-badge">Standard user</span></div></div>
+              <div class="as-stat"><div class="k">Last sign-in</div><div class="v">14 Aug 2026, 08:12 · Trondheim</div></div>
+              <div class="as-stat"><div class="k">Email verified</div><div class="v">3 Feb 2026</div></div>
+              <div class="as-stat"><div class="k">Terms accepted</div><div class="v">v2.1 · 3 Feb 2026</div></div>
+              <div class="as-stat"><div class="k">Member since</div><div class="v">3 Feb 2026</div></div>
+            </div>
+            <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg> A blocked account cannot sign in anywhere until another administrator unblocks it.</div>
+          </div>
+        </section>
 
         <section class="ep-card">
           <div class="ep-card-h"><h3>Appearance</h3><p>Applies instantly on this device.</p></div>
@@ -3111,7 +3248,7 @@ html.dark .as-role.admin{color:#8FCDE6}
           <div class="ep-card-b"><div class="ep-grid">
             <div class="ep-field"><label for="asLang">Language</label><select class="ep-select" id="asLang" data-as><option>English</option><option>Norsk Bokmål</option></select></div>
           </div>
-          <div class="as-note" style="margin-top:14px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Time zone, time format and first day of week are set per company, not per user.</div>
+          <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg> Time zone, time format and first day of week are set per company, not per user.</div>
           </div>
         </section>
 
@@ -3124,7 +3261,7 @@ html.dark .as-role.admin{color:#8FCDE6}
         </section>
 
         <section class="ep-card">
-          <div class="ep-card-h"><h3>Your locations &amp; access</h3><p>The locations you can open and your role at each. Select one to edit your profile there.</p></div>
+          <div class="ep-card-h"><h3>Your locations &amp; access</h3><p>The locations you can open and your role at each. Select one to edit your profile there — photo, short code, initials and quick login.</p></div>
           <div class="ep-card-b">
             <div class="as-acc-head">
               <div class="as-acc-count">You have access to <b id="asAccCount">0</b> locations</div>
@@ -3136,9 +3273,18 @@ html.dark .as-role.admin{color:#8FCDE6}
         </section>
 
         <section class="ep-card">
+          <div class="ep-card-h"><h3>Notifications</h3><p>Choose what we email you about. Applies to your account, at every location.</p></div>
+          <div class="ep-card-b">
+            <div class="ep-trow"><div><div class="tt">New release notes</div><div class="td">Get an email when a new release note is published in the app.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfRelease" checked data-as-check><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Product tips &amp; best practices</div><div class="td">Occasional tips on getting more out of Plorea.</div></div><label class="ep-switch"><input type="checkbox" id="epNtfTips" data-as-check><span class="tk"></span></label></div>
+            <div class="ep-trow"><div><div class="tt">Important account &amp; security alerts</div><div class="td">Always on — required for account safety.</div></div><label class="ep-switch"><input type="checkbox" checked disabled><span class="tk"></span></label></div>
+          </div>
+        </section>
+
+        <section class="ep-card">
           <div class="ep-card-h"><h3>Sign-in methods</h3><p>How you sign in to Plorea.</p></div>
           <div class="ep-card-b">
-            <div class="as-method"><div class="as-method-ic" style="background:#468DAC">@</div><div class="as-method-main"><div class="as-method-nm">Email &amp; password</div><div class="as-method-ds">ems@plorea.com · last changed 3 weeks ago</div></div><span class="as-current">Active</span></div>
+            <div class="as-method"><div class="as-method-ic" style="background:#468DAC">@</div><div class="as-method-main"><div class="as-method-nm">Email &amp; password</div><div class="as-method-ds" id="asMethodEmail">ems@plorea.com · last changed 3 weeks ago</div></div><span class="as-current">Active</span></div>
             <div class="as-method"><div class="as-method-ic" style="background:#FF5B24">V</div><div class="as-method-main"><div class="as-method-nm">Vipps</div><div class="as-method-ds">Sign in quickly with Vipps</div></div><button class="ep-linkbtn" id="asVipps">Connect</button></div>
           </div>
         </section>
@@ -3173,6 +3319,157 @@ html.dark .as-role.admin{color:#8FCDE6}
       <div class="ep-savebar" id="asSaveBar"><div class="msg"><span class="dot"></span><span>You have unsaved changes</span></div><div class="acts"><button class="ep-btn ep-btn-ghost" id="asDiscard">Discard</button><button class="ep-btn ep-btn-primary" id="asSave">Save changes</button></div></div>
       <div class="ep-toast" id="asToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="asToastMsg">Settings saved</span></div>
     </div>
+
+
+    <!-- ═══════════════════════════════════
+         PAGE 5b — USER ADMINISTRATION
+    ═══════════════════════════════════ -->
+    <div class="page-view" id="pageUsers">
+      <div class="ep-page">
+
+        <!-- LIST -->
+        <div id="uaListView">
+          <div class="page-header"><div class="page-header-text">
+            <div class="page-header-eyebrow">Admin</div>
+            <h1>User administration</h1>
+            <p>Accounts that have access to one or more of your companies. Open a user to manage status and access level.</p>
+          </div></div>
+
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>Users</h3><p>Name, email and status come from the user account. Roles are set per location.</p></div>
+            <div class="ep-card-b">
+              <div class="ua-toolbar">
+                <input class="ep-input as-search" id="uaSearch" type="search" placeholder="Search name or email…">
+                <div class="ua-viewas">Demo — you are signed in as
+                  <select id="uaViewAs"><option value="admin">Administrator</option><option value="super">Superuser</option></select>
+                </div>
+              </div>
+              <div class="ua-list" id="uaList"></div>
+            </div>
+          </section>
+        </div>
+
+        <!-- DETAIL -->
+        <div id="uaDetailView" hidden>
+          <div class="page-header"><div class="page-header-text">
+            <button class="ep-backlink" id="uaBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg> Back to User administration</button>
+            <div class="page-header-eyebrow">Admin · User</div>
+            <h1 id="uaDetName">Kari Nordmo</h1>
+            <p id="uaDetSub">kari@plorea.com</p>
+          </div></div>
+
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>Account</h3><p>Personal information belongs to the user. You cannot edit it here.</p></div>
+            <div class="ep-card-b">
+              <div class="as-stat-grid">
+                <div class="as-stat"><div class="k">Email</div><div class="v" id="uaDetEmail">—</div></div>
+                <div class="as-stat"><div class="k">Mobile</div><div class="v" id="uaDetPhone">—</div></div>
+                <div class="as-stat"><div class="k">Status</div><div class="v" id="uaDetStatus">—</div></div>
+                <div class="as-stat"><div class="k">Access level</div><div class="v" id="uaDetLevel">—</div></div>
+                <div class="as-stat"><div class="k">Last sign-in</div><div class="v" id="uaDetLast">—</div></div>
+                <div class="as-stat"><div class="k">Locations</div><div class="v" id="uaDetLocs">—</div></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ep-card" id="uaBlockedCard" hidden>
+            <div class="ep-card-h"><h3>Account is blocked</h3><p>This user cannot sign in anywhere until an administrator unblocks the account.</p></div>
+            <div class="ep-card-b">
+              <div class="ep-secure-row">
+                <div class="ep-secure-ic" style="background:color-mix(in srgb,var(--color-error) 16%,transparent);color:var(--color-error-text)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+                <div class="ep-secure-main">
+                  <div class="ep-secure-t">Blocked</div>
+                  <div class="ep-secure-d" id="uaBlockedReason">Too many failed verification attempts</div>
+                </div>
+                <button class="ep-linkbtn" id="uaUnblock">Unblock account</button>
+              </div>
+              <div class="ua-gate" id="uaUnblockGate" hidden>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>
+                <div>Only an administrator other than the blocked user can unblock this account.</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>Access level</h3><p>Superuser access is global — it is not limited to a company or a location.</p></div>
+            <div class="ep-card-b">
+              <div class="ep-trow">
+                <div>
+                  <div class="tt">Superuser</div>
+                  <div class="td">Full access to every company and every location, including admin panels, settlement and user administration.</div>
+                </div>
+                <label class="ep-switch"><input type="checkbox" id="uaSuperToggle"><span class="tk"></span></label>
+              </div>
+              <div class="ua-gate" id="uaSuperGate">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+                <div><b>Only a superuser can grant or remove superuser access.</b> You are signed in as Administrator, so this setting is read-only for you.</div>
+              </div>
+              <div class="as-note"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 7v5l3 2"/></svg> Every change to superuser access is logged with who made it, when, and from which device.</div>
+            </div>
+          </section>
+
+          <section class="ep-card">
+            <div class="ep-card-h"><h3>Locations &amp; roles</h3><p>Access per location. Managed by an admin at each location.</p></div>
+            <div class="ep-card-b"><div class="as-acc-list" id="uaDetAccess"></div></div>
+          </section>
+        </div>
+      </div>
+      <div class="ep-toast" id="uaToast"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg><span id="uaToastMsg">Saved</span></div>
+    </div>
+
+    <!-- Superuser step-up verification -->
+    <div class="ua-scrim" id="uaScrim"></div>
+    <div class="ua-modal" id="uaModal" role="dialog" aria-modal="true" aria-labelledby="uaS1Title">
+
+      <div class="ua-step on" id="uaStep1">
+        <div class="ua-warn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></div>
+        <h3 id="uaS1Title">Make <span class="ua-target" id="uaS1Name">Kari Nordmo</span> a superuser?</h3>
+        <p>This is the highest access level in Plorea. Read this before you continue.</p>
+        <ul class="ua-warnlist">
+          <li>Gives access to <b>every company and every location</b> — including ones you do not have access to yourself.</li>
+          <li>Can see and change prices, products, devices, settlement and reports everywhere.</li>
+          <li>Can add, block and remove users, and <b>can make other users superusers</b>.</li>
+          <li>The user cannot remove this themselves — only another superuser can.</li>
+        </ul>
+        <label class="ua-check"><input type="checkbox" id="uaAck"><span>I understand this gives <b id="uaS1Name2">Kari Nordmo</b> full access to all companies and all locations.</span></label>
+        <div class="ua-acts"><button class="ep-btn ep-btn-ghost" type="button" data-ua-close>Cancel</button><button class="ep-btn ep-btn-danger" type="button" id="uaS1Next" disabled>Continue</button></div>
+      </div>
+
+      <div class="ua-step" id="uaStep2">
+        <div class="ua-warn-ic info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div>
+        <h3>Confirm it's you</h3>
+        <p>Enter the email address on <b>your own</b> account. We'll send a one-time code to it.</p>
+        <div class="ep-field full"><label for="uaEmail">Your email address</label><input class="ep-input" id="uaEmail" type="email" autocomplete="off" placeholder="you@company.com"><span class="ep-errmsg" id="uaEmailErr">That is not the email address on your account.</span></div>
+        <div class="ua-acts"><button class="ep-btn ep-btn-ghost" type="button" data-ua-close>Cancel</button><button class="ep-btn ep-btn-primary" type="button" id="uaS2Next">Send code</button></div>
+      </div>
+
+      <div class="ua-step" id="uaStep3">
+        <div class="ua-warn-ic info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>Enter the code we sent you</h3>
+        <p>We sent a 6-digit code to <b id="uaMaskedEmail">e••@plorea.com</b>. The code is valid for 10 minutes.</p>
+        <div class="ep-field full"><label for="uaCode">Verification code</label><input class="ep-input ua-code" id="uaCode" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="––––––"></div>
+        <div class="ua-attempts" id="uaAttempts"></div>
+        <div class="ua-acts"><button class="ep-btn ep-btn-ghost" type="button" id="uaResend">Send a new code</button><button class="ep-btn ep-btn-danger" type="button" id="uaS3Next">Confirm and grant access</button></div>
+        <div class="ua-demo" id="uaDemoHint">Demo only — the code is <b>481920</b>. Enter something else three times to see the lockout.</div>
+      </div>
+
+      <div class="ua-step" id="uaStepDone">
+        <div class="ua-warn-ic info" style="background:color-mix(in srgb,var(--color-success) 18%,transparent);color:var(--color-success-text)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <h3><span class="ua-target" id="uaDoneName">Kari Nordmo</span> is now a superuser</h3>
+        <p>The change takes effect immediately and applies to all companies and locations. It has been logged, and both of you have been notified by email.</p>
+        <div class="ua-acts"><button class="ep-btn ep-btn-primary" type="button" data-ua-close>Done</button></div>
+      </div>
+
+      <div class="ua-step" id="uaStepBlocked">
+        <div class="ua-warn-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>Your account has been blocked</h3>
+        <p>The verification code was entered incorrectly <b>3 times</b>. For security, <b>your own account</b> is now blocked and you will be signed out.</p>
+        <p>Superuser access was <b>not</b> granted. Another administrator must unblock your account before you can sign in again. Contact your organisation's administrator or Plorea support.</p>
+        <div class="ua-acts"><button class="ep-btn ep-btn-danger" type="button" id="uaBlockedOut">Sign out</button></div>
+      </div>
+
+    </div>
+
 
     <!-- ═══════════════════════════════════
          PAGE 6 — HELP & SUPPORT
@@ -4727,50 +5024,77 @@ document.addEventListener('keydown', (e) => {
   })();
   </script>
   <script>
-  /* ───── Edit profile logic (added) ───── */
+  /* ───── Location profile logic (added) ───── */
   (function(){
     var $=function(id){return document.getElementById(id);};
-    var fields=[], initial=new Map(), avatarImg=null, initialAvatar=null, toastT;
+    var fields=[], initial=new Map(), locPhoto=null, initialLocPhoto=null, toastT;
     var grad='linear-gradient(135deg,#6BB8DA,#468DAC)';
+
+    /* The account-level photo/initials live in Account settings. */
+    function acctPhoto(){ return (typeof window.getAccountPhoto==='function') ? window.getAccountPhoto() : null; }
+    function acctInitials(){ return (typeof window.getAccountInitials==='function') ? window.getAccountInitials() : 'EM'; }
 
     function baseline(){
       fields=[].slice.call(document.querySelectorAll('#pageProfile [data-ep]'));
       initial=new Map();
       fields.forEach(function(f){ initial.set(f, f.type==='checkbox'?f.checked:f.value); });
-      initialAvatar=avatarImg;
+      initialLocPhoto=locPhoto;
     }
     function dirty(){
-      var d=(avatarImg!==initialAvatar);
+      var d=(locPhoto!==initialLocPhoto);
       fields.forEach(function(f){ var v=f.type==='checkbox'?f.checked:f.value; if(v!==initial.get(f)) d=true; });
       return d;
     }
     function refreshBar(){ $('epSaveBar').classList.toggle('show', dirty()); }
-    function initials(){ var a=(($('epFname').value.trim()[0]||'')+($('epLname').value.trim()[0]||'')); return (a||'E').toUpperCase(); }
     function renderAvatar(){
-      var big=$('epAvaLg');
-      if(avatarImg){ big.style.background='none'; big.innerHTML='<img src="'+avatarImg+'" alt="">'; }
-      else { big.style.background=grad; big.textContent=initials(); }
+      var big=$('epAvaLg'), src=locPhoto||acctPhoto();
+      if(src){ big.style.background='none'; big.innerHTML='<img src="'+src+'" alt="">'; }
+      else { big.style.background=grad; big.textContent=acctInitials(); }
+      $('epPhotoSrc').textContent = locPhoto
+        ? 'Using a photo set for this location only.'
+        : (acctPhoto() ? 'Using your account photo.' : 'Using your account initials.');
     }
-    function validate(){
-      var ok=true, email=$('epEmail'), eField=email.closest('.ep-field');
-      var emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
-      eField.classList.toggle('invalid',!emailOk); email.classList.toggle('err',!emailOk); if(!emailOk)ok=false;
-      var sc=$('epShortCode'), scOk=/^\d{4,8}$/.test(sc.value.trim());
-      sc.closest('.ep-field').classList.toggle('invalid',!scOk); sc.classList.toggle('err',!scOk); if(!scOk)ok=false;
-      return ok;
+    window.refreshLocationPhoto=renderAvatar;
+    function toast(msg){ $('epToastMsg').textContent=msg; var t=$('epToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2600); }
+    function countAbout(){ $('epAboutCount').textContent=String($('epAbout').value.length); }
+
+    /* ── Short code ────────────────────────────────────────────────
+       The stored code is never written into the page — not as a value,
+       not as an attribute, not in JS state. The only operation is
+       "set a new one". Entering a new code uses masked inputs that are
+       cleared the moment the form closes. */
+    var SC={set:true, changed:'12 Mar 2026'};
+    function scRender(){
+      $('epScStatus').textContent = SC.set ? 'Short code is set' : 'No short code set';
+      $('epScMeta').textContent = SC.set
+        ? 'Last changed '+SC.changed+' · The code is never shown again — not to you, not to an admin, and not anywhere in the page. The only way to get a new one is to set one.'
+        : 'You need a short code to identify yourself at the till at this location.';
+      $('epScChange').textContent = $('epScForm').hidden ? (SC.set?'Change code':'Set code') : 'Cancel';
     }
-    function toast(msg){ $('epToastMsg').textContent=msg; var t=$('epToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2400); }
-    function reflectSidebar(){
-      var nm=($('epFname').value+' '+($('epLname').value.trim()[0]||'')).trim();
-      var sn=document.querySelector('.sidebar-user-name'); if(sn) sn.textContent=nm;
-      var uh=document.querySelector('.umh-name'); if(uh) uh.textContent=nm;
-      var av=document.querySelector('.sidebar-user-avatar');
-      if(av){ if(avatarImg){ av.style.background='none'; av.innerHTML='<img src="'+avatarImg+'" alt="" style="width:100%;height:100%;object-fit:cover">'; } else { av.style.background=''; av.textContent=initials(); } }
+    function scClear(){
+      ['epScNew','epScConf'].forEach(function(id){
+        var e=$(id); e.value=''; e.type='password';
+        e.closest('.ep-field').classList.remove('invalid'); e.classList.remove('err');
+      });
+      document.querySelectorAll('#epScForm .ep-toggle').forEach(function(b){ b.textContent='Show'; });
+    }
+    function scOpen(open){ $('epScForm').hidden=!open; if(!open) scClear(); scRender(); }
+    function scSave(){
+      var n=$('epScNew'), c=$('epScConf');
+      var nOk=/^\d{4,8}$/.test(n.value.trim());
+      var cOk=nOk && c.value.trim()===n.value.trim();
+      n.closest('.ep-field').classList.toggle('invalid',!nOk); n.classList.toggle('err',!nOk);
+      c.closest('.ep-field').classList.toggle('invalid',nOk&&!cOk); c.classList.toggle('err',nOk&&!cOk);
+      if(!nOk||!cOk) return;
+      SC.set=true; SC.changed='14 Aug 2026';
+      scOpen(false);
+      toast('Short code updated');
     }
 
     document.addEventListener('input', function(e){
       var t=e.target; if(!t.closest||!t.closest('#pageProfile')) return;
-      if(!avatarImg && (t.id==='epFname'||t.id==='epLname')) renderAvatar();
+      if(t.id==='epAbout') countAbout();
+      if(t.id==='epScNew'||t.id==='epScConf') return;      /* never marks the page dirty */
       refreshBar();
     });
     document.addEventListener('change', function(e){
@@ -4779,43 +5103,61 @@ document.addEventListener('keydown', (e) => {
     });
 
     $('epUpload').addEventListener('click', function(){ $('epFile').click(); });
-    $('epFile').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ avatarImg=r.result; renderAvatar(); refreshBar(); }; r.readAsDataURL(f); });
-    $('epRemove').addEventListener('click', function(){ avatarImg=null; renderAvatar(); refreshBar(); $('epFile').value=''; });
-    $('epSave').addEventListener('click', function(){ if(!validate()){ var bad=document.querySelector('#pageProfile .ep-field.invalid, #pageProfile .ep-input.err'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; } reflectSidebar(); baseline(); refreshBar(); toast('Profile updated'); });
-    $('epDiscard').addEventListener('click', function(){ fields.forEach(function(f){ if(f.type==='checkbox') f.checked=initial.get(f); else f.value=initial.get(f); }); avatarImg=initialAvatar; document.querySelectorAll('#pageProfile .ep-field.invalid').forEach(function(el){el.classList.remove('invalid');}); document.querySelectorAll('#pageProfile .ep-input.err').forEach(function(el){el.classList.remove('err');}); renderAvatar(); refreshBar(); });
+    $('epFile').addEventListener('change', function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ locPhoto=r.result; renderAvatar(); refreshBar(); }; r.readAsDataURL(f); });
+    $('epRemove').addEventListener('click', function(){ locPhoto=null; renderAvatar(); refreshBar(); $('epFile').value=''; });
+    $('epGoAccount').addEventListener('click', function(){ if(typeof goToAccount==='function') goToAccount(); });
+    $('epBack').addEventListener('click', function(){ if(typeof goToAccount==='function') goToAccount(); });
 
-    /* Per-location demo data. Photo, short code, initials and quick login are
-       properties of the membership (companies_users), not of the person. */
+    $('epScChange').addEventListener('click', function(){ scOpen($('epScForm').hidden); });
+    $('epScCancel').addEventListener('click', function(){ scOpen(false); });
+    $('epScSave').addEventListener('click', scSave);
+    document.querySelectorAll('#epScForm .ep-toggle').forEach(function(b){
+      b.addEventListener('click', function(){ var t=$(b.dataset.sctoggle); var show=t.type==='password'; t.type=show?'text':'password'; b.textContent=show?'Hide':'Show'; });
+    });
+
+    $('epSave').addEventListener('click', function(){ baseline(); refreshBar(); toast('Location profile updated'); });
+    $('epDiscard').addEventListener('click', function(){
+      fields.forEach(function(f){ if(f.type==='checkbox') f.checked=initial.get(f); else f.value=initial.get(f); });
+      locPhoto=initialLocPhoto; countAbout(); renderAvatar(); refreshBar();
+    });
+
+    /* Per-location demo data — everything here lives on the membership
+       (companies_users), not on the user account (users). */
     var LOCAL={
-      'Plorea Demo'   :{code:'1001',sn:'EM',ql:true },
-      'Røros Hotell'  :{code:'4821',sn:'EM',ql:true },
-      'Chop Sticks'   :{code:'7734',sn:'EMS',ql:false},
-      'Café Mash'     :{code:'2290',sn:'Ein',ql:true },
-      'Stabæk Fotball':{code:'5512',sn:'EM',ql:true },
-      'Kontoret'      :{code:'8080',sn:'EM',ql:false},
-      'Messe'         :{code:'3311',sn:'EM',ql:true }
+      'Plorea Demo'   :{sn:'EM' ,ql:true ,about:'Demo tenant — used for training and walkthroughs.',group:'Owners'         ,ext:'—'      ,prio:'1 of 3' ,addr:'Plorea Demo — Main'          ,scSet:true ,scChanged:'2 Feb 2026' ,adm:true ,admv:true ,bk:true ,obk:true },
+      'Røros Hotell'  :{sn:'EM' ,ql:true ,about:'Bar and events. Reachable on the floor most evenings.',group:'Location admins',ext:'RH-0042',prio:'2 of 14',addr:'Røros Hotell — Main building',scSet:true ,scChanged:'12 Mar 2026',adm:true ,admv:true ,bk:true ,obk:false},
+      'Chop Sticks'   :{sn:'EMS',ql:false,about:''                                                   ,group:'Managers'       ,ext:'CS-118' ,prio:'5 of 9' ,addr:'Chop Sticks — Solsiden'      ,scSet:true ,scChanged:'28 Jan 2026',adm:false,admv:true ,bk:true ,obk:true },
+      'Café Mash'     :{sn:'Ein',ql:true ,about:'Weekends only.'                                     ,group:'Managers'       ,ext:'—'      ,prio:'3 of 6' ,addr:'Café Mash — Torgallmenningen',scSet:false,scChanged:''           ,adm:false,admv:false,bk:true ,obk:false},
+      'Stabæk Fotball':{sn:'EM' ,ql:true ,about:'Match days.'                                        ,group:'Location admins',ext:'SF-77'  ,prio:'1 of 22',addr:'Stabæk Fotball — Nadderud'   ,scSet:true ,scChanged:'4 Jun 2026' ,adm:true ,admv:true ,bk:false,obk:false},
+      'Kontoret'      :{sn:'EM' ,ql:false,about:''                                                   ,group:'Staff'          ,ext:'—'      ,prio:'8 of 8' ,addr:'Kontoret — Nedre Bakklandet'  ,scSet:true ,scChanged:'19 May 2026',adm:false,admv:false,bk:false,obk:false},
+      'Messe'         :{sn:'EM' ,ql:true ,about:''                                                   ,group:'Staff'          ,ext:'MS-03'  ,prio:'4 of 11',addr:'Messe — Trondheim Spektrum'  ,scSet:true ,scChanged:'1 Aug 2026' ,adm:false,admv:false,bk:true ,obk:false}
     };
 
     window.goToProfile=function(loc, role){
       loc = loc || 'Røros Hotell';
-      var d = LOCAL[loc] || {code:'',sn:'',ql:false};
+      var d = LOCAL[loc] || {sn:'',ql:false,about:'',group:'Staff',ext:'—',prio:'—',addr:loc,scSet:false,scChanged:'',adm:false,admv:false,bk:false,obk:false};
       $('epLocName').textContent = loc;
-      $('epShortCode').value = d.code;
       $('epShortName').value = d.sn;
       $('epQuickLogin').checked = !!d.ql;
+      $('epAbout').value = d.about;
+      $('epPriority').value = d.prio;
+      $('epGroup').value = d.group;
+      $('epExt').value = d.ext;
+      $('epAddr').value = d.addr;
+      $('epCapAdmin').checked=!!d.adm; $('epCapAdminView').checked=!!d.admv;
+      $('epCapBooking').checked=!!d.bk; $('epCapOnline').checked=!!d.obk;
       if(role) $('epRole').value = role;
+      SC.set=!!d.scSet; SC.changed=d.scChanged; scOpen(false);
       document.querySelectorAll('.ep-loc-inline').forEach(function(el){ el.textContent = loc; });
       showPage('pageProfile');
       document.querySelectorAll('.sidebar-link').forEach(function(l){l.classList.remove('active');});
       var c=document.getElementById('topCrumb');
       if(c) c.innerHTML='<span>Account settings</span><span class="crumb-sep">/</span><span class="crumb-current">'+loc+'</span>';
       var lb=document.getElementById('liveBadge'); if(lb) lb.style.display='none';
-      avatarImg=null; renderAvatar(); baseline(); refreshBar();
+      locPhoto=null; renderAvatar(); countAbout(); baseline(); refreshBar();
     };
 
-    $('epBack').addEventListener('click', function(){ if(typeof goToAccount==='function') goToAccount(); });
-
-    baseline(); renderAvatar();
+    scRender(); countAbout(); baseline(); renderAvatar();
   })();
   </script>
   <script>
@@ -4831,14 +5173,38 @@ document.addEventListener('keydown', (e) => {
       {n:'Kontoret',c:'Trondheim',role:'staff',perms:['POS']},
       {n:'Messe',c:'Trondheim',role:'staff',perms:['POS']}
     ];
+    window.PLOREA_ACCESS=ACCESS;
     var SESSIONS=[
       {dev:'Chrome · macOS',meta:'Trondheim, Norway · Current session',cur:true,ic:'laptop'},
       {dev:'Plorea POS · iPad',meta:'Røros Hotell · Active 2 hours ago',ic:'tablet'},
       {dev:'Safari · iPhone',meta:'Oslo, Norway · Active yesterday',ic:'phone'}
     ];
-    var fields=[], initial=new Map(), densityVal='comfortable', densityBaseline='comfortable', toastT, asSearch;
-
+    var fields=[], checks=[], initial=new Map(), densityVal='comfortable', densityBaseline='comfortable', toastT, asSearch;
+    var photo=null, photoBaseline=null;
     var otp='email', otpBaseline='email';
+    var grad='linear-gradient(135deg,#6BB8DA,#468DAC)';
+
+    /* ── Account-level identity, shared with the location profile page ── */
+    function initials(){ var a=(($('epFname').value.trim()[0]||'')+($('epLname').value.trim()[0]||'')); return (a||'E').toUpperCase(); }
+    window.getAccountPhoto=function(){ return photo; };
+    window.getAccountInitials=initials;
+    function renderPhoto(){
+      var big=$('asAvaLg');
+      if(photo){ big.style.background='none'; big.innerHTML='<img src="'+photo+'" alt="">'; }
+      else { big.style.background=grad; big.textContent=initials(); }
+      if(typeof window.refreshLocationPhoto==='function') window.refreshLocationPhoto();
+    }
+    function reflectSidebar(){
+      var nm=($('epFname').value+' '+($('epLname').value.trim()[0]||'')).trim();
+      var sn=document.querySelector('.sidebar-user-name'); if(sn) sn.textContent=nm;
+      var uh=document.querySelector('.umh-name'); if(uh) uh.textContent=nm;
+      var ue=document.querySelector('.umh-email'); if(ue) ue.textContent=$('epEmail').value;
+      var av=document.querySelector('.sidebar-user-avatar');
+      if(av){ if(photo){ av.style.background='none'; av.innerHTML='<img src="'+photo+'" alt="" style="width:100%;height:100%;object-fit:cover">'; } else { av.style.background=''; av.textContent=initials(); } }
+      $('asMethodEmail').textContent=$('epEmail').value+' · last changed 3 weeks ago';
+    }
+
+    function countBio(){ $('asBioCount').textContent=String($('asBio').value.length); }
 
     function strength(){
       var v=$('epNewpw').value, el=$('epStrength'), lbl=$('epStrengthLabel'), s=0;
@@ -4848,10 +5214,11 @@ document.addEventListener('keydown', (e) => {
       lbl.textContent=!v.length?'Use 8+ characters with letters, numbers and symbols.':['Very weak','Weak','Fair','Good','Strong'][s];
       var cf=$('epConfpw'); cf.closest('.ep-field').classList.toggle('invalid', cf.value.length>0 && cf.value!==v);
     }
-    function maskEmail(v){ var p=v.split('@'); if(p.length<2) return v; return (p[0]?p[0][0]:'')+'\u2022\u2022@'+p[1]; }
-    function maskPhone(cc,v){ var d=v.replace(/\D/g,''); return cc+' \u2022\u2022\u2022 \u2022\u2022 '+d.slice(-3); }
+    function maskEmail(v){ var p=v.split('@'); if(p.length<2) return v; return (p[0]?p[0][0]:'')+'••@'+p[1]; }
+    function maskPhone(cc,v){ var d=v.replace(/\D/g,''); return cc+' ••• •• '+d.slice(-3); }
     function syncDest(){ $('epOtpDest').innerHTML = otp==='email' ? "We'll send sign-in codes to <b>"+maskEmail($('epEmail').value)+"</b>." : "We'll send sign-in codes to <b>"+maskPhone($('epCc').value,$('epMobile').value)+"</b>."; }
-
+    window.getAccountEmail=function(){ return $('epEmail').value.trim(); };
+    window.maskAccountEmail=function(){ return maskEmail($('epEmail').value.trim()); };
 
     function ini(n){var p=n.trim().split(/\s+/);return (((p[0]?p[0][0]:'')+(p[1]?p[1][0]:'')).toUpperCase())||'?';}
     function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
@@ -4879,10 +5246,39 @@ document.addEventListener('keydown', (e) => {
     }
     function fillDefLoc(){ $('asDefLoc').innerHTML=ACCESS.map(function(a){return '<option>'+a.n+'</option>';}).join(''); }
 
-    function baseline(){ fields=[].slice.call(document.querySelectorAll('#pageAccount [data-as]')); initial=new Map(); fields.forEach(function(f){initial.set(f,f.value);}); densityBaseline=densityVal; otpBaseline=otp; }
-    function dirty(){ var d=(densityVal!==densityBaseline)||(otp!==otpBaseline); fields.forEach(function(f){ if(f.value!==initial.get(f)) d=true; }); return d; }
+    /* Reflect the signed-in user's own access level (users.super) */
+    window.setOwnAccessLevel=function(isSuper, blocked){
+      $('asStatLevel').innerHTML = isSuper ? '<span class="as-badge super">Superuser · all companies</span>' : '<span class="as-badge">Standard user</span>';
+      $('asStatStatus').innerHTML = blocked ? '<span class="as-badge danger">Blocked</span>' : '<span class="as-badge ok">Active</span>';
+    };
+
+    function baseline(){
+      fields=[].slice.call(document.querySelectorAll('#pageAccount [data-as]'));
+      checks=[].slice.call(document.querySelectorAll('#pageAccount [data-as-check]'));
+      initial=new Map();
+      fields.forEach(function(f){initial.set(f,f.value);});
+      checks.forEach(function(f){initial.set(f,f.checked);});
+      densityBaseline=densityVal; otpBaseline=otp; photoBaseline=photo;
+    }
+    function dirty(){
+      var d=(densityVal!==densityBaseline)||(otp!==otpBaseline)||(photo!==photoBaseline);
+      fields.forEach(function(f){ if(f.value!==initial.get(f)) d=true; });
+      checks.forEach(function(f){ if(f.checked!==initial.get(f)) d=true; });
+      return d;
+    }
     function refreshBar(){ $('asSaveBar').classList.toggle('show',dirty()); }
-    function toast(m){ $('asToastMsg').textContent=m; var t=$('asToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2400); }
+    function toast(m){ $('asToastMsg').textContent=m; var t=$('asToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2600); }
+
+    function validate(){
+      var ok=true;
+      var email=$('epEmail'), emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim());
+      email.closest('.ep-field').classList.toggle('invalid',!emailOk); email.classList.toggle('err',!emailOk); if(!emailOk)ok=false;
+      [['epFname'],['epLname']].forEach(function(p){
+        var f=$(p[0]), good=f.value.trim().length>0;
+        f.closest('.ep-field').classList.toggle('invalid',!good); f.classList.toggle('err',!good); if(!good)ok=false;
+      });
+      return ok;
+    }
 
     function applyTheme(t){
       var dark = t==='dark' || (t==='system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
@@ -4891,7 +5287,7 @@ document.addEventListener('keydown', (e) => {
       if(typeof updateChartColors==='function'){ try{updateChartColors();}catch(e){} }
     }
 
-    document.addEventListener('change',function(e){ var t=e.target; if(t.closest && t.closest('#pageAccount') && t.hasAttribute && t.hasAttribute('data-as')) refreshBar(); });
+    document.addEventListener('change',function(e){ var t=e.target; if(t.closest && t.closest('#pageAccount') && t.hasAttribute && (t.hasAttribute('data-as')||t.hasAttribute('data-as-check'))) refreshBar(); });
 
     asSearch=$('asAccSearch');
     asSearch.addEventListener('input',renderAccess);
@@ -4899,23 +5295,39 @@ document.addEventListener('keydown', (e) => {
     $('asThemeGrid').addEventListener('click',function(e){ var b=e.target.closest('.as-theme'); if(!b) return; $('asThemeGrid').querySelectorAll('.as-theme').forEach(function(x){x.classList.toggle('on',x===b);}); applyTheme(b.dataset.theme); });
     $('asDensity').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; densityVal=b.dataset.d; $('asDensity').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); refreshBar(); });
     $('asVipps').addEventListener('click',function(){ toast('Vipps connected'); });
+    $('asUpload').addEventListener('click',function(){ $('asFile').click(); });
+    $('asFile').addEventListener('change',function(e){ var f=e.target.files&&e.target.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ photo=r.result; renderPhoto(); refreshBar(); }; r.readAsDataURL(f); });
+    $('asRemove').addEventListener('click',function(){ photo=null; renderPhoto(); refreshBar(); $('asFile').value=''; });
     document.querySelectorAll('#pageAccount .ep-toggle').forEach(function(b){ b.addEventListener('click', function(){ var t=$(b.dataset.target); var show=t.type==='password'; t.type=show?'text':'password'; b.textContent=show?'Hide':'Show'; }); });
     $('epOtpSeg').addEventListener('click',function(e){ var b=e.target.closest('button'); if(!b) return; otp=b.dataset.otp; $('epOtpSeg').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x===b);}); syncDest(); refreshBar(); });
-    document.addEventListener('input',function(e){ var t=e.target; if(!t.closest||!t.closest('#pageAccount')) return; if(t.id==='epNewpw'||t.id==='epConfpw') strength(); refreshBar(); });
+    document.addEventListener('input',function(e){
+      var t=e.target; if(!t.closest||!t.closest('#pageAccount')) return;
+      if(t.id==='epNewpw'||t.id==='epConfpw') strength();
+      if(t.id==='asBio') countBio();
+      if(t.id==='epFname'||t.id==='epLname'){ if(!photo) renderPhoto(); }
+      if(t.id==='epEmail'||t.id==='epMobile') syncDest();
+      refreshBar();
+    });
     $('asSignoutAll').addEventListener('click',function(){ toast('Signed out of all other devices'); });
     $('asSave').addEventListener('click',function(){
+      if(!validate()){ var bad=document.querySelector('#pageAccount .ep-field.invalid'); if(bad) bad.scrollIntoView({behavior:'smooth',block:'center'}); return; }
       var np=$('epNewpw').value, cf=$('epConfpw');
       if(np.length){
-        var bad = np.length<8 || cf.value!==np;
+        var bad2 = np.length<8 || cf.value!==np;
         cf.closest('.ep-field').classList.toggle('invalid', cf.value!==np);
-        if(bad){ $('epNewpw').closest('.ep-field').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+        if(bad2){ $('epNewpw').closest('.ep-field').scrollIntoView({behavior:'smooth',block:'center'}); return; }
       }
       ['epCurpw','epNewpw','epConfpw'].forEach(function(id){$(id).value='';});
-      strength(); baseline(); refreshBar(); toast('Settings saved'); });
-    $('asDiscard').addEventListener('click',function(){ fields.forEach(function(f){ f.value=initial.get(f); }); densityVal=densityBaseline; otp=otpBaseline;
+      strength(); reflectSidebar(); syncDest(); baseline(); refreshBar(); toast('Settings saved'); });
+    $('asDiscard').addEventListener('click',function(){
+      fields.forEach(function(f){ f.value=initial.get(f); });
+      checks.forEach(function(f){ f.checked=initial.get(f); });
+      densityVal=densityBaseline; otp=otpBaseline; photo=photoBaseline;
       $('epOtpSeg').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.otp===otp);});
       document.querySelectorAll('#pageAccount .ep-field.invalid').forEach(function(el){el.classList.remove('invalid');});
-      syncDest(); strength(); $('asDensity').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.d===densityVal);}); refreshBar(); });
+      document.querySelectorAll('#pageAccount .ep-input.err').forEach(function(el){el.classList.remove('err');});
+      renderPhoto(); countBio(); syncDest(); strength();
+      $('asDensity').querySelectorAll('button').forEach(function(x){x.classList.toggle('on',x.dataset.d===densityVal);}); refreshBar(); });
     $('asSessList').addEventListener('click',function(e){ var b=e.target.closest('[data-sess]'); if(!b) return; b.closest('.as-sess-row').remove(); toast('Session signed out'); });
 
     window.goToAccount=function(){
@@ -4926,7 +5338,209 @@ document.addEventListener('keydown', (e) => {
       renderAccess(); syncDest(); strength(); baseline(); refreshBar();
     };
 
-    fillDefLoc(); renderAccess(); renderSessions(); syncDest(); strength(); baseline();
+    fillDefLoc(); renderAccess(); renderSessions(); syncDest(); strength(); countBio(); renderPhoto(); baseline();
+  })();
+  </script>
+  <script>
+  /* ───── User administration logic (added) ───── */
+  (function(){
+    var $=function(id){return document.getElementById(id);};
+    var DEMO_CODE='481920';
+    var MAX_ATTEMPTS=3;
+
+    var USERS=[
+      {id:'u1',n:'Einar Mortensen',e:'ems@plorea.com',ph:'+47 412 34 567',sup:false,blk:false,reason:'',last:'14 Aug 2026, 08:12',you:true,
+       acc:[['Plorea Demo','Sparbu','owner'],['Røros Hotell','Røros','admin'],['Chop Sticks','Trondheim','manager'],['Café Mash','Bergen','manager'],['Stabæk Fotball','Bærum','admin'],['Kontoret','Trondheim','staff'],['Messe','Trondheim','staff']]},
+      {id:'u2',n:'Kari Nordmo',e:'kari@plorea.com',ph:'+47 900 11 223',sup:false,blk:false,reason:'',last:'13 Aug 2026, 16:40',
+       acc:[['Røros Hotell','Røros','manager'],['Arena Røros','Røros','manager'],['Messe','Trondheim','staff']]},
+      {id:'u3',n:'Ola Berg',e:'ola.berg@plorea.com',ph:'+47 481 22 900',sup:false,blk:true,reason:'Too many failed verification attempts · 2 Aug 2026',last:'2 Aug 2026, 21:05',
+       acc:[['Chop Sticks','Trondheim','staff'],['Kafe Skuret','Trondheim','staff']]},
+      {id:'u4',n:'Silje Haugen',e:'silje@plorea.com',ph:'+47 918 44 010',sup:true,blk:false,reason:'',last:'14 Aug 2026, 07:55',
+       acc:[['All companies','Global access','owner']]},
+      {id:'u5',n:'Tom Fjeld',e:'tom.fjeld@plorea.com',ph:'+47 452 78 331',sup:false,blk:false,reason:'',last:'11 Aug 2026, 12:20',
+       acc:[['Kontoret','Trondheim','staff']]}
+    ];
+
+    var ME={id:'u1', sup:false};      /* the signed-in user — demo switchable */
+    var cur=null, toastT, pending=null, attempts=0;
+
+    function me(){ return USERS.filter(function(u){return u.id===ME.id;})[0]; }
+    function ini(n){var p=n.trim().split(/\s+/);return (((p[0]?p[0][0]:'')+(p[1]?p[1][0]:'')).toUpperCase())||'?';}
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+    function toast(m){ $('uaToastMsg').textContent=m; var t=$('uaToast'); t.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(function(){t.classList.remove('show');},2800); }
+
+    function tags(u){
+      var t='';
+      if(u.sup) t+='<span class="as-badge super">Superuser</span>';
+      if(u.blk) t+='<span class="as-badge danger">Blocked</span>';
+      if(!u.sup&&!u.blk) t+='<span class="as-badge ok">Active</span>';
+      if(u.you) t+='<span class="as-badge">You</span>';
+      return t;
+    }
+
+    function renderList(){
+      var q=($('uaSearch').value||'').toLowerCase().trim();
+      var rows=USERS.filter(function(u){ return !q || (u.n+' '+u.e).toLowerCase().indexOf(q)>=0; });
+      $('uaList').innerHTML = rows.length ? rows.map(function(u){
+        return '<button type="button" class="ua-row" data-uid="'+u.id+'">'
+          +'<div class="ua-ava'+(u.blk?' off':'')+'">'+ini(u.n)+'</div>'
+          +'<div class="ua-main"><div class="ua-nm">'+esc(u.n)+'</div><div class="ua-em">'+esc(u.e)+' · '+(u.sup?'all companies and locations':(u.acc.length+' location'+(u.acc.length===1?'':'s')))+'</div></div>'
+          +'<div class="ua-tags">'+tags(u)+'</div>'
+          +'<svg class="ua-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>';
+      }).join('') : '<div class="as-empty">No users match your search.</div>';
+    }
+
+    function renderDetail(){
+      if(!cur) return;
+      $('uaDetName').textContent=cur.n;
+      $('uaDetSub').textContent=cur.e;
+      $('uaDetEmail').textContent=cur.e;
+      $('uaDetPhone').textContent=cur.ph;
+      $('uaDetStatus').innerHTML=cur.blk?'<span class="as-badge danger">Blocked</span>':'<span class="as-badge ok">Active</span>';
+      $('uaDetLevel').innerHTML=cur.sup?'<span class="as-badge super">Superuser</span>':'<span class="as-badge">Standard user</span>';
+      $('uaDetLast').textContent=cur.last;
+      $('uaDetLocs').textContent=cur.sup?'All companies and locations':(cur.acc.length+' location'+(cur.acc.length===1?'':'s'));
+      $('uaDetAccess').innerHTML=cur.acc.map(function(a){
+        return '<div class="as-acc-row"><div class="as-acc-ava">'+ini(a[0])+'</div><div class="as-acc-main"><div class="as-acc-name">'+esc(a[0])+'</div><div class="as-acc-city">'+esc(a[1])+'</div></div><div class="as-acc-right"><span class="as-role '+a[2]+'">'+cap(a[2])+'</span></div></div>';
+      }).join('');
+
+      /* blocked card */
+      $('uaBlockedCard').hidden=!cur.blk;
+      $('uaBlockedReason').textContent=cur.reason||'Blocked by an administrator';
+      var canUnblock = ME.sup || (cur.id!==ME.id);
+      $('uaUnblock').disabled=!canUnblock;
+      $('uaUnblockGate').hidden=canUnblock;
+
+      /* superuser toggle */
+      var t=$('uaSuperToggle');
+      t.checked=cur.sup;
+      t.disabled=!ME.sup || cur.id===ME.id;
+      $('uaSuperGate').hidden=ME.sup && cur.id!==ME.id;
+      $('uaSuperGate').querySelector('div').innerHTML = ME.sup
+        ? '<b>You cannot change your own access level.</b> Ask another superuser to do it.'
+        : '<b>Only a superuser can grant or remove superuser access.</b> You are signed in as Administrator, so this setting is read-only for you.';
+    }
+
+    function openDetail(u){ cur=u; $('uaListView').hidden=true; $('uaDetailView').hidden=false; renderDetail(); window.scrollTo(0,0); }
+    function closeDetail(){ cur=null; $('uaDetailView').hidden=true; $('uaListView').hidden=false; renderList(); window.scrollTo(0,0); }
+
+    /* ── step-up modal ── */
+    function step(id){ document.querySelectorAll('#uaModal .ua-step').forEach(function(s){s.classList.toggle('on',s.id===id);}); }
+    function openModal(){ $('uaScrim').classList.add('show'); $('uaModal').classList.add('show'); }
+    function closeModal(){ $('uaScrim').classList.remove('show'); $('uaModal').classList.remove('show'); }
+    function resetModal(){
+      $('uaAck').checked=false; $('uaS1Next').disabled=true;
+      $('uaEmail').value=''; $('uaEmail').closest('.ep-field').classList.remove('invalid');
+      $('uaCode').value=''; $('uaCode').classList.remove('err');
+      $('uaAttempts').textContent=''; attempts=0;
+      step('uaStep1');
+    }
+    function startGrant(u){
+      pending=u; resetModal();
+      $('uaS1Name').textContent=u.n; $('uaS1Name2').textContent=u.n; $('uaDoneName').textContent=u.n;
+      openModal();
+    }
+
+    $('uaSearch').addEventListener('input',renderList);
+    $('uaList').addEventListener('click',function(e){
+      var b=e.target.closest('[data-uid]'); if(!b) return;
+      var u=USERS.filter(function(x){return x.id===b.dataset.uid;})[0]; if(u) openDetail(u);
+    });
+    $('uaBack').addEventListener('click',closeDetail);
+
+    $('uaViewAs').addEventListener('change',function(){
+      ME.sup = this.value==='super';
+      me().sup = ME.sup;
+      if(typeof window.setOwnAccessLevel==='function') window.setOwnAccessLevel(ME.sup, me().blk);
+      renderList(); renderDetail();
+    });
+
+    $('uaSuperToggle').addEventListener('change',function(){
+      if(!cur) return;
+      if(this.checked){
+        this.checked=false;              /* not granted until verification succeeds */
+        startGrant(cur);
+      } else {
+        this.checked=true;               /* revoke also needs confirmation */
+        if(confirmRevoke(cur)) { cur.sup=false; renderDetail(); renderList(); toast('Superuser access removed from '+cur.n); }
+      }
+    });
+    function confirmRevoke(u){
+      return window.confirm('Remove superuser access from '+u.n+'?\n\nThey will keep only the roles they have at individual locations.');
+    }
+
+    $('uaAck').addEventListener('change',function(){ $('uaS1Next').disabled=!this.checked; });
+    $('uaS1Next').addEventListener('click',function(){ step('uaStep2'); setTimeout(function(){$('uaEmail').focus();},60); });
+
+    $('uaS2Next').addEventListener('click',function(){
+      var v=$('uaEmail').value.trim().toLowerCase();
+      var mine=(typeof window.getAccountEmail==='function'?window.getAccountEmail():'ems@plorea.com').toLowerCase();
+      var ok = v===mine;
+      $('uaEmail').closest('.ep-field').classList.toggle('invalid',!ok);
+      $('uaEmail').classList.toggle('err',!ok);
+      if(!ok) return;
+      $('uaMaskedEmail').textContent = (typeof window.maskAccountEmail==='function')?window.maskAccountEmail():'e••@plorea.com';
+      attempts=0; $('uaAttempts').textContent='';
+      step('uaStep3'); setTimeout(function(){$('uaCode').focus();},60);
+    });
+
+    $('uaResend').addEventListener('click',function(){ $('uaCode').value=''; toast('A new code has been sent'); });
+
+    $('uaS3Next').addEventListener('click',function(){
+      var v=$('uaCode').value.trim();
+      if(v===DEMO_CODE){
+        pending.sup=true;
+        renderDetail(); renderList();
+        step('uaStepDone');
+        return;
+      }
+      attempts++;
+      $('uaCode').value=''; $('uaCode').classList.add('err');
+      var left=MAX_ATTEMPTS-attempts;
+      if(left>0){
+        $('uaAttempts').textContent='Incorrect code. '+left+' attempt'+(left===1?'':'s')+' left before your account is blocked.';
+        $('uaCode').focus();
+      } else {
+        var m=me(); m.blk=true; m.reason='Too many failed verification attempts · 14 Aug 2026';
+        if(typeof window.setOwnAccessLevel==='function') window.setOwnAccessLevel(ME.sup, true);
+        renderList(); if(cur) renderDetail();
+        step('uaStepBlocked');
+      }
+    });
+
+    $('uaBlockedOut').addEventListener('click',function(){
+      closeModal();
+      toast('Signed out — your account is blocked');
+      if(typeof goToLocations==='function') goToLocations();
+    });
+
+    $('uaUnblock').addEventListener('click',function(){
+      if(!cur||this.disabled) return;
+      cur.blk=false; cur.reason='';
+      if(cur.id===ME.id && typeof window.setOwnAccessLevel==='function') window.setOwnAccessLevel(ME.sup,false);
+      renderDetail(); renderList(); toast(cur.n+' can sign in again');
+    });
+
+    document.querySelectorAll('#uaModal [data-ua-close]').forEach(function(b){ b.addEventListener('click',function(){ closeModal(); renderDetail(); }); });
+    $('uaScrim').addEventListener('click',function(){
+      if($('uaStepBlocked').classList.contains('on')) return;   /* must be acknowledged */
+      closeModal(); renderDetail();
+    });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape' && $('uaModal').classList.contains('show') && !$('uaStepBlocked').classList.contains('on')){ closeModal(); renderDetail(); }
+    });
+
+    window.goToUsers=function(){
+      showPage('pageUsers');
+      if(typeof setActiveNav==='function') setActiveNav('navUsers');
+      var c=$('topCrumb'); if(c) c.innerHTML='<span>Admin</span><span class="crumb-sep">/</span><span class="crumb-current">User administration</span>';
+      var lb=$('liveBadge'); if(lb) lb.style.display='none';
+      closeDetail();
+    };
+
+    renderList();
+    if(typeof window.setOwnAccessLevel==='function') window.setOwnAccessLevel(ME.sup,false);
   })();
   </script>
   <script>
