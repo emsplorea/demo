@@ -1,0 +1,1037 @@
+<!DOCTYPE html>
+<html lang="nb" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plorea · Kundeskjerm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PLOREA DESIGN TOKENS  (dark) — speilet fra tokens.css
+   ============================================================ */
+:root{
+  --color-primary:#6BB8DA;
+  --color-primary-100:#C7E7F3;
+  --color-primary-200:#99D2E8;
+  --color-primary-600:#4FA3C8;
+  --color-primary-800:#2E6B87;
+  --color-primary-900:#1D4A5F;
+  --color-secondary:#468DAC;
+  --color-accent:#7EC8E3;
+
+  --color-success:#6BDAB2;
+  --color-warning:#DADA6B;
+  --color-danger:#DA6B6B;
+
+  --color-surface:#1E1D24;
+  --color-surface-elevated:#26242E;
+  --color-surface-hover:#2E2C38;
+  --color-surface-overlay:rgba(0,0,0,.64);
+
+  --color-text-primary:#F0EEF5;
+  --color-text-secondary:#9B98A8;
+  --color-text-muted:#5C5970;
+
+  --color-border:#2E2C38;
+  --color-border-strong:#3D3A4A;
+  --color-border-focus:#7EC8E3;
+
+  --shadow-focus:0 0 0 3px rgba(126,200,227,.4);
+
+  /* kanalfarger */
+  --ch-takeaway:#D1E7DD;
+  --ch-eat-in:#E5C1B6;
+  --ch-table:#8F86AE;
+
+  /* radius (rem — skalerer med skjerm) */
+  --r-md:.35rem; --r-lg:.5rem; --r-xl:.85rem; --r-2xl:1.2rem;
+
+  /* motion */
+  --dur-fast:100ms; --dur-default:160ms; --dur-slow:240ms; --dur-panel:320ms;
+  --ease-out:cubic-bezier(.16,1,.3,1);
+  --ease:cubic-bezier(.4,0,.2,1);
+}
+
+/* Root-skalering: én layout, alt fra 13" tablet til 65" 4K-TV */
+html{ font-size:clamp(11px, 1.04vw, 30px); }
+
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--color-surface);
+  color:var(--color-text-primary);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+  cursor:default;
+}
+body::before{
+  /* atmosfærisk dybde bak alt */
+  content:"";
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(120% 80% at 12% -10%, rgba(107,184,218,.13), transparent 60%),
+    radial-gradient(100% 70% at 92% 108%, rgba(107,218,178,.10), transparent 62%),
+    radial-gradient(80% 60% at 50% 50%, rgba(218,218,107,.035), transparent 70%);
+}
+h1,h2,h3,.font-display{ font-family:"Sora","Plus Jakarta Sans",system-ui,"Segoe UI",Roboto,Arial,sans-serif; }
+.venue,.clock,.logo-word,.order .num,.callout .big,.linkbox .val,.col-count,.demo h4,.foot-brand span{
+  font-family:"Sora","Plus Jakarta Sans",system-ui,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+.label{
+  font-size:.62rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--color-text-secondary);
+}
+.mono{ font-variant-numeric:tabular-nums; font-feature-settings:"tnum" 1; }
+
+/* ============================================================
+   SKJERMBYTTE
+   ============================================================ */
+.screen{ display:none; position:relative; z-index:1; height:100vh; height:100dvh; }
+.screen.active{ display:flex; }
+
+/* ============================================================
+   1) PARINGSSKJERM  (det kassen viser)
+   ============================================================ */
+#pair{ align-items:center; justify-content:center; padding:2rem; }
+.pair-wrap{ width:min(62rem,100%); }
+
+.pair-brand{ display:flex; align-items:center; gap:.7rem; margin-bottom:1.6rem; }
+.logo-mark{
+  width:2.3rem; height:2.3rem; border-radius:var(--r-lg);
+  background:linear-gradient(145deg,var(--color-primary),var(--color-secondary));
+  display:grid; place-items:center; flex:none;
+  box-shadow:0 .4rem 1.2rem rgba(107,184,218,.32);
+}
+.logo-mark svg{ width:1.35rem; height:1.35rem; }
+.logo-word{ font-family:"Sora"; font-weight:800; font-size:1.15rem; letter-spacing:-.02em; }
+.logo-sub{ font-size:.68rem; color:var(--color-text-secondary); font-weight:600; }
+
+.pair-card{
+  background:var(--color-surface-elevated);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-2xl);
+  padding:2rem;
+  display:grid; grid-template-columns:1.25fr .9fr; gap:2rem;
+  box-shadow:0 1.5rem 3.5rem rgba(0,0,0,.45);
+}
+@media (max-width:820px){ .pair-card{ grid-template-columns:1fr; } }
+
+.pair-card h1{ font-size:1.65rem; font-weight:700; letter-spacing:-.02em; margin:.35rem 0 .5rem; }
+.pair-lead{ color:var(--color-text-secondary); font-size:.86rem; line-height:1.6; margin:0 0 1.4rem; }
+
+.field{ margin-bottom:1rem; }
+.field .label{ display:block; margin-bottom:.4rem; }
+.linkbox{
+  display:flex; align-items:center; gap:.6rem;
+  background:var(--color-surface); border:1px solid var(--color-border-strong);
+  border-radius:var(--r-xl); padding:.75rem .9rem;
+}
+.linkbox .val{
+  flex:1; min-width:0; font-family:"Sora"; font-weight:700; letter-spacing:-.01em;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.linkbox.short .val{ font-size:1.5rem; color:var(--color-accent); }
+.linkbox.long .val{ font-size:.74rem; font-weight:500; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; color:var(--color-text-secondary); }
+
+.btn{
+  font-family:"Plus Jakarta Sans"; font-weight:700; font-size:.78rem;
+  border-radius:var(--r-xl); border:1px solid transparent; padding:0 1.1rem;
+  min-height:2.6rem; display:inline-flex; align-items:center; gap:.45rem;
+  cursor:pointer; transition:all var(--dur-default) var(--ease); white-space:nowrap;
+}
+.btn:focus-visible{ outline:none; box-shadow:var(--shadow-focus); }
+.btn-primary{ background:var(--color-primary); color:#10222B; }
+.btn-primary:hover{ background:var(--color-primary-200); transform:translateY(-1px); }
+.btn-ghost{ background:transparent; color:var(--color-text-secondary); border-color:var(--color-border-strong); }
+.btn-ghost:hover{ background:var(--color-surface-hover); color:var(--color-text-primary); }
+.btn-icon{ min-height:2.35rem; padding:0 .7rem; }
+
+.qr-panel{
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-xl);
+  padding:1.3rem; text-align:center;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:.85rem;
+}
+.qr-frame{
+  background:#fff; padding:.7rem; border-radius:var(--r-lg); line-height:0;
+  box-shadow:0 .5rem 1.5rem rgba(0,0,0,.4);
+}
+.qr-frame img,.qr-frame canvas{ width:9rem; height:9rem; display:block; }
+.qr-hint{ font-size:.7rem; color:var(--color-text-secondary); line-height:1.5; max-width:14rem; }
+
+.steps{ margin:1.4rem 0 0; padding:0; list-style:none; display:grid; gap:.55rem; }
+.steps li{ display:flex; gap:.65rem; align-items:flex-start; font-size:.76rem; color:var(--color-text-secondary); line-height:1.5; }
+.steps .n{
+  flex:none; width:1.25rem; height:1.25rem; border-radius:999px; font-size:.6rem; font-weight:800;
+  background:rgba(107,184,218,.14); color:var(--color-accent); display:grid; place-items:center; margin-top:.05rem;
+}
+.pair-actions{ display:flex; gap:.6rem; margin-top:1.5rem; flex-wrap:wrap; }
+
+.chip{
+  display:inline-flex; align-items:center; gap:.35rem; font-size:.6rem; font-weight:700;
+  letter-spacing:.09em; text-transform:uppercase; padding:.3rem .6rem; border-radius:999px;
+  background:rgba(107,218,178,.12); color:var(--color-success); border:1px solid rgba(107,218,178,.22);
+}
+
+/* ============================================================
+   2) KUNDESKJERM (TV)
+   ============================================================ */
+#display{ flex-direction:column; padding:1.5rem 1.75rem 0; gap:1.1rem; }
+
+.tv-head{ display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex:none; }
+.tv-head .left{ display:flex; align-items:center; gap:.85rem; }
+.venue{ font-family:"Sora"; font-weight:700; font-size:1.15rem; letter-spacing:-.02em; line-height:1.15; }
+.venue small{ display:block; font-family:"Plus Jakarta Sans"; font-weight:600; font-size:.62rem; letter-spacing:.14em; text-transform:uppercase; color:var(--color-text-secondary); margin-top:.15rem; }
+
+.tv-head .right{ display:flex; align-items:center; gap:1.1rem; }
+.clock{ font-family:"Sora"; font-weight:700; font-size:1.8rem; letter-spacing:-.03em; line-height:1; }
+.datebit{ font-size:.66rem; color:var(--color-text-secondary); font-weight:600; text-align:right; margin-top:.25rem; }
+.datebit::first-letter{ text-transform:uppercase; }
+.live{
+  display:inline-flex; align-items:center; gap:.4rem; font-size:.6rem; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--color-text-secondary);
+  border:1px solid var(--color-border); background:var(--color-surface-elevated);
+  border-radius:999px; padding:.35rem .7rem;
+}
+.live .dot{ width:.4rem; height:.4rem; border-radius:999px; background:var(--color-success); box-shadow:0 0 0 0 rgba(107,218,178,.55); animation:ping 2.4s infinite; }
+@keyframes ping{ 0%{box-shadow:0 0 0 0 rgba(107,218,178,.5)} 70%{box-shadow:0 0 0 .5rem rgba(107,218,178,0)} 100%{box-shadow:0 0 0 0 rgba(107,218,178,0)} }
+
+/* --- kolonner --- */
+.board{
+  flex:1; min-height:0;
+  display:grid; grid-template-columns:1fr 1fr 1.45fr; gap:1.1rem;
+}
+.col{
+  display:flex; flex-direction:column; min-height:0;
+  background:var(--color-surface-elevated);
+  border:1px solid var(--color-border);
+  border-radius:var(--r-2xl);
+  overflow:hidden;
+  position:relative;
+}
+.col::after{ /* topplinje i statusfargen */
+  content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--c); opacity:.85;
+}
+.col-head{
+  flex:none; display:flex; align-items:center; justify-content:space-between; gap:.75rem;
+  padding:1.05rem 1.15rem .8rem;
+}
+.col-title{ display:flex; align-items:center; gap:.6rem; }
+.col-title .ic{
+  width:1.75rem; height:1.75rem; border-radius:var(--r-md); display:grid; place-items:center;
+  background:color-mix(in srgb, var(--c) 15%, transparent); color:var(--c);
+}
+.col-title .ic svg{ width:1rem; height:1rem; }
+.col-title h2{ margin:0; font-size:.86rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--c); }
+.col-count{
+  font-family:"Sora"; font-weight:700; font-size:.95rem; min-width:2rem; text-align:center;
+  background:var(--color-surface); border:1px solid var(--color-border-strong);
+  border-radius:999px; padding:.15rem .6rem; color:var(--color-text-secondary);
+}
+.col-body{ flex:1; min-height:0; overflow:hidden; padding:0 1.15rem 1.15rem; }
+.col-list{ display:flex; flex-direction:column; gap:.6rem; height:100%; }
+.col.ny .order, .col.prod .order{ flex:1 1 0; min-height:3.4rem; max-height:5.4rem; }
+
+/* --- ordrekort --- */
+.order{
+  --c:var(--color-primary);
+  position:relative; display:flex; align-items:center; gap:.9rem;
+  background:var(--color-surface);
+  border:1px solid var(--color-border);
+  border-left:3px solid var(--c);
+  border-radius:var(--r-xl);
+  padding:.7rem .9rem;
+  animation:slideIn var(--dur-panel) var(--ease-out) both;
+}
+@keyframes slideIn{ from{opacity:0; transform:translateY(-.6rem) scale(.98)} to{opacity:1; transform:none} }
+.order.leaving{ animation:fadeOut 320ms var(--ease) forwards; }
+@keyframes fadeOut{ to{opacity:0; transform:translateX(1.5rem) scale(.97); max-height:0; margin-top:-.6rem} }
+
+.order .num{
+  font-family:"Sora"; font-weight:800; font-size:2rem; letter-spacing:-.03em; line-height:1;
+  color:var(--color-text-primary); min-width:3.4rem;
+}
+.order .meta{ flex:1; min-width:0; }
+.order .name{
+  font-size:.82rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.order .sub{ font-size:.65rem; color:var(--color-text-secondary); font-weight:500; margin-top:.15rem; display:flex; align-items:center; gap:.45rem; }
+.pill{
+  font-size:.55rem; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
+  padding:.16rem .45rem; border-radius:999px; color:#1E1D24; white-space:nowrap;
+}
+.pill.takeaway{ background:var(--ch-takeaway); }
+.pill.eatin{ background:var(--ch-eat-in); }
+.pill.bord{ background:var(--ch-table); color:#F0EEF5; }
+
+/* kolonne 1: NY */
+.col.ny{ --c:var(--color-primary); }
+.col.ny .order{ --c:var(--color-primary); }
+
+/* kolonne 2: UNDER PRODUKSJON */
+.col.prod{ --c:var(--color-warning); }
+.col.prod .order{ --c:var(--color-warning); background:linear-gradient(90deg, rgba(218,218,107,.07), rgba(218,218,107,0) 55%), var(--color-surface); }
+.progress{ position:absolute; left:0; right:0; bottom:0; height:2px; background:rgba(218,218,107,.13); overflow:hidden; border-radius:0 0 var(--r-xl) var(--r-xl); }
+.progress i{ position:absolute; inset:0; width:38%; background:var(--color-warning); opacity:.75; animation:sweep 2.6s var(--ease) infinite; }
+@keyframes sweep{ 0%{transform:translateX(-100%)} 100%{transform:translateX(320%)} }
+
+/* kolonne 3: KALT TIL HENTING */
+.col.klar{ --c:var(--color-success); }
+.col.klar{ background:linear-gradient(180deg, rgba(107,218,178,.08), rgba(107,218,178,.01) 40%), var(--color-surface-elevated); border-color:rgba(107,218,178,.22); }
+.col.klar .col-list{ display:grid; grid-template-columns:1fr 1fr; grid-auto-rows:minmax(6rem,7.5rem); gap:.75rem; align-content:start; }
+.col.klar .order{
+  --c:var(--color-success);
+  flex-direction:column; align-items:flex-start; justify-content:center; gap:.15rem;
+  border:1px solid rgba(107,218,178,.3); border-left-width:3px;
+  background:linear-gradient(145deg, rgba(107,218,178,.16), rgba(107,218,178,.05));
+  padding:.85rem 1rem; min-height:5.6rem;
+  box-shadow:0 0 0 0 rgba(107,218,178,.35), 0 .5rem 1.5rem rgba(0,0,0,.25);
+  animation:slideIn var(--dur-panel) var(--ease-out) both, glow 3.2s var(--ease) infinite;
+}
+@keyframes glow{ 0%,100%{ box-shadow:0 0 0 0 rgba(107,218,178,.0), 0 .5rem 1.5rem rgba(0,0,0,.25) } 50%{ box-shadow:0 0 2.2rem 0 rgba(107,218,178,.22), 0 .5rem 1.5rem rgba(0,0,0,.25) } }
+.col.klar .order .num{ font-size:3.4rem; color:var(--color-success); min-width:0; }
+.col.klar .order .name{ font-size:.85rem; }
+.col.klar .order .sub{ color:rgba(240,238,245,.62); }
+.col.klar .order.fresh::before{
+  content:"NY"; position:absolute; top:.6rem; right:.7rem;
+  font-size:.52rem; font-weight:800; letter-spacing:.12em;
+  background:var(--color-success); color:#0F241D; padding:.18rem .42rem; border-radius:999px;
+  animation:blink 1s steps(1) 6;
+}
+@keyframes blink{ 50%{ opacity:.15 } }
+
+.empty{
+  display:grid; place-items:center; text-align:center; height:100%; min-height:6rem;
+  color:var(--color-text-muted); font-size:.72rem; font-weight:600; gap:.5rem;
+}
+.empty svg{ width:1.6rem; height:1.6rem; opacity:.55; }
+
+/* --- bunnlinje --- */
+.tv-foot{
+  flex:none; display:flex; align-items:center; justify-content:space-between; gap:1.5rem;
+  padding:.85rem 2.6rem 1.05rem .25rem;
+  border-top:1px solid var(--color-border); margin-top:.15rem;
+}
+.ticker{ flex:1; min-width:0; overflow:hidden; }
+.ticker span{
+  display:inline-block; white-space:nowrap; font-size:.78rem; font-weight:600;
+  color:var(--color-text-secondary); padding-left:100%; animation:marquee 26s linear infinite;
+}
+.ticker b{ color:var(--color-accent); font-weight:800; }
+@keyframes marquee{ to{ transform:translateX(-100%) } }
+.foot-brand{ display:flex; align-items:center; gap:.5rem; opacity:.75; flex:none; }
+.foot-brand .logo-mark{ width:1.35rem; height:1.35rem; border-radius:var(--r-md); box-shadow:none; }
+.foot-brand .logo-mark svg{ width:.8rem; height:.8rem; }
+.foot-brand span{ font-family:"Sora"; font-weight:700; font-size:.7rem; letter-spacing:.02em; }
+
+/* --- oppropsoverlegg --- */
+.callout{
+  position:fixed; inset:0; z-index:1300; display:grid; place-items:center;
+  background:var(--color-surface-overlay); backdrop-filter:blur(10px);
+  opacity:0; pointer-events:none; transition:opacity var(--dur-slow) var(--ease);
+}
+.callout.show{ opacity:1; }
+.callout-card{
+  text-align:center; transform:scale(.9); transition:transform 420ms var(--ease-out);
+  padding:3rem 5rem; border-radius:var(--r-2xl);
+  background:linear-gradient(160deg, rgba(107,218,178,.18), rgba(30,29,36,.9));
+  border:1px solid rgba(107,218,178,.35);
+  box-shadow:0 2rem 5rem rgba(0,0,0,.6), 0 0 5rem rgba(107,218,178,.18);
+}
+.callout.show .callout-card{ transform:scale(1); }
+.callout .label{ color:var(--color-success); font-size:.8rem; letter-spacing:.28em; }
+.callout .big{ font-family:"Sora"; font-weight:800; font-size:9rem; line-height:1; letter-spacing:-.05em; color:var(--color-success); margin:.6rem 0 .2rem; }
+.callout .who{ font-size:1.15rem; font-weight:700; color:var(--color-text-primary); }
+.callout .where{ font-size:.8rem; color:var(--color-text-secondary); margin-top:.5rem; }
+
+/* ============================================================
+   DEMO-PANEL
+   ============================================================ */
+.demo-toggle{
+  position:fixed; right:.9rem; bottom:.9rem; z-index:1390;
+  width:2.2rem; height:2.2rem; border-radius:999px; display:grid; place-items:center;
+  background:var(--color-surface-elevated); border:1px solid var(--color-border-strong);
+  color:var(--color-text-secondary); cursor:pointer; opacity:.35;
+  transition:opacity var(--dur-default) var(--ease);
+}
+.demo-toggle:hover{ opacity:1; }
+.demo-toggle svg{ width:1.05rem; height:1.05rem; }
+.demo{
+  position:fixed; right:.9rem; bottom:3.6rem; z-index:1395; width:17rem;
+  background:var(--color-surface-elevated); border:1px solid var(--color-border-strong);
+  border-radius:var(--r-xl); padding:.95rem; display:none;
+  box-shadow:0 1rem 2.5rem rgba(0,0,0,.5);
+}
+.demo.open{ display:block; }
+.demo h4{ margin:0 0 .7rem; font-family:"Sora"; font-size:.78rem; font-weight:700; }
+.demo .row{ display:flex; gap:.4rem; flex-wrap:wrap; margin-bottom:.5rem; }
+.demo .btn{ font-size:.66rem; min-height:2.05rem; padding:0 .7rem; }
+.demo .hint{ font-size:.62rem; color:var(--color-text-secondary); line-height:1.5; margin-top:.5rem; }
+kbd{
+  font-family:ui-monospace,monospace; font-size:.6rem; background:var(--color-surface);
+  border:1px solid var(--color-border-strong); border-bottom-width:2px;
+  border-radius:.25rem; padding:.05rem .3rem; color:var(--color-text-primary);
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PARINGSSKJERM — dette er visningen i kassen
+     ============================================================ -->
+<section id="pair" class="screen">
+  <div class="pair-wrap">
+    <div class="pair-brand">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div>
+        <div class="logo-word">Plorea</div>
+        <div class="logo-sub">Kasse · Innstillinger · Kundeskjerm</div>
+      </div>
+    </div>
+
+    <div class="pair-card">
+      <div>
+        <span class="chip"><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6L9 17l-5-5"/></svg> Skjerm klar</span>
+        <h1>Kundeskjerm er aktivert</h1>
+        <p class="pair-lead">Åpne kortlenken på TV-en i kundeområdet. Lenken er signert med en visningstoken — den viser kun ordrestatus, aldri priser, kundedata eller kasseinnhold.</p>
+
+        <div class="field">
+          <span class="label">Kortlenke for TV</span>
+          <div class="linkbox short">
+            <span class="val" id="shortUrl">plo.re/d/K7M2</span>
+            <button class="btn btn-ghost btn-icon" data-copy="shortUrl" title="Kopier">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label">Peker til (full token-URL)</span>
+          <div class="linkbox long">
+            <span class="val" id="fullUrl">…</span>
+            <button class="btn btn-ghost btn-icon" data-copy="fullUrl" title="Kopier">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <ol class="steps">
+          <li><span class="n">1</span><span>Skriv <b style="color:var(--color-accent)" id="shortInline">plo.re/d/K7M2</b> i nettleseren på TV-en — eller skann QR-koden med telefonen og kast til skjermen.</span></li>
+          <li><span class="n">2</span><span>Skjermen parer seg selv og går rett i fullskjerm-kiosk. Ingen innlogging på TV-en.</span></li>
+          <li><span class="n">3</span><span>Token er lesetilgang, utløper etter 30 dager og kan trekkes tilbake fra kassen når som helst.</span></li>
+        </ol>
+
+        <div class="pair-actions">
+          <button class="btn btn-primary" id="openDisplay">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+            Åpne kundeskjerm
+          </button>
+          <button class="btn btn-ghost" id="regen">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6M3 22v-6h6"/><path d="M3.5 9a9 9 0 0114.9-3.4L21 8M20.5 15a9 9 0 01-14.9 3.4L3 16"/></svg>
+            Ny kode
+          </button>
+        </div>
+      </div>
+
+      <div class="qr-panel">
+        <span class="label">Skann for å åpne</span>
+        <div class="qr-frame" id="qrBox"></div>
+        <p class="qr-hint">Peker på samme kortlenke. Praktisk når TV-en styres fra en telefon eller Chromecast.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     KUNDESKJERM — dette er TV-en i kundeområdet
+     ============================================================ -->
+<section id="display" class="screen">
+  <header class="tv-head">
+    <div class="left">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg>
+      </div>
+      <div class="venue">Plorea Kaffebar<small>Ordrestatus · Live</small></div>
+    </div>
+    <div class="right">
+      <span class="live"><i class="dot"></i> Tilkoblet</span>
+      <div>
+        <div class="clock mono" id="clock">--:--</div>
+        <div class="datebit" id="datebit">—</div>
+      </div>
+    </div>
+  </header>
+
+  <main class="board">
+    <section class="col ny">
+      <div class="col-head">
+        <div class="col-title">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+          <h2>Ny</h2>
+        </div>
+        <span class="col-count mono" id="count-ny">0</span>
+      </div>
+      <div class="col-body"><div class="col-list" id="list-ny"></div></div>
+    </section>
+
+    <section class="col prod">
+      <div class="col-head">
+        <div class="col-title">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+          <h2>Under produksjon</h2>
+        </div>
+        <span class="col-count mono" id="count-prod">0</span>
+      </div>
+      <div class="col-body"><div class="col-list" id="list-prod"></div></div>
+    </section>
+
+    <section class="col klar">
+      <div class="col-head">
+        <div class="col-title">
+          <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+          <h2>Kalt til henting</h2>
+        </div>
+        <span class="col-count mono" id="count-klar">0</span>
+      </div>
+      <div class="col-body"><div class="col-list" id="list-klar"></div></div>
+    </section>
+  </main>
+
+  <footer class="tv-foot">
+    <div class="ticker"><span id="tickerText">Hent bestillingen i luken når nummeret ditt står under <b>Kalt til henting</b>. &nbsp;·&nbsp; Allergener? Spør i kassen. &nbsp;·&nbsp; Dagens: Kanelsnurr + americano <b>69,-</b> &nbsp;·&nbsp; Wi-Fi: <b>Plorea-Gjest</b></span></div>
+    <div class="foot-brand">
+      <span class="logo-mark"><svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg></span>
+      <span>Plorea</span>
+    </div>
+  </footer>
+</section>
+
+<!-- oppropsoverlegg -->
+<div class="callout" id="callout">
+  <div class="callout-card">
+    <div class="label">Klar til henting</div>
+    <div class="big mono" id="calloutNum">000</div>
+    <div class="who" id="calloutName">—</div>
+    <div class="where">Hent i luken til høyre</div>
+  </div>
+</div>
+
+<!-- demo-panel -->
+<button class="demo-toggle" id="demoToggle" title="Demokontroller (D)">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.14.5.55.87 1.05 1H21a2 2 0 110 4h-.09c-.5.13-.91.5-1.05 1z"/></svg>
+</button>
+<div class="demo" id="demoPanel">
+  <h4>Demokontroller</h4>
+  <div class="row">
+    <button class="btn btn-primary" id="dNew">+ Ny ordre</button>
+    <button class="btn btn-ghost" id="dAdvance">Flytt neste →</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-ghost" id="dSound">🔇 Lyd av</button>
+    <button class="btn btn-ghost" id="dFull">Fullskjerm</button>
+  </div>
+  <div class="row">
+    <button class="btn btn-ghost" id="dPair">← Tilbake til kassen</button>
+  </div>
+  <p class="hint">Simulert kjøkkenflyt. <kbd>D</kbd> panel · <kbd>F</kbd> fullskjerm · <kbd>N</kbd> ny ordre</p>
+</div>
+
+<script>
+/* ============================================================
+   MINI-QR  — innebygd QR-generator (byte-modus, EC-nivå M, v1–v6)
+   Ingen eksterne avhengigheter: filen fungerer helt offline.
+   ============================================================ */
+const QR = (() => {
+  const EXP = new Array(512), LOG = new Array(256);
+  { let x = 1; for (let i = 0; i < 255; i++){ EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11D; }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]; }
+  const mul = (a,b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+
+  function rsPoly(n){
+    let p = [1];
+    for (let i = 0; i < n; i++){
+      const q = [...p, 0];
+      for (let j = 0; j < p.length; j++) q[j + 1] ^= mul(p[j], EXP[i]);
+      p = q;
+    }
+    return p;
+  }
+  function rsEncode(data, n){
+    const gen = rsPoly(n), res = new Array(n).fill(0);
+    for (const b of data){
+      const f = b ^ res[0];
+      res.shift(); res.push(0);
+      if (f) for (let i = 0; i < n; i++) res[i] ^= mul(gen[i + 1], f);
+    }
+    return res;
+  }
+
+  // [ecPerBlock, blokkerG1, dataG1, blokkerG2, dataG2]  — EC-nivå M
+  const SPEC = {1:[10,1,16,0,0],2:[16,1,28,0,0],3:[26,1,44,0,0],
+                4:[18,2,32,0,0],5:[24,2,43,0,0],6:[16,4,27,0,0]};
+  const CAP  = {1:14, 2:26, 3:42, 4:62, 5:84, 6:106};
+  const ALIGN= {1:[], 2:[6,18], 3:[6,22], 4:[6,26], 5:[6,30], 6:[6,34]};
+
+  const MASKS = [
+    (r,c)=>((r+c)%2)===0, (r,c)=>(r%2)===0, (r,c)=>(c%3)===0, (r,c)=>((r+c)%3)===0,
+    (r,c)=>((((r/2)|0)+((c/3)|0))%2)===0, (r,c)=>(((r*c)%2)+((r*c)%3))===0,
+    (r,c)=>((((r*c)%2)+((r*c)%3))%2)===0, (r,c)=>((((r+c)%2)+((r*c)%3))%2)===0
+  ];
+
+  function fmtBits(mask){
+    const d = (0 << 3) | mask;            // 00 = EC-nivå M
+    let v = d << 10;
+    for (let i = 4; i >= 0; i--) if (v & (1 << (i + 10))) v ^= 0x537 << i;
+    return ((d << 10) | v) ^ 0x5412;
+  }
+
+  function penalty(m, size){
+    let p = 0, dark = 0;
+    for (let r = 0; r < size; r++){
+      for (let c = 0; c < size; c++){
+        if (m[r][c]) dark++;
+        // regel 2: 2x2 blokker
+        if (r < size-1 && c < size-1){
+          const s = m[r][c] + m[r][c+1] + m[r+1][c] + m[r+1][c+1];
+          if (s === 0 || s === 4) p += 3;
+        }
+      }
+    }
+    // regel 1: 5+ like på rad/kolonne
+    for (let i = 0; i < size; i++){
+      for (const dir of [0,1]){
+        let run = 1;
+        for (let j = 1; j < size; j++){
+          const a = dir ? m[j][i] : m[i][j], b = dir ? m[j-1][i] : m[i][j-1];
+          if (a === b) run++;
+          else { if (run >= 5) p += 3 + (run - 5); run = 1; }
+        }
+        if (run >= 5) p += 3 + (run - 5);
+      }
+    }
+    // regel 3: 1:1:3:1:1-mønster
+    const pat = [1,0,1,1,1,0,1,0,0,0,0];
+    const pat2 = [0,0,0,0,1,0,1,1,1,0,1];
+    for (let r = 0; r < size; r++) for (let c = 0; c <= size - 11; c++){
+      let ok1 = true, ok2 = true;
+      for (let k = 0; k < 11; k++){ if (m[r][c+k] !== pat[k]) ok1 = false; if (m[r][c+k] !== pat2[k]) ok2 = false; }
+      if (ok1 || ok2) p += 40;
+    }
+    for (let c = 0; c < size; c++) for (let r = 0; r <= size - 11; r++){
+      let ok1 = true, ok2 = true;
+      for (let k = 0; k < 11; k++){ if (m[r+k][c] !== pat[k]) ok1 = false; if (m[r+k][c] !== pat2[k]) ok2 = false; }
+      if (ok1 || ok2) p += 40;
+    }
+    // regel 4: balanse mørk/lys
+    p += Math.floor(Math.abs(dark * 100 / (size*size) - 50) / 5) * 10;
+    return p;
+  }
+
+  function make(text){
+    const bytes = new TextEncoder().encode(text);
+    let ver = 0;
+    for (let v = 1; v <= 6; v++) if (bytes.length <= CAP[v]){ ver = v; break; }
+    if (!ver) return null;
+
+    const S = SPEC[ver], totalData = S[1]*S[2] + S[3]*S[4];
+    const bits = [], put = (val, len) => { for (let i = len-1; i >= 0; i--) bits.push((val >> i) & 1); };
+    put(4, 4); put(bytes.length, 8); bytes.forEach(b => put(b, 8));
+    for (let i = 0; i < 4 && bits.length < totalData*8; i++) bits.push(0);
+    while (bits.length % 8) bits.push(0);
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8){ let b = 0; for (let j = 0; j < 8; j++) b = (b<<1) | bits[i+j]; data.push(b); }
+    const PAD = [0xEC, 0x11];
+    while (data.length < totalData) data.push(PAD[(data.length - (bits.length/8)) % 2]);
+
+    const blocks = []; let off = 0;
+    for (let i = 0; i < S[1]; i++){ blocks.push(data.slice(off, off + S[2])); off += S[2]; }
+    for (let i = 0; i < S[3]; i++){ blocks.push(data.slice(off, off + S[4])); off += S[4]; }
+    const eccs = blocks.map(b => rsEncode(b, S[0]));
+    const final = [];
+    const maxD = Math.max(...blocks.map(b => b.length));
+    for (let i = 0; i < maxD; i++) blocks.forEach(b => { if (i < b.length) final.push(b[i]); });
+    for (let i = 0; i < S[0]; i++) eccs.forEach(e => final.push(e[i]));
+
+    const size = ver*4 + 17;
+    const m = Array.from({length:size}, () => new Array(size).fill(0));
+    const res = Array.from({length:size}, () => new Array(size).fill(false));
+
+    const finder = (r0, c0) => {
+      for (let i = -1; i <= 7; i++) for (let j = -1; j <= 7; j++){
+        const r = r0+i, c = c0+j;
+        if (r < 0 || c < 0 || r >= size || c >= size) continue;
+        const on = (i>=0&&i<=6&&(j===0||j===6)) || (j>=0&&j<=6&&(i===0||i===6)) || (i>=2&&i<=4&&j>=2&&j<=4);
+        m[r][c] = on ? 1 : 0; res[r][c] = true;
+      }
+    };
+    finder(0,0); finder(0,size-7); finder(size-7,0);
+
+    for (let i = 8; i < size-8; i++){
+      m[6][i] = (i % 2 === 0) ? 1 : 0; res[6][i] = true;
+      m[i][6] = (i % 2 === 0) ? 1 : 0; res[i][6] = true;
+    }
+    const A = ALIGN[ver];
+    for (const r of A) for (const c of A){
+      if ((r === 6 && c === 6) || (r === 6 && c === size-7) || (r === size-7 && c === 6)) continue;
+      for (let i = -2; i <= 2; i++) for (let j = -2; j <= 2; j++){
+        m[r+i][c+j] = (Math.max(Math.abs(i), Math.abs(j)) !== 1) ? 1 : 0;
+        res[r+i][c+j] = true;
+      }
+    }
+    m[size-8][8] = 1; res[size-8][8] = true;                 // fast mørk modul
+    for (let i = 0; i < 9; i++){
+      if (!res[8][i]){ res[8][i] = true; m[8][i] = 0; }
+      if (!res[i][8]){ res[i][8] = true; m[i][8] = 0; }
+    }
+    for (let i = 0; i < 8; i++){
+      if (!res[8][size-1-i]){ res[8][size-1-i] = true; m[8][size-1-i] = 0; }
+      if (!res[size-1-i][8]){ res[size-1-i][8] = true; m[size-1-i][8] = 0; }
+    }
+
+    let idx = 0, bit = 7, up = true;
+    for (let col = size-1; col > 0; col -= 2){
+      if (col === 6) col--;
+      for (let k = 0; k < size; k++){
+        const row = up ? size-1-k : k;
+        for (let d = 0; d < 2; d++){
+          const cc = col - d;
+          if (res[row][cc]) continue;
+          m[row][cc] = (idx < final.length) ? ((final[idx] >> bit) & 1) : 0;
+          if (--bit < 0){ bit = 7; idx++; }
+        }
+      }
+      up = !up;
+    }
+
+    let best = null;
+    for (let mask = 0; mask < 8; mask++){
+      const t = m.map(r => r.slice());
+      for (let r = 0; r < size; r++) for (let c = 0; c < size; c++)
+        if (!res[r][c] && MASKS[mask](r, c)) t[r][c] ^= 1;
+      const f = fmtBits(mask);
+      for (let i = 0; i < 15; i++){
+        const b = (f >> i) & 1;
+        if (i < 6) t[i][8] = b; else if (i < 8) t[i+1][8] = b; else t[size-15+i][8] = b;
+        if (i < 8) t[8][size-1-i] = b; else if (i === 8) t[8][7] = b; else t[8][14-i] = b;
+      }
+      t[size-8][8] = 1;
+      const p = penalty(t, size);
+      if (!best || p < best.p) best = { p, t };
+    }
+    return { size, modules: best.t };
+  }
+
+  function svg(text, px){
+    const q = make(text);
+    if (!q) return null;
+    const quiet = 4, dim = q.size + quiet*2, s = px / dim;
+    let path = "";
+    for (let r = 0; r < q.size; r++) for (let c = 0; c < q.size; c++)
+      if (q.modules[r][c]) path += `M${(c+quiet)*s} ${(r+quiet)*s}h${s}v${s}h${-s}z`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" shape-rendering="crispEdges">`
+         + `<rect width="${px}" height="${px}" fill="#fff"/><path d="${path}" fill="#1E1D24"/></svg>`;
+  }
+  return { make, svg };
+})();
+</script>
+<script>
+/* ============================================================
+   TOKEN + KORTLENKE
+   ============================================================ */
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // uten I,O,0,1 — leselig på avstand
+const rnd = n => Array.from({length:n}, () => ALPHA[Math.floor(Math.random()*ALPHA.length)]).join("");
+
+const state = {
+  shortCode: rnd(4),
+  token: rnd(8) + "-" + rnd(8) + "-" + rnd(8),
+};
+
+/* Simulert kortlenke-oppslag: plo.re/d/<kode> -> ?t=<token>.
+   I produksjon er dette et 302-redirect fra kortlenketjenesten. */
+const shortLinkTable = {};
+function publishShortLink(){
+  shortLinkTable[state.shortCode] = state.token;
+  const short = "plo.re/d/" + state.shortCode;
+  const full = location.origin + location.pathname + "?t=" + state.token + "&s=" + state.shortCode;
+  document.getElementById("shortUrl").textContent = short;
+  document.getElementById("shortInline").textContent = short;
+  document.getElementById("fullUrl").textContent = full;
+  // QR peker på full token-URL når den får plass, ellers på kortlenken
+  drawQR(full.length <= 106 ? full : "https://" + short);
+  return full;
+}
+
+function drawQR(text){
+  const box = document.getElementById("qrBox");
+  const markup = QR.svg(text, 220) || QR.svg("https://plo.re/d/" + state.shortCode, 220);
+  box.innerHTML = markup || '<div style="width:9rem;height:9rem;display:grid;place-items:center;'+
+    'color:#1E1D24;font:800 .8rem/1.4 system-ui;text-align:center">plo.re/d/' + state.shortCode + '</div>';
+}
+
+/* ============================================================
+   RUTING
+   ============================================================ */
+function show(id){
+  document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
+  document.getElementById("demoPanel").classList.remove("open");
+  if (id === "display") startSim(); else stopSim();
+}
+
+function route(){
+  let t = null, d = null;
+  try{
+    t = new URLSearchParams(location.search).get("t");
+    d = (location.hash.match(/^#\/d\/([A-Z0-9]{4})$/i) || [])[1];
+  }catch(e){}
+  if (d){                                  // kortlenke åpnet direkte
+    state.shortCode = d.toUpperCase();
+    publishShortLink();
+    show("display");
+  } else if (t){                           // full token-URL
+    state.token = t;
+    show("display");
+  } else {
+    publishShortLink();
+    show("pair");
+  }
+}
+
+/* ============================================================
+   ORDREMODELL + SIMULERING
+   ============================================================ */
+const NAMES = ["Ingrid","Mathias","Sofie","Jonas","Amir","Nora","Kasper","Live","Emil","Thea",
+               "Sander","Vilde","Oskar","Maja","Henrik","Frida","Aksel","Selma","Erik","Ida"];
+const CHANNELS = [
+  {key:"takeaway", cls:"takeaway", txt:"Take away"},
+  {key:"eatin",    cls:"eatin",    txt:"Spise her"},
+  {key:"bord",     cls:"bord",     txt:"Bord"}
+];
+const ITEMS = ["1 vare","2 varer","3 varer","4 varer","5 varer"];
+
+let seq = 148, orders = [], timers = [], soundOn = false, running = false;
+
+function mkOrder(){
+  seq = seq >= 999 ? 100 : seq + 1;
+  const ch = CHANNELS[Math.floor(Math.random()*(Math.random()<.6?1:CHANNELS.length))];
+  return {
+    id: crypto.randomUUID ? crypto.randomUUID() : String(Math.random()),
+    num: String(seq).padStart(3,"0"),
+    name: NAMES[Math.floor(Math.random()*NAMES.length)],
+    ch, items: ITEMS[Math.floor(Math.random()*ITEMS.length)],
+    status: "ny", at: Date.now(), fresh:false
+  };
+}
+
+const EMPTY = {
+  ny:   ["Ingen nye bestillinger","M12 5v14M5 12h14"],
+  prod: ["Kjøkkenet er ajour","M12 6v6l4 2"],
+  klar: ["Ingenting venter på henting","M20 6L9 17l-5-5"]
+};
+
+function render(){
+  ["ny","prod","klar"].forEach(st => {
+    const list = document.getElementById("list-"+st);
+    const rows = orders.filter(o => o.status === st)
+                       .sort((a,b) => st==="klar" ? b.at-a.at : a.at-b.at);
+    document.getElementById("count-"+st).textContent = rows.length;
+
+    const cap = st === "klar" ? 8 : 7;
+    const shown = rows.slice(0, cap);
+    const keep = new Set(shown.map(o => o.id));
+
+    // fjern kort som ikke lenger hører hjemme
+    [...list.children].forEach(el => {
+      if (!keep.has(el.dataset.id) && !el.classList.contains("leaving")){
+        el.classList.add("leaving");
+        setTimeout(() => el.remove(), 320);
+      }
+    });
+
+    if (!shown.length){
+      if (!list.querySelector(".empty")){
+        const [txt, path] = EMPTY[st];
+        const e = document.createElement("div");
+        e.className = "empty";
+        e.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="${path}"/></svg><span>${txt}</span>`;
+        list.appendChild(e);
+      }
+      return;
+    }
+    list.querySelector(".empty")?.remove();
+
+    shown.forEach((o, i) => {
+      let el = list.querySelector(`[data-id="${o.id}"]`);
+      if (!el){
+        el = document.createElement("article");
+        el.className = "order";
+        el.dataset.id = o.id;
+        el.innerHTML = `
+          <div class="num mono">${o.num}</div>
+          <div class="meta">
+            <div class="name">${o.name}</div>
+            <div class="sub"><span class="pill ${o.ch.cls}">${o.ch.txt}</span><span>${o.items}</span></div>
+          </div>
+          ${st==="prod" ? '<div class="progress"><i></i></div>' : ""}`;
+        list.appendChild(el);
+      }
+      el.classList.toggle("fresh", !!o.fresh);
+      if (el.style.order !== String(i)) el.style.order = i;
+    });
+
+    // overskytende telles, men vises ikke
+    const extra = rows.length - shown.length;
+    let more = list.querySelector(".more");
+    if (extra > 0){
+      if (!more){ more = document.createElement("div"); more.className = "more empty"; list.appendChild(more); }
+      more.textContent = `+ ${extra} til i kø`;
+      more.style.order = 999;
+    } else more?.remove();
+  });
+}
+
+function advance(o){
+  if (o.status === "ny"){ o.status = "prod"; o.at = Date.now(); }
+  else if (o.status === "prod"){
+    o.status = "klar"; o.at = Date.now(); o.fresh = true;
+    callOut(o); chime();
+    setTimeout(() => { o.fresh = false; render(); }, 6000);
+  } else {
+    orders = orders.filter(x => x.id !== o.id);
+  }
+  render();
+}
+
+function callOut(o){
+  const c = document.getElementById("callout");
+  document.getElementById("calloutNum").textContent = o.num;
+  document.getElementById("calloutName").textContent = o.name + " · " + o.ch.txt;
+  c.classList.add("show");
+  clearTimeout(c._t);
+  c._t = setTimeout(() => c.classList.remove("show"), 4200);
+}
+
+function chime(){
+  if (!soundOn) return;
+  try{
+    const ctx = chime.ctx || (chime.ctx = new (window.AudioContext||window.webkitAudioContext)());
+    [880, 1174.7].forEach((f, i) => {
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0, ctx.currentTime + i*.14);
+      g.gain.linearRampToValueAtTime(.16, ctx.currentTime + i*.14 + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, ctx.currentTime + i*.14 + .5);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + i*.14); o.stop(ctx.currentTime + i*.14 + .55);
+    });
+  }catch(e){}
+}
+
+function newOrder(){ orders.push(mkOrder()); render(); }
+
+function tick(){
+  const now = Date.now();
+  orders.slice().forEach(o => {
+    const age = now - o.at;
+    if (o.status === "ny"   && age > 6000 + Math.random()*7000)  advance(o);
+    else if (o.status === "prod" && age > 14000 + Math.random()*16000) advance(o);
+    else if (o.status === "klar" && age > 45000) advance(o);
+  });
+  if (orders.filter(o => o.status !== "klar").length < 9 && Math.random() < .5) newOrder();
+}
+
+function startSim(){
+  if (running) return;
+  running = true;
+  if (!orders.length){
+    for (let i=0;i<4;i++){ const o = mkOrder(); o.status="ny"; o.at = Date.now()-Math.random()*5000; orders.push(o); }
+    for (let i=0;i<4;i++){ const o = mkOrder(); o.status="prod"; o.at = Date.now()-Math.random()*12000; orders.push(o); }
+    for (let i=0;i<3;i++){ const o = mkOrder(); o.status="klar"; o.at = Date.now()-Math.random()*30000; orders.push(o); }
+  }
+  render();
+  timers.push(setInterval(tick, 2600));
+  timers.push(setInterval(clockTick, 1000));
+  clockTick();
+}
+function stopSim(){ running = false; timers.forEach(clearInterval); timers = []; }
+
+function clockTick(){
+  const d = new Date();
+  document.getElementById("clock").textContent =
+    String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+  document.getElementById("datebit").textContent =
+    d.toLocaleDateString("nb-NO", {weekday:"long", day:"numeric", month:"long"});
+}
+
+/* ============================================================
+   HENDELSER
+   ============================================================ */
+/* Enkelte forhåndsvisninger kjører siden i en sandkasse der history-API-et
+   kaster SecurityError. Adressefeltet er kosmetikk her — visningen må uansett åpne. */
+function setUrl(q){ try{ history.replaceState(null, "", q); }catch(e){} }
+
+document.getElementById("openDisplay").onclick = () => {
+  try{ publishShortLink(); }catch(e){}
+  setUrl("?t=" + state.token + "&s=" + state.shortCode);
+  show("display");
+};
+document.getElementById("regen").onclick = () => {
+  state.shortCode = rnd(4);
+  state.token = rnd(8)+"-"+rnd(8)+"-"+rnd(8);
+  publishShortLink();
+};
+document.querySelectorAll("[data-copy]").forEach(b => {
+  b.onclick = async () => {
+    const txt = document.getElementById(b.dataset.copy).textContent;
+    try{ await navigator.clipboard.writeText(txt); }catch(e){}
+    const old = b.innerHTML;
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="var(--color-success)" stroke-width="3" stroke-linecap="round"><path d="M20 6L9 17l-5-5"/></svg>';
+    setTimeout(() => b.innerHTML = old, 1400);
+  };
+});
+
+const panel = document.getElementById("demoPanel");
+document.getElementById("demoToggle").onclick = () => panel.classList.toggle("open");
+document.getElementById("dNew").onclick = newOrder;
+document.getElementById("dAdvance").onclick = () => {
+  const o = orders.filter(x => x.status==="prod").sort((a,b)=>a.at-b.at)[0]
+         || orders.filter(x => x.status==="ny").sort((a,b)=>a.at-b.at)[0];
+  if (o) advance(o);
+};
+document.getElementById("dSound").onclick = e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = soundOn ? "🔊 Lyd på" : "🔇 Lyd av";
+  if (soundOn) chime();
+};
+document.getElementById("dFull").onclick = toggleFull;
+document.getElementById("dPair").onclick = () => {
+  setUrl(location.pathname);
+  try{ publishShortLink(); }catch(e){}
+  show("pair");
+};
+
+function toggleFull(){
+  if (!document.fullscreenElement) document.documentElement.requestFullscreen?.();
+  else document.exitFullscreen?.();
+}
+
+addEventListener("keydown", e => {
+  if (e.target.matches("input,textarea")) return;
+  const k = e.key.toLowerCase();
+  if (k === "d") panel.classList.toggle("open");
+  if (k === "f") toggleFull();
+  if (k === "n" && running) newOrder();
+  if (k === "escape") document.getElementById("callout").classList.remove("show");
+});
+
+route();
+</script>
+</body>
+</html>

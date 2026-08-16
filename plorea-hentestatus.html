@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="theme-color" content="#1E1D24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Plorea &middot; Din ordre</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PLOREA-TOKENS (dark) — identisk sett som kasse og kundeskjerm
+   ============================================================ */
+:root{
+  --color-primary:#6BB8DA; --color-primary-200:#99D2E8; --color-secondary:#468DAC;
+  --color-accent:#7EC8E3; --color-primary-900:#1D4A5F;
+  --color-success:#6BDAB2; --color-warning:#DADA6B; --color-danger:#DA6B6B;
+  --color-surface:#1E1D24; --color-surface-elevated:#26242E; --color-surface-hover:#2E2C38;
+  --color-surface-overlay:rgba(0,0,0,.64);
+  --color-text-primary:#F0EEF5; --color-text-secondary:#9B98A8; --color-text-muted:#5C5970;
+  --color-border:#2E2C38; --color-border-strong:#3D3A4A; --color-border-focus:#7EC8E3;
+  --shadow-focus:0 0 0 3px rgba(126,200,227,.4);
+  --ch-takeaway:#D1E7DD; --ch-eatin:#E5C1B6; --ch-table:#8F86AE;
+  --r-md:6px; --r-lg:8px; --r-xl:14px; --r-2xl:20px;
+  --dur-fast:100ms; --dur-default:160ms; --dur-slow:240ms; --dur-panel:320ms;
+  --ease-out:cubic-bezier(.16,1,.3,1); --ease:cubic-bezier(.4,0,.2,1);
+}
+*,*::before,*::after{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; margin:0; }
+body{
+  background:var(--color-surface); color:var(--color-text-primary);
+  font-family:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.dsp,.venue,.ordernum,.big{ font-family:"Sora","Plus Jakarta Sans",system-ui,Arial,sans-serif; }
+.mono{ font-variant-numeric:tabular-nums; }
+.label{ font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--color-text-secondary); }
+
+/* atmosfærisk dybde — samme lag som på TV-skjermen */
+.aura{
+  position:absolute; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(120% 80% at 12% -10%, rgba(107,184,218,.13), transparent 60%),
+    radial-gradient(100% 70% at 92% 108%, rgba(107,218,178,.10), transparent 62%),
+    radial-gradient(80% 60% at 50% 50%, rgba(218,218,107,.035), transparent 70%);
+}
+
+/* ============================================================
+   SCENE — kvittering + telefon side om side
+   ============================================================ */
+.stage{
+  min-height:100%; display:flex; align-items:center; justify-content:center;
+  gap:56px; padding:40px 24px 88px; flex-wrap:wrap; position:relative;
+  background:
+    radial-gradient(90% 60% at 15% 0%, rgba(107,184,218,.10), transparent 60%),
+    radial-gradient(80% 60% at 90% 100%, rgba(107,218,178,.08), transparent 62%);
+}
+.stage-cap{ width:100%; text-align:center; margin-bottom:-16px; }
+.stage-cap h1{ font-size:22px; font-weight:700; letter-spacing:-.02em; margin:0 0 6px; }
+.stage-cap p{ margin:0; font-size:13px; color:var(--color-text-secondary); }
+
+.receipt{
+  width:300px; background:#fff; color:#1A1A1A; border-radius:4px;
+  padding:22px 20px 16px; font-family:ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  font-size:11.5px; line-height:1.55; position:relative;
+  box-shadow:0 24px 60px rgba(0,0,0,.55);
+  clip-path:polygon(0 6px,4% 0,8% 6px,12% 0,16% 6px,20% 0,24% 6px,28% 0,32% 6px,36% 0,40% 6px,44% 0,48% 6px,52% 0,56% 6px,60% 0,64% 6px,68% 0,72% 6px,76% 0,80% 6px,84% 0,88% 6px,92% 0,96% 6px,100% 0,
+              100% calc(100% - 6px),96% 100%,92% calc(100% - 6px),88% 100%,84% calc(100% - 6px),80% 100%,76% calc(100% - 6px),72% 100%,68% calc(100% - 6px),64% 100%,60% calc(100% - 6px),56% 100%,52% calc(100% - 6px),48% 100%,44% calc(100% - 6px),40% 100%,36% calc(100% - 6px),32% 100%,28% calc(100% - 6px),24% 100%,20% calc(100% - 6px),16% 100%,12% calc(100% - 6px),8% 100%,4% calc(100% - 6px),0 100%);
+}
+.receipt .r-brand{ text-align:center; font-family:"Sora",sans-serif; font-weight:800; font-size:17px; letter-spacing:.02em; }
+.receipt .r-sub{ text-align:center; font-size:10px; color:#666; margin-bottom:12px; }
+.receipt .rule{ border-top:1px dashed #C4C4C4; margin:10px 0; }
+.receipt .row{ display:flex; justify-content:space-between; gap:10px; }
+.receipt .tot{ font-weight:700; font-size:13px; }
+.receipt .r-num{ text-align:center; margin:8px 0 2px; }
+.receipt .r-num b{ font-family:"Sora",sans-serif; font-size:34px; letter-spacing:-.02em; display:block; line-height:1.05; }
+.receipt .qr-wrap{ text-align:center; margin-top:12px; }
+.receipt .qr-wrap svg{ width:150px; height:150px; }
+.receipt .qr-cap{ font-size:10px; line-height:1.5; margin-top:6px; font-weight:700; }
+.receipt .qr-url{ font-size:9px; color:#888; word-break:break-all; margin-top:4px; }
+.receipt .foot{ text-align:center; font-size:9.5px; color:#888; margin-top:10px; }
+
+.phone{
+  width:360px; height:740px; max-height:calc(100vh - 120px);
+  border:10px solid #15141A; border-radius:44px; background:var(--color-surface);
+  box-shadow:0 30px 70px rgba(0,0,0,.6), inset 0 0 0 2px #34313F;
+  overflow:hidden; position:relative; flex:none;
+}
+.phone::before{
+  content:""; position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  width:96px; height:24px; background:#15141A; border-radius:999px; z-index:30;
+}
+.screen-inner{ height:100%; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; position:relative; }
+
+body.solo .stage{ padding:0; gap:0; }
+body.solo .stage-cap, body.solo .receipt, body.solo .demo-note{ display:none; }
+body.solo .phone{ width:100%; height:100dvh; max-height:none; border:0; border-radius:0; box-shadow:none; }
+body.solo .phone::before{ display:none; }
+
+/* ============================================================
+   APPEN — samme panelspråk som kundeskjermen
+   ============================================================ */
+.app{ display:flex; flex-direction:column; min-height:100%; padding:0 0 18px; position:relative; z-index:1; }
+.app-head{
+  padding:34px 16px 14px; display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+body.solo .app-head{ padding-top:max(22px, env(safe-area-inset-top)); }
+.brand{ display:flex; align-items:center; gap:10px; }
+.mark{
+  width:32px; height:32px; border-radius:var(--r-lg); flex:none; display:grid; place-items:center;
+  background:linear-gradient(145deg,var(--color-primary),var(--color-secondary));
+  box-shadow:0 4px 14px rgba(107,184,218,.3);
+}
+.mark svg{ width:18px; height:18px; }
+.venue{ font-weight:700; font-size:14.5px; letter-spacing:-.02em; line-height:1.15; }
+.venue small{
+  display:block; font-family:"Plus Jakarta Sans"; font-weight:700; font-size:9.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--color-text-secondary); margin-top:2px;
+}
+.live{
+  display:inline-flex; align-items:center; gap:6px; font-size:9.5px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; color:var(--color-text-secondary);
+  border:1px solid var(--color-border); background:var(--color-surface-elevated);
+  border-radius:999px; padding:6px 11px; white-space:nowrap;
+}
+.live .dot{ width:6px; height:6px; border-radius:999px; background:var(--color-success); animation:ping 2.4s infinite; }
+@keyframes ping{ 0%{box-shadow:0 0 0 0 rgba(107,218,178,.5)} 70%{box-shadow:0 0 0 8px rgba(107,218,178,0)} 100%{box-shadow:0 0 0 0 rgba(107,218,178,0)} }
+
+/* panel = .col fra kundeskjermen */
+.panel{
+  margin:0 16px 12px; background:var(--color-surface-elevated);
+  border:1px solid var(--color-border); border-radius:var(--r-2xl);
+  position:relative; overflow:hidden;
+}
+.panel::after{ content:""; position:absolute; inset:0 0 auto 0; height:3px; background:var(--c,var(--color-border-strong)); opacity:.85; }
+.panel-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:16px 16px 10px; }
+.panel-title{ display:flex; align-items:center; gap:9px; }
+.panel-title .ic{
+  width:26px; height:26px; border-radius:var(--r-md); display:grid; place-items:center;
+  background:color-mix(in srgb, var(--c) 15%, transparent); color:var(--c);
+}
+.panel-title .ic svg{ width:15px; height:15px; }
+.panel-title h2{ margin:0; font-size:11.5px; font-weight:700; letter-spacing:.11em; text-transform:uppercase; color:var(--c); }
+.panel-body{ padding:0 16px 16px; }
+
+/* --- statuspanel --- */
+.hero{ text-align:center; }
+.hero .panel-body{ padding-top:2px; }
+.hero .ordernum{ font-weight:800; font-size:68px; line-height:1; letter-spacing:-.045em; color:var(--c); margin:2px 0 6px; }
+.hero .who{ font-size:13px; font-weight:600; color:var(--color-text-secondary); }
+.hero .statusline{ margin-top:16px; font-family:"Sora"; font-size:18px; font-weight:700; letter-spacing:-.02em; color:var(--c); }
+.hero .hint{ margin-top:6px; font-size:12.5px; color:var(--color-text-secondary); line-height:1.5; }
+
+body[data-st="ny"]     .hero{ --c:var(--color-primary); }
+body[data-st="prod"]   .hero{ --c:var(--color-warning); }
+body[data-st="klar"]   .hero{ --c:var(--color-success); }
+body[data-st="hentet"] .hero{ --c:var(--color-text-muted); }
+body[data-st="prod"] .hero{ background:linear-gradient(180deg, rgba(218,218,107,.07), transparent 45%), var(--color-surface-elevated); }
+body[data-st="klar"] .hero{
+  background:linear-gradient(180deg, rgba(107,218,178,.14), rgba(107,218,178,.02) 45%), var(--color-surface-elevated);
+  border-color:rgba(107,218,178,.3);
+  animation:glow 3.2s var(--ease) infinite;
+}
+@keyframes glow{ 0%,100%{ box-shadow:0 0 0 0 rgba(107,218,178,0) } 50%{ box-shadow:0 0 32px 0 rgba(107,218,178,.22) } }
+
+/* --- steg --- */
+.step{ display:flex; gap:13px; align-items:flex-start; position:relative; padding-bottom:15px; }
+.step:last-child{ padding-bottom:0; }
+.step::before{ content:""; position:absolute; left:9px; top:22px; bottom:1px; width:2px; background:var(--color-border-strong); }
+.step:last-child::before{ display:none; }
+.step .bul{
+  width:20px; height:20px; border-radius:999px; flex:none; z-index:1;
+  border:2px solid var(--color-border-strong); background:var(--color-surface);
+  display:grid; place-items:center; transition:all var(--dur-slow) var(--ease);
+}
+.step .bul svg{ width:10px; height:10px; opacity:0; transition:opacity var(--dur-default); }
+.step .txt b{ display:block; font-size:13.5px; font-weight:700; color:var(--color-text-muted); transition:color var(--dur-slow); }
+.step .txt span{ font-size:11.5px; color:var(--color-text-muted); }
+.step.done .bul{ background:var(--sc); border-color:var(--sc); }
+.step.done .bul svg{ opacity:1; }
+.step.done::before{ background:var(--sc); }
+.step.done .txt b{ color:var(--color-text-primary); }
+.step.done .txt span{ color:var(--color-text-secondary); }
+.step.now .bul{ border-color:var(--sc); box-shadow:0 0 0 4px color-mix(in srgb, var(--sc) 22%, transparent); }
+.step.now .txt b{ color:var(--sc); }
+.step:nth-child(1){ --sc:var(--color-primary); }
+.step:nth-child(2){ --sc:var(--color-warning); }
+.step:nth-child(3){ --sc:var(--color-success); }
+
+/* --- ordrerad = .order fra kundeskjermen --- */
+.line{
+  display:flex; align-items:center; gap:10px; background:var(--color-surface);
+  border:1px solid var(--color-border); border-left:3px solid var(--color-primary);
+  border-radius:var(--r-xl); padding:10px 12px; margin-bottom:7px;
+}
+.line .q{ font-family:"Sora"; font-weight:800; font-size:15px; color:var(--color-text-secondary); min-width:24px; }
+.line .nm{ flex:1; min-width:0; font-size:13.5px; font-weight:700; }
+.line .pr{ font-size:13px; color:var(--color-text-secondary); font-weight:600; white-space:nowrap; }
+.sum{ display:flex; justify-content:space-between; padding:9px 12px 0; font-weight:800; font-size:14px;
+  border-top:1px solid var(--color-border); margin-top:9px; }
+.pill{
+  font-size:9px; font-weight:800; letter-spacing:.09em; text-transform:uppercase;
+  padding:3px 7px; border-radius:999px; color:#1E1D24; white-space:nowrap;
+}
+.pill.takeaway{ background:var(--ch-takeaway); }
+.pill.eatin{ background:var(--ch-eatin); }
+
+/* --- knapper og brytere --- */
+.toggle{
+  display:flex; align-items:center; gap:12px; width:calc(100% - 32px); text-align:left;
+  background:var(--color-surface-elevated); border:1px solid var(--color-border);
+  border-radius:var(--r-xl); padding:13px 15px; margin:0 16px 10px;
+  color:inherit; font:inherit; cursor:pointer; transition:all var(--dur-default) var(--ease);
+}
+.toggle:active{ transform:scale(.985); }
+.toggle .ico{ width:34px; height:34px; border-radius:var(--r-lg); flex:none; display:grid; place-items:center;
+  background:var(--color-surface); border:1px solid var(--color-border-strong); color:var(--color-text-secondary); }
+.toggle .ico svg{ width:17px; height:17px; }
+.toggle .t{ flex:1; min-width:0; }
+.toggle .t b{ display:block; font-size:13.5px; font-weight:700; }
+.toggle .t span{ font-size:11.5px; color:var(--color-text-secondary); line-height:1.45; display:block; margin-top:1px; }
+.sw{ width:40px; height:23px; border-radius:999px; background:var(--color-surface-hover); flex:none; position:relative;
+  border:1px solid var(--color-border-strong); transition:all var(--dur-default) var(--ease); }
+.sw::after{ content:""; position:absolute; top:2px; left:2px; width:17px; height:17px; border-radius:999px;
+  background:var(--color-text-secondary); transition:all var(--dur-default) var(--ease); }
+.toggle.on{ border-color:rgba(107,218,178,.4); }
+.toggle.on .sw{ background:var(--color-success); border-color:var(--color-success); }
+.toggle.on .sw::after{ left:20px; background:#0F241D; }
+.toggle.on .ico{ color:var(--color-success); border-color:rgba(107,218,178,.35); background:rgba(107,218,178,.1); }
+.toggle.off-unsupported{ opacity:.55; }
+
+.btn{
+  font-family:"Plus Jakarta Sans"; font-weight:800; font-size:14px; border:1px solid transparent;
+  border-radius:var(--r-xl); padding:0 20px; min-height:52px; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  transition:all var(--dur-default) var(--ease);
+}
+.btn:active{ transform:scale(.985); }
+.btn-success{ background:var(--color-success); color:#0F241D; }
+.btn-ghost{ background:transparent; color:var(--color-text-secondary); border-color:var(--color-border-strong); }
+.btn-block{ width:calc(100% - 32px); margin:0 16px 10px; }
+
+.caps{ margin:2px 16px 10px; display:flex; gap:6px; flex-wrap:wrap; }
+.cap{ font-size:10px; font-weight:700; padding:5px 9px; border-radius:999px; border:1px solid var(--color-border);
+  background:var(--color-surface-elevated); color:var(--color-text-secondary); display:inline-flex; gap:5px; align-items:center; }
+.cap i{ width:6px; height:6px; border-radius:999px; background:var(--color-text-muted); flex:none; }
+.cap.ok i{ background:var(--color-success); } .cap.ok{ color:var(--color-success); border-color:rgba(107,218,178,.25); }
+.cap.no i{ background:var(--color-danger); } .cap.no{ color:var(--color-danger); border-color:rgba(218,107,107,.25); }
+
+.note{ margin:2px 16px 0; font-size:11.5px; line-height:1.6; color:var(--color-text-muted); }
+.spacer{ flex:1; min-height:14px; }
+.appfoot{
+  margin:18px 16px 0; display:flex; align-items:center; justify-content:center; gap:8px;
+  opacity:.7; font-size:11px; color:var(--color-text-muted);
+}
+.appfoot .mark{ width:18px; height:18px; border-radius:var(--r-md); box-shadow:none; }
+.appfoot .mark svg{ width:11px; height:11px; }
+.appfoot b{ font-family:"Sora"; font-weight:700; font-size:11.5px; color:var(--color-text-secondary); }
+
+/* --- takeover ved klar --- */
+.takeover{
+  position:absolute; inset:0; z-index:60; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:28px;
+  background:linear-gradient(170deg,#0F241D,#12352A 55%,#0F241D);
+  opacity:0; pointer-events:none; transition:opacity 300ms var(--ease);
+}
+.takeover.show{ opacity:1; pointer-events:auto; }
+.takeover .label{ color:var(--color-success); letter-spacing:.3em; }
+.takeover .big{ font-weight:800; font-size:104px; line-height:1; letter-spacing:-.05em;
+  color:var(--color-success); margin:14px 0 6px; animation:pop 500ms var(--ease-out) both; }
+@keyframes pop{ from{ transform:scale(.7); opacity:0 } to{ transform:none; opacity:1 } }
+.takeover p{ font-size:15px; font-weight:700; margin:0 0 6px; }
+.takeover small{ font-size:12.5px; color:var(--color-text-secondary); display:block; margin-bottom:24px; }
+.takeover .btn{ width:100%; max-width:280px; }
+.takeover .ghostlink{
+  margin-top:12px; background:none; border:0; color:var(--color-text-secondary);
+  font:600 12.5px "Plus Jakarta Sans"; cursor:pointer; text-decoration:underline; text-underline-offset:3px;
+}
+.expire-note{ margin-top:22px; font-size:11.5px; color:var(--color-text-muted); line-height:1.5; }
+.expire-note b{ color:var(--color-text-secondary); font-variant-numeric:tabular-nums; }
+.flash{ position:absolute; inset:0; z-index:70; background:var(--color-success); opacity:0; pointer-events:none; }
+.flash.go{ animation:fl 1.1s ease-out 2; }
+@keyframes fl{ 0%{opacity:0} 12%{opacity:.34} 100%{opacity:0} }
+
+/* --- sluttskjermer: ferdig og utloept --- */
+.endscreen{
+  position:absolute; inset:0; z-index:80; display:none; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center; padding:34px;
+  background:var(--color-surface);
+}
+.endscreen.show{ display:flex; }
+.endscreen .aura{ z-index:0; }
+.endscreen .inner{ position:relative; z-index:1; max-width:300px; }
+.endscreen .ring{
+  width:76px; height:76px; border-radius:999px; margin:0 auto 20px; display:grid; place-items:center;
+  border:1px solid var(--color-border-strong); background:var(--color-surface-elevated); color:var(--color-text-muted);
+}
+.endscreen .ring svg{ width:32px; height:32px; }
+.endscreen.ok .ring{ border-color:rgba(107,218,178,.35); background:rgba(107,218,178,.1); color:var(--color-success); }
+.endscreen h2{ font-size:21px; font-weight:700; letter-spacing:-.02em; margin:0 0 10px; }
+.endscreen p{ font-size:13px; color:var(--color-text-secondary); line-height:1.6; margin:0 0 8px; }
+.endscreen .meta{ font-size:11.5px; color:var(--color-text-muted); margin-top:18px; line-height:1.6; }
+.endscreen .btn{ margin-top:22px; width:100%; max-width:260px; }
+
+/* --- demolinje --- */
+.demobar{
+  position:fixed; left:50%; bottom:14px; transform:translateX(-50%); z-index:1400;
+  display:flex; gap:6px; align-items:center; padding:7px 8px 7px 13px;
+  background:rgba(38,36,46,.94); backdrop-filter:blur(12px);
+  border:1px solid var(--color-border-strong); border-radius:999px;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.demobar .label{ font-size:9.5px; }
+.demobar button{
+  font:700 11.5px "Plus Jakarta Sans"; border-radius:999px; border:1px solid var(--color-border-strong);
+  background:var(--color-surface); color:var(--color-text-primary); padding:7px 12px; cursor:pointer;
+}
+.demobar button:hover{ background:var(--color-surface-hover); }
+.demobar button.pri{ background:var(--color-primary); color:#10222B; border-color:transparent; }
+.demo-note{ width:100%; text-align:center; font-size:11.5px; color:var(--color-text-muted); margin-top:4px; }
+.hapticbox{ position:fixed; left:-9999px; top:0; width:1px; height:1px; overflow:hidden; }
+
+@media (max-width:860px){
+  .stage{ gap:32px; padding:24px 16px 96px; }
+  .receipt{ order:2; }
+}
+@media (max-width:560px){
+  .demobar{ padding:6px 7px; gap:5px; bottom:10px; }
+  .demobar .label, .demobar #dPhone{ display:none; }
+}
+body.solo .demobar{ bottom:max(10px, env(safe-area-inset-bottom)); }
+</style>
+</head>
+<body data-st="ny">
+
+<div class="stage">
+  <div class="stage-cap">
+    <h1>Fra kvittering til lomma</h1>
+    <p>Kunden skanner QR-koden på kvitteringen og får sin egen ordrestatus &mdash; samme uttrykk som skjermen på veggen.</p>
+  </div>
+
+  <div class="receipt" id="receipt">
+    <div class="r-brand">PLOREA</div>
+    <div class="r-sub">Kaffebar &middot; Storgata 12, Trondheim<br>Org.nr 923 456 789 MVA</div>
+    <div class="rule"></div>
+    <div class="row"><span id="rDate">&mdash;</span><span>Kasse 2</span></div>
+    <div class="row"><span>Betalt med</span><span>Vipps</span></div>
+    <div class="rule"></div>
+    <div id="rLines"></div>
+    <div class="rule"></div>
+    <div class="row tot"><span>Å BETALE</span><span id="rTotal">0,00</span></div>
+    <div class="row"><span>herav mva 15 %</span><span id="rVat">0,00</span></div>
+    <div class="rule"></div>
+    <div class="r-num">
+      <span style="font-size:10px;letter-spacing:.14em">HENTENUMMER</span>
+      <b id="rNum">153</b>
+      <span id="rChannel" style="font-size:10px">TAKE AWAY</span>
+    </div>
+    <div class="qr-wrap">
+      <div id="rQr"></div>
+      <div class="qr-cap">SKANN FOR Å FØLGE ORDREN</div>
+      <div class="qr-url" id="rUrl">&hellip;</div>
+    </div>
+    <div class="foot">Lenken lukkes 10 min etter henting<br>plorea.no</div>
+  </div>
+
+  <div class="phone">
+    <div class="screen-inner">
+      <span class="aura"></span>
+      <div class="app">
+        <div class="app-head">
+          <div class="brand">
+            <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg></span>
+            <span class="venue">Plorea Kaffebar<small>Din bestilling</small></span>
+          </div>
+          <span class="live"><i class="dot"></i><span id="liveTxt">Live</span></span>
+        </div>
+
+        <section class="panel hero">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ic" id="heroIc"></span>
+              <h2 id="heroKicker">Mottatt</h2>
+            </div>
+            <span class="label" id="etaChip">ca. 6 min</span>
+          </div>
+          <div class="panel-body">
+            <div class="ordernum mono" id="hNum">153</div>
+            <div class="who" id="hWho">Ingrid &middot; Take away</div>
+            <div class="statusline" id="hStatus">Bestillingen er mottatt</div>
+            <div class="hint" id="hHint">Vi har fått ordren din og setter i gang straks.</div>
+          </div>
+        </section>
+
+        <button class="btn btn-success btn-block" id="doneBtn" style="display:none">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Jeg har hentet &mdash; lukk siden
+        </button>
+
+        <section class="panel" style="--c:var(--color-border-strong)">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ic" style="--c:var(--color-primary)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+              <h2 style="color:var(--color-text-secondary)">Forløp</h2>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="step" id="s1">
+              <span class="bul"><svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="txt"><b>Mottatt</b><span id="t1">&mdash;</span></span>
+            </div>
+            <div class="step" id="s2">
+              <span class="bul"><svg viewBox="0 0 24 24" fill="none" stroke="#2A2A12" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="txt"><b>Under produksjon</b><span id="t2">Venter</span></span>
+            </div>
+            <div class="step" id="s3">
+              <span class="bul"><svg viewBox="0 0 24 24" fill="none" stroke="#0F241D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span>
+              <span class="txt"><b>Kalt til henting</b><span id="t3">Venter</span></span>
+            </div>
+          </div>
+        </section>
+
+        <button class="toggle" id="wakeBtn">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="3"/><path d="M12 18h.01"/></svg></span>
+          <span class="t"><b>Hold skjermen våken</b><span id="wakeSub">Slår av automatisk låsing mens du venter</span></span>
+          <span class="sw"></span>
+        </button>
+
+        <button class="toggle" id="alertBtn">
+          <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg></span>
+          <span class="t"><b>Varsle meg når den er klar</b><span id="alertSub">Vibrasjon, lyd og full skjerm</span></span>
+          <span class="sw"></span>
+        </button>
+
+        <div class="caps" id="caps"></div>
+
+        <section class="panel" style="--c:var(--color-border-strong)">
+          <div class="panel-head">
+            <div class="panel-title">
+              <span class="ic" style="--c:var(--color-accent)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12l1 6H5z"/><path d="M5 8v12a2 2 0 002 2h10a2 2 0 002-2V8"/></svg></span>
+              <h2 style="color:var(--color-text-secondary)">Bestilling</h2>
+            </div>
+            <span class="pill" id="chPill">Take away</span>
+          </div>
+          <div class="panel-body">
+            <div id="oLines"></div>
+            <div class="sum"><span>Totalt</span><span id="oTotal">0,00</span></div>
+          </div>
+        </section>
+
+        <p class="note" id="deviceNote"></p>
+
+        <div class="spacer"></div>
+        <div class="appfoot">
+          <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#0F2530" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-6 9 6v10a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 21V12h6v9"/></svg></span>
+          <b>Plorea</b><span id="fOrder" class="mono">&mdash;</span>
+        </div>
+      </div>
+
+      <div class="takeover" id="takeover">
+        <span class="label">Kalt til henting</span>
+        <div class="big mono" id="tNum">153</div>
+        <p>Vis dette nummeret i luken</p>
+        <small id="tWho">Ingrid &middot; Take away</small>
+        <button class="btn btn-success" id="tDone">
+          <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          Jeg har hentet &mdash; lukk siden
+        </button>
+        <button class="ghostlink" id="tLater">Ikke enda</button>
+        <p class="expire-note">Siden stenger automatisk om <b id="countdown">10:00</b><br>Etter det virker ikke QR-koden lenger.</p>
+      </div>
+
+      <div class="flash" id="flash"></div>
+
+      <div class="endscreen ok" id="scDone">
+        <span class="aura"></span>
+        <div class="inner">
+          <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></div>
+          <h2>Takk for besøket</h2>
+          <p>Ordren er hentet og siden er avsluttet.</p>
+          <p id="doneClose">Du kan lukke denne fanen nå.</p>
+          <div class="meta">Lenken er stengt, og QR-koden på kvitteringen åpner ikke lenger denne siden.</div>
+        </div>
+      </div>
+
+      <div class="endscreen" id="scExpired">
+        <span class="aura"></span>
+        <div class="inner">
+          <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M4 4l16 16"/></svg></div>
+          <h2>Lenken er utløpt</h2>
+          <p>Denne ordresiden stengte 10 minutter etter at bestillingen ble klar til henting.</p>
+          <div class="meta">Trenger du kvittering eller hjelp med ordren, ta kontakt i kassen.<br><span id="expOrder" class="mono">&mdash;</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p class="demo-note">Demoen simulerer kjøkkenet. Åpne filen på telefonen med <code>?o=&hellip;</code> i adressen for å teste vibrasjon og skjermlås på ekte.</p>
+</div>
+
+<div class="demobar">
+  <span class="label">Demo</span>
+  <button class="pri" id="dNext">Neste status</button>
+  <button id="dExpire">Hopp 10 min</button>
+  <button id="dReset">Ny ordre</button>
+  <button id="dPhone">Telefonvisning</button>
+</div>
+
+<span class="hapticbox"><label id="hapticLabel"><input type="checkbox" switch id="hapticSwitch"></label></span>
+
+<script>
+/* ============================================================
+   MINI-QR — innebygd QR-generator (byte-modus, EC-nivå M, v1–v6)
+   ============================================================ */
+const QR = (() => {
+  const EXP = new Array(512), LOG = new Array(256);
+  { let x = 1; for (let i = 0; i < 255; i++){ EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11D; }
+    for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]; }
+  const mul = (a,b) => (a && b) ? EXP[LOG[a] + LOG[b]] : 0;
+  function rsPoly(n){
+    let p = [1];
+    for (let i = 0; i < n; i++){
+      const q = [...p, 0];
+      for (let j = 0; j < p.length; j++) q[j + 1] ^= mul(p[j], EXP[i]);
+      p = q;
+    }
+    return p;
+  }
+  function rsEncode(data, n){
+    const gen = rsPoly(n), res = new Array(n).fill(0);
+    for (const b of data){
+      const f = b ^ res[0];
+      res.shift(); res.push(0);
+      if (f) for (let i = 0; i < n; i++) res[i] ^= mul(gen[i + 1], f);
+    }
+    return res;
+  }
+  const SPEC = {1:[10,1,16,0,0],2:[16,1,28,0,0],3:[26,1,44,0,0],4:[18,2,32,0,0],5:[24,2,43,0,0],6:[16,4,27,0,0]};
+  const CAP  = {1:14,2:26,3:42,4:62,5:84,6:106};
+  const ALIGN= {1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34]};
+  const MASKS = [
+    (r,c)=>((r+c)%2)===0,(r,c)=>(r%2)===0,(r,c)=>(c%3)===0,(r,c)=>((r+c)%3)===0,
+    (r,c)=>((((r/2)|0)+((c/3)|0))%2)===0,(r,c)=>(((r*c)%2)+((r*c)%3))===0,
+    (r,c)=>((((r*c)%2)+((r*c)%3))%2)===0,(r,c)=>((((r+c)%2)+((r*c)%3))%2)===0
+  ];
+  function fmtBits(mask){
+    const d = (0 << 3) | mask; let v = d << 10;
+    for (let i = 4; i >= 0; i--) if (v & (1 << (i + 10))) v ^= 0x537 << i;
+    return ((d << 10) | v) ^ 0x5412;
+  }
+  function penalty(m, size){
+    let p = 0, dark = 0;
+    for (let r = 0; r < size; r++) for (let c = 0; c < size; c++){
+      if (m[r][c]) dark++;
+      if (r < size-1 && c < size-1){
+        const s = m[r][c] + m[r][c+1] + m[r+1][c] + m[r+1][c+1];
+        if (s === 0 || s === 4) p += 3;
+      }
+    }
+    for (let i = 0; i < size; i++) for (const dir of [0,1]){
+      let run = 1;
+      for (let j = 1; j < size; j++){
+        const a = dir ? m[j][i] : m[i][j], b = dir ? m[j-1][i] : m[i][j-1];
+        if (a === b) run++; else { if (run >= 5) p += 3 + (run - 5); run = 1; }
+      }
+      if (run >= 5) p += 3 + (run - 5);
+    }
+    const pat = [1,0,1,1,1,0,1,0,0,0,0], pat2 = [0,0,0,0,1,0,1,1,1,0,1];
+    for (let r = 0; r < size; r++) for (let c = 0; c <= size-11; c++){
+      let a = true, b = true;
+      for (let k = 0; k < 11; k++){ if (m[r][c+k] !== pat[k]) a = false; if (m[r][c+k] !== pat2[k]) b = false; }
+      if (a || b) p += 40;
+    }
+    for (let c = 0; c < size; c++) for (let r = 0; r <= size-11; r++){
+      let a = true, b = true;
+      for (let k = 0; k < 11; k++){ if (m[r+k][c] !== pat[k]) a = false; if (m[r+k][c] !== pat2[k]) b = false; }
+      if (a || b) p += 40;
+    }
+    p += Math.floor(Math.abs(dark*100/(size*size) - 50)/5)*10;
+    return p;
+  }
+  function make(text){
+    const bytes = new TextEncoder().encode(text);
+    let ver = 0;
+    for (let v = 1; v <= 6; v++) if (bytes.length <= CAP[v]){ ver = v; break; }
+    if (!ver) return null;
+    const S = SPEC[ver], totalData = S[1]*S[2] + S[3]*S[4];
+    const bits = [], put = (val, len) => { for (let i = len-1; i >= 0; i--) bits.push((val >> i) & 1); };
+    put(4,4); put(bytes.length,8); bytes.forEach(b => put(b,8));
+    for (let i = 0; i < 4 && bits.length < totalData*8; i++) bits.push(0);
+    while (bits.length % 8) bits.push(0);
+    const data = [];
+    for (let i = 0; i < bits.length; i += 8){ let b = 0; for (let j = 0; j < 8; j++) b = (b<<1)|bits[i+j]; data.push(b); }
+    const PAD = [0xEC,0x11], start = data.length;
+    while (data.length < totalData) data.push(PAD[(data.length - start) % 2]);
+    const blocks = []; let off = 0;
+    for (let i = 0; i < S[1]; i++){ blocks.push(data.slice(off, off+S[2])); off += S[2]; }
+    for (let i = 0; i < S[3]; i++){ blocks.push(data.slice(off, off+S[4])); off += S[4]; }
+    const eccs = blocks.map(b => rsEncode(b, S[0])), final = [];
+    const maxD = Math.max(...blocks.map(b => b.length));
+    for (let i = 0; i < maxD; i++) blocks.forEach(b => { if (i < b.length) final.push(b[i]); });
+    for (let i = 0; i < S[0]; i++) eccs.forEach(e => final.push(e[i]));
+    const size = ver*4 + 17;
+    const m = Array.from({length:size}, () => new Array(size).fill(0));
+    const res = Array.from({length:size}, () => new Array(size).fill(false));
+    const finder = (r0,c0) => { for (let i=-1;i<=7;i++) for (let j=-1;j<=7;j++){
+      const r=r0+i, c=c0+j; if (r<0||c<0||r>=size||c>=size) continue;
+      const on=(i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4);
+      m[r][c]=on?1:0; res[r][c]=true; } };
+    finder(0,0); finder(0,size-7); finder(size-7,0);
+    for (let i=8;i<size-8;i++){ m[6][i]=(i%2===0)?1:0; res[6][i]=true; m[i][6]=(i%2===0)?1:0; res[i][6]=true; }
+    for (const r of ALIGN[ver]) for (const c of ALIGN[ver]){
+      if ((r===6&&c===6)||(r===6&&c===size-7)||(r===size-7&&c===6)) continue;
+      for (let i=-2;i<=2;i++) for (let j=-2;j<=2;j++){
+        m[r+i][c+j]=(Math.max(Math.abs(i),Math.abs(j))!==1)?1:0; res[r+i][c+j]=true; }
+    }
+    m[size-8][8]=1; res[size-8][8]=true;
+    for (let i=0;i<9;i++){ if(!res[8][i]){res[8][i]=true;m[8][i]=0;} if(!res[i][8]){res[i][8]=true;m[i][8]=0;} }
+    for (let i=0;i<8;i++){ if(!res[8][size-1-i]){res[8][size-1-i]=true;m[8][size-1-i]=0;}
+                           if(!res[size-1-i][8]){res[size-1-i][8]=true;m[size-1-i][8]=0;} }
+    let idx=0, bit=7, up=true;
+    for (let col=size-1; col>0; col-=2){
+      if (col===6) col--;
+      for (let k=0;k<size;k++){
+        const row = up ? size-1-k : k;
+        for (let d=0; d<2; d++){
+          const cc = col-d; if (res[row][cc]) continue;
+          m[row][cc] = (idx<final.length) ? ((final[idx]>>bit)&1) : 0;
+          if (--bit < 0){ bit=7; idx++; }
+        }
+      }
+      up=!up;
+    }
+    let best=null;
+    for (let mask=0; mask<8; mask++){
+      const t = m.map(r => r.slice());
+      for (let r=0;r<size;r++) for (let c=0;c<size;c++) if (!res[r][c] && MASKS[mask](r,c)) t[r][c]^=1;
+      const f = fmtBits(mask);
+      for (let i=0;i<15;i++){
+        const b=(f>>i)&1;
+        if (i<6) t[i][8]=b; else if (i<8) t[i+1][8]=b; else t[size-15+i][8]=b;
+        if (i<8) t[8][size-1-i]=b; else if (i===8) t[8][7]=b; else t[8][14-i]=b;
+      }
+      t[size-8][8]=1;
+      const p = penalty(t,size);
+      if (!best || p < best.p) best = {p,t};
+    }
+    return { size, modules: best.t };
+  }
+  function svg(text, px){
+    const q = make(text); if (!q) return null;
+    const quiet = 4, dim = q.size + quiet*2, s = px/dim;
+    let path = "";
+    for (let r=0;r<q.size;r++) for (let c=0;c<q.size;c++)
+      if (q.modules[r][c]) path += `M${(c+quiet)*s} ${(r+quiet)*s}h${s}v${s}h${-s}z`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${px}" height="${px}" viewBox="0 0 ${px} ${px}" shape-rendering="crispEdges">`
+         + `<rect width="${px}" height="${px}" fill="#fff"/><path d="${path}" fill="#111"/></svg>`;
+  }
+  return { make, svg };
+})();
+
+/* ============================================================
+   ORDRE
+   ============================================================ */
+const ALPHA = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const rnd = n => Array.from({length:n}, () => ALPHA[Math.floor(Math.random()*ALPHA.length)]).join("");
+const kr = n => n.toFixed(2).replace(".", ",");
+const clock = ts => new Date(ts).toLocaleTimeString("nb-NO", {hour:"2-digit", minute:"2-digit"});
+
+const EXPIRY_MS = 10 * 60 * 1000;          // 10 minutter etter "klar til henting"
+
+const MENU = [
+  ["Flat white", 49], ["Kanelsnurr", 39], ["Havregrøt m/ bær", 89],
+  ["Americano", 39], ["Focaccia kylling", 129], ["Fersk juice 0,3", 55]
+];
+
+function mkOrder(){
+  const picks = [...MENU].sort(() => Math.random()-.5).slice(0, 1 + Math.floor(Math.random()*3))
+    .map(([name, price]) => ({ name, price, qty: 1 + (Math.random() < .25 ? 1 : 0) }));
+  return {
+    id: rnd(6), token: rnd(10),
+    num: String(148 + Math.floor(Math.random()*40)).padStart(3,"0"),
+    name: ["Ingrid","Mathias","Sofie","Jonas","Amir","Nora","Selma","Emil"][Math.floor(Math.random()*8)],
+    channel: Math.random() < .7 ? "Take away" : "Spise her",
+    lines: picks, total: picks.reduce((s,l) => s + l.price*l.qty, 0),
+    placedAt: Date.now(), status: "ny", stamps: {}
+  };
+}
+
+let order = mkOrder();
+
+const STATUS = {
+  ny:     { kicker:"Mottatt",           line:"Bestillingen er mottatt", hint:"Vi har fått ordren din og setter i gang straks." },
+  prod:   { kicker:"Under produksjon",  line:"Kjøkkenet lager den nå",  hint:"Du får varsel her når den er klar til henting." },
+  klar:   { kicker:"Kalt til henting",  line:"Klar til henting!",       hint:"Vis hentenummeret i luken." },
+  hentet: { kicker:"Hentet",            line:"Hentet — god fornøyelse", hint:"Takk for besøket. Ordren er avsluttet." }
+};
+const ICONS = {
+  ny:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  prod:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v6l4 2"/><circle cx="12" cy="12" r="9"/></svg>',
+  klar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+  hentet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>'
+};
+const FLOW = ["ny","prod","klar","hentet"];
+
+/* ============================================================
+   LIVSLØP FOR LENKEN
+   I produksjon håndheves dette server-side: token får TTL = readyAt + 10 min,
+   og API-et svarer 410 Gone etterpå. localStorage her er kun demoens stand-in
+   slik at ny skanning av samme QR faktisk oppfører seg riktig.
+   ============================================================ */
+const KEY = id => "plorea:order:" + id;
+function loadLife(id){
+  try{ return JSON.parse(localStorage.getItem(KEY(id))) || {}; }catch(e){ return {}; }
+}
+function saveLife(id, patch){
+  try{
+    const cur = loadLife(id);
+    localStorage.setItem(KEY(id), JSON.stringify({ ...cur, ...patch }));
+  }catch(e){}
+}
+function expiresAt(){
+  const life = loadLife(order.id);
+  if (life.closedAt) return life.closedAt;          // lukket manuelt = stengt umiddelbart
+  if (life.readyAt)  return life.readyAt + EXPIRY_MS;
+  return null;
+}
+function isExpired(){
+  const t = expiresAt();
+  return t !== null && Date.now() >= t;
+}
+
+/* ============================================================
+   ENHETSFUNKSJONER
+   ============================================================ */
+const CAN = {
+  wake: "wakeLock" in navigator,
+  vibrate: typeof navigator.vibrate === "function",
+  ios: /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+       (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+};
+let wakeLock = null, wakeWanted = false, alertsOn = true, audioCtx = null;
+
+async function acquireWake(){
+  if (!CAN.wake) return false;
+  try{
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => { wakeLock = null; paintWake(); });
+    return true;
+  }catch(e){ wakeLock = null; return false; }
+}
+async function setWake(on){
+  wakeWanted = on;
+  if (on){ if (!await acquireWake()) wakeWanted = false; }
+  else if (wakeLock){ try{ await wakeLock.release(); }catch(e){} wakeLock = null; }
+  paintWake();
+}
+document.addEventListener("visibilitychange", () => {
+  if (wakeWanted && !wakeLock && document.visibilityState === "visible") acquireWake().then(paintWake);
+});
+function paintWake(){
+  const b = document.getElementById("wakeBtn"), s = document.getElementById("wakeSub");
+  b.classList.toggle("on", !!wakeLock);
+  if (!CAN.wake){
+    b.classList.add("off-unsupported");
+    s.textContent = "Ikke støttet i denne nettleseren — hold telefonen aktiv selv";
+  } else {
+    s.textContent = wakeLock ? "På — skjermen slukker ikke mens du venter"
+                             : "Slår av automatisk låsing mens du venter";
+  }
+}
+function vibrate(pattern){
+  if (!alertsOn) return;
+  if (CAN.vibrate){ try{ navigator.vibrate(pattern); return; }catch(e){} }
+  iosHaptic();
+}
+function iosHaptic(){
+  const sw = document.getElementById("hapticSwitch");
+  if (!sw) return;
+  [0,140,280,460].forEach(d => setTimeout(() => { try{ sw.click(); }catch(e){} }, d));
+}
+function unlockAudio(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+  }catch(e){}
+}
+function chime(){
+  if (!alertsOn) return;
+  try{
+    unlockAudio();
+    [880, 1174.7, 1567.9].forEach((f,i) => {
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      const t0 = audioCtx.currentTime + i*.15;
+      g.gain.setValueAtTime(0, t0);
+      g.gain.linearRampToValueAtTime(.18, t0 + .02);
+      g.gain.exponentialRampToValueAtTime(.0001, t0 + .55);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0); o.stop(t0 + .6);
+    });
+  }catch(e){}
+}
+function paintCaps(){
+  const caps = [
+    { on: CAN.wake,    ok:"Skjermlås av: støttet", no:"Skjermlås av: ikke støttet" },
+    { on: CAN.vibrate, ok:"Vibrasjon: støttet",
+      no: CAN.ios ? "Vibrasjon: ikke i iOS Safari" : "Vibrasjon: ikke støttet" },
+    { on: true,        ok:"Lyd + visuelt varsel", no:"" }
+  ];
+  document.getElementById("caps").innerHTML = caps.map(c =>
+    `<span class="cap ${c.on ? "ok" : "no"}"><i></i>${c.on ? c.ok : c.no}</span>`).join("");
+  document.getElementById("deviceNote").innerHTML = CAN.vibrate
+    ? "Telefonen vibrerer når ordren settes klar. Varselet krever at siden er åpen."
+    : "Safari på iPhone støtter ikke vibrasjon fra nett. Vi bruker lyd, full skjerm og systemhaptikk i stedet.";
+}
+
+/* ============================================================
+   RENDERING
+   ============================================================ */
+const selfUrl = () => location.origin + location.pathname + "?o=" + order.id + "&t=" + order.token;
+
+function renderReceipt(){
+  document.getElementById("rDate").textContent =
+    new Date(order.placedAt).toLocaleDateString("nb-NO") + " " + clock(order.placedAt);
+  document.getElementById("rLines").innerHTML = order.lines.map(l =>
+    `<div class="row"><span>${l.qty} × ${l.name}</span><span>${kr(l.price*l.qty)}</span></div>`).join("");
+  document.getElementById("rTotal").textContent = kr(order.total);
+  document.getElementById("rVat").textContent = kr(order.total - order.total/1.15);
+  document.getElementById("rNum").textContent = order.num;
+  document.getElementById("rChannel").textContent = order.channel.toUpperCase();
+  const url = selfUrl();
+  document.getElementById("rQr").innerHTML = QR.svg(url, 300) || QR.svg("https://plo.re/o/" + order.id, 300);
+  document.getElementById("rUrl").textContent = url.replace(/^https?:\/\//, "");
+}
+
+function renderApp(){
+  const st = order.status, S = STATUS[st], i = FLOW.indexOf(st);
+  document.body.dataset.st = st;
+  document.getElementById("heroIc").innerHTML = ICONS[st];
+  document.getElementById("heroKicker").textContent = S.kicker;
+  document.getElementById("hNum").textContent = order.num;
+  document.getElementById("tNum").textContent = order.num;
+  document.getElementById("hWho").textContent = order.name + " · " + order.channel;
+  document.getElementById("tWho").textContent = order.name + " · " + order.channel;
+  document.getElementById("hStatus").textContent = S.line;
+  document.getElementById("hHint").textContent = S.hint;
+  document.getElementById("fOrder").textContent = "· " + order.id;
+  document.getElementById("expOrder").textContent = "Ordre " + order.id;
+
+  const pill = document.getElementById("chPill");
+  pill.textContent = order.channel;
+  pill.className = "pill " + (order.channel === "Take away" ? "takeaway" : "eatin");
+
+  document.getElementById("t1").textContent = order.stamps.ny   ? clock(order.stamps.ny)   : "—";
+  document.getElementById("t2").textContent = order.stamps.prod ? clock(order.stamps.prod) : "Venter";
+  document.getElementById("t3").textContent = order.stamps.klar ? clock(order.stamps.klar) : "Venter";
+  [1,2,3].forEach(n => {
+    const el = document.getElementById("s" + n);
+    el.classList.toggle("done", i >= n-1);
+    el.classList.toggle("now", i === n-1);
+  });
+
+  const eta = document.getElementById("etaChip"), live = document.getElementById("liveTxt");
+  if (st === "ny" || st === "prod"){
+    eta.textContent = "ca. " + Math.max(1, 7 - Math.round((Date.now() - order.placedAt)/60000)) + " min";
+    eta.style.color = ""; live.textContent = "Live";
+  } else if (st === "klar"){
+    eta.textContent = "Klar nå"; eta.style.color = "var(--color-success)";
+    live.textContent = "Klar";
+  } else {
+    eta.textContent = "Avsluttet"; eta.style.color = ""; live.textContent = "Ferdig";
+  }
+
+  document.getElementById("doneBtn").style.display = (st === "klar") ? "inline-flex" : "none";
+  document.getElementById("oLines").innerHTML = order.lines.map(l =>
+    `<div class="line"><span class="q mono">${l.qty}×</span><span class="nm">${l.name}</span><span class="pr">${kr(l.price*l.qty)}</span></div>`).join("");
+  document.getElementById("oTotal").textContent = kr(order.total) + " kr";
+  paintCountdown();
+}
+
+function paintCountdown(){
+  const el = document.getElementById("countdown");
+  const t = expiresAt();
+  if (t === null){ el.textContent = "10:00"; return; }
+  const left = Math.max(0, t - Date.now());
+  const m = Math.floor(left/60000), s = Math.floor(left%60000/1000);
+  el.textContent = m + ":" + String(s).padStart(2,"0");
+}
+
+/* ============================================================
+   OVERGANGER
+   ============================================================ */
+function setStatus(st){
+  order.status = st;
+  order.stamps[st] = Date.now();
+  if (st === "klar" && !loadLife(order.id).readyAt) saveLife(order.id, { readyAt: Date.now() });
+  renderApp();
+  if (st === "klar") onReady();
+}
+
+function onReady(){
+  vibrate([260,120,260,120,520]);
+  chime();
+  const f = document.getElementById("flash");
+  f.classList.remove("go"); void f.offsetWidth; f.classList.add("go");
+  document.getElementById("takeover").classList.add("show");
+  if (wakeWanted && !wakeLock) acquireWake().then(paintWake);
+}
+
+/* Kunden trykker "jeg har hentet": lenken stenges med en gang, deretter
+   forsøkes fanen lukket. window.close() virker bare på vinduer skriptet selv
+   åpnet — en QR-åpnet fane blir stående, og da viser vi sluttskjermen. */
+let finishedHere = false;   // lukket av kunden i DENNE fanen -> takkeskjerm, ikke utløpsskjerm
+
+function finishAndClose(){
+  finishedHere = true;
+  order.status = "hentet";
+  order.stamps.hentet = Date.now();
+  saveLife(order.id, { closedAt: Date.now() });
+  if (wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; wakeWanted = false; }
+  document.getElementById("takeover").classList.remove("show");
+  renderApp();
+  try{ window.close(); }catch(e){}
+  setTimeout(() => {
+    if (!window.closed){
+      document.getElementById("scDone").classList.add("show");
+      document.getElementById("doneClose").textContent =
+        "Du kan lukke denne fanen nå — nettleseren lar ikke siden lukke seg selv.";
+    }
+  }, 400);
+}
+
+function showExpired(){
+  if (finishedHere) return;   // kunden lukket selv: takkeskjermen står til fanen faktisk lukkes
+  document.getElementById("takeover").classList.remove("show");
+  document.getElementById("scDone").classList.remove("show");
+  document.getElementById("scExpired").classList.add("show");
+  if (wakeLock){ try{ wakeLock.release(); }catch(e){} wakeLock = null; wakeWanted = false; }
+}
+
+/* ============================================================
+   OPPSTART
+   ============================================================ */
+function boot(){
+  let o = null, t = null;
+  try{
+    const p = new URLSearchParams(location.search);
+    o = p.get("o"); t = p.get("t");
+  }catch(e){}
+  if (o){
+    order.id = o; if (t) order.token = t;
+    document.body.classList.add("solo");
+  }
+
+  renderReceipt(); paintWake(); paintCaps();
+
+  // Skannet på nytt etter at lenken stengte? Da åpner vi ikke ordren i det hele tatt.
+  const life = loadLife(order.id);
+  if (isExpired()){ renderApp(); showExpired(); return; }
+  if (life.readyAt){                       // gjenåpnet mens vinduet fortsatt gjelder
+    order.stamps.klar = life.readyAt;
+    setStatus("klar");
+  } else {
+    renderApp();
+    setTimeout(() => { if (order.status === "ny") setStatus("prod"); }, 9000);
+  }
+
+  setInterval(() => {
+    paintCountdown();
+    if (isExpired() && !document.getElementById("scExpired").classList.contains("show")) showExpired();
+    if (order.status === "ny" || order.status === "prod") renderApp();
+  }, 1000);
+}
+
+document.getElementById("wakeBtn").onclick  = () => { unlockAudio(); setWake(!wakeWanted); };
+document.getElementById("alertBtn").onclick = e => {
+  alertsOn = !alertsOn;
+  e.currentTarget.classList.toggle("on", alertsOn);
+  document.getElementById("alertSub").textContent = alertsOn
+    ? "På — du får vibrasjon, lyd og full skjerm"
+    : "Av — bare stille oppdatering på siden";
+  if (alertsOn){ unlockAudio(); vibrate([60]); }
+};
+document.getElementById("tDone").onclick   = finishAndClose;
+document.getElementById("doneBtn").onclick = finishAndClose;
+document.getElementById("tLater").onclick  = () =>
+  document.getElementById("takeover").classList.remove("show");
+
+document.getElementById("dNext").onclick = () => {
+  const i = FLOW.indexOf(order.status);
+  const next = FLOW[Math.min(i+1, FLOW.length-1)];
+  if (next === "hentet") finishAndClose(); else setStatus(next);
+};
+document.getElementById("dExpire").onclick = () => {
+  const life = loadLife(order.id);
+  saveLife(order.id, { readyAt: (life.readyAt || Date.now()) - EXPIRY_MS - 1000 });
+  showExpired();
+};
+document.getElementById("dReset").onclick = () => {
+  const solo = document.body.classList.contains("solo");
+  try{ localStorage.removeItem(KEY(order.id)); }catch(e){}
+  order = mkOrder();
+  if (solo) document.body.classList.add("solo");
+  document.getElementById("takeover").classList.remove("show");
+  document.getElementById("scDone").classList.remove("show");
+  document.getElementById("scExpired").classList.remove("show");
+  renderReceipt(); renderApp();
+  setTimeout(() => { if (order.status === "ny") setStatus("prod"); }, 9000);
+};
+document.getElementById("dPhone").onclick = () => document.body.classList.toggle("solo");
+document.getElementById("alertBtn").classList.add("on");
+
+boot();
+</script>
+</body>
+</html>
