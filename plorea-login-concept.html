@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark" data-lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plorea · A living commerce platform — konsept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#6BB8DA;
+  --blue-deep:#3E8FB8;
+  --cyan:#7FE3E0;
+  --ink:#16151A;
+
+  --navy-0:#070C16;
+  --navy-1:#0A1220;
+  --navy-2:#0E1B2E;
+
+  --panel:#211F29;
+  --panel-2:#2A2833;
+  --line:rgba(255,255,255,.10);
+  --line-strong:rgba(255,255,255,.18);
+  --text:#F2F4F8;
+  --text-2:rgba(242,244,248,.68);
+  --text-3:rgba(242,244,248,.42);
+  --green:#4ADE80;
+
+  --r:14px;
+  --r-lg:20px;
+  --fast:.16s;
+  --panel-t:.32s;
+  --ease:cubic-bezier(.22,.61,.36,1);
+}
+html[data-theme="light"]{
+  --navy-0:#BCD4E6;
+  --navy-1:#D3E3EF;
+  --navy-2:#E9F2F8;
+  --panel:#FFFFFF;
+  --panel-2:#F3F5F9;
+  --line:rgba(16,24,40,.10);
+  --line-strong:rgba(16,24,40,.18);
+  --text:#14161D;
+  --text-2:rgba(20,22,29,.66);
+  --text-3:rgba(20,22,29,.44);
+  --blue-deep:#2F7EA6;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:var(--panel);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+h1,h2,.font-display{font-family:'Sora',sans-serif}
+
+.shell{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(430px,.85fr);height:100dvh}
+
+/* ─────────── LEFT: living platform ─────────── */
+.stage{
+  position:relative;overflow:hidden;contain:paint;
+  background:
+    radial-gradient(120% 90% at 15% 0%, var(--navy-2) 0%, var(--navy-1) 45%, var(--navy-0) 100%);
+  display:flex;flex-direction:column;justify-content:space-between;
+  padding:40px 44px;
+}
+html[data-theme="light"] .stage{
+  background:radial-gradient(125% 95% at 18% 2%, #F7FBFD 0%, var(--navy-1) 48%, var(--navy-0) 100%);
+}
+
+/* aurora */
+.aurora{position:absolute;inset:-25%;pointer-events:none;filter:blur(52px);opacity:.55;will-change:transform}
+html[data-theme="light"] .aurora{opacity:.5;filter:blur(60px)}
+.aurora i{position:absolute;display:block;border-radius:50%;will-change:transform}
+.aurora i:nth-child(1){width:52%;height:52%;left:2%;top:6%;background:radial-gradient(circle,rgba(62,143,184,.85),transparent 65%);animation:drift1 26s ease-in-out infinite}
+.aurora i:nth-child(2){width:46%;height:46%;right:4%;top:34%;background:radial-gradient(circle,rgba(127,227,224,.55),transparent 65%);animation:drift2 32s ease-in-out infinite}
+.aurora i:nth-child(3){width:44%;height:44%;left:26%;bottom:2%;background:radial-gradient(circle,rgba(107,184,218,.50),transparent 65%);animation:drift3 38s ease-in-out infinite}
+@keyframes drift1{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7%,5%,0) scale(1.12)}}
+@keyframes drift2{0%,100%{transform:translate3d(0,0,0) scale(1.05)}50%{transform:translate3d(-6%,-6%,0) scale(.95)}}
+@keyframes drift3{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4%,-7%,0) scale(1.1)}}
+
+/* perspective grid */
+.grid{
+  position:absolute;left:-30%;right:-30%;bottom:-14%;height:70%;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size:74px 74px;
+  transform:perspective(560px) rotateX(66deg);
+  transform-origin:50% 100%;
+  mask-image:linear-gradient(to top, rgba(0,0,0,.85), transparent 78%);
+  -webkit-mask-image:linear-gradient(to top, rgba(0,0,0,.85), transparent 78%);
+  pointer-events:none;
+}
+html[data-theme="light"] .grid{background-image:
+  linear-gradient(to right, rgba(20,45,80,.12) 1px, transparent 1px),
+  linear-gradient(to bottom, rgba(20,45,80,.12) 1px, transparent 1px)}
+
+.stage-top,.stage-mid,.stage-bot{position:relative;z-index:2}
+.logo{font-family:'Sora',sans-serif;font-weight:700;font-size:26px;letter-spacing:-.02em;color:var(--text)}
+.logo span{color:var(--blue)}
+
+.stage-mid{display:grid;grid-template-columns:minmax(300px,420px) minmax(0,1fr);gap:34px;align-items:center;flex:1;padding:24px 0}
+
+.eyebrow{
+  display:inline-flex;align-items:center;gap:11px;
+  font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-2);
+  margin-bottom:20px;
+}
+.eyebrow::before{content:"";width:26px;height:1.5px;background:var(--blue);border-radius:2px}
+h1{font-size:clamp(34px,3.5vw,52px);line-height:1.06;font-weight:700;letter-spacing:-.025em;margin-bottom:18px}
+.lede{font-size:16px;line-height:1.62;color:var(--text-2);max-width:44ch}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 28px}
+.chip{
+  font-size:12px;font-weight:600;letter-spacing:.01em;color:var(--text-2);
+  border:1px solid var(--line);background:rgba(255,255,255,.045);
+  padding:7px 13px;border-radius:999px;
+}
+html[data-theme="light"] .chip{background:rgba(255,255,255,.7)}
+
+.ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  font-family:inherit;font-size:14.5px;font-weight:700;cursor:pointer;
+  padding:13px 22px;border-radius:var(--r);border:1px solid transparent;
+  transition:transform var(--fast) var(--ease), box-shadow var(--fast) var(--ease), background var(--fast);
+}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--blue);color:var(--ink);box-shadow:0 8px 26px -10px rgba(107,184,218,.75)}
+.btn-primary:hover{background:#7FC5E3;box-shadow:0 12px 32px -10px rgba(107,184,218,.9)}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--line-strong)}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:var(--blue)}
+html[data-theme="light"] .btn-ghost:hover{background:rgba(20,30,50,.05)}
+
+/* network */
+.net-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:420px}
+.net{position:relative;width:min(100%,470px);aspect-ratio:1/.92;transition:transform .5s var(--ease)}
+.net svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.edge{stroke:rgba(255,255,255,.13);stroke-width:1.2;fill:none;transition:stroke .5s var(--ease), stroke-width .5s var(--ease)}
+html[data-theme="light"] .edge{stroke:rgba(20,40,70,.16)}
+.edge.live{stroke:var(--blue);stroke-width:1.9}
+
+.node{
+  position:absolute;transform:translate(-50%,-50%);
+  display:flex;flex-direction:column;align-items:center;gap:7px;
+  transition:transform .45s var(--ease);
+}
+.node .dot{
+  width:44px;height:44px;border-radius:13px;display:grid;place-items:center;
+  background:rgba(255,255,255,.055);border:1px solid var(--line);
+  backdrop-filter:blur(10px);
+  transition:box-shadow .45s var(--ease), border-color .45s var(--ease), background .45s var(--ease), transform .45s var(--ease);
+}
+html[data-theme="light"] .node .dot{background:rgba(255,255,255,.85)}
+.node .dot svg{width:20px;height:20px;stroke:var(--text-2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;position:static;transition:stroke .45s}
+.node .label{font-size:11px;font-weight:600;letter-spacing:.03em;color:var(--text-3);white-space:nowrap;transition:color .45s}
+.node.live .dot{border-color:var(--blue);background:rgba(107,184,218,.16);box-shadow:0 0 0 4px rgba(107,184,218,.10),0 0 30px -4px rgba(107,184,218,.65);transform:scale(1.07)}
+.node.live .dot svg{stroke:var(--blue)}
+.node.live .label{color:var(--text)}
+
+.core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+.core .ring{
+  width:104px;height:104px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 40%, rgba(107,184,218,.30), rgba(107,184,218,.05) 70%);
+  border:1px solid rgba(107,184,218,.45);
+  box-shadow:0 0 46px -6px rgba(107,184,218,.55), inset 0 0 30px -8px rgba(127,227,224,.55);
+}
+.core .ring b{font-family:'Sora',sans-serif;font-size:19px;font-weight:700;letter-spacing:-.02em;color:var(--text)}
+.core .cap{margin-top:10px;font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.core::after{
+  content:"";position:absolute;left:50%;top:52px;width:104px;height:104px;
+  transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(107,184,218,.5);
+  animation:ripple 3.4s ease-out infinite;pointer-events:none;
+}
+@keyframes ripple{0%{opacity:.55;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.05)}}
+
+.pulse{
+  position:absolute;width:7px;height:7px;border-radius:50%;
+  background:var(--cyan);box-shadow:0 0 14px 3px rgba(127,227,224,.85);
+  transform:translate(-50%,-50%);pointer-events:none;
+}
+
+/* event feed */
+.feed{position:absolute;right:44px;bottom:80px;display:flex;flex-direction:column;gap:8px;width:min(46%,300px);z-index:3}
+.event{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.07);border:1px solid var(--line);
+  backdrop-filter:blur(14px);border-radius:12px;padding:10px 13px;
+  animation:evIn .32s var(--ease) both;
+}
+html[data-theme="light"] .event{background:rgba(255,255,255,.85)}
+.event.out{animation:evOut .32s var(--ease) both}
+@keyframes evIn{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes evOut{to{opacity:0;transform:translateY(-6px)}}
+.event .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px 1px rgba(74,222,128,.7);flex:none}
+.event .txt{font-size:12.5px;font-weight:600;color:var(--text)}
+.event .meta{font-size:11px;color:var(--text-3);margin-left:auto;font-variant-numeric:tabular-nums}
+
+.stage-bot{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.copyright{font-size:12px;color:var(--text-3)}
+.livebar{display:none;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.livebar .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px 1px rgba(74,222,128,.7)}
+
+/* ─────────── RIGHT: quick login ─────────── */
+.panel{
+  background:var(--panel);position:relative;
+  display:flex;flex-direction:column;
+  padding:26px 44px 34px;overflow-y:auto;
+  border-left:1px solid var(--line);
+}
+.panel-top{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:auto}
+.iconbtn{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;cursor:pointer;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--text-2);
+  transition:color var(--fast),border-color var(--fast),background var(--fast);
+}
+.iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
+.iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.langtog{display:flex;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:3px}
+.langtog button{
+  font-family:inherit;font-size:11.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;
+  padding:6px 11px;border-radius:8px;border:0;background:transparent;color:var(--text-3);transition:all var(--fast);
+}
+.langtog button[aria-pressed="true"]{background:var(--blue);color:var(--ink)}
+
+.login{width:100%;max-width:392px;margin:0 auto;padding:18px 0}
+
+.loc{
+  display:inline-flex;align-items:center;gap:9px;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:999px;
+  padding:7px 14px 7px 11px;margin-bottom:20px;
+}
+.loc .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px 1px rgba(74,222,128,.65);flex:none}
+.loc .name{font-size:12.5px;font-weight:700;color:var(--text)}
+.loc .sub{font-size:12.5px;color:var(--text-3)}
+
+h2{font-size:27px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px}
+.panel-lede{font-size:13.5px;color:var(--text-3);margin-bottom:18px}
+
+.fieldlabel{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--text-3);margin-bottom:9px}
+
+.staff{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px}
+.person{
+  font-family:inherit;cursor:pointer;text-align:center;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);
+  padding:11px 6px 9px;min-height:84px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  transition:border-color var(--fast),background var(--fast),transform var(--fast);
+}
+.person:hover{border-color:var(--line-strong);background:rgba(255,255,255,.05)}
+html[data-theme="light"] .person:hover{background:#EAEFF6}
+.person:active{transform:scale(.98)}
+.person[aria-pressed="true"]{border-color:var(--blue);background:rgba(107,184,218,.13);box-shadow:0 0 0 3px rgba(107,184,218,.13)}
+.avatar{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  font-family:'Sora',sans-serif;font-size:12.5px;font-weight:700;color:var(--ink);
+  background:linear-gradient(145deg,var(--blue),var(--cyan));
+}
+.person .pname{font-size:11.5px;font-weight:700;color:var(--text);line-height:1.25}
+.person .prole{font-size:10px;color:var(--text-3)}
+
+.pin{display:flex;gap:10px;margin-bottom:14px}
+.pin i{
+  flex:1;height:54px;border-radius:var(--r);
+  background:var(--panel-2);border:1px solid var(--line);
+  display:grid;place-items:center;
+  transition:border-color var(--fast),background var(--fast),box-shadow var(--fast);
+}
+.pin i.active{border-color:var(--blue);box-shadow:0 0 0 3px rgba(107,184,218,.14)}
+.pin i.filled{border-color:var(--line-strong)}
+.pin i b{width:12px;height:12px;border-radius:50%;background:var(--blue);transform:scale(0);transition:transform .14s var(--ease)}
+.pin i.filled b{transform:scale(1)}
+.pin.error i{border-color:#EF6A6A;animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.key{
+  font-family:'Sora',sans-serif;font-size:20px;font-weight:600;color:var(--text);cursor:pointer;
+  background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);
+  height:52px;display:grid;place-items:center;
+  transition:background var(--fast),border-color var(--fast),transform var(--fast);
+  font-variant-numeric:tabular-nums;
+}
+.key:hover{background:rgba(255,255,255,.06);border-color:var(--line-strong)}
+html[data-theme="light"] .key:hover{background:#EAEFF6}
+.key:active{transform:scale(.96);background:rgba(107,184,218,.18)}
+.key.util{font-size:0}
+.key svg{width:22px;height:22px;stroke:var(--text-2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.key.blank{background:transparent;border-color:transparent;cursor:default}
+.key.blank:hover{background:transparent}
+
+.hint{font-size:12.5px;color:var(--text-3);text-align:center;min-height:19px;margin-bottom:14px;transition:color var(--fast)}
+.hint.err{color:#EF6A6A}
+.hint.ok{color:var(--green)}
+
+.emaillink{
+  display:block;width:100%;text-align:center;background:none;border:0;cursor:pointer;
+  font-family:inherit;font-size:13px;font-weight:600;color:var(--text-3);
+  padding:10px;border-radius:10px;transition:color var(--fast),background var(--fast);
+}
+.emaillink:hover{color:var(--blue)}
+
+.panel-foot{text-align:center;font-size:11.5px;color:var(--text-3);margin-top:auto;padding-top:14px}
+
+/* success */
+.done{
+  position:absolute;inset:0;background:var(--panel);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;
+}
+.done.show{display:flex;animation:evIn .3s var(--ease) both}
+.done .mark{
+  width:66px;height:66px;border-radius:50%;display:grid;place-items:center;
+  background:rgba(74,222,128,.14);border:1px solid rgba(74,222,128,.45);
+}
+.done .mark svg{width:30px;height:30px;stroke:var(--green);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.done .t{font-family:'Sora',sans-serif;font-size:19px;font-weight:700}
+.done .s{font-size:13px;color:var(--text-3)}
+.done button{margin-top:6px}
+
+/* concept note */
+.note{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--text-3);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  padding:5px 11px;border-radius:999px;
+}
+html[data-theme="light"] .note{background:rgba(255,255,255,.7)}
+.stage-top{display:flex;align-items:center;gap:14px}
+
+/* ─────────── responsive ─────────── */
+@media (max-width:1080px){
+  .stage-mid{grid-template-columns:1fr;gap:20px}
+  .net-wrap{min-height:340px}
+}
+@media (max-width:900px){
+  body{overflow:auto}
+  .shell{grid-template-columns:1fr;height:auto}
+  .stage{padding:24px 22px 26px;min-height:auto}
+  .stage-mid{padding:18px 0}
+  /* mobile / weak POS hardware → one animated status line instead of the network */
+  .net-wrap,.feed,.grid,.aurora i:nth-child(3){display:none}
+  .livebar{display:flex}
+  .panel{border-left:0;border-top:1px solid var(--line);padding:20px 22px 30px}
+  .login{padding:14px 0}
+  h1{font-size:32px}
+  .note{display:none}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .aurora i,.core::after{animation:none!important}
+  .event{animation:none!important}
+  *{transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ══════════ LEFT ══════════ -->
+  <section class="stage" id="stage">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="grid" aria-hidden="true"></div>
+
+    <div class="stage-top">
+      <div class="logo">plorea<span>.</span></div>
+      <span class="note" data-i18n="note">Konsept · ikke produksjon</span>
+    </div>
+
+    <div class="stage-mid">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Sanntids unified commerce</div>
+        <h1 data-i18n="h1">Hele driften, i sanntid.</h1>
+        <p class="lede" data-i18n="lede">Plorea samler hvert salg, hver betaling og hver bestilling — kasse, kiosk, QR-bestilling og netthandel i ett levende bilde av driften.</p>
+        <div class="chips">
+          <span class="chip">POS</span>
+          <span class="chip" data-i18n="chip2">Betaling</span>
+          <span class="chip" data-i18n="chip3">Bestilling</span>
+          <span class="chip" data-i18n="chip4">Netthandel</span>
+        </div>
+        <div class="ctas">
+          <button class="btn btn-primary" data-i18n="cta1">Se Plorea i drift</button>
+          <button class="btn btn-ghost" data-i18n="cta2">Book en demo</button>
+        </div>
+      </div>
+
+      <div class="net-wrap">
+        <div class="net" id="net">
+          <svg id="edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="core">
+            <div class="ring"><b>Plorea</b></div>
+            <div class="cap" data-i18n="core">Sanntidskjerne</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-bot">
+      <div class="copyright">© Plorea</div>
+      <div class="livebar"><span class="pip"></span><span id="livetext">Alle kanaler synkronisert</span></div>
+    </div>
+
+    <div class="feed" id="feed" aria-live="polite" aria-label="Live activity"></div>
+  </section>
+
+  <!-- ══════════ RIGHT ══════════ -->
+  <aside class="panel" id="panel">
+    <div class="panel-top">
+      <div class="langtog" role="group" aria-label="Language">
+        <button id="langNO" aria-pressed="true">NO</button>
+        <button id="langEN" aria-pressed="false">EN</button>
+      </div>
+      <button class="iconbtn" id="themeBtn" aria-label="Bytt tema">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+    </div>
+
+    <div class="login">
+      <div class="loc">
+        <span class="pip"></span>
+        <span class="name">Trondheim Biffhus</span>
+        <span class="sub">· Trondheim</span>
+      </div>
+
+      <h2 data-i18n="qtitle">Hurtig innlogging</h2>
+      <p class="panel-lede" data-i18n="qlede">Velg deg selv og tast kortkoden.</p>
+
+      <div class="fieldlabel" data-i18n="lstaff">Ansatt</div>
+      <div class="staff" id="staff"></div>
+
+      <div class="fieldlabel" data-i18n="lpin">Kortkode</div>
+      <div class="pin" id="pin"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+
+      <div class="keys" id="keys"></div>
+
+      <div class="hint" id="hint" data-i18n="hint">Innlogging skjer automatisk ved fjerde siffer.</div>
+
+      <button class="emaillink" data-i18n="email">Bruk e-post i stedet</button>
+    </div>
+
+    <div class="panel-foot" data-i18n="foot">Ved innlogging godtar du Ploreas vilkår og personvernerklæring.</div>
+
+    <div class="done" id="done">
+      <div class="mark"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg></div>
+      <div class="t" id="doneName">Velkommen</div>
+      <div class="s" data-i18n="doneSub">Åpner kassen …</div>
+      <button class="btn btn-ghost" id="resetBtn" data-i18n="again">Vis igjen</button>
+    </div>
+  </aside>
+</div>
+
+
+<script>
+(() => {
+"use strict";
+
+/* ───────── i18n ───────── */
+const I18N = {
+  no:{
+    eyebrow:"Sanntids unified commerce",
+    h1:"Hele driften, i sanntid.",
+    lede:"Plorea samler hvert salg, hver betaling og hver bestilling — kasse, kiosk, QR-bestilling og netthandel i ett levende bilde av driften.",
+    chip2:"Betaling", chip3:"Bestilling", chip4:"Netthandel",
+    cta1:"Se Plorea i drift", cta2:"Book en demo",
+    core:"Sanntidskjerne",
+    qtitle:"Hurtig innlogging", qlede:"Velg deg selv og tast kortkoden.",
+    lstaff:"Ansatt", lpin:"Kortkode",
+    hint:"Innlogging skjer automatisk ved fjerde siffer.",
+    email:"Bruk e-post i stedet",
+    foot:"Ved innlogging godtar du Ploreas vilkår og personvernerklæring.",
+    doneSub:"Åpner kassen …", again:"Vis igjen",
+    note:"Konsept · ikke produksjon",
+    pickFirst:"Velg en ansatt først.",
+    wrong:"Feil kortkode. Prøv igjen.",
+    welcome:"Velkommen,",
+    nodes:{pos:"Kasse",kiosk:"Kiosk",qr:"QR-bestilling",web:"Netthandel",pay:"Betaling",stock:"Lager"},
+    events:[
+      ["kiosk","Ny bestilling · Kiosk"],
+      ["pay","Betaling godkjent · Terminal 2"],
+      ["pos","Bestilling sendt til kjøkken"],
+      ["web","Nettbestilling mottatt"],
+      ["stock","Lager oppdatert"],
+      ["all","Alle kanaler synkronisert"]
+    ],
+    live:"Alle kanaler synkronisert"
+  },
+  en:{
+    eyebrow:"Real-time unified commerce",
+    h1:"Your whole operation, live.",
+    lede:"Plorea connects every sale, every payment and every order — POS, kiosk, QR ordering and online in one live view of your business.",
+    chip2:"Payments", chip3:"Ordering", chip4:"E-commerce",
+    cta1:"See Plorea in action", cta2:"Book a demo",
+    core:"Real-time core",
+    qtitle:"Quick login", qlede:"Pick yourself and enter your code.",
+    lstaff:"Employee", lpin:"Passcode",
+    hint:"Signs you in automatically on the fourth digit.",
+    email:"Use email instead",
+    foot:"By signing in you accept Plorea's terms and privacy policy.",
+    doneSub:"Opening the till …", again:"Show again",
+    note:"Concept · not production",
+    pickFirst:"Pick an employee first.",
+    wrong:"Wrong passcode. Try again.",
+    welcome:"Welcome,",
+    nodes:{pos:"POS",kiosk:"Kiosk",qr:"QR ordering",web:"Online store",pay:"Payments",stock:"Inventory"},
+    events:[
+      ["kiosk","New order · Kiosk"],
+      ["pay","Payment approved · Terminal 2"],
+      ["pos","Order sent to kitchen"],
+      ["web","Online order received"],
+      ["stock","Inventory synchronized"],
+      ["all","All channels synchronized"]
+    ],
+    live:"All channels synchronized"
+  }
+};
+let lang = "no";
+const t = () => I18N[lang];
+
+/* ───────── network ───────── */
+const ICONS = {
+  pos:'<path d="M4 7h16v10H4z"/><path d="M4 11h16"/><path d="M8 15h3"/>',
+  kiosk:'<rect x="6" y="3" width="12" height="14" rx="2"/><path d="M9 21h6"/><path d="M12 17v4"/>',
+  qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 20h1M17 21v-1"/>',
+  web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+  pay:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/><path d="M6 15h4"/>',
+  stock:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/>'
+};
+/* ring positions in % of the .net box */
+const NODES = [
+  {id:"kiosk", x:50,  y:6},
+  {id:"pay",   x:91,  y:29},
+  {id:"stock", x:91,  y:73},
+  {id:"pos",   x:50,  y:95},
+  {id:"web",   x:9,   y:73},
+  {id:"qr",    x:9,   y:29}
+];
+
+const net = document.getElementById("net");
+const edgesSvg = document.getElementById("edges");
+const feed = document.getElementById("feed");
+const nodeEls = {};
+
+function buildNetwork(){
+  edgesSvg.innerHTML = "";
+  NODES.forEach(n=>{
+    const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+    ln.setAttribute("x1",50); ln.setAttribute("y1",50);
+    ln.setAttribute("x2",n.x); ln.setAttribute("y2",n.y);
+    ln.setAttribute("class","edge"); ln.dataset.id = n.id;
+    ln.setAttribute("vector-effect","non-scaling-stroke");
+    edgesSvg.appendChild(ln);
+
+    const el = document.createElement("div");
+    el.className = "node";
+    el.style.left = n.x + "%";
+    el.style.top  = n.y + "%";
+    el.innerHTML = '<div class="dot"><svg viewBox="0 0 24 24">'+ICONS[n.id]+'</svg></div>'+
+                   '<div class="label" data-node="'+n.id+'"></div>';
+    net.appendChild(el);
+    nodeEls[n.id] = el;
+  });
+  paintNodeLabels();
+}
+function paintNodeLabels(){
+  document.querySelectorAll("[data-node]").forEach(el=>{
+    el.textContent = t().nodes[el.dataset.node];
+  });
+}
+
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function firePulse(id, inbound){
+  if (reduced.matches) return;
+  const box = net.getBoundingClientRect();
+  const n = NODES.find(v=>v.id===id);
+  const cx = box.width/2, cy = box.height/2;
+  const nx = box.width*n.x/100, ny = box.height*n.y/100;
+  const from = inbound ? [nx,ny] : [cx,cy];
+  const to   = inbound ? [cx,cy] : [nx,ny];
+
+  const p = document.createElement("div");
+  p.className = "pulse";
+  net.appendChild(p);
+  const anim = p.animate(
+    [{transform:`translate(${from[0]}px,${from[1]}px) translate(-50%,-50%) scale(.6)`, opacity:0},
+     {transform:`translate(${(from[0]+to[0])/2}px,${(from[1]+to[1])/2}px) translate(-50%,-50%) scale(1)`, opacity:1, offset:.45},
+     {transform:`translate(${to[0]}px,${to[1]}px) translate(-50%,-50%) scale(.6)`, opacity:0}],
+    {duration:1100, easing:"cubic-bezier(.4,0,.3,1)"}
+  );
+  anim.onfinish = () => p.remove();
+}
+
+function activate(id, inbound){
+  const ids = id === "all" ? NODES.map(n=>n.id) : [id];
+  ids.forEach((v,i)=>{
+    const node = nodeEls[v];
+    const edge = edgesSvg.querySelector('[data-id="'+v+'"]');
+    if(!node) return;
+    setTimeout(()=>{
+      node.classList.add("live"); edge && edge.classList.add("live");
+      firePulse(v, inbound);
+      setTimeout(()=>{ node.classList.remove("live"); edge && edge.classList.remove("live"); }, 1600);
+    }, i*110);
+  });
+}
+
+function pushEvent(text){
+  const el = document.createElement("div");
+  el.className = "event";
+  const time = new Date();
+  const hh = String(time.getHours()).padStart(2,"0"), mm = String(time.getMinutes()).padStart(2,"0");
+  el.innerHTML = '<span class="pip"></span><span class="txt"></span><span class="meta">'+hh+':'+mm+'</span>';
+  el.querySelector(".txt").textContent = text;
+  feed.appendChild(el);
+  while (feed.children.length > 3){
+    const first = feed.firstElementChild;
+    first.classList.add("out");
+    setTimeout(()=>first.remove(), 300);
+    if (feed.children.length > 4) first.remove();
+  }
+  setTimeout(()=>{ if(el.isConnected){ el.classList.add("out"); setTimeout(()=>el.remove(),300);} }, 7000);
+}
+
+/* 6 steps × ~2.3s ≈ 14 s loop */
+let step = 0, timer = null;
+const INBOUND = {kiosk:true, web:true, qr:true, pos:false, pay:false, stock:false, all:false};
+function tick(){
+  const [id, ] = t().events[step % t().events.length];
+  const label = t().events[step % t().events.length][1];
+  activate(id, INBOUND[id]);
+  pushEvent(label);
+  document.getElementById("livetext").textContent = label;
+  step++;
+}
+function start(){ if(timer) return; tick(); timer = setInterval(tick, 2300); }
+function stop(){ clearInterval(timer); timer = null; }
+
+document.addEventListener("visibilitychange", ()=> document.hidden ? stop() : start());
+reduced.addEventListener("change", e => e.matches ? stop() : start());
+
+/* parallax */
+const stage = document.getElementById("stage");
+stage.addEventListener("mousemove", e=>{
+  if (reduced.matches) return;
+  const r = stage.getBoundingClientRect();
+  const dx = (e.clientX - r.left)/r.width - .5;
+  const dy = (e.clientY - r.top)/r.height - .5;
+  net.style.transform = `translate3d(${dx*-16}px, ${dy*-12}px, 0)`;
+});
+stage.addEventListener("mouseleave", ()=> net.style.transform = "");
+
+/* ───────── quick login ───────── */
+/* Inger, Sam and Wiktoria are the real accounts on the terminal today.
+   The last three are dummy names, only there to show the 6-card grid. */
+const STAFF = [
+  {n:"Inger",              r:"Servitør / Server"},
+  {n:"Sam Lofti",          r:"Bar"},
+  {n:"Wiktoria Mielniczuk",r:"Kjøkken / Kitchen"},
+  {n:"Ola Nordmann",       r:"Servitør / Server"},
+  {n:"Mari Berg",          r:"Vertskap / Host"},
+  {n:"Jonas Ek",           r:"Skiftleder / Shift lead"}
+];
+const CODE = "1234";
+
+const staffWrap = document.getElementById("staff");
+let picked = null;
+STAFF.forEach((s,i)=>{
+  const b = document.createElement("button");
+  b.className = "person"; b.type = "button"; b.setAttribute("aria-pressed","false");
+  const parts = s.n.split(" ");
+  const initials = (parts[0][0] + (parts[1]? parts[1][0] : "")).toUpperCase();
+  b.innerHTML = '<span class="avatar">'+initials+'</span>'+
+                '<span class="pname">'+parts[0]+'</span>'+
+                '<span class="prole">'+s.r+'</span>';
+  b.addEventListener("click", ()=>{
+    staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    picked = s; clearPin(); setHint("");
+  });
+  staffWrap.appendChild(b);
+});
+
+const pinWrap = document.getElementById("pin");
+const hintEl = document.getElementById("hint");
+let entry = "";
+
+function renderPin(){
+  [...pinWrap.children].forEach((cell,i)=>{
+    cell.classList.toggle("filled", i < entry.length);
+    cell.classList.toggle("active", i === entry.length);
+  });
+}
+function clearPin(){ entry = ""; pinWrap.classList.remove("error"); renderPin(); }
+function setHint(msg, kind){
+  hintEl.textContent = msg === "" ? t().hint : msg;
+  hintEl.className = "hint" + (kind ? " " + kind : "");
+}
+function press(d){
+  if (!picked){ setHint(t().pickFirst, "err"); return; }
+  if (entry.length >= 4) return;
+  entry += d; renderPin();
+  if (entry.length === 4) setTimeout(submit, 180);   /* auto-submit on 4th digit */
+}
+function back(){ entry = entry.slice(0,-1); renderPin(); }
+function submit(){
+  if (entry === CODE){ showDone(); }
+  else {
+    pinWrap.classList.add("error");
+    setHint(t().wrong, "err");
+    setTimeout(()=>{ clearPin(); }, 420);
+  }
+}
+
+const keys = document.getElementById("keys");
+const layout = ["1","2","3","4","5","6","7","8","9","clear","0","back"];
+layout.forEach(k=>{
+  const b = document.createElement("button");
+  b.type = "button";
+  if (k === "back"){
+    b.className = "key util"; b.setAttribute("aria-label","Backspace");
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z"/><path d="m18 9-6 6M12 9l6 6"/></svg>';
+    b.addEventListener("click", back);
+  } else if (k === "clear"){
+    b.className = "key util"; b.setAttribute("aria-label","Clear");
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+    b.addEventListener("click", ()=>{ clearPin(); setHint(""); });
+  } else {
+    b.className = "key"; b.textContent = k;
+    b.addEventListener("click", ()=>press(k));
+  }
+  keys.appendChild(b);
+});
+document.addEventListener("keydown", e=>{
+  if (/^[0-9]$/.test(e.key)) press(e.key);
+  else if (e.key === "Backspace") back();
+});
+
+const doneEl = document.getElementById("done");
+function showDone(){
+  document.getElementById("doneName").textContent = t().welcome + " " + picked.n.split(" ")[0];
+  doneEl.classList.add("show");
+}
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  doneEl.classList.remove("show");
+  staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
+  picked = null; clearPin(); setHint("");
+});
+
+/* ───────── theme + language ───────── */
+const themeBtn = document.getElementById("themeBtn");
+const SUN = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M19.1 4.9l-1.5 1.5M6.4 17.6l-1.5 1.5"/>';
+const MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
+themeBtn.addEventListener("click", ()=>{
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  document.getElementById("themeIcon").innerHTML = next === "dark" ? MOON : SUN;
+});
+
+function applyLang(l){
+  lang = l;
+  document.documentElement.dataset.lang = l;
+  document.documentElement.lang = l === "no" ? "no" : "en";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const v = t()[el.dataset.i18n];
+    if (v) el.textContent = v;
+  });
+  paintNodeLabels();
+  feed.innerHTML = "";            /* don't leave the other language's events on screen */
+  document.getElementById("langNO").setAttribute("aria-pressed", l==="no");
+  document.getElementById("langEN").setAttribute("aria-pressed", l==="en");
+  document.getElementById("livetext").textContent = t().live;
+  setHint("");
+}
+document.getElementById("langNO").addEventListener("click", ()=>applyLang("no"));
+document.getElementById("langEN").addEventListener("click", ()=>applyLang("en"));
+
+/* ───────── boot ───────── */
+buildNetwork();
+renderPin();
+applyLang("no");
+if (!reduced.matches) start();
+})();
+</script>
+</body>
+</html>
