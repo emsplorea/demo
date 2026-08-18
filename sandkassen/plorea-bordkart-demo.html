@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="nb" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plorea POS · Bordkart under P-knappen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   PLOREA TOKENS — hentet fra terminal.ploreasystems.com (dark)
+   ============================================================ */
+:root{
+  --color-surface:#1E1D24; --color-surface-elevated:#26242E; --color-surface-hover:#2E2C38;
+  --color-surface-overlay:rgba(0,0,0,.64);
+  --color-border:#2E2C38; --color-border-strong:#3D3A4A; --color-border-focus:#7EC8E3;
+  --color-text-primary:#F0EEF5; --color-text-secondary:#9B98A8; --color-text-muted:#5C5970;
+  --color-text-inverted:#16151A;
+  --color-primary:#6BB8DA; --color-secondary:#468DAC; --color-accent:#7EC8E3;
+  --color-blue-200:#99D2E8; --color-blue-600:#4FA3C8; --color-blue-900:#1D4A5F;
+  --color-success:#4DB896; --color-warning:#C4C44A; --color-danger:#D45858;
+  --shadow-focus:0 0 0 3px rgba(126,200,227,.4);
+  --elevation-2:0 4px 16px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.04);
+  --elevation-3:0 12px 40px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.05);
+  --elevation-4:0 20px 60px rgba(0,0,0,.7), 0 0 0 1px rgba(255,255,255,.06);
+  --r-sm:4px; --r-md:6px; --r-lg:8px; --r-xl:14px; --r-2xl:20px; --r-full:9999px;
+  --dur-fast:100ms; --dur-default:160ms; --dur-slow:240ms; --dur-panel:320ms;
+  --ease:cubic-bezier(.4,0,.2,1); --ease-out:cubic-bezier(.16,1,.3,1);
+
+  /* Bordstatus — semantiske farger fra samme tokens-lag */
+  --tbl-free:var(--color-success);
+  --tbl-busy:var(--color-danger);
+  --tbl-mine:var(--color-primary);
+}
+*,*::before,*::after{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; margin:0; }
+body{
+  background:#141319; color:var(--color-text-primary);
+  font-family:"Plus Jakarta Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; overflow:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(120% 80% at 10% -12%, rgba(107,184,218,.12), transparent 60%),
+    radial-gradient(100% 70% at 94% 110%, rgba(77,184,150,.09), transparent 62%);
+}
+.mono{ font-variant-numeric:tabular-nums; }
+button{ font-family:inherit; }
+
+/* ============================================================
+   DEMO-RAMME
+   ============================================================ */
+.wrap{ position:relative; z-index:1; height:100dvh; display:flex; flex-direction:column; }
+.topbar{
+  flex:none; display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+  padding:11px 20px; border-bottom:1px solid var(--color-border);
+  background:rgba(30,29,36,.72); backdrop-filter:blur(10px);
+}
+.brand{ display:flex; align-items:baseline; gap:10px; margin-right:auto; }
+.brand .wm{ font-weight:800; font-size:19px; letter-spacing:-.03em; }
+.brand .wm i{ font-style:normal; color:var(--color-primary); }
+.brand span{ font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--color-text-muted); }
+
+.seg{ display:flex; gap:3px; padding:3px; background:var(--color-surface-elevated); border:1px solid var(--color-border-strong); border-radius:var(--r-full); }
+.seg button{
+  font-weight:700; font-size:12px; color:var(--color-text-secondary); background:none; border:0;
+  padding:7px 15px; border-radius:var(--r-full); cursor:pointer; transition:all var(--dur-default) var(--ease); white-space:nowrap;
+}
+.seg button:hover{ color:var(--color-text-primary); }
+.seg button.on{ background:var(--color-primary); color:var(--color-text-inverted); }
+.tgl{ display:flex; align-items:center; gap:9px; font-size:12px; font-weight:700; color:var(--color-text-secondary); cursor:pointer; user-select:none; }
+.tgl .sw{ width:40px; height:23px; border-radius:var(--r-full); background:var(--color-surface-hover); position:relative; border:1px solid var(--color-border-strong); transition:all var(--dur-default) var(--ease); flex:none; }
+.tgl .sw::after{ content:""; position:absolute; top:2px; left:2px; width:17px; height:17px; border-radius:var(--r-full); background:var(--color-text-secondary); transition:all var(--dur-default) var(--ease); }
+.tgl.on{ color:var(--color-text-primary); }
+.tgl.on .sw{ background:var(--color-success); border-color:var(--color-success); }
+.tgl.on .sw::after{ left:20px; background:#0F241D; }
+
+.viewport{ flex:1; min-height:0; display:grid; place-items:center; padding:14px; overflow:hidden; }
+.stack{ display:flex; flex-direction:column; align-items:center; gap:12px; }
+.frame{ transform-origin:top center; }
+.cap{ font-size:12px; color:var(--color-text-muted); text-align:center; max-width:860px; line-height:1.65; margin:0; }
+.cap b{ color:var(--color-text-secondary); }
+
+.bezel{ position:relative; background:#0E0D12; border-radius:18px; padding:12px; box-shadow:0 34px 80px rgba(0,0,0,.65); }
+[data-device="terminal"] .bezel{ border-radius:32px; padding:11px 11px 18px; }
+[data-device="terminal"] .bezel::after{
+  content:""; position:absolute; left:50%; bottom:7px; transform:translateX(-50%);
+  width:96px; height:3px; border-radius:var(--r-full); background:#3A3745;
+}
+.app{
+  position:relative; overflow:hidden; background:var(--color-surface);
+  border-radius:8px; display:flex; flex-direction:column;
+}
+[data-device="pc"]       .app{ width:1400px; height:800px; }
+[data-device="tablet"]   .app{ width:1024px; height:768px; }
+[data-device="terminal"] .app{ width:360px; height:720px; border-radius:22px; }
+
+/* ============================================================
+   POS — kassen slik den er i dag
+   ============================================================ */
+.pos{ display:flex; flex-direction:column; height:100%; min-height:0; }
+
+.printerbar{ flex:none; display:flex; flex-wrap:wrap; gap:5px; padding:5px 8px 0; }
+.badge-err{
+  display:inline-flex; align-items:center; gap:5px; border:0; cursor:pointer;
+  background:rgba(212,88,88,.22); color:#F3A5A5; border:1px solid rgba(212,88,88,.45);
+  font-size:10.5px; font-weight:700; padding:3px 9px; border-radius:var(--r-full);
+}
+.badge-err svg{ width:11px; height:11px; }
+[data-device="terminal"] .printerbar{ display:none; }
+
+.pos-top{ flex:none; display:flex; align-items:center; gap:12px; padding:8px 14px 10px; }
+.wordmark{ font-weight:800; font-size:26px; letter-spacing:-.035em; line-height:1; }
+.wordmark i{ font-style:normal; color:var(--color-primary); }
+[data-device="terminal"] .wordmark{ font-size:20px; }
+.burger{
+  width:48px; height:44px; display:grid; place-items:center; cursor:pointer;
+  background:transparent; border:1px solid var(--color-border-strong); border-radius:var(--r-lg);
+  color:var(--color-text-primary); transition:background var(--dur-default) var(--ease);
+}
+.burger:hover{ background:var(--color-surface-elevated); }
+.burger svg{ width:22px; height:22px; }
+.svinn{
+  margin-left:auto; display:inline-flex; align-items:center; gap:6px; cursor:pointer;
+  background:transparent; border:1px solid var(--color-primary); color:var(--color-primary);
+  font-size:12px; font-weight:700; padding:6px 13px; border-radius:var(--r-full);
+}
+
+.pos-grid{ flex:1; min-height:0; display:grid; gap:14px; padding:0 14px 14px; }
+[data-device="pc"] .pos-grid{ grid-template-columns:8fr 4fr; }
+[data-device="tablet"] .pos-grid{ grid-template-columns:7fr 5fr; }
+[data-device="terminal"] .pos-grid{ grid-template-columns:1fr; padding:0 10px 10px; }
+
+/* varegrid */
+.items{ min-height:0; overflow:auto; padding-right:4px; }
+.items::-webkit-scrollbar{ width:9px; }
+.items::-webkit-scrollbar-thumb{ background:var(--color-border-strong); border-radius:var(--r-full); }
+.itemgrid{ display:grid; gap:10px; grid-template-columns:repeat(5,1fr); }
+[data-device="tablet"] .itemgrid{ grid-template-columns:repeat(3,1fr); }
+[data-device="terminal"] .itemgrid{ grid-template-columns:repeat(2,1fr); gap:8px; }
+.item{
+  position:relative; text-align:center; cursor:pointer; padding:0 0 12px; overflow:hidden;
+  background:var(--color-surface-elevated); border:1px solid var(--color-border);
+  border-radius:var(--r-xl); color:inherit; transition:all var(--dur-default) var(--ease);
+}
+.item:hover{ border-color:var(--color-border-strong); transform:translateY(-1px); }
+.item:active{ transform:scale(.985); }
+.item .ph{ width:100%; aspect-ratio:1.15/1; object-fit:cover; display:block; background:#221F1B; }
+.item .qty{
+  position:absolute; top:9px; right:9px; min-width:28px; height:28px; padding:0 7px;
+  display:grid; place-items:center; border-radius:var(--r-full);
+  background:var(--color-primary); color:var(--color-text-inverted);
+  font-size:13px; font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.4);
+}
+.item b{ display:block; margin-top:11px; font-size:15px; font-weight:700; }
+.item span{ display:block; margin-top:9px; font-size:15px; font-weight:700; }
+[data-device="terminal"] .item b,[data-device="terminal"] .item span{ font-size:13px; margin-top:7px; }
+
+/* ordrepanel */
+.order{ display:flex; flex-direction:column; min-height:0; }
+.lines{ flex:1; min-height:0; overflow:auto; }
+.line{
+  display:flex; align-items:center; gap:16px; padding:16px 12px;
+  border-bottom:1px solid var(--color-border);
+}
+.line .q{ font-size:15px; color:var(--color-text-primary); font-weight:500; min-width:14px; }
+.line .nm{ flex:1; min-width:0; font-size:15px; font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.line .pr{ font-size:14px; font-weight:700; color:var(--color-primary); white-space:nowrap; }
+.line .tbl-tag{
+  display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:700;
+  color:var(--color-accent); background:rgba(107,184,218,.12);
+  border:1px solid rgba(107,184,218,.28); padding:3px 8px; border-radius:var(--r-full);
+}
+.empty{ text-align:center; color:var(--color-text-muted); font-size:13px; font-weight:600; padding:40px 16px; line-height:1.7; }
+
+.totals{ flex:none; background:var(--color-surface-elevated); border-radius:var(--r-lg); padding:12px 14px; margin-top:10px; }
+.totals .big{ display:flex; justify-content:space-between; align-items:baseline; font-size:15px; font-weight:700; margin-bottom:8px; }
+.totals .big em{ font-style:normal; color:var(--color-primary); font-size:17px; }
+.totals .rows{ display:grid; grid-template-columns:1fr 1fr; gap:2px 24px; }
+.totals .r{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--color-text-secondary); }
+
+.actionbar{ flex:none; display:flex; gap:10px; margin-top:10px; }
+.abtn{
+  height:64px; display:inline-flex; align-items:center; justify-content:center;
+  border:0; border-radius:var(--r-xl); cursor:pointer; background:var(--color-surface-elevated);
+  color:var(--color-text-primary); transition:filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.abtn:hover{ filter:brightness(1.12); }
+.abtn:active{ transform:scale(.98); }
+.abtn svg{ width:40px; height:40px; }
+.abtn.more{ width:64px; flex:none; padding:0 10px; }
+.abtn.pay{ flex:1.15; background:var(--color-primary); color:var(--color-text-inverted); }
+.abtn.park{ flex:1; }
+.abtn.cancel{ flex:1; background:var(--color-danger); color:var(--color-text-inverted); }
+.abtn.park.hot{ box-shadow:0 0 0 2px rgba(107,184,218,.55); }
+[data-device="terminal"] .abtn{ height:56px; }
+[data-device="terminal"] .abtn svg{ width:32px; height:32px; }
+[data-device="terminal"] .abtn.more{ width:52px; }
+
+/* terminal: kompakt totalstripe */
+.miniorder{ display:none; }
+[data-device="terminal"] .miniorder{
+  display:flex; align-items:center; gap:10px; flex:none; cursor:pointer;
+  background:var(--color-surface-elevated); border:1px solid var(--color-border);
+  border-radius:var(--r-lg); padding:10px 12px; margin-top:8px; color:inherit; width:100%;
+}
+.miniorder .c{ font-size:12px; font-weight:700; color:var(--color-text-secondary); }
+.miniorder .t{ margin-left:auto; font-size:17px; font-weight:800; color:var(--color-primary); }
+.miniorder svg{ width:16px; height:16px; color:var(--color-text-secondary); transition:transform var(--dur-default) var(--ease); }
+.miniorder.open svg{ transform:rotate(180deg); }
+[data-device="terminal"] .order{ display:none; }
+[data-device="terminal"] .order.open{ display:flex; max-height:236px; margin-top:8px; }
+[data-device="terminal"] .order.open .totals,[data-device="terminal"] .order.open .actionbar{ display:none; }
+[data-device="terminal"] .items{ flex:1; }
+[data-device="terminal"] .pos-grid{ display:flex; flex-direction:column; }
+[data-device="terminal"] .actionbar.term{ display:flex; }
+.actionbar.term{ display:none; }
+
+/* ============================================================
+   MODAL — samme skall som «Parker bestilling» i dag
+   ============================================================ */
+.scrim{
+  position:absolute; inset:0; z-index:40; background:var(--color-surface-overlay);
+  opacity:0; pointer-events:none; transition:opacity var(--dur-slow) var(--ease);
+}
+.scrim.show{ opacity:1; pointer-events:auto; }
+.modal-layer{ position:absolute; inset:0; z-index:50; display:grid; grid-template:"m"/minmax(0,1fr); pointer-events:none; padding:0; }
+[data-device="pc"] .modal-layer,[data-device="tablet"] .modal-layer{ place-items:center; padding:24px; }
+[data-device="terminal"] .modal-layer{ align-items:stretch; }
+
+.modal{
+  grid-area:m; pointer-events:auto; background:var(--color-surface-elevated);
+  border-radius:var(--r-2xl); box-shadow:var(--elevation-4);
+  display:flex; flex-direction:column; min-height:0; min-width:0; max-width:100%;
+  opacity:0; visibility:hidden; transform:translateY(14px) scale(.98);
+  transition:opacity var(--dur-panel) var(--ease-out), transform var(--dur-panel) var(--ease-out), visibility var(--dur-panel);
+}
+.modal.show{ opacity:1; visibility:visible; transform:none; }
+[data-device="pc"] .modal,[data-device="tablet"] .modal{ width:100%; max-height:100%; }
+[data-device="pc"] #mParkClassic,[data-device="tablet"] #mParkClassic{ align-self:center; }
+[data-device="terminal"] .modal{ border-radius:0; width:100%; height:100%; }
+
+.modal-head{ flex:none; display:flex; align-items:center; gap:14px; padding:20px 22px 0; }
+[data-device="terminal"] .modal-head{ padding:14px 14px 0; }
+.modal-head h3{ margin:0; font-size:21px; font-weight:700; letter-spacing:-.01em; }
+[data-device="terminal"] .modal-head h3{ font-size:17px; }
+.modal-head h3 small{ display:block; font-size:12px; font-weight:600; color:var(--color-text-secondary); margin-top:3px; }
+.xbtn{
+  margin-left:auto; width:34px; height:34px; flex:none; display:grid; place-items:center; cursor:pointer;
+  border:0; background:transparent; color:var(--color-text-secondary); border-radius:var(--r-lg);
+}
+.xbtn:hover{ background:var(--color-surface-hover); color:var(--color-text-primary); }
+.xbtn svg{ width:18px; height:18px; }
+.modal-body{ flex:1; min-height:0; display:flex; flex-direction:column; padding:18px 22px 22px; }
+[data-device="terminal"] .modal-body{ padding:12px 14px 14px; }
+
+/* felt + knapper i modalen */
+.fieldrow{ display:flex; gap:10px; align-items:center; }
+[data-device="terminal"] .fieldrow{ flex-direction:column; align-items:stretch; gap:8px; }
+[data-device="terminal"] .fieldrow .btn{ width:100%; height:48px; flex:none; }
+[data-device="terminal"] .inp{ height:48px; flex:none; }
+.inp{
+  flex:1; min-width:0; height:52px; padding:0 22px; font-size:15px; font-weight:500;
+  color:var(--color-text-primary); background:transparent;
+  border:1px solid var(--color-border-strong); border-radius:var(--r-full);
+  outline:none; transition:box-shadow var(--dur-default) var(--ease), border-color var(--dur-default) var(--ease);
+}
+.inp:focus{ box-shadow:var(--shadow-focus); border-color:var(--color-border-focus); }
+.inp::placeholder{ color:var(--color-text-secondary); }
+.btn{
+  height:52px; padding:0 20px; border:0; border-radius:var(--r-lg); cursor:pointer;
+  font-size:14px; font-weight:700; white-space:nowrap; display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  transition:filter var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.btn:hover{ filter:brightness(1.08); }
+.btn:active{ transform:scale(.985); }
+.btn svg{ width:17px; height:17px; flex:none; }
+.btn-primary{ background:var(--color-primary); color:var(--color-text-inverted); }
+.btn-ghost{ background:var(--color-surface-hover); color:var(--color-text-primary); box-shadow:inset 0 0 0 1px var(--color-border-strong); }
+.btn-danger{ background:rgba(212,88,88,.16); color:#E88C8C; box-shadow:inset 0 0 0 1px rgba(212,88,88,.4); }
+
+/* ============================================================
+   BORDKART
+   ============================================================ */
+.map-toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:12px; }
+.floors{ display:flex; gap:6px; overflow:auto; padding-bottom:2px; }
+[data-device="terminal"] .floors{ flex-wrap:wrap; overflow:visible; }
+[data-device="terminal"] .floors button{ padding:8px 12px; font-size:12px; }
+.floors button{
+  font-size:12.5px; font-weight:700; color:var(--color-text-secondary); white-space:nowrap;
+  background:var(--color-surface-hover); border:1px solid var(--color-border-strong);
+  padding:9px 15px; border-radius:var(--r-full); cursor:pointer; transition:all var(--dur-default) var(--ease);
+}
+.floors button:hover{ color:var(--color-text-primary); }
+.floors button.on{ background:var(--color-primary); color:var(--color-text-inverted); border-color:transparent; }
+.legend{ margin-left:auto; display:flex; gap:14px; align-items:center; font-size:11.5px; color:var(--color-text-secondary); font-weight:700; }
+[data-device="terminal"] .legend{ margin-left:0; gap:10px; font-size:11px; }
+.legend i{ width:9px; height:9px; border-radius:3px; display:inline-block; margin-right:6px; }
+
+.canvas-wrap{ flex:1; min-height:0; display:grid; place-items:center; overflow:hidden; }
+[data-device="terminal"] .canvas-wrap{ display:none; }
+.canvas{
+  position:relative; flex:none; width:880px; height:470px;
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px, transparent 1px) 0 0/40px 40px,
+    linear-gradient(90deg, rgba(255,255,255,.02) 1px, transparent 1px) 0 0/40px 40px,
+    var(--color-surface);
+  border:1px solid var(--color-border); border-radius:var(--r-xl);
+  transform-origin:center center;
+}
+.el{ position:absolute; border-radius:var(--r-md); display:grid; place-items:center; text-align:center; }
+.el.deco{
+  background:rgba(255,255,255,.03); border:1px dashed var(--color-border-strong);
+  color:var(--color-text-muted); font-size:10px; font-weight:800; letter-spacing:.16em;
+}
+.tbl{
+  cursor:pointer; border:2px solid var(--c); background:color-mix(in srgb, var(--c) 13%, var(--color-surface-elevated));
+  color:var(--color-text-primary); padding:6px; gap:2px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  transition:transform var(--dur-default) var(--ease), box-shadow var(--dur-default) var(--ease);
+}
+.tbl.round{ border-radius:var(--r-full); }
+.tbl:hover{ transform:scale(1.05); box-shadow:0 10px 26px rgba(0,0,0,.5), 0 0 0 4px color-mix(in srgb, var(--c) 24%, transparent); z-index:5; }
+.tbl b{ font-size:15px; font-weight:800; letter-spacing:-.02em; line-height:1.1; }
+.tbl em{ font-style:normal; font-size:10.5px; font-weight:700; color:var(--color-text-secondary); }
+.tbl .who{ font-size:10px; font-weight:800; color:var(--c); max-width:96%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tbl .amt{ font-size:10px; font-weight:700; color:var(--color-text-secondary); }
+.tbl.free{ --c:var(--tbl-free); }
+.tbl.busy{ --c:var(--tbl-busy); }
+.tbl.mine{ --c:var(--tbl-mine); box-shadow:0 0 0 4px rgba(107,184,218,.2); }
+
+/* terminal: bordliste, 3 per rad */
+.tablelist{ display:none; }
+[data-device="terminal"] .tablelist{ display:block; flex:1; min-height:0; overflow:auto; }
+.grid3{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.tbtn{
+  min-height:76px; border-radius:var(--r-xl); cursor:pointer; padding:12px 6px 8px; position:relative;
+  border:1px solid var(--color-border-strong); background:var(--color-surface-hover);
+  color:var(--color-text-primary); font-size:15px; font-weight:800; letter-spacing:-.02em;
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  transition:transform var(--dur-fast) var(--ease);
+}
+.tbtn:active{ transform:scale(.97); }
+.tbtn::before{ content:""; position:absolute; inset:0 0 auto 0; height:4px; border-radius:13px 13px 0 0; background:var(--c); }
+.tbtn.free{ --c:var(--tbl-free); }
+.tbtn.busy{ --c:var(--tbl-busy); background:color-mix(in srgb, var(--tbl-busy) 12%, var(--color-surface-hover)); border-color:rgba(212,88,88,.35); color:var(--color-text-secondary); }
+.tbtn.mine{ --c:var(--tbl-mine); background:rgba(107,184,218,.15); border-color:rgba(107,184,218,.45); }
+.hint{ font-size:11.5px; color:var(--color-text-muted); line-height:1.6; margin:12px 2px 0; }
+
+/* parkert-liste (Lagre på eksisterende bestilling) */
+.searchrow{ display:flex; gap:10px; align-items:center; margin-top:10px; }
+.search{
+  flex:1; display:flex; align-items:center; gap:9px; height:46px; padding:0 16px;
+  border:1px solid var(--color-border-strong); border-radius:var(--r-full); color:var(--color-text-secondary); font-size:13px;
+}
+.search svg{ width:16px; height:16px; }
+.filters{ display:flex; gap:4px; padding:3px; background:var(--color-surface-hover); border-radius:var(--r-lg); }
+.filters button{ border:0; background:none; color:var(--color-text-secondary); font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:var(--r-md); cursor:pointer; }
+.filters button.on{ background:var(--color-primary); color:var(--color-text-inverted); }
+.parkedlist{ flex:1; min-height:0; overflow:auto; margin-top:12px; }
+.prow{
+  display:flex; align-items:center; gap:12px; width:100%; text-align:left; cursor:pointer;
+  background:var(--color-surface-hover); border:1px solid var(--color-border); border-radius:var(--r-xl);
+  padding:12px 14px; margin-bottom:8px; color:inherit;
+}
+.prow:hover{ border-color:var(--color-border-strong); }
+.prow .dot{ width:10px; height:10px; border-radius:var(--r-full); flex:none; }
+.prow .t{ flex:1; min-width:0; }
+.prow .t b{ display:block; font-size:14px; font-weight:700; }
+.prow .t span{ display:block; font-size:11.5px; color:var(--color-text-secondary); margin-top:2px; }
+.prow .amt{ font-size:14px; font-weight:700; color:var(--color-primary); }
+.nores{ text-align:center; color:var(--color-text-secondary); padding:40px 10px; }
+.nores b{ display:block; font-size:15px; font-weight:600; margin-bottom:6px; color:var(--color-text-primary); }
+.nores span{ font-size:12px; }
+
+/* toast */
+.toast{
+  position:absolute; left:50%; bottom:20px; transform:translate(-50%,20px); z-index:60;
+  display:flex; align-items:center; gap:12px; padding:13px 18px; border-radius:var(--r-xl);
+  background:rgba(38,36,46,.98); box-shadow:var(--elevation-3); font-size:13.5px; font-weight:700; max-width:88%;
+  opacity:0; pointer-events:none; transition:all var(--dur-slow) var(--ease-out);
+}
+.toast.show{ opacity:1; transform:translate(-50%,0); }
+.toast svg{ width:19px; height:19px; color:var(--color-success); flex:none; }
+.toast small{ display:block; font-weight:500; font-size:12px; color:var(--color-text-secondary); margin-top:2px; }
+
+.demobar{
+  flex:none; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;
+  padding:10px 16px; border-top:1px solid var(--color-border); background:rgba(38,36,46,.55);
+}
+.demobar span{ font-size:10px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--color-text-muted); margin-right:4px; }
+.demobar button{
+  font-size:11.5px; font-weight:700; border-radius:var(--r-full); border:1px solid var(--color-border-strong);
+  background:var(--color-surface); color:var(--color-text-primary); padding:8px 14px; cursor:pointer;
+}
+.demobar button:hover{ background:var(--color-surface-hover); }
+</style>
+</head>
+<body>
+
+<div class="wrap" id="wrap" data-device="pc">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="wm">plorea<i>pos</i></span>
+      <span>Bordkart under P · demo</span>
+    </div>
+    <div class="seg" id="devSeg">
+      <button data-dev="pc" class="on">PC</button>
+      <button data-dev="tablet">Nettbrett</button>
+      <button data-dev="terminal">Terminal 5,5"</button>
+    </div>
+    <div class="tgl on" id="tmTgl"><span class="sw"></span> Bordkart aktivt</div>
+  </header>
+
+  <div class="viewport">
+    <div class="stack">
+      <div class="frame" id="frame">
+        <div class="bezel">
+          <div class="app" id="app">
+
+            <!-- =============== KASSEN =============== -->
+            <div class="pos">
+              <div class="printerbar">
+                <button class="badge-err">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                  Drikke: Skriver frakoblet
+                </button>
+                <button class="badge-err">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"/></svg>
+                  Mat: Skriver frakoblet
+                </button>
+              </div>
+
+              <div class="pos-top">
+                <span class="wordmark">plorea<i>pos</i></span>
+                <button class="burger" title="Åpne meny">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+                </button>
+                <button class="svinn">💧 Svinn</button>
+              </div>
+
+              <div class="pos-grid">
+                <div class="items"><div class="itemgrid" id="itemgrid"></div></div>
+
+                <button class="miniorder" id="miniorder">
+                  <span class="c" id="miniCount">5 varer</span>
+                  <span class="t mono" id="miniTotal">kr 213,00</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                </button>
+
+                <div class="order" id="orderPane">
+                  <div class="lines" id="lines"></div>
+                  <div class="totals">
+                    <div class="big"><span>Totalt:</span><em class="mono" id="total">kr 213,00</em></div>
+                    <div class="rows">
+                      <div class="r"><span>MVA:</span><span class="mono" id="vat">kr 42,60</span></div>
+                      <div class="r"><span>Returner:</span><span class="mono">kr 0,00</span></div>
+                      <div class="r"><span>MVA eks:</span><span class="mono" id="vatex">kr 170,40</span></div>
+                      <div class="r"><span>Avrundet:</span><span class="mono">kr 0,00</span></div>
+                      <div class="r"><span>Tips:</span><span class="mono">kr 0,00</span></div>
+                      <div class="r"><span>Rabatt:</span><span class="mono">kr 0,00</span></div>
+                    </div>
+                  </div>
+                  <div class="actionbar" id="bar1"></div>
+                </div>
+
+                <div class="actionbar term" id="bar2"></div>
+              </div>
+            </div>
+
+            <!-- =============== MODALER =============== -->
+            <div class="scrim" id="scrim"></div>
+            <div class="modal-layer">
+
+              <!-- Bordkart (ny) -->
+              <div class="modal" id="mMap">
+                <div class="modal-head">
+                  <h3>Parker bestilling<small id="mapSub">Trykk et ledig bord for å parkere. Et opptatt bord legger varene på ordren som allerede står der.</small></h3>
+                  <button class="xbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                </div>
+                <div class="modal-body">
+                  <div class="map-toolbar">
+                    <div class="floors" id="floors"></div>
+                    <div class="legend">
+                      <span><i style="background:var(--tbl-free)"></i>Ledig</span>
+                      <span><i style="background:var(--tbl-busy)"></i>Opptatt</span>
+                      <span><i style="background:var(--tbl-mine)"></i>Denne ordren</span>
+                    </div>
+                  </div>
+
+                  <div class="canvas-wrap"><div class="canvas" id="canvas"></div></div>
+
+                  <div class="tablelist">
+                    <div class="grid3" id="grid3"></div>
+                    <p class="hint">Tre bokser per rad, kun bordnavnet — plantegningen krever plass og finnes på PC og nettbrett.</p>
+                  </div>
+
+                  <div class="fieldrow" style="margin-top:14px">
+                    <input class="inp" id="nameInp" placeholder="Navn på bestilling" autocomplete="off">
+                    <button class="btn btn-ghost" id="btnNoTable">Parker uten bord</button>
+                    <button class="btn btn-ghost" id="btnExisting">Eksisterende bestilling</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dagens parker-modal (når bordkart er av) -->
+              <div class="modal" id="mParkClassic">
+                <div class="modal-head">
+                  <h3>Parker bestilling</h3>
+                  <button class="xbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                </div>
+                <div class="modal-body">
+                  <div class="fieldrow">
+                    <input class="inp" id="nameInp2" placeholder="Navn på bestilling" autocomplete="off">
+                    <button class="btn btn-primary" id="btnParkPlain">Parker</button>
+                    <button class="btn btn-primary" id="btnExisting2">Lagre på eksisterende bestilling</button>
+                  </div>
+                  <p class="hint">Slik ser parkeringen ut i dag: ett fritekstfelt. Slå på <b>Bordkart aktivt</b> i toppen for å se forslaget.</p>
+                </div>
+              </div>
+
+              <!-- Eksisterende bestillinger -->
+              <div class="modal" id="mExisting">
+                <div class="modal-head">
+                  <h3>Lagre på eksisterende bestilling<small>Varene legges på en ordre som allerede står parkert.</small></h3>
+                  <button class="xbtn" data-close><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+                </div>
+                <div class="modal-body">
+                  <div class="searchrow">
+                    <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Søk på ordre-ID, ansatt eller kommentar…</div>
+                    <div class="filters">
+                      <button class="on">Alle</button><button>Mine</button><button>I dag</button>
+                    </div>
+                  </div>
+                  <div class="parkedlist" id="parkedlist"></div>
+                </div>
+              </div>
+
+            </div><!-- /modal-layer -->
+
+            <div class="toast" id="toast">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+              <div id="toastTxt"></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <p class="cap" id="cap"></p>
+    </div>
+  </div>
+
+  <div class="demobar">
+    <span>Demo</span>
+    <button id="dReset">Nullstill</button>
+    <button id="dFill">Fyll noen bord</button>
+    <button id="dOpen">Åpne bordkart</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   VARER — hentet fra deres egen favorittliste
+   ============================================================ */
+const IMG = 'https://dm2ttpi0ry67k.cloudfront.net/pos/items/';
+const ITEMS = [
+  { name:'Tea',        price:35, img:'9024_20260420174641747.png', q:1 },
+  { name:'Espresso',   price:35, img:'9023_20260420164904306.png', q:1 },
+  { name:'Latte',      price:49, img:'9022_20260420164944128.png', q:1 },
+  { name:'Cappuccino', price:49, img:'9021_20260420164933499.png', q:1 },
+  { name:'Fanta 033',  price:45, img:'9017_20260420165138876.png', q:1 },
+  { name:'Pepsi Max',  price:45, img:'9016_20260420165050057.png', q:0 },
+  { name:'Coke 033',   price:45, img:'9015_20260420165037501.png', q:0 }
+];
+
+const START_LINES = [
+  { q:1, name:'Espresso',           price:35 },
+  { q:1, name:'Caffe Latte',        price:49 },
+  { q:1, name:'Cappuccino',         price:49 },
+  { q:1, name:'Fanta Orange 0.33L', price:45 },
+  { q:1, name:'Tea',                price:35 }
+];
+
+/* ============================================================
+   BORDKART-DATA — FloorPlan / TableMapTable i et 880×470-rom
+   ============================================================ */
+const FREE = 1, BUSY = 2;
+
+const FLOORS = [
+  {
+    id:1, name:'Hovedetasje',
+    tables:[
+      { id:101, name:'Bord 1',  seats:2, x:40,  y:50,  w:96,  h:96,  shape:'round'  },
+      { id:102, name:'Bord 2',  seats:2, x:170, y:50,  w:96,  h:96,  shape:'round'  },
+      { id:103, name:'Bord 3',  seats:4, x:300, y:50,  w:120, h:96,  shape:'square' },
+      { id:104, name:'Bord 4',  seats:4, x:40,  y:186, w:96,  h:96,  shape:'square' },
+      { id:105, name:'Bord 5',  seats:4, x:170, y:186, w:96,  h:96,  shape:'square' },
+      { id:106, name:'Bord 6',  seats:6, x:300, y:186, w:150, h:96,  shape:'square' },
+      { id:107, name:'Bord 7',  seats:2, x:40,  y:322, w:96,  h:96,  shape:'round'  },
+      { id:108, name:'Bord 8',  seats:2, x:170, y:322, w:96,  h:96,  shape:'round'  },
+      { id:109, name:'Bord 9',  seats:8, x:520, y:50,  w:120, h:232, shape:'square' },
+      { id:110, name:'Bord 10', seats:4, x:520, y:322, w:120, h:96,  shape:'square' }
+    ],
+    deco:[
+      { label:'BAR',     x:690, y:50,  w:150, h:232 },
+      { label:'KJØKKEN', x:300, y:322, w:150, h:96  },
+      { label:'INNGANG', x:690, y:358, w:150, h:60  }
+    ]
+  },
+  {
+    id:2, name:'Terrasse',
+    tables:[
+      { id:201, name:'Ute 1', seats:4, x:70,  y:70,  w:110, h:110, shape:'round'  },
+      { id:202, name:'Ute 2', seats:4, x:230, y:70,  w:110, h:110, shape:'round'  },
+      { id:203, name:'Ute 3', seats:4, x:390, y:70,  w:110, h:110, shape:'round'  },
+      { id:204, name:'Ute 4', seats:6, x:70,  y:240, w:150, h:110, shape:'square' },
+      { id:205, name:'Ute 5', seats:6, x:270, y:240, w:150, h:110, shape:'square' },
+      { id:206, name:'Ute 6', seats:2, x:470, y:240, w:96,  h:110, shape:'round'  }
+    ],
+    deco:[
+      { label:'SOLSEGL', x:620, y:70,  w:200, h:110 },
+      { label:'UTGANG',  x:620, y:240, w:200, h:110 }
+    ]
+  },
+  {
+    id:3, name:'Bar & lounge',
+    tables:[
+      { id:301, name:'Bar 1', seats:1, x:110, y:110, w:80,  h:80,  shape:'round'  },
+      { id:302, name:'Bar 2', seats:1, x:220, y:110, w:80,  h:80,  shape:'round'  },
+      { id:303, name:'Bar 3', seats:1, x:330, y:110, w:80,  h:80,  shape:'round'  },
+      { id:304, name:'Bar 4', seats:1, x:440, y:110, w:80,  h:80,  shape:'round'  },
+      { id:305, name:'Sofa',  seats:6, x:150, y:280, w:330, h:110, shape:'square' }
+    ],
+    deco:[
+      { label:'BARDISK', x:110, y:34,  w:410, h:52  },
+      { label:'LOUNGE',  x:600, y:110, w:220, h:280 }
+    ]
+  }
+];
+
+/* ============================================================
+   TILSTAND
+   ============================================================ */
+const state = {
+  device:'pc',
+  tableMapOn:true,
+  floorId:1,
+  lines: START_LINES.map(l => ({...l})),
+  name:'',
+  status:{},        // tableId -> FREE | BUSY
+  owner:{},         // tableId -> { label, amount }
+  mine:null,
+  parked:[],
+  miniOpen:false
+};
+FLOORS.forEach(f => f.tables.forEach(t => { state.status[t.id] = FREE; }));
+
+const $ = id => document.getElementById(id);
+const wrap = $('wrap');
+const kr = n => 'kr ' + n.toFixed(2).replace('.', ',');
+const sum = () => state.lines.reduce((s,l) => s + l.price*l.q, 0);
+const count = () => state.lines.reduce((s,l) => s + l.q, 0);
+
+/* ikoner fra kassen i dag */
+const IC = {
+  chev:'<svg viewBox="0 0 512 512" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM377 271c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-87-87-87 87c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9L239 167c9.4-9.4 24.6-9.4 33.9 0L377 271z"/></svg>',
+  pay:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 7.5a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5Z"/><path fill-rule="evenodd" d="M1.5 4.875C1.5 3.839 2.34 3 3.375 3h17.25c1.035 0 1.875.84 1.875 1.875v9.75c0 1.036-.84 1.875-1.875 1.875H3.375A1.875 1.875 0 0 1 1.5 14.625v-9.75ZM8.25 9.75a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0ZM18.75 9a.75.75 0 0 0-.75.75v.008c0 .414.336.75.75.75h.008a.75.75 0 0 0 .75-.75V9.75a.75.75 0 0 0-.75-.75h-.008ZM4.5 9.75A.75.75 0 0 1 5.25 9h.008a.75.75 0 0 1 .75.75v.008a.75.75 0 0 1-.75.75H5.25a.75.75 0 0 1-.75-.75V9.75Z" clip-rule="evenodd"/><path d="M2.25 18a.75.75 0 0 0 0 1.5c5.4 0 10.63.722 15.6 2.075 1.19.324 2.4-.558 2.4-1.82V18.75a.75.75 0 0 0-.75-.75H2.25Z"/></svg>',
+  park:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C2.667 0 0 2.667 0 12s2.673 12 12 12 12-2.667 12-12S21.327 0 12 0zm8.892 20.894c-1.57 1.569-4.247 2.249-8.892 2.249s-7.322-.68-8.892-2.25C1.735 19.522 1.041 17.3.89 13.654A39.74 39.74 0 0 1 .857 12c0-1.162.043-2.201.13-3.13.177-1.859.537-3.278 1.106-4.366.284-.544.62-1.006 1.013-1.398s.854-.729 1.398-1.013C5.592 1.524 7.01 1.164 8.87.988 9.799.9 10.838.858 12 .858c4.645 0 7.322.68 8.892 2.248 1.569 1.569 2.25 4.246 2.25 8.894s-.681 7.325-2.25 8.894zM20.538 3.46C19.064 1.986 16.51 1.357 12 1.357c-4.513 0-7.067.629-8.54 2.103C1.986 4.933 1.357 7.487 1.357 12c0 4.511.63 7.065 2.105 8.54C4.936 22.014 7.49 22.643 12 22.643s7.064-.629 8.538-2.103c1.475-1.475 2.105-4.029 2.105-8.54s-.63-7.065-2.105-8.54zM14.25 16.49a6.097 6.097 0 0 1-2.442.59v2.706H10.45v.357H6.429V5.57h.357V4.214h5.676c3.565 0 6.467 2.81 6.467 6.262 0 2.852-1.981 5.26-4.68 6.013zm-1.788-8.728H10.45v5.428h2.011c1.532 0 2.802-1.2 2.802-2.714s-1.27-2.714-2.802-2.714zm.901 4.351c.117-.239.186-.502.186-.78 0-1.01-.855-1.857-1.945-1.857h-.296V8.62h1.154c1.09 0 1.945.847 1.945 1.857 0 .705-.422 1.323-1.044 1.637zm4.104 1.493c.043-.063.083-.129.123-.194a5.653 5.653 0 0 0 .526-1.103 5.56 5.56 0 0 0 .11-.362c.02-.076.042-.15.06-.227a5.58 5.58 0 0 0 .073-.41c.01-.068.025-.134.032-.203.024-.207.038-.417.038-.63 0-3.198-2.687-5.763-5.967-5.763H7.286v14.572h4.022v-3.048h1.154c1.43 0 2.747-.488 3.778-1.303a5.92 5.92 0 0 0 .46-.406c.035-.034.066-.07.1-.105.107-.11.21-.22.308-.337.044-.053.084-.108.126-.162.081-.104.16-.21.233-.319zm-5.005 1.775H10.45v3.048H8.143V5.57h4.319c2.837 0 5.11 2.211 5.11 4.905s-2.273 4.905-5.11 4.905z"/></svg>',
+  cancel:'<svg viewBox="0 0 24 24" fill="currentColor"><path fill="none" d="M0 0h24v24H0z"/><path d="M21 19.1H3V5h18v14.1zM21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/><path d="M15.5 8.5L14 7l-2 2-2-2-1.5 1.5 2 2-2 2L10 14l2-2 2 2 1.5-1.5-2-2z"/></svg>'
+};
+
+/* ============================================================
+   RENDER — KASSEN
+   ============================================================ */
+function renderItems(){
+  $('itemgrid').innerHTML = ITEMS.map(it => `
+    <button class="item" data-item="${it.name}">
+      <img class="ph" src="${IMG}${it.img}" alt="${it.name}" loading="lazy">
+      ${it.q ? `<span class="qty">${it.q}</span>` : ''}
+      <b>${it.name}</b><span>${kr(it.price)}</span>
+    </button>`).join('');
+}
+
+function renderOrder(){
+  const parkedMine = state.mine ? FLOORS.flatMap(f=>f.tables).find(t=>t.id===state.mine) : null;
+
+  $('lines').innerHTML = state.lines.length
+    ? state.lines.map(l => `
+        <div class="line">
+          <span class="q mono">${l.q}</span>
+          <span class="nm">${l.name}</span>
+          <span class="pr mono">${kr(l.price*l.q)}</span>
+        </div>`).join('')
+    : `<div class="empty">Ingen varer i ordren.<br>${parkedMine ? `Sist parkert på <b>${parkedMine.name}</b>.` : ''}<br>Trykk «Nullstill» i demolinja for å starte på nytt.</div>`;
+
+  const t = sum();
+  $('total').textContent = kr(t);
+  $('vat').textContent   = kr(t*0.2);
+  $('vatex').textContent = kr(t*0.8);
+  $('miniTotal').textContent = kr(t);
+  $('miniCount').textContent = `${count()} ${count()===1?'vare':'varer'}`;
+
+  const bar = `
+    <button class="abtn more" title="Flere handlinger">${IC.chev}</button>
+    <button class="abtn pay" title="Betal">${IC.pay}</button>
+    <button class="abtn park ${state.tableMapOn?'hot':''}" data-park title="Parker bestilling">${IC.park}</button>
+    <button class="abtn cancel" title="Avbryt bestilling">${IC.cancel}</button>`;
+  $('bar1').innerHTML = bar;
+  $('bar2').innerHTML = bar;
+
+  $('orderPane').classList.toggle('open', state.miniOpen);
+  $('miniorder').classList.toggle('open', state.miniOpen);
+}
+
+/* ============================================================
+   RENDER — BORDKART
+   ============================================================ */
+const floor = () => FLOORS.find(f => f.id === state.floorId);
+const cls = t => state.mine === t.id ? 'mine' : (state.status[t.id] === BUSY ? 'busy' : 'free');
+
+function renderFloors(){
+  $('floors').innerHTML = FLOORS.map(f => {
+    const busy = f.tables.filter(t => state.status[t.id] === BUSY).length;
+    return `<button data-floor="${f.id}" class="${f.id===state.floorId?'on':''}">${f.name} · ${f.tables.length-busy}/${f.tables.length}</button>`;
+  }).join('');
+}
+
+function renderCanvas(){
+  const f = floor();
+  const deco = f.deco.map(d =>
+    `<div class="el deco" style="left:${d.x}px;top:${d.y}px;width:${d.w}px;height:${d.h}px">${d.label}</div>`).join('');
+  const tables = f.tables.map(t => {
+    const o = state.owner[t.id];
+    return `<div class="el tbl ${cls(t)} ${t.shape}" data-table="${t.id}"
+              style="left:${t.x}px;top:${t.y}px;width:${t.w}px;height:${t.h}px">
+              <b>${t.name}</b>
+              ${o ? `<span class="who">${o.label}</span><span class="amt mono">${kr(o.amount)}</span>`
+                  : `<em>${t.seats} pl.</em>`}
+            </div>`;
+  }).join('');
+  $('canvas').innerHTML = deco + tables;
+  scaleCanvas();
+}
+
+function renderList(){
+  $('grid3').innerHTML = floor().tables.map(t =>
+    `<button class="tbtn ${cls(t)}" data-table="${t.id}">${t.name}</button>`).join('');
+}
+
+function renderParked(){
+  $('parkedlist').innerHTML = state.parked.length
+    ? state.parked.map((p,i) => `
+        <button class="prow" data-parked="${i}">
+          <span class="dot" style="background:${p.table ? 'var(--tbl-busy)' : 'var(--color-text-muted)'}"></span>
+          <span class="t"><b>${p.label}</b><span>${p.table ? p.table + ' · ' : ''}${p.time} · Einar M</span></span>
+          <span class="amt mono">${kr(p.amount)}</span>
+        </button>`).join('')
+    : `<div class="nores"><b>Ingen treff</b><span>Fant ingen parkerte ordre som matcher søket.</span></div>`;
+}
+
+function renderMap(){ renderFloors(); renderCanvas(); renderList(); }
+
+function scaleCanvas(){
+  const wrapEl = document.querySelector('.canvas-wrap');
+  const c = $('canvas');
+  if (!wrapEl || !c || state.device === 'terminal') return;
+  c.style.transform = 'scale(1)';
+  const aw = wrapEl.clientWidth, ah = wrapEl.clientHeight;
+  if (!aw || !ah) return;
+  const s = Math.min(1, aw/882, ah/472);
+  c.style.transform = `scale(${s})`;
+}
+
+/* ============================================================
+   MODALER
+   ============================================================ */
+function openModal(id){
+  closeModals(true);
+  $('scrim').classList.add('show');
+  $(id).classList.add('show');
+  if (id === 'mMap'){
+    renderMap();
+    $('nameInp').value = state.name;
+    requestAnimationFrame(scaleCanvas);
+    setTimeout(scaleCanvas, 340);
+  }
+  if (id === 'mExisting') renderParked();
+  renderCaption(id);
+}
+function closeModals(keepScrim){
+  if (!keepScrim) $('scrim').classList.remove('show');
+  document.querySelectorAll('.modal').forEach(m => m.classList.remove('show'));
+  if (!keepScrim) renderCaption(null);
+}
+const openId = () => [...document.querySelectorAll('.modal.show')].map(m=>m.id)[0] || null;
+
+function toast(title, sub){
+  $('toastTxt').innerHTML = `${title}${sub ? `<small>${sub}</small>` : ''}`;
+  const t = $('toast');
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3400);
+}
+
+function now(){
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+
+/* ============================================================
+   PARKERING
+   ============================================================ */
+function park(table){
+  if (!state.lines.length){ toast('Ordren er allerede parkert', 'Trykk «Nullstill» for å begynne på nytt'); return; }
+  const label = state.name.trim() || (table ? table.name : now());
+  const amount = sum();
+
+  if (table){
+    state.status[table.id] = BUSY;
+    state.owner[table.id] = { label, amount };
+    state.mine = table.id;
+  }
+  state.parked.unshift({ table: table ? table.name : null, label, amount, time: now() });
+  state.lines = [];
+  state.name = '';
+
+  closeModals();
+  renderOrder();
+  toast(
+    table ? `Parkert på ${table.name}` : 'Parkert uten bord',
+    `${label} · ${kr(amount)}`
+  );
+}
+
+function addToTable(table){
+  const o = state.owner[table.id];
+  const added = sum();
+  o.amount += added;
+  const p = state.parked.find(p => p.table === table.name);
+  if (p) p.amount = o.amount;
+  state.lines = [];
+  state.name = '';
+  closeModals();
+  renderOrder();
+  toast(`Lagt på ${table.name}`, `${o.label} · nå ${kr(o.amount)}`);
+}
+
+/* ============================================================
+   HENDELSER
+   ============================================================ */
+$('devSeg').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.device = b.dataset.dev;
+  wrap.dataset.device = state.device;
+  [...$('devSeg').children].forEach(c => c.classList.toggle('on', c === b));
+  const open = openId();
+  closeModals();
+  fit();
+  if (open) setTimeout(() => openModal(open), 60);
+  renderCaption(open);
+};
+
+$('tmTgl').onclick = () => {
+  state.tableMapOn = !state.tableMapOn;
+  $('tmTgl').classList.toggle('on', state.tableMapOn);
+  closeModals();
+  renderOrder();
+  renderCaption(null);
+};
+
+/* P-knappen — hele poenget */
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-park]')){
+    if (!state.lines.length){ toast('Ingen varer i ordren', 'Trykk «Nullstill» i demolinja'); return; }
+    openModal(state.tableMapOn ? 'mMap' : 'mParkClassic');
+  }
+  if (e.target.closest('[data-close]')) closeModals();
+});
+
+$('scrim').onclick = () => closeModals();
+
+$('miniorder').onclick = () => { state.miniOpen = !state.miniOpen; renderOrder(); };
+
+$('itemgrid').onclick = e => {
+  const b = e.target.closest('[data-item]'); if (!b) return;
+  const it = ITEMS.find(i => i.name === b.dataset.item);
+  const line = state.lines.find(l => l.name === it.name);
+  if (line) line.q++; else state.lines.push({ q:1, name:it.name, price:it.price });
+  renderOrder();
+};
+
+$('floors').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.floorId = Number(b.dataset.floor);
+  renderMap();
+};
+
+function onTable(e){
+  const el = e.target.closest('[data-table]'); if (!el) return;
+  const id = Number(el.dataset.table);
+  const t = floor().tables.find(x => x.id === id);
+  state.name = $('nameInp').value;
+  if (state.status[id] === BUSY) addToTable(t);
+  else park(t);
+}
+$('canvas').onclick = onTable;
+$('grid3').onclick  = onTable;
+
+$('btnNoTable').onclick  = () => { state.name = $('nameInp').value; park(null); };
+$('btnExisting').onclick = () => { state.name = $('nameInp').value; openModal('mExisting'); };
+$('btnParkPlain').onclick= () => { state.name = $('nameInp2').value; park(null); };
+$('btnExisting2').onclick= () => openModal('mExisting');
+$('nameInp').onkeydown  = e => { if (e.key === 'Enter'){ state.name = $('nameInp').value; park(null); } };
+$('nameInp2').onkeydown = e => { if (e.key === 'Enter') $('btnParkPlain').click(); };
+
+$('parkedlist').onclick = e => {
+  const b = e.target.closest('[data-parked]'); if (!b) return;
+  const p = state.parked[Number(b.dataset.parked)];
+  const added = sum();
+  p.amount += added;
+  if (p.table){
+    const t = FLOORS.flatMap(f=>f.tables).find(x => x.name === p.table);
+    if (t && state.owner[t.id]) state.owner[t.id].amount = p.amount;
+  }
+  state.lines = []; state.name = '';
+  closeModals(); renderOrder();
+  toast(`Lagt på «${p.label}»`, `${p.table ? p.table + ' · ' : ''}nå ${kr(p.amount)}`);
+};
+
+/* demolinje */
+$('dReset').onclick = () => {
+  state.lines = START_LINES.map(l => ({...l}));
+  state.name = ''; state.mine = null; state.parked = []; state.miniOpen = false;
+  FLOORS.forEach(f => f.tables.forEach(t => { state.status[t.id] = FREE; delete state.owner[t.id]; }));
+  closeModals(); renderOrder();
+  toast('Demoen er nullstilt');
+};
+$('dFill').onclick = () => {
+  const names = ['Mathias','Sofie','Jonas','Amir','Nora','Selma','Vilde','Kasper'];
+  let i = 0;
+  FLOORS.forEach(f => f.tables.forEach(t => {
+    if (state.mine !== t.id && !state.owner[t.id] && Math.random() < .38){
+      state.status[t.id] = BUSY;
+      const amount = Math.round((80 + Math.random()*520)/5)*5;
+      state.owner[t.id] = { label: names[i % names.length], amount };
+      state.parked.push({ table:t.name, label:names[i % names.length], amount, time:now() });
+      i++;
+    }
+  }));
+  if (openId() === 'mMap') renderMap();
+  if (openId() === 'mExisting') renderParked();
+  toast('Noen bord er satt opptatt', 'De dukker også opp under «Eksisterende bestilling»');
+};
+$('dOpen').onclick = () => {
+  if (!state.tableMapOn){ $('tmTgl').click(); }
+  openModal('mMap');
+};
+
+/* ============================================================
+   SKALERING + BILDETEKST
+   ============================================================ */
+function fit(){
+  const frame = $('frame');
+  frame.style.height = 'auto';
+  frame.style.transform = 'scale(1)';
+  const vp = document.querySelector('.viewport');
+  const avail = { w: vp.clientWidth - 28, h: vp.clientHeight - 60 };
+  const r = frame.getBoundingClientRect();
+  const s = Math.min(1, avail.w / r.width, avail.h / r.height);
+  frame.style.transform = `scale(${s})`;
+  frame.style.height = `${r.height * s}px`;
+  scaleCanvas();
+}
+window.addEventListener('resize', fit);
+
+const CAPS = {
+  pos:{
+    pc:'Kassen slik den er i dag på PC — samme varegrid, ordrepanel og handlingsrad. <b>P-knappen</b> er markert; trykk den.',
+    tablet:'Samme kasse på nettbrett. Varegridet legger seg i tre kolonner, resten er uendret. Trykk <b>P</b>.',
+    terminal:'Kassen på 5,5"-terminal: varer i to kolonner, totalsummen som stripe du kan folde ut, og de fire handlingene i bunnen. Trykk <b>P</b>.'
+  },
+  mMap:{
+    pc:'<b>P åpner bordkartet direkte.</b> Plantegning med etasjefaner, ledige/opptatte bord og beløpet som allerede står på bordet. Feltet «Navn på bestilling» er beholdt uendret — bordet er bare en raskere måte å merke ordren på.',
+    tablet:'Samme bordkart på nettbrett — plantegningen skaleres, alt annet er likt PC.',
+    terminal:'På terminalen droppes plantegningen: <b>tre bokser per rad, kun bordnavnet</b>. Samme data, samme statusfarger, én tommel.'
+  },
+  mParkClassic:{
+    pc:'Med bordkart av er dette dagens parkering: ett fritekstfelt og to knapper. Ingenting er fjernet — bordkartet legger seg oppå.',
+    tablet:'Med bordkart av er dette dagens parkering: ett fritekstfelt og to knapper.',
+    terminal:'Med bordkart av er dette dagens parkering: ett fritekstfelt og to knapper.'
+  },
+  mExisting:{
+    pc:'«Lagre på eksisterende bestilling» slik den er i dag — søk, filtrene Alle/Mine/I dag og treffliste. Med bordkart får hver rad et bord, og du kan velge den samme ordren rett fra plantegningen.',
+    tablet:'«Lagre på eksisterende bestilling» — søk, filtre og treffliste, nå med bord på hver rad.',
+    terminal:'«Lagre på eksisterende bestilling» — søk, filtre og treffliste, nå med bord på hver rad.'
+  }
+};
+function renderCaption(modalId){
+  const key = modalId || 'pos';
+  $('cap').innerHTML = (CAPS[key] || CAPS.pos)[state.device];
+}
+
+/* start */
+renderItems();
+renderOrder();
+renderCaption(null);
+fit();
+</script>
+</body>
+</html>
