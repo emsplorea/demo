@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="no" data-theme="dark" data-lang="no" data-device="registered">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Plorea · A living commerce platform — konsept</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#6BB8DA;
+  --cyan:#7FE3E0;
+  --ink:#16151A;
+  --navy-0:#070C16; --navy-1:#0A1220; --navy-2:#0E1B2E;
+  --panel:#211F29; --panel-2:#2A2833;
+  --line:rgba(255,255,255,.10); --line-strong:rgba(255,255,255,.18);
+  --text:#F2F4F8; --text-2:rgba(242,244,248,.68); --text-3:rgba(242,244,248,.42);
+  --green:#4ADE80; --amber:#F5C15E; --red:#EF6A6A;
+  --r:14px; --fast:.16s; --ease:cubic-bezier(.22,.61,.36,1);
+}
+html[data-theme="light"]{
+  --navy-0:#BCD4E6; --navy-1:#D3E3EF; --navy-2:#E9F2F8;
+  --panel:#FFFFFF; --panel-2:#F3F5F9;
+  --line:rgba(16,24,40,.10); --line-strong:rgba(16,24,40,.18);
+  --text:#14161D; --text-2:rgba(20,22,29,.66); --text-3:rgba(20,22,29,.44);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;
+  background:var(--panel);color:var(--text);-webkit-font-smoothing:antialiased;overflow:hidden;
+}
+h1,h2{font-family:'Sora',sans-serif}
+button{font-family:inherit}
+
+.shell{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(432px,.88fr);height:100dvh}
+
+/* ═════════ LEFT — the living platform ═════════ */
+.stage{
+  position:relative;overflow:hidden;contain:paint;
+  background:radial-gradient(120% 90% at 15% 0%, var(--navy-2) 0%, var(--navy-1) 45%, var(--navy-0) 100%);
+  display:flex;flex-direction:column;justify-content:space-between;padding:34px 42px;
+}
+html[data-theme="light"] .stage{background:radial-gradient(125% 95% at 18% 2%, #F7FBFD 0%, var(--navy-1) 48%, var(--navy-0) 100%)}
+
+.aurora{position:absolute;inset:-25%;pointer-events:none;filter:blur(52px);opacity:.55;will-change:transform}
+html[data-theme="light"] .aurora{opacity:.5;filter:blur(60px)}
+.aurora i{position:absolute;display:block;border-radius:50%;will-change:transform}
+.aurora i:nth-child(1){width:52%;height:52%;left:2%;top:6%;background:radial-gradient(circle,rgba(62,143,184,.85),transparent 65%);animation:d1 26s ease-in-out infinite}
+.aurora i:nth-child(2){width:46%;height:46%;right:4%;top:34%;background:radial-gradient(circle,rgba(127,227,224,.55),transparent 65%);animation:d2 32s ease-in-out infinite}
+.aurora i:nth-child(3){width:44%;height:44%;left:26%;bottom:2%;background:radial-gradient(circle,rgba(107,184,218,.5),transparent 65%);animation:d3 38s ease-in-out infinite}
+@keyframes d1{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(7%,5%,0) scale(1.12)}}
+@keyframes d2{0%,100%{transform:translate3d(0,0,0) scale(1.05)}50%{transform:translate3d(-6%,-6%,0) scale(.95)}}
+@keyframes d3{0%,100%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(4%,-7%,0) scale(1.1)}}
+
+.grid{
+  position:absolute;left:-30%;right:-30%;bottom:-14%;height:70%;
+  background-image:linear-gradient(to right,rgba(255,255,255,.055) 1px,transparent 1px),
+                   linear-gradient(to bottom,rgba(255,255,255,.055) 1px,transparent 1px);
+  background-size:74px 74px;transform:perspective(560px) rotateX(66deg);transform-origin:50% 100%;
+  mask-image:linear-gradient(to top,rgba(0,0,0,.85),transparent 78%);
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.85),transparent 78%);pointer-events:none;
+}
+html[data-theme="light"] .grid{background-image:linear-gradient(to right,rgba(20,45,80,.12) 1px,transparent 1px),linear-gradient(to bottom,rgba(20,45,80,.12) 1px,transparent 1px)}
+
+.stage-top,.stage-mid,.stage-bot{position:relative;z-index:2}
+.stage-top{display:flex;align-items:center;gap:13px}
+.logo{font-family:'Sora',sans-serif;font-weight:700;font-size:25px;letter-spacing:-.02em}
+.logo span{color:var(--blue)}
+.note{
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);
+  background:rgba(255,255,255,.05);border:1px solid var(--line);padding:5px 11px;border-radius:999px;
+}
+html[data-theme="light"] .note{background:rgba(255,255,255,.7)}
+
+.stage-mid{display:grid;grid-template-columns:minmax(280px,400px) minmax(0,1fr);gap:30px;align-items:center;flex:1;padding:18px 0}
+
+.eyebrow{display:inline-flex;align-items:center;gap:11px;font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--text-2);margin-bottom:18px}
+.eyebrow::before{content:"";width:26px;height:1.5px;background:var(--blue);border-radius:2px}
+h1{font-size:clamp(32px,3.3vw,48px);line-height:1.06;font-weight:700;letter-spacing:-.025em;margin-bottom:16px}
+.lede{font-size:15.5px;line-height:1.6;color:var(--text-2);max-width:44ch}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin:22px 0 24px}
+.chip{font-size:11.5px;font-weight:600;color:var(--text-2);border:1px solid var(--line);background:rgba(255,255,255,.045);padding:6px 12px;border-radius:999px}
+html[data-theme="light"] .chip{background:rgba(255,255,255,.7)}
+.ctas{display:flex;gap:11px;flex-wrap:wrap}
+.btn{font-size:14.5px;font-weight:700;cursor:pointer;padding:13px 22px;border-radius:var(--r);border:1px solid transparent;transition:transform var(--fast) var(--ease),box-shadow var(--fast),background var(--fast)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--blue);color:var(--ink);box-shadow:0 8px 26px -10px rgba(107,184,218,.75)}
+.btn-primary:hover{background:#7FC5E3}
+.btn-ghost{background:transparent;color:var(--text);border-color:var(--line-strong)}
+.btn-ghost:hover{background:rgba(255,255,255,.06);border-color:var(--blue)}
+html[data-theme="light"] .btn-ghost:hover{background:rgba(20,30,50,.05)}
+.btn-block{width:100%;display:block}
+
+/* network */
+.net-wrap{position:relative;display:flex;align-items:center;justify-content:center;min-height:430px}
+.net{position:relative;width:min(100%,520px);aspect-ratio:1/.94;transition:transform .5s var(--ease)}
+.net svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.edge{stroke:rgba(255,255,255,.12);stroke-width:1.1;fill:none;transition:stroke .5s var(--ease),stroke-width .5s var(--ease)}
+html[data-theme="light"] .edge{stroke:rgba(20,40,70,.16)}
+.edge.live{stroke:var(--blue);stroke-width:1.9}
+
+.node{position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:96px}
+.node .dot{
+  width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:rgba(255,255,255,.055);border:1px solid var(--line);backdrop-filter:blur(10px);
+  transition:box-shadow .45s var(--ease),border-color .45s var(--ease),background .45s var(--ease),transform .45s var(--ease);
+}
+html[data-theme="light"] .node .dot{background:rgba(255,255,255,.85)}
+.node .dot svg{width:19px;height:19px;stroke:var(--text-2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;position:static;transition:stroke .45s}
+.node .label{font-size:10.5px;font-weight:600;letter-spacing:.02em;color:var(--text-3);text-align:center;line-height:1.25;transition:color .45s}
+.node.live .dot{border-color:var(--blue);background:rgba(107,184,218,.16);box-shadow:0 0 0 4px rgba(107,184,218,.10),0 0 30px -4px rgba(107,184,218,.65);transform:scale(1.08)}
+.node.live .dot svg{stroke:var(--blue)}
+.node.live .label{color:var(--text)}
+
+.core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center}
+.core .ring{
+  width:100px;height:100px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 40%,rgba(107,184,218,.30),rgba(107,184,218,.05) 70%);
+  border:1px solid rgba(107,184,218,.45);
+  box-shadow:0 0 46px -6px rgba(107,184,218,.55),inset 0 0 30px -8px rgba(127,227,224,.55);
+}
+.core .ring b{font-family:'Sora',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.02em}
+.core .cap{margin-top:9px;font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--text-3)}
+.core::after{content:"";position:absolute;left:50%;top:50px;width:100px;height:100px;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(107,184,218,.5);animation:ripple 3.4s ease-out infinite;pointer-events:none}
+@keyframes ripple{0%{opacity:.55;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(2.1)}}
+.pulse{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px 3px rgba(127,227,224,.85);transform:translate(-50%,-50%);pointer-events:none}
+
+.feed{position:absolute;right:42px;bottom:74px;display:flex;flex-direction:column;gap:8px;width:min(44%,300px);z-index:3}
+.event{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.07);border:1px solid var(--line);backdrop-filter:blur(14px);border-radius:12px;padding:10px 13px;animation:evIn .32s var(--ease) both}
+html[data-theme="light"] .event{background:rgba(255,255,255,.85)}
+.event.out{animation:evOut .32s var(--ease) both}
+@keyframes evIn{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes evOut{to{opacity:0;transform:translateY(-6px)}}
+.event .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px 1px rgba(74,222,128,.7);flex:none}
+.event .txt{font-size:12.5px;font-weight:600}
+.event .meta{font-size:11px;color:var(--text-3);margin-left:auto;font-variant-numeric:tabular-nums}
+
+.stage-bot{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.copyright{font-size:12px;color:var(--text-3)}
+.livebar{display:none;align-items:center;gap:9px;font-size:12.5px;font-weight:600;color:var(--text-2)}
+.livebar .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 10px 1px rgba(74,222,128,.7)}
+
+/* ═════════ RIGHT — authentication ═════════ */
+.panel{background:var(--panel);position:relative;display:flex;flex-direction:column;padding:20px 40px 26px;overflow-y:auto;border-left:1px solid var(--line)}
+.panel-top{display:flex;align-items:center;gap:8px;flex:none}
+.spacer{flex:1}
+.iconbtn{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--text-2);transition:color var(--fast),border-color var(--fast)}
+.iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
+.iconbtn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.langtog{display:flex;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;padding:3px}
+.langtog button{font-size:11.5px;font-weight:700;letter-spacing:.04em;cursor:pointer;padding:6px 11px;border-radius:8px;border:0;background:transparent;color:var(--text-3);transition:all var(--fast)}
+.langtog button[aria-pressed="true"]{background:var(--blue);color:var(--ink)}
+
+/* demo-only device switch */
+.devtog{display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--panel-2);border:1px dashed var(--line-strong);border-radius:999px;padding:6px 12px;color:var(--text-3);font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;transition:color var(--fast)}
+.devtog:hover{color:var(--text-2)}
+.devtog .pip{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
+html[data-device="unregistered"] .devtog .pip{background:var(--amber)}
+
+.views{width:100%;max-width:392px;margin:auto;padding:16px 0;flex:none}
+.view{display:none}
+.view.on{display:block;animation:evIn .26s var(--ease) both}
+
+.loc{display:inline-flex;align-items:center;gap:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:999px;padding:7px 14px 7px 11px;margin-bottom:16px;max-width:100%}
+.loc .pip{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 9px 1px rgba(74,222,128,.65);flex:none}
+.loc .name{font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.loc .sub{font-size:12.5px;color:var(--text-3);white-space:nowrap}
+
+h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px}
+.panel-lede{font-size:13.5px;color:var(--text-3);margin-bottom:18px;line-height:1.5}
+
+.rowlabel{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:8px}
+.fieldlabel{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--text-3)}
+.subtle{font-size:11px;color:var(--text-3)}
+
+.search{width:100%;background:var(--panel-2);border:1px solid var(--line);border-radius:11px;color:var(--text);font-family:inherit;font-size:13px;padding:9px 12px;margin-bottom:8px}
+.search::placeholder{color:var(--text-3)}
+.search:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(107,184,218,.14)}
+
+.staff{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;max-height:250px;overflow-y:auto;padding-right:2px}
+.person{cursor:pointer;text-align:center;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:9px 5px 8px;min-height:72px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color var(--fast),background var(--fast),transform var(--fast)}
+.person:hover{border-color:var(--line-strong);background:rgba(255,255,255,.05)}
+html[data-theme="light"] .person:hover{background:#EAEFF6}
+.person:active{transform:scale(.98)}
+.person[aria-pressed="true"]{border-color:var(--blue);background:rgba(107,184,218,.13);box-shadow:0 0 0 3px rgba(107,184,218,.13)}
+.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:var(--ink);background:linear-gradient(145deg,var(--blue),var(--cyan))}
+.person .pname{font-size:11.5px;font-weight:700;line-height:1.2}
+.person .prole{font-size:9.5px;color:var(--text-3)}
+.emptylist{grid-column:1/-1;font-size:12.5px;color:var(--text-3);text-align:center;padding:18px 8px}
+
+.pin{display:flex;gap:10px;margin-bottom:12px}
+.pincell{
+  flex:1 1 0;min-width:0;width:100%;
+  height:56px;border-radius:var(--r);background:var(--panel-2);border:1px solid var(--line);
+  color:var(--text);font-family:'Sora',sans-serif;font-size:26px;text-align:center;
+  transition:border-color var(--fast),box-shadow var(--fast);
+}
+.pincell:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(107,184,218,.16)}
+.pincell:disabled{opacity:.45;cursor:not-allowed}
+.pin.error .pincell{border-color:var(--red);animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.key{font-family:'Sora',sans-serif;font-size:20px;font-weight:600;color:var(--text);cursor:pointer;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);height:50px;display:grid;place-items:center;transition:background var(--fast),border-color var(--fast),transform var(--fast);font-variant-numeric:tabular-nums}
+.key:hover{background:rgba(255,255,255,.06);border-color:var(--line-strong)}
+html[data-theme="light"] .key:hover{background:#EAEFF6}
+.key:active{transform:scale(.96);background:rgba(107,184,218,.18)}
+.key svg{width:21px;height:21px;stroke:var(--text-2);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+
+.hint{font-size:12.5px;color:var(--text-3);text-align:center;min-height:19px;margin-bottom:12px}
+.hint.err{color:var(--red)}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text-2);margin-bottom:7px}
+.inputwrap{display:flex;align-items:center;gap:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:0 13px;transition:border-color var(--fast),box-shadow var(--fast)}
+.inputwrap:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(107,184,218,.14)}
+.inputwrap svg{width:17px;height:17px;stroke:var(--text-3);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.inputwrap input{flex:1;background:none;border:0;outline:none;color:var(--text);font-family:inherit;font-size:14.5px;padding:14px 0}
+.inputwrap input::placeholder{color:var(--text-3)}
+.eye{background:none;border:0;cursor:pointer;padding:4px;display:grid;place-items:center}
+
+.formrow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 16px}
+.check{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:13px;color:var(--text-2)}
+.check input{appearance:none;width:19px;height:19px;border-radius:6px;border:1px solid var(--line-strong);background:var(--panel-2);cursor:pointer;position:relative;transition:all var(--fast)}
+.check input:checked{background:var(--blue);border-color:var(--blue)}
+.check input:checked::after{content:"";position:absolute;left:6px;top:2.5px;width:5px;height:9px;border:solid var(--ink);border-width:0 2px 2px 0;transform:rotate(45deg)}
+.textlink{background:none;border:0;cursor:pointer;font-family:inherit;font-size:13px;font-weight:700;color:var(--blue);padding:0}
+.textlink:hover{text-decoration:underline}
+
+.or{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--text-3);font-size:11.5px}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.quietlink{display:block;width:100%;text-align:center;background:none;border:0;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--text-3);padding:11px;border-radius:10px;transition:color var(--fast)}
+.quietlink:hover{color:var(--blue)}
+
+.back{display:inline-flex;align-items:center;gap:7px;background:none;border:0;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:700;color:var(--text-3);padding:0;margin-bottom:14px;transition:color var(--fast)}
+.back:hover{color:var(--text)}
+.back svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.notice{display:flex;gap:11px;background:rgba(245,193,94,.09);border:1px solid rgba(245,193,94,.34);border-radius:var(--r);padding:13px 14px;margin-bottom:18px}
+.notice svg{width:17px;height:17px;stroke:var(--amber);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex:none;margin-top:1px}
+.notice .nt{font-size:12.5px;line-height:1.5;color:var(--text-2)}
+.notice .nt b{color:var(--text);display:block;margin-bottom:2px;font-size:12.5px}
+
+/* QR scan */
+.scan{position:relative;aspect-ratio:1;border-radius:20px;background:var(--panel-2);border:1px solid var(--line);overflow:hidden;margin-bottom:16px;display:grid;place-items:center}
+.scan .frame{width:64%;aspect-ratio:1;border-radius:16px;position:relative}
+.scan .frame i{position:absolute;width:30px;height:30px;border:3px solid var(--blue);border-radius:6px}
+.scan .frame i:nth-child(1){top:0;left:0;border-right:0;border-bottom:0}
+.scan .frame i:nth-child(2){top:0;right:0;border-left:0;border-bottom:0}
+.scan .frame i:nth-child(3){bottom:0;left:0;border-right:0;border-top:0}
+.scan .frame i:nth-child(4){bottom:0;right:0;border-left:0;border-top:0}
+.scan .beam{position:absolute;left:18%;right:18%;height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);box-shadow:0 0 16px 2px rgba(127,227,224,.6);animation:scanbeam 2.6s ease-in-out infinite}
+@keyframes scanbeam{0%,100%{top:20%}50%{top:80%}}
+.scan .cam{position:absolute;bottom:14px;left:0;right:0;text-align:center;font-size:11.5px;color:var(--text-3)}
+
+.panel-foot{text-align:center;font-size:11.5px;color:var(--text-3);padding-top:14px;flex:none}
+
+.done{position:absolute;inset:0;background:var(--panel);display:none;flex-direction:column;align-items:center;justify-content:center;gap:13px;z-index:5;padding:24px}
+.done.show{display:flex;animation:evIn .3s var(--ease) both}
+.done .mark{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:rgba(74,222,128,.14);border:1px solid rgba(74,222,128,.45)}
+.done .mark svg{width:29px;height:29px;stroke:var(--green);fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.done .t{font-family:'Sora',sans-serif;font-size:19px;font-weight:700}
+.done .s{font-size:13px;color:var(--text-3)}
+
+/* ═════════ responsive ═════════ */
+
+/* POS terminal / short landscape — 1024×768 and similar.
+   The marketing block shrinks to a headline; the network becomes the hero,
+   and the live feed collapses to the single status line at the bottom. */
+@media (orientation:landscape) and (max-height:830px){
+  .stage{padding:22px 30px}
+  .stage-mid{grid-template-columns:1fr;gap:10px;padding:10px 0}
+  .net-wrap{min-height:0;flex:1}
+  .net{width:min(100%,440px)}
+  h1{font-size:clamp(26px,2.6vw,34px);margin-bottom:12px}
+  .eyebrow{margin-bottom:12px}
+  .lede{font-size:14px}
+  .chips,.ctas{display:none}
+  .feed{display:none}
+  .livebar{display:flex}
+  .panel{padding:14px 30px 18px}
+  .views{padding:8px 0}
+  h2{font-size:22px}
+  .panel-lede{margin-bottom:12px}
+  .loc{margin-bottom:12px}
+  .staff{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:104px;overflow-x:auto;overflow-y:hidden;max-height:none;margin-bottom:14px;padding-bottom:5px}
+  .person{min-height:76px}
+  .pincell{height:48px;font-size:22px}
+  .key{height:42px;font-size:18px}
+  .keys{gap:7px;margin-bottom:8px}
+  .hint{margin-bottom:8px;min-height:16px}
+  .panel-foot{display:none}
+}
+
+@media (max-width:1080px) and (orientation:portrait){
+  .stage-mid{grid-template-columns:1fr;gap:16px}
+  .net-wrap{min-height:330px}
+}
+
+/* tablet portrait + mobile */
+@media (max-width:900px){
+  body{overflow:auto}
+  .shell{grid-template-columns:1fr;height:auto}
+  .stage{padding:22px 20px 24px}
+  .stage-mid{padding:14px 0}
+  .net-wrap,.feed,.grid,.aurora i:nth-child(3){display:none}
+  .livebar{display:flex}
+  .note{display:none}
+  h1{font-size:31px}
+  .panel{border-left:0;border-top:1px solid var(--line);padding:16px 20px 26px}
+  .views{padding:10px 0}
+}
+@media (max-width:520px){
+  .staff{grid-template-columns:repeat(2,1fr);max-height:none}
+  .stage-bot{flex-direction:column;align-items:flex-start;gap:8px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  .aurora i,.core::after,.scan .beam{animation:none!important}
+  .event,.view.on{animation:none!important}
+  *{transition-duration:.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- ═════════ LEFT ═════════ -->
+  <section class="stage" id="stage">
+    <div class="aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="grid" aria-hidden="true"></div>
+
+    <div class="stage-top">
+      <div class="logo">plorea<span>.</span></div>
+      <span class="note" data-i18n="note">Konsept · ikke produksjon</span>
+    </div>
+
+    <div class="stage-mid">
+      <div>
+        <div class="eyebrow" data-i18n="eyebrow">Sanntids unified commerce</div>
+        <h1 data-i18n="h1">Hele driften, i sanntid.</h1>
+        <p class="lede" data-i18n="lede">Plorea samler hvert salg, hver betaling og hver bestilling — kasse, terminal, QR, selvbetjening og netthandel i ett levende bilde av driften.</p>
+        <div class="chips" id="chips"></div>
+        <div class="ctas">
+          <button class="btn btn-primary" data-i18n="cta1">Se Plorea i drift</button>
+          <button class="btn btn-ghost" data-i18n="cta2">Book en demo</button>
+        </div>
+      </div>
+
+      <div class="net-wrap">
+        <div class="net" id="net">
+          <svg id="edges" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+          <div class="core">
+            <div class="ring"><b>Plorea</b></div>
+            <div class="cap" data-i18n="core">Sanntidskjerne</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stage-bot">
+      <div class="copyright">© Plorea</div>
+      <div class="livebar"><span class="pip"></span><span id="livetext">Alle kanaler synkronisert</span></div>
+    </div>
+
+    <div class="feed" id="feed" aria-live="polite"></div>
+  </section>
+
+  <!-- ═════════ RIGHT ═════════ -->
+  <aside class="panel">
+    <div class="panel-top">
+      <button class="devtog" id="devTog" title="Demo: bytt om enheten er registrert på en lokasjon">
+        <span class="pip"></span><span id="devLabel">Enhet registrert</span>
+      </button>
+      <span class="spacer"></span>
+      <div class="langtog" role="group" aria-label="Language">
+        <button id="langNO" aria-pressed="true">NO</button>
+        <button id="langEN" aria-pressed="false">EN</button>
+      </div>
+      <button class="iconbtn" id="themeBtn" aria-label="Tema">
+        <svg id="themeIcon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+      </button>
+    </div>
+
+    <div class="views">
+
+      <!-- ── 1. SHORT CODE (start view when the device is registered) ── -->
+      <section class="view on" data-view="quick">
+        <div class="loc">
+          <span class="pip"></span>
+          <span class="name">Lokasjon med langt navn</span>
+          <span class="sub">· Trondheim</span>
+        </div>
+
+        <h2 data-i18n="qtitle">Hurtig innlogging</h2>
+        <p class="panel-lede" data-i18n="qlede">Velg deg selv og tast kortkoden.</p>
+
+        <div class="rowlabel">
+          <span class="fieldlabel" data-i18n="lstaff">Ansatt</span>
+          <span class="subtle" id="staffCount"></span>
+        </div>
+        <input class="search" id="staffSearch" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Søk etter navn">
+        <div class="staff" id="staff"></div>
+
+        <div class="fieldlabel" style="margin-bottom:8px" data-i18n="lpin">Kortkode</div>
+        <div class="pin" id="pin">
+          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="1" disabled>
+          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="2" disabled>
+          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="3" disabled>
+          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="4" disabled>
+        </div>
+
+        <div class="keys" id="keys"></div>
+        <div class="hint" id="hint" data-i18n="hint">Velg en ansatt — markøren hopper rett i første felt.</div>
+
+        <button class="quietlink" data-go="email" data-i18n="toEmail">Logg inn med e-post og passord</button>
+      </section>
+
+      <!-- ── 2. EMAIL + PASSWORD (always available) ── -->
+      <section class="view" data-view="email">
+        <button class="back" data-go="quick" id="backToQuick">
+          <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          <span data-i18n="backQuick">Hurtig innlogging</span>
+        </button>
+
+        <div class="notice" id="devNotice" hidden>
+          <svg viewBox="0 0 24 24"><path d="M12 9v4M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          <div class="nt">
+            <b data-i18n="devTitle">Enheten er ikke registrert på en lokasjon</b>
+            <span data-i18n="devBody">Kortkode blir tilgjengelig så snart enheten er knyttet til en lokasjon. Logg inn med e-post for å registrere den.</span>
+          </div>
+        </div>
+
+        <h2 data-i18n="etitle">Velkommen tilbake</h2>
+        <p class="panel-lede" data-i18n="elede">Logg inn på Plorea-kontoen din for å fortsette.</p>
+
+        <div class="field">
+          <label for="em" data-i18n="lemail">E-post</label>
+          <div class="inputwrap">
+            <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>
+            <input id="em" type="email" inputmode="email" autocomplete="username" placeholder="navn@plorea.com">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="pw" data-i18n="lpw">Passord</label>
+          <div class="inputwrap">
+            <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input id="pw" type="password" autocomplete="current-password" placeholder="••••••••">
+            <button class="eye" id="eye" aria-label="Vis passord">
+              <svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--text-3);fill:none;stroke-width:1.7"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="formrow">
+          <label class="check"><input type="checkbox" checked><span data-i18n="remember">Husk meg</span></label>
+          <button class="textlink" data-i18n="forgot">Glemt passord</button>
+        </div>
+
+        <button class="btn btn-primary btn-block" id="emailSubmit" data-i18n="signin">Logg inn</button>
+
+        <div class="or"><span data-i18n="or">eller</span></div>
+
+        <button class="btn btn-ghost btn-block" data-go="qr" id="qrBtn" style="margin-bottom:9px">
+          <span data-i18n="scanQr">Skann QR-kode</span>
+        </button>
+        <button class="btn btn-ghost btn-block" data-i18n="createAcc">Opprett konto</button>
+      </section>
+
+      <!-- ── 3. QR SIGN-IN ── -->
+      <section class="view" data-view="qr">
+        <button class="back" data-go="email">
+          <svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>
+          <span data-i18n="backEmail">E-post og passord</span>
+        </button>
+
+        <h2 data-i18n="qrtitle">Skann QR-kode</h2>
+        <p class="panel-lede" data-i18n="qrlede">Åpne Plorea på en innlogget enhet og vis QR-koden. Hold den innenfor rammen.</p>
+
+        <div class="scan">
+          <div class="frame"><i></i><i></i><i></i><i></i></div>
+          <div class="beam"></div>
+          <div class="cam" data-i18n="camnote">Kameraforhåndsvisning</div>
+        </div>
+
+        <button class="quietlink" data-go="email" data-i18n="qrfallback">Bruk e-post og passord i stedet</button>
+      </section>
+
+    </div>
+
+    <div class="panel-foot" data-i18n="foot">Ved innlogging godtar du Ploreas vilkår og personvernerklæring.</div>
+
+    <div class="done" id="done">
+      <div class="mark"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg></div>
+      <div class="t" id="doneName">Velkommen</div>
+      <div class="s" id="doneSub" data-i18n="doneSub">Åpner kassen …</div>
+      <button class="btn btn-ghost" id="resetBtn" data-i18n="again">Vis igjen</button>
+    </div>
+  </aside>
+</div>
+
+<script>
+(() => {
+"use strict";
+
+/* ══════════ i18n ══════════ */
+const I18N = {
+ no:{
+  note:"Konsept · ikke produksjon",
+  eyebrow:"Sanntids unified commerce",
+  h1:"Hele driften, i sanntid.",
+  lede:"Plorea samler hvert salg, hver betaling og hver bestilling — kasse, terminal, QR, selvbetjening og netthandel i ett levende bilde av driften.",
+  chips:["Kasse","Terminal","QR","Selvbetjening","Netthandel","Kjøkken","Control"],
+  cta1:"Se Plorea i drift", cta2:"Book en demo",
+  core:"Sanntidskjerne",
+  qtitle:"Hurtig innlogging", qlede:"Velg deg selv og tast kortkoden.",
+  lstaff:"Ansatt", lpin:"Kortkode", searchPh:"Søk etter navn",
+  hint:"Velg en ansatt — markøren hopper rett i første felt.",
+  hintTyping:"Logger inn automatisk ved fjerde siffer.",
+  toEmail:"Logg inn med e-post og passord",
+  backQuick:"Hurtig innlogging", backEmail:"E-post og passord",
+  etitle:"Velkommen tilbake", elede:"Logg inn på Plorea-kontoen din for å fortsette.",
+  lemail:"E-post", lpw:"Passord", remember:"Husk meg", forgot:"Glemt passord",
+  signin:"Logg inn", or:"eller", scanQr:"Skann QR-kode", createAcc:"Opprett konto",
+  qrtitle:"Skann QR-kode", qrlede:"Åpne Plorea på en innlogget enhet og vis QR-koden. Hold den innenfor rammen.",
+  camnote:"Kameraforhåndsvisning", qrfallback:"Bruk e-post og passord i stedet",
+  devTitle:"Enheten er ikke registrert på en lokasjon",
+  devBody:"Kortkode blir tilgjengelig så snart enheten er knyttet til en lokasjon. Logg inn med e-post for å registrere den.",
+  devOn:"Enhet registrert", devOff:"Enhet ikke registrert",
+  foot:"Ved innlogging godtar du Ploreas vilkår og personvernerklæring.",
+  doneSub:"Åpner kassen …", again:"Vis igjen",
+  pickFirst:"Velg en ansatt først.", wrong:"Feil kortkode. Prøv igjen.",
+  welcome:"Velkommen,", noMatch:"Ingen treff.",
+  staffCount:n=>n+" merket for hurtiginnlogging",
+  nodes:{pos:"Kasse",term:"Terminal-kasse",qr:"QR-bestilling",kiosk:"Selvbetjening",web:"Netthandel",
+         kds:"Kjøkkenskjerm",ctrl:"POS Control",pay:"Betaling",stock:"Lager",deliv:"Levering"},
+  events:[
+   ["kiosk",true, "Ny bestilling · Kiosk"],
+   ["pay",  false,"Betaling godkjent · Terminal 2"],
+   ["kds",  false,"Sendt til kjøkkenskjerm"],
+   ["qr",   true, "QR-bestilling · Bord 12"],
+   ["web",  true, "Nettbestilling mottatt"],
+   ["deliv",false,"Leveringssone bekreftet"],
+   ["pos",  true, "Salg registrert · Kasse 1"],
+   ["term", true, "Salg registrert · Terminal-kasse"],
+   ["stock",false,"Lager oppdatert"],
+   ["ctrl", false,"Omsetning oppdatert · POS Control"],
+   ["all",  false,"Alle kanaler synkronisert"]
+  ],
+  live:"Alle kanaler synkronisert"
+ },
+ en:{
+  note:"Concept · not production",
+  eyebrow:"Real-time unified commerce",
+  h1:"Your whole operation, live.",
+  lede:"Plorea connects every sale, every payment and every order — POS, terminal, QR, self-service and online in one live view of your business.",
+  chips:["POS","Terminal","QR","Self-service","Online","Kitchen","Control"],
+  cta1:"See Plorea in action", cta2:"Book a demo",
+  core:"Real-time core",
+  qtitle:"Quick login", qlede:"Pick yourself and enter your code.",
+  lstaff:"Employee", lpin:"Passcode", searchPh:"Search by name",
+  hint:"Pick an employee — the cursor jumps straight to the first box.",
+  hintTyping:"Signs you in automatically on the fourth digit.",
+  toEmail:"Sign in with email and password",
+  backQuick:"Quick login", backEmail:"Email and password",
+  etitle:"Welcome back", elede:"Sign in to your Plorea account to continue.",
+  lemail:"Email", lpw:"Password", remember:"Remember me", forgot:"Forgot password",
+  signin:"Sign in", or:"or", scanQr:"Scan QR code", createAcc:"Create account",
+  qrtitle:"Scan QR code", qrlede:"Open Plorea on a signed-in device and show the QR code. Hold it inside the frame.",
+  camnote:"Camera preview", qrfallback:"Use email and password instead",
+  devTitle:"This device is not registered to a location",
+  devBody:"Passcode login becomes available once the device is linked to a location. Sign in with email to register it.",
+  devOn:"Device registered", devOff:"Device not registered",
+  foot:"By signing in you accept Plorea's terms and privacy policy.",
+  doneSub:"Opening the till …", again:"Show again",
+  pickFirst:"Pick an employee first.", wrong:"Wrong passcode. Try again.",
+  welcome:"Welcome,", noMatch:"No matches.",
+  staffCount:n=>n+" flagged for quick login",
+  nodes:{pos:"POS",term:"Terminal POS",qr:"QR ordering",kiosk:"Self-service",web:"Online order",
+         kds:"Kitchen display",ctrl:"POS Control",pay:"Payments",stock:"Inventory",deliv:"Delivery"},
+  events:[
+   ["kiosk",true, "New order · Kiosk"],
+   ["pay",  false,"Payment approved · Terminal 2"],
+   ["kds",  false,"Sent to kitchen display"],
+   ["qr",   true, "QR order · Table 12"],
+   ["web",  true, "Online order received"],
+   ["deliv",false,"Delivery zone confirmed"],
+   ["pos",  true, "Sale registered · Till 1"],
+   ["term", true, "Sale registered · Terminal POS"],
+   ["stock",false,"Inventory updated"],
+   ["ctrl", false,"Revenue updated · POS Control"],
+   ["all",  false,"All channels synchronized"]
+  ],
+  live:"All channels synchronized"
+ }
+};
+let lang = "no";
+const t = () => I18N[lang];
+
+/* ══════════ network ══════════ */
+const ICONS = {
+ pos:'<path d="M4 7h16v10H4z"/><path d="M4 11h16"/><path d="M8 15h3"/>',
+ term:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 10h8"/><circle cx="12" cy="17" r="1.6"/>',
+ qr:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 20h1M17 21v-1"/>',
+ kiosk:'<rect x="6" y="3" width="12" height="14" rx="2"/><path d="M9 21h6M12 17v4"/>',
+ web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0-18"/>',
+ kds:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M7 9h5"/>',
+ ctrl:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ pay:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+ stock:'<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="M12 12 4 7.5M12 12l8-4.5M12 12v9"/>',
+ deliv:'<path d="M3 7h11v9H3z"/><path d="M14 10h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.8"/><circle cx="17" cy="18" r="1.8"/>'
+};
+const ORDER = ["kiosk","qr","web","deliv","stock","ctrl","kds","pay","term","pos"];
+const NODES = ORDER.map((id,i)=>{
+  const a = (-90 + i*(360/ORDER.length)) * Math.PI/180;
+  return {id, x:50 + 43*Math.cos(a), y:50 + 45*Math.sin(a)};
+});
+
+const net = document.getElementById("net");
+const edgesSvg = document.getElementById("edges");
+const feed = document.getElementById("feed");
+const nodeEls = {};
+
+NODES.forEach(n=>{
+  const ln = document.createElementNS("http://www.w3.org/2000/svg","line");
+  ln.setAttribute("x1",50); ln.setAttribute("y1",50);
+  ln.setAttribute("x2",n.x); ln.setAttribute("y2",n.y);
+  ln.setAttribute("class","edge"); ln.dataset.id = n.id;
+  ln.setAttribute("vector-effect","non-scaling-stroke");
+  edgesSvg.appendChild(ln);
+
+  const el = document.createElement("div");
+  el.className = "node";
+  el.style.left = n.x + "%"; el.style.top = n.y + "%";
+  el.innerHTML = '<div class="dot"><svg viewBox="0 0 24 24">'+ICONS[n.id]+'</svg></div>'+
+                 '<div class="label" data-node="'+n.id+'"></div>';
+  net.appendChild(el);
+  nodeEls[n.id] = el;
+});
+
+const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function firePulse(id, inbound){
+  if (reduced.matches) return;
+  const box = net.getBoundingClientRect();
+  if (!box.width) return;
+  const n = NODES.find(v=>v.id===id);
+  const cx = box.width/2, cy = box.height/2;
+  const nx = box.width*n.x/100, ny = box.height*n.y/100;
+  const a = inbound ? [nx,ny] : [cx,cy];
+  const b = inbound ? [cx,cy] : [nx,ny];
+  const p = document.createElement("div");
+  p.className = "pulse";
+  net.appendChild(p);
+  const anim = p.animate([
+    {transform:`translate(${a[0]}px,${a[1]}px) translate(-50%,-50%) scale(.6)`,opacity:0},
+    {transform:`translate(${(a[0]+b[0])/2}px,${(a[1]+b[1])/2}px) translate(-50%,-50%) scale(1)`,opacity:1,offset:.45},
+    {transform:`translate(${b[0]}px,${b[1]}px) translate(-50%,-50%) scale(.6)`,opacity:0}
+  ],{duration:1000,easing:"cubic-bezier(.4,0,.3,1)"});
+  anim.onfinish = () => p.remove();
+}
+
+function activate(id, inbound){
+  const ids = id === "all" ? ORDER : [id];
+  ids.forEach((v,i)=>{
+    const node = nodeEls[v], edge = edgesSvg.querySelector('[data-id="'+v+'"]');
+    if (!node) return;
+    setTimeout(()=>{
+      node.classList.add("live"); edge && edge.classList.add("live");
+      firePulse(v, inbound);
+      setTimeout(()=>{ node.classList.remove("live"); edge && edge.classList.remove("live"); },1400);
+    }, i*70);
+  });
+}
+
+function pushEvent(text){
+  const el = document.createElement("div");
+  el.className = "event";
+  const d = new Date();
+  const hh = String(d.getHours()).padStart(2,"0"), mm = String(d.getMinutes()).padStart(2,"0");
+  el.innerHTML = '<span class="pip"></span><span class="txt"></span><span class="meta">'+hh+':'+mm+'</span>';
+  el.querySelector(".txt").textContent = text;
+  feed.appendChild(el);
+  while (feed.children.length > 3) feed.firstElementChild.remove();
+  setTimeout(()=>{ if(el.isConnected){ el.classList.add("out"); setTimeout(()=>el.remove(),300);} },6000);
+}
+
+let step = 0, timer = null;
+function tick(){
+  const list = t().events;
+  const [id, inbound, label] = list[step % list.length];
+  activate(id, inbound);
+  pushEvent(label);
+  document.getElementById("livetext").textContent = label;
+  step++;
+}
+function start(){ if (timer || reduced.matches) return; tick(); timer = setInterval(tick, 1500); }
+function stop(){ clearInterval(timer); timer = null; }
+document.addEventListener("visibilitychange", ()=> document.hidden ? stop() : start());
+reduced.addEventListener("change", e => e.matches ? stop() : start());
+
+const stage = document.getElementById("stage");
+stage.addEventListener("mousemove", e=>{
+  if (reduced.matches) return;
+  const r = stage.getBoundingClientRect();
+  net.style.transform = `translate3d(${((e.clientX-r.left)/r.width-.5)*-14}px, ${((e.clientY-r.top)/r.height-.5)*-10}px, 0)`;
+});
+stage.addEventListener("mouseleave", ()=> net.style.transform = "");
+
+/* ══════════ views ══════════ */
+const views = document.querySelectorAll(".view");
+function show(name){
+  views.forEach(v => v.classList.toggle("on", v.dataset.view === name));
+  if (name === "quick"){ clearPin(); }
+  if (name === "email"){ setTimeout(()=>document.getElementById("em").focus(), 60); }
+}
+document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ()=>show(b.dataset.go)));
+
+/* ══════════ device registration state ══════════ */
+/* A short code can only be used on a device already registered to a location.
+   When it is not, the app must start on email + password.                     */
+const devTog = document.getElementById("devTog");
+function applyDevice(state){
+  document.documentElement.dataset.device = state;
+  const registered = state === "registered";
+  document.getElementById("devLabel").textContent = registered ? t().devOn : t().devOff;
+  document.getElementById("devNotice").hidden = registered;
+  document.getElementById("backToQuick").style.display = registered ? "" : "none";
+  document.querySelector('[data-go="email"].quietlink').style.display = "";
+  show(registered ? "quick" : "email");     /* ← start view */
+}
+devTog.addEventListener("click", ()=>{
+  applyDevice(document.documentElement.dataset.device === "registered" ? "unregistered" : "registered");
+});
+
+/* ══════════ staff — only accounts flagged on this location ══════════ */
+/* In production this list comes from the location-user flag. Demo data below. */
+const STAFF = [
+  {n:"Inger Halvorsen",     r:"Servitør"},
+  {n:"Sam Lofti",           r:"Bar"},
+  {n:"Wiktoria Mielniczuk", r:"Kjøkken"},
+  {n:"Audun Reite",         r:"Skiftleder"},
+  {n:"Conrad Berg",         r:"Servitør"},
+  {n:"Svein Tore Lund",     r:"Kjøkken"},
+  {n:"Mari Ek",             r:"Vertskap"},
+  {n:"Jonas Aas",           r:"Bar"},
+  {n:"Iuri Santos",         r:"Servitør"}
+];
+const CODE = "1234";
+
+const staffWrap = document.getElementById("staff");
+const searchEl = document.getElementById("staffSearch");
+let picked = null;
+
+function renderStaff(filter){
+  const q = (filter||"").trim().toLowerCase();
+  const list = STAFF.filter(s => s.n.toLowerCase().includes(q));
+  staffWrap.innerHTML = "";
+  if (!list.length){
+    const e = document.createElement("div");
+    e.className = "emptylist"; e.textContent = t().noMatch;
+    staffWrap.appendChild(e); return;
+  }
+  list.forEach(s=>{
+    const parts = s.n.split(" ");
+    const b = document.createElement("button");
+    b.className = "person"; b.type = "button";
+    b.setAttribute("aria-pressed", picked && picked.n === s.n ? "true" : "false");
+    b.innerHTML = '<span class="avatar">'+(parts[0][0]+(parts[1]?parts[1][0]:"")).toUpperCase()+'</span>'+
+                  '<span class="pname"></span><span class="prole"></span>';
+    b.querySelector(".pname").textContent = parts[0];
+    b.querySelector(".prole").textContent = s.r;
+    b.addEventListener("click", ()=>{
+      picked = s;
+      staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
+      b.setAttribute("aria-pressed","true");
+      clearPin();
+      enablePin(true);
+      cells[0].focus();                    /* ← jump straight into the first box */
+      setHint(t().hintTyping);
+    });
+    staffWrap.appendChild(b);
+  });
+}
+searchEl.addEventListener("input", ()=>renderStaff(searchEl.value));
+
+/* ══════════ passcode ══════════ */
+const pinWrap = document.getElementById("pin");
+const cells = [...pinWrap.querySelectorAll(".pincell")];
+const hintEl = document.getElementById("hint");
+
+function enablePin(on){ cells.forEach(c => c.disabled = !on); }
+function value(){ return cells.map(c=>c.value).join(""); }
+function clearPin(){ cells.forEach(c=>c.value=""); pinWrap.classList.remove("error"); }
+function setHint(msg, kind){ hintEl.textContent = msg; hintEl.className = "hint" + (kind?" "+kind:""); }
+
+cells.forEach((c,i)=>{
+  c.addEventListener("input", ()=>{
+    c.value = c.value.replace(/\D/g,"").slice(0,1);
+    if (c.value && i < 3) cells[i+1].focus();
+    if (value().length === 4) setTimeout(submit, 160);   /* auto-submit on 4th digit */
+  });
+  c.addEventListener("keydown", e=>{
+    if (e.key === "Backspace" && !c.value && i > 0){ cells[i-1].focus(); cells[i-1].value=""; e.preventDefault(); }
+    if (e.key === "ArrowLeft" && i > 0) cells[i-1].focus();
+    if (e.key === "ArrowRight" && i < 3) cells[i+1].focus();
+  });
+  c.addEventListener("focus", ()=>c.select());
+});
+
+function press(d){
+  if (!picked){ setHint(t().pickFirst, "err"); return; }
+  const i = cells.findIndex(c=>!c.value);
+  if (i === -1) return;
+  cells[i].value = d;
+  if (i < 3) cells[i+1].focus(); else cells[i].blur();
+  if (value().length === 4) setTimeout(submit, 160);
+}
+function back(){
+  let i = cells.findIndex(c=>!c.value);
+  if (i === -1) i = 4;
+  if (i > 0){ cells[i-1].value = ""; cells[i-1].focus(); }
+}
+function submit(){
+  if (value() === CODE) showDone(picked.n.split(" ")[0]);
+  else {
+    pinWrap.classList.add("error");
+    setHint(t().wrong, "err");
+    setTimeout(()=>{ clearPin(); pinWrap.classList.remove("error"); cells[0].focus(); setHint(t().hintTyping); }, 450);
+  }
+}
+
+const keys = document.getElementById("keys");
+["1","2","3","4","5","6","7","8","9","clear","0","back"].forEach(k=>{
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "key";
+  if (k === "back"){
+    b.setAttribute("aria-label","Backspace");
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M21 5H8l-5 7 5 7h13a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1Z"/><path d="m18 9-6 6M12 9l6 6"/></svg>';
+    b.addEventListener("click", back);
+  } else if (k === "clear"){
+    b.setAttribute("aria-label","Clear");
+    b.innerHTML = '<svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>';
+    b.addEventListener("click", ()=>{ clearPin(); if(picked) cells[0].focus(); });
+  } else {
+    b.textContent = k;
+    b.addEventListener("click", ()=>press(k));
+  }
+  keys.appendChild(b);
+});
+
+/* ══════════ email view ══════════ */
+document.getElementById("eye").addEventListener("click", ()=>{
+  const pw = document.getElementById("pw");
+  pw.type = pw.type === "password" ? "text" : "password";
+});
+document.getElementById("emailSubmit").addEventListener("click", ()=>{
+  const em = document.getElementById("em").value.trim();
+  showDone(em ? em.split("@")[0] : "");
+});
+
+/* ══════════ success ══════════ */
+const doneEl = document.getElementById("done");
+function showDone(name){
+  document.getElementById("doneName").textContent = (t().welcome + " " + name).trim();
+  doneEl.classList.add("show");
+}
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  doneEl.classList.remove("show");
+  picked = null; clearPin(); enablePin(false);
+  searchEl.value = ""; renderStaff("");
+  setHint(t().hint);
+  applyDevice(document.documentElement.dataset.device);
+});
+
+/* ══════════ theme + language ══════════ */
+const SUN = '<circle cx="12" cy="12" r="4.2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M19.1 4.9l-1.5 1.5M6.4 17.6l-1.5 1.5"/>';
+const MOON = '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/>';
+document.getElementById("themeBtn").addEventListener("click", ()=>{
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = next;
+  document.getElementById("themeIcon").innerHTML = next === "dark" ? MOON : SUN;
+});
+
+function applyLang(l){
+  lang = l;
+  document.documentElement.dataset.lang = l;
+  document.documentElement.lang = l === "no" ? "no" : "en";
+  document.querySelectorAll("[data-i18n]").forEach(el=>{
+    const v = t()[el.dataset.i18n];
+    if (typeof v === "string") el.textContent = v;
+  });
+  document.querySelectorAll("[data-i18n-ph]").forEach(el=>{
+    el.placeholder = t()[el.dataset.i18nPh];
+  });
+  document.querySelectorAll("[data-node]").forEach(el => el.textContent = t().nodes[el.dataset.node]);
+  document.getElementById("chips").innerHTML = t().chips.map(c=>'<span class="chip">'+c+'</span>').join("");
+  document.getElementById("staffCount").textContent = t().staffCount(STAFF.length);
+  document.getElementById("livetext").textContent = t().live;
+  document.getElementById("langNO").setAttribute("aria-pressed", l==="no");
+  document.getElementById("langEN").setAttribute("aria-pressed", l==="en");
+  feed.innerHTML = "";
+  renderStaff(searchEl.value);
+  setHint(picked ? t().hintTyping : t().hint);
+  document.getElementById("devLabel").textContent =
+    document.documentElement.dataset.device === "registered" ? t().devOn : t().devOff;
+}
+document.getElementById("langNO").addEventListener("click", ()=>applyLang("no"));
+document.getElementById("langEN").addEventListener("click", ()=>applyLang("en"));
+
+/* ══════════ boot ══════════ */
+applyLang("no");
+enablePin(false);
+applyDevice("registered");
+start();
+})();
+</script>
+</body>
+</html>
