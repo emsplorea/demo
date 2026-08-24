@@ -145,7 +145,8 @@ html[data-theme="light"] .event{background:rgba(255,255,255,.85)}
 
 /* ═════════ RIGHT — authentication ═════════ */
 .panel{background:var(--panel);position:relative;display:flex;flex-direction:column;padding:20px 40px 26px;overflow-y:auto;border-left:1px solid var(--line)}
-.panel-top{display:flex;align-items:center;gap:8px;flex:none}
+.panel-top{display:flex;align-items:center;gap:8px;flex:none;flex-wrap:wrap}
+.panel-brand{display:none;font-size:21px}
 .spacer{flex:1}
 .iconbtn{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;cursor:pointer;background:var(--panel-2);border:1px solid var(--line);color:var(--text-2);transition:color var(--fast),border-color var(--fast)}
 .iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
@@ -160,7 +161,8 @@ html[data-theme="light"] .event{background:rgba(255,255,255,.85)}
 .devtog .pip{width:7px;height:7px;border-radius:50%;background:var(--green);flex:none}
 html[data-device="unregistered"] .devtog .pip{background:var(--amber)}
 
-.views{width:100%;max-width:392px;margin:auto;padding:16px 0;flex:none}
+.views{width:100%;max-width:440px;margin:0 auto;padding:14px 0;flex:none}
+.qhead{padding-bottom:2px}
 .view{display:none}
 .view.on{display:block;animation:evIn .26s var(--ease) both}
 
@@ -180,16 +182,22 @@ h2{font-size:26px;font-weight:700;letter-spacing:-.02em;margin-bottom:5px}
 .search::placeholder{color:var(--text-3)}
 .search:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(107,184,218,.14)}
 
-.staff{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:16px;max-height:250px;overflow-y:auto;padding-right:2px}
-.person{cursor:pointer;text-align:center;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:9px 5px 8px;min-height:72px;display:flex;flex-direction:column;align-items:center;gap:4px;transition:border-color var(--fast),background var(--fast),transform var(--fast)}
+/* The employee list is the start screen: every name on one surface,
+   alphabetical, wrapping into as many rows as it needs. Vertical scroll only. */
+.staff{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:7px;margin-bottom:8px}
+.person{cursor:pointer;text-align:center;background:var(--panel-2);border:1px solid var(--line);border-radius:var(--r);padding:9px 5px 8px;min-height:70px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:border-color var(--fast),background var(--fast),transform var(--fast)}
 .person:hover{border-color:var(--line-strong);background:rgba(255,255,255,.05)}
 html[data-theme="light"] .person:hover{background:#EAEFF6}
 .person:active{transform:scale(.98)}
 .person[aria-pressed="true"]{border-color:var(--blue);background:rgba(107,184,218,.13);box-shadow:0 0 0 3px rgba(107,184,218,.13)}
-.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:var(--ink);background:linear-gradient(145deg,var(--blue),var(--cyan))}
-.person .pname{font-size:11.5px;font-weight:700;line-height:1.2}
-.person .prole{font-size:9.5px;color:var(--text-3)}
+.avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;font-family:'Sora',sans-serif;font-size:11.5px;font-weight:700;color:var(--ink);background:linear-gradient(145deg,var(--blue),var(--cyan));flex:none}
+.person .pname{font-size:11.5px;font-weight:700;line-height:1.2;word-break:break-word}
 .emptylist{grid-column:1/-1;font-size:12.5px;color:var(--text-3);text-align:center;padding:18px 8px}
+
+/* passcode step — appears only after an employee is picked */
+.codeblock{max-width:392px;margin:18px auto 0;padding-top:18px;border-top:1px solid var(--line);animation:evIn .24s var(--ease) both}
+.chosen{display:flex;align-items:center;gap:11px;background:rgba(107,184,218,.12);border:1px solid rgba(107,184,218,.4);border-radius:var(--r);padding:9px 13px;margin-bottom:16px}
+.chosen .cname{font-size:14px;font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
 .pin{display:flex;gap:10px;margin-bottom:12px}
 .pincell{
@@ -287,8 +295,10 @@ html[data-theme="light"] .key:hover{background:#EAEFF6}
   h2{font-size:22px}
   .panel-lede{margin-bottom:12px}
   .loc{margin-bottom:12px}
-  .staff{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:104px;overflow-x:auto;overflow-y:hidden;max-height:none;margin-bottom:14px;padding-bottom:5px}
-  .person{min-height:76px}
+  .person{min-height:64px;padding:7px 4px 6px}
+  .avatar{width:26px;height:26px;font-size:10.5px}
+  .codeblock{margin-top:14px;padding-top:14px}
+  .chosen{margin-bottom:12px;padding:7px 12px}
   .pincell{height:48px;font-size:22px}
   .key{height:42px;font-size:18px}
   .keys{gap:7px;margin-bottom:8px}
@@ -301,21 +311,26 @@ html[data-theme="light"] .key:hover{background:#EAEFF6}
   .net-wrap{min-height:330px}
 }
 
-/* tablet portrait + mobile */
+/* tablet portrait + mobile — login comes first, the story sits below it.
+   Opening the app must land on the employee list, not on marketing. */
 @media (max-width:900px){
   body{overflow:auto}
   .shell{grid-template-columns:1fr;height:auto}
+  .panel{order:1}
+  .stage{order:2;border-top:1px solid var(--line)}
+  .panel-brand{display:block;margin-right:4px}
+  .stage .logo{display:none}
+  .stage-top{gap:0}
   .stage{padding:22px 20px 24px}
   .stage-mid{padding:14px 0}
   .net-wrap,.feed,.grid,.aurora i:nth-child(3){display:none}
   .livebar{display:flex}
   .note{display:none}
   h1{font-size:31px}
-  .panel{border-left:0;border-top:1px solid var(--line);padding:16px 20px 26px}
+  .panel{border-left:0;border-top:0;padding:16px 20px 26px}
   .views{padding:10px 0}
 }
 @media (max-width:520px){
-  .staff{grid-template-columns:repeat(2,1fr);max-height:none}
   .stage-bot{flex-direction:column;align-items:flex-start;gap:8px}
 }
 
@@ -374,6 +389,7 @@ html[data-theme="light"] .key:hover{background:#EAEFF6}
   <!-- ═════════ RIGHT ═════════ -->
   <aside class="panel">
     <div class="panel-top">
+      <div class="logo panel-brand">plorea<span>.</span></div>
       <button class="devtog" id="devTog" title="Demo: bytt om enheten er registrert på en lokasjon">
         <span class="pip"></span><span id="devLabel">Enhet registrert</span>
       </button>
@@ -389,34 +405,41 @@ html[data-theme="light"] .key:hover{background:#EAEFF6}
 
     <div class="views">
 
-      <!-- ── 1. SHORT CODE (start view when the device is registered) ── -->
+      <!-- ── 1. SHORT CODE — the start view. Employee list first, nothing else. ── -->
       <section class="view on" data-view="quick">
-        <div class="loc">
-          <span class="pip"></span>
-          <span class="name">Lokasjon med langt navn</span>
-          <span class="sub">· Trondheim</span>
+        <div class="qhead">
+          <div class="loc">
+            <span class="pip"></span>
+            <span class="name">Lokasjon med langt navn</span>
+            <span class="sub">· Trondheim</span>
+          </div>
+          <div class="rowlabel">
+            <span class="fieldlabel" data-i18n="lstaff">Velg ansatt</span>
+            <span class="subtle" id="staffCount"></span>
+          </div>
+          <input class="search" id="staffSearch" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Søk etter navn" hidden>
         </div>
 
-        <h2 data-i18n="qtitle">Hurtig innlogging</h2>
-        <p class="panel-lede" data-i18n="qlede">Velg deg selv og tast kortkoden.</p>
-
-        <div class="rowlabel">
-          <span class="fieldlabel" data-i18n="lstaff">Ansatt</span>
-          <span class="subtle" id="staffCount"></span>
-        </div>
-        <input class="search" id="staffSearch" type="search" autocomplete="off" data-i18n-ph="searchPh" placeholder="Søk etter navn">
         <div class="staff" id="staff"></div>
 
-        <div class="fieldlabel" style="margin-bottom:8px" data-i18n="lpin">Kortkode</div>
-        <div class="pin" id="pin">
-          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="1" disabled>
-          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="2" disabled>
-          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="3" disabled>
-          <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="4" disabled>
-        </div>
+        <div class="codeblock" id="codeblock" hidden>
+          <div class="chosen">
+            <span class="avatar" id="chosenAv"></span>
+            <span class="cname" id="chosenName"></span>
+            <button class="textlink" id="changeUser" data-i18n="change">Bytt</button>
+          </div>
 
-        <div class="keys" id="keys"></div>
-        <div class="hint" id="hint" data-i18n="hint">Velg en ansatt — markøren hopper rett i første felt.</div>
+          <div class="fieldlabel" style="margin-bottom:8px" data-i18n="lpin">Kortkode</div>
+          <div class="pin" id="pin">
+            <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="1">
+            <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="2">
+            <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="3">
+            <input class="pincell" type="password" inputmode="numeric" maxlength="1" autocomplete="off" aria-label="4">
+          </div>
+
+          <div class="keys" id="keys"></div>
+          <div class="hint" id="hint" data-i18n="hintTyping">Logger inn automatisk ved fjerde siffer.</div>
+        </div>
 
         <button class="quietlink" data-go="email" data-i18n="toEmail">Logg inn med e-post og passord</button>
       </section>
@@ -520,7 +543,7 @@ const I18N = {
   cta1:"Se Plorea i drift", cta2:"Book en demo",
   core:"Sanntidskjerne",
   qtitle:"Hurtig innlogging", qlede:"Velg deg selv og tast kortkoden.",
-  lstaff:"Ansatt", lpin:"Kortkode", searchPh:"Søk etter navn",
+  lstaff:"Velg ansatt", lpin:"Kortkode", searchPh:"Søk etter navn", change:"Bytt",
   hint:"Velg en ansatt — markøren hopper rett i første felt.",
   hintTyping:"Logger inn automatisk ved fjerde siffer.",
   toEmail:"Logg inn med e-post og passord",
@@ -564,7 +587,7 @@ const I18N = {
   cta1:"See Plorea in action", cta2:"Book a demo",
   core:"Real-time core",
   qtitle:"Quick login", qlede:"Pick yourself and enter your code.",
-  lstaff:"Employee", lpin:"Passcode", searchPh:"Search by name",
+  lstaff:"Choose employee", lpin:"Passcode", searchPh:"Search by name", change:"Change",
   hint:"Pick an employee — the cursor jumps straight to the first box.",
   hintTyping:"Signs you in automatically on the fourth digit.",
   toEmail:"Sign in with email and password",
@@ -717,7 +740,7 @@ stage.addEventListener("mouseleave", ()=> net.style.transform = "");
 const views = document.querySelectorAll(".view");
 function show(name){
   views.forEach(v => v.classList.toggle("on", v.dataset.view === name));
-  if (name === "quick"){ clearPin(); }
+  if (name === "quick"){ resetPick(); }
   if (name === "email"){ setTimeout(()=>document.getElementById("em").focus(), 60); }
 }
 document.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", ()=>show(b.dataset.go)));
@@ -750,13 +773,36 @@ const STAFF = [
   {n:"Svein Tore Lund",     r:"Kjøkken"},
   {n:"Mari Ek",             r:"Vertskap"},
   {n:"Jonas Aas",           r:"Bar"},
-  {n:"Iuri Santos",         r:"Servitør"}
+  {n:"Iuri Santos",         r:"Servitør"},
+  {n:"Åse Kvam",            r:"Kjøkken"},
+  {n:"Even Dahl",           r:"Servitør"},
+  {n:"Nora Sæther",         r:"Bar"},
+  {n:"Ola Nordbø",          r:"Servitør"},
+  {n:"Petter Vik",          r:"Oppvask"},
+  {n:"Rita Moen",           r:"Skiftleder"},
+  {n:"Tuva Lien",           r:"Vertskap"},
+  {n:"Ørjan Haug",          r:"Kjøkken"},
+  {n:"Zaid Karim",          r:"Servitør"}
 ];
 const CODE = "1234";
 
+/* Alphabetical, Norwegian collation so Æ Ø Å land correctly. */
+STAFF.sort((a,b) => a.n.localeCompare(b.n, "nb"));
+
 const staffWrap = document.getElementById("staff");
 const searchEl = document.getElementById("staffSearch");
+const codeblock = document.getElementById("codeblock");
+const SEARCH_FROM = 12;          /* a search field is noise until the list is long */
 let picked = null;
+
+function shortName(full){
+  const p = full.split(" ");
+  return p.length > 1 ? p[0] + " " + p[1][0] + "." : p[0];
+}
+function initials(full){
+  const p = full.split(" ");
+  return (p[0][0] + (p[1] ? p[1][0] : "")).toUpperCase();
+}
 
 function renderStaff(filter){
   const q = (filter||"").trim().toLowerCase();
@@ -768,25 +814,42 @@ function renderStaff(filter){
     staffWrap.appendChild(e); return;
   }
   list.forEach(s=>{
-    const parts = s.n.split(" ");
     const b = document.createElement("button");
-    b.className = "person"; b.type = "button";
+    b.className = "person"; b.type = "button"; b.title = s.n + " · " + s.r;
     b.setAttribute("aria-pressed", picked && picked.n === s.n ? "true" : "false");
-    b.innerHTML = '<span class="avatar">'+(parts[0][0]+(parts[1]?parts[1][0]:"")).toUpperCase()+'</span>'+
-                  '<span class="pname"></span><span class="prole"></span>';
-    b.querySelector(".pname").textContent = parts[0];
-    b.querySelector(".prole").textContent = s.r;
-    b.addEventListener("click", ()=>{
-      picked = s;
-      staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
-      b.setAttribute("aria-pressed","true");
-      clearPin();
-      enablePin(true);
-      cells[0].focus();                    /* ← jump straight into the first box */
-      setHint(t().hintTyping);
-    });
+    b.innerHTML = '<span class="avatar">'+initials(s.n)+'</span><span class="pname"></span>';
+    b.querySelector(".pname").textContent = shortName(s.n);
+    b.addEventListener("click", ()=>choose(s, b));
     staffWrap.appendChild(b);
   });
+}
+
+/* Picking an employee reveals the passcode step, scrolls it into view
+   and puts the caret in the first box. */
+function choose(s, btn){
+  picked = s;
+  staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
+  btn.setAttribute("aria-pressed","true");
+
+  document.getElementById("chosenAv").textContent = initials(s.n);
+  document.getElementById("chosenName").textContent = s.n + " · " + s.r;
+  codeblock.hidden = false;
+  clearPin();
+  setHint(t().hintTyping);
+
+  const jump = () => {
+    codeblock.scrollIntoView({behavior: reduced.matches ? "auto" : "smooth", block:"nearest"});
+    cells[0].focus({preventScroll:true});
+  };
+  requestAnimationFrame(jump);
+}
+document.getElementById("changeUser").addEventListener("click", resetPick);
+function resetPick(){
+  picked = null;
+  codeblock.hidden = true;
+  clearPin();
+  staffWrap.querySelectorAll(".person").forEach(p=>p.setAttribute("aria-pressed","false"));
+  document.querySelector(".qhead").scrollIntoView({behavior: reduced.matches ? "auto" : "smooth", block:"nearest"});
 }
 searchEl.addEventListener("input", ()=>renderStaff(searchEl.value));
 
@@ -795,7 +858,6 @@ const pinWrap = document.getElementById("pin");
 const cells = [...pinWrap.querySelectorAll(".pincell")];
 const hintEl = document.getElementById("hint");
 
-function enablePin(on){ cells.forEach(c => c.disabled = !on); }
 function value(){ return cells.map(c=>c.value).join(""); }
 function clearPin(){ cells.forEach(c=>c.value=""); pinWrap.classList.remove("error"); }
 function setHint(msg, kind){ hintEl.textContent = msg; hintEl.className = "hint" + (kind?" "+kind:""); }
@@ -873,9 +935,7 @@ function showDone(name){
 }
 document.getElementById("resetBtn").addEventListener("click", ()=>{
   doneEl.classList.remove("show");
-  picked = null; clearPin(); enablePin(false);
   searchEl.value = ""; renderStaff("");
-  setHint(t().hint);
   applyDevice(document.documentElement.dataset.device);
 });
 
@@ -902,12 +962,13 @@ function applyLang(l){
   document.querySelectorAll("[data-node]").forEach(el => el.textContent = t().nodes[el.dataset.node]);
   document.getElementById("chips").innerHTML = t().chips.map(c=>'<span class="chip">'+c+'</span>').join("");
   document.getElementById("staffCount").textContent = t().staffCount(STAFF.length);
+  searchEl.hidden = STAFF.length < SEARCH_FROM;
   document.getElementById("livetext").textContent = t().live;
   document.getElementById("langNO").setAttribute("aria-pressed", l==="no");
   document.getElementById("langEN").setAttribute("aria-pressed", l==="en");
   feed.innerHTML = "";
   renderStaff(searchEl.value);
-  setHint(picked ? t().hintTyping : t().hint);
+  setHint(t().hintTyping);
   document.getElementById("devLabel").textContent =
     document.documentElement.dataset.device === "registered" ? t().devOn : t().devOff;
 }
@@ -916,7 +977,6 @@ document.getElementById("langEN").addEventListener("click", ()=>applyLang("en"))
 
 /* ══════════ boot ══════════ */
 applyLang("no");
-enablePin(false);
 applyDevice("registered");
 start();
 })();
