@@ -1,0 +1,2595 @@
+<!doctype html>
+<html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Done Pay · Drinkimport V4 – Produktgrupper og Varekort</title>
+<style>:root {
+  color-scheme: light dark;
+  background-color: var(
+    --background,
+    var(--color-background-primary, light-dark(rgb(255 255 255), rgb(24 24 24)))
+  ) !important;
+
+  /* Agent-facing contract; keep in sync with SKILL.md. */
+  --background: var(
+    --color-background-primary,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --card: color-mix(in oklab, var(--foreground) 5%, var(--background));
+  --card-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --popover: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255), rgb(45 45 45))
+  );
+  --popover-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --primary: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --primary-foreground: var(
+    --color-text-inverse,
+    light-dark(rgb(255 255 255), rgb(13 13 13))
+  );
+  --secondary: var(
+    --color-background-secondary,
+    light-dark(rgb(255 255 255 / 96%), rgb(54 54 54 / 96%))
+  );
+  --secondary-foreground: var(
+    --color-text-primary,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --muted: color-mix(in srgb, var(--foreground) 10%, transparent);
+  --muted-foreground: var(
+    --color-text-secondary,
+    light-dark(rgb(26 28 31 / 49.4%), rgb(255 255 255 / 49.8%))
+  );
+  --accent: var(
+    --color-background-info,
+    light-dark(rgb(229 242 255), rgb(13 39 63))
+  );
+  --accent-foreground: var(
+    --color-text-info,
+    light-dark(rgb(51 156 255), rgb(131 195 255))
+  );
+  --destructive: var(
+    --color-text-warning,
+    light-dark(rgb(226 85 7), rgb(255 133 73))
+  );
+  --border: var(
+    --color-border-secondary,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+  --input: var(
+    --color-border-primary,
+    light-dark(
+      rgb(26 28 31 / 11.8%),
+      color-mix(in oklab, rgb(0 0 0) 10%, transparent)
+    )
+  );
+  --ring: var(
+    --color-ring-primary,
+    light-dark(rgb(51 156 255), rgb(131 195 255 / 76%))
+  );
+  --font-size-base: var(--font-text-md-size, 16px);
+  --blue: light-dark(rgb(51 156 255), rgb(51 156 255));
+  --orange: light-dark(rgb(226 85 7), rgb(251 106 34));
+  --green: light-dark(rgb(0 162 64), rgb(64 201 119));
+  --red: light-dark(rgb(224 46 42), rgb(255 103 100));
+  --purple: light-dark(rgb(146 79 247), rgb(173 123 249));
+  --yellow: light-dark(rgb(255 195 0), rgb(255 210 64));
+  --viz-series-1: var(--primary);
+  --viz-series-2: light-dark(rgb(243 136 59), rgb(245 154 86));
+  --viz-series-3: light-dark(rgb(93 201 119), rgb(116 213 139));
+  --viz-series-4: light-dark(rgb(235 119 177), rgb(240 143 192));
+  --viz-series-5: light-dark(rgb(155 121 236), rgb(170 145 239));
+  --viz-series-6: light-dark(rgb(58 185 177), rgb(90 203 194));
+
+  /* Internal implementation variables; not part of the agent contract. */
+  --font-sans:
+    -apple-system-body, ui-sans-serif, -apple-system, system-ui, "Segoe UI",
+    Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji",
+    "Segoe UI Symbol";
+  --font-mono:
+    ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono",
+    monospace;
+  --font-size-normal: max(11px, var(--font-size-base));
+  --font-size-tooltip: calc(var(--font-size-base) - 1px);
+  --font-size-small: max(11px, calc(var(--font-size-base) - 2px));
+  --font-size-h1: calc(var(--font-size-normal) * 1.7142857143);
+  --font-size-h2: calc(var(--font-size-normal) * 1.4285714286);
+  --font-size-h3: calc(var(--font-size-normal) * 1.2857142857);
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --icon-size: 16px;
+  --line-height-normal: calc(var(--font-size-normal) * 1.5);
+  --line-height-tooltip: calc(var(--font-size-tooltip) * 1.4285714286);
+  --line-height-small: calc(var(--font-size-small) + 4px);
+  --corner-shape: round;
+  --radius: var(--border-radius-lg, 8px);
+  --radius-sm: calc(var(--radius) * 0.5);
+  --radius-md: calc(var(--radius) * 0.75);
+  --radius-lg: var(--radius);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-full: 9999px;
+  --shadow-sm: 0 1px 2px -1px rgb(0 0 0 / 8%);
+  --checkmark-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 17 17'%3E%3Cpath d='M12.8961 3.64101C13.1297 3.41418 13.4984 3.37523 13.7779 3.56581C14.0571 3.75635 14.1554 4.11331 14.0299 4.41347L13.9615 4.53847L7.71151 13.7045C7.59411 13.8767 7.4063 13.9877 7.19881 14.0072C6.99136 14.0267 6.78564 13.9533 6.63826 13.806L2.88826 10.056L2.79842 9.9457C2.6192 9.67407 2.64927 9.30496 2.88826 9.06581C3.12738 8.82669 3.49647 8.79676 3.76815 8.97597L3.8785 9.06581L7.03084 12.2182L12.8053 3.74941L12.8961 3.64101Z'/%3E%3C/svg%3E");
+
+  /* Legacy aliases; not part of the current agent contract. */
+  --viz-bg: transparent;
+  --viz-panel: var(--card);
+  --viz-border: var(--border);
+  --viz-text: var(--foreground);
+  --viz-muted: var(--muted-foreground);
+  --viz-accent: var(--primary);
+  --viz-accent-text: var(--primary-foreground);
+  --viz-accent-bg: var(--accent);
+  --viz-font-size: var(--font-size-base);
+  --viz-warning: var(--destructive);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html > body {
+  /* Preserve MCP aliases for older inline renderers without creating :root cycles. */
+  --color-background-primary: var(
+    --background,
+    light-dark(rgb(255 255 255), rgb(24 24 24))
+  );
+  --color-text-primary: var(
+    --foreground,
+    light-dark(rgb(26 28 31), rgb(255 255 255))
+  );
+  --color-border-secondary: var(
+    --border,
+    light-dark(rgb(26 28 31 / 8%), rgb(255 255 255 / 8.2%))
+  );
+
+  margin: 0;
+  padding: var(--visualize-paint-gutter, 0px);
+  color: var(--foreground);
+  background: transparent !important;
+  font-family: var(--font-sans) !important;
+  -webkit-font-smoothing: antialiased;
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-weight: var(--font-weight-normal);
+}
+
+:root:not([data-app-block-surface], [data-visualize-standalone]) > body {
+  padding: 12px;
+}
+
+.cursor-interaction {
+  cursor: var(--cursor-interaction, pointer);
+}
+
+a {
+  color: color-mix(in srgb, var(--viz-accent) 80%, var(--viz-text) 20%);
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+  text-underline-offset: 2px;
+  font-weight: inherit;
+}
+
+a:is(:hover, :focus-visible) {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.5px;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin-block: 0;
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+li,
+.table {
+  font-family: var(--font-sans);
+}
+
+h1 {
+  font-size: calc(var(--font-size-base) * 1.5);
+  line-height: 1.3333333333;
+}
+
+h2 {
+  font-size: calc(var(--font-size-base) * 1.25);
+  line-height: 1.4;
+}
+h3 {
+  font-size: calc(var(--font-size-base) * 1.125);
+  line-height: 1.5555555556;
+}
+h4 {
+  font-size: var(--font-size-base);
+  line-height: 1.5;
+}
+h5,
+h6 {
+  font-size: var(--font-size-base);
+  line-height: calc(var(--font-size-base) * 1.625);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+b,
+strong,
+th {
+  font-weight: 600;
+}
+
+code:not(pre code) {
+  display: inline;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  corner-shape: var(--corner-shape);
+  background: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  overflow-wrap: anywhere;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  word-break: break-word;
+}
+pre,
+pre code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 20px;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.table {
+  width: 100%;
+  color: var(--foreground);
+  font: inherit;
+  text-align: start;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: calc(var(--font-size-base) * 0.875);
+  line-height: calc(var(--font-size-base) * 1.625);
+  font-family: var(--font-sans);
+}
+
+.table :is(th, td) {
+  padding-block: 10px;
+  padding-inline: 0 24px;
+  overflow-wrap: anywhere;
+  border-bottom: 1px solid var(--border);
+  text-align: start;
+  vertical-align: top;
+  border-bottom-color: color-mix(in srgb, var(--foreground) 5%, transparent);
+}
+.table :is(th, td):not(:last-child) {
+  padding-inline-end: calc(var(--font-size-base) * 1.5);
+}
+
+.table-responsive > .table :is(th, td) {
+  overflow-wrap: break-word;
+}
+
+.table :is(th, td):last-child {
+  padding-inline-end: 0;
+}
+
+.table :is(caption, thead th) {
+  font-weight: 600;
+}
+
+.table thead :is(th, td) {
+  border-bottom-color: var(--border-strong, var(--input));
+  padding-block: calc(var(--font-size-base) / 2);
+  line-height: var(--font-size-base);
+}
+
+.table tbody tr:last-child :is(th, td) {
+  border-bottom: 0;
+}
+.table tbody :is(th, td) {
+  padding-block: calc(var(--font-size-base) * 0.625);
+}
+
+.table.table-sm :is(th, td) {
+  padding-block: 8px;
+}
+
+.table.table-sm :is(th, td):not(:last-child) {
+  padding-inline-end: 16px;
+}
+
+.table :is(.text-end, [align="right"]) {
+  text-align: end;
+  font-variant-numeric: tabular-nums;
+}
+
+.table :is(.text-center, [align="center"]) {
+  text-align: center;
+}
+
+.table .text-nowrap {
+  white-space: nowrap;
+}
+
+#widget {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  background: transparent !important;
+}
+
+.card {
+  min-width: 0;
+  padding: 12px;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  border-radius: var(--radius-2xl);
+  corner-shape: var(--corner-shape);
+  color: var(--card-foreground);
+  background: var(--card);
+}
+
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-lg);
+  corner-shape: var(--corner-shape);
+  box-shadow: 0 0 0 0.5px var(--border-strong, var(--border));
+  color: var(--foreground);
+  background: var(--background);
+}
+
+#widget > :not(.card, .widget, .progress) {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.tooltip {
+  position: fixed;
+  z-index: 50;
+  top: 0;
+  left: 0;
+  width: max-content;
+  max-width: min(
+    20rem,
+    var(--tooltip-available-width, calc(100vw - 10px)),
+    calc(100vw - 10px)
+  );
+  max-height: min(
+    var(--tooltip-available-height, calc(100vh - 10px)),
+    calc(100vh - 10px)
+  );
+  border: 1px solid var(--border);
+  corner-shape: var(--corner-shape);
+  overflow-wrap: break-word;
+  white-space: normal;
+  pointer-events: none;
+  user-select: none;
+  font-family: var(--font-sans);
+  padding: 5px 12px;
+  border-color: color-mix(
+    in oklab,
+    light-dark(var(--primary-foreground), var(--foreground)) 5%,
+    transparent
+  );
+  border-radius: var(--radius-2xl);
+  color: light-dark(var(--primary-foreground), var(--foreground));
+  background: light-dark(var(--foreground), var(--popover));
+  box-shadow: 0 8px 18px rgb(15 23 42 / 20%);
+  letter-spacing: -0.15px;
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+}
+
+/* The shared runtime owns data-tooltip; suppress AppBlock's pseudo-tooltip. */
+main [data-tooltip]::after {
+  content: none;
+}
+
+.viz-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(max(180px, 24%), 1fr));
+  gap: 10px;
+}
+
+.viz-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.viz-stat-value {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-medium);
+  line-height: 1.25;
+}
+
+.viz-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+hr {
+  width: 100%;
+  height: 1px;
+  margin-block: 6px;
+  border: 0;
+  background: var(--border);
+}
+
+.nav {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 4px;
+}
+
+.progress {
+  display: flex;
+  height: 8px;
+  margin-block: calc((var(--line-height-normal, 1.5em) - 8px) / 2);
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+}
+
+.progress-bar:only-child {
+  border-radius: var(--radius-full);
+}
+
+.progress-bar {
+  height: 100%;
+  flex-shrink: 0;
+  border: 0;
+  background: var(--viz-series-1);
+}
+
+.viz-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--foreground) 40%, var(--muted-foreground));
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-family: var(--font-sans);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1;
+}
+
+small,
+.text-small {
+  font-size: var(--font-size-small);
+  line-height: var(--line-height-small);
+}
+
+.text-muted {
+  color: var(--muted-foreground);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.viz-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.viz-controls > .form-label {
+  display: grid;
+  min-width: min(100%, 260px);
+  flex: 1 1 280px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 0;
+}
+
+.viz-controls > .form-label > :is(.form-control, .form-range, .form-select) {
+  grid-column: 1 / -1;
+}
+
+.btn,
+.nav-link,
+.form-check-input,
+.form-control,
+.form-range,
+.form-select {
+  font: inherit;
+}
+
+/* Match inline alignment without overriding a containing flex or grid layout. */
+.btn,
+.nav-link,
+.form-control,
+.form-select,
+.form-range,
+.form-check {
+  vertical-align: middle;
+}
+
+.btn,
+.nav-link {
+  appearance: button;
+  display: inline-flex;
+  inline-size: fit-content;
+  max-inline-size: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0 8px;
+  -webkit-app-region: no-drag;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  cursor: var(--cursor-interaction, pointer);
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  user-select: none;
+  -webkit-font-smoothing: inherit;
+  font-family: var(--font-sans);
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  border-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.btn {
+  border-color: var(--border);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+}
+
+.btn:is(.btn-block, .viz-tile) {
+  inline-size: 100%;
+}
+
+.btn.viz-tile {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+a.btn {
+  cursor: var(--cursor-interaction, pointer);
+  text-decoration: none;
+}
+
+.btn:not(:disabled):hover {
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-link:not(:disabled):not([aria-disabled="true"]):hover {
+  background: color-mix(in srgb, var(--foreground) 10%, transparent);
+}
+
+.btn-primary {
+  border-color: var(--border);
+  color: var(--primary-foreground);
+  background: var(--foreground);
+  background-clip: border-box;
+}
+
+.btn-primary .text-muted {
+  color: color-mix(in srgb, var(--primary-foreground) 50%, transparent);
+}
+
+.btn-primary:not(:disabled):hover {
+  background: color-mix(in srgb, var(--foreground) 80%, transparent);
+  background-clip: border-box;
+}
+
+.btn-ghost {
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.btn-ghost:not(:disabled):hover {
+  color: var(--muted-foreground);
+  background: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.nav-pills .nav-link {
+  min-width: 0;
+  border-color: transparent;
+  color: var(--muted-foreground);
+  background: transparent;
+}
+
+.nav-justified .nav-link {
+  flex: 1 1 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.nav-pills .nav-link.active {
+  color: var(--foreground);
+  background: var(--muted);
+}
+
+/* Shared preview chrome; product styles stay inside each variant. */
+.viz-dotted-background {
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--foreground) 14%, transparent) 0.8px,
+    transparent 0.8px
+  );
+  background-position: center;
+  background-size: 16px 16px;
+}
+
+.viz-carousel {
+  position: relative;
+  min-width: 0;
+}
+
+.viz-carousel:has(> .viz-carousel-controls) {
+  min-height: calc(60px + var(--viz-carousel-picker-height, 0px));
+  padding-bottom: 60px;
+}
+
+.viz-carousel > [data-variant][hidden] {
+  display: none !important;
+}
+
+.viz-carousel > [data-variant] {
+  isolation: isolate;
+}
+
+.viz-carousel-controls {
+  --viz-carousel-hover: light-dark(
+    color-mix(in srgb, var(--foreground) 5.4%, transparent),
+    color-mix(in srgb, var(--foreground) 7.8%, transparent)
+  );
+  position: absolute;
+  z-index: 2;
+  bottom: 8px;
+  left: 50%;
+  display: flex;
+  width: max-content;
+  /* Leave room for the host's design-controls launcher at the trailing edge. */
+  max-width: calc(100% - 96px);
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  /* Match the settings dropdown chrome independently of the content font size. */
+  font-size: 13px;
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+/* Keep authored mockup button styles out of the shared carousel chrome. */
+.viz-carousel-controls button,
+.viz-carousel-picker > summary {
+  display: flex !important;
+  height: auto !important;
+  min-height: 30px;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px;
+  padding: 0 6px !important;
+  -webkit-app-region: no-drag;
+  border: 0 !important;
+  border-radius: 14px !important;
+  color: inherit !important;
+  background: transparent !important;
+  font: inherit !important;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.viz-carousel-controls > button,
+.viz-carousel-picker > summary {
+  position: relative;
+  isolation: isolate;
+}
+
+.viz-carousel-controls > button {
+  --icon-size: 16px;
+  width: 30px !important;
+  padding: 0 !important;
+}
+
+.viz-carousel-picker > summary {
+  padding-inline: 12px !important;
+}
+
+.viz-carousel-controls .viz-carousel-caret {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  margin: 0;
+  color: inherit;
+  transform: rotate(180deg);
+}
+
+.viz-carousel-controls > button > svg,
+.viz-carousel-controls .viz-carousel-caret,
+.viz-carousel-count {
+  opacity: 0.5;
+}
+
+.viz-carousel-controls > button::before,
+.viz-carousel-picker > summary::before {
+  position: absolute;
+  z-index: -1;
+  inset: 3px;
+  border-radius: 12px;
+  content: "";
+  pointer-events: none;
+}
+
+.viz-carousel-controls > button:hover::before,
+.viz-carousel-picker > summary:hover::before {
+  background: var(--viz-carousel-hover);
+}
+
+.viz-carousel-controls > button,
+.viz-carousel-controls [data-lucide],
+.viz-carousel-controls .lucide {
+  flex-shrink: 0;
+}
+
+.viz-carousel-picker {
+  min-width: 0;
+}
+
+.viz-carousel-picker > summary {
+  min-width: 0;
+  list-style: none;
+}
+
+.viz-carousel-picker > summary::-webkit-details-marker {
+  display: none;
+}
+
+.viz-carousel-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.viz-carousel-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viz-carousel-options {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 4px);
+  left: 0;
+  display: flex;
+  max-height: 240px;
+  flex-direction: column;
+  gap: 2px;
+  overflow: auto;
+  padding: 4px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--background);
+  box-shadow: 0 4px 12px light-dark(rgb(0 0 0 / 6%), rgb(0 0 0 / 25%));
+}
+
+.viz-carousel-options > button {
+  border-radius: max(0px, calc(var(--radius-lg) - 5px)) !important;
+  width: 100% !important;
+  min-height: 28px;
+  justify-content: flex-start !important;
+  padding: 4px 8px !important;
+  font-size: var(--font-size-small) !important;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.viz-carousel-options > [aria-current="true"],
+.viz-carousel-options > button:hover {
+  background: var(--viz-carousel-hover) !important;
+}
+
+.btn:disabled,
+.nav-link:disabled,
+.nav-link[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
+[data-lucide] {
+  stroke-width: 1.6;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--foreground);
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0 8px;
+  outline: none;
+  border: 1px solid var(--input);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding-inline: calc(4px + var(--control-spacing, 12px) / 2);
+  border-color: var(--input);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--popover) 96%, transparent);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 1.4285714286;
+}
+.form-control:is(
+  [type="file"],
+  [type="date"],
+  [type="datetime-local"],
+  [type="month"],
+  [type="week"],
+  [type="color"]
+) {
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  line-height: 18px;
+}
+.form-control:is(
+  [type="date"],
+  [type="datetime-local"],
+  [type="month"],
+  [type="week"]
+) {
+  padding-inline: var(--control-spacing, 12px);
+}
+
+.form-control::placeholder {
+  color: var(--muted-foreground);
+}
+
+.form-control[type="file"] {
+  overflow: hidden;
+  cursor: var(--cursor-interaction, pointer);
+  padding: 0;
+}
+
+.form-control[type="file"]::file-selector-button {
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid var(--input);
+  color: var(--secondary-foreground);
+  background: var(--secondary);
+  cursor: inherit;
+  font: inherit;
+  min-height: calc(10px + 2 * var(--control-spacing, 12px));
+  padding-inline: var(--control-spacing, 12px);
+  margin-inline-end: var(--control-spacing, 12px);
+}
+
+.form-control[type="file"]:not(:disabled):hover::file-selector-button {
+  background: color-mix(in srgb, var(--foreground) 6%, var(--secondary));
+}
+
+.form-control-color[type="color"] {
+  width: 40px;
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  padding: 3px;
+  cursor: var(--cursor-interaction, pointer);
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.form-control-color[type="color"]::-webkit-color-swatch {
+  border: 0;
+  border-radius: calc(var(--radius-lg) - 4px);
+  corner-shape: var(--corner-shape);
+}
+
+textarea.form-control {
+  height: auto;
+  resize: vertical;
+  min-height: 96px;
+  padding: 8px 10px;
+}
+
+.form-control:focus-visible {
+  border-color: var(--ring);
+  box-shadow: none;
+}
+.form-control:disabled {
+  color: var(--muted-foreground);
+  background: color-mix(in srgb, var(--foreground) 5%, transparent);
+  opacity: 1;
+}
+.form-control[aria-invalid="true"] {
+  border-color: var(--red);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--red) 20%, transparent);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+  cursor: not-allowed;
+}
+
+.form-select {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: fit-content;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  margin: 0;
+  /* The secondary icon role is 14px at compact density and 16px at web density. */
+  --icon-size: calc(10px + var(--control-spacing, 12px) / 2);
+  /* Settings dropdowns retain a 12px inset and a 4px text-to-chevron gap. */
+  padding: 0 calc(16px + var(--icon-size)) 0 12px;
+  outline: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  corner-shape: var(--corner-shape);
+  color: var(--foreground);
+  background-color: var(--secondary);
+  background-image:
+    linear-gradient(
+      45deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    ),
+    linear-gradient(
+      135deg,
+      transparent calc(50% - 0.6px),
+      var(--muted-foreground) calc(50% - 0.6px) calc(50% + 0.6px),
+      transparent calc(50% + 0.6px)
+    );
+  background-position:
+    calc(100% - 12px - var(--icon-size) / 2) 50%,
+    calc(100% - 12px - var(--icon-size) * 0.18) 50%;
+  background-repeat: no-repeat;
+  background-size: calc(var(--icon-size) * 0.32) calc(var(--icon-size) * 0.32);
+  cursor: var(--cursor-interaction, default);
+  font-size: calc(var(--font-size-base) * 14 / 16);
+  font-size: round(nearest, calc(var(--font-size-base) * 14 / 16), 1px);
+  font-weight: var(--font-weight-normal);
+  line-height: 18px;
+}
+
+.form-select option {
+  color: var(--popover-foreground);
+  background-color: var(--popover);
+}
+
+.form-select:not(:disabled):hover {
+  background-color: light-dark(
+    color-mix(in srgb, var(--foreground) 5.5%, transparent),
+    color-mix(in srgb, var(--foreground) 8%, transparent)
+  );
+}
+
+.form-select:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+}
+.form-select:disabled {
+  opacity: 0.4;
+}
+
+.form-check {
+  display: flex;
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  align-items: center;
+  gap: 6px;
+}
+
+.form-check-input {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  margin: 0;
+  border: 1px solid var(--input);
+  color: var(--primary-foreground);
+  background-color: transparent;
+  cursor: var(--cursor-interaction, default);
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    box-shadow 150ms;
+}
+
+.form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+  corner-shape: round;
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  width: calc(10px + var(--control-spacing, 12px) / 2);
+  height: calc(10px + var(--control-spacing, 12px) / 2);
+  border-color: var(--border-strong, var(--input));
+  border-radius: calc(var(--radius-sm) / 2);
+  background-color: transparent;
+  color: var(--foreground);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input:not(:disabled):not(:checked):hover {
+  background-color: var(--card);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:is(:checked, :indeterminate) {
+  border-color: var(--border-strong, var(--input));
+  background-color: color-mix(in srgb, var(--popover) 96%, transparent);
+}
+
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:checked::before {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--primary-foreground);
+  content: "";
+  mask: var(--checkmark-image) center / 12px 12px no-repeat;
+  background-color: var(--foreground);
+}
+.form-check:not(.form-switch)
+  .form-check-input[type="checkbox"]:indeterminate::before {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 65%;
+  height: 6.65%;
+  margin: auto;
+  border-radius: var(--radius-full);
+  background: var(--foreground);
+  mask: none;
+  content: "";
+}
+
+.form-check-input[type="radio"] {
+  border-radius: var(--radius-full);
+  width: 16px;
+  height: 16px;
+  border: 0;
+  box-shadow: inset 0 0 0 1px var(--input);
+}
+
+.form-check-input[type="radio"]:checked {
+  border: 0;
+  background: radial-gradient(
+    circle,
+    var(--primary-foreground) 0 3px,
+    var(--foreground) 3px
+  );
+  box-shadow: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+.form-check:not(.form-switch) .form-check-input[type="checkbox"]:focus-visible {
+  border-color: var(--ring);
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.form-check:not(.form-switch) .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+}
+.form-check:not(.form-switch) .form-check-input[type="radio"]:disabled,
+.form-check:not(.form-switch)
+  .form-check-input[type="radio"]:disabled
+  + .form-check-label {
+  opacity: 0.5;
+}
+
+.form-switch .form-check-input:disabled,
+.form-switch .form-check-input:disabled + .form-check-label {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.form-check-label {
+  color: var(--foreground);
+  cursor: var(--cursor-interaction, default);
+}
+
+.form-switch .form-check-input {
+  position: relative;
+  width: 32px;
+  height: 20px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--muted);
+  box-shadow: none;
+  transition: background-color 200ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.form-switch .form-check-input::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  box-sizing: border-box;
+  border: 1px solid light-dark(var(--primary-foreground), var(--foreground));
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  content: "";
+  transform: translate(2px, -50%);
+  transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  border-color: #fff;
+  background: #fff;
+}
+
+.form-switch .form-check-input:checked {
+  background: var(--blue);
+}
+
+.form-switch .form-check-input:checked::before {
+  transform: translate(14px, -50%);
+}
+
+.form-switch .form-check-input:focus-visible {
+  box-shadow: 0 0 0 2px var(--ring);
+  outline: none;
+}
+
+.form-range {
+  appearance: none;
+  display: block;
+  width: 100%;
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  accent-color: var(--primary);
+  height: calc(12px + 2 * var(--control-spacing, 12px));
+  min-height: calc(12px + 2 * var(--control-spacing, 12px));
+  outline: none;
+  border-radius: var(--radius-full);
+  color: var(--foreground);
+  background: transparent;
+}
+
+.form-range::-webkit-slider-runnable-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  margin-top: -9px;
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Outline the native track and thumb, preserving the larger input hit area. */
+.form-range:focus-visible::-webkit-slider-runnable-track {
+  outline: 2px auto Highlight;
+  outline-color: -webkit-focus-ring-color;
+}
+
+.form-range::-moz-range-track {
+  background: var(--form-range-track, var(--border));
+  height: 2px;
+  border-radius: var(--radius-full);
+}
+
+.form-range::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-full);
+  border-color: transparent;
+  background: currentColor;
+  box-shadow: var(--shadow-sm);
+}
+
+.form-range:focus-visible::-moz-range-thumb {
+  outline: 2px solid Highlight;
+  outline-offset: 2px;
+}
+
+.form-range:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.btn:not(.btn-primary, .viz-tile):is(
+  [aria-pressed="true"],
+  [aria-selected="true"],
+  .is-selected
+) {
+  border-color: transparent;
+  color: var(--primary-foreground);
+  background: var(--blue);
+}
+
+.btn.viz-tile:is([aria-pressed="true"], [aria-selected="true"], .is-selected) {
+  border-color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+
+.btn:focus-visible,
+.nav-link:focus-visible {
+  outline-offset: 2px;
+  outline: none;
+  box-shadow: 0 0 0 2px var(--ring);
+}
+
+.viz-carousel-controls :is(button, summary):focus-visible {
+  outline: 2px solid var(--ring) !important;
+  outline-offset: 2px !important;
+}
+
+/* Web recipes are the default, including on renderers without inline style queries. */
+@supports (border-radius: if(style(--corner-shape: round): 1px; else: 2px)) {
+  /* Match the host's proportional text-sm scale at every text preference. */
+  .tooltip,
+  .viz-badge,
+  .btn,
+  .nav-link,
+  .form-control,
+  .form-select {
+    font-size: if(
+      style(--corner-shape: round): round(
+          nearest,
+          calc(var(--font-size-base) * 14 / 16),
+          1px
+        );
+        else: round(nearest, calc(var(--font-size-base) * 13 / 14), 1px)
+    );
+  }
+
+  .btn,
+  .nav-link,
+  .form-select {
+    border-radius: if(
+      style(--corner-shape: round): var(--radius-full); else: var(--radius-lg)
+    );
+  }
+
+  .form-check:not(.form-switch) .form-check-input[type="checkbox"] {
+    border-radius: if(
+      style(--corner-shape: round): calc(var(--radius-sm) / 2);
+        else: calc(var(--radius-lg) * 0.4)
+    );
+  }
+
+  .tooltip {
+    font-weight: if(
+      style(--corner-shape: round): 600; else: var(--font-weight-normal)
+    );
+  }
+}
+
+@media (pointer: coarse) {
+  .viz-carousel:has(> .viz-carousel-controls) {
+    min-height: calc(76px + var(--viz-carousel-picker-height, 0px));
+    padding-bottom: 76px;
+  }
+
+  .btn,
+  .nav-link,
+  .viz-carousel-controls button,
+  .viz-carousel-picker > summary,
+  .form-control,
+  .form-select {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Keep small-screen WebKit from zooming when a text field receives focus. */
+  .form-control,
+  .form-select {
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+  .form-control:is(
+    [type="file"],
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="week"],
+    [type="time"],
+    [type="color"]
+  ) {
+    height: 44px;
+    min-height: 44px;
+    font-size: max(16px, calc(var(--font-size-base) * 14 / 16));
+    font-size: max(
+      16px,
+      round(nearest, calc(var(--font-size-base) * 14 / 16), 1px)
+    );
+  }
+
+  .form-control[type="file"]::file-selector-button {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .form-control-color[type="color"] {
+    width: 44px;
+    height: 44px;
+  }
+
+  .form-control:is(
+    [type="date"],
+    [type="datetime-local"],
+    [type="month"],
+    [type="time"],
+    [type="week"]
+  ) {
+    min-width: 0;
+    max-width: 100%;
+    padding-block: 8px;
+  }
+
+  .form-check {
+    min-height: 44px;
+    padding-inline: 15px;
+  }
+
+  .form-check-input {
+    position: relative;
+  }
+
+  .form-check-input::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .form-check-label {
+    display: inline-flex;
+    min-width: 44px;
+    min-height: 44px;
+    align-items: center;
+  }
+
+  .form-range {
+    height: 44px;
+    touch-action: pan-y;
+  }
+}
+
+svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+#widget > svg {
+  width: 100%;
+}
+
+/* Model-authored chart rules can otherwise stretch icons after these styles load. */
+svg.lucide {
+  display: block;
+  width: var(--icon-size) !important;
+  height: var(--icon-size) !important;
+  flex: none;
+  margin: 0 !important;
+  stroke-width: 1.6;
+}
+
+.text-warning,
+.text-destructive {
+  color: var(--destructive);
+}
+
+html>body{padding:0}
+
+#drink-demo-v2 {
+  --dp-bg: light-dark(#f6f7f8,#121922);
+  --dp-surface: light-dark(#ffffff,#19232f);
+  --dp-soft: light-dark(#f0f3f5,#22303e);
+  --dp-ink: light-dark(#142532,#eef3f7);
+  --dp-muted: light-dark(#576773,#b0bdc8);
+  --dp-line: light-dark(#dce3e7,#364351);
+  --dp-brand: light-dark(#153e3b,#99e1ca);
+  --dp-onbrand: light-dark(#ffffff,#102c27);
+  --dp-tint: light-dark(#e6f5ee,#203f35);
+  --dp-warn: light-dark(#805617,#ffce83);
+  --dp-warn-bg: light-dark(#fff4de,#423320);
+  --dp-error: light-dark(#ac2e37,#ffb6bd);
+  --dp-error-bg: light-dark(#fff0f0,#42262e);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--dp-ink);
+  background: var(--dp-bg);
+  border: 1px solid var(--dp-line);
+  border-radius: 14px;
+  overflow: clip;
+  width: 100%;
+  box-sizing: border-box;
+}
+#drink-demo-v2 *, #drink-demo-v2 *::before, #drink-demo-v2 *::after { box-sizing: border-box; }
+#drink-demo-v2 button, #drink-demo-v2 input, #drink-demo-v2 select { font: inherit; }
+#drink-demo-v2 button { cursor: inherit; }
+#drink-demo-v2 button:disabled { cursor: not-allowed; opacity: .5; }
+#drink-demo-v2 h1, #drink-demo-v2 h2, #drink-demo-v2 h3, #drink-demo-v2 p { margin: 0; }
+#drink-demo-v2 h1 { font-size: 25px; line-height: 1.25; font-weight: 500; letter-spacing: -.6px; }
+#drink-demo-v2 h2 { font-size: 19px; line-height: 1.35; font-weight: 500; letter-spacing: -.3px; }
+#drink-demo-v2 h3 { font-size: 15px; font-weight: 500; }
+#drink-demo-v2 strong { font-weight: 500; }
+#drink-demo-v2 .dp-muted { color: var(--dp-muted); }
+#drink-demo-v2 .dp-small { font-size: 12px; }
+#drink-demo-v2 .dp-num { font-variant-numeric: tabular-nums; }
+#drink-demo-v2 .dp-chrome { display: flex; align-items: center; gap: 14px; padding: 19px 118px 19px 26px; background: var(--dp-surface); border-bottom: 1px solid var(--dp-line); flex-wrap: wrap; }
+#drink-demo-v2 .dp-logo { font-size: 24px; font-weight: 500; letter-spacing: -1.1px; line-height: 1; }
+#drink-demo-v2 .dp-logo span { color: var(--dp-brand); }
+#drink-demo-v2 .dp-slash { width: 1px; height: 22px; background: var(--dp-line); }
+#drink-demo-v2 .dp-demo-label { font-size: 12px; padding: 3px 9px; border-radius: 5px; background: var(--dp-soft); color: var(--dp-muted); margin-left: auto; }
+#drink-demo-v2 .dp-nav { padding: 0 26px; display: flex; gap: 23px; flex-wrap: wrap; background: var(--dp-surface); border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-nav button { display: flex; align-items: center; gap: 7px; min-height: 52px; padding: 10px 0; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--dp-muted); }
+#drink-demo-v2 .dp-nav button[aria-selected='true'] { color: var(--dp-ink); border-bottom-color: var(--dp-brand); font-weight: 500; }
+#drink-demo-v2 .dp-count { background: var(--dp-soft); color: var(--dp-muted); border-radius: 5px; min-width: 20px; padding: 0 5px; text-align: center; font-size: 12px; }
+#drink-demo-v2 .dp-main { padding: 26px; }
+#drink-demo-v2 .dp-heading { display: flex; align-items: start; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
+#drink-demo-v2 .dp-heading p { color: var(--dp-muted); margin-top: 6px; }
+#drink-demo-v2 .dp-steps { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 22px; }
+#drink-demo-v2 .dp-step { display: flex; align-items: center; gap: 8px; padding: 4px 0; color: var(--dp-muted); font-size: 12px; }
+#drink-demo-v2 .dp-step b { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 500; background: var(--dp-soft); color: var(--dp-muted); }
+#drink-demo-v2 .dp-step.active { color: var(--dp-ink); font-weight: 500; }
+#drink-demo-v2 .dp-step.active b, #drink-demo-v2 .dp-step.done b { background: var(--dp-brand); color: var(--dp-onbrand); }
+#drink-demo-v2 .dp-step-sep { padding: 4px 8px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-button { border: 1px solid var(--dp-line); border-radius: 8px; padding: 9px 13px; min-height: 42px; background: var(--dp-surface); color: var(--dp-ink); display: inline-flex; align-items: center; justify-content: center; gap: 7px; text-decoration: none; }
+#drink-demo-v2 .dp-button:hover:not(:disabled) { background: var(--dp-soft); }
+#drink-demo-v2 .dp-primary { background: var(--dp-brand); color: var(--dp-onbrand); border-color: var(--dp-brand); font-weight: 500; }
+#drink-demo-v2 .dp-primary:hover:not(:disabled) { background: var(--dp-brand); opacity: .9; }
+#drink-demo-v2 .dp-quiet { border: 0; background: transparent; }
+#drink-demo-v2 .dp-quiet:hover:not(:disabled) { background: var(--dp-soft); }
+#drink-demo-v2 .dp-icon-button { padding: 8px; min-width: 38px; min-height: 38px; }
+#drink-demo-v2 .dp-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 18px; }
+#drink-demo-v2 .dp-search { position: relative; flex: 1; min-width: 160px; }
+#drink-demo-v2 .dp-search .dp-search-icon { position: absolute; top: 13px; left: 12px; color: var(--dp-muted); pointer-events: none; }
+#drink-demo-v2 .dp-search input { padding-left: 36px; }
+#drink-demo-v2 .dp-input, #drink-demo-v2 .dp-select { width: 100%; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 7px; padding: 9px 10px; min-height: 42px; color: var(--dp-ink); }
+#drink-demo-v2 .dp-input[aria-invalid='true'] { border-color: var(--dp-error); }
+#drink-demo-v2 .dp-toolbar .dp-select { width: auto; max-width: 100%; }
+#drink-demo-v2 .dp-field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+#drink-demo-v2 .dp-field > span { color: var(--dp-muted); font-size: 12px; }
+#drink-demo-v2 .dp-drinks { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; }
+#drink-demo-v2 .dp-drink { position: relative; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 14px; min-width: 0; }
+#drink-demo-v2 .dp-drink.selected { border-color: var(--dp-brand); background: var(--dp-tint); }
+#drink-demo-v2 .dp-drink-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+#drink-demo-v2 .dp-drink-mark { display: inline-flex; color: var(--dp-muted); }
+#drink-demo-v2 .dp-drink.selected .dp-drink-mark { color: var(--dp-brand); }
+#drink-demo-v2 .dp-drink label { display: flex; align-items: center; gap: 7px; min-height: 24px; }
+#drink-demo-v2 input[type='checkbox'] { width: 17px; height: 17px; accent-color: var(--dp-brand); margin: 0; flex-shrink: 0; }
+#drink-demo-v2 .dp-card-title { font-size: 16px; font-weight: 500; display: block; }
+#drink-demo-v2 .dp-card-copy { margin-top: 4px; min-height: 36px; font-size: 12px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-top: 9px; }
+#drink-demo-v2 .dp-text-button { padding: 3px 0; border: 0; color: var(--dp-brand); background: transparent; font-size: 12px; min-height: 27px; }
+#drink-demo-v2 .dp-tag { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-good { color: var(--dp-brand); }
+#drink-demo-v2 .dp-warning { color: var(--dp-warn); }
+#drink-demo-v2 .dp-footer { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--dp-line); flex-wrap: wrap; }
+#drink-demo-v2 .dp-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-context { padding: 12px 14px; background: var(--dp-tint); color: var(--dp-brand); border-radius: 8px; margin-bottom: 18px; display: flex; align-items: center; gap: 10px; }
+#drink-demo-v2 .dp-context.dp-context-warn { background: var(--dp-warn-bg); color: var(--dp-warn); }
+#drink-demo-v2 .dp-error { color: var(--dp-error); font-size: 12px; margin-top: 8px; }
+#drink-demo-v2 .dp-mapping { border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-map-row { display: grid; grid-template-columns: minmax(130px,.85fr) minmax(220px,1.5fr) minmax(140px,.8fr); align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-map-title { font-weight: 500; }
+#drink-demo-v2 .dp-new-fields { display: grid; grid-template-columns: minmax(0,1fr) 100px 85px; gap: 8px; margin-top: 9px; }
+#drink-demo-v2 .dp-review-list { border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-review-row { display: grid; grid-template-columns: minmax(170px,1.3fr) minmax(80px,1fr) 120px; align-items: center; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-panel { background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 10px; padding: 20px; min-width: 0; }
+#drink-demo-v2 .dp-split { display: grid; grid-template-columns: minmax(215px,.75fr) minmax(0,1.8fr); gap: 18px; align-items: start; }
+#drink-demo-v2 .dp-mine-list { display: flex; flex-direction: column; gap: 8px; }
+#drink-demo-v2 .dp-mine-item { display: flex; justify-content: space-between; gap: 9px; text-align: left; padding: 13px; background: var(--dp-surface); border: 1px solid var(--dp-line); border-radius: 8px; color: var(--dp-ink); min-width: 0; }
+#drink-demo-v2 .dp-mine-item.active { background: var(--dp-tint); border-color: var(--dp-brand); }
+#drink-demo-v2 .dp-editor-head { display: flex; justify-content: space-between; align-items: start; gap: 10px; margin-bottom: 18px; }
+#drink-demo-v2 .dp-editor-fields { display: grid; grid-template-columns: minmax(0,1fr) 110px; gap: 12px; margin-bottom: 21px; }
+#drink-demo-v2 .dp-recipe { margin-top: 10px; }
+#drink-demo-v2 .dp-recipe-row { display: grid; grid-template-columns: minmax(0,1fr) 73px 66px 35px; gap: 7px; align-items: center; border-top: 1px solid var(--dp-line); padding: 10px 0; }
+#drink-demo-v2 .dp-recipe-row .dp-select, #drink-demo-v2 .dp-recipe-row .dp-input { padding: 8px; }
+#drink-demo-v2 .dp-recipe-header { border: 0; padding: 0 0 5px; font-size: 12px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-editor-bottom { display: flex; align-items: center; justify-content: space-between; gap: 9px; margin-top: 16px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-empty { padding: 42px 20px; background: var(--dp-surface); border: 1px dashed var(--dp-line); border-radius: 10px; text-align: center; }
+#drink-demo-v2 .dp-empty p { margin: 7px 0 20px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-pos { display: grid; grid-template-columns: minmax(0,1.4fr) minmax(300px,1fr); gap: 18px; align-items: start; }
+#drink-demo-v2 .dp-pos-products { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 11px; }
+#drink-demo-v2 .dp-product { text-align: left; padding: 20px 16px; border: 1px solid var(--dp-line); border-radius: 10px; background: var(--dp-surface); color: var(--dp-ink); display: flex; flex-direction: column; gap: 12px; }
+#drink-demo-v2 .dp-product:hover { background: var(--dp-tint); border-color: var(--dp-brand); }
+#drink-demo-v2 .dp-product .dp-price { color: var(--dp-muted); font-size: 12px; }
+#drink-demo-v2 .dp-cart-line { padding: 13px 0; border-bottom: 1px solid var(--dp-line); display: flex; flex-direction: column; gap: 7px; }
+#drink-demo-v2 .dp-between { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+#drink-demo-v2 .dp-qty { display: inline-flex; gap: 9px; align-items: center; }
+#drink-demo-v2 .dp-qty button { min-width: 34px; min-height: 32px; padding: 4px 6px; }
+#drink-demo-v2 .dp-total { display: flex; justify-content: space-between; font-weight: 500; font-size: 18px; margin: 19px 0 14px; }
+#drink-demo-v2 .dp-full { width: 100%; }
+#drink-demo-v2 details { margin-top: 15px; }
+#drink-demo-v2 summary { color: var(--dp-muted); min-height: 30px; }
+#drink-demo-v2 .dp-consumption { margin-top: 8px; }
+#drink-demo-v2 .dp-consumption > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 6px 0; border-bottom: 1px solid var(--dp-line); font-size: 12px; }
+#drink-demo-v2 .dp-receipt { margin-top: 18px; }
+#drink-demo-v2 .dp-receipt-lines { margin: 13px 0; }
+#drink-demo-v2 .dp-receipt-lines > div { display: flex; justify-content: space-between; gap: 12px; margin: 6px 0; }
+#drink-demo-v2 .dp-stock { border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-stock-row { display: grid; grid-template-columns: minmax(160px,1.5fr) minmax(80px,.75fr) minmax(110px,.8fr) minmax(90px,.7fr) 110px; gap: 12px; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-stock-head { color: var(--dp-muted); font-size: 12px; padding: 10px 0; }
+#drink-demo-v2 .dp-receive { display: flex; align-items: end; gap: 10px; padding: 13px; background: var(--dp-soft); border-radius: 8px; margin-top: 6px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-receive .dp-field { max-width: 160px; }
+#drink-demo-v2 .dp-demo-foot { padding: 13px 26px; border-top: 1px solid var(--dp-line); color: var(--dp-muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 12px; }
+#drink-demo-v2 .dp-notice { color: var(--dp-brand); }
+#drink-demo-v2 .dp-overlay { position: absolute; inset: 0; z-index: 8; background: var(--dp-bg); padding: 26px; min-height: 100%; }
+#drink-demo-v2 .dp-app { position: relative; }
+#drink-demo-v2 .dp-preview { max-width: 600px; margin: 12px auto; }
+#drink-demo-v2 .dp-preview-list { margin: 20px 0; border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-preview-list > div { display: flex; justify-content: space-between; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-preview-list .dp-optional { color: var(--dp-muted); }
+#drink-demo-v2 .dp-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+#drink-demo-v2 [hidden] { display: none !important; }
+#drink-demo-v2 svg { flex-shrink: 0; }
+@media (max-width: 800px) {
+  #drink-demo-v2 .dp-main { padding: 20px; }
+  #drink-demo-v2 .dp-chrome { padding-left: 20px; }
+  #drink-demo-v2 .dp-nav { padding: 0 20px; gap: 18px; }
+  #drink-demo-v2 .dp-drinks { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #drink-demo-v2 .dp-map-row { grid-template-columns: minmax(115px,.8fr) minmax(0,1.7fr); }
+  #drink-demo-v2 .dp-map-state { grid-column: 2; margin-top: -6px; }
+  #drink-demo-v2 .dp-split, #drink-demo-v2 .dp-pos { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-mine-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #drink-demo-v2 .dp-stock-row { grid-template-columns: minmax(130px,1.3fr) minmax(80px,.8fr) minmax(75px,.7fr); }
+  #drink-demo-v2 .dp-stock-row .dp-pack { grid-column: 1; }
+  #drink-demo-v2 .dp-stock-row .dp-receive-button { grid-column: 3; }
+  #drink-demo-v2 .dp-stock-head .dp-pack, #drink-demo-v2 .dp-stock-head .dp-lastcol { display: none; }
+}
+@media (max-width: 480px) {
+  #drink-demo-v2 .dp-chrome { padding: 16px 104px 16px 14px; gap: 9px; }
+  #drink-demo-v2 .dp-chrome .dp-slash, #drink-demo-v2 .dp-chrome .dp-location { display: none; }
+  #drink-demo-v2 .dp-demo-label { margin-left: 0; }
+  #drink-demo-v2 .dp-nav { padding: 0 14px; gap: 0 12px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  #drink-demo-v2 .dp-nav button { font-size: 12px; min-height: 44px; }
+  #drink-demo-v2 .dp-main { padding: 18px 14px; }
+  #drink-demo-v2 h1 { font-size: 22px; }
+  #drink-demo-v2 .dp-heading { flex-direction: column; margin-bottom: 18px; }
+  #drink-demo-v2 .dp-step { gap: 4px; font-size: 11px; }
+  #drink-demo-v2 .dp-step-sep { padding: 4px 2px; }
+  #drink-demo-v2 .dp-drinks { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-drink { padding: 13px; }
+  #drink-demo-v2 .dp-drink-top { margin-bottom: 7px; }
+  #drink-demo-v2 .dp-card-copy { min-height: 0; }
+  #drink-demo-v2 .dp-map-row { grid-template-columns: minmax(0,1fr); gap: 9px; }
+  #drink-demo-v2 .dp-map-state { grid-column: 1; margin-top: 0; }
+  #drink-demo-v2 .dp-new-fields { grid-template-columns: minmax(0,1fr) 75px; }
+  #drink-demo-v2 .dp-new-fields > :first-child { grid-column: 1 / -1; }
+  #drink-demo-v2 .dp-review-row { grid-template-columns: minmax(0,1fr) 90px; }
+  #drink-demo-v2 .dp-review-row .dp-review-meta { grid-column: 1; grid-row: 2; }
+  #drink-demo-v2 .dp-review-row > label { grid-column: 2; grid-row: 1 / span 2; }
+  #drink-demo-v2 .dp-panel { padding: 14px; }
+  #drink-demo-v2 .dp-mine-list, #drink-demo-v2 .dp-pos-products { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-recipe-row { grid-template-columns: minmax(0,1fr) 67px 61px 32px; gap: 4px; }
+  #drink-demo-v2 .dp-recipe-row .dp-select, #drink-demo-v2 .dp-recipe-row .dp-input { padding: 7px 4px; }
+  #drink-demo-v2 .dp-recipe-row > select:first-child { grid-column: 1 / -2; }
+  #drink-demo-v2 .dp-recipe-row .dp-amount { grid-column: 1; }
+  #drink-demo-v2 .dp-recipe-row .dp-unit { grid-column: 2 / 4; }
+  #drink-demo-v2 .dp-recipe-row .dp-remove { grid-column: 4; grid-row: 1 / span 2; }
+  #drink-demo-v2 .dp-recipe-header { display: none; }
+  #drink-demo-v2 .dp-stock-row { grid-template-columns: minmax(0,1fr) 84px; gap: 6px; }
+  #drink-demo-v2 .dp-stock-head { display: none; }
+  #drink-demo-v2 .dp-stock-row .dp-stock-name { grid-column: 1; }
+  #drink-demo-v2 .dp-stock-row .dp-stock-balance { grid-column: 2; grid-row: 1; text-align: right; }
+  #drink-demo-v2 .dp-stock-row .dp-stock-used { grid-column: 1; font-size: 12px; }
+  #drink-demo-v2 .dp-stock-row .dp-pack { grid-column: 1; font-size: 12px; }
+  #drink-demo-v2 .dp-stock-row .dp-receive-button { grid-column: 2; grid-row: 2 / span 2; }
+  #drink-demo-v2 .dp-overlay { padding: 18px 14px; }
+  #drink-demo-v2 .dp-demo-foot { padding: 12px 14px; }
+  #drink-demo-v2 .dp-input, #drink-demo-v2 .dp-select { font-size: 16px; }
+}
+@media (pointer: coarse) {
+  #drink-demo-v2 .dp-button, #drink-demo-v2 .dp-text-button, #drink-demo-v2 .dp-qty button, #drink-demo-v2 .dp-drink label { min-height: 44px; }
+}
+
+
+#drink-demo-v2 .dp-import-context { padding: 9px 26px; background: var(--dp-tint); color: var(--dp-brand); display: flex; gap: 14px; justify-content: space-between; align-items: center; flex-wrap: wrap; border-bottom: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-drink-top { margin-bottom: 8px; }
+#drink-demo-v2 .dp-card-copy { min-height: 0; }
+#drink-demo-v2 .dp-heading { margin-bottom: 20px; }
+#drink-demo-v2 .dp-map-row { grid-template-columns: minmax(115px,.8fr) minmax(0,1.6fr) minmax(110px,.8fr); }
+#drink-demo-v2 .dp-map-row .dp-map-state { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+#drink-demo-v2 .dp-map-row .dp-tag { overflow-wrap: anywhere; }
+#drink-demo-v2 .dp-check { display: flex; align-items: center; gap: 8px; min-height: 34px; font-size: 12px; }
+#drink-demo-v2 .dp-check input { flex-shrink: 0; }
+#drink-demo-v2 .dp-resolve-summary { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 15px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-resolve-summary strong { font-size: 16px; }
+#drink-demo-v2 .dp-ready { padding: 27px 18px; background: var(--dp-tint); border-radius: 10px; text-align: center; }
+#drink-demo-v2 .dp-ready h2 { margin-bottom: 5px; }
+#drink-demo-v2 .dp-map-explain { font-size: 12px; color: var(--dp-muted); margin-top: 6px; }
+#drink-demo-v2 .dp-badge { font-size: 11px; padding: 3px 7px; border-radius: 4px; background: var(--dp-soft); color: var(--dp-muted); display: inline-flex; align-items: center; gap: 4px; }
+#drink-demo-v2 .dp-badge.good { background: var(--dp-tint); color: var(--dp-brand); }
+#drink-demo-v2 .dp-badge.warn { background: var(--dp-warn-bg); color: var(--dp-warn); }
+#drink-demo-v2 .dp-import-result { padding: 16px 18px; background: var(--dp-tint); border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-variant-tabs { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 18px; }
+#drink-demo-v2 .dp-variant-tabs .active { background: var(--dp-brand); color: var(--dp-onbrand); border-color: var(--dp-brand); }
+#drink-demo-v2 .dp-inline-form { padding: 12px; margin: 12px 0; background: var(--dp-soft); border-radius: 8px; display: flex; align-items: end; gap: 9px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-inline-form .dp-field { flex: 1; min-width: 120px; }
+#drink-demo-v2 .dp-economics { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin-top: 17px; padding-top: 15px; border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-economics .dp-small { display: block; color: var(--dp-muted); }
+#drink-demo-v2 .dp-economics strong { display: block; margin-top: 3px; }
+#drink-demo-v2 .dp-recipe-row.optional { grid-template-columns: minmax(0,1fr) 73px 66px 35px; }
+#drink-demo-v2 .dp-optional-toggle { grid-column: 1 / -1; margin-bottom: -7px; color: var(--dp-muted); }
+#drink-demo-v2 .dp-review-row { grid-template-columns: minmax(155px,1.3fr) minmax(130px,1fr) 122px; }
+#drink-demo-v2 .dp-stock-row { grid-template-columns: minmax(170px,1.5fr) minmax(125px,1fr) minmax(130px,1fr) 130px; }
+#drink-demo-v2 .dp-stock-state { display: flex; align-items: flex-start; gap: 5px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-product-variants { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; width: 100%; }
+#drink-demo-v2 .dp-product-variants .dp-button { font-size: 12px; padding: 8px; flex-direction: column; gap: 2px; }
+#drink-demo-v2 .dp-item-form { margin-top: 10px; }
+#drink-demo-v2 .dp-form-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 12px; margin: 15px 0; }
+#drink-demo-v2 .dp-form-grid.two { grid-template-columns: repeat(2,minmax(0,1fr)); }
+#drink-demo-v2 .dp-form-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+#drink-demo-v2 .dp-optional-line { padding: 9px 0; border-top: 1px solid var(--dp-line); }
+#drink-demo-v2 .dp-preview { max-width: 670px; }
+#drink-demo-v2 .dp-end { text-align: right; }
+#drink-demo-v2 .dp-split { grid-template-columns: minmax(190px,.72fr) minmax(0,1.8fr); }
+#drink-demo-v2 .dp-mobile-picker { display:none; }
+@media (max-width:800px) {
+  #drink-demo-v2 .dp-split { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-mine-list { display:none; }
+  #drink-demo-v2 .dp-mobile-picker { display:flex; margin-bottom:16px; }
+  #drink-demo-v2 .dp-map-row { grid-template-columns: minmax(115px,.8fr) minmax(0,1.7fr); }
+  #drink-demo-v2 .dp-map-row .dp-map-state { grid-column: 2; flex-direction: row; }
+  #drink-demo-v2 .dp-stock-row { grid-template-columns: minmax(140px,1.2fr) minmax(110px,1fr) 115px; }
+  #drink-demo-v2 .dp-stock-state { grid-column: 1 / 3; }
+  #drink-demo-v2 .dp-stock-action { grid-column: 3; grid-row: 1 / span 2; }
+  #drink-demo-v2 .dp-stock-head { display: none; }
+}
+@media (max-width:480px) {
+  #drink-demo-v2 .dp-import-context { padding: 8px 14px; font-size: 12px; }
+  #drink-demo-v2 .dp-map-row { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-map-row .dp-map-state { grid-column: 1; }
+  #drink-demo-v2 .dp-review-row { grid-template-columns: minmax(0,1fr) 95px; }
+  #drink-demo-v2 .dp-recipe-row.optional { grid-template-columns: minmax(0,1fr) 67px 61px 32px; }
+  #drink-demo-v2 .dp-stock-row { grid-template-columns: minmax(0,1fr) 96px; }
+  #drink-demo-v2 .dp-stock-state { grid-column: 1 / -1; grid-row: 3; }
+  #drink-demo-v2 .dp-stock-action { grid-column: 2; grid-row: 2; }
+  #drink-demo-v2 .dp-form-grid, #drink-demo-v2 .dp-form-grid.two { grid-template-columns: minmax(0,1fr); }
+  #drink-demo-v2 .dp-economics { gap: 8px; }
+  #drink-demo-v2 .dp-economics strong { font-size: 12px; }
+  #drink-demo-v2 .dp-optional-toggle { margin-bottom: 0; }
+}
+
+#drink-demo-v2 .dp-overlay { position:relative; inset:auto; min-height:0; }
+#drink-demo-v2 [data-recipe-unit] { min-width:0; }
+@media(max-width:480px) { #drink-demo-v2 [data-recipe-unit] { grid-column:2 / 4; } }
+
+
+/* V3 improvements */
+#drink-demo-v2 .dp-info-strip{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border:1px solid var(--dp-border);background:var(--dp-soft);border-radius:12px;padding:14px 16px;margin:14px 0;color:var(--dp-ink);font-size:13px}
+#drink-demo-v2 .dp-loss-config{margin-top:16px;padding:15px;background:var(--dp-soft);border-radius:12px}
+#drink-demo-v2 .dp-loss-preview{background:var(--dp-surface);border-radius:9px;padding:12px;margin:12px 0;font-size:14px;font-weight:600}
+#drink-demo-v2 .dp-optional-details{border:1px solid var(--dp-border);border-radius:12px;padding:16px;margin-top:18px}
+#drink-demo-v2 .dp-optional-details>summary{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:5px 0}
+#drink-demo-v2 .dp-optional-details[open]>summary{margin-bottom:18px}
+#drink-demo-v2 .dp-history{margin-top:16px}
+#drink-demo-v2 .dp-history details{padding:13px 0;border-bottom:1px solid var(--dp-border)}
+#drink-demo-v2 .dp-history details:last-child{border-bottom:0}
+#drink-demo-v2 .dp-stock-row{align-items:center}
+#drink-demo-v2 .dp-stock-state{display:flex;flex-direction:column;gap:5px}
+#drink-demo-v2 .dp-stock-state strong{font-size:15px}
+#drink-demo-v2 .dp-review-row .dp-small{line-height:1.65}
+#drink-demo-v2 .dp-steps{margin-bottom:22px}
+#drink-demo-v2 .dp-economics{margin-top:16px}
+#drink-demo-v2 .dp-nav{flex-wrap:wrap}
+#drink-demo-v2 .dp-chrome{flex-wrap:wrap}
+#drink-demo-v2 button:focus-visible,#drink-demo-v2 select:focus-visible,#drink-demo-v2 input:focus-visible{outline:2px solid var(--dp-blue, #258be8);outline-offset:2px}
+@media(max-width:720px){#drink-demo-v2 .dp-info-strip{flex-direction:column;align-items:flex-start}#drink-demo-v2 .dp-nav button{font-size:12px}}
+
+#drink-demo-v2 .dp-review-cards {display:grid;gap:14px;margin:14px 0 20px}
+#drink-demo-v2 .dp-import-product {padding:20px 22px;background:var(--dp-panel)}
+#drink-demo-v2 .dp-import-product h2 {font-size:18px;margin:0 0 4px}
+#drink-demo-v2 .dp-import-product p {margin:0}
+#drink-demo-v2 .dp-group-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:18px 0}
+#drink-demo-v2 .dp-group-field {min-width:0}
+#drink-demo-v2 .dp-group-field .dp-select {width:100%;min-width:0}
+#drink-demo-v2 .dp-import-product-foot {display:flex;gap:22px;align-items:end;justify-content:space-between;border-top:1px solid var(--dp-line);padding-top:12px}
+#drink-demo-v2 .dp-import-product-foot .dp-field {max-width:180px}
+#drink-demo-v2 .dp-new-group {border:1px dashed var(--dp-line);background:var(--dp-tint);padding:20px;border-radius:16px;display:flex;gap:14px;align-items:end;flex-wrap:wrap;margin:12px 0}
+#drink-demo-v2 .dp-new-group .dp-field {flex:1 1 250px}
+#drink-demo-v2 .dp-new-group .dp-actions {align-self:flex-end}
+#drink-demo-v2 .dp-catalog-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}
+#drink-demo-v2 .dp-catalog-product {display:flex;flex-direction:column;gap:12px;align-items:stretch;padding:20px}
+#drink-demo-v2 .dp-catalog-product h2 {margin:0}
+#drink-demo-v2 .dp-catalog-product .dp-button{align-self:flex-start;margin-top:auto}
+#drink-demo-v2 .dp-card-tabs{display:flex;gap:8px;margin:12px 0 18px;border-bottom:1px solid var(--dp-line);padding-bottom:12px}
+#drink-demo-v2 .dp-card-tabs .dp-button.active{background:var(--dp-brand);color:white;border-color:var(--dp-brand)}
+#drink-demo-v2 .dp-card-tab-static {font-weight:700;border-bottom:2px solid var(--dp-brand);padding-bottom:8px}
+#drink-demo-v2 .dp-card-content{padding:24px}
+#drink-demo-v2 .dp-card-context{display:flex;align-items:end;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#drink-demo-v2 .dp-card-context .dp-field{flex:1 1 260px;max-width:440px}
+#drink-demo-v2 .dp-card-content h3 {margin:22px 0 6px}
+#drink-demo-v2 .dp-review-cards .dp-field span {font-size:13px}
+@media(max-width:760px){#drink-demo-v2 .dp-group-grid{grid-template-columns:1fr}#drink-demo-v2 .dp-import-product-foot{align-items:stretch;flex-direction:column}#drink-demo-v2 .dp-import-product-foot .dp-field{max-width:none}#drink-demo-v2 .dp-card-content{padding:14px}}
+</style>
+</head><body><div id="drink-demo-v2">
+  <header class="dp-chrome"><div class="dp-logo" aria-label="Done Pay">done<span>pay.</span></div><span class="dp-slash"></span><span class="dp-location">Demo Bar</span><span class="dp-demo-label">V4 · Fase 1</span></header>
+  <nav class="dp-nav" role="tablist" aria-label="Drinkadministrasjon">
+    <button type="button" role="tab" id="dp-tab-library" aria-controls="dp-content" aria-selected="true" data-nav="library">Drinkbibliotek</button>
+    <button type="button" role="tab" id="dp-tab-mine" aria-controls="dp-content" aria-selected="false" data-nav="mine">Mine drinker <span id="dp-mine-count" class="dp-count">0</span></button>
+    <button type="button" role="tab" id="dp-tab-card" aria-controls="dp-content" aria-selected="false" data-nav="card">Varekort</button>
+    <button type="button" role="tab" id="dp-tab-pos" aria-controls="dp-content" aria-selected="false" data-nav="pos">Test kasse</button>
+    <button type="button" role="tab" id="dp-tab-usage" aria-controls="dp-content" aria-selected="false" data-nav="usage">Vareforbruk</button>
+    <button type="button" role="tab" id="dp-tab-stock" aria-controls="dp-content" aria-selected="false" data-nav="stock">Ingredienser</button>
+  </nav>
+  <div id="dp-import-context" class="dp-import-context" hidden></div>
+  <div class="dp-app"><main class="dp-main" id="dp-content" role="tabpanel" aria-labelledby="dp-tab-library"></main><div id="dp-overlay" class="dp-overlay" hidden></div></div>
+  <footer class="dp-demo-foot"><span>Interaktiv fase-1-prototype. Ingen ordre- eller lagerdata sendes til et system.</span><span id="dp-notice" class="dp-notice">Kun demodata</span></footer>
+  <div id="dp-live" class="dp-sr" aria-live="polite" aria-atomic="true"></div>
+</div>
+<script>
+
+(() => {
+  const root = document.getElementById('drink-demo-v2');
+  const content = root.querySelector('#dp-content');
+  const overlay = root.querySelector('#dp-overlay');
+  const ingredient = (key, amount, unit = 'cl') => ({key, amount, unit});
+  const defs = {
+    gin: {name:'Gin', dimension:'volume', pack:70, packUnit:'cl'},
+    tonic: {name:'Tonic', dimension:'volume', pack:100, packUnit:'cl'},
+    rum: {name:'Lys rom', dimension:'volume', pack:70, packUnit:'cl'},
+    vodka: {name:'Vodka', dimension:'volume', pack:70, packUnit:'cl'},
+    soda: {name:'Sodavann', dimension:'volume', pack:100, packUnit:'cl'},
+    lemon: {name:'Sitronjuice', dimension:'volume', pack:100, packUnit:'cl'},
+    lime: {name:'Limejuice', dimension:'volume', pack:100, packUnit:'cl'},
+    syrup: {name:'Sukkerlake', dimension:'volume', pack:100, packUnit:'cl'},
+    mint: {name:'Mynteblad', dimension:'count', pack:100, packUnit:'stk'},
+    aperol: {name:'Aperol', dimension:'volume', pack:70, packUnit:'cl'},
+    prosecco: {name:'Prosecco', dimension:'volume', pack:75, packUnit:'cl'},
+    ginger: {name:'Ginger beer', dimension:'volume', pack:20, packUnit:'cl'},
+    coffee: {name:'Espresso', dimension:'volume', pack:100, packUnit:'cl'},
+    coffeeLiq: {name:'Kaffelikør', dimension:'volume', pack:70, packUnit:'cl'},
+    tequila: {name:'Tequila', dimension:'volume', pack:70, packUnit:'cl'},
+    orangeLiq: {name:'Appelsinlikør', dimension:'volume', pack:70, packUnit:'cl'},
+    vermouth: {name:'Søt vermut', dimension:'volume', pack:100, packUnit:'cl'},
+    campari: {name:'Campari', dimension:'volume', pack:70, packUnit:'cl'},
+    cola: {name:'Cola', dimension:'volume', pack:150, packUnit:'cl'},
+    whisky: {name:'Whisky', dimension:'volume', pack:70, packUnit:'cl'},
+    egg: {name:'Eggehvite', dimension:'volume', pack:100, packUnit:'cl'},
+    alcoholFreeGin: {name:'Alkoholfri gin', dimension:'volume', pack:70, packUnit:'cl'},
+    limeSlice: {name:'Limeskive', dimension:'count', pack:40, packUnit:'stk'}
+  };
+  const catalog = [
+    {id:'gt',name:'Gin & Tonic',category:'Longdrinks',icon:'wine',price:145,recipe:[ingredient('gin',4),ingredient('tonic',15)],garnish:[ingredient('limeSlice',1,'stk')]},
+    {id:'collins',name:'Tom Collins',category:'Klassikere',icon:'wine',price:155,recipe:[ingredient('gin',4),ingredient('lemon',3),ingredient('syrup',2),ingredient('soda',8)]},
+    {id:'mojito',name:'Mojito',category:'Klassikere',icon:'wine',price:155,recipe:[ingredient('rum',4),ingredient('lime',3),ingredient('syrup',2),ingredient('soda',8),ingredient('mint',6,'stk')]},
+    {id:'spritz',name:'Aperol Spritz',category:'Spritz',icon:'wine',price:155,recipe:[ingredient('aperol',6),ingredient('prosecco',9),ingredient('soda',3)]},
+    {id:'mule',name:'Moscow Mule',category:'Longdrinks',icon:'cup-soda',price:155,recipe:[ingredient('vodka',4),ingredient('ginger',12),ingredient('lime',2)]},
+    {id:'espresso',name:'Espresso Martini',category:'Klassikere',icon:'martini',price:165,recipe:[ingredient('vodka',4),ingredient('coffeeLiq',2),ingredient('coffee',3),ingredient('syrup',1)]},
+    {id:'margarita',name:'Margarita',category:'Klassikere',icon:'martini',price:165,recipe:[ingredient('tequila',4),ingredient('orangeLiq',2),ingredient('lime',2)]},
+    {id:'negroni',name:'Negroni',category:'Klassikere',icon:'glass-water',price:165,recipe:[ingredient('gin',3),ingredient('campari',3),ingredient('vermouth',3)]},
+    {id:'cuba',name:'Cuba Libre',category:'Longdrinks',icon:'wine',price:145,recipe:[ingredient('rum',4),ingredient('cola',12),ingredient('lime',1)]},
+    {id:'sour',name:'Whisky Sour',category:'Klassikere',icon:'glass-water',price:165,recipe:[ingredient('whisky',4),ingredient('lemon',3),ingredient('syrup',2)],garnish:[ingredient('egg',2)]},
+    {id:'virgin-mojito',name:'Virgin Mojito',category:'Alkoholfrie',icon:'wine',price:95,recipe:[ingredient('lime',3),ingredient('syrup',2),ingredient('soda',12),ingredient('mint',6,'stk')]},
+    {id:'virgin-gt',name:'Alkoholfri Gin & Tonic',category:'Alkoholfrie',icon:'wine',price:95,recipe:[ingredient('alcoholFreeGin',4),ingredient('tonic',15)]}
+  ];
+  // SAF-T Cash Register BasicType 04 suggestions; customer groups are independent and editable.
+  const defaultGroups = {
+    main:[
+      {id:'04006',name:'Mat',saf:'04006'},{id:'04007',name:'Øl',saf:'04007'},
+      {id:'04008',name:'Vin',saf:'04008'},{id:'04009',name:'Brennevin',saf:'04009'},
+      {id:'04010',name:'Rusbrus / cider',saf:'04010'},
+      {id:'04011',name:'Mineralvann',saf:'04011'},
+      {id:'04012',name:'Annen drikke',saf:'04012'},
+      {id:'04014',name:'Andre varer',saf:'04014'}
+    ],
+    group1:[
+      {id:'grp-cocktails',name:'Cocktails',parent:'04009'},
+      {id:'grp-mocktails',name:'Alkoholfrie drinker',parent:'04012'},
+      {id:'grp-drinks',name:'Drikkevarer',parent:'04011'}
+    ],
+    group2:[
+      {id:'g2-classics',name:'Klassikere',parent:'grp-cocktails'},
+      {id:'g2-long',name:'Longdrinks',parent:'grp-cocktails'},
+      {id:'g2-spritz',name:'Spritz',parent:'grp-cocktails'},
+      {id:'g2-alc-free',name:'Alkoholfrie',parent:'grp-mocktails'}
+    ]
+  };
+  const suggestedGroups = d => d.category==='Alkoholfrie'
+    ? {main:'04012',group1:'grp-mocktails',group2:'g2-alc-free'}
+    : {main:'04009',group1:'grp-cocktails',group2:d.category==='Longdrinks'?'g2-long':d.category==='Spritz'?'g2-spritz':'g2-classics'};
+  const seeded = [
+    ['gin-house','gin','Beefeater Gin',70,'cl',2100,280],
+    ['gin-alt','gin','Tanqueray Gin',70,'cl',1400,350],
+    ['tonic','tonic','Schweppes Tonic',100,'cl',5000,22],
+    ['rum','rum','Bacardi Carta Blanca',70,'cl',1400,260],
+    ['vodka','vodka','Absolut Vodka',null,'cl',null,null],
+    ['soda','soda','Sodavann',100,'cl',4000,12],
+    ['lemon','lemon','Sitronjuice',100,'cl',2000,42],
+    ['syrup','syrup','Sukkerlake',100,'cl',2000,28],
+    ['mint','mint','Mynteblad',100,'stk',200,45],
+    ['prosecco','prosecco','Prosecco',75,'cl',3000,115],
+    ['ginger','ginger','Ginger beer',20,'cl',2400,17],
+    ['coffee','coffee','Espresso',100,'cl',0,60],
+    ['cola','cola','Coca-Cola',150,'cl',3000,25],
+    ['whisky','whisky','Jameson',70,'cl',1400,320],
+    ['limeSlice','limeSlice','Limeskiver',40,'stk',80,30],
+    ['coffeeLiq','coffeeLiq','Kahlúa kaffelikør',70,'cl',null,295],
+    ['orangeLiq','orangeLiq','Cointreau appelsinlikør',70,'cl',null,315]
+  ];
+  const factor = u => u === 'cl' ? 10 : u === 'l' ? 1000 : u === 'kg' ? 1000 : 1;
+  const clone = v => JSON.parse(JSON.stringify(v));
+  const esc = v => String(v ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const num = v => { const n=String(v ?? '').trim()===''?NaN:Number(String(v).trim().replace(/\s/g,'').replace(',','.'));return Number.isFinite(n)?n:NaN; };
+  const optionalNum = v => String(v ?? '').trim() === '' ? null : num(v);
+  const fmt = v => Number(v).toLocaleString('nb-NO',{maximumFractionDigits:2});
+  const money = v => fmt(v)+' kr';
+  const countLabel = (n,singular,plural) => n+' '+(n===1?singular:plural);
+  const drinkCount = n => countLabel(n,'drink','drinker');
+  const icon = n => {
+    const paths={
+      wine:'<path d="M8 22h8M12 13v9M5.4 2h13.2l-1 7a5.7 5.7 0 0 1-11.2 0Z"/>',
+      martini:'<path d="M8 22h8M12 11v11M3 3h18l-9 8Z"/>',
+      'cup-soda':'<path d="M5 8h14l-1.4 13H6.4L5 8ZM3 5h18M12 8l3-6"/>',
+      'glass-water':'<path d="M5 3h14l-1.5 18h-11L5 3ZM6 12c3 2 9 2 12 0"/>',
+      search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/>',
+      'arrow-right':'<path d="M5 12h14m-7-7 7 7-7 7"/>',
+      plus:'<path d="M12 5v14M5 12h14"/>',
+      'chevron-right':'<path d="m9 18 6-6-6-6"/>',
+      x:'<path d="M18 6 6 18M6 6l12 12"/>',
+      info:'<circle cx="12" cy="12" r="10"/><path d="M12 11v6M12 7h.01"/>'
+    };
+    return '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">'+(paths[n]||paths.info)+'</svg>';
+  };
+  const button = (a,label,attrs='',kind='') => '<button type="button" class="dp-button cursor-interaction '+kind+'" data-action="'+a+'" '+attrs+'>'+label+'</button>';
+  const input = (label,attrs,value='') => '<label class="dp-field"><span>'+label+'</span><input class="dp-input" '+attrs+' value="'+esc(value)+'"></label>';
+  const check = (label,attrs,on) => '<label class="dp-check cursor-interaction"><input type="checkbox" '+attrs+(on?' checked':'')+'><span>'+label+'</span></label>';
+  const units = dimension => dimension === 'count' ? ['stk'] : dimension === 'mass' ? ['g','kg'] : ['cl','ml','l'];
+  const unitSelect = (dimension,current,attrs='') => '<select class="dp-select cursor-interaction" '+attrs+'>'+units(dimension).map(u=>'<option value="'+u+'"'+(u===current?' selected':'')+'>'+u+'</option>').join('')+'</select>';
+  const state = {
+    view:'library',step:1,selected:new Set(),search:'',category:'Alle',existingOnly:false,
+    extras:{},mappings:{},house:{},prices:{},mapAll:false,importError:'',batches:[],result:null,
+    mine:[],active:null,draft:null,variant:0,dirty:false,editorError:'',copying:false,variantAdding:false,
+    groups:clone(defaultGroups),groupAssignments:{},groupCreate:null,cardTab:'general',cardKind:'drink',
+    stock:seeded.map(([id,key,name,pack,packUnit,balance,costPack])=>({
+      id,key,name,dimension:defs[key].dimension,pack,packUnit,balance,costPack,
+      inventoryActive:false,used:0,loss:id==='coffeeLiq'?2:id==='orangeLiq'?0.2:0,lossUnit:'cl',roles:{consume:true,sale:['gin-house','tonic'].includes(id)},
+      sale:id==='gin-house'?{amount:4,unit:'cl',price:85,vat:25}:id==='tonic'?{amount:20,unit:'cl',price:45,vat:25}:null,
+      revision:0,originImportId:null
+    })),
+    cart:[],sales:[],usageEvents:[],stockFilter:'all',itemEditing:null,itemError:'',receive:null,receiveError:'',preview:null,serial:0
+  };
+  const uid = prefix => prefix+'-'+(++state.serial);
+  const stockById = id => state.stock.find(s=>s.id===id);
+  const mineById = id => state.mine.find(d=>d.id===id);
+  const packBase = s => s && Number.isFinite(s.pack) && s.pack>0 ? s.pack*factor(s.packUnit) : null;
+  const lossBase = s => s && Number.isFinite(num(s.loss)) && num(s.loss)>0 ? num(s.loss)*factor(s.lossUnit || s.packUnit || 'cl') : 0;
+  const usableBase = s => {const p=packBase(s);return p===null?null:Math.max(0,p-lossBase(s));};
+  const displayUnit = s => s?.dimension==='count'?'stk':s?.dimension==='mass'?'g':'cl';
+  const asDisplay = (base,s) => fmt(base/factor(displayUnit(s)))+' '+displayUnit(s);
+  const lossText = s => lossBase(s)>0?fmt(num(s.loss))+' '+(s.lossUnit||s.packUnit||'cl'):'Ingen';
+  const enabled = r => r.enabled !== false;
+  const extras = d => (d.garnish || []).map(r=>({...r,optional:true,kind:r.key==='egg'?'Valgfri ingrediens':'Garnityr'}));
+  const extraOn = (d,r) => state.extras[d.id+':'+r.key] === true;
+  const selectedDrinks = () => catalog.filter(d=>state.selected.has(d.id)&&!state.mine.some(m=>m.sourceId===d.id));
+  const chosenRecipe = d => d.recipe.concat(extras(d).filter(r=>extraOn(d,r)));
+  const keys = () => [...new Set(selectedDrinks().flatMap(d=>chosenRecipe(d).map(r=>r.key)))];
+  const stockCandidates = key => state.stock.filter(s=>s.key===key);
+  const configNeeds = s => !s.roles.consume;
+  const groupLevels = ['main','group1','group2'];
+  const groupLevelLabel = {main:'Main group',group1:'Gruppe 1',group2:'Gruppe 2'};
+  const groupName = (level,id) => state.groups[level].find(g=>g.id===id)?.name||'';
+  function assignedGroups(drink) {
+    if(!state.groupAssignments[drink.id]) state.groupAssignments[drink.id]=suggestedGroups(drink);
+    return state.groupAssignments[drink.id];
+  }
+  function eligibleGroups(level,assign) {
+    return state.groups[level].filter(g=>level==='main'||g.parent===(level==='group1'?assign.main:assign.group1));
+  }
+  function groupSelect(level,assign,attrs='') {
+    const allowed=eligibleGroups(level,assign),value=assign[level]||'',blocked=level==='group1'&&!assign.main||level==='group2'&&!assign.group1;
+    const opts='<option value="">'+(blocked?'Velg overordnet gruppe først':level==='main'?'Velg hovedgruppe …':'Ingen valgt')+'</option>'+allowed.map(g=>
+      '<option value="'+esc(g.id)+'"'+(value===g.id?' selected':'')+'>'+esc(g.name)+(level==='main'&&g.saf?' · SAF-T '+g.saf:'')+'</option>').join('');
+    return '<label class="dp-field dp-group-field"><span>'+groupLevelLabel[level]+'</span><select class="dp-select cursor-interaction" '+attrs+(blocked?' disabled':'')+' aria-label="'+groupLevelLabel[level]+'">'+opts+'<option value="__create__">+ Opprett ny gruppe …</option></select></label>';
+  }
+  function changeAssignment(obj,level,value) {
+    obj[level]=value;
+    if(level==='main'){obj.group1='';obj.group2='';}
+    if(level==='group1') obj.group2='';
+  }
+  function groupPath(assign) {return [groupName('main',assign?.main),groupName('group1',assign?.group1),groupName('group2',assign?.group2)].filter(Boolean).join('  /  ');}
+  function startGroupCreate(level,source,productId) {
+    const assign=source==='import'?assignedGroups(catalog.find(d=>d.id===productId)):state.draft.groups;
+    state.groupCreate={level,source,productId,name:'',parent:level==='group1'?assign.main:level==='group2'?assign.group1:null,saf:state.groups.main.find(x=>x.id===assign.main)?.saf||'04014'};
+    render();
+  }
+  function createGroupHTML(source) {
+    const g=state.groupCreate;
+    if(!g||g.source!==source)return '';
+    const parent= g.level==='group1' ? groupName('main',g.parent):g.level==='group2'?groupName('group1',g.parent):'';
+    return '<section class="dp-new-group"><div><strong>Opprett '+groupLevelLabel[g.level]+'</strong><p class="dp-small dp-muted">'+(parent?'Under '+esc(parent)+'. ':'')+'Denne gruppen blir tilgjengelig også for andre varer.</p></div>'+input('Gruppenavn','data-group-create-name placeholder="Skriv navn"',g.name)+(g.level==='main'?'<label class="dp-field"><span>SAF-T-kategori for rapportering</span><select class="dp-select" data-group-create-saf>'+state.groups.main.filter(x=>x.saf).map(x=>'<option value="'+x.saf+'"'+(x.saf===g.saf?' selected':'')+'>'+esc(x.name)+' · '+x.saf+'</option>').join('')+'</select></label>':'')+'<div class="dp-actions">'+button('cancel-group','Avbryt')+button('save-group','Opprett gruppe','','dp-primary')+'</div></section>';
+  }
+  function saveGroup(){
+    const g=state.groupCreate;if(!g)return;
+    const name=g.name.trim();
+    if(!name){notify('Skriv inn et navn på gruppen.');return;}
+    if(g.level!=='main'&&!g.parent){notify('Velg overordnet gruppe først.');return;}
+    const match=state.groups[g.level].find(e=>e.name.toLocaleLowerCase('nb')===name.toLocaleLowerCase('nb') && (g.level==='main'||e.parent===g.parent));
+    const id=match?.id||uid('custom-group');
+    if(!match)state.groups[g.level].push({id,name,...(g.level==='main'?{saf:g.saf}:{parent:g.parent})});
+    const assign=g.source==='import'?assignedGroups(catalog.find(d=>d.id===g.productId)):state.draft.groups;
+    changeAssignment(assign,g.level,id);
+    if(g.source==='card')draftChanged();
+    state.groupCreate=null;notify('Gruppen '+name+' er klar.');render();
+  }
+  function notify(message) {
+    root.querySelector('#dp-notice').textContent=message;
+    root.querySelector('#dp-live').textContent=message;
+  }
+  function icons() { if(typeof lucide!=='undefined') lucide.createIcons({attrs:{width:16,height:16}}); }
+  function initMappings() {
+    keys().forEach(key=>{
+      if(state.mappings[key] && (state.mappings[key].id==='__new__'||stockById(state.mappings[key].id)||state.mappings[key].id==='')) return;
+      const candidates=stockCandidates(key);
+      const house=stockById(state.house[key]);
+      state.mappings[key]={
+        id:house?house.id:candidates.length===1?candidates[0].id:candidates.length?'':'__new__',
+        reason:house?'Husets standard':candidates.length===1?'Koblet automatisk til eksisterende vare':'',
+        remember:true,decision:null,accepted:false,
+        draft:{name:defs[key].name,pack:'',packUnit:defs[key].packUnit,costPack:'',inventoryActive:false,consume:true,loss:0,lossUnit:defs[key].dimension==='count'?'stk':'cl'}
+      };
+    });
+  }
+  function mapReady(key) {
+    const m=state.mappings[key];if(!m||!m.id)return false;
+    if(m.id==='__new__')return !!m.draft.name.trim();
+    return !!stockById(m.id) && !!stockById(m.id).roles.consume;
+  }
+  function inventoryLabel(s) {
+    if(!s.inventoryActive) return {label:'Lagerstyring av',kind:''};
+    if(s.balance===null) return {label:'Beholdning ukjent',kind:'warn'};
+    if(s.balance<=0) return {label:fmt(s.balance/factor(s.dimension==='count'?'stk':'cl'))+' '+(s.dimension==='count'?'stk':'cl')+' · '+(s.balance<0?'Negativ beholdning':'Tomt på lager'),kind:'warn'};
+    return {label:fmt(s.balance/factor(s.dimension==='count'?'stk':'cl'))+' '+(s.dimension==='count'?'stk':'cl')+' på lager',kind:'good'};
+  }
+  function badges(s) {
+    return '<span class="dp-badge">'+(packBase(s)?fmt(s.pack)+' '+s.packUnit:'Pakning ikke angitt')+'</span>'+(lossBase(s)>0?'<span class="dp-badge">Rest '+lossText(s)+'</span>':'');
+  }
+  const roleLabel = s => s.roles.sale && s.roles.consume ? 'Salg og forbruk' : s.roles.sale ? 'Salg' : 'Forbruk';
+  function configuredStock(key) {
+    const m=state.mappings[key];
+    if(!m) return null;
+    if(m.id==='__new__') return {id:'pending-'+key,key,dimension:defs[key].dimension,...m.draft,pack:optionalNum(m.draft.pack),costPack:optionalNum(m.draft.costPack),roles:{consume:true,sale:false},balance:null};
+    const s=stockById(m.id); if(!s) return null;
+    return m.decision==='configure'?{...s,...m.draft,pack:num(m.draft.pack),costPack:optionalNum(m.draft.costPack),roles:{...s.roles,consume:true}}:s;
+  }
+  function costing(recipe,price,vat=25,resolver=stockById) {
+    let cost=0; const missing=[];
+    recipe.filter(enabled).forEach(r=>{
+      const s=resolver(r.stockId || r.key);
+      if(!s||!usableBase(s)||s.costPack===null||!Number.isFinite(s.costPack)||!Number.isFinite(num(r.amount))) {
+        missing.push(s?.name||defs[r.key]?.name||'Ingrediens'); return;
+      }
+      cost+=num(r.amount)*factor(r.unit)/usableBase(s)*s.costPack;
+    });
+    const net=num(price)/(1+num(vat)/100);
+    return {cost,db:net-cost,margin:net>0?(net-cost)/net*100:null,missing:[...new Set(missing)],net};
+  }
+  function economics(recipe,price,vat=25,resolver=stockById) {
+    const c=costing(recipe,price,vat,resolver);
+    if(c.missing.length) return '<div class="dp-economics"><div style="grid-column:1/-1"><span class="dp-small">Kostpris kan vises når pakningsstørrelse og innkjøpspris er angitt</span><strong>Mangler: '+c.missing.map(esc).join(', ')+'</strong></div></div>';
+    return '<div class="dp-economics"><div><span class="dp-small">Kostpris eks. mva.</span><strong>'+money(c.cost)+'</strong></div><div><span class="dp-small">Dekningsbidrag</span><strong>'+(Number.isFinite(c.db)?money(c.db):'—')+'</strong></div><div><span class="dp-small">Margin eks. mva.</span><strong>'+(c.margin===null||!Number.isFinite(c.margin)?'—':fmt(c.margin)+' %')+'</strong></div></div>';
+  }
+  function heading(title,copy='') {
+    return '<div class="dp-heading"><div><h1>'+title+'</h1>'+(copy?'<p>'+copy+'</p>':'')+'</div></div>';
+  }
+  function steps() {
+    return '<div class="dp-steps" aria-label="Importsteg">'+['Velg drinker','Koble ingredienser','Grupper og importer'].map((v,i)=>(i?'<span class="dp-step-sep" aria-hidden="true">›</span>':'')+'<span class="dp-step '+(state.step===i+1?'active':'')+'"><b>'+(i+1)+'</b>'+v+'</span>').join('')+'</div>';
+  }
+  function render() {
+    root.querySelectorAll('[data-nav]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.nav===state.view)));
+    content.setAttribute('aria-labelledby','dp-tab-'+state.view);
+    root.querySelector('#dp-mine-count').textContent=state.mine.length;
+    const context=root.querySelector('#dp-import-context');
+    context.hidden=state.view==='library'||!selectedDrinks().length;
+    context.innerHTML='<span>Import pågår · <strong>'+drinkCount(selectedDrinks().length)+' valgt</strong></span>'+button('continue-import','Fortsett import');
+    content.hidden=false;overlay.hidden=true; overlay.innerHTML='';
+    if(state.view==='library') renderLibrary();
+    if(state.view==='mine') renderMine();
+    if(state.view==='card') renderCard();
+    if(state.view==='pos') renderPos();
+    if(state.view==='stock') renderStock();
+    if(state.view==='usage') renderUsage();
+    icons();
+  }
+  function renderLibrary() {
+    if(state.step===2) {initMappings();renderMapping();return;}
+    if(state.step===3) {renderReview();return;}
+    const shown=catalog.filter(d=>(state.category==='Alle'||d.category===state.category)&&d.name.toLocaleLowerCase('nb').includes(state.search.toLocaleLowerCase('nb'))&&(!state.existingOnly||chosenRecipe(d).every(r=>stockCandidates(r.key).length)));
+    content.innerHTML=heading('Finn drinkene dine','Velg drinker. Vi oppretter oppskriftene og kobler ingrediensene automatisk.')+steps()+
+      '<div class="dp-toolbar"><label class="dp-search"><span class="dp-search-icon">'+icon('search')+'</span><input class="dp-input" aria-label="Søk etter drink" data-search value="'+esc(state.search)+'" placeholder="Søk etter drink"></label><label class="dp-field"><span class="dp-sr">Kategori</span><select class="dp-select cursor-interaction" data-category>'+['Alle','Klassikere','Longdrinks','Spritz','Alkoholfrie'].map(v=>'<option'+(v===state.category?' selected':'')+'>'+v+'</option>').join('')+'</select></label>'+check('Kun med eksisterende varer','data-existing',state.existingOnly)+'</div>'+
+      '<div class="dp-drinks">'+shown.map(d=>{
+        const imported=state.mine.some(m=>m.sourceId===d.id);
+        return '<article class="dp-drink '+(state.selected.has(d.id)?'selected':'')+'" data-card="'+d.id+'"><div class="dp-drink-top"><span class="dp-drink-mark">'+icon(d.icon)+'</span><label class="cursor-interaction"><input type="checkbox" data-select="'+d.id+'" aria-label="Velg '+esc(d.name)+'"'+(state.selected.has(d.id)?' checked':'')+(imported?' disabled':'')+'><span class="dp-small">'+(imported?'Importert':'Velg')+'</span></label></div><h3 class="dp-card-title">'+esc(d.name)+'</h3><p class="dp-card-copy">'+chosenRecipe(d).map(r=>esc(defs[r.key].name)).join(' · ')+'</p><div class="dp-card-bottom"><span class="dp-tag">'+d.category+'</span><button type="button" class="dp-text-button cursor-interaction" data-action="preview" data-id="'+d.id+'">Se oppskrift</button></div></article>';
+      }).join('')+'</div>'+(shown.length?'':'<div class="dp-empty"><h2>Ingen treff</h2><p>Prøv et annet søk eller en annen kategori.</p></div>')+
+      '<div class="dp-footer"><span><strong>'+drinkCount(selectedDrinks().length)+' valgt</strong></span>'+button('to-mapping','Fortsett '+icon('arrow-right'),selectedDrinks().length?'':'disabled','dp-primary')+'</div>';
+  }
+  function mapRow(key) {
+    const m=state.mappings[key],s=stockById(m.id),candidates=stockCandidates(key);
+    const options='<option value="">Velg vare …</option>'+candidates.map(item=>'<option value="'+item.id+'"'+(m.id===item.id?' selected':'')+'>'+esc(item.name)+'</option>').join('')+'<option value="__new__"'+(m.id==='__new__'?' selected':'')+'>Opprett ny ingrediens</option>';
+    const usedBy=selectedDrinks().filter(d=>chosenRecipe(d).some(r=>r.key===key)).map(d=>d.name);
+    const fields=m.id==='__new__'?input('Navn på ny ingrediens','data-map-field="name" data-key="'+key+'"',m.draft.name):'';
+    return '<div class="dp-map-row"><div><strong>'+esc(defs[key].name)+'</strong><div class="dp-small dp-muted">Brukes i '+esc(usedBy.join(', '))+'</div></div><div><select class="dp-select cursor-interaction" data-map="'+key+'" aria-label="Vare for '+esc(defs[key].name)+'">'+options+'</select>'+fields+(candidates.length>1?check('Husk dette valget neste gang','data-remember="'+key+'"',m.remember):'')+'</div><div class="dp-map-state"><span class="dp-badge '+(mapReady(key)?'good':'warn')+'">'+(mapReady(key)?'Klar':'Velg en vare')+'</span></div></div>';
+  }
+  function renderMapping() {
+    const all=keys(),pending=all.filter(k=>!mapReady(k));
+    const ambiguous=all.filter(k=>stockCandidates(k).length>1),shown=state.mapAll?all:all.filter(k=>pending.includes(k)||ambiguous.includes(k));
+    content.innerHTML=heading('Ingrediensene er koblet','Vi har valgt én vare automatisk der treffet er sikkert. Du trenger bare å velge ved flere treff.')+steps()+
+      '<div class="dp-context"><strong>'+ (all.length-pending.length)+' av '+all.length+' ingredienser klare</strong><span class="dp-small dp-muted">Nye ingredienser opprettes uten at lager må settes opp.</span></div>'+button('toggle-map-all',state.mapAll?'Skjul automatisk koblede':'Vis alle ingredienser')+
+      (shown.length?'<div class="dp-mapping">'+shown.map(mapRow).join('')+'</div>':'<div class="dp-ready"><h2>Alt er klart</h2><p>Du trenger ikke gjøre noe mer. Oppskriftene blir satt opp automatisk.</p></div>')+
+      (state.importError?'<p class="dp-error" role="alert">'+esc(state.importError)+'</p>':'')+
+      '<div class="dp-footer"><span>'+all.length+' ingredienser i '+drinkCount(selectedDrinks().length)+'</span><div class="dp-actions">'+button('back-library','Tilbake')+button('to-review','Se oppsummering '+icon('arrow-right'),pending.length?'disabled':'','dp-primary')+'</div></div>';
+  }
+  function renderReview() {
+    const all=keys(),fresh=all.filter(k=>state.mappings[k].id==='__new__'),reuse=all.length-fresh.length;
+    content.innerHTML=heading('Plasser drinkene i riktige grupper','Vi foreslår Main group ut fra SAF-T-kodene. Gruppe 1 og 2 kan du tilpasse til din egen varestruktur.')+steps()+
+      '<div class="dp-info-strip"><span>'+icon('info')+' SAF-T-kodene er forslag til kategorisering, ikke et påbud om interne gruppenavn.</span><span>Alle gruppene kan endres på varekortet etter import.</span></div>'+ 
+      '<div class="dp-context"><div><strong>'+drinkCount(selectedDrinks().length)+' valgt · '+reuse+' eksisterende ingredienser · '+fresh.length+' nye</strong><div class="dp-small dp-muted">Vi importerer produkter, forbruk og gruppetilhørighet samtidig. Ingen lagerbeholdning blir endret.</div></div></div>'+ 
+      createGroupHTML('import')+
+      '<div class="dp-review-cards">'+selectedDrinks().map(d=>{
+        const recipe=chosenRecipe(d),price=state.prices[d.id]??d.price,c=costing(recipe,price,25,key=>configuredStock(key));
+        const groups=assignedGroups(d);
+        return '<section class="dp-panel dp-import-product"><div class="dp-between"><div><h2>'+esc(d.name)+'</h2><p class="dp-small dp-muted">'+recipe.map(r=>fmt(r.amount)+' '+r.unit+' '+esc(defs[r.key].name)).join(' · ')+'</p></div><span class="dp-badge">Kan endres</span></div>'+ 
+          '<div class="dp-group-grid">'+groupSelect('main',groups,'data-import-group="'+d.id+'" data-level="main"')+groupSelect('group1',groups,'data-import-group="'+d.id+'" data-level="group1"')+groupSelect('group2',groups,'data-import-group="'+d.id+'" data-level="group2"')+'</div>'+ 
+          '<div class="dp-import-product-foot"><span class="dp-small dp-muted">'+(c.missing.length?'Kostpris kan legges inn senere':'Råvarekost: '+money(c.cost))+'</span>'+input('Salgspris inkl. mva.','inputmode="decimal" data-import-price="'+d.id+'"',price)+'</div></section>';
+      }).join('')+'</div>'+ 
+      '<details><summary class="cursor-interaction">Se koblingene til ingrediensene</summary><div class="dp-mapping">'+all.map(k=>{const s=configuredStock(k);return '<div class="dp-map-row"><strong>'+esc(defs[k].name)+'</strong><div>'+esc(s.name)+'</div><span class="dp-small dp-muted">'+(state.mappings[k].id==='__new__'?'Opprettes':'Gjenbrukes')+'</span></div>';}).join('')+'</div></details>'+ 
+      (state.importError?'<p class="dp-error" role="alert">'+esc(state.importError)+'</p>':'')+
+      '<div class="dp-footer"><span>Grupper kan endres senere på produktets varekort.</span><div class="dp-actions">'+button('to-mapping','Tilbake')+button('import','Importer '+drinkCount(selectedDrinks().length),'','dp-primary')+'</div></div>';
+  }
+  function validateMapDraft(m) {return m.draft.name.trim()?'':'Gi den nye ingrediensen et navn.';}
+  function importDrinks() {
+    const drinks=selectedDrinks(); if(!drinks.length) return;
+    if(keys().some(k=>!mapReady(k))) {state.step=2;state.importError='Avklar varene før import.';render();return;}
+    if(drinks.some(d=>!assignedGroups(d).main)) {state.importError='Velg Main group for alle varer.';state.step=3;render();return;}
+    if(drinks.some(d=>!(num(state.prices[d.id]??d.price)>0))) {state.importError='Legg inn en salgspris større enn 0.';render();return;}
+    for(const k of keys()) {
+      const m=state.mappings[k];
+      if(m.id==='__new__'&&validateMapDraft(m)) {state.importError=validateMapDraft(m);state.step=2;render();return;}
+    }
+    const batch={id:uid('import'),createdDrinks:[],createdStocks:[],configured:[],reused:0,count:drinks.length,undone:false};
+    const linked={};
+    keys().forEach(k=>{
+      const m=state.mappings[k]; let s;
+      if(m.id==='__new__') {
+        s={id:uid('stock'),key:k,dimension:defs[k].dimension,name:m.draft.name.trim(),pack:null,packUnit:m.draft.packUnit,costPack:null,loss:0,lossUnit:defs[k].dimension==='count'?'stk':'cl',inventoryActive:false,balance:null,used:0,roles:{consume:true,sale:false},sale:null,revision:0,originImportId:batch.id};
+        state.stock.push(s); batch.createdStocks.push({id:s.id,revision:s.revision});
+      } else {
+        s=stockById(m.id); batch.reused++;
+        if(m.decision==='configure') {
+          const before=clone(s);
+          Object.assign(s,{name:m.draft.name.trim(),pack:num(m.draft.pack),packUnit:m.draft.packUnit,costPack:optionalNum(m.draft.costPack),inventoryActive:m.draft.inventoryActive,roles:{...s.roles,consume:true},revision:s.revision+1});
+          batch.configured.push({id:s.id,before,afterRevision:s.revision});
+        }
+      }
+      linked[k]=s.id;
+      if(m.remember && s) state.house[k]=s.id;
+    });
+    drinks.forEach(d=>{
+      const recipe=d.recipe.map(r=>({...r,stockId:linked[r.key],enabled:true}));
+      extras(d).forEach(r=>recipe.push({...r,stockId:linked[r.key]||stockCandidates(r.key).find(s=>s.roles.consume)?.id||null,enabled:extraOn(d,r)}));
+      const local={id:uid('drink'),sourceId:d.id,name:d.name,category:d.category,groups:clone(assignedGroups(d)),alcoholFree:d.category==='Alkoholfrie',vat:25,version:1,revision:0,originImportId:batch.id,variants:[{id:uid('variant'),label:'Standard',price:num(state.prices[d.id]??d.price),recipe}]};
+      state.mine.push(local);batch.createdDrinks.push({id:local.id,revision:local.revision});
+    });
+    state.batches.push(batch);state.result=batch.id;state.selected.clear();state.mappings={};state.groupAssignments={};state.groupCreate=null;state.mapAll=false;state.step=1;state.importError='';state.view='mine';
+    selectMine(batch.createdDrinks[0].id);
+    notify(drinkCount(batch.count)+' importert.');render();
+  }
+  function undoReason(batch) {
+    if(!batch||batch.undone) return 'Importen er allerede angret.';
+    const ids=batch.createdDrinks.map(x=>x.id),stockIds=batch.createdStocks.map(x=>x.id);
+    if(state.sales.some(s=>s.lines.some(l=>ids.includes(l.drinkId)||l.recipe.some(r=>stockIds.includes(r.stockId))))) return 'Importen har registrerte salg. Historikk og forbruk beholdes.';
+    if(state.cart.some(l=>ids.includes(l.drinkId)||l.recipe.some(r=>stockIds.includes(r.stockId)))) return 'Tøm handlekurven før du angrer importen.';
+    if(batch.createdDrinks.some(x=>!mineById(x.id)||mineById(x.id).revision!==x.revision)) return 'En importert drink er endret. Importen kan ikke angres samlet.';
+    if(state.mine.some(d=>!ids.includes(d.id)&&(ids.includes(d.copyOf)||d.variants.some(v=>v.recipe.some(r=>stockIds.includes(r.stockId)))))) return 'En annen drink bruker varer eller oppskrifter fra importen.';
+    if(batch.createdStocks.some(x=>!stockById(x.id)||stockById(x.id).revision!==x.revision)) return 'En ny forbruksvare er endret eller har fått varemottak.';
+    if(batch.configured.some(x=>stockById(x.id)?.revision!==x.afterRevision)) return 'Et vareoppsett fra importen er endret i etterkant.';
+    if(state.mine.some(d=>!ids.includes(d.id)&&d.variants.some(v=>v.recipe.some(r=>batch.configured.some(x=>x.id===r.stockId))))) return 'En annen drink bruker et vareoppsett som ble endret ved importen.';
+    if(state.dirty&&ids.includes(state.active)) return 'Lagre eller forkast oppskriftsendringene før du angrer.';
+    return '';
+  }
+  function undoImport() {
+    const b=state.batches.find(b=>b.id===state.result),reason=undoReason(b);
+    if(reason) {notify(reason);return;}
+    const ids=b.createdDrinks.map(x=>x.id),stockIds=b.createdStocks.map(x=>x.id);
+    state.mine=state.mine.filter(d=>!ids.includes(d.id));state.stock=state.stock.filter(s=>!stockIds.includes(s.id));
+    b.configured.forEach(x=>{const i=state.stock.findIndex(s=>s.id===x.id);state.stock[i]=clone(x.before);});
+    Object.keys(state.house).forEach(k=>{if(stockIds.includes(state.house[k])) delete state.house[k];});
+    b.undone=true;state.active=null;state.draft=null;state.dirty=false;state.result=null;
+    if(state.mine.length) selectMine(state.mine[0].id);
+    notify('Importen er angret. Eksisterende varer er beholdt.');render();
+  }
+  function selectMine(id) {
+    const d=mineById(id); if(!d) return;
+    state.active=id;state.draft=clone(d);state.variant=0;state.dirty=false;state.editorError='';state.copying=false;state.variantAdding=false;
+  }
+  function renderMine() {
+    const batch=state.batches.find(b=>b.id===state.result),reason=batch?undoReason(batch):'';
+    const result=batch&&!batch.undone?'<div class="dp-import-result"><div><strong>'+drinkCount(batch.count)+' importert</strong><div class="dp-small">'+batch.createdStocks.length+' nye forbruksvarer · '+batch.reused+' eksisterende ingredienser</div></div><div class="dp-actions">'+button('undo-import','Angre import',reason?'disabled':'')+button('dismiss-result','Lukk')+'</div></div>':'';
+    content.innerHTML=heading('Mine drinker','Drinker importert fra biblioteket. Endringer gjøres på varekortet – ikke i importmodulen.')+result+
+      (state.mine.length?'<div class="dp-catalog-grid">'+state.mine.map(d=>'<article class="dp-panel dp-catalog-product"><div class="dp-between"><h2>'+esc(d.name)+'</h2><span class="dp-badge">v'+d.version+'</span></div><p class="dp-small dp-muted">'+esc(groupPath(d.groups))+'</p><p class="dp-small">'+d.variants.length+' '+(d.variants.length===1?'salgsvariant':'salgsvarianter')+' · '+d.variants[0].recipe.filter(enabled).length+' ingredienser</p>'+button('open-drink-card','Åpne varekort '+icon('arrow-right'),'data-id="'+d.id+'"','dp-primary')+'</article>').join('')+'</div>':'<div class="dp-empty"><h2>Ingen drinker ennå</h2><p>Velg drinker fra biblioteket. De legges automatisk i varekortregisteret.</p>'+button('go-library','Åpne drinkbibliotek','','dp-primary')+'</div>');
+  }
+  function renderCard(){
+    if(state.cardKind==='stock'&&state.itemEditing){renderItemForm();return;}
+    if(!state.mine.length){content.innerHTML=heading('Varekort','Etter import ligger salgsvarene her, med egen fane for forbruk.')+'<div class="dp-empty"><h2>Importer en drink først</h2>'+button('go-library','Åpne biblioteket','','dp-primary')+'</div>';return;}
+    if(!state.draft||!mineById(state.active))selectMine(state.mine[0].id);
+    const d=state.draft;
+    const tabs='<div class="dp-card-tabs" role="tablist" aria-label="Varekortets faner">'+button('card-tab','Generelt','data-tab="general" aria-pressed="'+(state.cardTab==='general')+'"',state.cardTab==='general'?'active':'')+button('card-tab','Forbruk','data-tab="consumption" aria-pressed="'+(state.cardTab==='consumption')+'"',state.cardTab==='consumption'?'active':'')+'</div>';
+    content.innerHTML=heading('Varekort','Felles produktadministrasjon. Importmodulen brukes bare når nye drinker skal legges inn.')+
+      '<div class="dp-card-context"><label class="dp-field"><span>Salgsprodukt</span><select class="dp-select cursor-interaction" data-mine-select>'+state.mine.map(x=>'<option value="'+x.id+'"'+(x.id===state.active?' selected':'')+'>'+esc(x.name)+'</option>').join('')+'</select></label><span class="dp-badge good">Aktivt salgsprodukt</span></div>'+tabs+
+      createGroupHTML('card')+
+      '<div class="dp-panel dp-card-content" id="dp-editor">'+(state.cardTab==='general'?cardGeneralHTML(d):editorHTML())+'</div>';
+  }
+  function cardGeneralHTML(d){
+    return '<div class="dp-editor-head"><div><h2>'+esc(d.name)+'</h2><p class="dp-small dp-muted">Salgsprodukt · oppskrift v'+d.version+'</p></div></div>'+ 
+      '<div class="dp-form-grid two">'+input('Varenavn','data-draft="name"',d.name)+input('Mva. % (demo)','inputmode="decimal" data-draft="vat"',d.vat)+'</div>'+ 
+      '<h3>Produktgrupper</h3><p class="dp-small dp-muted">Main group er foreslått fra SAF-T. Du står fritt til å velge en annen, og opprette egne grupper.</p>'+ 
+      '<div class="dp-group-grid">'+groupSelect('main',d.groups,'data-card-group="main"')+groupSelect('group1',d.groups,'data-card-group="group1"')+groupSelect('group2',d.groups,'data-card-group="group2"')+'</div>'+ 
+      '<div class="dp-context"><strong>Produktets plassering</strong><div class="dp-small">'+esc(groupPath(d.groups)||'Velg en Main group')+'</div></div>'+ 
+      check('Alkoholfri drink','data-draft-check="alcoholFree"',d.alcoholFree)+
+      cardSaveActions();
+  }
+  function cardSaveActions(){return (state.editorError?'<p class="dp-error" role="alert">'+esc(state.editorError)+'</p>':'')+'<div class="dp-editor-bottom"><span class="dp-small dp-muted" id="dp-dirty">'+(state.dirty?'Ulagrede endringer':'Alle endringer lagret')+'</span><div class="dp-actions">'+button('discard','Forkast',state.dirty?'':'disabled')+button('save-recipe','Lagre varekort',state.dirty?'':'disabled','dp-primary')+'</div></div>';}
+  function editorHTML() {
+    const d=state.draft,v=d.variants[state.variant];
+    return '<div class="dp-editor-head"><div><h2>Forbruk · '+esc(d.name)+'</h2><div class="dp-small dp-muted">Salgsenhet 1 stk · oppskrift v'+d.version+'</div></div>'+button('start-copy','Lagre som ny drink')+'</div>'+ 
+      '<div class="dp-variant-tabs" style="margin-top:16px">'+d.variants.map((v,i)=>button('choose-variant',esc(v.label),'data-index="'+i+'" aria-pressed="'+(i===state.variant)+'"',i===state.variant?'active':'')).join('')+button('start-variant','Ny variant '+icon('plus'))+'</div>'+
+      (state.variantAdding?'<div class="dp-inline-form">'+input('Variantnavn','data-new-variant placeholder="For eksempel dobbel"','')+button('add-variant','Opprett variant')+button('cancel-variant','Avbryt')+'<span class="dp-small dp-muted">Oppskriften kopieres. Juster hver mengde selv.</span></div>':'')+
+      '<div class="dp-editor-fields">'+input('Variant / porsjon','data-variant-field="label"',v.label)+input('Salgspris inkl. mva.','inputmode="decimal" data-variant-field="price"',v.price)+'</div>'+
+      '<h3>Forbruk for 1 stk '+esc(v.label)+'</h3><p class="dp-small dp-muted">Dette registreres når du selger én '+esc(d.name)+'. Juster mengde eller bytt ingrediens direkte under.</p>'+ 
+      '<div class="dp-recipe"><div class="dp-recipe-row dp-recipe-header"><span>Ingrediens</span><span>Mengde</span><span>Enhet</span><span></span></div>'+v.recipe.map((r,i)=>recipeRow(r,i)).join('')+'</div>'+
+      button('add-recipe','Legg til ingrediens '+icon('plus'))+
+      '<div id="dp-costs">'+economics(v.recipe,v.price,d.vat)+'</div>'+
+      (state.copying?'<div class="dp-inline-form">'+input('Navn på ny drink','data-copy-name',d.name+' – egen variant')+button('save-copy','Opprett kopi','','dp-primary')+button('cancel-copy','Avbryt')+'</div>':'')+
+      cardSaveActions();
+  }
+  function recipeRow(r,i) {
+    const s=stockById(r.stockId),dimension=s?.dimension||defs[r.key]?.dimension||'volume';
+    const candidates=state.stock.filter(item=>item.roles.consume&&((!s&&!defs[r.key])||item.dimension===dimension));
+    const options='<option value="">Velg ingrediens …</option>'+candidates.map(s=>'<option value="'+s.id+'"'+(r.stockId===s.id?' selected':'')+'>'+esc(s.name)+'</option>').join('');
+    return '<div class="dp-recipe-row '+(r.optional?'optional':'')+'" data-recipe-row="'+i+'">'+
+      (r.optional?'<div class="dp-optional-toggle">'+check((r.kind||'Valgfri ingrediens')+': '+esc(defs[r.key]?.name||s?.name||'Ingrediens'),'data-recipe-check="'+i+'"',enabled(r))+'</div>':'')+
+      '<select class="dp-select cursor-interaction" aria-label="Ingrediens '+(i+1)+'" data-recipe-stock="'+i+'"'+(!enabled(r)?' disabled':'')+'>'+options+'</select><input class="dp-input dp-amount" inputmode="decimal" aria-label="Mengde '+(i+1)+'" data-recipe-amount="'+i+'" value="'+esc(r.amount)+'"'+(!enabled(r)?' disabled':'')+'>'+unitSelect(dimension,r.unit,'aria-label="Enhet '+(i+1)+'" data-recipe-unit="'+i+'"'+(!enabled(r)?' disabled':''))+button('remove-recipe','×','data-index="'+i+'" aria-label="Fjern ingrediens '+(i+1)+'"','dp-remove')+'</div>';
+  }
+  function draftChanged(rebuild=false) {
+    state.dirty=true;state.editorError='';
+    if(rebuild) {render();return;}
+    const label=root.querySelector('#dp-dirty'); if(label) label.textContent='Ulagrede endringer';
+    root.querySelectorAll('[data-action="save-recipe"],[data-action="discard"]').forEach(b=>b.disabled=false);
+    const costs=root.querySelector('#dp-costs'),d=state.draft,v=d.variants[state.variant];
+    if(costs) costs.innerHTML=economics(v.recipe,v.price,d.vat);
+  }
+  function validateDrink(d) {
+    if(!d.name.trim()) return 'Drinken må ha et navn.';
+    if(!d.groups?.main) return 'Varen må ha en Main group.';
+    if(!Number.isFinite(num(d.vat))||num(d.vat)<0||num(d.vat)>100) return 'Mva. må være mellom 0 og 100 %.';
+    const labels=new Set();
+    for(const v of d.variants) {
+      if(!v.label.trim()) return 'Hver variant må ha et navn.';
+      if(labels.has(v.label.trim().toLowerCase())) return 'Variantene må ha ulike navn.';
+      labels.add(v.label.trim().toLowerCase());
+      if(!(num(v.price)>0)) return 'Salgsprisen må være større enn 0.';
+      if(!v.recipe.some(enabled)) return 'Hver variant må ha minst én ingrediens.';
+      for(const r of v.recipe.filter(enabled)) {
+        const s=stockById(r.stockId);
+        if(!s||!s.roles.consume) return 'Velg en ingrediens for alle aktive linjer.';
+        if(!units(s.dimension).includes(r.unit)) return 'Forbruksenheten må passe til hovedvaren.';
+        if(!(num(r.amount)>0)) return 'Forbruk må være et tall større enn 0.';
+      }
+    }
+    return '';
+  }
+  function normalizeDrink(d) {
+    d.name=d.name.trim();d.vat=num(d.vat);
+    d.variants.forEach(v=>{v.label=v.label.trim();v.price=num(v.price);v.recipe.forEach(r=>{r.amount=num(r.amount);if(stockById(r.stockId))r.key=stockById(r.stockId).key;});});
+  }
+  function saveRecipe(asCopy=false) {
+    const d=clone(state.draft);
+    if(asCopy) d.name=root.querySelector('[data-copy-name]')?.value||'';
+    const error=validateDrink(d);
+    if(error) {state.editorError=error;render();return;}
+    normalizeDrink(d);
+    if(asCopy) {
+      d.copyOf=state.active;d.id=uid('drink');d.sourceId=null;d.version=1;d.revision=0;d.originImportId=null;
+      d.variants.forEach(v=>v.id=uid('variant'));state.mine.push(d);selectMine(d.id);notify('Ny drink opprettet med de samme ingrediensene.');
+    } else {
+      const original=mineById(state.active);
+      d.version=original.version+1;d.revision=original.revision+1;
+      state.mine[state.mine.findIndex(d=>d.id===state.active)]=d;
+      state.draft=clone(d);state.dirty=false;state.editorError='';notify('Oppskriften er lagret. Nye salg bruker versjon '+d.version+'.');
+    }
+    render();
+  }
+  function addCart(drinkId,variantId,stockId=null) {
+    let line;
+    if(stockId) {
+      const s=stockById(stockId);
+      if(!s?.roles.sale||!s.sale) return;
+      line={key:'stock:'+s.id,name:s.name,drinkId:null,stockProductId:s.id,variantId:null,label:fmt(s.sale.amount)+' '+s.sale.unit,version:null,price:s.sale.price,vat:s.sale.vat,recipe:[{stockId:s.id,key:s.key,amount:s.sale.amount,unit:s.sale.unit,enabled:true}],qty:1};
+    } else {
+      const d=mineById(drinkId),v=d?.variants.find(v=>v.id===variantId); if(!v) return;
+      line={key:d.id+':'+v.id+':'+d.version,name:d.name,drinkId:d.id,stockProductId:null,variantId:v.id,label:v.label,version:d.version,price:v.price,vat:d.vat,recipe:clone(v.recipe.filter(enabled)),qty:1,alcoholFree:d.alcoholFree};
+    }
+    const existing=state.cart.find(l=>l.key===line.key);
+    if(existing) existing.qty++; else state.cart.push(line);
+    notify('1 stk '+line.name+' lagt i handlekurven.');render();
+  }
+  function consumption(lines) {
+    const totals=new Map();
+    lines.forEach(l=>l.recipe.filter(enabled).forEach(r=>{
+      const amount=num(r.amount)*factor(r.unit)*l.qty;
+      totals.set(r.stockId,(totals.get(r.stockId)||0)+amount);
+    }));
+    return [...totals].map(([stockId,base])=>({stockId,base}));
+  }
+  function consumptionHTML(lines) {
+    return '<div class="dp-consumption">'+consumption(lines).map(r=>{
+      const s=stockById(r.stockId),u=s?.dimension==='count'?'stk':'cl';
+      return '<div><span>'+esc(s?.name||'Hovedvare')+'</span><span class="dp-num">'+fmt(r.base/factor(u))+' '+u+'</span></div>';
+    }).join('')+'</div>';
+  }
+  function renderPos() {
+    if(!state.mine.length) {
+      content.innerHTML=heading('Test kasse')+'<div class="dp-empty"><h2>Importer drinker først</h2><p>Deretter kan du teste salg og se beregnet vareforbruk.</p>'+button('go-library','Åpne drinkbibliotek','','dp-primary')+'</div>';return;
+    }
+    const total=state.cart.reduce((sum,l)=>sum+l.qty*l.price,0),last=state.sales.at(-1);
+    content.innerHTML=heading('Test kasse','Test salget. Forbruket registreres og vises i oversikten – uten å endre lagerbeholdning.')+
+      '<div class="dp-pos"><div><div class="dp-pos-products">'+state.mine.map(d=>'<div class="dp-product"><div class="dp-between"><strong>'+esc(d.name)+'</strong>'+(d.alcoholFree?'<span class="dp-badge good">Alkoholfri</span>':'')+'</div><div class="dp-product-variants">'+d.variants.map(v=>button('add-cart','<span>'+esc(v.label)+'</span><span>'+money(v.price)+'</span>','data-drink="'+d.id+'" data-variant="'+v.id+'" aria-label="Legg til '+esc(d.name)+' '+esc(v.label)+'"')).join('')+'</div></div>').join('')+'</div>'+
+      '<details><summary class="cursor-interaction">Andre salgsvarer</summary><div class="dp-pos-products" style="margin-top:10px">'+state.stock.filter(s=>s.roles.sale&&s.sale).map(s=>button('add-stock-cart','<span>'+esc(s.name)+'</span><span class="dp-small">'+fmt(s.sale.amount)+' '+s.sale.unit+' · '+money(s.sale.price)+'</span>','data-stock="'+s.id+'"','dp-product')).join('')+'</div></details></div>'+
+      '<div><section class="dp-panel"><div class="dp-between"><h2>Handlekurv</h2>'+button('clear-cart','Tøm',state.cart.length?'':'disabled')+'</div>'+
+      (state.cart.length?state.cart.map((l,i)=>'<div class="dp-cart-line"><div class="dp-between"><div><strong>'+esc(l.name)+'</strong><div class="dp-small dp-muted">'+esc(l.label)+(l.version?' · v'+l.version:'')+'</div></div><span>'+money(l.price*l.qty)+'</span></div><div class="dp-between"><span class="dp-small dp-muted">'+money(l.price)+' / stk</span><div class="dp-qty">'+button('cart-minus','−','data-index="'+i+'" aria-label="Fjern én '+esc(l.name)+'"')+'<span class="dp-num">'+l.qty+' stk</span>'+button('cart-plus','+','data-index="'+i+'" aria-label="Legg til én '+esc(l.name)+'"')+'</div></div></div>').join(''):'<p class="dp-muted" style="margin-top:15px">Velg en drink for å prøve salget.</p>')+
+      '<div class="dp-total"><span>Totalt</span><span>'+money(total)+'</span></div>'+button('complete-sale','Fullfør demosalg',state.cart.length?'':'disabled','dp-primary dp-full')+
+      (state.cart.length?'<details><summary class="cursor-interaction">Se forbruk ved salg</summary>'+consumptionHTML(state.cart)+'</details>':'')+'</section>'+
+      (last?receiptHTML(last):'')+'</div></div>';
+  }
+  function receiptHTML(sale) {
+    return '<section class="dp-panel dp-receipt"><div class="dp-between"><h3>Salg '+sale.number+'</h3><span class="dp-badge '+(sale.refunded?'warn':'good')+'">'+(sale.refunded?'Refundert':'Registrert')+'</span></div><div class="dp-receipt-lines">'+sale.lines.map(l=>'<div><span>'+l.qty+' stk '+esc(l.name)+'<span class="dp-small dp-muted" style="display:block">'+esc(l.label)+(l.version?' · oppskrift v'+l.version:'')+'</span></span><span>'+money(l.price*l.qty)+'</span></div>').join('')+'</div><details><summary class="cursor-interaction">Registrert forbruk</summary>'+consumptionHTML(sale.lines)+'</details><div class="dp-actions" style="margin-top:15px">'+button('go-usage','Se forbruk')+button('refund','Refunder demosalg','data-id="'+sale.id+'"'+(sale.refunded?' disabled':''))+'</div>'+(sale.refunded?'<p class="dp-small dp-muted" style="margin-top:8px">Betalingen er refundert. Registrert forbruk beholdes.</p>':'')+'</section>';
+  }
+  function completeSale() {
+    if(!state.cart.length)return;
+    const amounts=consumption(state.cart);
+    if(amounts.some(r=>!stockById(r.stockId)||!Number.isFinite(r.base)||r.base<=0)) {notify('Salget har en ugyldig ingrediens eller mengde.');return;}
+    const sale={id:uid('sale'),number:state.sales.length+1,lines:clone(state.cart),refunded:false,createdAt:new Date().toISOString()};
+    const events=[];
+    sale.lines.forEach((line,i)=>line.recipe.filter(enabled).forEach(r=>{
+      const s=stockById(r.stockId);if(!s)return;
+      events.push({id:uid('usage'),saleId:sale.id,orderLine:i,stockId:s.id,base:num(r.amount)*factor(r.unit)*line.qty,recipeVersion:line.version,occurredAt:sale.createdAt,source:'sale'});
+    }));
+    events.forEach(ev=>{stockById(ev.stockId).used+=ev.base;stockById(ev.stockId).revision++;});
+    state.usageEvents.push(...events);state.sales.push(sale);state.cart=[];
+    notify('Testsalget er registrert. Forbruket er dokumentert, uten lagertrekk.');render();
+  }
+  function renderUsage(){
+    const sums=new Map();state.usageEvents.forEach(e=>sums.set(e.stockId,(sums.get(e.stockId)||0)+e.base));
+    const all=[...sums].sort((a,b)=>b[1]-a[1]);
+    content.innerHTML=heading('Forbruksoversikt','Viser råvarene som inngår i gjennomførte demosalg. Fysisk lager styres ikke i fase 1.')+
+      '<div class="dp-info-strip"><strong>'+state.sales.length+' demosalg</strong><span>'+state.usageEvents.length+' registrerte vareforbruk</span><span>'+all.length+' ulike ingredienser</span></div>'+ 
+      (all.length?'<section class="dp-panel"><h2>Samlet beregnet forbruk</h2><div class="dp-consumption">'+all.map(([id,base])=>'<div><span>'+esc(stockById(id)?.name||'Ingrediens')+'</span><strong>'+asDisplay(base,stockById(id))+'</strong></div>').join('')+'</div></section>':'<div class="dp-empty"><h2>Ingen forbruk registrert ennå</h2><p>Importer en drink og gjennomfør et testsalg. Da vises ingrediensforbruket her.</p>'+button('go-library','Finn drinker','','dp-primary')+'</div>')+
+      '<section class="dp-panel dp-history"><h2>Forbruk per salg</h2>'+(!state.sales.length?'<p class="dp-muted">Ingen salg ennå.</p>':state.sales.slice().reverse().map(s=>'<details><summary class="cursor-interaction">Salg #'+s.number+' · '+s.lines.map(l=>l.qty+' × '+esc(l.name)).join(', ')+'</summary><div class="dp-small dp-muted">'+esc(new Date(s.createdAt).toLocaleString('nb-NO'))+' · Oppskriften som gjaldt ved salget</div>'+consumptionHTML(s.lines)+'</details>').join(''))+'</section>'+ 
+      '<div class="dp-context dp-muted">I fase 2 kan dette forbruket brukes til lagerbevegelser, sammen med mottak, telling og svinn. Ingen beholdning trekkes i denne demoen.</div>';
+  }
+  function renderStock() {
+    const stocks=state.stock.filter(s=>state.stockFilter==='all'||state.stockFilter==='imported'&&s.originImportId||state.stockFilter==='used'&&state.mine.some(d=>d.variants.some(v=>v.recipe.some(r=>r.stockId===s.id))));
+    content.innerHTML=heading('Ingredienser','Ett vareregister på tvers av drinker. Her kan du også sette fast rest i flasken (brekk).')+
+      '<div class="dp-toolbar"><label class="dp-field"><span class="dp-sr">Vis ingredienser</span><select class="dp-select cursor-interaction" data-stock-filter><option value="all"'+(state.stockFilter==='all'?' selected':'')+'>Alle ingredienser</option><option value="used"'+(state.stockFilter==='used'?' selected':'')+'>Brukes i drinker</option><option value="imported"'+(state.stockFilter==='imported'?' selected':'')+'>Opprettet ved import</option></select></label>'+button('new-item','Ny ingrediens '+icon('plus'))+'</div>'+ 
+      '<div class="dp-info-strip"><span>'+icon('info')+' Brekk = fast mengde som ikke lar seg servere fra én flaske.</span><span>Eksempel: 70 cl − 0,2 cl = 69,8 cl tilgjengelig.</span></div>'+ 
+      '<div class="dp-stock"><div class="dp-stock-row dp-stock-head"><span>Ingrediens</span><span>Pakning / brekk</span><span>Registrert forbruk</span><span></span></div>'+stocks.map(s=>{
+        const u=displayUnit(s),left=usableBase(s);
+        return '<div class="dp-stock-row"><div class="dp-stock-name"><strong>'+esc(s.name)+'</strong><div class="dp-small dp-muted">'+(s.originImportId?'Opprettet ved import':'Eksisterende vare')+'</div></div><div><span>'+(packBase(s)?fmt(s.pack)+' '+s.packUnit:'Ikke oppgitt')+'</span><div class="dp-small dp-muted">'+(lossBase(s)>0?'Fast rest '+lossText(s)+(left?' · brukbart '+asDisplay(left,s):''):'Ingen fast rest registrert')+'</div><div class="dp-small dp-muted">'+(s.costPack===null?'Kostpris ikke angitt':money(s.costPack)+' per pakning')+'</div></div><div class="dp-stock-state"><strong>'+fmt(s.used/factor(u))+' '+u+'</strong><span class="dp-small dp-muted">Beregnet fra demosalg</span></div><div class="dp-stock-action">'+button('edit-item','Åpne varekort','data-id="'+s.id+'"')+'</div></div>';
+      }).join('')+'</div>';
+  }
+  function openItem(id=null) {
+    const s=stockById(id);
+    state.itemEditing=s?clone(s):{id:null,key:null,name:'',dimension:'volume',pack:'',packUnit:'cl',loss:0,lossUnit:'cl',costPack:'',inventoryActive:false,balance:null,used:0,roles:{consume:true,sale:false},sale:{amount:4,unit:'cl',price:'',vat:25},revision:0};
+    if(s){state.itemEditing.costPack=s.costPack===null?'':String(s.costPack);state.itemEditing.pack=s.pack===null?'':String(s.pack);state.itemEditing.loss=s.loss??0;state.itemEditing.lossUnit=s.lossUnit||displayUnit(s);if(!state.itemEditing.sale)state.itemEditing.sale={amount:s.dimension==='count'?1:4,unit:displayUnit(s),price:'',vat:25};}
+    state.itemError='';state.cardKind='stock';state.view='card';render();
+  }
+  function renderItemForm(){
+    const s=state.itemEditing,pack=optionalNum(s.pack),loss=num(s.loss),base=Number.isFinite(pack)&&pack>0?pack*factor(s.packUnit):null,rest=Number.isFinite(loss)?loss*factor(s.lossUnit||s.packUnit):0;
+    const valid=base!==null&&rest>=0&&rest<base;const u=displayUnit(s);
+    content.innerHTML=heading('Varekort · '+(s.id?'Ingrediens':'Ny ingrediens'),'Ingrediens og pakningsoppsett redigeres på varekortet, ikke i importmodulen.')+
+      '<div class="dp-card-tabs"><span class="dp-card-tab-static">Generelt og pakning</span></div>'+
+      '<section class="dp-panel">'+input('Navn på ingrediens','data-item-field="name"',s.name)+
+      (s.id?'<div class="dp-field"><span>Mengdetype</span><strong>'+(s.dimension==='count'?'Antall':s.dimension==='mass'?'Vekt':'Volum')+'</strong></div>':'<label class="dp-field"><span>Måles i</span><select class="dp-select cursor-interaction" data-item-dimension><option value="volume"'+(s.dimension==='volume'?' selected':'')+'>Volum (cl, ml, liter)</option><option value="mass"'+(s.dimension==='mass'?' selected':'')+'>Vekt (g, kg)</option><option value="count"'+(s.dimension==='count'?' selected':'')+'>Antall (stk)</option></select></label>')+
+      '<details class="dp-optional-details" '+(s.id&&lossBase(s)>0?'open':'')+'><summary class="cursor-interaction"><strong>Pakning, kostpris og fast rest (brekk)</strong> <span class="dp-small dp-muted">Valgfritt · nyttig for korrekt kalkyle</span></summary>'+ 
+      '<div class="dp-form-grid">'+input('Innhold per pakning','inputmode="decimal" data-item-field="pack" placeholder="F.eks. 70"',s.pack)+'<label class="dp-field"><span>Enhet</span>'+unitSelect(s.dimension,s.packUnit,'data-item-field="packUnit"')+'</label>'+input('Kostpris per pakning (eks. mva.)','inputmode="decimal" data-item-field="costPack" placeholder="Valgfritt"',s.costPack)+'</div>'+ 
+      '<div class="dp-loss-config"><div class="dp-between"><strong>Fast rest per pakning</strong><span class="dp-small dp-muted">Blir igjen i flasken / kan ikke tappes</span></div><div class="dp-form-grid two">'+input('Mengde som ikke kan brukes','inputmode="decimal" data-item-field="loss" placeholder="0"',s.loss??0)+'<label class="dp-field"><span>Enhet</span>'+unitSelect(s.dimension,s.lossUnit||u,'data-item-field="lossUnit"')+'</label></div>'+ 
+      '<div class="dp-loss-preview" id="dp-loss-preview">'+(valid?'Fra '+fmt(pack)+' '+s.packUnit+' kan '+asDisplay(base-rest,s)+' brukes. '+(rest>0?asDisplay(rest,s)+' regnes som fast rest.':'Ingen fast rest er angitt.'):base===null?'Oppgi pakningsstørrelse for å se hvor mye som kan brukes.':'Resten må være mindre enn pakningens innhold.')+'</div><p class="dp-small dp-muted">I fase 1 korrigerer dette kalkyle og antall mulige serveringer per pakning. I fase 2 behandles det som utilgjengelig mengde per mottatt pakning, separat fra annet svinn.</p></div></details>'+ 
+      '<details><summary class="cursor-interaction">Salgsoppsett (valgfritt)</summary>'+check('Kan selges direkte i kassen','data-item-role="sale"',s.roles.sale)+(s.roles.sale?'<div class="dp-form-grid">'+input('Forbruk per salg','inputmode="decimal" data-item-sale="amount"',s.sale.amount)+'<label class="dp-field"><span>Enhet</span>'+unitSelect(s.dimension,s.sale.unit,'data-item-sale="unit"')+'</label>'+input('Salgspris inkl. mva.','inputmode="decimal" data-item-sale="price"',s.sale.price)+'</div>'+input('Mva. (demo), %','inputmode="decimal" data-item-sale="vat"',s.sale.vat):'')+'</details>'+ 
+      (state.itemError?'<p class="dp-error" role="alert">'+esc(state.itemError)+'</p>':'')+
+      '<div class="dp-footer"><span class="dp-small dp-muted">Vareforbruk fungerer også uten pakning eller kostpris.</span><div class="dp-actions">'+button('cancel-item','Avbryt')+button('save-item','Lagre ingrediens','','dp-primary')+'</div></div></section>';
+  }
+  function updateLossPreview(){
+    const d=state.itemEditing,p=optionalNum(d?.pack),l=optionalNum(d?.loss)??0,box=root.querySelector('#dp-loss-preview');if(!box)return;
+    if(p===null){box.textContent='Oppgi pakningsstørrelse for å se tilgjengelig mengde.';return;}
+    const full=p*factor(d.packUnit),rest=l*factor(d.lossUnit);
+    box.textContent=!(p>0)||!(l>=0)||rest>=full?'Fast rest må være mindre enn innholdet i pakningen.':'Av '+fmt(p)+' '+d.packUnit+' er '+asDisplay(full-rest,d)+' tilgjengelig. '+(rest>0?asDisplay(rest,d)+' blir igjen som fast rest.':'Ingen fast rest.');
+  }
+  function saveItem() {
+    const d=clone(state.itemEditing);
+    const cost=optionalNum(d.costPack),pack=optionalNum(d.pack),loss=optionalNum(d.loss)??0;
+    let error='';
+    if(!d.name.trim()) error='Varen må ha et navn.';
+    else if(pack!==null&&(!Number.isFinite(pack)||pack<=0)) error='Pakningsstørrelse må være større enn 0.';
+    else if(cost!==null&&(!Number.isFinite(cost)||cost<0)) error='Kostpris må være 0 eller et positivt tall.';
+    else if(!Number.isFinite(loss)||loss<0) error='Fast rest må være 0 eller et positivt tall.';
+    else if(loss>0&&pack===null) error='Oppgi pakningsstørrelse for å registrere fast rest.';
+    else if(pack!==null&&loss*factor(d.lossUnit||d.packUnit)>=pack*factor(d.packUnit)) error='Fast rest må være mindre enn innholdet i pakningen.';
+    else if(!d.roles.consume&&!d.roles.sale) error='Velg minst én rolle for varen.';
+    else if(d.roles.sale&&(!(num(d.sale.amount)>0)||!(num(d.sale.price)>0)||!units(d.dimension).includes(d.sale.unit)||!Number.isFinite(num(d.sale.vat))||num(d.sale.vat)<0||num(d.sale.vat)>100)) error='Fyll ut gyldig mengde, pris og mva. for salgsvaren.';
+    if(error) {state.itemError=error;render();return;}
+    d.name=d.name.trim();d.pack=pack;d.costPack=cost;d.loss=loss;
+    if(d.roles.sale) {d.sale.amount=num(d.sale.amount);d.sale.price=num(d.sale.price);d.sale.vat=num(d.sale.vat);} else d.sale=null;
+    if(d.id) {d.revision++;state.stock[state.stock.findIndex(s=>s.id===d.id)]=d;}
+    else {d.id=uid('stock');d.key=uid('custom');d.originImportId=null;state.stock.push(d);}
+    state.itemEditing=null;state.itemError='';state.cardKind='drink';state.view='stock';notify('Vareoppsettet er lagret.');render();
+  }
+  function receiveStock(id) {
+    const s=stockById(id),qty=num(root.querySelector('[data-receive-qty]')?.value);
+    if(!s||!packBase(s)||!s.inventoryActive) return;
+    if(!Number.isFinite(qty)||qty<0||(s.balance!==null&&qty===0)) {
+      state.receiveError=s.balance===null?'Legg inn 0 eller et positivt antall pakninger.':'Legg inn et positivt antall pakninger.';render();return;
+    }
+    if(s.balance===null) s.balance=qty*packBase(s);else s.balance+=qty*packBase(s);
+    s.revision++;state.receive=null;state.receiveError='';notify('Beholdningen er oppdatert.');render();
+  }
+  function preview(id) {
+    const d=catalog.find(d=>d.id===id);if(!d)return;
+    state.preview=id;content.hidden=true;overlay.hidden=false;
+    const imported=state.mine.some(m=>m.sourceId===id);
+    overlay.innerHTML='<div class="dp-preview"><div class="dp-heading"><div><h1>'+esc(d.name)+'</h1><p>'+d.category+'</p></div>'+button('close-preview','Lukk '+icon('x'))+'</div><div class="dp-panel"><h3>Forbruk for 1 stk</h3><div class="dp-preview-list">'+d.recipe.map(r=>{
+      const candidates=stockCandidates(r.key),house=stockById(state.house[r.key]);
+      return '<div><span>'+esc(defs[r.key].name)+'<span class="dp-small dp-muted" style="display:block">'+(house?'Husets standard: '+esc(house.name):candidates.length===1?'Eksisterende: '+esc(candidates[0].name):candidates.length>1?'Flere varer · velges ved import':'Ny forbruksvare')+'</span></span><span>'+fmt(r.amount)+' '+r.unit+'</span></div>';
+    }).join('')+'</div>'+extras(d).map(r=>'<div class="dp-optional-line">'+check(r.kind+': '+esc(defs[r.key].name)+' · '+fmt(r.amount)+' '+r.unit,'data-extra="'+d.id+':'+r.key+'"'+(imported?' disabled':''),extraOn(d,r))+'</div>').join('')+
+      '<div class="dp-footer"><span class="dp-small dp-muted">'+d.recipe.length+' faste ingredienser</span>'+button('preview-select',imported?'Allerede importert':state.selected.has(id)?'Fjern fra utvalget':'Velg drink','data-id="'+id+'"'+(imported?' disabled':''),'dp-primary')+'</div></div></div>';icons();
+  }
+  const actions = {
+    'go-library':()=>{state.view='library';render();},
+    'open-drink-card':b=>{selectMine(b.dataset.id);state.cardTab='general';state.cardKind='drink';state.view='card';render();},
+    'card-tab':b=>{state.cardTab=b.dataset.tab;render();},
+    'save-group':saveGroup,
+    'cancel-group':()=>{state.groupCreate=null;render();},
+    'go-stock':()=>{state.view='stock';render();},
+    'go-usage':()=>{state.view='usage';render();},
+    'continue-import':()=>{state.view='library';render();},
+    'back-library':()=>{state.step=1;state.importError='';render();},
+    'to-mapping':()=>{if(!selectedDrinks().length)return;state.importError='';initMappings();state.step=keys().some(k=>!mapReady(k))?2:3;render();},
+    'toggle-map-all':()=>{state.mapAll=!state.mapAll;render();},
+    'configure-map':b=>{
+      const m=state.mappings[b.dataset.key],s=stockById(m.id);
+      if(!s)return;
+      m.draft={name:s.name,pack:s.pack===null?'':String(s.pack),packUnit:s.packUnit,costPack:s.costPack===null?'':String(s.costPack),inventoryActive:s.inventoryActive,consume:true};
+      m.decision='configure';m.accepted=false;render();
+    },
+    'config-later':b=>{const m=state.mappings[b.dataset.key];if(!stockById(m.id)?.roles.consume)return;m.decision='later';m.accepted=false;state.importError='';render();},
+    'accept-new':b=>acceptMap(b.dataset.key),
+    'accept-config':b=>acceptMap(b.dataset.key),
+    'to-review':()=>{if(keys().some(k=>!mapReady(k)))return;state.step=3;state.importError='';render();},
+    'import':importDrinks,
+    'undo-import':undoImport,
+    'dismiss-result':()=>{state.result=null;render();},
+    'see-import-stock':()=>{state.view='stock';state.stockFilter='used';render();},
+    'select-mine':b=>{if(state.dirty&&b.dataset.id!==state.active){notify('Lagre eller forkast endringene før du velger en annen drink.');return;}selectMine(b.dataset.id);render();},
+    'discard':()=>{selectMine(state.active);render();notify('Endringene er forkastet.');},
+    'save-recipe':()=>saveRecipe(),
+    'start-copy':()=>{state.copying=true;render();},
+    'cancel-copy':()=>{state.copying=false;render();},
+    'save-copy':()=>saveRecipe(true),
+    'choose-variant':b=>{state.variant=Number(b.dataset.index);state.variantAdding=false;render();},
+    'start-variant':()=>{state.variantAdding=true;render();},
+    'cancel-variant':()=>{state.variantAdding=false;render();},
+    'add-variant':()=>{
+      const label=root.querySelector('[data-new-variant]')?.value.trim();
+      if(!label){state.editorError='Gi varianten et navn.';render();return;}
+      if(state.draft.variants.some(v=>v.label.trim().toLowerCase()===label.toLowerCase())) {state.editorError='Variantnavnet er allerede i bruk.';render();return;}
+      const v=clone(state.draft.variants[state.variant]);v.id=uid('variant');v.label=label;
+      state.draft.variants.push(v);state.variant=state.draft.variants.length-1;state.variantAdding=false;draftChanged(true);
+    },
+    'add-recipe':()=>{state.draft.variants[state.variant].recipe.push({stockId:null,key:null,amount:1,unit:'cl',enabled:true});draftChanged(true);},
+    'remove-recipe':b=>{state.draft.variants[state.variant].recipe.splice(Number(b.dataset.index),1);draftChanged(true);},
+    'add-cart':b=>addCart(b.dataset.drink,b.dataset.variant),
+    'add-stock-cart':b=>addCart(null,null,b.dataset.stock),
+    'cart-plus':b=>{state.cart[Number(b.dataset.index)].qty++;render();},
+    'cart-minus':b=>{const i=Number(b.dataset.index);if(--state.cart[i].qty===0)state.cart.splice(i,1);render();},
+    'clear-cart':()=>{state.cart=[];notify('Handlekurven er tømt.');render();},
+    'complete-sale':completeSale,
+    'refund':b=>{const s=state.sales.find(s=>s.id===b.dataset.id);if(!s||s.refunded)return;s.refunded=true;notify('Betalingen er refundert. Forbruket beholdes.');render();},
+    'edit-item':b=>openItem(b.dataset.id),
+    'new-item':()=>openItem(),
+    'cancel-item':()=>{state.itemEditing=null;state.itemError='';state.cardKind='drink';state.view='stock';render();},
+    'save-item':saveItem,
+    'receive':b=>{state.receive=state.receive===b.dataset.id?null:b.dataset.id;state.receiveError='';render();},
+    'cancel-receive':()=>{state.receive=null;state.receiveError='';render();},
+    'save-receive':b=>receiveStock(b.dataset.id),
+    'preview':b=>preview(b.dataset.id),
+    'close-preview':()=>{state.preview=null;render();},
+    'preview-select':b=>{const id=b.dataset.id;if(state.selected.has(id))state.selected.delete(id);else state.selected.add(id);state.preview=null;render();}
+  };
+  function acceptMap(key) {
+    const m=state.mappings[key],error=validateMapDraft(m);
+    if(error){state.importError=error;render();return;}
+    m.accepted=true;state.importError='';notify(defs[key].name+' er avklart.');render();
+  }
+  root.addEventListener('click',e=>{
+    const nav=e.target.closest('[data-nav]');
+    if(nav){state.view=nav.dataset.nav;state.preview=null;state.itemEditing=null;state.groupCreate=null;if(state.view==='card')state.cardKind='drink';render();return;}
+    const action=e.target.closest('[data-action]');
+    if(action&&!action.disabled){const handler=actions[action.dataset.action];if(handler)handler(action);return;}
+    const card=e.target.closest('[data-card]');
+    if(card&&!e.target.closest('input,label,button')) {
+      const cb=card.querySelector('[data-select]');
+      if(cb&&!cb.disabled){cb.checked=!cb.checked;cb.dispatchEvent(new Event('change',{bubbles:true}));}
+    }
+  });
+  root.addEventListener('input',e=>{
+    const el=e.target,ds=el.dataset;
+    if('search' in ds) {
+      const start=el.selectionStart,end=el.selectionEnd;state.search=el.value;render();
+      const field=root.querySelector('[data-search]');field.focus();field.setSelectionRange(start,end);return;
+    }
+    if('importPrice' in ds){state.prices[ds.importPrice]=el.value;return;}
+    if('groupCreateName' in ds){if(state.groupCreate)state.groupCreate.name=el.value;return;}
+    if('groupCreateSaf' in ds){if(state.groupCreate)state.groupCreate.saf=el.value;return;}
+    if('mapField' in ds&&el.tagName==='INPUT') {const m=state.mappings[ds.key];m.draft[ds.mapField]=el.value;m.accepted=false;return;}
+    if('draft' in ds){state.draft[ds.draft]=el.value;draftChanged();return;}
+    if('variantField' in ds){state.draft.variants[state.variant][ds.variantField]=el.value;draftChanged();return;}
+    if('recipeAmount' in ds){state.draft.variants[state.variant].recipe[Number(ds.recipeAmount)].amount=el.value;draftChanged();return;}
+    if('itemField' in ds&&el.tagName==='INPUT'){state.itemEditing[ds.itemField]=el.value;updateLossPreview();return;}
+    if('itemSale' in ds&&el.tagName==='INPUT'){state.itemEditing.sale[ds.itemSale]=el.value;}
+  });
+  root.addEventListener('change',e=>{
+    const el=e.target,ds=el.dataset;
+    if('select' in ds){if(el.checked)state.selected.add(ds.select);else state.selected.delete(ds.select);render();return;}
+    if('category' in ds){state.category=el.value;render();return;}
+    if('existing' in ds){state.existingOnly=el.checked;render();return;}
+    if('extra' in ds){state.extras[ds.extra]=el.checked;if(state.preview)preview(state.preview);else render();return;}
+    if('importGroup' in ds){const obj=assignedGroups(catalog.find(d=>d.id===ds.importGroup));if(el.value==='__create__'){startGroupCreate(ds.level,'import',ds.importGroup);}else {changeAssignment(obj,ds.level,el.value);render();}return;}
+    if('cardGroup' in ds){if(el.value==='__create__'){startGroupCreate(ds.cardGroup,'card',state.active);}else {changeAssignment(state.draft.groups,ds.cardGroup,el.value);draftChanged(true);}return;}
+    if('map' in ds){const m=state.mappings[ds.map];m.id=el.value;m.reason='Ditt valg';m.decision=null;m.accepted=false;state.importError='';render();return;}
+    if('remember' in ds){state.mappings[ds.remember].remember=el.checked;return;}
+    if('mapCheck' in ds){const m=state.mappings[ds.key];m.draft[ds.mapCheck]=el.checked;m.accepted=false;return;}
+    if('mapField' in ds){const m=state.mappings[ds.key];m.draft[ds.mapField]=el.value;m.accepted=false;return;}
+    if('draftCheck' in ds){state.draft[ds.draftCheck]=el.checked;draftChanged();return;}
+    if('recipeCheck' in ds){
+      const r=state.draft.variants[state.variant].recipe[Number(ds.recipeCheck)];r.enabled=el.checked;
+      if(el.checked&&!stockById(r.stockId)&&defs[r.key]){
+        let s=stockCandidates(r.key)[0];
+        if(!s){s={id:uid('stock'),key:r.key,name:defs[r.key].name,dimension:defs[r.key].dimension,pack:null,packUnit:defs[r.key].packUnit,costPack:null,loss:0,lossUnit:displayUnit(defs[r.key]),inventoryActive:false,balance:null,used:0,roles:{consume:true,sale:false},sale:null,revision:0,originImportId:null};state.stock.push(s);}
+        r.stockId=s.id;
+      }draftChanged(true);return;
+    }
+    if('recipeStock' in ds) {
+      const r=state.draft.variants[state.variant].recipe[Number(ds.recipeStock)],s=stockById(el.value);
+      r.stockId=el.value||null;if(s){r.key=s.key;if(!units(s.dimension).includes(r.unit)){r.unit=units(s.dimension)[0];r.amount=1;}}draftChanged(true);return;
+    }
+    if('recipeUnit' in ds) {
+      const r=state.draft.variants[state.variant].recipe[Number(ds.recipeUnit)];
+      const value=num(r.amount);if(Number.isFinite(value))r.amount=value*factor(r.unit)/factor(el.value);
+      r.unit=el.value;draftChanged(true);return;
+    }
+    if('stockFilter' in ds){state.stockFilter=el.value;state.receive=null;render();return;}
+    if('mineSelect' in ds){if(state.dirty&&el.value!==state.active){el.value=state.active;notify('Lagre eller forkast endringene før du velger en annen drink.');return;}selectMine(el.value);render();return;}
+    if('itemCheck' in ds){state.itemEditing[ds.itemCheck]=el.checked;return;}
+    if('itemRole' in ds){state.itemEditing.roles[ds.itemRole]=el.checked;render();return;}
+    if('itemDimension' in ds){const s=state.itemEditing;s.dimension=el.value;s.packUnit=units(s.dimension)[0];s.lossUnit=s.packUnit;s.loss=0;s.sale.unit=s.packUnit;s.sale.amount=1;render();return;}
+    if('itemField' in ds){state.itemEditing[ds.itemField]=el.value;updateLossPreview();return;}
+    if('itemSale' in ds){state.itemEditing.sale[ds.itemSale]=el.value;}
+  });
+  render();
+})();
+
+
+</script>
+</body></html>
