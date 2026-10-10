@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Done Pay · Drinkimport V6 – Lager og vareforbruk</title>
+<html lang="nb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Done Pay · Drinkimport V10 – Blind telling og lederkontroll</title>
 <style>:root {
   color-scheme: light dark;
   background-color: var(
@@ -1914,9 +1914,98 @@ html>body{padding:0}
 #drink-demo-v2 .dp-inv-reorder{display:flex;align-items:center;justify-content:space-between;gap:18px;border-top:1px solid var(--dp-line);padding:14px 0;font-size:12px;}
 #drink-demo-v2 .dp-inv-reorder>div:last-child{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 @media(max-width:630px){#drink-demo-v2 .dp-inv-reorder{align-items:flex-start;flex-direction:column;gap:9px;}}
+/* V7 – mobilorientert avstemming, inventar, plassering og leverandører */
+#drink-demo-v2 .dp-v7-hero {padding:21px;background:linear-gradient(125deg,color-mix(in srgb,var(--dp-accent) 10%,var(--dp-panel)) 0%,var(--dp-panel) 75%);border:1px solid var(--dp-line);border-radius:14px;margin-bottom:16px}
+#drink-demo-v2 .dp-v7-hero h2{font-size:22px;margin:0 0 5px}
+#drink-demo-v2 .dp-v7-hero p{color:var(--dp-muted);font-size:13px;margin:4px 0 12px}
+#drink-demo-v2 .dp-v7-badge{display:inline-flex;align-items:center;border-radius:8px;padding:5px 9px;background:var(--dp-soft);font-size:12px}
+#drink-demo-v2 .dp-v7-flex{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#drink-demo-v2 .dp-v7-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+#drink-demo-v2 .dp-v7-stat{border:1px solid var(--dp-line);border-radius:12px;padding:14px;background:var(--dp-panel)}
+#drink-demo-v2 .dp-v7-stat span{display:block;color:var(--dp-muted);font-size:12px}
+#drink-demo-v2 .dp-v7-stat strong{display:block;font-size:23px;margin-top:4px}
+#drink-demo-v2 .dp-v7-tasks{display:grid;gap:9px}
+#drink-demo-v2 .dp-v7-task{border:1px solid var(--dp-line);padding:12px;border-radius:10px;display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--dp-panel)}
+#drink-demo-v2 .dp-v7-section{margin-top:16px}
+#drink-demo-v2 .dp-v7-section>h2{margin:0 0 10px;font-size:19px}
+#drink-demo-v2 .dp-v7-toolbar{display:flex;justify-content:space-between;align-items:end;gap:9px;flex-wrap:wrap;margin-bottom:12px}
+#drink-demo-v2 .dp-v7-toolbar .dp-field{min-width:150px;max-width:240px}
+#drink-demo-v2 .dp-v7-count-row{display:grid;grid-template-columns:minmax(165px,1.35fr) repeat(2,minmax(108px,.62fr)) minmax(95px,.58fr);align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--dp-line)}
+#drink-demo-v2 .dp-v7-count-row:last-child{border-bottom:0}
+#drink-demo-v2 .dp-v7-count-row .dp-input,#drink-demo-v2 .dp-v7-count-row .dp-select{width:100%}
+#drink-demo-v2 .dp-v7-count-row small{display:block;color:var(--dp-muted);font-size:11px;margin-top:5px}
+#drink-demo-v2 .dp-v7-count-row .dp-field>span{font-size:12px}
+#drink-demo-v2 .dp-v7-count-row strong{font-size:14px}
+#drink-demo-v2 .dp-v7-count-row.is-done{background:color-mix(in srgb,var(--dp-good) 5%,transparent)}
+#drink-demo-v2 .dp-v7-count-total{font-weight:700;margin-top:7px;color:var(--dp-accent)}
+#drink-demo-v2 .dp-v7-result-list{overflow:auto}
+#drink-demo-v2 .dp-v7-result-table{width:100%;min-width:910px;border-collapse:collapse;font-size:13px;text-align:right}
+#drink-demo-v2 .dp-v7-result-table th,#drink-demo-v2 .dp-v7-result-table td{padding:10px 9px;border-bottom:1px solid var(--dp-line);white-space:nowrap}
+#drink-demo-v2 .dp-v7-result-table th:first-child,#drink-demo-v2 .dp-v7-result-table td:first-child{text-align:left;position:sticky;left:0;background:var(--dp-panel);z-index:1}
+#drink-demo-v2 .dp-v7-result-table thead th{color:var(--dp-muted);font-weight:600}
+#drink-demo-v2 .dp-v7-result-table .bad{color:var(--dp-red,#c14a30);font-weight:bold}
+#drink-demo-v2 .dp-v7-result-table .good{color:var(--dp-good);font-weight:700}
+#drink-demo-v2 .dp-v7-help{border:1px solid var(--dp-line);padding:13px 15px;border-radius:12px;color:var(--dp-muted);background:var(--dp-soft);font-size:13px;line-height:1.6}
+#drink-demo-v2 .dp-v7-qty{font-size:14px;font-weight:700}
+#drink-demo-v2 .dp-v7-form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#drink-demo-v2 .dp-v7-report-total{display:flex;justify-content:space-between;gap:10px;align-items:center;margin:13px 0 0;padding:16px;border-radius:12px;background:var(--dp-soft);font-weight:700}
+#drink-demo-v2 .dp-v7-details{padding-top:12px;margin-top:10px;border-top:1px solid var(--dp-line)}
+#drink-demo-v2 .dp-v7-chip{display:inline-flex;margin:3px 5px 3px 0;padding:5px 8px;border-radius:999px;border:1px solid var(--dp-line);font-size:12px}
+#drink-demo-v2 .dp-v7-muted{font-size:12px;color:var(--dp-muted)}
+#drink-demo-v2 .dp-v7-mode{font-size:12px;display:block;margin-top:6px}
+#drink-demo-v2 .dp-v7-reorder-line{display:grid;grid-template-columns:1.4fr .8fr .6fr;gap:10px;align-items:center;padding:13px 0;border-top:1px solid var(--dp-line)}
+#drink-demo-v2 .dp-v7-list{display:grid;gap:8px}
+#drink-demo-v2 .dp-v7-list article{padding:12px;border:1px solid var(--dp-line);border-radius:11px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+#drink-demo-v2 .dp-v7-mt{margin-top:12px}
+#drink-demo-v2 button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:900px){#drink-demo-v2 .dp-v7-cards{grid-template-columns:repeat(2,minmax(0,1fr))}#drink-demo-v2 .dp-v7-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){#drink-demo-v2 .dp-v7-count-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#drink-demo-v2 .dp-v7-count-row>div:first-child{grid-column:1/-1}#drink-demo-v2 .dp-v7-count-row>div:last-child{grid-column:1/-1}#drink-demo-v2 .dp-v7-form-grid{grid-template-columns:1fr}#drink-demo-v2 .dp-v7-reorder-line{grid-template-columns:1fr;gap:5px}#drink-demo-v2 .dp-v7-task{align-items:flex-start;flex-direction:column}#drink-demo-v2 .dp-v7-stat strong{font-size:18px}#drink-demo-v2 .dp-v7-hero{padding:13px}#drink-demo-v2 .dp-v7-count-row .dp-input,#drink-demo-v2 .dp-v7-count-row .dp-select{min-height:44px}}
+
+/* V8 — compact review, history and purchase-order surfaces */
+#drink-demo-v2 .dp-v8-banner{background:var(--dp-soft);border:1px solid var(--dp-line);border-radius:12px;padding:13px 15px;margin:12px 0}
+#drink-demo-v2 .dp-v8-banner.urgent{border-color:#c96b42;background:color-mix(in srgb,#f1b393 16%,var(--dp-panel))}
+#drink-demo-v2 .dp-v8-user{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+#drink-demo-v2 .dp-v8-user select{max-width:245px}
+#drink-demo-v2 .dp-v8-history{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:12px 0}
+#drink-demo-v2 .dp-v8-history article{padding:14px;border:1px solid var(--dp-line);border-radius:12px;background:var(--dp-panel)}
+#drink-demo-v2 .dp-v8-history strong{font-size:19px;display:block}
+#drink-demo-v2 .dp-v8-table{width:100%;border-collapse:collapse;font-size:13px}
+#drink-demo-v2 .dp-v8-table td,#drink-demo-v2 .dp-v8-table th{padding:10px;border-bottom:1px solid var(--dp-line);text-align:left}
+#drink-demo-v2 .dp-v8-po{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid var(--dp-line);padding:11px 0}
+#drink-demo-v2 .dp-v8-po p{margin:3px 0}
+#drink-demo-v2 .dp-v8-issue{display:flex;gap:10px;justify-content:space-between;align-items:center;margin:10px 0;padding:11px 13px;border:1px solid var(--dp-line);border-radius:10px}
+#drink-demo-v2 .dp-v8-issue strong{color:var(--dp-ink)}
+#drink-demo-v2 .dp-v8-hint{font-size:12px;color:var(--dp-muted)}
+#drink-demo-v2 .dp-v8-weight{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#drink-demo-v2 .dp-v8-score{font-weight:750;color:#ad4930}
+#drink-demo-v2 .dp-v8-bottom{border-top:1px solid var(--dp-line);padding-top:14px;margin-top:16px}
+@media(max-width:650px){#drink-demo-v2 .dp-v8-history{grid-template-columns:1fr}#drink-demo-v2 .dp-v8-user{justify-content:flex-start}#drink-demo-v2 .dp-v8-po{align-items:flex-start;flex-direction:column}#drink-demo-v2 .dp-v8-issue{flex-direction:column;align-items:flex-start}}
+
+/* V9: auditable count review */
+#drink-demo-v2 .dp-v9-lock{border:0;margin:0;padding:0;min-width:0;width:100%;}
+#drink-demo-v2 .dp-v9-lock:disabled{opacity:.63;}
+#drink-demo-v2 .dp-v9-lock:disabled .dp-v7-count-row{opacity:.95;}
+#drink-demo-v2 .dp-v9-info{background:var(--dp-soft);border:1px solid var(--dp-line);border-radius:12px;padding:12px 16px;margin:12px 0;line-height:1.6;}
+#drink-demo-v2 .dp-v9-pill{display:inline-block;border:1px solid var(--dp-line);border-radius:6px;padding:1px 7px;font-size:12px;}
+#drink-demo-v2 .dp-v9-muted{opacity:.7;font-style:italic;}
+#drink-demo-v2 .dp-v9-reportstat{display:flex;gap:20px;flex-wrap:wrap;background:var(--dp-soft);padding:14px;border-radius:12px;margin:12px 0;}
+#drink-demo-v2 .dp-v9-audit{max-height:290px;overflow:auto;margin:10px 0;}
+#drink-demo-v2 .dp-v9-audit>div{padding:8px 10px;border-bottom:1px solid var(--dp-line);font-size:13px;}
+#drink-demo-v2 .dp-v9-reporttable{overflow:auto}
+#drink-demo-v2 .dp-v9-reporttable table{min-width:1070px}
+
+
+/* V10: blind submission and archived cancelled sessions */
+#drink-demo-v2 .dp-v10-cancel-item{padding:12px 4px;border-top:1px solid var(--dp-line)}
+#drink-demo-v2 .dp-v10-cancel-item summary{cursor:pointer}
+#drink-demo-v2 .dp-v10-check{display:flex;align-items:center;gap:10px;padding:13px;margin:12px 0;border:1px solid #ba673e;border-radius:10px;background:color-mix(in srgb,#f1b393 12%,var(--dp-panel))}
+#drink-demo-v2 .dp-v10-check input{width:18px;height:18px;flex:none}
+#drink-demo-v2 .dp-v10-count-details{border:1px solid var(--dp-line);border-radius:12px;margin:14px 0;padding:10px 14px}
+#drink-demo-v2 .dp-v10-count-details>summary{cursor:pointer;padding:8px;font-weight:650}
+#drink-demo-v2 .dp-v10-selfwarn{padding:14px 16px;margin-bottom:16px;border:2px solid #bd7447;border-radius:12px;background:color-mix(in srgb,#e7ac80 16%,var(--dp-panel))}
 </style>
 </head><body><div id="drink-demo-v2">
-  <header class="dp-chrome"><div class="dp-logo" aria-label="Done Pay">done<span>pay.</span></div><span class="dp-slash"></span><span class="dp-location">Demo Bar</span><span class="dp-demo-label">V6 · Forbruk + lager</span></header>
+  <header class="dp-chrome"><div class="dp-logo" aria-label="Done Pay">done<span>pay.</span></div><span class="dp-slash"></span><span class="dp-location">Demo Bar</span><span class="dp-demo-label">V10 · Kontrollert avstemming</span></header>
   <nav class="dp-nav" role="tablist" aria-label="Drinkadministrasjon">
     <button type="button" role="tab" id="dp-tab-library" aria-controls="dp-content" aria-selected="true" data-nav="library">Drinkbibliotek</button>
     <button type="button" role="tab" id="dp-tab-mine" aria-controls="dp-content" aria-selected="false" data-nav="mine">Mine drinker <span id="dp-mine-count" class="dp-count">0</span></button>
@@ -1928,7 +2017,7 @@ html>body{padding:0}
   </nav>
   <div id="dp-import-context" class="dp-import-context" hidden></div>
   <div class="dp-app"><main class="dp-main" id="dp-content" role="tabpanel" aria-labelledby="dp-tab-library"></main><div id="dp-overlay" class="dp-overlay" hidden></div></div>
-  <footer class="dp-demo-foot"><span>Interaktiv V6-prototype. Salg og lagerbevegelser er bare lokale demodata og lagres ikke etter omlasting.</span><span id="dp-notice" class="dp-notice">Kun demodata</span></footer>
+  <footer class="dp-demo-foot"><span>Interaktiv V10-prototype. Data lagres bare lokalt i nettleseren når dette er tillatt, ikke på en server.</span><span id="dp-notice" class="dp-notice">Kun demodata</span></footer>
   <div id="dp-live" class="dp-sr" aria-live="polite" aria-atomic="true"></div>
 </div>
 <script>
@@ -2234,7 +2323,7 @@ html>body{padding:0}
       if(!s||!usableBase(s)||s.costPack===null||!Number.isFinite(s.costPack)||!Number.isFinite(num(r.amount))) {
         missing.push(s?.name||defs[r.key]?.name||'Ingrediens'); return;
       }
-      cost+=num(r.amount)*factor(r.unit)/usableBase(s)*s.costPack;
+      cost+=num(r.amount)*factor(r.unit)*(Number.isFinite(s.avgUnitCost)?s.avgUnitCost:s.costPack/usableBase(s));
     });
     const net=num(price)/(1+num(vat)/100);
     return {cost,db:net-cost,margin:net>0?(net-cost)/net*100:null,missing:[...new Set(missing)],net};
@@ -2532,7 +2621,7 @@ html>body{padding:0}
       events.push({id:uid('usage'),saleId:sale.id,orderLine:i,stockId:s.id,base:num(r.amount)*factor(r.unit)*line.qty,recipeVersion:line.version,occurredAt:sale.createdAt,source:'sale'});
     }));
     events.forEach(ev=>{stockById(ev.stockId).used+=ev.base;stockById(ev.stockId).revision++;});
-    events.forEach(ev=>{const st=stockById(ev.stockId);if(st?.inventoryActive) invRecord(st,'bar','sale',-ev.base,{sourceId:ev.id,reference:'Salg #'+sale.number,note:'Forbruk fra registrert salg'});});
+    events.forEach(ev=>{const st=stockById(ev.stockId);if(st?.inventoryActive) invRecord(st,st.defaultWarehouse||'bar','sale',-ev.base,{sourceId:ev.id,reference:'Salg #'+sale.number,note:'Forbruk fra registrert salg'});});
     state.usageEvents.push(...events);state.sales.push(sale);state.cart=[];
     notify('Testsalget er registrert. Aktive lagervarer er trukket automatisk.');render();
   }
@@ -2553,8 +2642,8 @@ html>body{padding:0}
   const invEvents = (id,warehouse=null) => state.inventoryLedger.filter(e=>e.stockId===id && (warehouse===null||e.warehouseId===warehouse));
   const invQty = (id,warehouse=null) => invRound(invEvents(id,warehouse).reduce((v,e)=>v+e.delta,0));
   const tracked = () => state.stock.filter(s=>s.inventoryActive);
-  const invMin = s => usableBase(s)*(num(s.minPacks??2)||0);
-  const invTarget = s => usableBase(s)*(num(s.targetPacks??6)||0);
+  const invMin = s => s.minPacks===undefined||s.minPacks===null||s.minPacks===''?NaN:usableBase(s)*num(s.minPacks);
+  const invTarget = s => s.targetPacks===undefined||s.targetPacks===null||s.targetPacks===''?NaN:usableBase(s)*num(s.targetPacks);
   function invRecord(s,warehouseId,type,delta,detail={}) {
     const e={id:uid('ledger'),stockId:s.id,warehouseId,type,delta:invRound(delta),at:new Date().toISOString(),...detail};
     state.inventoryLedger.push(e);
@@ -2566,7 +2655,7 @@ html>body{padding:0}
     const samples=[['gin-house','bar',6],['tonic','bar',10],['tonic','main',15],['orangeLiq','bar',4],['coffeeLiq','bar',1]];
     samples.forEach(([id,wh,packages])=>{
       const s=stockById(id);if(!s||!usableBase(s))return;
-      s.inventoryActive=true;s.minPacks=2;s.targetPacks=6;s.defaultWarehouse='bar';
+      s.inventoryActive=true;s.defaultWarehouse='bar';
       invRecord(s,wh,'opening',packages*usableBase(s),{packages,gross:packages*packBase(s),brekk:packages*lossBase(s),note:'Eksempel ved oppstart'});
     });
   }
@@ -2634,12 +2723,12 @@ html>body{padding:0}
       '<div class="dp-toolbar dp-inv-filters"><label class="dp-field"><span>Lagersted</span><select class="dp-select" data-inv-warehouse>'+state.warehouses.map(w=>'<option value="'+w.id+'"'+(w.id===wh?' selected':'')+'>'+esc(w.name)+'</option>').join('')+'</select></label><label class="dp-field"><span>Vis</span><select class="dp-select" data-inv-filter>'+[['all','Alle ingredienser'],['tracked','Med lagerstyring'],['untracked','Ikke aktivert'],['warnings','Kun varsler']].map(([k,v])=>'<option value="'+k+'"'+(state.inventoryFilter===k?' selected':'')+'>'+v+'</option>').join('')+'</select></label></div>'+ 
       (state.invAction?inventoryForm():'')+
       '<section class="dp-panel dp-inv-table-wrapper"><div class="dp-between"><div><h2>Beholdning · '+esc(whName(wh))+'</h2><p class="dp-small dp-muted">Salgbare mengder etter brekk, salg og registrerte bevegelser</p></div></div><div class="dp-inv-grid dp-inv-table-head"><span>Vare</span><span>Tilgjengelig</span><span>Status / minimum</span><span></span></div>'+rows.map(s=>{
-        const st=invStatus(s,wh),p=usableBase(s),q=invQty(s.id,wh),mp=s.minPacks??2;
-        return '<div class="dp-inv-grid"><div><strong>'+esc(s.name)+'</strong><div class="dp-small dp-muted">'+(p?'1 pakning = '+asDisplay(p,s)+' brukbart':'Pakning ikke angitt')+(lossBase(s)>0?' · brekk '+lossText(s):'')+'</div></div><div><strong>'+(s.inventoryActive?asDisplay(q,s):'—')+'</strong><div class="dp-small dp-muted">'+(s.inventoryActive&&p?'≈ '+fmt(q/p)+' pk':'')+'</div></div><div><span class="dp-badge '+st.kind+'">'+st.text+'</span><div class="dp-small dp-muted">'+(s.inventoryActive&&p?'Min. '+fmt(mp)+' pk':'Aktiver hvis du vil telle lager')+'</div></div><div class="dp-inv-commands">'+inventoryActions(s)+'</div></div>';
+        const st=invStatus(s,wh),p=usableBase(s),q=invQty(s.id,wh),mp=s.minPacks;
+        return '<div class="dp-inv-grid"><div><strong>'+esc(s.name)+'</strong><div class="dp-small dp-muted">'+(p?'1 pakning = '+asDisplay(p,s)+' brukbart':'Pakning ikke angitt')+(lossBase(s)>0?' · brekk '+lossText(s):'')+'</div></div><div><strong>'+(s.inventoryActive?asDisplay(q,s):'—')+'</strong><div class="dp-small dp-muted">'+(s.inventoryActive&&p?'≈ '+fmt(q/p)+' pk':'')+'</div></div><div><span class="dp-badge '+st.kind+'">'+st.text+'</span><div class="dp-small dp-muted">'+(s.inventoryActive&&p?'Min. '+(mp===undefined||mp===null?'ikke satt':fmt(mp)+' pk'):'Aktiver hvis du vil telle lager')+'</div></div><div class="dp-inv-commands">'+inventoryActions(s)+'</div></div>';
       }).join('')+'</section>'+ 
       '<section class="dp-panel dp-inv-reorders"><div class="dp-between"><div><h2>Forslag til påfyll</h2><p class="dp-small dp-muted">Varer under minimum foreslås fylt opp til ønsket beholdning. Forslaget sendes ikke til leverandør.</p></div></div>'+
-      (()=>{const needs=thisWh.filter(({s,qty})=>invEvents(s.id,wh).length && invStatus(s,wh).kind==='warn' && usableBase(s)>0);
-        return needs.length?needs.map(({s,qty})=>'<div class="dp-inv-reorder"><div><strong>'+esc(s.name)+'</strong><div class="dp-small dp-muted">Nå '+asDisplay(qty,s)+' · min. '+fmt(s.minPacks??2)+' pakninger · mål '+fmt(s.targetPacks??6)+' pakninger</div></div><div><strong>Foreslått '+fmt(Math.max(0,Math.ceil((invTarget(s)-qty)/usableBase(s))))+' pk</strong> '+button('inv-open','Registrer mottak','data-stock="'+esc(s.id)+'"')+'</div></div>').join(''):'<p class="dp-muted dp-small">Ingen varer trenger påfyll på dette lagerstedet.</p>';})()+'</section>'+ 
+      (()=>{const needs=thisWh.filter(({s,qty})=>s.minPacks!==undefined&&s.minPacks!==null&&s.targetPacks!==undefined&&s.targetPacks!==null&&invEvents(s.id,wh).length && qty<invMin(s) && usableBase(s)>0);
+        return needs.length?needs.map(({s,qty})=>'<div class="dp-inv-reorder"><div><strong>'+esc(s.name)+'</strong><div class="dp-small dp-muted">Nå '+asDisplay(qty,s)+' · min. '+fmt(s.minPacks)+' pakninger · mål '+fmt(s.targetPacks)+' pakninger</div></div><div><strong>Foreslått '+fmt(Math.max(0,Math.ceil((invTarget(s)-qty)/usableBase(s))))+' pk</strong> '+button('inv-open','Registrer mottak','data-stock="'+esc(s.id)+'"')+'</div></div>').join(''):'<p class="dp-muted dp-small">Ingen varer trenger påfyll på dette lagerstedet.</p>';})()+'</section>'+ 
       '<section class="dp-panel dp-inv-activity"><div class="dp-between"><h2>Siste lagerbevegelser</h2><span class="dp-small dp-muted">Alle hendelser er sporbare</span></div>'+
       (state.inventoryLedger.filter(e=>e.warehouseId===wh).length?'<div class="dp-inv-events">'+state.inventoryLedger.filter(e=>e.warehouseId===wh).slice().reverse().slice(0,18).map(e=>{
         const s=stockById(e.stockId);
@@ -2666,7 +2755,7 @@ html>body{padding:0}
         const counted=invRound(packs*u+loose*factor(display)),delta=invRound(counted-current);
         if(type==='opening') {
           if(s.inventoryActive)error='Lager er allerede aktivert for denne varen.';
-          else {s.inventoryActive=true;s.minPacks=s.minPacks??2;s.targetPacks=s.targetPacks??6;invRecord(s,wh,'opening',counted,{packages:packs,gross:packs*p,brekk:packs*lost,note:'Bekreftet startbeholdning'});}
+          else {s.inventoryActive=true;invRecord(s,wh,'opening',counted,{packages:packs,gross:packs*p,brekk:packs*lost,note:'Bekreftet startbeholdning'});}
         } else if(!s.inventoryActive)error='Start lager først.';
         else invRecord(s,wh,'count',delta,{packages:packs,loose:loose*factor(display),counted,note:'Fysisk telling · avvik '+asDisplay(delta,s)});
       }
@@ -2716,7 +2805,7 @@ html>body{padding:0}
     const sum=s.id?invQty(s.id):0;
     return '<section class="dp-panel"><h2>Lager på varekortet</h2><p class="dp-muted dp-small">Her angir du minstenivå og ønsket beholdning. Mottak og varetelling gjøres i Lager, ikke i importmodulen.</p>'+
       '<div class="dp-inv-settings"><div><span class="dp-small dp-muted">Lagerstyring</span><strong>'+(active?'Aktiv':'Ikke aktivert')+'</strong></div><div><span class="dp-small dp-muted">Samlet salgbart lager</span><strong>'+(active?asDisplay(sum,s):'—')+'</strong></div></div>'+
-      '<div class="dp-form-grid two">'+input('Minimum (antall hele pakninger)','type="number" min="0" step="1" data-item-field="minPacks"',s.minPacks??2)+input('Ønsket beholdning (pakninger)','type="number" min="0" step="1" data-item-field="targetPacks"',s.targetPacks??6)+'</div>'+
+      '<div class="dp-form-grid two">'+input('Minimum (antall hele pakninger)','type="number" min="0" step="1" data-item-field="minPacks"',s.minPacks??'')+input('Ønsket beholdning (pakninger)','type="number" min="0" step="1" data-item-field="targetPacks"',s.targetPacks??'')+'</div>'+
       '<div class="dp-inv-calc">'+(usableBase(s)?'Pakning '+asDisplay(packBase(s),s)+' − fast rest '+asDisplay(lossBase(s),s)+' = '+asDisplay(usableBase(s),s)+' salgbart innhold.':'Oppgi pakningsstørrelse under Generelt før aktivering.')+'</div>'+
       '<div class="dp-inv-form-footer">'+button('cancel-item','Tilbake til ingredienser')+button('save-item','Lagre innstillinger','','dp-primary')+'</div>'+
       '<p class="dp-small dp-muted">'+(active?'Aktivt lager følges fra startbeholdningen og fremover.': 'Lager aktiveres ved å registrere en bekreftet startbeholdning fra Lager-oversikten.')+'</p></section>';
@@ -2755,9 +2844,13 @@ html>body{padding:0}
     else if(!d.roles.consume&&!d.roles.sale) error='Velg minst én rolle for varen.';
     else if(d.roles.sale&&(!(num(d.sale.amount)>0)||!(num(d.sale.price)>0)||!units(d.dimension).includes(d.sale.unit)||!Number.isFinite(num(d.sale.vat))||num(d.sale.vat)<0||num(d.sale.vat)>100)) error='Fyll ut gyldig mengde, pris og mva. for salgsvaren.';
     if(error) {state.itemError=error;render();return;}
-    if(!error&&(optionalNum(d.minPacks)===null||optionalNum(d.targetPacks)===null||!Number.isInteger(num(d.minPacks??2))||!Number.isInteger(num(d.targetPacks??6))||num(d.minPacks??2)<0||num(d.targetPacks??6)<num(d.minPacks??2)))error='Ønsket lager må være minst minimum; antall pakninger må være hele og ikke-negative.';
+    if(!error){
+      const min=optionalNum(d.minPacks),target=optionalNum(d.targetPacks);
+      if((min===null)!==(target===null)||min!==null&&(!Number.isInteger(min)||!Number.isInteger(target)||min<0||target<min))
+        error='Angi både minimum og ønsket lager, eller la begge stå tomme. Begge må være hele pakninger og mål må være minst minimum.';
+    }
     if(error){state.itemError=error;render();return;}
-    d.name=d.name.trim();d.pack=pack;d.costPack=cost;d.loss=loss;d.minPacks=num(d.minPacks??2);d.targetPacks=num(d.targetPacks??6);
+    d.name=d.name.trim();d.pack=pack;d.costPack=cost;d.loss=loss;d.minPacks=optionalNum(d.minPacks);d.targetPacks=optionalNum(d.targetPacks);
     if(d.roles.sale) {d.sale.amount=num(d.sale.amount);d.sale.price=num(d.sale.price);d.sale.vat=num(d.sale.vat);} else d.sale=null;
     if(d.id) {d.revision++;state.stock[state.stock.findIndex(s=>s.id===d.id)]=d;}
     else {d.id=uid('stock');d.key=uid('custom');d.originImportId=null;state.stock.push(d);}
@@ -2934,7 +3027,1014 @@ html>body{padding:0}
   root.addEventListener('mouseover',e=>{const item=e.target.closest('.dp-photo-option');if(item)previewImageOnHover(item.dataset.id);});
   root.addEventListener('focusin',e=>{const item=e.target.closest('.dp-photo-option');if(item)previewImageOnHover(item.dataset.id);});
   root.addEventListener('keydown',e=>{if(e.key==='Escape'&&state.imagePicker){state.imagePicker=null;render();}});
-  seedInventory();
+  // V7 – lagerstart, fullstendig tellesyklus og kontrollert avstemmingsrapport.
+  // UI-prototype: hendelseslogg, men ingen backend eller vedvarende data.
+  const v7 = { count:null, history:[], cancelled:[], report:null, countFilter:'all', unitMode:'tenths', tasksOnly:false,
+    wastePos:null,refundPending:null,orderDraft:null,productionKg:'1',posWasteError:'',lastError:''};
+  const v7Locations=['01 · Barhyller','02 · Kjølelager','03 · Bakrom','04 · Produksjon'];
+  state.stock.forEach((s,i)=>Object.assign(s,{
+    supplier:s.supplier||(['gin-house','gin-alt','rum','vodka','whisky','coffeeLiq','orangeLiq','aperol'].includes(s.id)?'Vingruppen AS':(['tonic','ginger','cola','soda'].includes(s.id)?'Drikkegrossisten AS':'Matgrossisten AS')),
+    supplierSku:s.supplierSku||'DP-'+String(1100+i),ean:s.ean||('704'+String(1010000000+i).padStart(10,'0')),
+    packsPerOrder:s.packsPerOrder||(["gin-house","tonic","rum","vodka","coffeeLiq","orangeLiq","whisky"].includes(s.id)?6:1),
+    orderLabel:s.orderLabel||(["gin-house","tonic","rum","vodka","coffeeLiq","orangeLiq","whisky"].includes(s.id)?'Kasse':'Pakning'),
+    packageLabel:s.packageLabel||(s.dimension==='count'?'Pakke':'Flaske'),
+    placement:s.placement||v7Locations[i%4],dailyCount:['gin-house','gin-alt','vodka','whisky','coffeeLiq','orangeLiq'].includes(s.id)
+  }));
+  // Eksempelvare viser at produksjon kan trekke en råvare og øke et halvfabrikat.
+  state.stock.push({id:'whole-lime',key:'whole-lime',name:'Lime, hel frukt',dimension:'mass',pack:1,packUnit:'kg',loss:0,lossUnit:'g',costPack:48,
+    balance:null,inventoryActive:false,used:0,roles:{consume:true,sale:false},sale:null,revision:0,originImportId:null,
+    supplier:'Fruktgrossisten AS',supplierSku:'FG-LIME-01',ean:'7040000001800',packsPerOrder:5,orderLabel:'Kasse',packageLabel:'Pose',placement:'04 · Produksjon',dailyCount:false});
+  const v7UnitCost = s => s&&Number.isFinite(s.avgUnitCost)?s.avgUnitCost:(s&&usableBase(s)>0&&Number.isFinite(s.costPack)?s.costPack/usableBase(s):0);
+  const v7Price = (s,base)=>v7UnitCost(s)*base;
+  const v7WhEvents = wh => state.inventoryLedger.filter(e=>e.warehouseId===wh);
+  const v7Date = t => new Date(t).toLocaleString('nb-NO',{dateStyle:'medium',timeStyle:'short'});
+  const v7Sel = (key,arr,current)=>'<select class="dp-select" '+key+'>'+arr.map(x=>'<option value="'+esc(x)+'"'+(current===x?' selected':'')+'>'+esc(x)+'</option>').join('')+'</select>';
+  const v7NeededConfig = s => !(usableBase(s)>0)||!(Number.isInteger(num(s.packsPerOrder))&&num(s.packsPerOrder)>=1);
+  const v7Ready = () => state.stock.filter(v7NeededConfig);
+  const v7CaseBase = s => usableBase(s)*(num(s.packsPerOrder)||1);
+  const v7QtyLabel = s => (s.packageLabel||'pakning').toLowerCase();
+  const v7CountUnit = s => (s.dimension==='volume'&&packBase(s)>=1000000)?'l':displayUnit(s);
+  const v7Shown = (base,s) => (s.dimension==='volume'&&Math.abs(base)>=1000000)?fmt(base/1000)+' l':asDisplay(base,s);
+  const v7QtyShort = s => ({Flaske:'fl',Pakke:'pk',Pose:'poser',Boks:'bokser',Fat:'fat',Tank:'tank',Enhet:'stk'})[s.packageLabel]||'pk';
+  function v7Readable(s,qty){
+    if(!s||!(usableBase(s)>0))return s?asDisplay(qty,s):'—';
+    const per=usableBase(s),full=Math.floor(Math.max(0,qty)/per+1e-8),remainder=Math.max(0,qty-full*per),part=remainder/per;
+    if(qty<0) return asDisplay(qty,s);
+    const partText=part>0.000001?' + '+fmt(remainder/factor(v7CountUnit(s)))+' '+v7CountUnit(s)+' åpen':'';
+    return full+' '+v7QtyShort(s)+partText+' · '+v7Shown(qty,s);
+  }
+  const v7Snapshot = (wh) => ({ledgerLength:state.inventoryLedger.length,at:new Date().toISOString(),warehouseId:wh});
+  function v7Previous(wh){return v7.history.filter(h=>h.wh===wh).at(-1)||null;}
+  function v7MovementDetails(s,wh,end){
+    const prev=v7Previous(wh),from=prev?prev.endIndex:0;
+    const events=state.inventoryLedger.slice(from,end).filter(e=>e.stockId===s.id&&e.warehouseId===wh);
+    const sums={receipt:0,transfer_in:0,transfer_out:0,waste:0,sale:0,refund_return:0,production_in:0,production_out:0};
+    for(const e of events){
+      let category=e.type;
+      if(e.type==='sale'){
+        const u=state.usageEvents.find(x=>x.id===e.sourceId),sale=state.sales.find(x=>x.id===u?.saleId);
+        if(sale?.refunded && sale.refundDisposition==='poured')category='waste';
+      }
+      if(category in sums) sums[category]+=Math.abs(e.delta);
+    }
+    const start=prev?(prev.rows.find(r=>r.stockId===s.id)?.endingBalance??prev.rows.find(r=>r.stockId===s.id)?.counted??0):0;
+    const theoretical=invRound(start+sums.receipt+sums.transfer_in+sums.refund_return+sums.production_in-sums.transfer_out-sums.waste-sums.sale-sums.production_out);
+    return {start,...sums,theoretical};
+  }
+  function v7CountLine(s){
+    if(!v7.count) return null;
+    return v7.count.lines[s.id]||{whole:'',open:'',mode:'tenths'};
+  }
+  function v7CountValue(s,line){
+    if(!line||line.whole===''||line.open==='') return null;
+    const whole=num(line.whole),open=num(line.open);
+    if(!(Number.isInteger(whole)&&whole>=0&&Number.isFinite(open)&&open>=0))return NaN;
+    const per=usableBase(s),unitFactor=factor(v7CountUnit(s));
+    if(line.mode==='tenths'&&open>=1)return NaN;
+    if(line.mode==='quantity'&&open*unitFactor>=per+1e-6)return NaN;
+    return invRound(whole*per+(line.mode==='tenths'?open*per:open*unitFactor));
+  }
+  function v7Progress(){
+    const lines=v7.count?.lines||{};
+    return state.stock.filter(s=>(!v7.count?.partial||s.dailyCount)&&v7CountValue(s,lines[s.id])!==null&&Number.isFinite(v7CountValue(s,lines[s.id]))).length;
+  }
+  function v7OpenCount(){
+    if(v7.count){notify('Det finnes allerede en aktiv telleøkt.');return;}
+    const wh=state.inventoryWarehouse;
+    if(v7Ready().length){notify('Fullfør oppgavene på varekortet før første telling.');v7.tasksOnly=true;render();return;}
+    v7.count={id:uid('count-session'),wh,at:new Date().toISOString(),startedAt:new Date().toISOString(),snapshotLedgerLength:state.inventoryLedger.length,
+      opening:!v7Previous(wh),lines:{},filter:'all'};
+    v7.tasksOnly=false;notify('Telleøkt startet. Dato og lagergrunnlag er fryst.');render();
+  }
+  function v7Autofill(){
+    const c=v7.count;if(!c)return;
+    state.stock.forEach((s,i)=>{if(c.partial&&!s.dailyCount)return;
+      const qty=c.opening?(s.id==='gin-house'?6:s.id==='tonic'?10:s.id==='orangeLiq'?4:s.id==='coffeeLiq'?1:s.id==='whole-lime'?3:(i%4===0?3:1))*usableBase(s):invQty(s.id,c.wh);
+      let target=qty;
+      if(c.opening && s.id==='beer-tank' && c.wh==='bar')target=0; // demonstration: tank is held centrally, not on the bar shelf
+      if(c.opening && s.id==='beer-keg' && c.wh==='bar')target=2*usableBase(s);
+      if(!c.opening && s.id==='gin-house') target=Math.max(0,qty-30); // 3 cl lost
+      if(!c.opening && s.id==='coffeeLiq') target=Math.max(0,qty-usableBase(s)); // 1 bottle lost
+      const full=Math.max(0,Math.floor(target/usableBase(s))),rem=Math.max(0,target-full*usableBase(s));
+      c.lines[s.id]={whole:String(full),open:String(Math.round(rem/factor(v7CountUnit(s))*100)/100),mode:'quantity'};
+    });render();
+  }
+  function v7CloseCount(){
+    const c=v7.count;if(!c)return;
+    const incomplete=state.stock.filter(s=>(!c.partial||s.dailyCount)&&!Number.isFinite(v7CountValue(s,c.lines[s.id])));
+    if(incomplete.length){v7.lastError='Tell alle varene først. '+incomplete.length+' mangler eller har ugyldig åpen mengde.';render();return;}
+    const rows=state.stock.map(s=>{
+      const calc=v7MovementDetails(s,c.wh,c.snapshotLedgerLength),counted=c.partial&&!s.dailyCount?calc.theoretical:v7CountValue(s,c.lines[s.id]);
+      const variance=c.opening?0:invRound(counted-calc.theoretical);
+      return {...calc,stockId:s.id,location:s.placement||'',counted,variance,varianceValue:v7Price(s,variance),unitCost:v7UnitCost(s)};
+    });
+    // Differansen gjelder frosset tidspunkt. Bevegelser som eventuelt skjer etter start beholdes.
+    state.stock.forEach((s,i)=>{
+      const row=rows[i],delta=c.opening?invRound(row.counted-invQty(s.id,c.wh)):row.variance;
+      if(c.opening)s.inventoryActive=true;
+      if(Math.abs(delta)>0.000001 || c.opening)invRecord(s,c.wh,c.opening?'opening':'count',delta,{sessionId:c.id,sessionAt:c.startedAt, countValue:row.counted,
+        note:c.opening?'Åpningsbeholdning fra fullstendig telling':'Avstemt beholdning · '+asDisplay(row.variance,s)});
+    });
+    const report={id:c.id,wh:c.wh,opening:c.opening,at:c.startedAt,closedAt:new Date().toISOString(),endIndex:state.inventoryLedger.length,
+      rows,varianceSum:rows.reduce((sum,r)=>sum+r.varianceValue,0)};
+    v7.history.push(report);v7.report=report;v7.count=null;v7.lastError='';notify(c.opening?'Åpningslager etablert for alle varer.':'Telleøkten er avsluttet. Avvikene er bokført.');render();
+  }
+  function v7CountView(){
+    const c=v7.count;if(!c)return '';
+    const wh=esc(whName(c.wh));
+    const matches=state.stock.slice().sort((a,b)=>(a.placement||'').localeCompare(b.placement||'')||a.name.localeCompare(b.name));
+    const showing=matches.filter(s=>c.filter==='daily'?s.dailyCount:c.filter==='pending'?v7CountValue(s,c.lines[s.id])===null:true);
+    const progress=v7Progress();
+    return '<div class="dp-v7-hero"><div class="dp-between"><div><span class="dp-v7-badge">Telleøkt pågår · '+wh+'</span><h2>'+(c.opening?'Første telling – opprett startlager':'Varetelling – tell fysisk beholdning')+'</h2><p>Startet '+v7Date(c.startedAt)+' · grunnlaget er fryst til denne datoen. Sortert etter fysisk plassering.</p></div>'+button('v7-cancel-count','Avbryt telling')+'</div><div class="dp-v7-flex"><strong>'+progress+' av '+(c.partial?state.stock.filter(x=>x.dailyCount).length:state.stock.length)+' varer telt</strong><span class="dp-v7-muted">Uferdige rader hindrer avslutning</span></div><div class="progress"><div class="progress-bar" style="width:'+fmt(100*progress/(c.partial?state.stock.filter(x=>x.dailyCount).length:state.stock.length))+'%"></div></div></div>'+ 
+      '<div class="dp-toolbar dp-v7-toolbar"><label class="dp-field"><span>Vis varer</span><select class="dp-select" data-v7-count-filter>'+[['all','Alle varer'],['pending','Bare utelte'],['daily','Daglig telleliste (dyr sprit)']].map(([k,label])=>'<option value="'+k+'"'+(c.filter===k?' selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="dp-v7-flex">'+button('v7-demo-fill','Fyll med eksempelverdier')+button('v7-clear-count','Tøm telling')+'</div></div>'+ 
+      '<section class="dp-panel"><h2>Tell slik varene står i hyllen</h2><p class="dp-small dp-muted">Hele flasker / pakninger + én åpnet del. Velg tideler eller konkret mengde. Ingen forskjell vises før du avslutter tellingen.</p>'+showing.map(s=>{
+        const line=v7CountLine(s),value=v7CountValue(s,line),p=usableBase(s),u=v7CountUnit(s);
+        return '<div class="dp-v7-count-row'+(value!==null&&Number.isFinite(value)?' is-done':'')+'"><div><strong>'+esc(s.name)+'</strong><small>'+esc(s.placement)+' · 1 '+esc(v7QtyLabel(s))+' = '+v7Shown(p,s)+(lossBase(s)>0?' · brekk '+lossText(s):'')+'</small></div>'+input('Hele '+esc(v7QtyLabel(s))+' / pk','data-v7-count-whole="'+s.id+'" inputmode="numeric" placeholder="Antall"',line.whole)+'<div><label class="dp-field"><span>Åpnet ('+(line.mode==='tenths'?'0–0,9 pakning':line.mode==='weight'?'bruttovekt g':u)+')</span><input class="dp-input" data-v7-count-open="'+s.id+'" inputmode="decimal" placeholder="'+(line.mode==='tenths'?'0,7':'15')+'" value="'+esc(line.open)+'"></label><label class="dp-v7-mode"><select class="dp-select" data-v7-count-mode="'+s.id+'"><option value="tenths"'+(line.mode==='tenths'?' selected':'')+'>Tideler</option><option value="quantity"'+(line.mode==='quantity'?' selected':'')+'>Mengde i '+u+'</option></select></label></div><div><span class="dp-v7-muted">Telt salgbart</span><div class="dp-v7-count-total">'+(value===null?'Ikke telt':Number.isFinite(value)?v7Shown(value,s):'Ugyldig mengde')+'</div></div></div>';
+      }).join('')+'</section>'+ 
+      '<div class="dp-v7-help dp-v7-mt">'+(c.opening?'Første telling oppretter startbeholdning for alle varer på dette lagerstedet. Ingen tidligere salg trekkes tilbake i tid.':'<strong>Avstemmingen:</strong> Start + mottak + inn − ut − svinn − salg = beregnet. Når du leverer tellingen, vises avvikene kun for leder. Eventuell korrigering bokføres først etter godkjenning.')+'</div>'+ 
+      (v7.lastError?'<p class="dp-error" role="alert">'+esc(v7.lastError)+'</p>':'')+
+      '<div class="dp-v7-flex dp-v7-mt">'+button('v7-finish-count',c.opening?'Godkjenn startlager':'Avslutt og vis avviksrapport','','dp-primary')+'<span class="dp-v7-muted">'+((c.partial?state.stock.filter(x=>x.dailyCount).length:state.stock.length)-progress)+' vare(r) gjenstår</span></div>';
+  }
+  function v7ReportView(report){
+    if(!report)return '';
+    const total=report.rows.reduce((v,r)=>v+r.varianceValue,0),sorted=report.rows.slice().sort((a,b)=>Math.abs(b.varianceValue)-Math.abs(a.varianceValue));
+    return '<section class="dp-panel dp-v7-section"><div class="dp-between"><div><h2>'+(report.opening?'Åpningsrapport':'Avviksrapport')+' · '+esc(whName(report.wh))+'</h2><p class="dp-small dp-muted">Dato fryst '+v7Date(report.at)+' · lukket '+v7Date(report.closedAt)+'</p></div><span class="dp-badge '+(Math.abs(total)>.001?'warn':'good')+'">'+(report.opening?'Startlager':Math.abs(total)<.001?'Ingen nettoavvik':'Nettoavvik '+money(total))+'</span></div>'+ 
+      '<p class="dp-v7-help">'+(report.opening?'Bekreftet startbeholdning fra første fysiske telling. Avvik beregnes fra neste telleperiode.':'Alle tall er mengde i varens grunnenhet. Beløp er beregnet avvik × kostpris per salgbare måleenhet. Positiv differanse betyr funnet mer enn beregnet.')+'</p>'+ 
+      '<div class="dp-v7-result-list"><table class="dp-v7-result-table"><thead><tr><th>Vare</th><th>Start</th><th>+Mottak</th><th>+Inn / retur</th><th>−Ut</th><th>−Svinn</th><th>−Forbruk</th><th>Beregnet</th><th>Telt</th><th>Avvik</th><th>Avvik kr</th></tr></thead><tbody>'+sorted.map(r=>{
+        const s=stockById(r.stockId),as=v=>fmt(v/factor(v7CountUnit(s))),diff=r.variance;
+        return '<tr><td><strong>'+esc(s.name)+'</strong><br><span class="dp-v7-muted">'+esc(s.placement||'')+'</span></td><td>'+as(r.start)+'</td><td>'+as(r.receipt+r.production_in)+'</td><td>'+as(r.transfer_in+r.refund_return)+'</td><td>'+as(r.transfer_out+r.production_out)+'</td><td>'+as(r.waste)+'</td><td>'+as(r.sale)+'</td><td>'+as(r.theoretical)+'</td><td>'+as(r.counted)+'</td><td class="'+(diff<0?'bad':diff>0?'good':'')+'">'+(diff>0?'+':'')+as(diff)+'</td><td class="'+(r.varianceValue<0?'bad':r.varianceValue>0?'good':'')+'">'+money(r.varianceValue)+'</td></tr>';
+      }).join('')+'</tbody></table></div><div class="dp-v7-report-total"><span>Totalt avvik (netto)</span><strong>'+money(total)+'</strong></div>'+ 
+      '<div class="dp-v7-flex dp-v7-mt">'+button('v7-download-csv','Eksporter rapport (CSV)')+button('v7-close-report','Lukk rapport')+'</div></section>';
+  }
+  function v7SaveCsv(){
+    const r=v7.report;if(!r)return;
+    const headers=['Vare','Start','Mottak','Inn','Ut','Svinn','Forbruk','Beregnet','Telt','Avvik','Avvik kr'];
+    const q=(t)=>'"'+String(t??'').replaceAll('"','""')+'"';
+    const rows=r.rows.map(x=>{const s=stockById(x.stockId),f=factor(displayUnit(s));return [s.name,x.start/f,(x.receipt+x.production_in)/f,(x.transfer_in+x.refund_return)/f,(x.transfer_out+x.production_out)/f,x.waste/f,x.sale/f,x.theoretical/f,x.counted/f,x.variance/f,x.varianceValue].map(q).join(';');});
+    const blob=new Blob(['\ufeff'+headers.map(q).join(';')+'\r\n'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='done-pay-telling-'+r.at.substring(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  }
+  const v7OldRenderInventory=renderInventory;
+  renderInventory=function(){
+    const wh=state.inventoryWarehouse,prev=v7Previous(wh),blocked=v7Ready(),started=!!prev;
+    const thisWh=state.stock.filter(s=>s.inventoryActive).map(s=>({s,q:invQty(s.id,wh)}));
+    const stockValue=thisWh.reduce((v,{s,q})=>v+v7Price(s,q),0);
+    let html=heading('Lager og varetelling','Følg varene fra mottak til salg – og se avviket når du teller fysisk.')+
+      '<div class="dp-v7-toolbar"><label class="dp-field"><span>Lagersted</span><select class="dp-select" data-inv-warehouse>'+state.warehouses.map(w=>'<option value="'+w.id+'"'+(wh===w.id?' selected':'')+'>'+esc(w.name)+'</option>').join('')+'</select></label><div class="dp-v7-flex"><span class="dp-v7-badge">'+(started?'Aktivt lager':'Startlager ikke etablert')+'</span></div></div>';
+    if(v7.count){html+=v7CountView();content.innerHTML=html;return;}
+    if(v7.report){html+=v7ReportView(v7.report);}
+    if(!started){
+      html+='<div class="dp-v7-hero"><span class="dp-v7-badge">Oppstart · Trinn 1 av 2</span><h2>Start med én fullstendig telling</h2><p>Tell alle varene én gang for å etablere et pålitelig startlager. Absolut Vodka mangler eksempelvis pakningsoppsett; det må kompletteres før vi begynner. Salg registrert tidligere skal ikke trekkes retroaktivt.</p><div class="dp-v7-flex">'+button('v7-start-count','Start første varetelling',''+(blocked.length?' disabled':''),'dp-primary')+'<strong>'+blocked.length+' oppgave(r) gjenstår</strong></div></div>'+
+        (blocked.length?'<section class="dp-panel"><h2>Fiks dette før lagerstart</h2><div class="dp-v7-tasks">'+blocked.map(s=>'<div class="dp-v7-task"><div><strong>'+esc(s.name)+'</strong><div class="dp-v7-muted">'+(!(usableBase(s)>0)?'Mangler pakningsstørrelse eller ugyldig brekk':'Antall pakninger per bestillingsenhet er ugyldig')+'</div></div>'+button('edit-item','Åpne varekort','data-id="'+esc(s.id)+'"')+'</div>').join('')+'</div></section>':'<div class="dp-v7-help">Alt er klart. Første telling aktiverer lager på alle ingrediensene samtidig.</div>');
+      content.innerHTML=html;return;
+    }
+    const warnings=thisWh.filter(({s,q})=>q<invMin(s)).length;
+    html+='<div class="dp-v7-cards"><div class="dp-v7-stat"><span>Antall lagervarer</span><strong>'+thisWh.length+'</strong></div><div class="dp-v7-stat"><span>Estimert lagerverdi</span><strong>'+money(stockValue)+'</strong></div><div class="dp-v7-stat"><span>Under minimum</span><strong>'+warnings+'</strong></div><div class="dp-v7-stat"><span>Siste telling</span><strong>'+v7Date(prev.at).split(' kl.')[0]+'</strong></div></div>'+ 
+      '<div class="dp-v7-hero"><div class="dp-between"><div><h2>Klar for neste telling?</h2><p>Start en økt som låser dato og beregnet beholdning. Tell på mobil, sortert etter plassering, og få en rapport med avvik i cl, stk og kroner.</p></div>'+button('v7-start-count','Start varetelling','','dp-primary')+'</div><div class="dp-v7-flex">'+button('v7-daily-count','Daglig telleliste · dyr sprit')+button('v7-view-last','Se siste rapport')+'</div></div>'+
+      '<section class="dp-panel dp-v7-section"><div class="dp-between"><div><h2>Beholdning · '+esc(whName(wh))+'</h2><p class="dp-v7-muted">Vises i hele flasker og brukbar mengde i åpne pakninger. Salgbart innhold tar hensyn til fast rest.</p></div></div><div class="dp-inv-grid dp-inv-table-head"><span>Vare</span><span>Antall</span><span>Status</span><span></span></div>'+state.stock.map(s=>{
+        const q=invQty(s.id,wh),status=invStatus(s,wh);
+        return '<div class="dp-inv-grid"><div><strong>'+esc(s.name)+'</strong><div class="dp-v7-muted">'+esc(s.placement)+' · '+esc(s.supplier||'Ingen leverandør')+'</div></div><div><div class="dp-v7-qty">'+v7Readable(s,q).split(' · ')[0]+'</div><div class="dp-v7-muted">'+asDisplay(q,s)+'</div></div><div><span class="dp-badge '+status.kind+'">'+status.text+'</span></div><div>'+button('inv-open','Registrer','data-stock="'+s.id+'"')+'</div></div>';
+      }).join('')+'</section>';
+    html+=(state.invAction?inventoryForm():'');
+    html+='<section class="dp-panel dp-v7-section"><div class="dp-between"><div><h2>Bestillingsforslag per leverandør</h2><p class="dp-v7-muted">Foreslåtte kvanta rundes opp til bestillingsenhet, eksempelvis hele kasser à 6 flasker.</p></div>'+button('v7-copy-orders','Kopier bestilling')+'</div>';
+    const bySupplier={};state.stock.filter(s=>(!s.replenishmentWarehouse||s.replenishmentWarehouse===wh)&&invQty(s.id,wh)<invMin(s)&&usableBase(s)>0).forEach(s=>{
+      const quantity=invQty(s.id,wh),needed=Math.max(0,Math.ceil((invTarget(s)-quantity)/v7CaseBase(s)));
+      if(needed) (bySupplier[s.supplier||'Ukjent leverandør']??=[]).push({s,needed});
+    });
+    v7.orderDraft=bySupplier;
+    html+=Object.keys(bySupplier).length?Object.entries(bySupplier).map(([vendor,arr])=>'<div class="dp-v7-details"><h3>'+esc(vendor)+'</h3>'+arr.map(({s,needed})=>'<div class="dp-v7-reorder-line"><div><strong>'+esc(s.name)+'</strong><div class="dp-v7-muted">'+esc(s.supplierSku)+' · min '+fmt(s.minPacks)+' / mål '+fmt(s.targetPacks)+'</div></div><div>Nå '+v7Readable(s,invQty(s.id,wh)).split(' · ')[0]+'</div><strong>'+needed+' '+esc(s.orderLabel?.toLowerCase()||'best.enhet')+' á '+fmt(s.packsPerOrder)+' '+esc(s.packageLabel?.toLowerCase()||'pk')+'</strong></div>').join('')+'</div>').join(''):'<p class="dp-v7-muted">Ingen varer ligger under minimum.</p>';
+    html+='</section>';
+    html+='<section class="dp-panel dp-v7-section"><div class="dp-between"><h2>Produksjon av halvfabrikat</h2><span class="dp-v7-badge">Resept i resept</span></div><p class="dp-v7-muted">Eksempel: 1 kg lime gir 40 limeskiver. Råvare trekkes, ferdig komponent legges til på lageret i Bar.</p><div class="dp-v7-form-grid">'+input('Bruk lime (kg)','data-v7-produce-kg inputmode="decimal"',v7.productionKg)+ '<div><span class="dp-v7-muted">Resultat</span><h3 id="v7-produce-preview">'+fmt(num(v7.productionKg)*40)+' limeskiver</h3></div><div style="align-self:end">'+button('v7-produce','Registrer produksjon','','dp-primary')+'</div></div></section>';
+    html+='<section class="dp-panel dp-v7-section"><h2>Siste bevegelser</h2>'+v7WhEvents(wh).slice().reverse().slice(0,14).map(e=>'<div class="dp-inv-event"><div><strong>'+esc(invTypeNames[e.type]||e.type)+'</strong> · '+esc(stockById(e.stockId)?.name||'Vare')+'<small style="display:block;color:var(--dp-muted)">'+esc(e.note||'')+' · '+v7Date(e.at)+'</small></div><strong class="dp-inv-delta '+(e.delta<0?'minus':'plus')+'">'+(e.delta>0?'+':'')+asDisplay(e.delta,stockById(e.stockId))+'</strong></div>').join('')+'</section>';
+    content.innerHTML=html;if(state.invAction)inventoryCalculation();
+  };
+  // Lageroperasjoner – kasse + pakning + måleenhet, svinnårsaker, intern flytting.
+  invTypeNames.refund_return='Retur · ikke skjenket';
+  invTypeNames.production_in='Produsert';invTypeNames.production_out='Råvare til produksjon';
+  function v7InventoryLocked(wh){return v7.count?.wh===wh;}
+  inventoryForm=function(){
+    const s=stockById(state.invProduct);if(!s)return '';
+    const type=state.invAction,wh=state.inventoryWarehouse;
+    const whLine='<span class="dp-v7-muted">'+esc(whName(wh))+' · '+v7Readable(s,invQty(s.id,wh))+'</span>';
+    const tab=(a,title)=>button('inv-switch',title,'data-type="'+a+'" aria-pressed="'+(a===type)+'"',a===type?'active':'');
+    const opts=['søl','ansattdrikk','kompensasjon','knust','utgått','annet'];
+    let form='';
+    if(type==='receipt'){
+      form='<div class="dp-v7-help"><strong>Tre enhetsnivåer:</strong> '+esc(s.orderLabel||'Kasse')+' → '+fmt(s.packsPerOrder||1)+' '+esc(s.packageLabel||'pakning')+' → '+asDisplay(usableBase(s),s)+' brukbart per pakning. Brekk trekkes én gang ved mottaket.</div>'+ 
+      '<div class="dp-v7-form-grid dp-v7-mt">'+input('Antall '+esc((s.orderLabel||'kasse').toLowerCase())+'r','data-v7-order-qty type="number" min="0" step="1" value="1"','1')+
+      input('Ekstra '+esc((s.packageLabel||'pakning').toLowerCase())+'r','data-v7-package-qty type="number" min="0" step="1" value="0"','0')+
+      input('Kostpris per pakning, eks. mva.','data-v7-unit-price inputmode="decimal"',s.costPack??'')+'</div>'+ 
+      '<div class="dp-v7-form-grid dp-v7-mt">'+input('Skann EAN / leverandørvarenummer','data-v7-ean placeholder="Valgfritt – prøv varens EAN"','')+'<div><span class="dp-v7-muted">Leverandør</span><strong>'+esc(s.supplier||'Ikke oppgitt')+'</strong></div></div>';
+    }else if(type==='waste'){
+      form='<div class="dp-v7-help">Registrer tap som ikke skyldes fast rest (brekk). All svinn krever en årsak og blir synlig i neste avviksrapport.</div>'+ 
+        '<div class="dp-v7-form-grid dp-v7-mt">'+input('Mengde ('+displayUnit(s)+')','data-inv-amount inputmode="decimal" placeholder="For eksempel 2"','')+
+        '<label class="dp-field"><span>Hvorfor forsvant varen?</span><select class="dp-select" data-v7-reason>'+opts.map(x=>'<option value="'+x+'">'+x[0].toUpperCase()+x.substring(1)+'</option>').join('')+'</select></label>'+input('Kommentar (valgfritt)','data-v7-comment placeholder="Skriv ved behov"','')+'</div>';
+    }else if(type==='transfer'){
+      form='<div class="dp-v7-help">Flytt fra '+esc(whName(wh))+' til et annet lagersted. Flyttingen består av to sporbare bevegelser og endrer ikke samlet beholdning.</div>'+ 
+        '<div class="dp-v7-form-grid dp-v7-mt">'+input('Mengde som flyttes ('+displayUnit(s)+')','data-inv-amount inputmode="decimal" placeholder="For eksempel 50"','')+
+        '<label class="dp-field"><span>Til lagersted</span><select class="dp-select" data-inv-dest>'+state.warehouses.filter(w=>w.id!==wh).map(w=>'<option value="'+w.id+'">'+esc(w.name)+'</option>').join('')+'</select></label></div>';
+    }
+    return '<section class="dp-panel dp-v7-section dp-inv-operation"><div class="dp-between"><div><h2>'+esc(s.name)+'</h2>'+whLine+'</div>'+button('inv-cancel','Lukk ✕')+'</div>'+ 
+      '<div class="dp-inv-action-tabs">'+tab('receipt','Motta varer')+tab('waste','Svinn')+tab('transfer','Flytt')+'</div>'+form+
+      '<div id="dp-inv-preview" class="dp-inv-calc"></div>'+(state.invError?'<p class="dp-error">'+esc(state.invError)+'</p>':'')+
+      '<div class="dp-v7-flex dp-v7-mt">'+button('edit-item','Åpne varekort','data-id="'+esc(s.id)+'"')+button('inv-submit',type==='receipt'?'Registrer varemottak':type==='waste'?'Registrer svinn':'Bekreft flytting','','dp-primary')+'</div></section>';
+  };
+  inventoryCalculation=function(){
+    const s=stockById(state.invProduct),box=root.querySelector('#dp-inv-preview');if(!s||!box)return;
+    const wh=state.inventoryWarehouse,type=state.invAction,q=invQty(s.id,wh);
+    if(type==='receipt'){
+      const orders=num(root.querySelector('[data-v7-order-qty]')?.value||0),packs=num(root.querySelector('[data-v7-package-qty]')?.value||0);
+      if(!(Number.isInteger(orders)&&orders>=0&&Number.isInteger(packs)&&packs>=0&&orders+packs>0)){box.textContent='Oppgi minst én hel bestillingsenhet eller pakning.';return;}
+      const total=orders*(s.packsPerOrder||1)+packs;
+      box.textContent=orders+' '+(s.orderLabel||'kasse').toLowerCase()+' + '+packs+' '+(s.packageLabel||'pakning').toLowerCase()+' = '+total+' pakninger. Brutto '+asDisplay(total*packBase(s),s)+' − brekk '+asDisplay(total*lossBase(s),s)+' = '+asDisplay(total*usableBase(s),s)+' til lager. Nå '+v7Readable(s,q)+' → '+v7Readable(s,q+total*usableBase(s));
+    }else {
+      const delta=num(root.querySelector('[data-inv-amount]')?.value||0)*factor(displayUnit(s));
+      box.textContent=Number.isFinite(delta)&&delta>0?'Etter registrering: '+v7Readable(s,q-delta):'Oppgi mengden som skal '+(type==='waste'?'registreres som svinn':'flyttes')+'.';
+    }
+  };
+  submitInv=function(){
+    const s=stockById(state.invProduct),wh=state.inventoryWarehouse,type=state.invAction;
+    if(!s||!s.inventoryActive) return;
+    if(v7InventoryLocked(wh)){state.invError='Avslutt eller avbryt varetellingen før du registrerer bevegelser på dette lagerstedet.';render();return;}
+    let error='';
+    if(type==='receipt'){
+      const orders=num(root.querySelector('[data-v7-order-qty]')?.value||0),packs=num(root.querySelector('[data-v7-package-qty]')?.value||0);
+      const price=optionalNum(root.querySelector('[data-v7-unit-price]')?.value??'');
+      const scan=root.querySelector('[data-v7-ean]')?.value.trim();
+      if(scan&&![s.ean,s.supplierSku].includes(scan))error='Strekkoden eller varenummeret tilhører ikke denne varen.';
+      else if(!(Number.isInteger(orders)&&orders>=0&&Number.isInteger(packs)&&packs>=0&&(orders*(s.packsPerOrder||1)+packs)>0))error='Oppgi hele bestillingsenheter eller pakninger.';
+      else if(price!==null&&(!Number.isFinite(price)||price<0))error='Kostpris må være et ikke-negativt beløp.';
+      else {
+        const total=orders*(s.packsPerOrder||1)+packs;v8ApplyReceiptCost(s,total,price,wh);
+        invRecord(s,wh,'receipt',total*usableBase(s),{packages:total,orderUnits:orders,extraPackages:packs,gross:total*packBase(s),brekk:total*lossBase(s),unitPrice:price??s.lastPurchaseCost??s.costPack,note:orders+' best.enhet + '+packs+' ekstra pakninger · mottatt fra '+(s.supplier||'leverandør')});
+      }
+    }else {
+      const amount=num(root.querySelector('[data-inv-amount]')?.value||0)*factor(displayUnit(s));
+      if(!(Number.isFinite(amount)&&amount>0))error='Oppgi en positiv mengde.';
+      else if(amount>invQty(s.id,wh)+1e-6)error='Mengden er større enn beholdningen på dette lagerstedet.';
+      else if(type==='waste') {
+        const reason=root.querySelector('[data-v7-reason]')?.value||'annet';const note=root.querySelector('[data-v7-comment]')?.value?.trim();
+        invRecord(s,wh,'waste',-amount,{reason,note:'Svinn · '+reason+(note?' · '+note:'')});
+      }else if(type==='transfer'){
+        const dest=root.querySelector('[data-inv-dest]')?.value;
+        if(!dest||dest===wh)error='Velg et annet lagersted.';
+        else if(v7InventoryLocked(dest))error='Mållageret telles nå. Vent til telleøkten er avsluttet.';
+        else {const transfer=uid('transfer');invRecord(s,wh,'transfer_out',-amount,{transferId:transfer,note:'Til '+whName(dest)});invRecord(s,dest,'transfer_in',amount,{transferId:transfer,note:'Fra '+whName(wh)});}
+      }
+    }
+    if(error){state.invError=error;render();return;}
+    state.invAction=null;state.invError='';notify('Lagerbevegelsen er registrert.');render();
+  };
+  selectInv=function(s,type=null){
+    if(!s)return;
+    if(!v7Previous(state.inventoryWarehouse)){notify('Start med en fullstendig telling.');return;}
+    if(!s.inventoryActive){notify('Varen blir med ved neste fullstendige telling.');return;}
+    state.invProduct=s.id;state.invAction=type||'receipt';state.invError='';render();
+    root.querySelector('.dp-inv-operation')?.scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
+  // Varekort – metadata, tre enhetsnivåer, plassering, brukes-i og leverandør.
+  const v7OldOpenItem=openItem;
+  openItem=function(id=null){
+    v7OldOpenItem(id);
+    const s=state.itemEditing;if(!s)return;
+    if(!s.supplier)s.supplier='';if(!s.supplierSku)s.supplierSku='';if(!s.ean)s.ean='';
+    if(!s.packsPerOrder)s.packsPerOrder=1;if(!s.orderLabel)s.orderLabel='Kasse';
+    if(!s.packageLabel)s.packageLabel=s.dimension==='count'?'Pakke':'Flaske';
+    if(!s.placement)s.placement=v7Locations[0];
+    if(s.dailyCount===undefined)s.dailyCount=false;
+    render();
+  };
+  const v7OldItemForm=renderItemForm;
+  renderItemForm=function(){
+    v7OldItemForm();const d=state.itemEditing;if(!d||state.itemTab!=='general')return;
+    const section=content.querySelector('section.dp-panel'),details=section?.querySelector('details.dp-optional-details');
+    if(!section||!details)return;
+    const group=document.createElement('div');group.className='dp-v7-section';
+    group.innerHTML='<h3>Innkjøp og leverandør</h3><p class="dp-v7-muted">Mottak registreres i kasser, telling i hele flasker + målt mengde i åpne flasker, salg i cl.</p>'+ 
+      '<div class="dp-v7-form-grid">'+input('Leverandør','data-item-field="supplier" placeholder="Leverandørnavn"',d.supplier)+input('Leverandørens varenummer','data-item-field="supplierSku"',d.supplierSku)+input('EAN / strekkode','data-item-field="ean"',d.ean)+'</div>'+ 
+      '<div class="dp-v7-form-grid dp-v7-mt">'+input('Pakninger per bestillingsenhet','data-item-field="packsPerOrder" inputmode="numeric"',d.packsPerOrder)+
+      '<label class="dp-field"><span>Bestillingsenhet</span>'+v7Sel('data-item-field="orderLabel"',['Kasse','Fat','Tank','Kartong','Pakning'],d.orderLabel)+'</label>'+ 
+      '<label class="dp-field"><span>Pakningsenhet</span>'+v7Sel('data-item-field="packageLabel"',['Flaske','Boks','Fat','Tank','Pose','Pakke','Enhet'],d.packageLabel)+'</label></div>'+ 
+      '<div class="dp-v7-form-grid dp-v7-mt"><label class="dp-field"><span>Plassering ved telling</span>'+v7Sel('data-item-field="placement"',v7Locations,d.placement)+'</label>'+check('Med på daglig telleliste (f.eks. dyr sprit)','data-item-check="dailyCount"',d.dailyCount)+'</div>'+ 
+      '<div class="dp-v7-help dp-v7-mt">'+esc(d.orderLabel||'Kasse')+' = '+fmt(num(d.packsPerOrder)||1)+' '+esc(d.packageLabel||'flaske')+'r. Brukbart innhold per pakning beregnes fra pakning minus brekk.</div>';
+    details.before(group);
+    if(d.id){const usedIn=state.mine.filter(dr=>dr.variants.some(v=>v.recipe.some(r=>enabled(r)&&r.stockId===d.id)));
+      const block=document.createElement('div');block.className='dp-v7-section';
+      block.innerHTML='<h3>Brukes i</h3><p class="dp-v7-muted">Tilknyttede salgsvarer – endringer i oppskrifter gjøres på salgsvarens Forbruk-fane.</p>'+(usedIn.length?usedIn.map(dr=>'<span class="dp-v7-chip">'+esc(dr.name)+'</span>').join(''):'<p class="dp-v7-muted">Ingen drinker bruker denne ingrediensen ennå.</p>');
+      details.before(block);
+    }
+  };
+  const v7OldSaveItem=saveItem;
+  saveItem=function(){
+    const d=state.itemEditing,n=num(d?.packsPerOrder);
+    if(!(Number.isInteger(n)&&n>0)){state.itemError='Antall pakninger per bestillingsenhet må være et helt tall større enn null.';render();return;}
+    d.packsPerOrder=n;
+    // Minimum is optional until explicitly configured on the item card.
+    // Target is optional until explicitly configured on the item card.
+    v7OldSaveItem();
+  };
+  actions['save-item']=()=>saveItem();
+  actions['inv-submit']=()=>submitInv();
+  actions['complete-sale']=()=>completeSale();
+  // Refusjon: skjenket klassifiserer allerede registrert salgsforbruk som svinn i rapporten,
+  // ikke skjenket tilbakefører lageruttaket via egen sporbar hendelse.
+  actions.refund=b=>{const s=state.sales.find(x=>x.id===b.dataset.id);if(s&&!s.refunded){v7.refundPending=s.id;render();}};
+  actions['v7-refund-cancel']=()=>{v7.refundPending=null;render();};
+  actions['v7-refund-submit']=b=>{
+    const sale=state.sales.find(s=>s.id===v7.refundPending);if(!sale||sale.refunded)return;
+    const disposition=b.dataset.disposition;
+    if(disposition==='not-poured'&&state.usageEvents.filter(u=>u.saleId===sale.id).some(u=>v7InventoryLocked(stockById(u.stockId)?.defaultWarehouse||'bar'))){notify('Avslutt varetellingen på berørte lagersteder før retur.');return;}
+    sale.refunded=true;sale.refundDisposition=disposition;
+    if(disposition==='not-poured') {
+      state.usageEvents.filter(e=>e.saleId===sale.id).forEach(u=>{
+        const s=stockById(u.stockId);s.used=Math.max(0,s.used-u.base);u.reversed=true;u.reversedAt=new Date().toISOString();
+        if(s.inventoryActive)invRecord(s,s.defaultWarehouse||'bar','refund_return',u.base,{saleId:sale.id,sourceId:u.id,note:'Refusjon, ikke skjenket · tilbake på lager'});
+      });
+    }
+    v7.refundPending=null;notify(disposition==='poured'?'Refundert. Forbruk klassifiseres som svinn uten dobbeltrekk.':'Refundert. Ingredienser er tilbakeført til lageret.');render();
+  };
+  const v7OldRenderPos=renderPos;
+  renderPos=function(){
+    v7OldRenderPos();
+    if(v7.refundPending){
+      const box=document.createElement('section');box.className='dp-panel dp-v7-section';
+      box.innerHTML='<h2>Hva skjedde med det som ble bestilt?</h2><p class="dp-v7-muted">Velg utfallet før refusjonen lagres. Dette avgjør om lagerforbruket skal bli stående som svinn eller tilbakeføres.</p><div class="dp-v7-flex dp-v7-mt">'+button('v7-refund-submit','Skjenket / laget – registrer som svinn','data-disposition="poured"','dp-primary')+button('v7-refund-submit','Ikke skjenket – tilbakefør varer','data-disposition="not-poured"')+button('v7-refund-cancel','Avbryt')+'</div>';
+      content.prepend(box);
+    }
+    const last=state.sales.at(-1);
+    const refundText=content.querySelector('.dp-receipt p.dp-small.dp-muted');
+    if(last?.refunded&&refundText)refundText.textContent=last.refundDisposition==='not-poured'?'Betalingen er refundert og ingrediensene er tilbakeført til lageret.':'Betalingen er refundert. Allerede skjenkede ingredienser er klassifisert som svinn uten dobbeltrekk.';
+    if(!v7Previous('bar'))return;
+    const box=document.createElement('section');box.className='dp-panel dp-v7-section';
+    const current=state.stock.filter(s=>s.inventoryActive),chosen=v7.wastePos||current[0]?.id;
+    box.innerHTML='<div class="dp-between"><div><h2>Registrer svinn fra kassen</h2><p class="dp-v7-muted">Én handling for søl, kompensasjon, ansattdrikk eller knust vare.</p></div></div><div class="dp-v7-form-grid dp-v7-mt">'+
+      '<label class="dp-field"><span>Ingrediens</span><select class="dp-select" data-v7-pos-waste-stock>'+current.map(s=>'<option value="'+s.id+'"'+(s.id===chosen?' selected':'')+'>'+esc(s.name)+'</option>').join('')+'</select></label>'+ 
+      input('Mengde ('+displayUnit(stockById(chosen))+')','data-v7-pos-waste-qty inputmode="decimal" placeholder="F.eks. 2"','')+ 
+      '<label class="dp-field"><span>Årsak</span><select class="dp-select" data-v7-pos-waste-reason>'+['søl','ansattdrikk','kompensasjon','knust','annet'].map(r=>'<option>'+r+'</option>').join('')+'</select></label></div>'+ 
+      '<div class="dp-v7-flex dp-v7-mt">'+button('v7-pos-waste','Registrer svinn','','dp-primary')+'</div>'+(v7.posWasteError?'<p class="dp-error">'+esc(v7.posWasteError)+'</p>':'');
+    content.append(box);
+  };
+  actions['v7-pos-waste']=()=>{
+    const id=root.querySelector('[data-v7-pos-waste-stock]')?.value||v7.wastePos,s=stockById(id),base=num(root.querySelector('[data-v7-pos-waste-qty]')?.value)*factor(displayUnit(s)),reason=root.querySelector('[data-v7-pos-waste-reason]')?.value||'søl';
+    if(v7InventoryLocked('bar'))v7.posWasteError='Tell ferdig lageret før du registrerer svinn.';
+    else if(!(base>0)||base>invQty(id,'bar'))v7.posWasteError='Angi gyldig mengde innenfor beholdningen.';
+    else {invRecord(s,'bar','waste',-base,{reason,note:'Kasse · '+reason});v7.posWasteError='';notify('Svinn registrert fra kassen.');}
+    render();
+  };
+  const v7OldCompleteSale=completeSale;
+  completeSale=function(){
+    if(v7.count && (v7InventoryLocked('bar') || state.cart.some(line=>line.recipe?.some(r=>v7InventoryLocked(stockById(r.stockId)?.defaultWarehouse||'bar'))))){notify('En telling pågår på lagerstedet som salget trekker fra. Fullfør tellingen først.');return;}
+    v7OldCompleteSale();
+  };
+  // Kost / dekningsbidrag finnes allerede i V6 sin Forbruk-fane (economics()).
+  // Produksjon: konverter kilo frukt til stykk ferdig garnityr. Resultatet registreres
+  // på samme lokasjon og kan senere brukes som ingrediens i resepter.
+  actions['v7-produce']=()=>{
+    const kg=num(root.querySelector('[data-v7-produce-kg]')?.value??v7.productionKg),raw=stockById('whole-lime'),semi=stockById('limeSlice');
+    const recipe=semi.productionRecipe||{sourceId:'whole-lime',inputQty:1,inputUnit:'kg',yieldQty:40,yieldUnit:'stk'};
+    const required=kg*factor('kg'),yielded=kg*recipe.yieldQty/recipe.inputQty,wh=state.inventoryWarehouse;
+    if(!(kg>0)){notify('Oppgi kilo lime som skal bearbeides.');return;}
+    if(v7InventoryLocked(wh)){notify('Avslutt tellingen før du registrerer produksjon.');return;}
+    if(invQty(raw.id,wh)<required){notify('Ikke nok lime på '+whName(wh)+'. Flytt eller motta råvaren først.');return;}
+    v8ApplyProductionCost(raw,semi,required,yielded,wh);
+    const production=uid('production');
+    invRecord(raw,wh,'production_out',-required,{productionId:production,note:fmt(kg)+' kg lime til limeskiver'});
+    invRecord(semi,wh,'production_in',yielded,{productionId:production,note:fmt(kg)+' kg lime → '+fmt(yielded)+' skiver'});
+    notify('Produksjon registrert. Råvare trukket og halvfabrikat lagt på lager. Innkjøpsprisen er ikke overskrevet.');render();
+  };
+  // Aktive handlinger + regneark-/e-postforslag.
+  actions['v7-start-count']=v7OpenCount;
+  actions['v7-daily-count']=()=>{v7OpenCount();if(v7.count){v7.count.filter='daily';v7.count.partial=true;render();}};
+  actions['v7-demo-fill']=v7Autofill;
+  actions['v7-clear-count']=()=>{if(v7.count){v7.count.lines={};render();}};
+  actions['v7-finish-count']=v7CloseCount;
+  actions['v7-cancel-count']=()=>{v7.count=null;v7.lastError='';notify('Telleøkten er avbrutt. Ingen saldo er endret.');render();};
+  actions['v7-close-report']=()=>{v7.report=null;render();};
+  actions['v7-view-last']=()=>{v7.report=v7Previous(state.inventoryWarehouse);render();};
+  actions['v7-download-csv']=v7SaveCsv;
+  actions['v7-copy-orders']=async()=>{
+    if(!v7.orderDraft||!Object.keys(v7.orderDraft).length){notify('Ingen bestillingsforslag å kopiere.');return;}
+    const proposal=Object.entries(v7.orderDraft).map(([vendor,arr])=>'Til '+vendor+'\n'+arr.map(({s,needed})=>'- '+s.name+' ('+s.supplierSku+'): '+needed+' '+s.orderLabel.toLowerCase()+' á '+s.packsPerOrder+' '+s.packageLabel.toLowerCase()).join('\n')).join('\n\n');
+    try{await navigator.clipboard.writeText('Done Pay · bestillingsforslag\n\n'+proposal);notify('Bestillingsforslaget er kopiert. Lim det inn i e-post.');}
+    catch(e){prompt('Kopier bestillingsforslag:',proposal);}
+  };
+  root.addEventListener('input',e=>{
+    const ds=e.target.dataset;
+    if('v7CountWhole' in ds||'v7CountOpen' in ds){
+      const id=ds.v7CountWhole||ds.v7CountOpen,c=v7.count;if(!c)return;
+      const l=c.lines[id]??={whole:'',open:'',mode:'tenths'};
+      if('v7CountWhole' in ds)l.whole=e.target.value;else l.open=e.target.value;
+      v7.lastError='';const row=e.target.closest('.dp-v7-count-row'),s=stockById(id),value=v7CountValue(s,l);
+      row?.querySelector('.dp-v7-count-total')?.replaceChildren(document.createTextNode(value===null?'Ikke telt':Number.isFinite(value)?v7Shown(value,s):'Ugyldig mengde'));
+      const progress=v7Progress();const counter=root.querySelector('.dp-v7-hero strong');if(counter)counter.textContent=progress+' av '+(v7.count?.partial?state.stock.filter(x=>x.dailyCount).length:state.stock.length)+' varer telt';
+      const bar=root.querySelector('.dp-v7-hero .progress-bar');if(bar)bar.style.width=100*progress/(v7.count?.partial?state.stock.filter(x=>x.dailyCount).length:state.stock.length)+'%';return;
+    }
+    if('v7OrderQty' in ds||'v7PackageQty' in ds||'v7UnitPrice' in ds){inventoryCalculation();return;}
+    if('v7ProduceKg' in ds){v7.productionKg=e.target.value;const result=root.querySelector('#v7-produce-preview');if(result)result.textContent=fmt(num(v7.productionKg)*(stockById('limeSlice')?.productionRecipe?.yieldQty||40))+' limeskiver';}
+  });
+  root.addEventListener('change',e=>{
+    const ds=e.target.dataset;
+    if('v7CountFilter' in ds){if(v7.count){v7.count.filter=e.target.value;render();}return;}
+    if('v7CountMode' in ds){const c=v7.count;if(!c)return;const l=c.lines[ds.v7CountMode]??={whole:'',open:'',mode:'tenths'};l.mode=e.target.value;l.open='';render();return;}
+    if('v7PosWasteStock' in ds){v7.wastePos=e.target.value;render();return;}
+  });
+
+  // V8: videreutviklet lagerkontroll. Skille mellom demonstrasjon og produksjons-API.
+  const v8 = {
+    actors:[{id:'lina',name:'Lina · Baransatt',role:'staff'}, {id:'mats',name:'Mats · Lageransvarlig',role:'manager'}],
+    actorId:'mats', orders:[], review:false, approvalNote:'', historyExpanded:false,
+    thresholdKr:100, weighHelp:false, poFilter:'all', lastSave:'', persistError:''
+  };
+  const v8Actor=()=>v8.actors.find(x=>x.id===v8.actorId)||v8.actors[1];
+  const v8Manager=()=>v8Actor().role==='manager';
+  const v8AsUnit=(s,val)=>asDisplay(val,s);
+  const v8May=(action)=>v8Manager()||action==='waste'; // staff can report waste, managers approve counts, receipts and transfers
+
+  // Ett standardisert halvfabrikat: resepten er nå en egenskap på varekortet,
+  // ikke et fast tall i produksjonshendelsen.
+  const semiLime=stockById('limeSlice');
+  if(semiLime)semiLime.productionRecipe={sourceId:'whole-lime',inputQty:1,inputUnit:'kg',yieldQty:40,yieldUnit:'stk',revision:1};
+  state.stock.push({id:'beer-keg',key:'beer-keg',name:'Pils på 20 l fat',dimension:'volume',pack:20,packUnit:'l',loss:0,lossUnit:'cl',costPack:1650,
+    inventoryActive:false,used:0,roles:{consume:true,sale:false},sale:{amount:40,unit:'cl',price:110,vat:25},revision:0,
+    supplier:'Bryggeri AS',supplierSku:'FAT-20',ean:'7040000002001',minPacks:0.5,targetPacks:3,packsPerOrder:2,orderLabel:'Kasse',packageLabel:'Fat',placement:'02 · Kjølelager',dailyCount:false});
+  state.stock.push({id:'beer-tank',key:'beer-tank',name:'Øl fra tank · 3 000 l',dimension:'volume',pack:3000,packUnit:'l',loss:0,lossUnit:'cl',costPack:110000,
+    inventoryActive:false,used:0,roles:{consume:true,sale:false},sale:null,revision:0,
+    supplier:'Bryggeri AS',supplierSku:'TANK-3000',ean:'7040000002002',minPacks:0.1,targetPacks:1,replenishmentWarehouse:'main',defaultWarehouse:'main',packsPerOrder:1,orderLabel:'Tank',packageLabel:'Tank',placement:'02 · Kjølelager',dailyCount:false});
+  state.stock.forEach(s=>{if(s.tareGrams===undefined) s.tareGrams=s.dimension==='volume'?470:0;
+    if(s.density===undefined)s.density=s.dimension==='volume'?1.03:1;
+    if(Number.isFinite(s.costPack)&&usableBase(s)>0)s.avgUnitCost=s.costPack/usableBase(s);
+    s.lastPurchaseCost??=s.costPack;
+  });
+  // Lagerbeholdning kan endres ved svinn/salg/telling, men innkjøp og produksjon
+  // oppdaterer løpende veid gjennomsnittskost. Kost på varekort er katalogpris.
+  function v8MergeAvg(s,oldQty,addQty,incomingPerBase){
+    if(!(addQty>0)||!(incomingPerBase>=0&&Number.isFinite(incomingPerBase)))return;
+    const oldPrice=Number.isFinite(s.avgUnitCost)?s.avgUnitCost:v7UnitCost(s);
+    const effectiveOld=Math.max(0,oldQty);
+    s.avgUnitCost=(effectiveOld*oldPrice+addQty*incomingPerBase)/(effectiveOld+addQty);
+  }
+  function v8ApplyReceiptCost(s,packCount,inputPrice,warehouse){
+    const price=inputPrice===null?(s.lastPurchaseCost??s.costPack):inputPrice;
+    if(!Number.isFinite(price)||usableBase(s)<=0)return;
+    v8MergeAvg(s,invQty(s.id),packCount*usableBase(s),price/usableBase(s));
+    s.lastPurchaseCost=price;
+  }
+  function v8ApplyProductionCost(raw,semi,required,yielded,warehouse){
+    const cost=required*v7UnitCost(raw)/yielded;
+    v8MergeAvg(semi,invQty(semi.id),yielded,cost);
+  }
+  // Spor den ansatte som utfører enhver lagerbevegelse.
+  const v8BaseRecord=invRecord;
+  invRecord=function(s,wh,type,delta,detail={}){
+    return v8BaseRecord(s,wh,type,delta,{...detail,actorId:v8Actor().id,actorName:v8Actor().name});
+  };
+  // Åpnet flaske på vekt: netto masse / produkttetthet; ta hensyn til fast rest.
+  const v8OldCountValue=v7CountValue;
+  v7CountValue=function(s,line){
+    if(line?.mode!=='weight')return v8OldCountValue(s,line);
+    if(!s||s.dimension!=='volume'||!line||line.whole===''||line.open==='')return null;
+    const whole=num(line.whole),gross=num(line.open),tare=num(s.tareGrams),density=num(s.density);
+    if(!Number.isInteger(whole)||whole<0||!Number.isFinite(gross)||!Number.isFinite(tare)||!Number.isFinite(density)||density<=0||gross<tare||tare<0)return NaN;
+    const ml=(gross-tare)/density;
+    if(ml>packBase(s)+0.00001)return NaN;
+    return invRound(whole*usableBase(s)+Math.max(0,ml-lossBase(s)));
+  };
+  const v8OldCountView=v7CountView;
+  v7CountView=function(){
+    let html=v8OldCountView(),c=v7.count;
+    if(!c)return html;
+    // Only volume products may use weighing. Show tare/density directly next to the unit selector.
+    for(const s of state.stock.filter(s=>s.dimension==='volume')){
+      const id=s.id,tag='data-v7-count-mode="'+id+'"',i=html.indexOf(tag);
+      if(i<0)continue;
+      const close=html.indexOf('</select>',i);
+      if(close<0)continue;
+      const selected=c.lines[id]?.mode==='weight'?' selected':'';
+      html=html.slice(0,close)+'<option value="weight"'+selected+'>Vekt (gram)</option>'+html.slice(close);
+      if(c.lines[id]?.mode==='weight'){
+        const rowEnd=html.indexOf('</div></div>',close); // only add hint, no custom interactive fields
+        html=html.slice(0,close+9)+'<span class="dp-v8-hint">Tara '+fmt(s.tareGrams)+' g · tetthet '+fmt(s.density)+' g/ml · vekt hele flasken</span>'+html.slice(close+9);
+      }
+    }
+    // Approval is a separate step: review large variances before committing.
+    const review=v8.review&&!c.opening;
+    const flagged=v8ReviewIssues();
+    const banner=review?'<section class="dp-v8-banner '+(flagged.length?'urgent':'')+'"><h3>Kontroller tellingen før godkjenning</h3><p class="dp-v8-hint">Avvik over '+money(v8.thresholdKr)+' eller minst 10 cl/1 enhet krever ekstra oppmerksomhet. Tellingen bokføres først når leder godkjenner.</p>'+
+      (flagged.length?flagged.map(x=>'<div class="dp-v8-issue"><div><strong>'+esc(x.s.name)+'</strong><div class="dp-v8-hint">'+asDisplay(x.delta,x.s)+' · '+money(x.amount)+'</div></div>'+button('v8-recount','Tell på nytt','data-stock="'+x.s.id+'"')+'</div>').join(''):'<p>Ingen store avvik.</p>')+
+      '<label class="dp-field"><span>Kommentar til godkjenning (påkrevd ved stort avvik)</span><input class="dp-input" data-v8-approval-note placeholder="Hva er kontrollert?" value="'+esc(v8.approvalNote)+'"></label><p class="dp-v8-hint">Innlogget: '+esc(v8Actor().name)+'</p></section>':'';
+    // Add approval review above the final action row, without replacing counting fields.
+    const last=html.lastIndexOf('<div class="dp-v7-flex dp-v7-mt">');
+    if(last>=0)html=html.slice(0,last)+banner+html.slice(last);
+    if(review)html=html.replace('Avslutt og vis avviksrapport','Godkjenn avvik og avslutt');
+    return html;
+  };
+  function v8ReviewIssues(){
+    const c=v7.count;if(!c||c.opening)return [];
+    return state.stock.filter(s=>!c.partial||s.dailyCount).flatMap(s=>{
+      const q=v7CountValue(s,c.lines[s.id]);if(q===null||!Number.isFinite(q))return [];
+      const expected=v7MovementDetails(s,c.wh,c.snapshotLedgerLength).theoretical,delta=invRound(q-expected);
+      const amount=delta*v7UnitCost(s);
+      const significant=Math.abs(amount)>=v8.thresholdKr || (s.dimension==='volume'?Math.abs(delta)>=100:s.dimension==='mass'?Math.abs(delta)>=100:Math.abs(delta)>=1);
+      return significant?[{s,delta,amount}]:[];
+    });
+  }
+  const v8CommitCount=v7CloseCount;
+  v7CloseCount=function(){
+    const c=v7.count;if(!c)return;
+    const incomplete=state.stock.filter(s=>(!c.partial||s.dailyCount)&&!Number.isFinite(v7CountValue(s,c.lines[s.id])));
+    if(incomplete.length){v7.lastError='Tell alle varene først. '+incomplete.length+' mangler eller er ugyldige.';render();return;}
+    if(!v8.review&&!c.opening){v8.review=true;v7.lastError='';notify('Kontroller avvikene før tellingen godkjennes.');render();return;}
+    if(!v8Manager()){v7.lastError='Kun lageransvarlig kan godkjenne en telleøkt. Bytt ansatt øverst.';render();return;}
+    if(v8ReviewIssues().length&&!v8.approvalNote.trim()&&!c.opening){v7.lastError='Skriv en kommentar om de store avvikene før godkjenning.';render();return;}
+    const previousLength=v7.history.length;
+    v8CommitCount();
+    if(v7.history.length>previousLength){
+      const r=v7.history.at(-1);r.startedBy=c.startedBy||v8Actor().name;r.approvedBy=v8Actor().name;r.approvalNote=v8.approvalNote.trim();
+    }
+    v8.review=false;v8.approvalNote='';v8Save();
+  };
+  // Actor stamp at start, separate from approver.
+  const v8OpenCount=v7OpenCount;
+  v7OpenCount=function(){v8OpenCount();if(v7.count)v7.count.startedBy??=v8Actor().name;};
+  actions['v7-start-count']=v7OpenCount;
+  actions['v7-daily-count']=()=>{v7OpenCount();if(v7.count){v7.count.filter='daily';v7.count.partial=true;render();}};
+  actions['v7-finish-count']=()=>v7CloseCount();
+  actions['v8-recount']=b=>{
+    if(!v7.count)return;
+    delete v7.count.lines[b.dataset.stock];v8.review=false;v8.approvalNote='';v7.lastError='Tell varen på nytt og kontroller resultatet før godkjenning.';render();
+  };
+  const v8BaseCancel=actions['v7-cancel-count'];
+  actions['v7-cancel-count']=()=>{v8BaseCancel();v8.review=false;v8.approvalNote='';};
+  // Additional product metadata on the actual item card (not in drink import).
+  const v8BaseItemForm=renderItemForm;
+  renderItemForm=function(){
+    v8BaseItemForm();const s=state.itemEditing;if(!s||state.itemTab!=='general')return;
+    const section=content.querySelector('section.dp-panel'),details=section?.querySelector('details.dp-optional-details');
+    if(!section||!details)return;
+    const form=document.createElement('div');form.className='dp-v7-section';
+    form.innerHTML='<h3>Åpen flaske – valgfri telling på vekt</h3><p class="dp-v8-hint">Vekt er alternativ til tideler. Bruttovekt minus tom flaske (tara) omregnes med produktets tetthet. Fast brekk trekkes fra én gang.</p><div class="dp-v7-form-grid">'+
+      input('Tara – tom emballasje i gram','data-item-field="tareGrams" inputmode="decimal"',s.tareGrams??470)+
+      input('Tetthet i g/ml','data-item-field="density" inputmode="decimal"',s.density??1.03)+'</div>';
+    if(s.id==='limeSlice')form.innerHTML+='<div class="dp-v8-banner"><h3>Produksjonsresept · limeskiver</h3><p class="dp-v8-hint">Standard: 1 kg hel lime gir 40 skiver. Denne kan endres på varekortet og brukes i produksjon.</p>'+input('Limeskiver per kg lime','data-v8-yield inputmode="numeric"',s.productionRecipe?.yieldQty??40)+'</div>';
+    details.before(form);
+  };
+  const v8OldSaveItem=saveItem;
+  saveItem=function(){
+    const s=state.itemEditing;if(!s)return;
+    if(!Number.isFinite(num(s.tareGrams))||num(s.tareGrams)<0||!Number.isFinite(num(s.density))||num(s.density)<=0){state.itemError='Tara kan ikke være negativ og tetthet må være positiv.';render();return;}
+    s.tareGrams=num(s.tareGrams);s.density=num(s.density);
+    const yieldInput=root.querySelector('[data-v8-yield]');
+    if(s.id==='limeSlice'&&yieldInput){const yieldQty=num(yieldInput.value);if(!(yieldQty>0)){state.itemError='Antall produserte skiver må være større enn null.';render();return;}s.productionRecipe={...s.productionRecipe,yieldQty,revision:(s.productionRecipe?.revision||0)+1};}
+    v8OldSaveItem();
+  };
+  actions['save-item']=()=>saveItem();
+  // Product receipt dropdown linked to an existing order line.
+  const v8BaseInvForm=inventoryForm;
+  inventoryForm=function(){
+    let html=v8BaseInvForm();if(state.invAction!=='receipt')return html;
+    const open=v8.orders.filter(o=>o.warehouse===state.inventoryWarehouse&&o.lines.some(l=>l.stockId===state.invProduct&&l.receivedPackages<l.orderedPackages));
+    if(!open.length)return html;
+    const field='<label class="dp-field"><span>Motta mot innkjøpsordre (valgfritt)</span><select class="dp-select" data-v8-po-link><option value="">Uten ordre</option>'+open.map(o=>'<option value="'+esc(o.id)+'">'+esc(o.number+' · '+o.supplier)+' · '+(o.lines.find(l=>l.stockId===state.invProduct).orderedPackages-o.lines.find(l=>l.stockId===state.invProduct).receivedPackages)+' pk gjenstår</option>').join('')+'</select></label>';
+    return html.replace('<div id="dp-inv-preview"',field+'<div id="dp-inv-preview"');
+  };
+  const v8BaseSubmit=submitInv;
+  submitInv=function(){
+    if(!v8May(state.invAction)){state.invError='Kun lageransvarlig kan registrere mottak og flytting. Svinn kan rapporteres av baransatte.';render();return;}
+    const poId=root.querySelector('[data-v8-po-link]')?.value||'';
+    const oldLength=state.inventoryLedger.length,s=stockById(state.invProduct),wh=state.inventoryWarehouse;
+    const linked=v8.orders.find(o=>o.id===poId&&o.warehouse===wh),line=linked?.lines.find(l=>l.stockId===s?.id);
+    const packs=num(root.querySelector('[data-v7-order-qty]')?.value||0)*num(s?.packsPerOrder||1)+num(root.querySelector('[data-v7-package-qty]')?.value||0);
+    if(linked&&(!line||line.orderedPackages-line.receivedPackages<packs)){state.invError='Mottatt mengde overstiger åpne pakninger på bestillingen. Delmottak er mulig.';render();return;}
+    v8BaseSubmit();
+    if(linked&&state.inventoryLedger.length>oldLength){line.receivedPackages+=packs;const e=state.inventoryLedger.at(-1);e.purchaseOrderId=linked.id;notify('Mottaket er avstemt mot '+linked.number+'.');render();}
+  };
+  actions['inv-submit']=()=>submitInv();
+  const v8Production=actions['v7-produce'];
+  actions['v7-produce']=()=>{if(!v8Manager()){notify('Kun lageransvarlig kan registrere produksjon.');return;}v8Production();};
+  actions['v8-create-po']=()=>{
+    if(!v8Manager()){notify('Kun lageransvarlig kan opprette innkjøpsordre.');return;}
+    const wh=state.inventoryWarehouse,groups=v7.orderDraft||{};
+    let newCount=0;
+    Object.entries(groups).forEach(([supplier,items])=>{
+      const lines=items.filter(({s})=>!v8.orders.some(o=>o.warehouse===wh&&o.supplier===supplier&&o.lines.some(l=>l.stockId===s.id&&l.receivedPackages<l.orderedPackages)))
+      .map(({s,needed})=>({stockId:s.id,orderedPackages:needed*s.packsPerOrder,receivedPackages:0,unitCost:s.lastPurchaseCost??s.costPack}));
+      if(!lines.length)return;
+      v8.orders.push({id:uid('po'),number:'PO-'+String(v8.orders.length+1).padStart(4,'0'),supplier,warehouse:wh,createdAt:new Date().toISOString(),createdBy:v8Actor().name,lines});newCount++;
+    });
+    notify(newCount?newCount+' innkjøpsordre opprettet. Velg Motta når varene kommer.':'Ingen nye forslag som ikke allerede ligger i en åpen ordre.');render();
+  };
+  actions['v8-receive-po']=b=>{
+    if(!v8Manager()){notify('Kun lageransvarlig kan registrere varemottak.');return;}
+    const po=v8.orders.find(o=>o.id===b.dataset.po);if(!po)return;
+    state.inventoryWarehouse=po.warehouse;const s=stockById(b.dataset.stock);selectInv(s,'receipt');
+    const sel=root.querySelector('[data-v8-po-link]');if(sel)sel.value=po.id;
+    const line=po.lines.find(l=>l.stockId===s.id),remaining=line.orderedPackages-line.receivedPackages;
+    const orderQty=Math.floor(remaining/num(s.packsPerOrder)),extra=remaining%num(s.packsPerOrder);
+    const o=root.querySelector('[data-v7-order-qty]'),p=root.querySelector('[data-v7-package-qty]');if(o)o.value=orderQty;if(p)p.value=extra;
+    inventoryCalculation();
+  };
+  // Optional beer product: two sellable glass sizes linked to the same 20 L keg.
+  const v8OldPos=renderPos;
+  renderPos=function(){
+    v8OldPos();
+    if(!state.mine.length)return;
+    const first=content.querySelector('.dp-pos-products');if(!first)return;
+    const box=document.createElement('div');box.className='dp-product';
+    box.innerHTML='<div class="dp-kicker">Fat / tank · lagerdemoen</div><h3>Øl på tapp</h3><p class="dp-small dp-muted">Velg 20 l fat eller 3 000 l tank. Samme vare kan selges i 0,4 eller 0,5 l.</p><label class="dp-field"><span>Ølkilde</span><select class="dp-select" data-v8-beer-source><option value="beer-keg">Fat · 20 liter (Bar)</option><option value="beer-tank">Tank · 3 000 liter (Hovedlager)</option></select></label><div class="dp-product-variants">'+
+      button('v8-add-beer','0,4 l · 110 kr','data-cl="40" data-price="110"')+button('v8-add-beer','0,5 l · 135 kr','data-cl="50" data-price="135"')+'</div>';
+    first.append(box);
+  };
+  actions['v8-add-beer']=b=>{
+    const source=root.querySelector('[data-v8-beer-source]')?.value||'beer-keg';
+    const s=stockById(source),cl=num(b.dataset.cl),price=num(b.dataset.price);
+    const key=source+':'+cl,existing=state.cart.find(l=>l.key===key);
+    if(existing)existing.qty++;else state.cart.push({key,name:source==='beer-keg'?'Pils fra fat':'Pils fra tank',drinkId:null,stockProductId:s.id,variantId:null,label:fmt(cl/100)+' l',version:1,price,vat:25,recipe:[{stockId:s.id,key:s.id,amount:cl,unit:'cl',enabled:true}],qty:1});
+    notify('Øl '+fmt(cl/100)+' l lagt til i kassen.');render();
+  };
+  // Forbruket is an auditable history, and reversed events are excluded from active totals.
+  const v8OldUsage=renderUsage;
+  renderUsage=function(){
+    v8OldUsage();
+    const reversed=state.usageEvents.filter(u=>u.reversed);
+    if(!reversed.length)return;
+    // The per-sale accordion must also reflect the reversal, not only the top totals.
+    const details=content.querySelectorAll('.dp-history details');
+    state.sales.slice().reverse().forEach((sale,i)=>{
+      if(!sale.refunded||sale.refundDisposition!=='not-poured'||!details[i])return;
+      const caption=details[i].querySelector('summary');if(caption)caption.textContent+=' · Tilbakeført (ikke skjenket)';
+      const recipes=details[i].querySelector('.dp-consumption');if(recipes)recipes.innerHTML='<p class="dp-v8-hint">0 aktivt forbruk – opprinnelig resept og reversering er bevart i revisjonshistorikken.</p>';
+    });
+    const totals=new Map();state.usageEvents.filter(u=>!u.reversed).forEach(u=>totals.set(u.stockId,(totals.get(u.stockId)||0)+u.base));
+    const summary=content.querySelector('.dp-consumption');if(summary)summary.innerHTML=([ ...totals ].length?[...totals].map(([id,q])=>'<div><span>'+esc(stockById(id)?.name||'Vare')+'</span><strong>'+asDisplay(q,stockById(id))+'</strong></div>').join(''):'<div>0 aktivt vareforbruk etter tilbakeføring</div>');
+    const strip=content.querySelector('.dp-info-strip span');if(strip)strip.textContent=state.usageEvents.length-reversed.length+' aktive forbruk · '+reversed.length+' tilbakeført';
+    const note=document.createElement('div');note.className='dp-v8-banner';note.textContent='Refusjon «ikke skjenket» er tilbakeført fra aktivt forbruk. Opprinnelige hendelser beholdes for revisjon.';content.append(note);
+  };
+  function v8ReportHistory(){
+    const wh=state.inventoryWarehouse,list=v7.history.filter(r=>r.wh===wh&&!r.opening).slice().reverse();
+    if(!list.length)return '<section class="dp-panel dp-v7-section"><h2>Rapporthistorikk</h2><p class="dp-v7-muted">Ingen avsluttede avvikstellingen ennå. Første telling etablerer startlager.</p></section>';
+    const worst=new Map();list.forEach(r=>r.rows.forEach(x=>{if(x.variance<0){const o=worst.get(x.stockId)||{count:0,total:0};o.count++;o.total+=x.varianceValue;worst.set(x.stockId,o);}}));
+    const top=[...worst].sort((a,b)=>a[1].total-b[1].total).slice(0,3);
+    const loss=list.reduce((sum,r)=>sum+r.rows.filter(x=>x.varianceValue<0).reduce((a,r)=>a+r.varianceValue,0),0);
+    const sessions=list.length;
+    return '<section class="dp-panel dp-v7-section"><h2>Rapporthistorikk og trend</h2><p class="dp-v7-muted">Hvert avvik er lagret med dato, ansatt og godkjenner. Vis utviklingen gjennom flere tellinger.</p>'+
+      '<div class="dp-v8-history"><article><span class="dp-v8-hint">Avsluttede tellinger</span><strong>'+sessions+'</strong></article><article><span class="dp-v8-hint">Samlet negativt avvik</span><strong>'+money(loss)+'</strong></article><article><span class="dp-v8-hint">Gjengangere</span><strong>'+top.length+'</strong></article></div>'+
+      '<div class="dp-v7-result-list"><table class="dp-v8-table"><thead><tr><th>Tidspunkt</th><th>Nettoavvik</th><th>Negativt avvik</th><th>Godkjent av</th><th></th></tr></thead><tbody>'+list.map(r=>'<tr><td>'+v7Date(r.at)+'</td><td>'+money(r.varianceSum)+'</td><td>'+money(r.rows.filter(x=>x.varianceValue<0).reduce((sum,x)=>sum+x.varianceValue,0))+'</td><td>'+esc(r.approvedBy||'Ukjent')+'</td><td>'+button('v8-open-report','Åpne','data-report="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table></div>'+
+      (top.length?'<h3 class="dp-v7-mt">Varer å følge med på</h3>'+top.map(([id,r])=>'<div class="dp-v8-issue"><span>'+esc(stockById(id)?.name||'Vare')+' · negativt avvik i '+r.count+' økt(er)</span><strong>'+money(r.total)+'</strong></div>').join(''):'')+'</section>';
+  }
+  actions['v8-open-report']=b=>{v7.report=v7.history.find(x=>x.id===b.dataset.report)||null;render();};
+  function v8ProductAllocation(report){
+    if(!report||report.opening)return '';
+    const prior=v7.history.filter(h=>h.wh===report.wh&&h.closedAt<report.closedAt).at(-1);
+    const start=prior?.closedAt||'0000',end=report.closedAt;
+    const lost=report.rows.filter(r=>r.varianceValue<0);
+    const allocations=new Map();
+    for(const r of lost){
+      const uses=state.usageEvents.filter(e=>e.stockId===r.stockId&&!e.reversed&&e.occurredAt>=start&&e.occurredAt<=end);
+      const grouped=new Map();uses.forEach(e=>{const sale=state.sales.find(x=>x.id===e.saleId);const name=sale?.lines[e.orderLine]?.name||'Annen salgsvare';grouped.set(name,(grouped.get(name)||0)+e.base);});
+      const used=[...grouped].reduce((t,e)=>t+e[1],0);
+      for(const [name,qty] of grouped)allocations.set(name,(allocations.get(name)||0)+Math.abs(r.varianceValue)*qty/used);
+    }
+    const sorted=[...allocations].sort((a,b)=>b[1]-a[1]);
+    return '<section class="dp-panel dp-v7-section"><h3>Hvilke salgsvarefamilier kan være berørt?</h3><p class="dp-v8-hint">Indikativ fordeling av negativt råvareavvik etter registrert ingrediensforbruk i perioden. Dette beviser ikke hvilken drink svinnet kom fra.</p>'+
+      (sorted.length?sorted.map(([name,amount])=>'<div class="dp-v8-issue"><strong>'+esc(name)+'</strong><span>'+money(amount)+' · indikativt</span></div>').join(''):'<p class="dp-v8-hint">Ingen relevante salg i perioden – kan ikke fordele avvik på salgsvarer.</p>')+'</section>';
+  }
+  const v8BaseReport=v7ReportView;
+  v7ReportView=function(r){
+    let html=v8BaseReport(r);if(!r)return html;
+    if(!r.opening)html+=v8ProductAllocation(r);
+    html+='<div class="dp-v8-banner"><span class="dp-v8-hint">Telling startet av: '+esc(r.startedBy||'Ukjent')+' · godkjent av: '+esc(r.approvedBy||'Ukjent')+'</span>'+(r.approvalNote?'<p>'+esc(r.approvalNote)+'</p>':'')+'</div>';
+    return html;
+  };
+  // Sidebar-like sections are placed below the familiar stock UI, not inside import flow.
+  const v8BaseInventory=renderInventory;
+  renderInventory=function(){
+    v8BaseInventory();
+    const wh=state.inventoryWarehouse;
+    const header=content.querySelector('.dp-v7-toolbar');
+    if(header){const selector=document.createElement('div');selector.className='dp-v8-user';selector.innerHTML='<span class="dp-v8-hint">Registrerer som</span><select class="dp-select" data-v8-actor>'+v8.actors.map(a=>'<option value="'+a.id+'"'+(a.id===v8.actorId?' selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select>';header.append(selector);}
+    if(v7.count){const selector=content.querySelector('[data-inv-warehouse]');if(selector)selector.disabled=true;return;}
+    if(!v7Previous(wh))return;
+    const section=document.createElement('div');
+    section.innerHTML=v8ReportHistory()+'<section class="dp-panel dp-v7-section"><div class="dp-between"><div><h2>Innkjøpsordre og varemottak</h2><p class="dp-v8-hint">Opprett ordre fra påfyllsforslaget, og registrer senere helt eller delvis mottak mot den.</p></div>'+button('v8-create-po','Opprett ordre fra forslag')+'</div>'+
+      (v8.orders.filter(x=>x.warehouse===wh).length?v8.orders.filter(x=>x.warehouse===wh).slice().reverse().map(o=>'<div class="dp-v8-po"><div><strong>'+esc(o.number)+' · '+esc(o.supplier)+'</strong><p class="dp-v8-hint">Opprettet av '+esc(o.createdBy)+' · '+v7Date(o.createdAt)+'</p>'+o.lines.map(l=>'<p class="dp-v8-hint">'+esc(stockById(l.stockId)?.name||'Vare')+': '+l.receivedPackages+' av '+l.orderedPackages+' pakninger mottatt</p>').join('')+'</div><div>'+o.lines.filter(l=>l.receivedPackages<l.orderedPackages).map(l=>button('v8-receive-po','Motta '+esc(stockById(l.stockId)?.name||'vare'),'data-po="'+o.id+'" data-stock="'+l.stockId+'"')).join('')+(o.lines.every(l=>l.receivedPackages>=l.orderedPackages)?'<span class="dp-badge good">Ferdig mottatt</span>':'')+'</div></div>').join(''):'<p class="dp-v8-hint dp-v7-mt">Ingen innkjøpsordre opprettet ennå.</p>')+'</section>';
+    const movements=content.querySelectorAll('section.dp-v7-section');const last=movements[movements.length-1];if(last)last.after(section);else content.append(section);
+    // Show documented cost-model contract to prevent conflation with last purchase price.
+    const info=document.createElement('div');info.className='dp-v8-banner';info.innerHTML='<strong>Kostmetode: løpende veid gjennomsnitt</strong><p class="dp-v8-hint">Mottak og produksjon oppdaterer gjennomsnittlig brukskost. Leverandørens siste pris holdes separat. Lageravvik verdsettes med gjennomsnitt ved avstemming. Flerlager/fiscal integrasjon må spesifiseres før produksjon.</p>';content.append(info);
+    // Production yield comes from semifinished recipe, not hard-coded multiplier.
+    const yieldQty=stockById('limeSlice')?.productionRecipe?.yieldQty||40;
+    content.querySelectorAll('.dp-v7-section').forEach(node=>{if(node.innerHTML.includes('1 kg lime gir 40 limeskiver'))node.innerHTML=node.innerHTML.replace('1 kg lime gir 40 limeskiver','1 kg lime gir '+fmt(yieldQty)+' limeskiver');});
+  };
+  root.addEventListener('change',e=>{
+    if('v8Actor' in e.target.dataset){v8.actorId=e.target.value;render();}
+  });
+  root.addEventListener('input',e=>{if('v8ApprovalNote' in e.target.dataset)v8.approvalNote=e.target.value;});
+  // Prototype persistence: secure against malformed data and disabled storage. In the
+  // real service, server-side sessions, atomic writes and concurrency control are required.
+  const v8StoreKey='done-pay-drink-import-v10-session';
+  const v8PersistFields=['stock','mine','sales','usageEvents','inventoryLedger','cart','serial','warehouses','inventoryWarehouse','batches','groups','active'];
+  let v8Clearing=false;
+  function v8Save(){
+    if(v8Clearing)return;
+    try{const saved={fields:Object.fromEntries(v8PersistFields.map(k=>[k,state[k]])),count:v7.count,history:v7.history,cancelled:v7.cancelled,reportId:v7.report?.id||null,
+      actorId:v8.actorId,orders:v8.orders,review:v8.review,approvalNote:v8.approvalNote};
+      localStorage.setItem(v8StoreKey,JSON.stringify(saved));v8.persistError='';}
+    catch(e){v8.persistError='Lagring i nettleseren er utilgjengelig. Denne økten kan gå tapt.';}
+  }
+  function v8Load(){
+    try{const raw=localStorage.getItem(v8StoreKey);if(!raw)return;
+      const data=JSON.parse(raw);if(!data||typeof data!=='object'||!data.fields)return;
+      for(const field of v8PersistFields)if(field in data.fields)state[field]=data.fields[field];
+      v7.count=data.count||null;v7.history=data.history||[];v7.cancelled=data.cancelled||[];v7.report=v7.history.find(r=>r.id===data.reportId)||null;
+      v8.orders=data.orders||[];v8.actorId=data.actorId||'mats';v8.review=!!data.review;v8.approvalNote=data.approvalNote||'';
+      if(v7.count)state.inventoryWarehouse=v7.count.wh;
+      state.stock.forEach(s=>{s.avgUnitCost??=Number.isFinite(s.costPack)&&usableBase(s)>0?s.costPack/usableBase(s):undefined;s.tareGrams??=470;s.density??=1.03;});
+    }catch(e){v8.persistError='En tidligere demoøkt kunne ikke leses. Åpnet med standardverdier.';}
+  }
+  v8Load();
+  let v8SaveTimer;
+  const v8SaveSoon=()=>{clearTimeout(v8SaveTimer);v8SaveTimer=setTimeout(v8Save,120);};
+  root.addEventListener('input',v8SaveSoon);
+  root.addEventListener('change',v8SaveSoon);
+  root.addEventListener('click',()=>setTimeout(v8Save,0));
+  actions['v8-reset-demo']=()=>{if(confirm('Nullstille hele V10-demoen, inkludert tellinger, avbrutte økter og innkjøpsordre?')){v8Clearing=true;clearTimeout(v8SaveTimer);try{localStorage.removeItem(v8StoreKey);}catch(e){}location.reload();}};
+  const v8BeforeInventory=renderInventory;
+  renderInventory=function(){v8BeforeInventory();const footer=document.createElement('div');footer.className='dp-v7-flex dp-v7-mt';footer.innerHTML=button('v8-reset-demo','Nullstill demo-data')+'<span class="dp-v8-hint">V10 lagrer demoøkten lokalt i denne nettleseren. '+esc(v8.persistError)+'</span>';content.append(footer);};
+
+  // V10: two-stage blind count (staff submit -> manager opens review), retained cancel audit,
+  // one-person self-approval exception, and one journal event per committed field rather than per keystroke.
+  // Identity and permissions remain UI-simulated; in production use authoritative session/role on backend.
+  v8.actors.splice(1,0,{id:'per',name:'Per · Baransatt',role:'staff'});
+  if(!v7.count&&!v7.history.length)v8.actorId='lina';
+  if(v7.count){v7.count.phase??=(v8.review?'review':'counting');v7.count.audit??=[];v7.count.everReviewed??=!!v8.review;}
+  const v10Now=()=>new Date().toISOString();
+  const v10Lines=c=>state.stock.filter(s=>!c.partial||s.dailyCount);
+  const v10LineSnapshot=l=>l?{whole:l.whole,open:l.open,mode:l.mode,byId:l.countedById||null,by:l.countedByName||null,at:l.countedAt||null,fieldAuthors:structuredClone(l.fieldAuthors||{})}:null;
+  function v10UpdateLineAuthor(l){
+    const a=l.fieldAuthors||{},different=a.whole?.id&&a.open?.id&&a.whole.id!==a.open.id;
+    if(!a.whole&&!a.open){delete l.countedById;delete l.countedByName;delete l.countedAt;return;}
+    const first=a.whole||a.open;
+    l.countedById=first.id;
+    l.countedByName=different?a.whole.name+' (hele) + '+a.open.name+' (åpen)':(a.open||a.whole).name;
+    l.countedAt=(a.open||a.whole).at;
+  }
+  const v10RecountForbidden=(c,id)=>{const ref=c.recountFrom?.[id];return !!(ref&&(ref.authorIds||[ref.byId]).includes(v8Actor().id));};
+  const v10ReviewProof=c=>JSON.stringify(v10Lines(c).map(s=>{const l=c.lines[s.id]||{};return [s.id,l.whole,l.open,l.mode,l.countedById||''];}));
+  function v10AuditLabel(type){return ({'start':'Start telling','line-save':'Registrerte telleresultat','mode-changed':'Endret tellemetode','demo-fill':'Demo: fylte eksempelverdier','clear-all':'Slettet tellerader','submit':'Levering til kontroll','review-opened':'Leder åpnet avvik','recount-request':'Omtelling bestilt','cancel':'Avbrutt telleøkt','self-approval':'Egenkontroll godkjent','approval':'Leder godkjente'})[type]||type;}
+  function v10Audit(c,type,payload={}){(c.audit??=[]).push({id:uid('audit'),type,at:v10Now(),byId:v8Actor().id,by:v8Actor().name,...payload});}
+  function v10SetError(msg){v7.lastError=msg;render();}
+  // Baseline is captured when entering a field. Only a genuinely changed numeric value is attributed.
+  const v10FocusMap=new WeakMap();
+  root.addEventListener('focusin',e=>{
+    const d=e.target.dataset,id=d?.v7CountWhole||d?.v7CountOpen,c=v7.count;
+    if(!id||!c||c.phase!=='counting')return;
+    v10FocusMap.set(e.target,{id,previous:v10LineSnapshot(c.lines[id]),fieldValue:e.target.value});
+  });
+  root.addEventListener('focusout',e=>{
+    const d=e.target.dataset,id=d?.v7CountWhole||d?.v7CountOpen,c=v7.count;
+    if(!id||!c||c.phase!=='counting')return;
+    const old=v10FocusMap.get(e.target);v10FocusMap.delete(e.target);
+    if(!old||old.fieldValue===e.target.value)return;
+    const l=c.lines[id];if(!l)return;
+    // Recount is a separate physical check: original actor cannot re-enter values.
+    if(v10RecountForbidden(c,id)){v10SetError('En annen ansatt må utføre omtellingen.');return;}
+    l.fieldAuthors??={};const key='v7CountWhole' in d?'whole':'open';
+    l.fieldAuthors[key]={id:v8Actor().id,name:v8Actor().name,at:v10Now()};v10UpdateLineAuthor(l);
+    v10Audit(c,'line-save',{stockId:id,before:old.previous,after:v10LineSnapshot(l)});
+    v8Save();
+  });
+  root.addEventListener('input',e=>{
+    const d=e.target.dataset,id=d?.v7CountWhole||d?.v7CountOpen,c=v7.count;
+    if(!id||!c)return;
+    if(c.phase!=='counting'||v10RecountForbidden(c,id)){
+      e.preventDefault();e.stopImmediatePropagation();v10SetError('Denne telleraden kan ikke endres nå.');return;
+    }
+  },true);
+  root.addEventListener('change',e=>{
+    const d=e.target.dataset,id=d?.v7CountMode,c=v7.count;if(!id||!c)return;
+    e.stopImmediatePropagation(); // stop legacy implementation from re-attributing the old count.
+    if(c.phase!=='counting'||v10RecountForbidden(c,id)){v10SetError('Du kan ikke endre tellemetode i denne fasen.');return;}
+    const l=c.lines[id]??={whole:'',open:'',mode:'tenths'};
+    if(l.mode===e.target.value)return;
+    const before=v10LineSnapshot(l);
+    l.mode=e.target.value;l.open='';if(l.fieldAuthors)delete l.fieldAuthors.open;v10UpdateLineAuthor(l);
+    v10Audit(c,'mode-changed',{stockId:id,before,after:v10LineSnapshot(l)});
+    v8Save();render();
+  },true);
+  // New count tracking. Cancelled sessions stay separate from approved reports and cannot seed future periods.
+  const v10OriginalStart=actions['v7-start-count'];
+  actions['v7-start-count']=()=>{v10OriginalStart();if(v7.count){Object.assign(v7.count,{phase:'counting',startedById:v8Actor().id,everReviewed:false,audit:[]});v10Audit(v7.count,'start');v8Save();}};
+  const v10OriginalDaily=actions['v7-daily-count'];
+  actions['v7-daily-count']=()=>{v10OriginalDaily();if(v7.count){Object.assign(v7.count,{phase:'counting',startedById:v8Actor().id,everReviewed:false,audit:[]});v10Audit(v7.count,'start',{partial:true});v8Save();}};
+  const v10OriginalFill=actions['v7-demo-fill'];
+  actions['v7-demo-fill']=()=>{
+    const c=v7.count;if(!c||c.phase!=='counting')return;
+    if(Object.keys(c.recountFrom||{}).some(id=>v10RecountForbidden(c,id))){v10SetError('Eksempelverdier kan ikke brukes av første teller etter omtelling.');return;}
+    v10OriginalFill();v10Lines(c).forEach(s=>{const l=c.lines[s.id];if(!l)return;const author={id:v8Actor().id,name:v8Actor().name,at:v10Now()};l.fieldAuthors={whole:author,open:author};v10UpdateLineAuthor(l);});
+    v10Audit(c,'demo-fill',{count:v10Lines(c).length});v8Save();render();
+  };
+  const v10OriginalClear=actions['v7-clear-count'];
+  actions['v7-clear-count']=()=>{
+    const c=v7.count;if(!c||c.phase!=='counting')return;
+    v10Audit(c,'clear-all',{prior:Object.fromEntries(Object.entries(c.lines).map(([id,l])=>[id,v10LineSnapshot(l)]))});
+    v10OriginalClear();v8Save();
+  };
+  function v10CountCheck(c){
+    const rows=v10Lines(c).map(s=>({s,l:c.lines[s.id],q:v7CountValue(s,c.lines[s.id])}));
+    if(rows.some(x=>x.q===null||!Number.isFinite(x.q)))return 'Tellingen er ikke komplett. Alle varer i denne økten må telles.';
+    if(rows.some(x=>!x.l?.countedById))return 'Minst én tellerad mangler bekreftet teller. Klikk i mengdefeltet og bekreft verdien.';
+    if(rows.some(x=>c.recountFrom?.[x.s.id]&&(c.recountFrom[x.s.id].authorIds||[c.recountFrom[x.s.id].byId]).some(id=>(Object.values(x.l.fieldAuthors||{}).map(a=>a.id)).includes(id))))return 'Omtellingen må utføres av en annen ansatt enn den første telleren.';
+    return null;
+  }
+  function v10Submit(){
+    const c=v7.count;if(!c||c.phase!=='counting')return;
+    const error=v10CountCheck(c);if(error){v10SetError(error);return;}
+    c.phase='submitted';c.submittedBy=v8Actor().name;c.submittedById=v8Actor().id;c.submittedAt=v10Now();
+    v10Audit(c,'submit',{lineCount:v10Lines(c).length});v8.review=false;v7.lastError='';v8Save();render();
+  }
+  function v10OpenReview(){
+    const c=v7.count;if(!c||c.phase!=='submitted')return;
+    if(!v8Manager()){v10SetError('Kun leder kan åpne avvikskontrollen.');return;}
+    c.phase='review';c.everReviewed=true;c.reviewOpenedAt=v10Now();c.reviewProof=v10ReviewProof(c);v8.review=true;
+    v10Audit(c,'review-opened',{reviewedBy:v8Actor().name});v8Save();render();
+  }
+  function v10Commit(){
+    const c=v7.count;if(!c||c.phase!=='review')return;
+    if(!v8Manager()){v10SetError('Bare leder kan godkjenne.');return;}
+    if(c.reviewProof!==v10ReviewProof(c)){c.phase='submitted';v8.review=false;c.reviewProof=null;v10SetError('Telleverdier ble endret etter levering. En ny lederkontroll er nødvendig.');return;}
+    const flagged=v8ReviewIssues();
+    const participated=(c.audit||[]).some(e=>['line-save','demo-fill'].includes(e.type)&&e.byId===v8Actor().id)
+      ||v10Lines(c).some(s=>c.lines[s.id]?.countedById===v8Actor().id);
+    if(participated){
+      if(!c.selfAccepted || v8.approvalNote.trim().length<15){v10SetError('Egenkontroll krever avkrysset bekreftelse og begrunnelse på minst 15 tegn.');return;}
+    }
+    if(flagged.length && !v8.approvalNote.trim()){v10SetError('Forklar de vesentlige avvikene før godkjenning.');return;}
+    if(!c.opening && !v8.review){v10SetError('Lederkontroll må være åpnet først.');return;}
+    const prior=v7.history.length;
+    const noteBefore=v8.approvalNote.trim();
+    const approving=v8Actor();
+    // Preserve the already-vetted count and close using V8's financial reconciliation.
+    v8.review=true;
+    v10CommitBase();
+    if(v7.history.length!==prior+1){v10SetError('Kunne ikke fullføre avstemmingen.');return;}
+    const r=v7.history.at(-1);r.partial=!!c.partial;r.countedCount=v10Lines(c).length;r.notCountedCount=state.stock.length-r.countedCount;
+    r.approvedById=approving.id;r.selfApproved=!!participated;r.approvalMode=participated?'egenkontroll':'uavhengig';
+    v10Audit(c,participated?'self-approval':'approval',{note:noteBefore,byId:approving.id});
+    r.audit=structuredClone(c.audit);r.rows.forEach(row=>{
+      const l=c.lines[row.stockId];row.counterId=l?.countedById??null;row.counterName=l?.countedByName??null;row.counterAt=l?.countedAt??null;
+      row.endingBalance=row.counted;
+      if(c.partial&&!stockById(row.stockId)?.dailyCount){row.checked=false;row.endingBalance=row.theoretical;row.counted=null;row.variance=null;row.varianceValue=null;} else row.checked=true;
+    });
+    r.varianceSum=r.rows.filter(x=>x.checked).reduce((sum,x)=>sum+(x.varianceValue||0),0);
+    // Keep comment before V8 resets approvalNote.
+    r.approvalNote=noteBefore;
+    v8Save();render();
+  }
+  const v10CommitBase=v7CloseCount; // V8-controlled count commit (not the V9 wrapper).
+  v7CloseCount=function(){const c=v7.count;if(!c)return;
+    if(c.phase==='counting')return v10Submit();
+    if(c.phase==='submitted')return v10OpenReview();
+    if(c.phase==='review')return v10Commit();
+  };
+  actions['v7-finish-count']=()=>v7CloseCount();
+  actions['v8-recount']=b=>{
+    const c=v7.count,id=b.dataset.stock;
+    if(!c||c.phase!=='review'||!v8Manager()||!c.lines[id])return;
+    const original=v10LineSnapshot(c.lines[id]);
+    v10Audit(c,'recount-request',{stockId:id,original,reason:'Kontroll av betydelig avvik'});
+    original.authorIds=[...new Set(Object.values(original.fieldAuthors||{}).map(a=>a.id).concat(original.byId?[original.byId]:[]))];(c.recountFrom??={})[id]=original;
+    c.lines[id]={whole:'',open:'',mode:original.mode||'tenths'};
+    c.phase='counting';c.reviewProof=null;v8.review=false;v8.approvalNote='';c.selfAccepted=false;
+    v7.lastError='Omtelling er bestilt av leder. En annen person skal telle varen blindt; første resultat er bevart.';
+    v8Save();render();
+  };
+  actions['v7-cancel-count']=()=>{
+    const c=v7.count;if(!c)return;
+    // A submitted or reviewed session cannot be silently discarded by staff.
+    if((c.phase!=='counting'||c.everReviewed)&&!v8Manager()){v10SetError('Etter levering eller åpnet kontroll kan bare leder avbryte tellingen.');return;}
+    const reason=prompt('Hvorfor avbrytes tellingen? Begrunnelsen lagres i revisjonsloggen.');
+    if(reason===null)return;
+    if(!reason.trim()){v10SetError('Skriv en årsak for å avbryte tellingen.');return;}
+    v10Audit(c,'cancel',{reason:reason.trim(),phase:c.phase});
+    v7.cancelled.push({id:c.id,wh:c.wh,startedAt:c.startedAt,submittedAt:c.submittedAt||null,reviewOpenedAt:c.reviewOpenedAt||null,
+      everReviewed:!!c.everReviewed,cancelledAt:v10Now(),cancelledBy:v8Actor().name,cancelledById:v8Actor().id,
+      cancelReason:reason.trim(),countedLines:v10Lines(c).filter(s=>Number.isFinite(v7CountValue(s,c.lines[s.id]))).length,
+      lines:structuredClone(c.lines),audit:structuredClone(c.audit)});
+    v7.count=null;v8.review=false;v8.approvalNote='';v7.lastError='';v8Save();notify('Økten er avbrutt og lagret i revisjonshistorikken. Lageret er ikke korrigert.');render();
+  };
+  root.addEventListener('change',e=>{if('v10SelfApprove' in e.target.dataset && v7.count){v7.count.selfAccepted=e.target.checked;v8Save();}});
+  // V10 views: staff never sees deltas in the counting or submitted phases.
+  const v10PriorCountView=v7CountView; // V8 adds weight + review for managers.
+  v7CountView=function(){
+    const c=v7.count;if(!c)return '';
+    if(c.phase==='submitted'||c.phase==='review'&&!v8Manager()){
+      return '<div class="dp-v7-hero"><span class="dp-v7-badge">'+(c.phase==='submitted'?'Levert':'Under lederkontroll')+'</span><h2>Tellingen er levert</h2><p>Registrerte tall er låst. Ingen avvik vises til telleren. Kun leder kan åpne kontrollen, be om omtelling og godkjenne.</p><p class="dp-v8-hint">Levert av '+esc(c.submittedBy||'ukjent')+' · '+(c.submittedAt?v7Date(c.submittedAt):'')+'</p>'+
+        (c.phase==='submitted'&&v8Manager()?'<div class="dp-v7-flex dp-v7-mt">'+button('v7-finish-count','Åpne lederkontroll','','dp-primary')+'</div>':'')+
+        (v7.lastError?'<p class="dp-error">'+esc(v7.lastError)+'</p>':'')+
+        '<div class="dp-v7-flex dp-v7-mt">'+button('v7-cancel-count','Avbryt økten (loggføres)')+'</div></div>';
+    }
+    if(c.phase==='review'){
+      let html=v10PriorCountView();
+      // Lock all counting controls as a unit and keep them visible only to manager.
+      const begin=html.indexOf('<section class="dp-panel"><h2>Tell slik varene står i hyllen</h2>');
+      if(begin>=0){const end=html.indexOf('</section>',begin);if(end>=0)html=html.slice(0,begin)+'<fieldset class="dp-v9-lock" disabled>'+html.slice(begin,end+10)+'</fieldset>'+html.slice(end+10);}
+      html=html.replace(/(<button[^>]*data-action="(?:v7-demo-fill|v7-clear-count)"[^>]*)(>)/g,'$1 disabled$2');
+      const participants=[...new Set((c.audit||[]).filter(x=>['line-save','demo-fill'].includes(x.type)).map(x=>x.by))];
+      const isSelf=participants.includes(v8Actor().name)||v10Lines(c).some(s=>c.lines[s.id]?.countedById===v8Actor().id);
+      const banner='<div class="dp-v9-info"><strong>Lederkontroll · avvik kun for leder</strong><br>Ansatte som har talt: '+esc(participants.join(', ')||'Ukjent')+'. ' +
+        (isSelf?'<strong>Egenkontroll:</strong> Du har selv registrert telleverdier. Ved godkjenning merkes rapporten tydelig og begrunnelse kreves.':'Telling og godkjenning gjøres av forskjellige ansatte.')+'</div>'+
+        (isSelf?'<label class="dp-v10-check"><input type="checkbox" data-v10-self-approve '+(c.selfAccepted?'checked':'')+'> Jeg bekrefter egenkontroll (samme person teller og godkjenner)</label>':'')+
+        (c.opening?'<label class="dp-field"><span>Merknad til godkjenning'+(isSelf?' (obligatorisk ved egenkontroll)':'')+'</span><input class="dp-input" data-v8-approval-note placeholder="Hva er kontrollert?" value="'+esc(v8.approvalNote)+'"></label>':'');
+      // Show the leader's variance review first, with 20-row count details collapsed by default.
+      const reviewTag='<section class="dp-v8-banner',ri=html.indexOf(reviewTag);
+      if(ri>=0){const re=html.indexOf('</section>',ri);if(re>=0){const block=html.slice(ri,re+10);html=html.slice(0,ri)+html.slice(re+10);const place=html.indexOf('<fieldset class="dp-v9-lock"');if(place>=0)html=html.slice(0,place)+block+html.slice(place);}}
+      const fieldPos=html.indexOf('<fieldset class="dp-v9-lock"');if(fieldPos>=0){html=html.slice(0,fieldPos)+'<details class="dp-v10-count-details"><summary>Vis låste tellerader ('+v10Lines(c).length+' varer)</summary>'+html.slice(fieldPos);html=html.replace('</fieldset>','</fieldset></details>');}
+      const pos=html.lastIndexOf('<div class="dp-v7-flex dp-v7-mt">');if(pos>=0)html=html.slice(0,pos)+banner+html.slice(pos);
+      return html.replace('Godkjenn avvik og avslutt','Godkjenn og bokfør').replace('Godkjenn startlager','Godkjenn og bokfør');
+    }
+    // Keep the counting view completely blind. Button never opens a review.
+    let html=v10PriorCountView();
+    html=html.replace('Avslutt og vis avviksrapport','Lever telling til leder').replace('Godkjenn startlager','Lever starttelling til leder');
+    html=html.replace('Ingen forskjell vises før du avslutter tellingen.','Avvik vises ikke når du leverer – bare leder ser kontrollen.');
+    const info='<div class="dp-v9-info"><strong>Blind telling</strong><br>Fyll inn fysisk antall. Hver tellerad registreres med ansatt først når feltet forlates. Bytte av tellemetode setter ikke nytt navn som teller.</div>';
+    const pos=html.lastIndexOf('<div class="dp-v7-flex dp-v7-mt">');if(pos>=0)html=html.slice(0,pos)+info+html.slice(pos);
+    return html;
+  };
+
+  // Report separates 'not counted' from 'counted without variance'.
+  v7ReportView=function(r){if(!r)return '';
+    const checked=r.rows.filter(x=>x.checked!==false),net=checked.reduce((sum,x)=>sum+(x.varianceValue||0),0);
+    const waste=r.rows.reduce((sum,x)=>sum+(x.waste||0)*(x.unitCost||0),0);
+    const sorted=r.rows.slice().sort((a,b)=>Math.abs(b.varianceValue||0)-Math.abs(a.varianceValue||0));
+    const unit=(s,v)=>v==null?'—':fmt(v/factor(v7CountUnit(s)));
+    const table='<section class="dp-panel dp-v7-section"><div class="dp-between"><div><h2>'+(r.opening?'Åpningsrapport':'Avviksrapport')+' · '+esc(whName(r.wh))+'</h2><p class="dp-small dp-muted">Grunnlag fryst '+v7Date(r.at)+' · lukket '+v7Date(r.closedAt)+'</p></div><span class="dp-badge">'+(r.opening?'Startlager':r.partial?'Delvis telling':'Full telling')+'</span></div>'+
+      '<div class="dp-v9-info">'+checked.length+' av '+r.rows.length+' varer fysisk kontrollert. '+(r.notCountedCount?'<strong>'+r.notCountedCount+' varer ikke telt</strong> – de er ikke registrert som kontrollert, og bidrar ikke med avvik.':'Alle varer kontrollert.')+'</div>'+
+      '<div class="dp-v9-reportstat"><span>Netto telleavvik <strong>'+money(net)+'</strong></span><span>Registrert svinn i perioden <strong>'+money(waste)+'</strong></span><span>Negativt telleavvik <strong>'+money(checked.reduce((s,x)=>s+Math.min(0,x.varianceValue||0),0))+'</strong></span></div>'+
+      '<div class="dp-v9-reporttable"><table class="dp-v8-table"><thead><tr><th>Vare / teller</th><th>Start</th><th>+Mottak</th><th>+Inn</th><th>−Ut</th><th>−Svinn</th><th>−Forbruk</th><th>Beregnet</th><th>Telt</th><th>Avvik</th><th>Avvik kr</th></tr></thead><tbody>'+sorted.map(x=>{
+         const s=stockById(x.stockId),not=x.checked===false;
+         return '<tr'+(not?' class="dp-v9-muted"':'')+'><td><strong>'+esc(s.name)+'</strong><br><small>'+esc(not?'Ikke telt':x.counterName||'Ukjent teller')+'</small></td><td>'+unit(s,x.start)+'</td><td>'+unit(s,x.receipt+x.production_in)+'</td><td>'+unit(s,x.transfer_in+x.refund_return)+'</td><td>'+unit(s,x.transfer_out+x.production_out)+'</td><td>'+unit(s,x.waste)+'</td><td>'+unit(s,x.sale)+'</td><td>'+unit(s,x.theoretical)+'</td><td>'+(not?'Ikke telt':unit(s,x.counted))+'</td><td>'+(not?'—':unit(s,x.variance))+'</td><td>'+(not?'—':money(x.varianceValue))+'</td></tr>';
+       }).join('')+'</tbody></table></div>'+
+       '<div class="dp-v7-flex dp-v7-mt">'+button('v7-download-csv','Eksporter rapport (CSV)')+button('v7-close-report','Lukk rapport')+'</div></section>';
+    const audit=(r.audit||[]).filter(x=>x.type==='recount-request');
+    const auditHtml='<section class="dp-panel dp-v7-section"><h3>Revisjonsspor og omtelling</h3><p class="dp-v8-hint">Første telleresultat beholdes dersom en annen ansatt teller på nytt. Alle tellerader er stemplet med ansatt. Godkjent av '+esc(r.approvedBy||'Ukjent')+'.</p>'+ (audit.length?'<div class="dp-v9-audit">'+audit.map(e=>'<div>'+v7Date(e.at)+' · '+esc(stockById(e.stockId)?.name||'Vare')+' · Første resultat: '+esc(e.original?.whole||'0')+' hele + '+esc(e.original?.open||'0')+' åpnet · '+esc(e.original?.by||'ukjent')+' · omtelling bestilt av '+esc(e.by)+'</div>').join('')+'</div>':'<p class="dp-v8-hint">Ingen omtelling utført i denne økten.</p>')+'</section>';
+    return table+auditHtml+(r.opening?'':v8ProductAllocation(r));
+  };
+  // Keep CSV semantically honest for partial checks.
+  actions['v7-download-csv']=()=>{
+    const r=v7.report;if(!r)return;
+    const cols=['Vare','Kontrollstatus','Teller','Start','Mottak','Inn','Ut','Svinn','Forbruk','Beregnet','Telt','Avvik','Avvik kr'];
+    const q=s=>'"'+String(s??'').replaceAll('"','""')+'"';
+    const rows=r.rows.map(x=>{
+      const s=stockById(x.stockId),f=factor(displayUnit(s)),not=x.checked===false;
+      return [s.name,not?'Ikke telt':'Telt',x.counterName||'',x.start/f,(x.receipt+x.production_in)/f,(x.transfer_in+x.refund_return)/f,(x.transfer_out+x.production_out)/f,x.waste/f,x.sale/f,x.theoretical/f,not?'':x.counted/f,not?'':x.variance/f,not?'':x.varianceValue].map(q).join(';');
+    });
+    const text='\ufeff'+cols.map(q).join(';')+'\r\n'+rows.join('\r\n');
+    const blob=new Blob([text],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='done-pay-v10-telling-'+r.at.slice(0,10)+'.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
+  };
+  // Repeated loss = at least two distinct approved counting sessions, never a single negative line.
+  v8ReportHistory=function(){
+    const list=v7.history.filter(r=>r.wh===state.inventoryWarehouse&&!r.opening).slice().reverse();
+    if(!list.length)return '<section class="dp-panel dp-v7-section"><h2>Rapporthistorikk</h2><p class="dp-v7-muted">Ingen godkjente periodetellinger ennå.</p></section>';
+    const repeat=new Map();for(const r of list){
+      for(const x of r.rows.filter(x=>x.checked!==false&&x.variance<0)){
+        const row=repeat.get(x.stockId)||{sessions:new Set(),amount:0};row.sessions.add(r.id);row.amount+=x.varianceValue;repeat.set(x.stockId,row);
+      }
+    }
+    const recurring=[...repeat].filter(([id,x])=>x.sessions.size>=2).sort((a,b)=>a[1].amount-b[1].amount);
+    const neg=list.reduce((v,r)=>v+r.rows.filter(x=>x.checked!==false).reduce((a,x)=>a+Math.min(0,x.varianceValue||0),0),0);
+    const waste=r=>r.rows.reduce((n,x)=>n+(x.waste||0)*(x.unitCost||0),0);
+    const allWaste=list.reduce((n,r)=>n+waste(r),0);
+    return '<section class="dp-panel dp-v7-section"><h2>Rapporthistorikk og trend</h2><p class="dp-v8-hint">En «gjenganger» har negativt avvik i minst to forskjellige godkjente økter. Registrert svinn er en egen størrelse, ikke telleavvik.</p>'+
+      '<div class="dp-v8-history"><article><span class="dp-v8-hint">Godkjente periodetellinger</span><strong>'+list.length+'</strong></article><article><span class="dp-v8-hint">Samlet negativt telleavvik</span><strong>'+money(neg)+'</strong></article><article><span class="dp-v8-hint">Registrert svinn</span><strong>'+money(allWaste)+'</strong></article></div>'+
+      '<div class="dp-v7-result-list"><table class="dp-v8-table"><thead><tr><th>Økt</th><th>Kontroll</th><th>Nettoavvik</th><th>Registrert svinn</th><th>Godkjent av</th><th></th></tr></thead><tbody>'+list.map(r=>'<tr><td>'+v7Date(r.at)+'</td><td>'+r.rows.filter(x=>x.checked!==false).length+'/'+r.rows.length+' telt</td><td>'+money(r.varianceSum)+'</td><td>'+money(waste(r))+'</td><td>'+esc(r.approvedBy||'Ukjent')+'</td><td>'+button('v8-open-report','Åpne','data-report="'+esc(r.id)+'"')+'</td></tr>').join('')+'</tbody></table></div>'+
+      '<h3 class="dp-v7-mt">Gjengangere ('+recurring.length+')</h3>'+(recurring.length?recurring.map(([id,x])=>'<div class="dp-v8-issue"><span>'+esc(stockById(id)?.name||id)+' · negativt i '+x.sessions.size+' økter</span><strong>'+money(x.amount)+'</strong></div>').join(''):'<p class="dp-v8-hint">Ingen varer med negative avvik i to eller flere godkjente tellinger.</p>')+'</section>';
+  };
+
+  const v10SavedReportView=v7ReportView;
+  v7ReportView=function(r){
+    if(!v8Manager())return '<section class="dp-panel"><h2>Avviksrapporten er for ledere</h2><p>Den som teller, får ikke se avvik i cl eller kroner.</p>'+button('v7-close-report','Lukk rapport')+'</section>';
+    let html=v10SavedReportView(r);
+    if(r?.selfApproved){const banner='<div class="dp-v10-selfwarn"><strong>⚠ Egenkontroll – samme person har talt og godkjent.</strong> Begrunnelse: '+esc(r.approvalNote||'Se revisjonsloggen')+'</div>';html=banner+html;}
+    return html;
+  };
+  // V10 history includes cancelled, non-posted sessions for management review.
+  const v10HistoryBase=v8ReportHistory;
+  v8ReportHistory=function(){
+    const main=v10HistoryBase();
+    if(!v8Manager())return '<section class="dp-panel dp-v7-section"><h2>Rapporthistorikk</h2><p>Kun leder kan se avvik og revisjonsspor.</p></section>';
+    const sessions=v7.cancelled.filter(x=>x.wh===state.inventoryWarehouse).slice().reverse();
+    if(!sessions.length)return main;
+    return main+'<section class="dp-panel dp-v7-section"><h3>Avbrutte telleøkter · '+sessions.length+'</h3><p class="dp-v8-hint">Bevart som revisjonsspor. Avbrutte økter korrigerer ikke lageret og inngår ikke i avvikstrender.</p>'+sessions.map(x=>'<details class="dp-v10-cancel-item"><summary><strong>'+v7Date(x.startedAt)+'</strong> · '+esc(x.cancelledBy)+' · '+esc(x.everReviewed?'Kontroll åpnet før avbrudd':'Ingen kontroll åpnet')+'</summary><p>Årsak: '+esc(x.cancelReason)+' · registrert '+x.countedLines+' tellerader.</p><p>Økt-ID: '+esc(x.id)+' · avsluttet '+v7Date(x.cancelledAt)+'</p><div class="dp-v9-audit">'+Object.entries(x.lines||{}).map(([id,l])=>'<div><strong>'+esc(stockById(id)?.name||id)+'</strong> · '+esc(l.whole||'0')+' hele + '+esc(l.open||'0')+' åpnet · '+esc(l.countedByName||'ikke levert')+'</div>').join('')+'</div><h4>Revisjonslogg</h4><div class="dp-v9-audit">'+(x.audit||[]).map(a=>'<div>'+v7Date(a.at)+' · '+esc(a.by||'')+' · '+esc(v10AuditLabel(a.type))+(a.stockId?' · '+esc(stockById(a.stockId)?.name||a.stockId):'')+(a.after?' · '+esc(a.after.whole||'0')+' hele + '+esc(a.after.open||'0')+' åpnet':'')+'</div>').join('')+'</div></details>').join('')+'</section>';
+  };
+  // A cancelled opening count is visible even before the first approved opening balance.
+  const v10BaseInventory=renderInventory;
+  renderInventory=function(){
+    v10BaseInventory();
+    if(!v7.count && !v7Previous(state.inventoryWarehouse) && v8Manager() && v7.cancelled.some(x=>x.wh===state.inventoryWarehouse)){
+      const archive=document.createElement('div');archive.innerHTML=v8ReportHistory();content.append(archive);
+    }
+  };
+  // Prototype ends here; the UI event stream is not an authoritative audit log.
   render();
 })();
 
