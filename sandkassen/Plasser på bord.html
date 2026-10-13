@@ -1,0 +1,1680 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Plasser på bord</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@600;700&display=swap">
+<style>
+/* Layout: Done Pay-kasse (meny + kurv) med bordkart og betaling som dialoger, slik som i dag. Tokens hentet fra «Bordkartet i Done Pay». */
+:root {
+  --ground: #f5f3fa; --surface: #ffffff; --surface-2: #efedf5;
+  --ink: #1c1530; --muted: #5e5673; --line: #e2dcef;
+  --accent: #5b21d9; --accent-ink: #ffffff; --accent-soft: #ece4fd;
+  --free-edge: #2f5a41; --free-fill: #d7dcd6;
+  --occ-edge: #b3244d; --occ-fill: #efd6dc;
+  --edit-edge: #8a6700; --edit-fill: #f3e7c5;
+  --this-edge: #5b21d9; --this-fill: #e3d8f7;
+  --paid: #2f5a41; --paid-soft: #dfe8e1;
+  --danger: #b3244d; --danger-ink: #ffffff;
+  --vipps: #ff5b24; --vipps-ink: #ffffff;
+  --bezel: #1c1530; --paper: #ffffff; --paper-ink: #111111;
+  --scrim: rgba(28, 21, 48, .45);
+  --shadow: 0 1px 2px rgba(28,21,48,.06), 0 18px 40px -14px rgba(28,21,48,.32);
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --ground: #120b20; --surface: #1c1330; --surface-2: #251a3d;
+    --ink: #efeaf8; --muted: #aaa1c2; --line: #342851;
+    --accent: #9b72ff; --accent-ink: #120b20; --accent-soft: #2a1d4a;
+    --free-edge: #4cc27e; --free-fill: #18242a;
+    --occ-edge: #ff6f8d; --occ-fill: #36182a;
+    --edit-edge: #f2bd3c; --edit-fill: #33271c;
+    --this-edge: #9b72ff; --this-fill: #231740;
+    --paid: #4cc27e; --paid-soft: #17291f;
+    --danger: #ff6f8d; --danger-ink: #120b20;
+    --bezel: #000000;
+    --scrim: rgba(0,0,0,.6);
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -14px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --ground: #120b20; --surface: #1c1330; --surface-2: #251a3d;
+  --ink: #efeaf8; --muted: #aaa1c2; --line: #342851;
+  --accent: #9b72ff; --accent-ink: #120b20; --accent-soft: #2a1d4a;
+  --free-edge: #4cc27e; --free-fill: #18242a;
+  --occ-edge: #ff6f8d; --occ-fill: #36182a;
+  --edit-edge: #f2bd3c; --edit-fill: #33271c;
+  --this-edge: #9b72ff; --this-fill: #231740;
+  --paid: #4cc27e; --paid-soft: #17291f;
+  --danger: #ff6f8d; --danger-ink: #120b20;
+  --bezel: #000000;
+  --scrim: rgba(0,0,0,.6);
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -14px rgba(0,0,0,.8);
+}
+* { box-sizing: border-box; }
+body { background: var(--ground); color: var(--ink); font: 400 15px/1.5 var(--body); padding-inline: 16px; padding-block: 20px 48px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+h1, h2, h3 { font-family: var(--display); margin: 0; text-wrap: balance; }
+p { margin: 0; }
+.wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 18px; }
+.num { font-variant-numeric: tabular-nums; }
+
+.intro { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: end; justify-content: space-between; }
+.intro h1 { font-size: clamp(24px, 4vw, 32px); letter-spacing: -.01em; }
+.intro p { color: var(--muted); max-width: 66ch; }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.reset { background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; font-weight: 600; font-size: 14px; }
+
+.pos { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: 16px; align-items: start; }
+@media (max-width: 860px) { .pos { grid-template-columns: 1fr; } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; }
+
+.menu { padding: 16px; display: grid; gap: 14px; }
+.menu h2, .kicker { font-size: 12px; font-family: var(--body); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cat { display: grid; gap: 8px; }
+.items { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.item { text-align: left; background: var(--surface-2); border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-height: 72px; display: grid; align-content: space-between; gap: 6px; }
+.item:hover { border-color: var(--accent); }
+.item b { font-weight: 600; line-height: 1.25; }
+.item span { color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+.basket { display: grid; grid-template-rows: auto auto 1fr auto; min-height: 520px; }
+.b-head { padding: 14px 16px; border-bottom: 1px solid var(--line); display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.b-head h2 { font-size: 18px; }
+.b-head .sub { color: var(--muted); font-size: 13px; }
+.tag { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; border-radius: 999px; padding: 4px 10px; background: var(--this-fill); color: var(--this-edge); border: 1px solid var(--this-edge); }
+.tag.none { background: var(--surface-2); color: var(--muted); border-color: var(--line); }
+
+.seats { padding: 12px 16px; border-bottom: 1px solid var(--line); display: grid; gap: 8px; }
+.seats .lbl { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; justify-content: space-between; gap: 8px; }
+.seat-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.seat { border: 1px solid var(--line); background: var(--surface-2); border-radius: 9px; padding: 8px 12px; min-height: 42px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+.seat .nm { font-weight: 500; color: var(--muted); max-width: 11ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.seat .has { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+.seat[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.seat[aria-pressed="true"] .nm { color: var(--accent-ink); }
+.seat[aria-pressed="true"] .has { background: var(--accent-ink); }
+.seat.add { color: var(--accent); background: transparent; border-style: dashed; }
+.name-edit { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.name-edit input, .field input { flex: 1 1 160px; min-width: 0; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 9px 10px; font: inherit; }
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 9px; padding: 9px 14px; font-weight: 600; min-height: 40px; }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.btn.link { border: 0; background: transparent; color: var(--accent); padding: 4px 6px; min-height: 0; font-size: 13px; }
+.btn:disabled { opacity: .5; }
+.hint { color: var(--muted); font-size: 13px; }
+
+.lines { padding: 6px 16px 12px; overflow: auto; display: grid; gap: 4px; align-content: start; }
+.empty { color: var(--muted); padding: 28px 4px; text-align: center; }
+.group-h { display: flex; justify-content: space-between; gap: 8px; padding: 12px 0 4px; font-size: 13px; font-weight: 700; color: var(--muted); border-bottom: 1px dashed var(--line); }
+.group-h.active { color: var(--accent); }
+.group-h span:last-child { font-variant-numeric: tabular-nums; }
+.line { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 8px 0; }
+.line .q { font-variant-numeric: tabular-nums; color: var(--muted); font-weight: 600; }
+.line .t { min-width: 0; }
+.line .t b { font-weight: 600; }
+.line .t small { display: block; color: var(--muted); font-size: 12px; }
+.line .t small.ok { color: var(--paid); font-weight: 600; }
+.line.done .t b, .line.done .q { color: var(--muted); text-decoration: line-through; text-decoration-thickness: 1px; }
+.line .r { display: flex; gap: 8px; align-items: center; font-variant-numeric: tabular-nums; }
+.badge { border: 1px solid var(--accent); color: var(--accent); background: var(--accent-soft); border-radius: 6px; font-size: 12px; font-weight: 700; padding: 3px 7px; }
+.pill { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 700; border-radius: 999px; padding: 2px 8px; background: var(--paid-soft); color: var(--paid); }
+.moves { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 4px 0 6px; }
+.moves .hint { width: 100%; }
+.mv { border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 600; }
+
+.b-foot { border-top: 1px solid var(--line); padding: 12px 16px 16px; display: grid; gap: 10px; }
+.total { display: flex; justify-content: space-between; font-weight: 700; font-size: 17px; font-variant-numeric: tabular-nums; }
+.paidrow { display: flex; justify-content: space-between; font-size: 13px; color: var(--paid); font-weight: 600; font-variant-numeric: tabular-nums; }
+.actions { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; }
+.pay { background: var(--accent); color: var(--accent-ink); border: 1px solid var(--accent); border-radius: 10px; font-weight: 700; min-height: 52px; font-size: 16px; }
+.pay:disabled { background: var(--surface-2); color: var(--muted); border: 1px dashed var(--line); }
+.icon-btn { width: 56px; min-height: 52px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface-2); display: grid; place-items: center; }
+.icon-btn svg, .tile svg, .seat svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn.cancel { background: var(--danger); color: var(--danger-ink); border-color: var(--danger); }
+.icon-btn.ready { background: var(--surface); color: var(--accent); border-color: var(--accent); }
+.park-cta { width: 100%; }
+
+.side { display: grid; gap: 16px; }
+.bong { padding: 14px 16px; display: grid; gap: 8px; }
+.bong h3, .try h3 { font-size: 15px; font-family: var(--body); font-weight: 700; }
+.ticket { font: 500 13px/1.55 ui-monospace, "SF Mono", Menlo, Consolas, monospace; background: var(--surface-2); border: 1px dashed var(--line); border-radius: 8px; padding: 12px; white-space: pre-wrap; overflow-x: auto; }
+.try { padding: 14px 16px; display: grid; gap: 8px; }
+.try ol { margin: 0; padding-left: 20px; display: grid; gap: 4px; color: var(--muted); font-size: 14px; }
+.try li::marker { color: var(--accent); font-weight: 700; }
+.try .new { color: var(--ink); font-weight: 600; }
+
+/* Dialoger */
+.scrim { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; padding: 16px; z-index: 20; }
+.dialog { background: var(--surface); border-radius: 18px; box-shadow: var(--shadow); width: min(1100px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 18px; display: grid; gap: 14px; }
+.dialog.pay-d { width: min(980px, 100%); }
+.dialog.split-d { width: min(640px, 100%); }
+.d-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.d-head h2 { font-size: 20px; }
+.d-head .hint { margin-top: 2px; }
+.floor { background: var(--accent); color: var(--accent-ink); border-radius: 12px; padding: 10px 18px; font-weight: 700; font-family: var(--display); }
+.close { width: 44px; height: 44px; border-radius: 10px; border: 0; background: transparent; font-size: 26px; line-height: 1; flex: none; }
+.d-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 18px; align-items: start; }
+@media (max-width: 760px) { .d-body { grid-template-columns: 1fr; } }
+.floorplan { border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px 18px; }
+@media (max-width: 560px) { .floorplan { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 10px; } }
+.tile { border: 2px solid; border-radius: 6px; padding: 10px 6px 8px; display: grid; justify-items: center; align-content: center; gap: 2px; text-align: center; min-height: 118px; }
+.tile.round { border-radius: 50%; aspect-ratio: 1; min-height: 0; }
+.tile .n { font-family: var(--display); font-weight: 700; font-size: 17px; display: inline-flex; align-items: center; gap: 5px; }
+.tile .n svg { width: 17px; height: 17px; }
+.tile .d { font-size: 12.5px; line-height: 1.3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tile .st { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.tile.free { border-color: var(--free-edge); background: var(--free-fill); }
+.tile.free svg { color: var(--free-edge); }
+.tile.occ { border-color: var(--occ-edge); background: var(--occ-fill); }
+.tile.occ svg { color: var(--occ-edge); }
+.tile.edit { border-color: var(--edit-edge); background: var(--edit-fill); }
+.tile.edit svg { color: var(--edit-edge); }
+.tile.this { border-color: var(--this-edge); background: var(--this-fill); box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--this-edge); }
+.tile.this svg { color: var(--this-edge); }
+.dots { display: flex; gap: 4px; justify-content: center; margin-top: 4px; flex-wrap: wrap; }
+.dot { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid currentColor; }
+.dot.on { background: currentColor; }
+.tile.free .dots { color: var(--free-edge); }
+.tile.occ .dots { color: var(--occ-edge); }
+.tile.edit .dots { color: var(--edit-edge); }
+.tile.this .dots { color: var(--this-edge); }
+.d-side { display: grid; gap: 12px; }
+.d-side > label { font-weight: 700; font-size: 14px; }
+.d-side input[type=text] { width: 100%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 10px; padding: 12px; font: inherit; }
+.check { display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start; }
+.check input { width: 22px; height: 22px; accent-color: var(--accent); margin-top: 2px; }
+.note { background: var(--surface-2); border: 1px dashed var(--line); border-radius: 10px; padding: 12px; color: var(--muted); font-size: 13.5px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; gap: 6px; align-items: center; }
+.legend i { width: 12px; height: 12px; border-radius: 3px; border: 2px solid; display: inline-block; }
+
+/* Betaling */
+.pay-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 340px); gap: 20px; align-items: start; }
+@media (max-width: 800px) { .pay-grid { grid-template-columns: 1fr; } }
+.pay-main { display: grid; gap: 16px; }
+.due { display: grid; gap: 2px; }
+.due .big { font-family: var(--display); font-size: clamp(30px, 5vw, 40px); font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.due .hint { font-variant-numeric: tabular-nums; }
+.seatpay { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.sp { text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 12px; display: grid; gap: 2px; min-height: 68px; }
+.sp b { font-weight: 700; }
+.sp span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.sp:hover:not(:disabled) { border-color: var(--accent); }
+.sp[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.sp[aria-pressed="true"] span { color: var(--accent-ink); }
+.sp:disabled { background: var(--paid-soft); border-color: transparent; color: var(--paid); }
+.sp:disabled span { color: var(--paid); font-weight: 600; }
+.secondary { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.secondary .why { width: 100%; }
+.sel { display: flex; justify-content: space-between; gap: 10px; align-items: center; background: var(--accent-soft); border: 1px solid var(--accent); border-radius: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.sel b { color: var(--accent); }
+.field { display: grid; gap: 6px; }
+.field label { font-weight: 700; font-size: 14px; }
+.field .row { display: flex; gap: 8px; }
+.field input { font-size: 18px; font-variant-numeric: tabular-nums; padding: 12px; }
+.err { color: var(--danger); font-size: 13px; font-weight: 600; }
+.methods { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.method { border-radius: 12px; min-height: 64px; font-weight: 700; font-size: 17px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); }
+.method.alt { background: var(--surface); color: var(--accent); }
+.pay-side { display: grid; gap: 12px; background: var(--surface-2); border-radius: 14px; padding: 14px; }
+.pay-side .lines { padding: 0; max-height: 360px; }
+.history { display: grid; gap: 6px; }
+.history div { display: flex; justify-content: space-between; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.history span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Del per vare */
+.split-list { display: grid; gap: 2px; max-height: 52vh; overflow: auto; }
+.pick { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 8px; border-radius: 10px; border: 1px solid transparent; background: transparent; text-align: left; width: 100%; }
+.pick:hover:not(:disabled) { background: var(--surface-2); }
+.pick.on { background: var(--accent-soft); border-color: var(--accent); }
+.pick:disabled { opacity: .55; }
+.box { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--line); display: grid; place-items: center; font-size: 14px; font-weight: 700; color: var(--accent-ink); }
+.pick.on .box { background: var(--accent); border-color: var(--accent); }
+.pick .t b { font-weight: 600; }
+.pick .t small { display: block; color: var(--muted); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+.pick .amt { font-variant-numeric: tabular-nums; font-weight: 600; }
+.step { display: inline-flex; align-items: center; gap: 6px; padding: 0 8px 8px 42px; }
+.step button { width: 40px; height: 40px; border-radius: 9px; border: 1px solid var(--line); background: var(--surface); font-size: 20px; font-weight: 700; }
+.step span { min-width: 64px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
+.split-foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); padding-top: 12px; flex-wrap: wrap; }
+.split-foot .sum { font-family: var(--display); font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.split-foot .row { display: flex; gap: 8px; }
+.persons { display: grid; justify-items: center; gap: 10px; padding: 12px 0; }
+.persons .step { padding: 0; }
+.persons .step button { width: 56px; height: 56px; font-size: 26px; }
+.persons .step span { font-family: var(--display); font-size: 32px; min-width: 80px; }
+
+.confirm { background: var(--surface); border-radius: 16px; box-shadow: var(--shadow); width: min(440px, 100%); padding: 20px; display: grid; gap: 12px; }
+.confirm h3 { font-size: 19px; }
+.confirm .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* Gjesten betaler selv */
+.guest-sec { display: grid; gap: 14px; }
+.guest-sec > header { display: grid; gap: 4px; }
+.guest-sec h2 { font-size: 22px; }
+.guest-sec > header p { color: var(--muted); max-width: 70ch; }
+.phones { display: grid; grid-template-columns: minmax(0, 380px) minmax(0, 300px) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1040px) { .phones { grid-template-columns: minmax(0, 380px) minmax(0, 1fr); } }
+@media (max-width: 720px) { .phones { grid-template-columns: minmax(0, 1fr); } }
+.phone-wrap { display: grid; gap: 8px; justify-items: start; }
+.phone-wrap > span { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.phone { width: 100%; max-width: 380px; border: 10px solid var(--bezel); border-radius: 38px; background: var(--surface); min-height: 620px; overflow: hidden; display: grid; grid-template-rows: auto 1fr; }
+.phone.small { max-width: 300px; min-height: 420px; }
+.phone .bar { display: flex; justify-content: space-between; padding: 8px 20px 6px; font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.screen { padding: 10px 16px 20px; display: grid; gap: 14px; align-content: start; overflow: auto; max-height: 760px; }
+.g-brand { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.g-brand b { font-family: var(--display); font-size: 17px; }
+.g-brand span { font-size: 13px; color: var(--muted); }
+.g-total { display: grid; gap: 2px; }
+.g-total .big { font-family: var(--display); font-size: 30px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.scan { border: 2px dashed var(--line); border-radius: 18px; min-height: 260px; display: grid; place-items: center; text-align: center; padding: 20px; gap: 10px; color: var(--muted); }
+.scan .frame { width: 140px; height: 140px; border-radius: 14px; border: 3px solid var(--accent); display: grid; place-items: center; }
+.gbtn { border-radius: 12px; min-height: 52px; font-weight: 700; font-size: 16px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); width: 100%; }
+.gbtn.alt { background: var(--surface); color: var(--accent); }
+.gbtn.vipps { background: var(--vipps); border-color: var(--vipps); color: var(--vipps-ink); }
+.gbtn:disabled { opacity: .5; }
+.gcard { border: 1px solid var(--line); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+.gcard header { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.gcard header b { font-weight: 700; }
+.gcard header span { font-weight: 700; font-variant-numeric: tabular-nums; }
+.gline { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; font-size: 14px; }
+.gline .amt { font-variant-numeric: tabular-nums; color: var(--muted); }
+.gline select { grid-column: 1 / -1; font: inherit; font-size: 13px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; }
+.share-note { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.seg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 4px; }
+.seg2 button { border: 0; background: transparent; border-radius: 8px; padding: 8px; font-weight: 600; font-size: 14px; min-height: 40px; }
+.seg2 button[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(28,21,48,.12); }
+.gcard input { font: inherit; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 8px; padding: 10px; width: 100%; font-variant-numeric: tabular-nums; }
+.progress { height: 10px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.progress i { display: block; height: 100%; background: var(--paid); }
+.prow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; border-bottom: 1px solid var(--line); padding: 10px 0; }
+.prow b { font-weight: 700; }
+.prow small { color: var(--muted); font-size: 13px; grid-column: 1 / -1; }
+.prow .amt { font-weight: 700; font-variant-numeric: tabular-nums; }
+.sim { border: 1px dashed var(--muted); background: transparent; color: var(--muted); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-weight: 600; grid-column: 1 / -1; justify-self: start; }
+.sms-list { display: grid; gap: 10px; }
+.sms { background: var(--surface-2); border-radius: 16px 16px 16px 4px; padding: 10px 12px; font-size: 14px; display: grid; gap: 4px; }
+.sms b { font-size: 12px; color: var(--muted); }
+.flow { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
+.flow h3 { font-size: 15px; font-family: var(--body); font-weight: 700; }
+.flow ol { margin: 0; padding-left: 20px; display: grid; gap: 6px; color: var(--muted); font-size: 14px; }
+.flow li::marker { color: var(--accent); font-weight: 700; }
+.paper { background: var(--paper); color: var(--paper-ink); width: min(340px, 100%); padding: 20px 18px; border-radius: 4px; box-shadow: var(--shadow); font: 500 13px/1.5 ui-monospace, "SF Mono", Menlo, Consolas, monospace; display: grid; gap: 8px; }
+.paper .c { text-align: center; }
+.paper .hr { border-top: 1px dashed currentColor; opacity: .5; }
+.paper .r { display: flex; justify-content: space-between; gap: 8px; }
+.paper .warn { font-weight: 700; text-align: center; }
+.paper svg { width: 168px; height: 168px; justify-self: center; }
+.print-wrap { display: grid; gap: 12px; justify-items: center; width: min(380px, 100%); }
+.print-wrap .row { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+.democtl { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-top: 6px; }
+.democtl .check { align-items: center; }
+.devtabs { display: flex; gap: 4px; background: var(--surface-2); border-radius: 12px; padding: 4px; width: 100%; max-width: 380px; }
+.devtabs button { flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 6px 4px; font-weight: 700; font-size: 14px; display: grid; gap: 1px; min-height: 48px; }
+.devtabs button small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.devtabs button[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(28,21,48,.12); }
+.qcard { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 14px; padding: 14px; display: grid; gap: 6px; }
+.qcard b { font-family: var(--display); font-size: 18px; }
+.who { display: flex; justify-content: space-between; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface-2); border-radius: 12px; padding: 14px; min-height: 56px; text-align: left; }
+.who:hover { border-color: var(--accent); }
+.who b { font-size: 16px; }
+.who span { font-weight: 700; font-variant-numeric: tabular-nums; }
+.tips { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; background: var(--surface-2); border-radius: 10px; padding: 4px; }
+.tips.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.tips button { border: 0; background: transparent; border-radius: 8px; padding: 8px 2px; font-weight: 600; font-size: 13px; min-height: 40px; }
+.tips button[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(28,21,48,.12); }
+.acts { grid-column: 1 / -1; display: flex; gap: 6px 10px; flex-wrap: wrap; align-items: center; }
+.pill.wait { background: var(--edit-fill); color: var(--edit-edge); }
+.pill.bad { background: var(--occ-fill); color: var(--occ-edge); }
+.pill.new { background: var(--accent-soft); color: var(--accent); font-size: 11px; padding: 1px 6px; vertical-align: 1px; }
+.btn.danger { background: var(--danger); color: var(--danger-ink); border-color: var(--danger); }
+#push-host { position: fixed; top: calc(12px + env(safe-area-inset-top, 0px)); right: 12px; z-index: 50; display: grid; gap: 10px; width: min(380px, calc(100% - 24px)); }
+.push { background: var(--surface); border: 2px solid var(--edit-edge); border-radius: 14px; box-shadow: var(--shadow); padding: 12px 14px; display: grid; gap: 4px; }
+.push b { font-size: 15px; }
+.push small { color: var(--muted); font-size: 12px; }
+.push .row { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); border-radius: 10px; padding: 10px 16px; font-weight: 600; z-index: 40; max-width: calc(100% - 32px); box-shadow: var(--shadow); }
+@media (prefers-reduced-motion: no-preference) { .toast { animation: up .2s ease; } @keyframes up { from { transform: translate(-50%, 8px); opacity: 0; } } }
+</style>
+
+<div class="wrap">
+  <div class="intro">
+    <div style="display:grid;gap:6px">
+      <span class="eyebrow">Demo · parkering og betaling på bord</span>
+      <h1>Plasser på bord</h1>
+      <p>Velg et bord, slå inn varer per plass og gi plassene navn. Ordren parkeres på bordet som i dag. I betalingen kan hver gjest betale sin plass med ett trykk, bygd på Split by Item. Parkering uten bord er uendret og er ikke med her.</p>
+    </div>
+    <button class="reset" id="reset" type="button">Start demoen på nytt</button>
+  </div>
+
+  <div class="pos">
+    <section class="panel menu" aria-label="Meny">
+      <div id="menu"></div>
+    </section>
+
+    <div class="side">
+      <section class="panel basket" aria-label="Kurv">
+        <div class="b-head">
+          <div>
+            <h2 id="b-title">Kurv</h2>
+            <div class="sub" id="b-sub">Ingen bord valgt</div>
+          </div>
+          <span id="b-tag" class="tag none">Uten bord</span>
+        </div>
+        <div class="seats" id="seats"></div>
+        <div class="lines" id="lines"></div>
+        <div class="b-foot">
+          <div class="paidrow" id="paidrow" hidden></div>
+          <div class="total"><span id="total-l">Totalt</span><span id="total">0,00</span></div>
+          <button type="button" class="btn park-cta" id="park" hidden></button>
+          <div class="actions">
+            <button type="button" class="pay" id="paybtn" disabled>Betal</button>
+            <button type="button" class="icon-btn" id="mapbtn" aria-label="Åpne bordkartet" title="Åpne bordkartet"></button>
+            <button type="button" class="icon-btn cancel" id="cancel" aria-label="Avbryt ordre" title="Avbryt ordre"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel bong" aria-label="Siste bong">
+        <h3>Siste bong til kjøkkenet</h3>
+        <div class="ticket" id="ticket">Ingen bong sendt ennå.</div>
+      </section>
+
+      <section class="panel try" aria-label="Prøv dette">
+        <h3>Prøv dette</h3>
+        <ol>
+          <li>Åpne bordkartet og trykk på et grønt bord.</li>
+          <li>Trykk på en plass, gi den et navn og legg til varer.</li>
+          <li>Parkér, og se bongen og prikkene på bordet.</li>
+          <li>Trykk på merket «P2» på en linje for å flytte den.</li>
+          <li>Hent Bord 2, trykk Betal og trykk på «Lise». Betal med kort.</li>
+          <li>Betal resten per plass, eller åpne «Del per vare» og velg enkeltvarer.</li>
+          <li class="new">Eller: hent Bord 2, trykk Betal og «Foreløpig kvittering med QR». Fortsett på gjestenes mobiler under.</li>
+          <li class="new">Skann på Mobil 1 og Mobil 2 for å se køen.</li>
+          <li class="new">Trykk på Bord 2 i kartet mens gjestene betaler for å se fremdriften, legge til varer eller ta over.</li>
+        </ol>
+      </section>
+    </div>
+  </div>
+
+  <section class="guest-sec" aria-labelledby="g-h">
+    <header>
+      <span class="eyebrow">Gjestene betaler selv</span>
+      <h2 id="g-h">QR på foreløpig kvittering</h2>
+      <p>Servitøren skriver ut en foreløpig kvittering med en QR-kode som bare gjelder dette bordet. Flere gjester kan skanne, men én betaler om gangen og de andre står i kø. Gjesten velger varer og antall, og betaler selv eller sender Vipps-krav, til hele bordet er betalt.</p>
+      <div class="democtl">
+        <label class="check"><input id="tips-on" type="checkbox" checked><span>Driks er slått på for lokasjonen</span></label>
+        <button type="button" class="btn" id="ff15">Demo: 15 minutter uten betaling</button>
+      </div>
+    </header>
+    <div class="phones">
+      <div class="phone-wrap"><span>Gjestenes mobiler</span><div class="devtabs" id="devtabs" role="group" aria-label="Velg mobil"></div><div class="phone"><div class="bar"><span id="g-clock">21:58</span><span>5G</span></div><div class="screen" id="guest"></div></div></div>
+      <div class="phone-wrap"><span>Servitørens mobil</span><div class="phone small"><div class="bar"><span id="w-clock">21:58</span><span>Meldinger</span></div><div class="screen" id="waiter"></div></div></div>
+      <div class="flow">
+        <h3>Slik henger det sammen</h3>
+        <ol>
+          <li>Kassen skriver ut foreløpig kvittering med en unik QR-lenke til bordets ordre.</li>
+          <li>Alle ved bordet kan skanne. Én betaler om gangen, og de andre ser plassen sin i køen. Nr 1 slippes automatisk etter 3 minutter uten aktivitet.</li>
+          <li>Har servitøren satt navn på plassene, spør siden «Hvem er du?». Står det bare plassnummer, velger gjesten varer selv.</li>
+          <li>Gjesten velger varer og antall, og betaler selv eller sender Vipps-krav. Varer i krav som venter, er reservert.</li>
+          <li>Driks vises i betalingen når driks er slått på for lokasjonen.</li>
+          <li>Etter betaling velger gjesten kvittering på SMS, e-post eller utskrift, eventuelt med firmaopplysninger.</li>
+          <li>Servitøren kan legge til varer mens gjestene betaler. Bare betalte varer og varer i ventende krav er låst.</li>
+          <li>Går et Vipps-krav ut, blir varene ledige, og gjesten kan sende kravet på nytt eller betale selv.</li>
+          <li>Går et krav ut eller står bordet ubetalt for lenge, får kassen et varsel som står til noen bekrefter det.</li>
+          <li>Servitøren kan ta over i kassen. Da stenges QR-lenken, og gjestene som skanner, får beskjed om å betale hos servitøren.</li>
+          <li>Når alt er betalt, blir bordet ledig og servitøren får SMS.</li>
+        </ol>
+        <p class="hint">Å dele Felles likt mellom flere kommer i en egen epic. Vipps-krav, SMS og kvitteringer er simulert. Knappene med stiplet kant står for det som skjer på andres telefoner.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div id="overlay"></div>
+<div id="push-host" aria-live="assertive"></div>
+<div id="toast-host" aria-live="polite"></div>
+
+<script>
+(function () {
+  const ICON = {
+    free: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="m8.6 12.2 2.3 2.3 4.6-4.8"/></svg>',
+    occ: '<svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3"/><circle cx="16.5" cy="9.5" r="2.3"/><path d="M3.5 19c.6-3.2 2.8-5 5.5-5s4.9 1.8 5.5 5"/><path d="M14.8 14.3c.5-.2 1.1-.3 1.7-.3 2.2 0 3.8 1.4 4.3 4"/></svg>',
+    edit: '<svg viewBox="0 0 24 24"><path d="M14.5 5.5 18.5 9.5"/><path d="M5 19l1-4.2L16.3 4.5a1.4 1.4 0 0 1 2 0l1.2 1.2a1.4 1.4 0 0 1 0 2L9.2 18 5 19z"/></svg>',
+    star: '<svg viewBox="0 0 24 24"><path d="m12 4 2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 16.4l-4.8 2.5.9-5.4-3.9-3.8 5.4-.8z"/></svg>',
+    grid: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.2"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.2"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.2"/></svg>',
+    inbox: '<svg viewBox="0 0 24 24"><path d="M4 13.5h4.5l1.5 2.5h4l1.5-2.5H20"/><path d="M5.5 6h13L20 13.5V19H4v-5.5z"/><path d="M12 3v7m-3-3 3 3 3-3"/></svg>',
+    pen: '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round"><path d="M14.5 5.5 18.5 9.5"/><path d="M5 19l1-4.2L16.3 4.5a1.4 1.4 0 0 1 2 0l1.2 1.2a1.4 1.4 0 0 1 0 2L9.2 18 5 19z"/></svg>'
+  };
+
+  const MENU = [
+    { cat: 'Forretter', items: [['Toast Skagen', 169], ['Fiskesuppe', 149], ['Burrata', 159]] },
+    { cat: 'Hovedretter', items: [['Biff medium', 389], ['Ovnsbakt torsk', 329], ['Soppisotto', 279], ['Burger', 249]] },
+    { cat: 'Dessert', items: [['Sjokoladefondant', 129], ['Crème brûlée', 119]] },
+    { cat: 'Drikke', items: [['Pils 0,5 l', 109], ['Husets rødvin', 139], ['Farris', 49], ['Eplemost', 59]] }
+  ];
+  const PRICE = {}; MENU.forEach(c => c.items.forEach(([n, p]) => PRICE[n] = p * 100)); // øre
+
+  let uid = 100;
+  const nid = () => ++uid;
+  const ago = m => Date.now() - m * 60000;
+  const kr = o => (o / 100).toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const plain = o => (o / 100).toFixed(2).replace('.', ',');
+  const L = (item, qty, seat) => ({ id: nid(), item, qty, seat, sent: true, paid: 0 });
+
+  function seed() {
+    return [
+      { id: 1, name: 'Bord 1', seats: 4, shape: 'rect', order: {
+          name: 'Bursdag', started: ago(6), seatCount: 4, payments: [],
+          seatNames: { 1: 'Kari', 2: 'Ola', 3: 'Mormor' },
+          lines: [L('Biff medium', 1, 1), L('Husets rødvin', 1, 1), L('Ovnsbakt torsk', 1, 2), L('Pils 0,5 l', 1, 2), L('Soppisotto', 1, 3), L('Farris', 2, 0)] } },
+      { id: 2, name: 'Bord 2', seats: 4, shape: 'rect', order: {
+          name: 'Middag', started: ago(22), seatCount: 4, payments: [],
+          seatNames: { 1: 'Jonas', 2: 'Lise', 3: 'Emma' },
+          lines: [L('Toast Skagen', 1, 1), L('Biff medium', 1, 1), L('Pils 0,5 l', 2, 1),
+                  L('Burrata', 1, 2), L('Ovnsbakt torsk', 1, 2), L('Husets rødvin', 2, 2),
+                  L('Soppisotto', 1, 3), L('Eplemost', 1, 3), L('Farris', 2, 0)] } },
+      { id: 3, name: 'Bord 3', seats: 2, shape: 'rect', order: {
+          name: 'Bord 3', started: ago(9), seatCount: 2, seatNames: {}, lockedBy: 'Kari', payments: [],
+          lines: [L('Burger', 2, 0)] } },
+      { id: 4, name: 'Bord 4', seats: 6, shape: 'rect', order: {
+          name: 'Firmalunsj', started: ago(18), seatCount: 6, seatNames: { 1: 'Per' }, payments: [],
+          lines: [L('Fiskesuppe', 1, 1), L('Fiskesuppe', 1, 2), L('Burger', 1, 4)] } },
+      { id: 5, name: 'Bord 5', seats: 4, shape: 'rect', order: null },
+      { id: 6, name: 'Bord 6', seats: 2, shape: 'round', order: null },
+      { id: 7, name: 'Bord 7', seats: 8, shape: 'rect', order: null },
+      { id: 8, name: 'Bord 8', seats: 4, shape: 'round', order: null }
+    ];
+  }
+  function blankPos() { return { tableId: null, fetched: false, lines: [], seatNames: {}, seatCount: 0, active: 0, payments: [] }; }
+  function blankPay() { return { view: 'main', sel: {}, selLabel: '', amount: '', err: '', persons: 2 }; }
+
+  let tables, pos, ui;
+  function reset() {
+    tables = seed();
+    pos = blankPos();
+    ui = { map: false, editing: false, moving: null, confirm: null, ticket: null, orderName: '', kitchen: true, pay: null, qr: null, print: null, sms: [], qrPanel: null, push: [], tipsOn: true, dev: 1 };
+    render();
+  }
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const clone = o => JSON.parse(JSON.stringify(o));
+  const tableOf = id => tables.find(t => t.id === id);
+  const seatLabel = (names, n) => n === 0 ? 'Felles' : 'P' + n + (names[n] ? ' ' + names[n] : '');
+  const seatHead = (names, n) => n === 0 ? 'Felles' : 'Plass ' + n + (names[n] ? ' · ' + names[n] : '');
+  const seatShort = (names, n) => n === 0 ? 'Felles' : (names[n] || 'Plass ' + n);
+  const seatOrder = (a, b) => (a === 0 ? 99 : a) - (b === 0 ? 99 : b);
+  const mins = t => Math.max(0, Math.round((Date.now() - t) / 60000));
+
+  // Beløp i øre
+  const lineTotal = l => PRICE[l.item] * l.qty;
+  const rest = l => l.qty - l.paid;
+  const totalOf = lines => lines.reduce((a, l) => a + lineTotal(l), 0);
+  const paidOf = pays => pays.reduce((a, p) => a + p.amount, 0);
+  const outstanding = () => totalOf(pos.lines) - paidOf(pos.payments);
+  const seatRest = n => pos.lines.filter(l => l.seat === n).reduce((a, l) => a + PRICE[l.item] * rest(l), 0);
+  const unitsLeft = () => pos.lines.reduce((a, l) => a + rest(l), 0);
+
+  function selTotal(sel) {
+    let units = 0, sum = 0;
+    Object.keys(sel).forEach(id => { const l = pos.lines.find(x => x.id === +id); if (l) { sum += PRICE[l.item] * sel[id]; units += sel[id]; } });
+    return units && units === unitsLeft() ? outstanding() : Math.min(sum, outstanding());
+  }
+  function selUnits(sel) { return Object.values(sel).reduce((a, b) => a + b, 0); }
+  function selSeatLabel(sel) {
+    const ids = Object.keys(sel).map(Number);
+    if (!ids.length) return '';
+    const seatsHit = [...new Set(ids.map(id => pos.lines.find(l => l.id === id).seat))];
+    if (seatsHit.length === 1) {
+      const n = seatsHit[0];
+      const full = pos.lines.filter(l => l.seat === n && rest(l) > 0).every(l => sel[l.id] === rest(l));
+      if (full) return seatHead(pos.seatNames, n);
+    }
+    const u = selUnits(sel);
+    return u + (u === 1 ? ' vare' : ' varer');
+  }
+
+  function toast(msg) {
+    const host = $('toast-host');
+    host.innerHTML = '<div class="toast" role="status">' + esc(msg) + '</div>';
+    clearTimeout(toast.t);
+    toast.t = setTimeout(() => { host.innerHTML = ''; }, 2800);
+  }
+
+  /* ---------- Kasse ---------- */
+  function addItem(name) {
+    const seat = pos.tableId ? pos.active : 0;
+    const same = pos.lines.find(l => l.item === name && l.seat === seat && !l.sent && !l.paid);
+    if (same) same.qty++; else pos.lines.push({ id: nid(), item: name, qty: 1, seat, sent: false, paid: 0 });
+    render();
+  }
+
+  function renderMenu() {
+    $('menu').innerHTML = MENU.map(c =>
+      '<div class="cat"><h2>' + esc(c.cat) + '</h2><div class="items">' +
+      c.items.map(([n]) => '<button type="button" class="item" data-add="' + esc(n) + '"><b>' + esc(n) + '</b><span>' + kr(PRICE[n]) + '</span></button>').join('') +
+      '</div></div>').join('');
+  }
+
+  function linesHtml(withSeats, interactive) {
+    if (!pos.lines.length) return '';
+    const seats = withSeats ? [...new Set(pos.lines.map(l => l.seat))].sort(seatOrder) : [null];
+    return seats.map(n => {
+      const ls = n === null ? pos.lines : pos.lines.filter(l => l.seat === n);
+      const allPaid = ls.every(l => rest(l) === 0);
+      const head = n === null ? '' : '<div class="group-h' + (interactive && n === pos.active ? ' active' : '') + '"><span>' + esc(seatHead(pos.seatNames, n)) + '</span><span>' +
+        (allPaid ? '<span class="pill">Betalt</span>' : kr(totalOf(ls))) + '</span></div>';
+      return head + ls.map(l => {
+        const done = rest(l) === 0;
+        let sub = '';
+        if (l.paid && !done) sub = '<small class="ok">' + l.paid + ' av ' + l.qty + ' betalt</small>';
+        else if (done) sub = '<small class="ok">Betalt</small>';
+        else if (l.sent) sub = '<small>Sendt til kjøkkenet</small>';
+        let row = '<div class="line' + (done ? ' done' : '') + '"><span class="q">' + l.qty + ' ×</span><span class="t"><b>' + esc(l.item) + '</b>' + sub + '</span><span class="r">' +
+          (interactive && withSeats && !lineLocked(l) ? '<button type="button" class="badge" data-move="' + l.id + '" aria-label="Flytt til en annen plass">' + (l.seat === 0 ? 'Felles' : 'P' + l.seat) + '</button>' : '') +
+          kr(lineTotal(l)) + '</span>';
+        if (interactive && ui.moving === l.id) {
+          let mv = '<div class="moves"><span class="hint">Flytt «' + esc(l.item) + '» til:</span>';
+          for (let k = 0; k <= pos.seatCount; k++) if (k !== l.seat) mv += '<button type="button" class="mv" data-moveto="' + k + '">' + esc(seatLabel(pos.seatNames, k)) + '</button>';
+          row += mv + '<button type="button" class="btn link" data-movecancel>Avbryt</button></div>';
+        }
+        return row + '</div>';
+      }).join('');
+    }).join('');
+  }
+
+  function renderBasket() {
+    const t = pos.tableId ? tableOf(pos.tableId) : null;
+    $('b-title').textContent = t ? (pos.fetched ? t.order.name : t.name) : 'Kurv';
+    $('b-sub').textContent = t && qrOpenOn(t) ? 'Gjestene betaler med QR · legg til varer og parkér' : t ? (pos.fetched ? 'Hentet fra ' + t.name + ' · ' + pos.seatCount + ' plasser' : 'Valgt bord · ' + pos.seatCount + ' plasser') : 'Ingen bord valgt';
+    const tag = $('b-tag');
+    tag.className = t ? 'tag' : 'tag none';
+    tag.innerHTML = t ? ICON.star.replace('<svg', '<svg style="width:15px;height:15px"') + esc(t.name) : 'Uten bord';
+
+    const s = $('seats');
+    if (!t) {
+      s.innerHTML = '<div class="lbl"><span>Plasser</span></div><p class="hint">Velg et bord i bordkartet for å slå inn varer per plass.</p>';
+    } else {
+      const used = new Set(pos.lines.map(l => l.seat));
+      let chips = '';
+      for (let n = 0; n <= pos.seatCount; n++) {
+        const nm = n === 0 ? '' : (pos.seatNames[n] || '');
+        chips += '<button type="button" class="seat" data-seat="' + n + '" aria-pressed="' + (pos.active === n) + '">' +
+          (n === 0 ? 'Felles' : n) + (nm ? '<span class="nm">' + esc(nm) + '</span>' : '') +
+          (used.has(n) ? '<span class="has" aria-label="har varer"></span>' : '') + '</button>';
+      }
+      chips += '<button type="button" class="seat add" data-addseat aria-label="Legg til en plass">+ Plass</button>';
+      let edit;
+      if (pos.active > 0) {
+        edit = ui.editing
+          ? '<form class="name-edit" id="nameform"><input id="seatname" type="text" maxlength="20" placeholder="Navn på plass ' + pos.active + '" value="' + esc(pos.seatNames[pos.active] || '') + '" aria-label="Navn på plass ' + pos.active + '"><button class="btn primary" type="submit">Lagre</button>' +
+            (pos.seatNames[pos.active] ? '<button class="btn" type="button" data-clearname>Fjern navn</button>' : '') + '</form>'
+          : '<button type="button" class="btn link" data-editname>' + ICON.pen + ' ' + (pos.seatNames[pos.active] ? 'Endre navn på plass ' + pos.active : 'Gi plass ' + pos.active + ' et navn') + '</button>';
+      } else {
+        edit = '<p class="hint">Felles er for det bordet deler, som vann og brød.</p>';
+      }
+      s.innerHTML = '<div class="lbl"><span>Varer går til</span><span>' + esc(seatHead(pos.seatNames, pos.active)) + '</span></div><div class="seat-row">' + chips + '</div>' + edit;
+    }
+
+    $('lines').innerHTML = pos.lines.length ? linesHtml(!!t, true)
+      : '<p class="empty">' + (t ? 'Trykk på en vare for å legge den på ' + esc(seatHead(pos.seatNames, pos.active)) + '.' : 'Kurven er tom.') + '</p>';
+
+    const paid = paidOf(pos.payments);
+    const pr = $('paidrow');
+    pr.hidden = !paid;
+    pr.innerHTML = '<span>Betalt</span><span>' + kr(paid) + '</span>';
+    $('total-l').textContent = paid ? 'Gjenstår' : 'Totalt';
+    $('total').textContent = kr(outstanding());
+
+    const park = $('park');
+    const unsent = pos.lines.some(l => !l.sent);
+    const backToTable = t && pos.lines.length;
+    park.hidden = !backToTable;
+    if (backToTable) park.textContent = 'Parkér på ' + t.name;
+    const mb = $('mapbtn');
+    mb.innerHTML = backToTable ? ICON.inbox : ICON.grid;
+    mb.className = 'icon-btn' + (backToTable ? ' ready' : '');
+    mb.setAttribute('aria-label', backToTable ? 'Parkér tilbake på ' + t.name : 'Åpne bordkartet');
+    mb.title = mb.getAttribute('aria-label');
+    const pb = $('paybtn');
+    pb.disabled = !(pos.lines.length && outstanding() > 0);
+    pb.textContent = pb.disabled ? 'Betal' : 'Betal ' + kr(outstanding());
+    void unsent;
+  }
+
+  function renderTicket() { $('ticket').textContent = ui.ticket || 'Ingen bong sendt ennå.'; }
+
+  /* ---------- Bordkart ---------- */
+  function tileState(t) {
+    if (pos.tableId === t.id) return 'this';
+    if (!t.order) return 'free';
+    if (t.order.lockedBy) return 'edit';
+    return 'occ';
+  }
+  function dots(t, st) {
+    const o = st === 'this' ? { lines: pos.lines, seatCount: pos.seatCount } : t.order;
+    const count = o ? o.seatCount : t.seats;
+    const used = new Set(o ? o.lines.filter(l => l.qty - (l.paid || 0) > 0).map(l => l.seat) : []);
+    let h = '<span class="dots" aria-hidden="true">';
+    for (let i = 1; i <= count; i++) h += '<span class="dot' + (used.has(i) ? ' on' : '') + '"></span>';
+    return h + '</span>';
+  }
+  function renderOverlay() {
+    const ov = $('overlay');
+    if (ui.confirm) return renderConfirm();
+    if (ui.print) return renderPrint();
+    if (ui.qrPanel) return renderQrPanel();
+    if (ui.pay) return renderPay();
+    if (!ui.map) { ov.innerHTML = ''; return; }
+    const free = tables.filter(t => !t.order).length;
+    const tiles = tables.map(t => {
+      const st = tileState(t);
+      let body;
+      if (st === 'free') body = '<span class="n">' + ICON.free + esc(t.name) + '</span><span class="d"><span class="st">Ledig</span> · ' + t.seats + ' pl.</span>';
+      else if (st === 'this') body = '<span class="n">' + ICON.star + esc(t.name) + '</span><span class="st">Denne ordren</span>';
+      else if (st === 'edit' && qrOpenOn(t)) body = '<span class="n">' + ICON.edit + esc(t.name) + '</span><span class="d">Gjestene betaler</span><span class="d">' + esc(qrProgressText()) + '</span>';
+      else if (st === 'edit') body = '<span class="n">' + ICON.edit + esc(t.name) + '</span><span class="d">' + mins(t.order.started) + ' min · ' + esc(t.order.lockedBy) + '</span>';
+      else body = '<span class="n">' + ICON.occ + esc(t.name) + '</span><span class="d">' + mins(t.order.started) + ' min</span><span class="d">' + esc(t.order.name) + '</span>';
+      const lab = { free: 'ledig', occ: 'opptatt', edit: 'redigeres', this: 'denne ordren' }[st];
+      return '<button type="button" class="tile ' + st + (t.shape === 'round' ? ' round' : '') + '" data-table="' + t.id + '" aria-label="' + esc(t.name) + ', ' + lab + '">' + body + dots(t, st) + '</button>';
+    }).join('');
+    ov.innerHTML = '<div class="scrim" data-scrim="map"><div class="dialog" role="dialog" aria-modal="true" aria-label="Bordkart">' +
+      '<div class="d-head"><span class="floor">Salen · ' + free + '/' + tables.length + '</span><button type="button" class="close" data-close="map" aria-label="Lukk bordkartet">×</button></div>' +
+      '<div class="d-body"><div class="floorplan">' + tiles + '</div>' +
+      '<div class="d-side">' +
+        '<label for="ordername">Navn på ordre</label><input id="ordername" type="text" maxlength="60" placeholder="Valgfritt — bordet navngir ordren" value="' + esc(ui.orderName) + '">' +
+        '<label class="check"><input id="kitchen" type="checkbox"' + (ui.kitchen ? ' checked' : '') + '><span><b>Send til kjøkken og henteskjerm</b><br><span class="hint">Maten lages nå.</span></span></label>' +
+        '<div class="legend"><span><i style="border-color:var(--free-edge);background:var(--free-fill)"></i>Ledig</span><span><i style="border-color:var(--occ-edge);background:var(--occ-fill)"></i>Opptatt</span><span><i style="border-color:var(--edit-edge);background:var(--edit-fill)"></i>Redigeres</span><span><i style="border-color:var(--this-edge);background:var(--this-fill)"></i>Denne ordren</span></div>' +
+        '<p class="note"><b>Prikkene</b> under bordnavnet er plassene. En fylt prikk betyr at plassen har ubetalte varer.<br><br>Parkering uten bord (Rask parkering, Navn / Telefon, Lagre på eksisterende ordre) er som i dag og vises ikke i demoen.</p>' +
+      '</div></div></div></div>';
+  }
+  function renderConfirm() {
+    const t = tableOf(ui.confirm);
+    const own = t.order.lines.reduce((a, l) => a + l.qty, 0);
+    $('overlay').innerHTML = '<div class="scrim"><div class="confirm" role="dialog" aria-modal="true" aria-labelledby="cf-h">' +
+      '<h3 id="cf-h">Legg til i ordren på ' + esc(t.name) + '?</h3>' +
+      '<p class="hint">Bordet har ' + own + ' varer fra før. Varene i kurven legges til, og hver vare beholder plassen sin. Navn du har gitt plassene, legges til der bordet ikke har navn fra før.</p>' +
+      '<div class="row"><button type="button" class="btn" data-cf-no>Avbryt</button><button type="button" class="btn primary" data-cf-yes>Legg til i ordren</button></div></div></div>';
+  }
+
+  /* ---------- Betaling ---------- */
+  function renderPay() {
+    const p = ui.pay;
+    if (p.view === 'items') return renderSplitItems();
+    if (p.view === 'person') return renderSplitPerson();
+    const t = pos.tableId ? tableOf(pos.tableId) : null;
+    const due = outstanding();
+    const paid = paidOf(pos.payments);
+    const unassigned = pos.payments.some(x => !x.items.length);
+    const selOn = Object.keys(p.sel).length > 0;
+
+    let seatBlock = '';
+    if (t && !unassigned) {
+      const seats = [...new Set(pos.lines.map(l => l.seat))].sort(seatOrder);
+      const chips = seats.map(n => {
+        const r = seatRest(n);
+        const label = seatShort(pos.seatNames, n);
+        const pressed = selOn && p.selLabel === seatHead(pos.seatNames, n);
+        if (r === 0) return '<button type="button" class="sp" disabled><b>' + esc(label) + '</b><span>Betalt</span></button>';
+        return '<button type="button" class="sp" data-payseat="' + n + '" aria-pressed="' + pressed + '"><b>' + esc(label) + '</b><span>' + (n > 0 ? 'P' + n + ' · ' : '') + kr(r) + '</span></button>';
+      }).join('');
+      seatBlock = '<div style="display:grid;gap:8px"><span class="kicker">Betal for en plass</span><div class="seatpay">' + chips + '</div></div>';
+    }
+
+    const amountVal = p.amount;
+    const selBanner = selOn
+      ? '<div class="sel"><span>Del per vare: <b>' + esc(p.selLabel) + '</b> · ' + selUnits(p.sel) + (selUnits(p.sel) === 1 ? ' vare' : ' varer') + '</span><button type="button" class="btn link" data-clearsel>Fjern valget</button></div>'
+      : '';
+
+    const hist = pos.payments.length
+      ? '<div style="display:grid;gap:6px"><span class="kicker">Betalinger</span><div class="history">' + pos.payments.map(x => '<div><span>' + esc(x.method) + ' · ' + esc(x.label) + '</span><span>' + kr(x.amount) + '</span></div>').join('') + '</div></div>'
+      : '';
+
+    $('overlay').innerHTML = '<div class="scrim" data-scrim="pay"><div class="dialog pay-d" role="dialog" aria-modal="true" aria-labelledby="pay-h">' +
+      '<div class="d-head"><div><h2 id="pay-h">Betaling' + (t ? ' · ' + esc(t.name) : '') + '</h2><p class="hint">' + esc(t ? (t.order ? t.order.name : t.name) : 'Ordre uten bord') + '</p></div><button type="button" class="close" data-close="pay" aria-label="Lukk betalingen">×</button></div>' +
+      '<div class="pay-grid"><div class="pay-main">' +
+        '<div class="due"><span class="kicker">Å betale nå</span><span class="big" id="due-big">' + kr(amountVal ? (parseAmount(amountVal) ?? due) : due) + '</span>' +
+          '<span class="hint">Gjenstår på ordren ' + kr(due) + (paid ? ' · betalt ' + kr(paid) : '') + '</span></div>' +
+        seatBlock +
+        '<div class="secondary"><button type="button" class="btn" data-split="items"' + (unassigned ? ' disabled' : '') + '>Del per vare</button><button type="button" class="btn" data-split="person">Del per person</button>' +
+          (t ? '<button type="button" class="btn" data-print' + (unassigned ? ' disabled' : '') + '>Foreløpig kvittering med QR</button>' : '') +
+          (unassigned ? '<span class="hint why">Del per vare og per plass er av fordi ordren har en delbetaling som ikke er knyttet til varer.</span>' : '') + '</div>' +
+        selBanner +
+        '<div class="field"><label for="amount">Beløp</label><div class="row"><input id="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="' + plain(due) + '" value="' + esc(amountVal) + '"></div>' +
+          '<span class="hint">Tomt felt betaler hele restbeløpet. Endrer du beløpet, fjernes varevalget.</span>' + (p.err ? '<span class="err" role="alert">' + esc(p.err) + '</span>' : '') + '</div>' +
+        '<div class="methods"><button type="button" class="method" data-method="Kort">Kort</button><button type="button" class="method alt" data-method="Kontant">Kontant</button></div>' +
+      '</div>' +
+      '<aside class="pay-side"><span class="kicker">Ordren</span><div class="lines">' + linesHtml(!!t, false) + '</div>' + hist + '</aside>' +
+      '</div></div></div>';
+  }
+
+  function renderSplitItems() {
+    const p = ui.pay;
+    const t = pos.tableId ? tableOf(pos.tableId) : null;
+    const seats = t ? [...new Set(pos.lines.map(l => l.seat))].sort(seatOrder) : [null];
+    const quick = t ? '<div style="display:grid;gap:8px"><span class="kicker">Velg alt for en plass</span><div class="seat-row">' + seats.map(n => {
+        const r = seatRest(n);
+        const full = r > 0 && pos.lines.filter(l => l.seat === n && rest(l) > 0).every(l => p.sel[l.id] === rest(l));
+        return '<button type="button" class="seat" data-selseat="' + n + '" aria-pressed="' + full + '"' + (r === 0 ? ' disabled' : '') + '>' + esc(seatShort(pos.seatNames, n)) + '<span class="nm">' + (r ? kr(r) : 'Betalt') + '</span></button>';
+      }).join('') + '</div></div>' : '';
+    const list = seats.map(n => {
+      const ls = n === null ? pos.lines : pos.lines.filter(l => l.seat === n);
+      const head = n === null ? '' : '<div class="group-h"><span>' + esc(seatHead(pos.seatNames, n)) + '</span><span>' + kr(ls.reduce((a, l) => a + PRICE[l.item] * rest(l), 0)) + ' igjen</span></div>';
+      return head + ls.map(l => {
+        const r = rest(l), q = p.sel[l.id] || 0;
+        const unit = PRICE[l.item];
+        let row = '<button type="button" class="pick' + (q ? ' on' : '') + '" data-pick="' + l.id + '"' + (r === 0 ? ' disabled' : '') + '><span class="box">' + (q ? '✓' : '') + '</span>' +
+          '<span class="t"><b>' + esc(l.item) + '</b><small>' + kr(unit) + ' · ' + (r === 0 ? 'Betalt' : r + ' igjen av ' + l.qty) + '</small></span><span class="amt">' + (q ? kr(unit * q) : '') + '</span></button>';
+        if (q && r > 1) row += '<div class="step"><button type="button" data-dec="' + l.id + '" aria-label="Færre"' + (q <= 1 ? ' disabled' : '') + '>−</button><span>' + q + ' av ' + r + '</span><button type="button" data-inc="' + l.id + '" aria-label="Flere"' + (q >= r ? ' disabled' : '') + '>+</button></div>';
+        return row;
+      }).join('');
+    }).join('');
+    const sum = selTotal(p.sel);
+    const units = selUnits(p.sel);
+    $('overlay').innerHTML = '<div class="scrim" data-scrim="split"><div class="dialog split-d" role="dialog" aria-modal="true" aria-labelledby="si-h">' +
+      '<div class="d-head"><div><h2 id="si-h">Del per vare</h2><p class="hint">Velg hva gjesten betaler for. Betalte varer er låst.</p></div><button type="button" class="close" data-back aria-label="Tilbake til betalingen">×</button></div>' +
+      quick + '<div class="split-list">' + list + '</div>' +
+      '<div class="split-foot"><div><span class="kicker">Valgt · ' + units + (units === 1 ? ' vare' : ' varer') + '</span><div class="sum">' + kr(sum) + '</div></div>' +
+      '<div class="row"><button type="button" class="btn" data-back>Avbryt</button><button type="button" class="btn primary" data-usesel' + (units ? '' : ' disabled') + '>Bruk ' + kr(sum) + '</button></div></div>' +
+      '</div></div>';
+  }
+
+  function renderSplitPerson() {
+    const p = ui.pay;
+    const share = personShare(p.persons);
+    $('overlay').innerHTML = '<div class="scrim" data-scrim="split"><div class="dialog split-d" role="dialog" aria-modal="true" aria-labelledby="sp-h">' +
+      '<div class="d-head"><div><h2 id="sp-h">Del per person</h2><p class="hint">Deler det som gjenstår likt. Neste gang skriver du antall som fortsatt skal betale.</p></div><button type="button" class="close" data-back aria-label="Tilbake til betalingen">×</button></div>' +
+      '<div class="persons"><span class="kicker">Antall personer</span><div class="step"><button type="button" data-pdec aria-label="Færre"' + (p.persons <= 2 ? ' disabled' : '') + '>−</button><span>' + p.persons + '</span><button type="button" data-pinc aria-label="Flere"' + (p.persons >= 50 ? ' disabled' : '') + '>+</button></div>' +
+      '<span class="hint">' + kr(outstanding()) + ' ÷ ' + p.persons + '</span></div>' +
+      '<div class="split-foot"><div><span class="kicker">Per person</span><div class="sum">' + kr(share) + '</div></div><div class="row"><button type="button" class="btn" data-back>Avbryt</button><button type="button" class="btn primary" data-useperson>Bruk ' + kr(share) + '</button></div></div>' +
+      '</div></div>';
+  }
+  function personShare(n) { return Math.floor(outstanding() / n + 0.5); }
+
+  function parseAmount(s) {
+    const v = String(s).trim();
+    if (!v) return null;
+    if (!/^\d+([.,]\d{1,2})?$/.test(v)) return NaN;
+    return Math.round(parseFloat(v.replace(',', '.')) * 100);
+  }
+
+  function openPay() {
+    const t = pos.tableId ? tableOf(pos.tableId) : null;
+    if (t && qrOpenOn(t)) {
+      if (pos.lines.some(l => !l.sent)) { persist(t); toast('Varene er lagt til. Gjestene ser dem nå.'); }
+      pos = blankPos();
+      ui.qrPanel = { tableId: t.id, confirm: false }; ui.map = false;
+      return render();
+    }
+    if (t && (!pos.fetched || pos.lines.some(l => !l.sent))) {
+      persist(t);
+      toast('Ordren er lagret på ' + t.name + ' før betaling');
+    }
+    ui.pay = blankPay(); ui.map = false; ui.moving = null; ui.editing = false;
+    render();
+  }
+
+  function applySel(sel, label) {
+    ui.pay.sel = sel; ui.pay.selLabel = label; ui.pay.err = '';
+    ui.pay.amount = plain(selTotal(sel));
+    ui.pay.view = 'main';
+  }
+
+  function seatSel(n) {
+    const sel = {};
+    pos.lines.filter(l => l.seat === n && rest(l) > 0).forEach(l => sel[l.id] = rest(l));
+    return sel;
+  }
+
+  function payWith(method) {
+    const p = ui.pay;
+    const due = outstanding();
+    const parsed = parseAmount(p.amount);
+    if (Number.isNaN(parsed)) { p.err = 'Skriv beløpet som 389,50, uten mellomrom.'; return render(); }
+    const amount = parsed === null ? due : parsed;
+    if (amount <= 0) { p.err = 'Beløpet må være større enn 0.'; return render(); }
+    if (amount > due) { p.err = 'Beløpet er høyere enn det som gjenstår (' + kr(due) + ').'; return render(); }
+
+    let items = [];
+    const selOn = Object.keys(p.sel).length > 0;
+    if (selOn) items = Object.keys(p.sel).map(id => ({ id: +id, qty: p.sel[id] }));
+    else if (amount === due && !pos.payments.some(x => !x.items.length)) items = pos.lines.filter(l => rest(l) > 0).map(l => ({ id: l.id, qty: rest(l) }));
+    items.forEach(it => { const l = pos.lines.find(x => x.id === it.id); if (l) l.paid += it.qty; });
+
+    const label = selOn ? p.selLabel : (amount === due ? 'Resten' : (p.selLabel || 'Delbetaling'));
+    pos.payments.push({ method, amount, items, label });
+    syncTable();
+
+    const t = pos.tableId ? tableOf(pos.tableId) : null;
+    if (outstanding() <= 0) {
+      if (t) t.order = null;
+      pos = blankPos(); ui.pay = null; ui.map = !!t;
+      toast(method + ' godkjent · ' + kr(amount) + '. Ordren er betalt' + (t ? ', og ' + t.name + ' er ledig.' : '.'));
+      return render();
+    }
+    ui.pay = blankPay();
+    toast(method + ' godkjent · ' + kr(amount) + ' · ' + label + '. Gjenstår ' + kr(outstanding()) + '.');
+    render();
+  }
+
+  function syncTable() {
+    if (!pos.tableId) return;
+    const t = tableOf(pos.tableId);
+    if (!t.order) return;
+    t.order.lines = clone(pos.lines);
+    t.order.payments = clone(pos.payments);
+  }
+
+  /* ---------- Parkering ---------- */
+  function openMap() { ui.map = true; ui.editing = false; ui.moving = null; ui.orderName = ''; render(); }
+  function closeMap() {
+    ui.map = false;
+    if (!pos.lines.length && pos.tableId && !pos.fetched) pos = blankPos();
+    render();
+  }
+
+  function makeTicket(t, lines, names) {
+    const unsent = lines.filter(l => !l.sent);
+    if (!unsent.length || !ui.kitchen) return null;
+    const time = new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+    const seats = [...new Set(unsent.map(l => l.seat))].sort(seatOrder);
+    let out = t.name.toUpperCase() + '   ' + time + '\n' + '-'.repeat(28) + '\n';
+    seats.forEach(n => {
+      out += (n === 0 ? 'FELLES' : 'P' + n + (names[n] ? ' ' + names[n].toUpperCase() : '')) + '\n';
+      unsent.filter(l => l.seat === n).forEach(l => { out += '  ' + l.qty + ' × ' + l.item + '\n'; });
+    });
+    return out.trimEnd();
+  }
+
+  // Lagrer kurven på bordet og beholder den i kassen (som etter «hent»).
+  function persist(t) {
+    if (qrOpenOn(t) && t.order) {
+      const o = t.order;
+      const ticket = makeTicket(t, pos.lines, pos.seatNames);
+      pos.lines.forEach(l => {
+        const ex = o.lines.find(x => x.id === l.id);
+        if (ex) { if (!ex.paid && !reservedQty(ex.id)) ex.seat = l.seat; }
+        else o.lines.push(Object.assign(clone(l), { sent: l.sent || ui.kitchen, paid: 0, qrNew: true }));
+      });
+      Object.keys(pos.seatNames).forEach(k => { o.seatNames[k] = pos.seatNames[k]; });
+      o.seatCount = Math.max(o.seatCount, pos.seatCount);
+      pos.lines.forEach(l => { l.sent = true; });
+      if (ticket) ui.ticket = ticket;
+      pos.fetched = true; pos.tableId = t.id;
+      return;
+    }
+    const names = Object.assign({}, pos.seatNames);
+    const ticket = makeTicket(t, pos.lines, names);
+    const hadNew = pos.lines.some(l => !l.sent);
+    pos.lines.forEach(l => { l.sent = l.sent || ui.kitchen; });
+    if (pos.fetched && t.order) {
+      t.order.seatNames = names; t.order.seatCount = pos.seatCount;
+      if (hadNew) t.order.started = Date.now();
+      delete t.order.lockedBy;
+    } else {
+      t.order = { name: (ui.orderName || '').trim() || t.name, started: Date.now(), seatCount: pos.seatCount, seatNames: names, lines: [], payments: [] };
+    }
+    t.order.lines = clone(pos.lines);
+    t.order.payments = clone(pos.payments);
+    if (ticket) ui.ticket = ticket;
+    pos.fetched = true; pos.tableId = t.id;
+  }
+
+  function parkOn(t) {
+    const wasQr = qrOpenOn(t);
+    persist(t);
+    pos = blankPos();
+    ui.editing = false; ui.moving = null; ui.orderName = '';
+    toast(wasQr ? 'Varene er lagt til på ' + t.name + '. Gjestene ser dem nå.' : 'Ordre parkert på ' + t.name);
+    ui.map = true;
+    render();
+  }
+
+  function onTable(id) {
+    const t = tableOf(id);
+    ui.orderName = ($('ordername') && $('ordername').value) || '';
+    ui.kitchen = $('kitchen') ? $('kitchen').checked : ui.kitchen;
+    const st = tileState(t);
+    if (st === 'edit' && qrOpenOn(t)) { ui.qrPanel = { tableId: t.id, confirm: false }; return render(); }
+    if (st === 'edit') { toast(t.name + ' redigeres av ' + t.order.lockedBy + ' på en annen kasse. Vent til ' + t.order.lockedBy + ' er ferdig.'); return; }
+    if (st === 'this') {
+      if (pos.lines.length) { parkOn(t); return; }
+      pos = blankPos(); toast('Valget av ' + t.name + ' er fjernet'); render(); return;
+    }
+    if (st === 'free') {
+      if (pos.lines.length && !pos.fetched) {
+        pos.tableId = t.id; pos.seatCount = Math.max(pos.seatCount, t.seats); parkOn(t); return;
+      }
+      if (pos.lines.length && pos.fetched) { toast('Parkér eller avbryt ordren i kassen først.'); return; }
+      pos = blankPos(); pos.tableId = t.id; pos.seatCount = t.seats; pos.active = 1;
+      ui.map = false; toast(t.name + ' er valgt. Velg plass, legg til varer og parkér.'); render(); return;
+    }
+    if (!pos.lines.length && !pos.tableId) {
+      const o = t.order;
+      pos = { tableId: t.id, fetched: true, lines: clone(o.lines), seatNames: Object.assign({}, o.seatNames), seatCount: o.seatCount, active: 1, payments: clone(o.payments || []) };
+      ui.map = false; toast('Ordren på ' + t.name + ' er hentet'); render(); return;
+    }
+    if (pos.fetched) { toast('Parkér eller avbryt ordren i kassen først.'); return; }
+    if (pos.tableId && !pos.lines.length) { pos = blankPos(); return onTable(id); }
+    ui.confirm = t.id; render();
+  }
+
+  function mergeInto(t) {
+    const o = t.order;
+    pos.lines.forEach(l => { if (l.seat > o.seatCount) o.seatCount = l.seat; });
+    Object.keys(pos.seatNames).forEach(k => { if (!o.seatNames[k]) o.seatNames[k] = pos.seatNames[k]; });
+    const ticket = makeTicket(t, pos.lines, o.seatNames);
+    pos.lines.forEach(l => o.lines.push(Object.assign({}, l, { sent: ui.kitchen })));
+    o.started = Date.now();
+    if (ticket) ui.ticket = ticket;
+    pos = blankPos(); ui.confirm = null; ui.map = true;
+    toast('Varene ble lagt til ordren på ' + t.name);
+    render();
+  }
+
+  /* ---------- Gjestene betaler selv (QR) ---------- */
+  const WAITER = 'Thomas';
+  const DEVICES = [1, 2, 3];
+  const clock = () => new Date().toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' });
+
+  function hashStr(s) { let h = 2166136261; for (const c of s) { h ^= c.charCodeAt(0); h = Math.imul(h, 16777619); } return h >>> 0; }
+  function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  // Illustrasjon av en QR-kode (ikke skannbar).
+  function qrSvg(token) {
+    const N = 25, r = rng(hashStr(token));
+    const finder = (x, y) => (x < 7 && y < 7) || (x >= N - 7 && y < 7) || (x < 7 && y >= N - 7);
+    const finderOn = (x, y) => { const fx = x >= N - 7 ? x - (N - 7) : x, fy = y >= N - 7 ? y - (N - 7) : y; const d = Math.max(Math.abs(fx - 3), Math.abs(fy - 3)); return d !== 2 && d <= 3; };
+    let rects = '';
+    for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+      const on = finder(x, y) ? finderOn(x, y) : r() > 0.52;
+      if (on) rects += '<rect x="' + (x + 2) + '" y="' + (y + 2) + '" width="1" height="1"/>';
+    }
+    return '<svg viewBox="0 0 29 29" role="img" aria-label="QR-kode for ' + esc(token) + ' (illustrasjon)" shape-rendering="crispEdges"><rect width="29" height="29" fill="var(--paper)"/><g fill="var(--paper-ink)">' + rects + '</g></svg>';
+  }
+  function newToken(t) {
+    const al = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let s = ''; for (let i = 0; i < 6; i++) s += al[Math.floor(Math.random() * al.length)];
+    return 'B' + t.id + '-' + s;
+  }
+
+  const qrOpenOn = t => !!(ui.qr && t && ui.qr.tableId === t.id && ui.qr.status === 'open');
+  function qrOrder() { const q = ui.qr; if (!q) return null; const t = tableOf(q.tableId); return t && t.order ? t.order : null; }
+  const oRest = l => +(l.qty - (l.paid || 0)).toFixed(3);
+  const oTotal = o => o.lines.reduce((a, l) => a + PRICE[l.item] * l.qty, 0);
+  const oPaid = o => o.payments.reduce((a, p) => a + p.amount, 0);
+  const oOutstanding = o => oTotal(o) - oPaid(o);
+  const pending = () => ui.qr ? ui.qr.reqs.filter(r => r.status === 'sent') : [];
+  const reservedQty = id => pending().reduce((a, r) => a + r.items.filter(i => i.id === id).reduce((b, i) => b + i.qty, 0), 0);
+  const avail = l => +(oRest(l) - reservedQty(l.id)).toFixed(3);
+  const reservedAmount = () => pending().reduce((a, r) => a + r.amount, 0);
+  const lineLocked = l => (l.paid || 0) > 0 || (!!ui.qr && ui.qr.status === 'open' && ui.qr.tableId === pos.tableId && reservedQty(l.id) > 0);
+  const unitsOf = sel => Object.values(sel).reduce((a, b) => a + b, 0);
+
+  function newDevice(id) {
+    return { id, scanned: false, step: 'scan', sel: {}, mode: 'self', phone: '', name: '', err: '', who: null,
+      tip: 0, tipCustom: '', last: null, paidTotal: 0, rc: { via: 'sms', to: '', company: false, org: '', firm: '' } };
+  }
+
+  // Beløp for et utvalg. Dekker valget alt som er igjen og ingen krav venter, betales restbeløpet nøyaktig.
+  function selTotalFor(o, sel) {
+    let sum = 0, units = 0;
+    Object.keys(sel).forEach(id => { const l = o.lines.find(x => x.id === +id); if (l) { sum += PRICE[l.item] * sel[id]; units += sel[id]; } });
+    const allUnits = o.lines.reduce((a, l) => a + avail(l), 0);
+    if (units && Math.abs(units - allUnits) < 1e-9) return oOutstanding(o) - reservedAmount();
+    return sum;
+  }
+  function tipFor(d, base) {
+    if (!ui.tipsOn || d.mode !== 'self') return 0;
+    if (d.tip === 'custom') { const v = parseAmount(d.tipCustom); return v && !Number.isNaN(v) ? v : 0; }
+    return Math.round(base * d.tip / 100);
+  }
+  function namedSeats(o) {
+    return Object.keys(o.seatNames).map(Number).filter(n => n > 0 && o.lines.some(l => l.seat === n && avail(l) > 0)).sort((a, b) => a - b);
+  }
+  const startStep = o => namedSeats(o).length ? 'who' : 'select';
+  function itemsText(o, items) {
+    return items.map(i => { const l = o.lines.find(x => x.id === i.id); return l ? (i.qty === 1 ? '' : i.qty + ' × ') + l.item : ''; }).filter(Boolean).join(', ');
+  }
+
+  function qrProgressText() {
+    const o = qrOrder();
+    if (!o) return '';
+    return kr(oPaid(o)) + ' av ' + kr(oTotal(o)) + ' betalt';
+  }
+
+  let pushId = 0;
+  function pushNote(title, text, tableId) { ui.push.push({ id: ++pushId, at: clock(), title, text, tableId }); }
+
+  /* Kassen: foreløpig kvittering */
+  function printProvisional() {
+    const t = tableOf(pos.tableId);
+    if (!t) return;
+    persist(t);
+    if (ui.qr && ui.qr.tableId !== t.id && ui.qr.status === 'open') { const old = tableOf(ui.qr.tableId); if (old && old.order) delete old.order.lockedBy; }
+    const token = newToken(t);
+    t.order.lockedBy = 'Gjestene (QR)';
+    const devices = {}; DEVICES.forEach(id => devices[id] = newDevice(id));
+    ui.qr = { tableId: t.id, token, status: 'open', reqs: [], queue: [], devices, done: null };
+    ui.print = { tableId: t.id, token };
+    ui.pay = null; ui.dev = 1;
+    pos = blankPos();
+    render();
+  }
+
+  function renderPrint() {
+    const t = tableOf(ui.print.tableId);
+    const o = t.order;
+    const seats = [...new Set(o.lines.map(l => l.seat))].sort(seatOrder);
+    const rows = seats.map(n => {
+      const ls = o.lines.filter(l => l.seat === n);
+      return '<div>' + esc(n === 0 ? 'Felles' : 'P' + n + (o.seatNames[n] ? ' ' + o.seatNames[n] : '')) + '</div>' +
+        ls.map(l => '<div class="r"><span>&nbsp;' + l.qty + ' × ' + esc(l.item) + '</span><span>' + kr(PRICE[l.item] * l.qty) + '</span></div>').join('');
+    }).join('');
+    const paid = oPaid(o);
+    $('overlay').innerHTML = '<div class="scrim"><div class="print-wrap" role="dialog" aria-modal="true" aria-label="Foreløpig kvittering">' +
+      '<div class="paper">' +
+        '<div class="c"><b>BRASSERIET</b><br>Kongens gate 12, Trondheim</div>' +
+        '<div class="warn">FORELØPIG KVITTERING<br>IKKE KVITTERING FOR KJØP</div>' +
+        '<div class="r"><span>' + esc(t.name) + ' · ' + esc(o.name) + '</span><span>' + clock() + '</span></div>' +
+        '<div class="hr"></div>' + rows + '<div class="hr"></div>' +
+        (paid ? '<div class="r"><span>Betalt</span><span>' + kr(paid) + '</span></div>' : '') +
+        '<div class="r"><b>Å BETALE</b><b>' + kr(oOutstanding(o)) + '</b></div>' +
+        '<div class="hr"></div>' +
+        '<div class="c">Skann for å dele regningen og betale med Vipps. Alle ved bordet kan skanne.</div>' + qrSvg(ui.print.token) +
+        '<div class="c">donepay.no/t/' + esc(ui.print.token) + '<br>Gjelder bare ' + esc(t.name) + '</div>' +
+      '</div>' +
+      '<div class="row"><button type="button" class="btn primary" data-printdone>Legg kvitteringen på bordet</button></div>' +
+      '</div></div>';
+  }
+
+  /* Kassen: fremdrift, legg til varer og ta over */
+  function renderQrPanel() {
+    const p = ui.qrPanel, t = tableOf(p.tableId), q = ui.qr;
+    if (!t.order || !qrOpenOn(t)) { ui.qrPanel = null; return renderOverlay(); }
+    const o = t.order;
+    const total = oTotal(o), paid = oPaid(o), pend = reservedAmount(), left = Math.max(0, oOutstanding(o) - pend);
+    const pct = total ? Math.round(paid / total * 100) : 0;
+    const tips = o.payments.reduce((a, x) => a + (x.tip || 0), 0);
+    const qn = q.queue.length;
+    const queueTxt = qn === 0 ? 'Ingen gjest er inne og betaler nå.' : qn === 1 ? 'Mobil ' + q.queue[0] + ' betaler nå.' : 'Mobil ' + q.queue[0] + ' betaler nå. ' + (qn - 1) + ' i kø.';
+    const reqs = q.reqs.filter(r => ['paid', 'sent', 'expired'].includes(r.status));
+    const pill = { paid: '<span class="pill">Betalt</span>', sent: '<span class="pill wait">Venter på Vipps</span>', expired: '<span class="pill bad">Gikk ut</span>' };
+    const list = reqs.length
+      ? reqs.map(r => '<div class="prow"><b>' + esc(r.name) + '</b><span class="amt">' + kr(r.amount) + '</span><small>' + pill[r.status] + ' ' + esc(itemsText(o, r.items)) + (r.tip ? ' · driks ' + kr(r.tip) : '') + '</small></div>').join('')
+      : '<p class="hint">Ingen betalinger ennå.</p>';
+    const pendCount = pending().length;
+    const actions = p.confirm
+      ? '<div class="note" style="color:var(--ink)"><b>Ta over betalingen for ' + esc(t.name) + '?</b><br>Gjestene kan ikke betale med QR-koden lenger, og de som skanner, får beskjed om å betale hos deg.' +
+          (pendCount ? ' ' + pendCount + (pendCount === 1 ? ' Vipps-krav' : ' Vipps-krav') + ' på ' + kr(pend) + ' trekkes tilbake.' : '') +
+          (paid ? ' Det som er betalt (' + kr(paid) + '), står som betalt.' : '') + '</div>' +
+        '<div class="row" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button type="button" class="btn" data-qrtakeno>Avbryt</button><button type="button" class="btn danger" data-qrtakeyes>Ta over i kassen</button></div>'
+      : '<div class="row" style="display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap"><button type="button" class="btn" data-qradd>Legg til varer</button><button type="button" class="btn danger" data-qrtake>Ta over i kassen</button></div>';
+    $('overlay').innerHTML = '<div class="scrim" data-scrim="qr"><div class="dialog split-d" role="dialog" aria-modal="true" aria-labelledby="qp-h">' +
+      '<div class="d-head"><div><h2 id="qp-h">' + esc(t.name) + ' · gjestene betaler med QR</h2><p class="hint">' + esc(o.name) + ' · lenke donepay.no/t/' + esc(q.token) + '</p></div><button type="button" class="close" data-close="qr" aria-label="Lukk">×</button></div>' +
+      '<div class="g-total"><span class="kicker">Betalt ' + kr(paid) + ' av ' + kr(total) + (tips ? ' · driks ' + kr(tips) : '') + '</span><div class="progress" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+        '<span class="hint">Venter på Vipps ' + kr(pend) + ' · ikke fordelt ' + kr(left) + '</span></div>' +
+      '<p class="hint">' + esc(queueTxt) + '</p>' +
+      '<div><span class="kicker">Betalinger</span>' + list + '</div>' +
+      '<p class="hint">Du kan legge til varer mens gjestene betaler. Bare betalte varer og varer i ventende krav er låst.</p>' +
+      actions + '</div></div>';
+  }
+
+  function qrAddItems() {
+    const t = tableOf(ui.qrPanel.tableId), o = t.order;
+    if (pos.lines.length && pos.tableId !== t.id) { toast('Parkér eller avbryt ordren i kassen først.'); return; }
+    pos = { tableId: t.id, fetched: true, lines: clone(o.lines), seatNames: Object.assign({}, o.seatNames), seatCount: o.seatCount, active: 1, payments: clone(o.payments) };
+    ui.qrPanel = null; ui.map = false;
+    toast('Legg til varer og parkér. Gjestene ser dem med en gang.');
+    render();
+  }
+
+  function takeOver() {
+    const q = ui.qr, t = tableOf(q.tableId), o = t.order;
+    if (pos.lines.length && pos.tableId !== t.id) { toast('Parkér eller avbryt ordren i kassen først.'); return; }
+    q.reqs.forEach(r => { if (r.status === 'sent') r.status = 'withdrawn'; });
+    q.status = 'takenover'; q.queue = [];
+    Object.values(q.devices).forEach(d => { if (d.scanned && d.step !== 'receipt') d.step = 'closed'; });
+    delete o.lockedBy;
+    pos = { tableId: t.id, fetched: true, lines: clone(o.lines), seatNames: Object.assign({}, o.seatNames), seatCount: o.seatCount, active: 1, payments: clone(o.payments) };
+    ui.qrPanel = null; ui.map = false; ui.pay = blankPay();
+    toast('Du har tatt over betalingen for ' + t.name + '. QR-lenken er stengt.');
+    render();
+  }
+
+  /* Gjestens mobil: kø */
+  function scan(id) {
+    const q = ui.qr, d = q.devices[id];
+    d.scanned = true;
+    if (q.status !== 'open') { d.step = 'closed'; return render(); }
+    if (!q.queue.includes(id)) q.queue.push(id);
+    d.step = q.queue[0] === id ? startStep(qrOrder()) : 'wait';
+    render();
+  }
+  function promote() {
+    const q = ui.qr, id = q.queue[0];
+    if (id === undefined || q.status !== 'open') return;
+    const d = q.devices[id];
+    d.step = startStep(qrOrder()); d.sel = {}; d.err = '';
+    toast('Mobil ' + id + ': Det er din tur til å betale.');
+  }
+  function release(id) {
+    const q = ui.qr, d = q.devices[id];
+    const wasActive = q.queue[0] === id;
+    q.queue = q.queue.filter(x => x !== id);
+    d.sel = {}; d.err = ''; d.who = null;
+    d.step = d.paidTotal ? 'thanks' : 'left';
+    if (wasActive) promote();
+    render();
+  }
+  function rejoin(id) {
+    const q = ui.qr, d = q.devices[id];
+    if (q.status !== 'open') { d.step = 'closed'; return render(); }
+    if (!q.queue.includes(id)) q.queue.push(id);
+    d.step = q.queue[0] === id ? startStep(qrOrder()) : 'wait';
+    render();
+  }
+  function chooseSeat(id, n) {
+    const o = qrOrder(), d = ui.qr.devices[id];
+    d.sel = {}; o.lines.filter(l => l.seat === n && avail(l) > 0).forEach(l => d.sel[l.id] = avail(l));
+    d.who = n; d.mode = 'self'; d.step = 'select'; d.err = '';
+    render();
+  }
+
+  /* Gjestens mobil: betaling */
+  function createRequest(id) {
+    const q = ui.qr, d = q.devices[id], o = qrOrder();
+    if (!unitsOf(d.sel)) return;
+    const phone = d.phone.replace(/\s/g, '');
+    if (!/^[49]\d{7}$/.test(phone)) { d.err = 'Skriv et norsk mobilnummer med 8 siffer.'; return render(); }
+    const items = Object.keys(d.sel).map(k => ({ id: +k, qty: d.sel[k] }));
+    const amount = selTotalFor(o, d.sel);
+    const name = d.name.trim() || 'Mobil ' + phone.slice(-3);
+    q.reqs.push({ name, phone, items, amount, tip: 0, status: 'sent', at: clock(), by: id });
+    d.sel = {}; d.phone = ''; d.name = ''; d.err = '';
+    toast('Vipps-krav på ' + kr(amount) + ' sendt til ' + name);
+    render();
+  }
+
+  function selfPay(id) {
+    const q = ui.qr, d = q.devices[id], o = qrOrder();
+    if (!unitsOf(d.sel)) return;
+    if (ui.tipsOn && d.tip === 'custom' && d.tipCustom.trim() && Number.isNaN(parseAmount(d.tipCustom))) { d.err = 'Skriv driksen som 50 eller 50,00.'; return render(); }
+    const items = Object.keys(d.sel).map(k => ({ id: +k, qty: d.sel[k] }));
+    const amount = selTotalFor(o, d.sel);
+    const tip = tipFor(d, amount);
+    const name = d.who ? (o.seatNames[d.who] || 'Plass ' + d.who) : 'Mobil ' + id;
+    q.reqs.push({ name, phone: '', items, amount, tip, status: 'sent', self: true, at: clock(), by: id });
+    d.last = { amount, tip, text: itemsText(o, items) };
+    d.paidTotal += amount + tip;
+    d.sel = {}; d.err = ''; d.tip = 0; d.tipCustom = '';
+    d.step = 'receipt';
+    settle(q.reqs.length - 1);
+    render();
+  }
+
+  function settle(idx) {
+    const q = ui.qr, o = qrOrder();
+    const r = q.reqs[idx];
+    if (!r || r.status !== 'sent' || !o) return;
+    r.status = 'paid'; r.at = clock();
+    r.items.forEach(it => { const l = o.lines.find(x => x.id === it.id); if (l) l.paid = +((l.paid || 0) + it.qty).toFixed(3); });
+    o.payments.push({ method: 'Vipps', amount: r.amount, tip: r.tip || 0, items: r.items, label: r.name + ' (QR)' });
+    if (oOutstanding(o) <= 0) closePaid();
+    else if (!r.self) toast('Vipps: ' + r.name + ' har betalt ' + kr(r.amount) + '. Kvittering sendt på SMS.');
+  }
+
+  function closePaid() {
+    const q = ui.qr, t = tableOf(q.tableId), o = t.order;
+    const paidReqs = q.reqs.filter(x => x.status === 'paid');
+    const tips = o.payments.reduce((a, p) => a + (p.tip || 0), 0);
+    const n = paidReqs.length;
+    ui.sms.unshift({ at: clock(), text: t.name + ' (' + o.name + ') er betalt i sin helhet: ' + kr(oPaid(o)) + ' kr' + (tips ? ' + driks ' + kr(tips) + ' kr' : '') + ', ' + n + (n === 1 ? ' betaling' : ' betalinger') + ' med Vipps. Bordet er ledig.' });
+    q.done = { name: o.name, total: oPaid(o), tips, reqs: paidReqs.map(x => ({ name: x.name, amount: x.amount, tip: x.tip || 0, at: x.at, text: itemsText(o, x.items) })) };
+    q.status = 'paid'; q.queue = [];
+    Object.values(q.devices).forEach(d => { if (d.step !== 'receipt') d.step = d.scanned ? 'closed' : 'scan'; });
+    if (pos.tableId === t.id) pos = blankPos();
+    t.order = null;
+    toast(t.name + ' er betalt. SMS sendt til ' + WAITER + '.');
+  }
+
+  function expire(idx) {
+    const q = ui.qr, r = q.reqs[idx], t = tableOf(q.tableId);
+    if (!r || r.status !== 'sent') return;
+    r.status = 'expired';
+    pushNote(t.name + ' · Vipps-krav gikk ut', 'Kravet til ' + r.name + ' på ' + kr(r.amount) + ' ble ikke betalt. Varene er ledige igjen.', t.id);
+    toast('Vipps-kravet til ' + r.name + ' gikk ut');
+    render();
+  }
+  function withdraw(idx) {
+    const r = ui.qr.reqs[idx];
+    if (!r || r.status !== 'sent') return;
+    r.status = 'cancelled';
+    toast('Kravet til ' + r.name + ' er trukket tilbake. Varene kan velges igjen.');
+    render();
+  }
+  function resend(id, idx) {
+    const q = ui.qr, d = q.devices[id], o = qrOrder(), r = q.reqs[idx];
+    if (!r || r.status !== 'expired') return;
+    const ok = r.items.every(it => { const l = o.lines.find(x => x.id === it.id); return l && avail(l) + 1e-9 >= it.qty; });
+    r.status = 'handled';
+    if (!ok) { d.err = 'Noen av varene er allerede betalt eller valgt. Velg varene på nytt.'; return render(); }
+    q.reqs.push({ name: r.name, phone: r.phone, items: clone(r.items), amount: r.amount, tip: 0, status: 'sent', at: clock(), by: id });
+    toast('Vipps-kravet er sendt på nytt til ' + r.name);
+    render();
+  }
+  function takeOverReq(id, idx) {
+    const q = ui.qr, d = q.devices[id], o = qrOrder(), r = q.reqs[idx];
+    if (!r || r.status !== 'expired') return;
+    r.status = 'handled';
+    d.sel = {};
+    r.items.forEach(it => { const l = o.lines.find(x => x.id === it.id); if (l && avail(l) > 0) d.sel[l.id] = Math.min(it.qty, avail(l)); });
+    d.mode = 'self'; d.step = 'select'; d.err = '';
+    render();
+  }
+
+  function sendReceipt(id, skip) {
+    const q = ui.qr, d = q.devices[id], rc = d.rc;
+    if (!skip) {
+      if (rc.via === 'sms' && !/^[49]\d{7}$/.test(rc.to.replace(/\s/g, ''))) { d.err = 'Skriv et norsk mobilnummer med 8 siffer.'; return render(); }
+      if (rc.via === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(rc.to.trim())) { d.err = 'Skriv en gyldig e-postadresse.'; return render(); }
+      if (rc.company && !/^\d{9}$/.test(rc.org.replace(/\s/g, ''))) { d.err = 'Organisasjonsnummeret har 9 siffer.'; return render(); }
+      const how = rc.via === 'print' ? 'Kvitteringen skrives ut i kassen' : 'Kvitteringen er sendt på ' + (rc.via === 'sms' ? 'SMS' : 'e-post');
+      toast(how + (rc.company ? ', med firmaopplysninger.' : '.'));
+    }
+    d.err = ''; d.rc = { via: rc.via, to: '', company: false, org: '', firm: '' };
+    if (q.status !== 'open') { d.step = 'closed'; return render(); }
+    release(id);
+  }
+
+  /* Gjestens mobil: visning */
+  function summaryHtml(o) {
+    const total = oTotal(o), paid = oPaid(o), pend = reservedAmount(), left = Math.max(0, oOutstanding(o) - pend);
+    const pct = total ? Math.round(paid / total * 100) : 0;
+    return '<div class="g-total"><span class="kicker">' + esc(o.name) + ' · igjen å fordele</span><span class="big">' + kr(left) + '</span>' +
+      '<div class="progress" aria-hidden="true"><i style="width:' + pct + '%"></i></div>' +
+      '<span class="hint">Betalt ' + kr(paid) + (pend ? ' · venter ' + kr(pend) : '') + ' · totalt ' + kr(total) + '</span></div>';
+  }
+  function reqsHtml(o, isActive) {
+    const fmtPhone = s => s.replace(/^(\d{3})(\d{2})(\d{3})$/, '$1 $2 $3');
+    const reqs = ui.qr.reqs.map((r, i) => ({ r, i })).filter(x => ['paid', 'sent', 'expired'].includes(x.r.status));
+    if (!reqs.length) return '';
+    return '<div style="display:grid;gap:2px"><span class="kicker">Betalinger</span>' + reqs.map(({ r, i }) => {
+      let side;
+      if (r.status === 'paid') side = '<small><span class="pill">Betalt</span> ' + esc(itemsText(o, r.items)) + (r.tip ? ' · driks ' + kr(r.tip) : '') + '</small>';
+      else if (r.status === 'sent') side = '<small>Vipps-krav til ' + esc(fmtPhone(r.phone)) + ' · venter · ' + esc(itemsText(o, r.items)) + '</small>' +
+        '<span class="acts">' + (isActive ? '<button type="button" class="btn link" data-greqcancel="' + i + '">Trekk tilbake</button>' : '') +
+        '<button type="button" class="sim" data-greqpay="' + i + '">Demo: ' + esc(r.name) + ' betaler</button><button type="button" class="sim" data-greqexpire="' + i + '">Demo: kravet går ut</button></span>';
+      else side = '<small><span class="pill bad">Gikk ut</span> ' + esc(itemsText(o, r.items)) + ' er ledige igjen</small>' +
+        (isActive ? '<span class="acts"><button type="button" class="btn" data-greqresend="' + i + '">Send på nytt</button><button type="button" class="btn" data-greqself="' + i + '">Betal selv</button></span>' : '');
+      return '<div class="prow"><b>' + esc(r.name) + '</b><span class="amt">' + kr(r.amount) + '</span>' + side + '</div>';
+    }).join('') + '</div>';
+  }
+
+  function selectHtml(o, d) {
+    const seats = [...new Set(o.lines.map(l => l.seat))].sort(seatOrder);
+    const chips = seats.map(n => {
+      const ls = o.lines.filter(l => l.seat === n && avail(l) > 0);
+      if (!ls.length) return '';
+      const full = ls.every(l => d.sel[l.id] === avail(l));
+      return '<button type="button" class="seat" data-gseat="' + n + '" aria-pressed="' + full + '">' + esc(n === 0 ? 'Felles' : (o.seatNames[n] || 'Plass ' + n)) + '</button>';
+    }).join('');
+    const list = seats.map(n => {
+      const ls = o.lines.filter(l => l.seat === n && oRest(l) > 0);
+      if (!ls.length) return '';
+      return '<div class="group-h"><span>' + esc(n === 0 ? 'Felles' : seatHead(o.seatNames, n)) + '</span><span></span></div>' + ls.map(l => {
+        const a = avail(l), s = d.sel[l.id] || 0, res = reservedQty(l.id);
+        const info = (a === 0 ? 'Venter på Vipps-krav' : a + ' igjen') + (res && a > 0 ? ' · ' + res + ' venter' : '') + (l.paid ? ' · ' + l.paid + ' betalt' : '');
+        let row = '<button type="button" class="pick' + (s ? ' on' : '') + '" data-gpick="' + l.id + '"' + (a === 0 ? ' disabled' : '') + '><span class="box">' + (s ? '✓' : '') + '</span>' +
+          '<span class="t"><b>' + esc(l.item) + (l.qrNew ? ' <span class="pill new">Ny</span>' : '') + '</b><small>' + kr(PRICE[l.item]) + ' · ' + esc(info) + '</small></span><span class="amt">' + (s ? kr(PRICE[l.item] * s) : '') + '</span></button>';
+        if (s && a > 1) row += '<div class="step"><button type="button" data-gdec="' + l.id + '" aria-label="Færre"' + (s <= 1 ? ' disabled' : '') + '>−</button><span>' + s + ' av ' + a + '</span><button type="button" data-ginc="' + l.id + '" aria-label="Flere"' + (s >= a ? ' disabled' : '') + '>+</button></div>';
+        return row;
+      }).join('');
+    }).join('');
+
+    const units = unitsOf(d.sel);
+    const base = selTotalFor(o, d.sel);
+    const tip = tipFor(d, base);
+    let form;
+    if (!units) form = '<p class="hint">Trykk på varene du vil betale for, eller sende som Vipps-krav til en annen.</p>';
+    else {
+      const tipsHtml = ui.tipsOn && d.mode === 'self'
+        ? '<div style="display:grid;gap:6px"><span class="kicker">Driks</span><div class="tips" role="group" aria-label="Driks">' +
+            [[0, 'Ingen'], [5, '5 %'], [10, '10 %'], [15, '15 %'], ['custom', 'Eget']].map(([v, lab]) => '<button type="button" data-gtip="' + v + '" aria-pressed="' + (d.tip === v) + '">' + lab + '</button>').join('') + '</div>' +
+            (d.tip === 'custom' ? '<input id="g-tip" type="text" inputmode="decimal" placeholder="Beløp i kroner" value="' + esc(d.tipCustom) + '" aria-label="Driks i kroner">' : '') + '</div>'
+        : '';
+      form = '<div class="gcard"><header><b>Valgt · ' + units + (units === 1 ? ' vare' : ' varer') + '</b><span>' + kr(base) + '</span></header>' +
+        '<div class="seg2" role="group" aria-label="Hvem betaler"><button type="button" data-gmode="self" aria-pressed="' + (d.mode === 'self') + '">Jeg betaler</button><button type="button" data-gmode="vipps" aria-pressed="' + (d.mode === 'vipps') + '">Send til en annen</button></div>' +
+        (d.mode === 'vipps'
+          ? '<input id="g-name" type="text" maxlength="20" placeholder="Navn (valgfritt)" value="' + esc(d.name) + '" aria-label="Navn"><input id="g-phone" type="tel" inputmode="numeric" placeholder="Mobilnummer, 8 siffer" value="' + esc(d.phone) + '" aria-label="Mobilnummer">'
+          : tipsHtml) +
+        (d.err ? '<p class="err" role="alert">' + esc(d.err) + '</p>' : '') +
+        '<button type="button" class="gbtn vipps" id="g-paybtn" data-gsubmit>' + (d.mode === 'self' ? 'Betal ' + kr(base + tip) + ' med Vipps' : 'Send Vipps-krav på ' + kr(base)) + '</button></div>';
+    }
+    const left = Math.max(0, oOutstanding(o) - reservedAmount());
+    return (left > 0
+      ? '<div style="display:grid;gap:8px"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span class="kicker">Velg varer</span><button type="button" class="btn link" data-gall>Velg alt som er igjen</button></div>' +
+          (chips ? '<div class="seat-row">' + chips + '</div>' : '') + '<div class="split-list" style="max-height:none">' + list + '</div></div>' + form
+      : '<p class="hint">Alt er fordelt. Venter på at Vipps-kravene blir betalt.</p>' + (d.err ? '<p class="err" role="alert">' + esc(d.err) + '</p>' : '')) +
+      '<button type="button" class="gbtn alt" data-gdone>Jeg er ferdig, slipp neste i køen</button>';
+  }
+
+  function receiptHtml(d) {
+    const l = d.last, rc = d.rc;
+    const vias = [['sms', 'SMS'], ['email', 'E-post'], ['print', 'Skriv ut']];
+    let field = '';
+    if (rc.via === 'sms') field = '<input id="g-rc-to" type="tel" inputmode="numeric" placeholder="Mobilnummer, 8 siffer" value="' + esc(rc.to) + '" aria-label="Mobilnummer for kvittering">';
+    else if (rc.via === 'email') field = '<input id="g-rc-to" type="email" placeholder="navn@eksempel.no" value="' + esc(rc.to) + '" aria-label="E-post for kvittering">';
+    else field = '<p class="hint">Kvitteringen skrives ut i kassen, og servitøren tar den med til bordet.</p>';
+    return '<div class="g-total"><span class="kicker">Vipps · godkjent</span><span class="big">' + kr(l.amount + l.tip) + '</span><span class="hint">' + esc(l.text) + (l.tip ? ' · inkl. driks ' + kr(l.tip) : '') + '</span></div>' +
+      '<div class="gcard"><header><b>Hvordan vil du ha kvitteringen?</b></header>' +
+        '<div class="tips three" role="group" aria-label="Kvittering">' + vias.map(([v, lab]) => '<button type="button" data-grcvia="' + v + '" aria-pressed="' + (rc.via === v) + '">' + lab + '</button>').join('') + '</div>' +
+        field +
+        '<label class="check"><input id="g-rc-co" type="checkbox"' + (rc.company ? ' checked' : '') + '><span>Kvittering til firma</span></label>' +
+        (rc.company ? '<input id="g-rc-org" type="text" inputmode="numeric" placeholder="Organisasjonsnummer, 9 siffer" value="' + esc(rc.org) + '" aria-label="Organisasjonsnummer"><input id="g-rc-firm" type="text" placeholder="Firmanavn" value="' + esc(rc.firm) + '" aria-label="Firmanavn">' : '') +
+        (d.err ? '<p class="err" role="alert">' + esc(d.err) + '</p>' : '') +
+        '<button type="button" class="gbtn" data-grc>' + (rc.via === 'print' ? 'Skriv ut kvittering' : 'Send kvittering') + '</button>' +
+        '<button type="button" class="btn link" data-grcskip>Jeg trenger ikke kvittering</button>' +
+      '</div>';
+  }
+
+  function renderGuest() {
+    const g = $('guest');
+    $('g-clock').textContent = clock(); $('w-clock').textContent = clock();
+    const tipsBox = $('tips-on'); if (tipsBox) tipsBox.checked = ui.tipsOn;
+    const q = ui.qr;
+    $('devtabs').innerHTML = DEVICES.map(id => {
+      let s = '';
+      if (q) {
+        const d = q.devices[id], i = q.queue.indexOf(id);
+        if (d.step === 'receipt') s = 'kvittering';
+        else if (q.status === 'open' && i === 0) s = 'betaler';
+        else if (q.status === 'open' && i > 0) s = 'nr ' + (i + 1) + ' i kø';
+        else if (d.step === 'thanks') s = 'ferdig';
+        else if (d.scanned && q.status !== 'open') s = 'stengt';
+      }
+      return '<button type="button" data-dev="' + id + '" aria-pressed="' + (ui.dev === id) + '">Mobil ' + id + '<small>' + (s || '&nbsp;') + '</small></button>';
+    }).join('');
+    if (!q) {
+      g.innerHTML = '<div class="scan"><div class="frame" aria-hidden="true"></div><p>Ingen QR-kode å skanne ennå. Hent Bord 2 i kassen, trykk Betal og «Foreløpig kvittering med QR».</p></div>';
+      return;
+    }
+    const d = q.devices[ui.dev], t = tableOf(q.tableId);
+    const brand = '<div class="g-brand"><b>Brasseriet</b><span>' + esc(t.name) + ' · Mobil ' + d.id + '</span></div>';
+    if (!d.scanned) {
+      g.innerHTML = '<div class="scan"><div class="frame" aria-hidden="true"></div><p>Kvitteringen ligger på bordet.</p><button type="button" class="gbtn" data-gscan>Skann QR-koden</button></div>';
+      return;
+    }
+    if (d.step === 'receipt') { g.innerHTML = brand + receiptHtml(d); return; }
+    if (q.status === 'paid') {
+      const dn = q.done;
+      g.innerHTML = brand + '<div class="g-total"><span class="kicker">' + esc(dn.name) + '</span><span class="big">Betalt</span><span class="hint">' + esc(t.name) + ' er betalt i sin helhet. Takk for besøket!</span></div>' +
+        '<div>' + dn.reqs.map(r => '<div class="prow"><b>' + esc(r.name) + '</b><span class="amt">' + kr(r.amount + r.tip) + '</span><small>' + esc(r.text) + ' · ' + r.at + '</small></div>').join('') + '</div>' +
+        '<p class="hint">Lenken donepay.no/t/' + esc(q.token) + ' er stengt.</p>';
+      return;
+    }
+    if (q.status === 'takenover') {
+      g.innerHTML = brand + '<div class="qcard"><b>Servitøren har tatt over betalingen</b><span>Betalingen for ' + esc(t.name) + ' skjer nå hos servitøren. QR-koden kan ikke brukes lenger.</span>' +
+        (d.paidTotal ? '<span>Det du har betalt (' + kr(d.paidTotal) + '), er registrert.</span>' : '<span>Det som allerede er betalt, er registrert.</span>') + '</div>';
+      return;
+    }
+    const o = t.order;
+    const i = q.queue.indexOf(d.id);
+    const isActive = i === 0;
+    if (d.step === 'wait' && i > 0) {
+      g.innerHTML = brand + '<div class="qcard"><span class="kicker">Kø</span><b>Du er nr ' + (i + 1) + ' i køen</b><span>Du kan betale så fort nr 1 er ferdig med sin del. Siden oppdateres av seg selv.</span>' +
+        '<span class="hint">Nr 1 slippes automatisk etter 3 minutter uten aktivitet.</span><button type="button" class="btn link" style="justify-self:start;padding-left:0" data-gleave>Forlat køen</button></div>' +
+        summaryHtml(o) + reqsHtml(o, false);
+      return;
+    }
+    if (d.step === 'thanks' || d.step === 'left') {
+      g.innerHTML = brand + '<div class="qcard"><b>' + (d.step === 'thanks' ? 'Takk! Du har betalt ' + kr(d.paidTotal) : 'Du er ute av køen') + '</b><span>Resten av bordet kan fortsatt betale med QR-koden.</span>' +
+        '<button type="button" class="gbtn alt" data-grejoin>Betal eller del mer</button></div>' + summaryHtml(o) + reqsHtml(o, false);
+      return;
+    }
+    if (!isActive) { d.step = 'wait'; return renderGuest(); }
+    if (d.step === 'who') {
+      const named = namedSeats(o);
+      g.innerHTML = brand + summaryHtml(o) +
+        '<div style="display:grid;gap:8px"><h3 style="font-size:20px">Hvem er du?</h3><p class="hint">Servitøren har satt navn på plassene. Trykk på navnet ditt, så velger vi varene dine.</p>' +
+        named.map(n => {
+          const amt = o.lines.filter(l => l.seat === n).reduce((a, l) => a + PRICE[l.item] * avail(l), 0);
+          return '<button type="button" class="who" data-gwho="' + n + '"><b>' + esc(o.seatNames[n]) + '</b><span>' + kr(amt) + '</span></button>';
+        }).join('') +
+        '<button type="button" class="gbtn alt" data-gself>Velg varer selv</button></div>' + reqsHtml(o, true);
+      return;
+    }
+    g.innerHTML = brand + summaryHtml(o) + reqsHtml(o, true) + selectHtml(o, d);
+  }
+
+  function renderWaiter() {
+    const w = $('waiter');
+    w.innerHTML = ui.sms.length
+      ? '<div class="sms-list">' + ui.sms.map(m => '<div class="sms"><b>Done Pay · ' + esc(m.at) + '</b><span>' + esc(m.text) + '</span></div>').join('') + '</div>'
+      : '<p class="hint">Ingen meldinger ennå. Du får SMS når et bord som betales med QR er betalt i sin helhet.</p>';
+  }
+
+  function renderPush() {
+    $('push-host').innerHTML = ui.push.map(p => '<div class="push" role="alert"><span class="kicker">Kassen · varsel</span><b>' + esc(p.title) + '</b><span>' + esc(p.text) + '</span><small>' + p.at + ' · står til noen bekrefter</small>' +
+      '<div class="row">' + (p.tableId && qrOpenOn(tableOf(p.tableId)) ? '<button type="button" class="btn" data-pushopen="' + p.id + '">Åpne ' + esc(tableOf(p.tableId).name) + '</button>' : '') +
+      '<button type="button" class="btn primary" data-pushack="' + p.id + '">Bekreft lest</button></div></div>').join('');
+  }
+
+  /* ---------- Hendelser ---------- */
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button, [data-scrim]');
+    if (!b) return;
+    if (b.disabled) return;
+    // Kasse
+    if (b.dataset.add) return addItem(b.dataset.add);
+    if (b.dataset.seat !== undefined) { pos.active = +b.dataset.seat; ui.editing = false; ui.moving = null; return render(); }
+    if (b.hasAttribute('data-addseat')) {
+      if (pos.seatCount >= 16) return toast('Maks 16 plasser per bord');
+      pos.seatCount++; pos.active = pos.seatCount; ui.editing = false; toast('Plass ' + pos.seatCount + ' er lagt til'); return render();
+    }
+    if (b.hasAttribute('data-editname')) { ui.editing = true; render(); const i = $('seatname'); if (i) i.focus(); return; }
+    if (b.hasAttribute('data-clearname')) { delete pos.seatNames[pos.active]; ui.editing = false; return render(); }
+    if (b.dataset.move) { ui.moving = ui.moving === +b.dataset.move ? null : +b.dataset.move; return render(); }
+    if (b.dataset.moveto !== undefined) {
+      const l = pos.lines.find(x => x.id === ui.moving);
+      if (l) { l.seat = +b.dataset.moveto; toast(l.item + ' er flyttet til ' + seatLabel(pos.seatNames, l.seat)); }
+      ui.moving = null; return render();
+    }
+    if (b.hasAttribute('data-movecancel')) { ui.moving = null; return render(); }
+    if (b.id === 'mapbtn') {
+      const t = pos.tableId && tableOf(pos.tableId);
+      if (t && pos.lines.length) return parkOn(t);
+      return openMap();
+    }
+    if (b.id === 'park') { const t = tableOf(pos.tableId); if (t) parkOn(t); return; }
+    if (b.id === 'paybtn') return openPay();
+    if (b.id === 'cancel') {
+      if (!pos.lines.length && !pos.tableId) return;
+      const t = pos.tableId && tableOf(pos.tableId);
+      const msg = pos.fetched ? 'Endringene er forkastet. Ordren står uendret på ' + t.name + '.' : 'Ordren er avbrutt';
+      pos = blankPos(); ui.editing = false; ui.moving = null; toast(msg); ui.map = !!t; return render();
+    }
+    if (b.id === 'reset') { reset(); return toast('Demoen er startet på nytt'); }
+    // Varsler i kassen
+    if (b.dataset.pushack) { ui.push = ui.push.filter(x => x.id !== +b.dataset.pushack); return render(); }
+    if (b.dataset.pushopen) {
+      const pn = ui.push.find(x => x.id === +b.dataset.pushopen);
+      if (pn && qrOpenOn(tableOf(pn.tableId))) { ui.pay = null; ui.qrPanel = { tableId: pn.tableId, confirm: false }; }
+      return render();
+    }
+    if (b.id === 'ff15') {
+      const q = ui.qr, o = qrOrder();
+      if (!q || q.status !== 'open' || !o) return toast('Ingen bord betales med QR nå.');
+      const t = tableOf(q.tableId);
+      pushNote(t.name + ' · ubetalt i 15 min', kr(oOutstanding(o)) + ' er fortsatt ubetalt på ' + t.name + ' (' + o.name + '). ' + (q.queue.length ? 'Mobil ' + q.queue[0] + ' er inne og betaler.' : 'Ingen gjest betaler nå.'), t.id);
+      return render();
+    }
+    // Foreløpig kvittering og QR-panelet i kassen
+    if (b.hasAttribute('data-printdone')) {
+      const t = tableOf(ui.print.tableId);
+      ui.print = null; ui.map = false;
+      toast('Kvitteringen ligger på ' + t.name + '. Gjestene kan skanne QR-koden.');
+      return render();
+    }
+    if (b.dataset.close === 'qr' || (b.dataset.scrim === 'qr' && e.target === b)) { ui.qrPanel = null; return render(); }
+    if (b.hasAttribute('data-qradd')) return qrAddItems();
+    if (b.hasAttribute('data-qrtake')) { ui.qrPanel.confirm = true; return render(); }
+    if (b.hasAttribute('data-qrtakeno')) { ui.qrPanel.confirm = false; return render(); }
+    if (b.hasAttribute('data-qrtakeyes')) return takeOver();
+    // Gjestens mobil
+    if (b.dataset.dev) { ui.dev = +b.dataset.dev; return render(); }
+    if (b.hasAttribute('data-gscan')) return scan(ui.dev);
+    const gd = ui.qr && ui.qr.devices[ui.dev];
+    if (gd) {
+      const o = qrOrder();
+      if (b.dataset.gwho !== undefined) return chooseSeat(ui.dev, +b.dataset.gwho);
+      if (b.hasAttribute('data-gself')) { gd.step = 'select'; gd.sel = {}; gd.who = null; return render(); }
+      if (b.dataset.gpick) {
+        const l = o.lines.find(x => x.id === +b.dataset.gpick);
+        if (gd.sel[l.id]) delete gd.sel[l.id]; else gd.sel[l.id] = avail(l);
+        gd.err = ''; return render();
+      }
+      if (b.dataset.ginc) { const id = +b.dataset.ginc, l = o.lines.find(x => x.id === id); gd.sel[id] = Math.min(avail(l), (gd.sel[id] || 0) + 1); return render(); }
+      if (b.dataset.gdec) { const id = +b.dataset.gdec; gd.sel[id] = Math.max(1, (gd.sel[id] || 1) - 1); return render(); }
+      if (b.dataset.gseat !== undefined) {
+        const n = +b.dataset.gseat;
+        const ls = o.lines.filter(l => l.seat === n && avail(l) > 0);
+        const full = ls.every(l => gd.sel[l.id] === avail(l));
+        ls.forEach(l => { if (full) delete gd.sel[l.id]; else gd.sel[l.id] = avail(l); });
+        return render();
+      }
+      if (b.hasAttribute('data-gall')) { gd.sel = {}; o.lines.forEach(l => { if (avail(l) > 0) gd.sel[l.id] = avail(l); }); return render(); }
+      if (b.dataset.gmode) { gd.mode = b.dataset.gmode; gd.err = ''; return render(); }
+      if (b.dataset.gtip !== undefined) { gd.tip = b.dataset.gtip === 'custom' ? 'custom' : +b.dataset.gtip; gd.err = ''; render(); if (gd.tip === 'custom') { const i = $('g-tip'); if (i) i.focus(); } return; }
+      if (b.hasAttribute('data-gsubmit')) return gd.mode === 'self' ? selfPay(ui.dev) : createRequest(ui.dev);
+      if (b.hasAttribute('data-gdone') || b.hasAttribute('data-gleave')) return release(ui.dev);
+      if (b.hasAttribute('data-grejoin')) return rejoin(ui.dev);
+      if (b.dataset.grcvia) { gd.rc.via = b.dataset.grcvia; gd.rc.to = ''; gd.err = ''; return render(); }
+      if (b.hasAttribute('data-grc')) return sendReceipt(ui.dev, false);
+      if (b.hasAttribute('data-grcskip')) return sendReceipt(ui.dev, true);
+      if (b.dataset.greqpay !== undefined) { settle(+b.dataset.greqpay); return render(); }
+      if (b.dataset.greqexpire !== undefined) return expire(+b.dataset.greqexpire);
+      if (b.dataset.greqcancel !== undefined) return withdraw(+b.dataset.greqcancel);
+      if (b.dataset.greqresend !== undefined) return resend(ui.dev, +b.dataset.greqresend);
+      if (b.dataset.greqself !== undefined) return takeOverReq(ui.dev, +b.dataset.greqself);
+    }
+    // Bordkart
+    if (b.dataset.table) return onTable(+b.dataset.table);
+    if (b.dataset.close === 'map') return closeMap();
+    if (b.dataset.close === 'pay') { ui.pay = null; return render(); }
+    if (b.dataset.scrim && e.target === b) {
+      if (b.dataset.scrim === 'map') return closeMap();
+      if (b.dataset.scrim === 'pay') { ui.pay = null; return render(); }
+      if (b.dataset.scrim === 'split') { ui.pay.view = 'main'; return render(); }
+      return;
+    }
+    if (b.hasAttribute('data-cf-no')) { ui.confirm = null; ui.map = true; return render(); }
+    if (b.hasAttribute('data-cf-yes')) return mergeInto(tableOf(ui.confirm));
+    // Betaling
+    if (!ui.pay) return;
+    const p = ui.pay;
+    if (b.dataset.payseat !== undefined) {
+      const n = +b.dataset.payseat;
+      const label = seatHead(pos.seatNames, n);
+      if (p.selLabel === label && Object.keys(p.sel).length) { p.sel = {}; p.selLabel = ''; p.amount = ''; return render(); }
+      applySel(seatSel(n), label); return render();
+    }
+    if (b.dataset.split === 'items') { p.view = 'items'; p.sel = Object.assign({}, p.sel); return render(); }
+    if (b.dataset.split === 'person') { p.view = 'person'; return render(); }
+    if (b.hasAttribute('data-clearsel')) { p.sel = {}; p.selLabel = ''; p.amount = ''; return render(); }
+    if (b.hasAttribute('data-back')) { p.view = 'main'; return render(); }
+    if (b.dataset.selseat !== undefined) {
+      const n = +b.dataset.selseat;
+      const ls = pos.lines.filter(l => l.seat === n && rest(l) > 0);
+      const full = ls.every(l => p.sel[l.id] === rest(l));
+      ls.forEach(l => { if (full) delete p.sel[l.id]; else p.sel[l.id] = rest(l); });
+      return render();
+    }
+    if (b.dataset.pick) {
+      const l = pos.lines.find(x => x.id === +b.dataset.pick);
+      if (p.sel[l.id]) delete p.sel[l.id]; else p.sel[l.id] = rest(l);
+      return render();
+    }
+    if (b.dataset.inc) { const id = +b.dataset.inc, l = pos.lines.find(x => x.id === id); p.sel[id] = Math.min(rest(l), (p.sel[id] || 0) + 1); return render(); }
+    if (b.dataset.dec) { const id = +b.dataset.dec; p.sel[id] = Math.max(1, (p.sel[id] || 1) - 1); return render(); }
+    if (b.hasAttribute('data-usesel')) { applySel(Object.assign({}, p.sel), selSeatLabel(p.sel)); return render(); }
+    if (b.hasAttribute('data-pinc')) { p.persons = Math.min(50, p.persons + 1); return render(); }
+    if (b.hasAttribute('data-pdec')) { p.persons = Math.max(2, p.persons - 1); return render(); }
+    if (b.hasAttribute('data-useperson')) {
+      p.sel = {}; p.selLabel = '1 av ' + p.persons + ' personer'; p.amount = plain(personShare(p.persons)); p.err = ''; p.view = 'main'; return render();
+    }
+    if (b.dataset.method) return payWith(b.dataset.method);
+    if (b.hasAttribute('data-print')) return printProvisional();
+  });
+  document.addEventListener('input', e => {
+    const gd = ui.qr && ui.qr.devices[ui.dev];
+    if (gd && e.target.id === 'g-phone') { gd.phone = e.target.value; return; }
+    if (gd && e.target.id === 'g-name') { gd.name = e.target.value; return; }
+    if (gd && e.target.id === 'g-rc-to') { gd.rc.to = e.target.value; return; }
+    if (gd && e.target.id === 'g-rc-org') { gd.rc.org = e.target.value; return; }
+    if (gd && e.target.id === 'g-rc-firm') { gd.rc.firm = e.target.value; return; }
+    if (gd && e.target.id === 'g-tip') {
+      gd.tipCustom = e.target.value;
+      const o = qrOrder(), btn = $('g-paybtn');
+      if (o && btn) { const base = selTotalFor(o, gd.sel); btn.textContent = 'Betal ' + kr(base + tipFor(gd, base)) + ' med Vipps'; }
+      return;
+    }
+    if (e.target.id !== 'amount' || !ui.pay) return;
+    const p = ui.pay;
+    p.amount = e.target.value; p.err = '';
+    const big = $('due-big');
+    const v = parseAmount(p.amount);
+    if (big) big.textContent = kr(v === null || Number.isNaN(v) ? outstanding() : v);
+    if (Object.keys(p.sel).length) {
+      p.sel = {}; p.selLabel = '';
+      const pos0 = e.target.selectionStart;
+      render();
+      const i = $('amount'); if (i) { i.focus(); try { i.setSelectionRange(pos0, pos0); } catch (_) {} }
+    } else if (p.selLabel && !Object.keys(p.sel).length) {
+      p.selLabel = '';
+    }
+  });
+  document.addEventListener('change', e => {
+    if (e.target.id === 'tips-on') { ui.tipsOn = e.target.checked; return render(); }
+    const gd = ui.qr && ui.qr.devices[ui.dev];
+    if (gd && e.target.id === 'g-rc-co') { gd.rc.company = e.target.checked; return render(); }
+  });
+  document.addEventListener('submit', e => {
+    if (e.target.id !== 'nameform') return;
+    e.preventDefault();
+    const v = $('seatname').value.trim();
+    if (v) pos.seatNames[pos.active] = v; else delete pos.seatNames[pos.active];
+    ui.editing = false; render();
+    toast(v ? 'Plass ' + pos.active + ' heter nå ' + v : 'Navnet er fjernet');
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    if (ui.confirm) { ui.confirm = null; ui.map = true; render(); }
+    else if (ui.qrPanel) { ui.qrPanel = null; render(); }
+    else if (ui.pay && ui.pay.view !== 'main') { ui.pay.view = 'main'; render(); }
+    else if (ui.pay) { ui.pay = null; render(); }
+    else if (ui.map) closeMap();
+    else if (ui.editing) { ui.editing = false; render(); }
+  });
+
+  function render() { renderBasket(); renderTicket(); renderOverlay(); renderGuest(); renderWaiter(); renderPush(); }
+
+  renderMenu();
+  reset();
+  setInterval(() => {
+    if (!ui.map || ui.confirm || ui.pay) return;
+    const on = $('ordername'), k = $('kitchen');
+    if (on) ui.orderName = on.value;
+    if (k) ui.kitchen = k.checked;
+    renderOverlay();
+  }, 30000);
+})();
+</script>
+
+</body></html>
