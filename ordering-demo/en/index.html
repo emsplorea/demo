@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guest ordering – Done</title>
+<meta name="description" content="How guests order for themselves with Done: QR ordering on their phone, a self-service kiosk and Online Order.">
+<meta name="theme-color" content="#1C1B24">
+<link rel="canonical" href="https://emsplorea.github.io/demo/ordering-demo/en/">
+<link rel="alternate" hreflang="no" href="https://emsplorea.github.io/demo/ordering-demo/">
+<link rel="alternate" hreflang="en" href="https://emsplorea.github.io/demo/ordering-demo/en/">
+<link rel="alternate" hreflang="x-default" href="https://emsplorea.github.io/demo/ordering-demo/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Done">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="nb_NO">
+<meta property="og:url" content="https://emsplorea.github.io/demo/ordering-demo/en/">
+<meta property="og:title" content="Guest ordering – Done">
+<meta property="og:description" content="Guests order and pay for themselves – with QR ordering, a self-service kiosk and Online Order. No queue, no app, straight to the kitchen.">
+<meta property="og:image" content="https://emsplorea.github.io/demo/ordering-demo/images/og-cover.jpg">
+<meta property="og:image:secure_url" content="https://emsplorea.github.io/demo/ordering-demo/images/og-cover.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Done guest ordering: “Gjestene bestiller selv.” (guests order for themselves) with screenshots of the kiosk menu and QR ordering on a phone.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Guest ordering – Done">
+<meta name="twitter:description" content="Guests order and pay for themselves – with QR ordering, a self-service kiosk and Online Order.">
+<meta name="twitter:image" content="https://emsplorea.github.io/demo/ordering-demo/images/og-cover.jpg">
+<meta name="twitter:image:alt" content="Done guest ordering: “Gjestene bestiller selv.” (guests order for themselves) with screenshots of the kiosk menu and QR ordering on a phone.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-20 -10 142 192'%3E%3Crect x='-20' y='-10' width='142' height='192' rx='32' fill='%236323DD'/%3E%3Cpath fill='%23fff' d='M72.38 73.38C62.87 82.89 51.59 90.43 39.17 95.57C26.75 100.72 13.44 103.37 0 103.37V171.61C11.2 171.61 22.3 169.4 32.64 165.12C42.99 160.83 52.39 154.55 60.31 146.63C68.23 138.71 74.51 129.31 78.8 118.96C83.09 108.61 85.29 97.52 85.29 86.32C85.29 78.22 84.14 70.18 81.88 62.44C78.98 66.31 75.81 69.97 72.37 73.4Z'/%3E%3Cpath fill='%23fff' d='M102.37 0H0V1C11.2 1 22.3 3.21 32.64 7.49C42.99 11.78 52.39 18.06 60.31 25.98C68.23 33.9 74.51 43.31 78.8 53.65C79.99 56.52 81.02 59.44 81.88 62.41C104.26 32.59 102.37 0 102.37 0Z'/%3E%3C/svg%3E">
+<link rel="preload" href="../fonts/DoneSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="../fonts/DoneSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+<script>(function(){var t=null;try{t=localStorage.getItem('done-demo-theme')}catch(e){}if(t!=='light'&&t!=='dark'&&t!=='dim'){t='dim'}document.documentElement.setAttribute('data-theme',t)})();</script>
+<style>
+@font-face { font-family: 'Done Sans'; src: url('../fonts/DoneSans-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Done Sans'; src: url('../fonts/DoneSans-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+
+:root {
+  --iris-200: #EEE7FF;
+  --iris-500: #6323DD;
+  --iris-800: #1C093E;
+  --greige: #F3F0ED;
+
+  --bg: #FFFFFF;
+  --bg-alt: #F3F0ED;
+  --surface: #FFFFFF;
+  --surface-2: #F8F6F3;
+  --text: rgba(28, 9, 62, 0.96);
+  --text-2: rgba(28, 9, 62, 0.80);
+  --muted: rgba(28, 9, 62, 0.70);
+  --border: rgba(28, 9, 62, 0.10);
+  --border-strong: rgba(28, 9, 62, 0.20);
+  --accent: #6323DD;
+  --accent-soft: #EEE7FF;
+  --accent-ink: #4A17AE;
+  --demo-bg: #6323DD;
+  --demo-fg: #FFFFFF;
+  --demo-hover: #4A17AE;
+  --btn-bg: rgba(28, 9, 62, 0.92);
+  --btn-fg: #FFFFFF;
+  --btn-hover: rgba(28, 9, 62, 0.76);
+  --ghost-border: rgba(28, 9, 62, 0.30);
+  --topbar: rgba(255, 255, 255, 0.82);
+  --frame: #15121C;
+  --shadow: 0 1px 2px rgba(28, 9, 62, 0.06), 0 12px 32px -12px rgba(28, 9, 62, 0.22);
+  --grad-text: linear-gradient(92deg, #42128C 0%, #6323DD 55%, #7F45E6 100%);
+  --wash: radial-gradient(115% 135% at 10% -10%, rgba(192, 167, 241, 0.80) 0%, rgba(192, 167, 241, 0) 62%),
+    radial-gradient(115% 100% at 44% 10%, rgba(233, 204, 247, 0.55) 0%, rgba(233, 204, 247, 0) 58%),
+    radial-gradient(100% 90% at 102% 58%, rgba(238, 231, 255, 0.60) 0%, rgba(238, 231, 255, 0) 64%),
+    radial-gradient(90% 80% at 58% 108%, rgba(255, 175, 206, 0.18) 0%, rgba(255, 175, 206, 0) 58%), #F4EFFC;
+  --orb-1: linear-gradient(135deg, #2F1261 0%, #6323DD 40.9%, #ECBBF6 100%);
+  --orb-2: linear-gradient(45deg, #C0A7F1 0%, #E9CCF7 47.6%, #F7F2FC 100%);
+
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 1000px;
+  --font: 'Done Sans', 'Instrument Sans', Arial, sans-serif;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #120428;
+  --bg-alt: #1C093E;
+  --surface: #1C093E;
+  --surface-2: #260E4F;
+  --text: #F0EAFE;
+  --text-2: #DDD3FA;
+  --muted: #BBAFE0;
+  --border: #31195C;
+  --border-strong: #4A2E84;
+  --accent: #B49BFF;
+  --accent-soft: rgba(169, 140, 255, 0.16);
+  --accent-ink: #CDBBFF;
+  --demo-bg: #B49BFF;
+  --demo-fg: #1C093E;
+  --demo-hover: #CDBBFF;
+  --btn-bg: #FFFFFF;
+  --btn-fg: #1C093E;
+  --btn-hover: #E4DAFF;
+  --ghost-border: rgba(240, 234, 254, 0.40);
+  --topbar: rgba(18, 4, 40, 0.84);
+  --frame: #05010D;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --grad-text: linear-gradient(92deg, #ECBBF6 0%, #C9B2F6 45%, #A98CFF 100%);
+  --wash: radial-gradient(110% 120% at 0% -10%, rgba(99, 35, 221, 0.55) 0%, rgba(99, 35, 221, 0) 60%),
+    radial-gradient(80% 90% at 100% 40%, rgba(169, 127, 240, 0.28) 0%, rgba(169, 127, 240, 0) 62%), #120428;
+  color-scheme: dark;
+}
+
+:root[data-theme='dim'] {
+  --bg: #1C1B24;
+  --bg-alt: #22212A;
+  --surface: #22212A;
+  --surface-2: #2A2833;
+  --text: #E4E1EC;
+  --text-2: #D2CFDC;
+  --muted: #AEABBD;
+  --border: #34313F;
+  --border-strong: #4A4656;
+  --accent: #BBA4FF;
+  --accent-soft: rgba(187, 164, 255, 0.14);
+  --accent-ink: #CFC0FF;
+  --demo-bg: #BBA4FF;
+  --demo-fg: #1C1B24;
+  --demo-hover: #CFC0FF;
+  --btn-bg: #E4E1EC;
+  --btn-fg: #1C1B24;
+  --btn-hover: #CDCAD8;
+  --ghost-border: rgba(228, 225, 236, 0.38);
+  --topbar: rgba(28, 27, 36, 0.86);
+  --frame: #0E0D13;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.65);
+  --grad-text: linear-gradient(92deg, #E9CCF7 0%, #C9B6FA 50%, #BBA4FF 100%);
+  --wash: radial-gradient(110% 120% at 0% -10%, rgba(144, 112, 236, 0.30) 0%, rgba(144, 112, 236, 0) 60%), #1C1B24;
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 132px; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: var(--accent-ink); }
+h1, h2, h3 { font-weight: 600; margin: 0; letter-spacing: -0.01em; line-height: 1.15; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .wrap { padding: 0 32px; } }
+
+.skip { position: absolute; left: 16px; top: -100px; z-index: 100; background: var(--btn-bg); color: var(--btn-fg); padding: 12px 20px; border-radius: var(--radius-full); font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
+main:focus { outline: none; }
+
+.ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
+
+.topbar { position: sticky; top: 0; z-index: 50; background: var(--topbar); backdrop-filter: saturate(160%) blur(14px); -webkit-backdrop-filter: saturate(160%) blur(14px); border-bottom: 1px solid var(--border); }
+.topbar-inner { display: flex; align-items: center; gap: 16px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; min-height: 44px; }
+.logo { height: 22px; width: auto; aspect-ratio: 724.17 / 171.61; fill: currentColor; display: block; }
+.brand-sub { font-size: 14px; color: var(--muted); padding-left: 12px; border-left: 1px solid var(--border-strong); line-height: 20px; }
+@media (max-width: 479px) { .brand-sub { display: none; } }
+.topnav { display: none; margin-left: auto; gap: 4px; }
+.topnav a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 600; padding: 10px 12px; border-radius: var(--radius-full); }
+.topnav a:hover { background: var(--accent-soft); color: var(--text); }
+@media (min-width: 1024px) { .topnav { display: flex; } }
+.langs { display: flex; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); }
+.langs a { display: grid; place-items: center; min-width: 40px; height: 40px; padding: 0 10px; border-radius: var(--radius-full); color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; }
+.langs a:hover { color: var(--text); }
+.langs a[aria-current='page'] { background: var(--btn-bg); color: var(--btn-fg); }
+@media (min-width: 1024px) { .langs { margin-left: 8px; } }
+@media (max-width: 479px) { .topbar-inner { gap: 8px; } .langs a { min-width: 34px; height: 36px; padding: 0 6px; } .theme button { width: 36px !important; height: 36px !important; } }
+.note { font-size: 15px; color: var(--muted); padding: 10px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; max-width: 62ch; }
+.theme { display: flex; gap: 2px; margin-left: 0; padding: 3px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); }
+.theme button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--muted); cursor: pointer; }
+.theme button:hover { color: var(--text); }
+.theme button[aria-pressed='true'] { background: var(--btn-bg); color: var(--btn-fg); }
+.theme .ico { width: 18px; height: 18px; }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 24px; border-radius: var(--radius-full); background: var(--btn-bg); color: var(--btn-fg); font-weight: 600; font-size: 16px; text-decoration: none; border: 1.5px solid transparent; transition: background 0.15s ease; }
+.btn:hover { background: var(--btn-hover); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--ghost-border); }
+.btn-ghost:hover { background: var(--accent-soft); }
+.demo-links { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+.btn-demo { background: var(--demo-bg); color: var(--demo-fg); }
+.btn-demo:hover { background: var(--demo-hover); }
+.btn-demo .ico { width: 18px; height: 18px; }
+.btn-light { background: #FFFFFF; color: #1C093E; }
+.btn-light:hover { background: #EEE7FF; }
+
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); padding: 8px 14px; border-radius: var(--radius-full); }
+.eyebrow .ico { width: 16px; height: 16px; }
+.eyebrow-plain { background: transparent; padding: 0; }
+
+.hero { background: var(--wash); padding: 48px 0 56px; overflow: hidden; }
+.hero-grid { display: grid; gap: 40px; align-items: center; }
+.hero-text { display: grid; gap: 18px; max-width: 640px; }
+.hero h1 { font-size: clamp(36px, 7vw, 56px); line-height: 1.08; }
+.grad { background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 18px; line-height: 1.5; color: var(--text-2); max-width: 62ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.hero-visual { position: relative; min-height: 360px; display: none; }
+@media (min-width: 900px) {
+  .hero { padding: 72px 0 88px; }
+  .hero-grid { grid-template-columns: 1.05fr 1fr; }
+  .hero-visual { display: block; min-height: 520px; }
+}
+.hero-phone { position: absolute; width: 230px; right: 4%; top: 0; z-index: 2; }
+.hero-kiosk { position: absolute; width: 78%; left: 0; bottom: 8px; z-index: 1; }
+.orb { position: absolute; border-radius: 50%; pointer-events: none; }
+.orb-a { width: 340px; height: 340px; background: var(--orb-1); right: -60px; top: 40px; opacity: 0.9; }
+.orb-b { width: 220px; height: 220px; background: var(--orb-2); left: 10%; top: -20px; opacity: 0.85; mix-blend-mode: multiply; }
+:root[data-theme='dark'] .orb-b, :root[data-theme='dim'] .orb-b { mix-blend-mode: screen; opacity: 0.35; }
+
+.section-title { font-size: clamp(26px, 4vw, 32px); margin-bottom: 24px; }
+.surfaces { padding: 56px 0 24px; }
+.surface-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .surface-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 479px) { .surface { padding: 16px; } .surface span { font-size: 14px; } }
+@media (min-width: 1024px) { .surface-grid { grid-template-columns: repeat(3, 1fr); } }
+.surface { display: grid; gap: 8px; align-content: start; height: 100%; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color 0.15s ease, transform 0.15s ease; }
+.surface:hover { border-color: var(--accent); transform: translateY(-2px); }
+.surface .ico { width: 28px; height: 28px; color: var(--accent-ink); margin-bottom: 6px; }
+.surface strong { font-size: 18px; font-weight: 600; }
+.surface span { color: var(--muted); font-size: 15px; }
+
+.flow { padding: 72px 0 24px; }
+.flow + .flow { border-top: 1px solid var(--border); }
+.flow-head { display: grid; gap: 14px; justify-items: start; max-width: 760px; margin-bottom: 28px; }
+.flow-head h2 { font-size: clamp(28px, 4.4vw, 40px); }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tags li { font-size: 14px; color: var(--text-2); padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); }
+
+.stepnav { position: sticky; top: 64px; z-index: 20; margin: 0 -16px 8px; padding: 10px 16px; background: var(--topbar); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+@media (min-width: 768px) { .stepnav { margin: 0 -32px 8px; padding: 10px 32px; } }
+.stepnav ol { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
+.stepnav ol::-webkit-scrollbar { display: none; }
+.stepnav li { flex: none; scroll-snap-align: start; }
+.stepnav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 6px; border-radius: var(--radius-full); color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap; border: 1px solid var(--border); background: var(--surface); }
+.stepnav a span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 13px; }
+.stepnav a:hover { border-color: var(--border-strong); color: var(--text); }
+.stepnav a[aria-current='step'] { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; }
+.stepnav a[aria-current='step'] span { background: rgba(255, 255, 255, 0.18); color: inherit; }
+
+.steps { display: grid; }
+.step { display: grid; gap: 28px; padding: 40px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.step:last-child { border-bottom: 0; }
+@media (min-width: 900px) {
+  .step { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; padding: 56px 0; }
+}
+.step-text { display: grid; gap: 14px; max-width: 520px; }
+.step-num { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: var(--accent-ink); }
+.step-num span:first-child { display: inline-grid; place-items: center; min-width: 44px; height: 32px; padding: 0 10px; border-radius: var(--radius-full); background: var(--accent-soft); }
+.step h3 { font-size: clamp(22px, 3vw, 28px); }
+.step-text > p:not(.step-num) { color: var(--text-2); font-size: 17px; }
+.ticks { display: grid; gap: 10px; margin-top: 4px; }
+.ticks li { position: relative; padding-left: 30px; color: var(--text-2); }
+.ticks li::before { content: ''; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-soft); }
+.ticks li::after { content: ''; position: absolute; left: 6px; top: 8px; width: 5px; height: 8px; border: solid var(--accent-ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+
+.step-media { margin: 0; display: flex; justify-content: center; align-items: flex-end; gap: 20px; min-width: 0; }
+.frame { background: var(--frame); box-shadow: var(--shadow); overflow: hidden; }
+.frame img { width: 100%; height: auto; }
+.frame-phone { width: min(280px, 76vw); padding: 8px; border-radius: 38px; }
+.frame-phone img { border-radius: 30px; }
+.frame-landscape { width: 100%; padding: 8px; border-radius: 18px; }
+.frame-landscape img, .frame-portrait img { border-radius: 10px; }
+.frame-portrait { width: min(260px, 60vw); padding: 8px; border-radius: 18px; }
+.frame-desktop { width: 100%; border-radius: 12px; padding: 0 0 0; }
+.frame-bar { display: flex; gap: 6px; padding: 10px 12px; background: #2A2633; }
+.frame-bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.28); }
+
+.media-pair { flex-direction: column; align-items: center; }
+.media-pair .frame-portrait { width: min(240px, 62vw); }
+.media-pair .frame-phone { width: min(240px, 66vw); }
+@media (min-width: 640px) {
+  .media-pair { flex-direction: row; align-items: flex-end; }
+  .media-landscape-portrait .frame-landscape { flex: 2.4 1 0; width: auto; min-width: 0; }
+  .media-landscape-portrait .frame-portrait { flex: 1 1 0; width: auto; min-width: 0; }
+  .media-desktop-phone .frame-desktop { flex: 2.6 1 0; width: auto; min-width: 0; }
+  .media-desktop-phone .frame-phone { flex: 1 1 0; width: auto; min-width: 0; max-width: 220px; padding: 6px; border-radius: 28px; }
+  .media-desktop-phone .frame-phone img { border-radius: 22px; }
+}
+
+.info { padding: 72px 0; border-top: 1px solid var(--border); }
+.info-alt { background: var(--bg-alt); }
+.cards { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+.cards-tight { grid-template-columns: 1fr !important; }
+.card { display: grid; gap: 10px; align-content: start; padding: 24px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--border); }
+.info-alt .card { background: var(--surface); }
+.card .ico { width: 28px; height: 28px; color: var(--accent-ink); }
+.card h3 { font-size: 19px; }
+.card p { color: var(--text-2); }
+.cards-steps { counter-reset: s; }
+.cards-steps .card { position: relative; }
+.split { display: grid; gap: 32px; }
+@media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; } }
+.split-title { font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+
+.pay-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pay-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 900px) { .pay-grid { grid-template-columns: repeat(3, 1fr); } }
+.pay { padding: 24px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--border); }
+.pay h3 { display: flex; align-items: center; gap: 10px; font-size: 18px; margin-bottom: 16px; }
+.pay h3 .ico { color: var(--accent-ink); width: 24px; height: 24px; }
+.pay dl { margin: 0; display: grid; gap: 4px; }
+.pay dt { font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 8px; }
+.pay dd { margin: 0; color: var(--text-2); }
+
+.cta { background: #1C093E; color: #F0EAFE; padding: 88px 0; overflow: hidden; }
+.cta-inner { position: relative; display: grid; gap: 18px; justify-items: start; }
+.cta h2 { font-size: clamp(28px, 4.6vw, 44px); max-width: 18ch; position: relative; z-index: 1; }
+.cta p { color: rgba(240, 234, 254, 0.86); font-size: 18px; max-width: 52ch; position: relative; z-index: 1; }
+.cta a.btn { position: relative; z-index: 1; }
+.orb-c { width: 420px; height: 420px; right: -140px; top: -180px; background: var(--orb-1); opacity: 0.85; }
+.orb-d { width: 300px; height: 300px; right: 120px; bottom: -220px; background: linear-gradient(135deg, #93AAFF 0%, #E0E7FF 40.9%, #F7F9FF 100%); opacity: 0.22; }
+@media (max-width: 640px) { .orb-c { opacity: 0.5; right: -240px; } .orb-d { display: none; } }
+
+.footer { padding: 40px 0 56px; border-top: 1px solid var(--border); }
+.footer-inner { display: grid; gap: 14px; justify-items: start; color: var(--muted); font-size: 14px; }
+.footer .logo { height: 20px; color: var(--text); }
+
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="done-logo" viewBox="0 0 724.17 171.61"><path d="M72.38 73.38C62.87 82.89 51.59 90.43 39.17 95.57C26.75 100.72 13.44 103.37 0 103.37V171.61C11.2 171.61 22.3 169.4 32.64 165.12C42.99 160.83 52.39 154.55 60.31 146.63C68.23 138.71 74.51 129.31 78.8 118.96C83.09 108.61 85.29 97.52 85.29 86.32C85.29 78.22 84.14 70.18 81.88 62.44C78.98 66.31 75.81 69.97 72.37 73.4L72.38 73.38Z"/><path d="M102.37 0H0V1C11.2 1 22.3 3.21 32.64 7.49C42.99 11.78 52.39 18.06 60.31 25.98C68.23 33.9 74.51 43.31 78.8 53.65C79.99 56.52 81.02 59.44 81.88 62.41C104.26 32.59 102.37 0 102.37 0Z"/><path d="M717.1 78.49C712.55 69.88 706.13 63.13 697.84 58.26C689.71 53.38 680.29 50.95 669.56 50.95C658.83 50.95 648.19 53.63 639.09 58.99C630.15 64.19 623 71.34 617.64 80.44C612.44 89.54 609.84 99.78 609.84 111.15C609.84 122.52 612.52 133.01 617.88 142.11C623.24 151.21 630.56 158.44 639.82 163.81C649.08 169.01 659.48 171.61 671.02 171.61C680.12 171.61 688.65 169.9 696.61 166.49C704.73 163.08 711.56 158.12 717.09 151.62L702.95 137.24C699.05 141.79 694.34 145.2 688.81 147.48C683.45 149.75 677.52 150.89 671.02 150.89C663.22 150.89 656.31 149.27 650.3 146.01C644.29 142.6 639.66 137.89 636.41 131.87C634.42 128.09 633.05 123.95 632.28 119.44H722.95C723.44 117 723.76 114.89 723.92 113.1C724.08 111.15 724.16 109.36 724.16 107.74C724.16 96.85 721.8 87.1 717.09 78.49H717.1ZM649.33 76.05C655.02 72.8 661.6 71.17 669.08 71.17C676.56 71.17 682.32 72.71 687.36 75.8C692.4 78.73 696.3 82.95 699.06 88.48C700.94 92.13 702.17 96.37 702.77 101.16H632.34C633.09 96.98 634.36 93.15 636.18 89.7C639.27 83.85 643.65 79.3 649.34 76.05H649.33Z"/><path d="M577.95 57.53C571.29 53.14 563.57 50.95 554.79 50.95C546.01 50.95 538.13 52.98 531.14 57.04C525.88 59.98 521.49 63.75 517.98 68.35V53.39H496.04V169.18H517.98V101.66C517.98 95.81 519.28 90.61 521.88 86.06C524.48 81.51 528.06 77.93 532.61 75.33C537.16 72.73 542.36 71.43 548.21 71.43C556.99 71.43 564.14 74.27 569.66 79.96C575.18 85.65 577.95 92.88 577.95 101.66V169.18H599.89V97.27C599.89 89.31 597.94 81.83 594.04 74.84C590.14 67.69 584.78 61.92 577.95 57.53Z"/><path d="M453.53 58.99C444.43 53.63 434.27 50.95 423.06 50.95C411.85 50.95 401.45 53.63 392.35 58.99C383.25 64.35 376.02 71.58 370.66 80.68C365.3 89.62 362.62 99.69 362.62 110.91C362.62 122.13 365.3 132.6 370.66 141.87C376.02 150.97 383.25 158.2 392.35 163.57C401.45 168.93 411.69 171.61 423.06 171.61C434.43 171.61 444.43 168.93 453.53 163.57C462.79 158.21 470.11 150.98 475.47 141.87C480.83 132.61 483.51 122.29 483.51 110.91C483.51 99.53 480.83 89.54 475.47 80.44C470.11 71.34 462.8 64.19 453.53 58.99ZM455.97 131.39C452.72 137.24 448.25 141.87 442.56 145.28C436.87 148.69 430.37 150.4 423.06 150.4C415.75 150.4 409.25 148.69 403.56 145.28C397.87 141.87 393.4 137.24 390.15 131.39C386.9 125.38 385.27 118.55 385.27 110.91C385.27 103.27 386.89 96.77 390.15 90.92C393.4 85.07 397.87 80.52 403.56 77.27C409.25 73.86 415.75 72.15 423.06 72.15C430.37 72.15 436.79 73.86 442.32 77.27C448.01 80.52 452.48 85.07 455.73 90.92C459.14 96.77 460.85 103.43 460.85 110.91C460.85 118.39 459.23 125.37 455.97 131.39Z"/><path d="M328.89 24.13C321.25 16.49 312.15 10.56 301.59 6.34C291.19 2.11 279.81 0 267.46 0H204.81V169.17H267.94C280.13 169.17 291.42 167.06 301.82 162.83C312.38 158.61 321.48 152.67 329.12 145.04C336.76 137.41 342.69 128.46 346.91 118.23C351.3 107.83 353.49 96.62 353.49 84.59C353.49 72.56 351.3 61.19 346.91 50.95C342.68 40.71 336.67 31.77 328.87 24.14L328.89 24.13ZM321.82 117.49C316.62 127.08 309.31 134.64 299.88 140.16C290.45 145.52 279.49 148.2 266.97 148.2H227.72V20.96H266.97C279.32 20.96 290.21 23.64 299.63 29C309.05 34.36 316.45 41.84 321.81 51.43C327.17 61.02 329.85 71.99 329.85 84.34C329.85 96.69 327.17 107.9 321.81 117.49H321.82Z"/></symbol></svg>
+<a class="skip" href="#innhold">Skip to content</a>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top" aria-label="Done – back to the top of the page"><svg class="logo" viewBox="0 0 724.17 171.61" aria-hidden="true" focusable="false"><use href="#done-logo"/></svg><span class="brand-sub">Guest ordering</span></a>
+    <nav class="topnav" aria-label="Main menu">
+      <a href="#qr">QR</a><a href="#kiosk">Kiosk</a><a href="#online">Online Order</a><a href="#betaling">Payment</a>
+    </nav>
+    <nav class="langs" aria-label="Language"><a href="../" hreflang="no" lang="no" aria-label="Norsk">NO</a><a href="./" hreflang="en" lang="en" aria-label="English" aria-current="page">EN</a></nav>
+    <div class="theme" role="group" aria-label="Theme">
+      <button type="button" data-set-theme="light" aria-label="Light theme"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-set-theme="dim" aria-label="Dim theme"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg></button>
+      <button type="button" data-set-theme="dark" aria-label="Dark theme"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<main id="innhold" tabindex="-1">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow eyebrow-plain">Guest ordering from Done</p>
+        <h1 id="hero-title">Let guests order for themselves – <span class="grad">on their phone, at the kiosk and online.</span></h1>
+        <p class="lead">Guests order and pay for themselves, without queuing. The order goes straight to the kitchen, and the guest gets an order confirmation by SMS.</p>
+        <p class="lead">You choose the surfaces that suit your business – a QR code on the table, a self-service kiosk or online ordering. Everything runs from the same setup as your till.</p>
+        <p class="note">The screenshots show the Norwegian version. Guests can switch every surface to English.</p>
+        <p class="hero-cta"><a class="btn" href="#flater">See the surfaces <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-ghost" href="#qr">Try the demos</a></p>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <span class="orb orb-a"></span><span class="orb orb-b"></span>
+        <div class="frame frame-phone hero-phone"><img src="../images/qr-01-welcome-portrait.webp" width="750" height="1624" alt="" fetchpriority="high" decoding="async"></div>
+        <div class="frame frame-landscape hero-kiosk"><img src="../images/kiosk-03-menu-landscape.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surfaces" id="flater" aria-labelledby="flater-title">
+    <div class="wrap">
+      <h2 id="flater-title" class="section-title">Three ways to order</h2>
+      <ul class="surface-grid">
+        <li><a class="surface" href="#qr"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><strong>QR ordering</strong><span>Guests scan the code on the table and order from their own phone.</span></a></li>
+        <li><a class="surface" href="#kiosk"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg><strong>Self-service kiosk</strong><span>A large screen, landscape or portrait, with a card terminal.</span></a></li>
+        <li><a class="surface" href="#online"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><strong>Online Order</strong><span>Online ordering for pickup, from a phone or a computer.</span></a></li>
+      </ul>
+    </div>
+  </section>
+
+    <section class="flow" id="qr" aria-labelledby="qr-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><span>QR ordering</span></p>
+          <h2 id="qr-title">Guests order from the table – on their own phone</h2>
+          <p class="lead">A QR code on the table is all it takes. Guests scan, choose from the menu and pay in the browser. No app, no sign-in and no queue at the counter.</p>
+          <ul class="tags" aria-label="In short"><li>No app</li><li>Norwegian and English</li><li>Confirmation by SMS</li></ul>
+          <p class="demo-links"><a class="btn btn-demo" href="https://terminal.ploreasystems.com/qrcode?id=eyJpdiI6InR1dW5pQ2htNklKRmE4MWJEdW5NYkE9PSIsInZhbHVlIjoiRTZjT0kwT1V3dVNjMGlJaUdZYUt1Zz09IiwibWFjIjoiNGMzNDg4YWQ1MDVkNTkzOWYyYzY4OWI4OWMzZTdiMDRkZTJiYTc5YjEwZjRjYzJjZjIwOGMwODI0ZGYxOGMyNyIsInRhZyI6IiJ9" target="_blank" rel="noopener">Try QR ordering<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+        </header>
+        <nav class="stepnav" aria-label="Steps: QR ordering">
+          <ol><li><a href="#qr-1"><span aria-hidden="true">1</span>Welcome</a></li><li><a href="#qr-2"><span aria-hidden="true">2</span>Menu</a></li><li><a href="#qr-3"><span aria-hidden="true">3</span>Options</a></li><li><a href="#qr-4"><span aria-hidden="true">4</span>Cart</a></li><li><a href="#qr-5"><span aria-hidden="true">5</span>Payment</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="qr-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Step 1 of 5</span></p>
+            <h3>Straight in from the QR code</h3>
+            <p>Guests scan the code and land on the welcome page with your image, your logo and your welcome text.</p>
+            <ul class="ticks"><li>Guests choose Norwegian or English</li><li>The estimated waiting time is shown up front</li><li>You can add a short “How to order”</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="../images/qr-01-welcome-portrait.webp" width="750" height="1624" alt="Norwegian version: the QR ordering welcome page on a phone, with a photo of a burger and pizza, the logo, a welcome text and a purple “Tap to order” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Step 2 of 5</span></p>
+            <h3>A menu that is easy to browse</h3>
+            <p>The menu is split into categories with large photos and clear prices.</p>
+            <ul class="ticks"><li>Category tabs at the top: Food, Dessert, Drinks</li><li>A filter to find things in long menus</li><li>The cart is always one tap away</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="../images/qr-02-menu-portrait.webp" width="750" height="1624" alt="Norwegian version: the menu on a phone with category tabs and a grid of dishes with photo, name and price." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Step 3 of 5</span></p>
+            <h3>Make it their own</h3>
+            <p>Tapping a dish opens the details. Guests can remove ingredients and add extras, and the price updates straight away.</p>
+            <ul class="ticks"><li>A description and a large photo</li><li>Remove and extra, with a price per add-on</li><li>Required choices, such as size, must be made</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="../images/qr-03-product-portrait.webp" width="750" height="1624" alt="Norwegian version: the product sheet for Classic Burger with a photo, a description, “Remove” and “Extra” options and the “Add to cart” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Step 4 of 5</span></p>
+            <h3>An overview before paying</h3>
+            <p>Guests see the whole order with its options and the total before they pay.</p>
+            <ul class="ticks"><li>Change quantities or remove items</li><li>Options are listed under each item</li><li>Guests can cancel at any time</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="../images/qr-04-cart-portrait.webp" width="750" height="1624" alt="Norwegian version: the cart on a phone with a burger and a beer, the subtotal, the total and the “Back” and “Pay” buttons." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-5">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">05</span><span class="sr-only">Step 5 of 5</span></p>
+            <h3>Mobile number and payment</h3>
+            <p>Guests enter their mobile number and pay by card on a secure payment page. After paying, they get a confirmation with an order number.</p>
+            <ul class="ticks"><li>The Norwegian country code is preselected</li><li>The order confirmation is sent by SMS</li><li>The order goes straight to the kitchen</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="../images/qr-05-phone-portrait.webp" width="750" height="1624" alt="Norwegian version: the “Enter phone number” screen with a mobile number field, the Norwegian flag as country code and a “Continue” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="flow" id="kiosk" aria-labelledby="kiosk-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg><span>Self-service kiosk</span></p>
+          <h2 id="kiosk-title">The kiosk takes the order – and the payment</h2>
+          <p class="lead">A large touchscreen with a card terminal next to it. The kiosk comes in landscape and portrait, and guests pay by card without waiting for staff.</p>
+          <ul class="tags" aria-label="In short"><li>Landscape and portrait</li><li>Card terminal</li><li>Eat in or take away</li></ul>
+          <p class="demo-links"><a class="btn btn-demo" href="https://terminal.ploreasystems.com/kiosk?id=eyJpdiI6IkpjUURIdlJVcmVQQktNL0JTMDlITGc9PSIsInZhbHVlIjoiZzRXTFJEUTV3dXNUT0pRTm1NRnNOZz09IiwibWFjIjoiNDcxMDIyMjI3YTJhYmVkNzQ2OGQ0MWIzMWJiMWUxZjNiNGZkZWFjZWUyODlkZjc3YmQ3M2IyMTQwMmVkZTk1OCIsInRhZyI6IiJ9" target="_blank" rel="noopener">Try the landscape kiosk<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a><a class="btn btn-demo" href="https://terminal.ploreasystems.com/kiosk?id=eyJpdiI6IjBrUXdYcTNqTzY5ZDlvVG1pT2dvN3c9PSIsInZhbHVlIjoiK0g5ZktkNXFnOEovK0hFdytRY2I0Zz09IiwibWFjIjoiZTYxMjY2Yzk5NDg1ODZhNmZhYWIxYzRjNDNjZmM4MTBlNzg0YzJhZmRmZWFjN2YyMmZhMWVhZTczNjA5NjE4MSIsInRhZyI6IiJ9" target="_blank" rel="noopener">Try the portrait kiosk<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+        </header>
+        <nav class="stepnav" aria-label="Steps: Self-service kiosk">
+          <ol><li><a href="#kiosk-1"><span aria-hidden="true">1</span>Welcome</a></li><li><a href="#kiosk-2"><span aria-hidden="true">2</span>Eat in / take away</a></li><li><a href="#kiosk-3"><span aria-hidden="true">3</span>Menu</a></li><li><a href="#kiosk-4"><span aria-hidden="true">4</span>Options</a></li><li><a href="#kiosk-5"><span aria-hidden="true">5</span>Cart</a></li><li><a href="#kiosk-6"><span aria-hidden="true">6</span>Payment</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="kiosk-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Step 1 of 6</span></p>
+            <h3>Ready for the next guest</h3>
+            <p>The kiosk shows an image, a logo and a welcome text, and waits for the next guest.</p>
+            <ul class="ticks"><li>Guests choose Norwegian or English</li><li>The language resets for every new guest</li><li>One tap starts the order</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-01-welcome-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: the welcome page with a food photo on the left, and the logo, “Order here”, a welcome text and a “Tap to order” button on the right." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-01-welcome-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: the welcome page with a food photo at the top, the logo, “Order here”, a welcome text and a “Tap to order” button at the bottom." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Step 2 of 6</span></p>
+            <h3>Eat in or take away</h3>
+            <p>Guests choose whether to eat on site or take the food away, and the right VAT follows the choice.</p>
+            <ul class="ticks"><li>Two large buttons that are easy to hit</li><li>Can be turned off if you only offer one of them</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-02-ordertype-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: the question “Where would you like to eat?” with the buttons “Eat in” and “Take away”." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-02-ordertype-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: the question “Where would you like to eat?” with the buttons “Eat in” and “Take away”." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Step 3 of 6</span></p>
+            <h3>A menu made for touch</h3>
+            <p>Large photos and clear categories. The layout adapts to the screen.</p>
+            <ul class="ticks"><li>Landscape: the order is always visible on the right</li><li>Portrait: the categories sit in a column on the left</li><li>The number of dishes per category is shown</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-03-menu-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: the menu with category tabs at the top, a grid of dishes and an empty order panel on the right." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-03-menu-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: the menu with the categories Food, Dessert and Drinks in a column on the left and dishes in a grid." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Step 4 of 6</span></p>
+            <h3>Add-ons with prices</h3>
+            <p>Guests customise the dish and see the price change before adding it to the cart.</p>
+            <ul class="ticks"><li>Remove ingredients or add extras</li><li>Choose the quantity right in the sheet</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-04-product-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: the product sheet for Bacon Burger with a photo on the left and options on the right. Extra Cheddar and Fried Egg are selected." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-04-product-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: the product sheet for Bacon Burger with options. Extra Cheddar and Fried Egg are selected, and the button shows NOK 284." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-5">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">05</span><span class="sr-only">Step 5 of 6</span></p>
+            <h3>The cart</h3>
+            <p>In landscape the cart stays on the right. In portrait it slides up from the bottom.</p>
+            <ul class="ticks"><li>VAT and the total are shown</li><li>Change quantities or remove items</li><li>Guests can cancel the order</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-05-cart-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: the drinks menu on the left and the cart on the right with a burger and a cola, the total and a “Pay” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-05-cart-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: the cart has slid up from the bottom with a burger and a cola, VAT, the total and a “Pay” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-6">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">06</span><span class="sr-only">Step 6 of 6</span></p>
+            <h3>Mobile number and card payment</h3>
+            <p>Guests type their mobile number on the screen and pay on the card terminal at the kiosk. After paying, the order number is shown.</p>
+            <ul class="ticks"><li>A number pad on the screen</li><li>Card payment on the terminal</li><li>Collect the order when the number is shown</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="../images/kiosk-06-phone-landscape.webp" width="1280" height="720" alt="Norwegian version, landscape kiosk: “Enter phone number” in the right panel with a number pad and a “Continue” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="../images/kiosk-06-phone-portrait.webp" width="720" height="1280" alt="Norwegian version, portrait kiosk: “Enter phone number” with a large number pad and a “Continue” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="flow" id="online" aria-labelledby="online-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Online Order</span></p>
+          <h2 id="online-title">Order online – collect when it suits</h2>
+          <p class="lead">Guests order from a phone or a computer, choose when the food should be ready and collect it at the counter. The same menu and the same setup as the rest of your business.</p>
+          <ul class="tags" aria-label="In short"><li>Phone and computer</li><li>Choose a pickup time</li><li>Customer account and order history</li></ul>
+          <p class="demo-links"><a class="btn btn-demo" href="https://terminal.ploreasystems.com/online-order?id=eyJpdiI6IkJXYldCbnZ3SG1OTS8zbkF4enVpVGc9PSIsInZhbHVlIjoiMW1CMEJXazZObzkxMGp2VGhmWVFvZz09IiwibWFjIjoiNDI2ZTE0ZmQ4YjE3ZjBmNDc3Mjg1N2ZkNzViMDBiZGM5NDhjZDAzZjdhOWFiYjUwYzAxYjkxNzJhZjFhMTYxZCIsInRhZyI6IiJ9" target="_blank" rel="noopener">Try Online Order<svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only"> (opens in a new tab)</span></a></p>
+        </header>
+        <nav class="stepnav" aria-label="Steps: Online Order">
+          <ol><li><a href="#online-1"><span aria-hidden="true">1</span>Home</a></li><li><a href="#online-2"><span aria-hidden="true">2</span>Menu</a></li><li><a href="#online-3"><span aria-hidden="true">3</span>Options</a></li><li><a href="#online-4"><span aria-hidden="true">4</span>Cart</a></li><li><a href="#online-5"><span aria-hidden="true">5</span>Pickup time</a></li><li><a href="#online-6"><span aria-hidden="true">6</span>Customer account</a></li><li><a href="#online-7"><span aria-hidden="true">7</span>History</a></li><li><a href="#online-8"><span aria-hidden="true">8</span>Order details</a></li><li><a href="#online-9"><span aria-hidden="true">9</span>Reorder</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="online-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Step 1 of 9</span></p>
+            <h3>Your own ordering page</h3>
+            <p>The home page shows an image, a logo, a welcome text and the estimated waiting time. You can add a short guide.</p>
+            <ul class="ticks"><li>Works just as well on a computer and a phone</li><li>Norwegian and English</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-01-welcome-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: the home page with a large food photo, the logo, a welcome text, “How it works” and a “Tap to order” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-01-welcome-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: the home page with a food photo, the logo, a welcome text and “How it works”." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Step 2 of 9</span></p>
+            <h3>The same menu on computer and phone</h3>
+            <p>Dishes with large photos and prices, sorted into categories. On a computer the cart is always visible next to the menu.</p>
+            <ul class="ticks"><li>Category tabs at the top</li><li>A filter to find things</li><li>A log-in button for regular guests</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-02-menu-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: the menu with category tabs, a grid of dishes and an empty cart in the side panel." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-02-menu-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: the menu with category tabs and dishes with photo and price." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Step 3 of 9</span></p>
+            <h3>Make it their own</h3>
+            <p>Guests remove ingredients and add extras – in a dialog on a computer, full screen on a phone. The price updates straight away.</p>
+            <ul class="ticks"><li>Remove and extra, with a price per add-on</li><li>Choose the quantity of each add-on</li><li>Required choices, such as size, must be made</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-03-product-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: the product dialog for Bacon Burger with a photo on the left and options on the right. Without Onion and Extra Cheddar are selected." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-03-product-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: the product sheet for Bacon Burger with the “Remove” and “Extra” options. Without Onion is selected." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Step 4 of 9</span></p>
+            <h3>The cart follows the screen</h3>
+            <p>On a computer the cart sits in a side panel. On a phone it opens as a sheet from the bottom.</p>
+            <ul class="ticks"><li>Options are listed under each item</li><li>The total is on the checkout button</li><li>Change quantities without leaving the menu</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-04-cart-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: the menu on the left and the cart in the side panel with Bacon Burger and Buffalo Wings and a “Go to checkout” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-04-cart-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: the cart open as a sheet with Bacon Burger and its options, Buffalo Wings, the total and a “Go to checkout” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-5">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">05</span><span class="sr-only">Step 5 of 9</span></p>
+            <h3>Guests choose a pickup time</h3>
+            <p>At checkout, guests choose “as soon as possible” or a set time within opening hours, and pay by card online.</p>
+            <ul class="ticks"><li>Only times when you are open</li><li>A confirmation with a pickup number after payment</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-05-pickup-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: checkout in the side panel with the pickup time choice, “As soon as possible” or set times." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-05-pickup-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: the pickup time choice with “As soon as possible” selected and a list of set times." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-6">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">06</span><span class="sr-only">Step 6 of 9</span></p>
+            <h3>Regular guests log in with their mobile number</h3>
+            <p>Guests can order as a guest or create an account. They log in with a one-time code by SMS – no password.</p>
+            <ul class="ticks"><li>An account with name, mobile number and optional email</li><li>A one-time SMS code instead of a password</li><li>“Continue as guest” is always an option</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-06-login-desktop.webp" width="1280" height="800" alt="Norwegian version, computer: the “Log in to your account” dialog with a phone number field and a “Send code” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-06-register-portrait.webp" width="750" height="1624" alt="Norwegian version, phone: “Create your account” with full name, phone number and email fields and a “Create account” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-7">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">07</span><span class="sr-only">Step 7 of 9</span></p>
+            <h3>Order history for regular guests</h3>
+            <p>Logged-in guests find all their earlier orders with the date, items, status and amount.</p>
+            <ul class="ticks"><li>The 100 most recent orders</li><li>The same history on computer and phone</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-07-history-desktop.webp" width="680" height="432" alt="Norwegian version, computer: the “Order history” dialog with earlier orders, each with an order number, date, items, the status “Completed” and the amount." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-07-history-portrait.webp" width="375" height="812" alt="Norwegian version, phone: “Order history” with a list of earlier orders and amounts." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-8">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">08</span><span class="sr-only">Step 8 of 9</span></p>
+            <h3>Every detail of an order</h3>
+            <p>Guests open an order and see the items, VAT, the pickup place and the payment method.</p>
+            <ul class="ticks"><li>The receipt can be sent again</li><li>“Reorder” straight from the order</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-08-order-desktop.webp" width="678" height="527" alt="Norwegian version, computer: order details with items, subtotal, VAT, total, pickup place and a “Reorder” button." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-08-order-portrait.webp" width="375" height="812" alt="Norwegian version, phone: order details with five items, a total of NOK 737, the pickup place and a “Reorder” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-9">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">09</span><span class="sr-only">Step 9 of 9</span></p>
+            <h3>A favourite order in one tap</h3>
+            <p>“Reorder” puts the whole order in the cart. Guests can change it or go straight to checkout.</p>
+            <ul class="ticks"><li>All the items land in the cart at once</li><li>Change quantities or add more before paying</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="../images/online-09-reorder-desktop.webp" width="688" height="527" alt="Norwegian version, computer: the cart in the side panel filled with the five items from the earlier order, NOK 737 in total." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="../images/online-09-reorder-portrait.webp" width="375" height="812" alt="Norwegian version, phone: the cart with the five items from the earlier order and a “Go to checkout” button." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+  <section class="info" id="stengt" aria-labelledby="stengt-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>When you are closed</span></p>
+        <h2 id="stengt-title">Ordering closes by itself</h2>
+        <p class="lead">Guests can only order when you are actually taking orders. The rest of the time they get a clear message.</p>
+      </header>
+      <ul class="cards">
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>Opening hours</h3><p>Outside opening hours the surfaces do not take orders, and Online Order only offers pickup times within opening hours.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12Z"/></svg><h3>Your own closed message</h3><p>You write the message guests see when ordering is closed – for example when you open again.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></svg><h3>An event that is not running</h3><p>Before and after an event, QR and the kiosk show the closed message instead of the menu. The kiosk checks regularly by itself and opens again when the event starts.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="info info-alt" id="feil" aria-labelledby="feil-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17h.01"/></svg><span>When something goes wrong</span></p>
+        <h2 id="feil-title">A clear message – and a way forward</h2>
+        <p class="lead">No guest should be left wondering what happened.</p>
+      </header>
+      <div class="split">
+        <div>
+          <h3 class="split-title">What the guest sees</h3>
+          <ul class="cards cards-tight">
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><h3>The payment does not go through</h3><p>The guest gets a clear message and can try again or go back to the menu. The cart stays as it was.</p></li>
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3>Ordering closes during payment</h3><p>If ordering closes while the guest is at checkout, the payment is stopped and the guest sees the closed message.</p></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="split-title">What your staff see</h3>
+          <ul class="cards cards-tight">
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 13.9A4 4 0 0 1 7 6a5 5 0 0 1 10 0 4 4 0 0 1 1 7.9V20H6v-6.1Z"/><path d="M6 17h12"/></svg><h3>Only paid orders</h3><p>The kitchen gets the order once the payment is approved – not before.</p></li>
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><h3>The full picture</h3><p>All orders and payments are in the overview, together with the sales from the till.</p></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info" id="driften" aria-labelledby="driften-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 13.9A4 4 0 0 1 7 6a5 5 0 0 1 10 0 4 4 0 0 1 1 7.9V20H6v-6.1Z"/><path d="M6 17h12"/></svg><span>What your staff see</span></p>
+        <h2 id="driften-title">From order to handover</h2>
+        <p class="lead">Guest orders land where your staff already work.</p>
+      </header>
+      <ol class="cards cards-steps">
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><h3>Order overview and kitchen screen</h3><p>The order appears in the order overview and on the kitchen screen as soon as it is paid.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M7 21h10M9 10h6"/></svg><h3>Pickup screen</h3><p>When the food is ready, the order number shows on the pickup screen, so the guest knows it is time to collect.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg><h3>Handover</h3><p>At handover, staff scan the QR code on the guest’s receipt, and the order is marked as delivered.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="info info-alt" id="betaling" aria-labelledby="betaling-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><span>Payment</span></p>
+        <h2 id="betaling-title">Paid before it reaches the kitchen</h2>
+        <p class="lead">Guests always pay as part of the order. Paying at the counter afterwards is not offered on the guest surfaces, so every order the kitchen gets is paid.</p>
+      </header>
+      <ul class="pay-grid">
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>QR ordering</h3><dl><dt>Payment</dt><dd>Card on a secure payment page in the browser</dd><dt>Confirmation</dt><dd>By SMS</dd></dl></li>
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg>Self-service kiosk</h3><dl><dt>Payment</dt><dd>Card on the terminal at the kiosk</dd><dt>Confirmation</dt><dd>By SMS, plus a receipt as you set it up</dd></dl></li>
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Online Order</h3><dl><dt>Payment</dt><dd>Card on a secure payment page</dd><dt>Confirmation</dt><dd>By SMS</dd></dl></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta" id="kontakt" aria-labelledby="kontakt-title">
+    <div class="wrap cta-inner">
+      <span class="orb orb-c" aria-hidden="true"></span><span class="orb orb-d" aria-hidden="true"></span>
+      <h2 id="kontakt-title">Want to see guest ordering in your own business?</h2>
+      <p>We set up a demo with your menu and show how the surfaces fit your venue.</p>
+      <p><a class="btn btn-light" href="https://www.done.ai/">Contact Done <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <svg class="logo" viewBox="0 0 724.17 171.61" role="img" aria-label="Done"><use href="#done-logo"/></svg>
+    <p>The screenshots were taken at a demo location in October 2026. Names, prices and the menu are examples.</p>
+  </div>
+</footer>
+<script>
+(function () {
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('[data-set-theme]');
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var bars = { light: '#FFFFFF', dark: '#120428', dim: '#1C1B24' };
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-theme') === theme)); });
+    if (meta) meta.setAttribute('content', bars[theme]);
+  }
+  apply(root.getAttribute('data-theme') || 'light');
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var theme = b.getAttribute('data-set-theme');
+      apply(theme);
+      try { localStorage.setItem('done-demo-theme', theme); } catch (e) {}
+    });
+  });
+
+  if (!('IntersectionObserver' in window)) return;
+  document.querySelectorAll('.flow').forEach(function (flow) {
+    var links = flow.querySelectorAll('.stepnav a');
+    var nav = flow.querySelector('.stepnav ol');
+    var current = null;
+    function mark(id) {
+      if (id === current) return;
+      current = id;
+      links.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + id;
+        if (on) {
+          a.setAttribute('aria-current', 'step');
+          var left = a.parentElement.offsetLeft - 16;
+          if (nav && (left < nav.scrollLeft || left + a.offsetWidth > nav.scrollLeft + nav.clientWidth)) nav.scrollTo({ left: left, behavior: 'smooth' });
+        } else {
+          a.removeAttribute('aria-current');
+        }
+      });
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) mark(e.target.id); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    flow.querySelectorAll('.step').forEach(function (s) { io.observe(s); });
+  });
+})();
+
+</script>
+</body>
+</html>
