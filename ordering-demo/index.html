@@ -1,2051 +1,754 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Plorea Order – Bestillingsflyt steg for steg</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gjestebestilling – Done</title>
+<meta name="description" content="Slik bestiller gjestene selv med Done: QR-bestilling på mobil, selvbetjent kiosk, Online Order og bestilling på arrangementer.">
+<meta name="theme-color" content="#1C093E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-20 -10 142 192'%3E%3Crect x='-20' y='-10' width='142' height='192' rx='32' fill='%236323DD'/%3E%3Cpath fill='%23fff' d='M72.38 73.38C62.87 82.89 51.59 90.43 39.17 95.57C26.75 100.72 13.44 103.37 0 103.37V171.61C11.2 171.61 22.3 169.4 32.64 165.12C42.99 160.83 52.39 154.55 60.31 146.63C68.23 138.71 74.51 129.31 78.8 118.96C83.09 108.61 85.29 97.52 85.29 86.32C85.29 78.22 84.14 70.18 81.88 62.44C78.98 66.31 75.81 69.97 72.37 73.4Z'/%3E%3Cpath fill='%23fff' d='M102.37 0H0V1C11.2 1 22.3 3.21 32.64 7.49C42.99 11.78 52.39 18.06 60.31 25.98C68.23 33.9 74.51 43.31 78.8 53.65C79.99 56.52 81.02 59.44 81.88 62.41C104.26 32.59 102.37 0 102.37 0Z'/%3E%3C/svg%3E">
+<link rel="preload" href="fonts/DoneSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/DoneSans-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+<script>(function(){var t=null;try{t=localStorage.getItem('done-demo-theme')}catch(e){}if(t!=='light'&&t!=='dark'&&t!=='dim'){t=window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.setAttribute('data-theme',t)})();</script>
 <style>
-  :root {
-    /* Plorea Design System – Light */
-    --pl-primary: #6BB8DA;
-    --pl-primary-hover: #4FA8CE;
-    --pl-primary-soft: rgba(107, 184, 218, 0.12);
-    --pl-primary-ring: rgba(107, 184, 218, 0.35);
+@font-face { font-family: 'Done Sans'; src: url('fonts/DoneSans-Regular.woff2') format('woff2'); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Done Sans'; src: url('fonts/DoneSans-SemiBold.woff2') format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
 
-    --pl-bg: #F7F9FB;
-    --pl-bg-elev: #FFFFFF;
-    --pl-bg-muted: #EDF2F5;
+:root {
+  --iris-200: #EEE7FF;
+  --iris-500: #6323DD;
+  --iris-800: #1C093E;
+  --greige: #F3F0ED;
 
-    --pl-text: #0F2230;
-    --pl-text-muted: #5A6B78;
-    --pl-text-faint: #94A3B0;
+  --bg: #FFFFFF;
+  --bg-alt: #F3F0ED;
+  --surface: #FFFFFF;
+  --surface-2: #F8F6F3;
+  --text: rgba(28, 9, 62, 0.96);
+  --text-2: rgba(28, 9, 62, 0.80);
+  --muted: rgba(28, 9, 62, 0.70);
+  --border: rgba(28, 9, 62, 0.10);
+  --border-strong: rgba(28, 9, 62, 0.20);
+  --accent: #6323DD;
+  --accent-soft: #EEE7FF;
+  --accent-ink: #4A17AE;
+  --btn-bg: rgba(28, 9, 62, 0.92);
+  --btn-fg: #FFFFFF;
+  --btn-hover: rgba(28, 9, 62, 0.76);
+  --ghost-border: rgba(28, 9, 62, 0.30);
+  --topbar: rgba(255, 255, 255, 0.82);
+  --frame: #15121C;
+  --shadow: 0 1px 2px rgba(28, 9, 62, 0.06), 0 12px 32px -12px rgba(28, 9, 62, 0.22);
+  --grad-text: linear-gradient(92deg, #42128C 0%, #6323DD 55%, #7F45E6 100%);
+  --wash: radial-gradient(115% 135% at 10% -10%, rgba(192, 167, 241, 0.80) 0%, rgba(192, 167, 241, 0) 62%),
+    radial-gradient(115% 100% at 44% 10%, rgba(233, 204, 247, 0.55) 0%, rgba(233, 204, 247, 0) 58%),
+    radial-gradient(100% 90% at 102% 58%, rgba(238, 231, 255, 0.60) 0%, rgba(238, 231, 255, 0) 64%),
+    radial-gradient(90% 80% at 58% 108%, rgba(255, 175, 206, 0.18) 0%, rgba(255, 175, 206, 0) 58%), #F4EFFC;
+  --orb-1: linear-gradient(135deg, #2F1261 0%, #6323DD 40.9%, #ECBBF6 100%);
+  --orb-2: linear-gradient(45deg, #C0A7F1 0%, #E9CCF7 47.6%, #F7F2FC 100%);
 
-    --pl-border: #E4EBF0;
-    --pl-border-strong: #CBD6DE;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 1000px;
+  --font: 'Done Sans', 'Instrument Sans', Arial, sans-serif;
+  color-scheme: light;
+}
 
-    --pl-success: #22A876;
-    --pl-warning: #E5A52B;
-    --pl-danger:  #E04E4E;
-    --pl-danger-soft: rgba(224, 78, 78, 0.1);
+:root[data-theme='dark'] {
+  --bg: #120428;
+  --bg-alt: #1C093E;
+  --surface: #1C093E;
+  --surface-2: #260E4F;
+  --text: #F0EAFE;
+  --text-2: #DDD3FA;
+  --muted: #BBAFE0;
+  --border: #31195C;
+  --border-strong: #4A2E84;
+  --accent: #B49BFF;
+  --accent-soft: rgba(169, 140, 255, 0.16);
+  --accent-ink: #CDBBFF;
+  --btn-bg: #FFFFFF;
+  --btn-fg: #1C093E;
+  --btn-hover: #E4DAFF;
+  --ghost-border: rgba(240, 234, 254, 0.40);
+  --topbar: rgba(18, 4, 40, 0.84);
+  --frame: #05010D;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+  --grad-text: linear-gradient(92deg, #ECBBF6 0%, #C9B2F6 45%, #A98CFF 100%);
+  --wash: radial-gradient(110% 120% at 0% -10%, rgba(99, 35, 221, 0.55) 0%, rgba(99, 35, 221, 0) 60%),
+    radial-gradient(80% 90% at 100% 40%, rgba(169, 127, 240, 0.28) 0%, rgba(169, 127, 240, 0) 62%), #120428;
+  color-scheme: dark;
+}
 
-    --pl-shadow-sm: 0 1px 2px rgba(15, 34, 48, 0.06);
-    --pl-shadow-md: 0 6px 18px rgba(15, 34, 48, 0.08);
-    --pl-shadow-lg: 0 24px 50px -12px rgba(15, 34, 48, 0.22);
-    --pl-shadow-xl: 0 40px 80px -20px rgba(15, 34, 48, 0.28);
+:root[data-theme='dim'] {
+  --bg: #1C1B24;
+  --bg-alt: #22212A;
+  --surface: #22212A;
+  --surface-2: #2A2833;
+  --text: #E4E1EC;
+  --text-2: #D2CFDC;
+  --muted: #AEABBD;
+  --border: #34313F;
+  --border-strong: #4A4656;
+  --accent: #BBA4FF;
+  --accent-soft: rgba(187, 164, 255, 0.14);
+  --accent-ink: #CFC0FF;
+  --btn-bg: #E4E1EC;
+  --btn-fg: #1C1B24;
+  --btn-hover: #CDCAD8;
+  --ghost-border: rgba(228, 225, 236, 0.38);
+  --topbar: rgba(28, 27, 36, 0.86);
+  --frame: #0E0D13;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.65);
+  --grad-text: linear-gradient(92deg, #E9CCF7 0%, #C9B6FA 50%, #BBA4FF 100%);
+  --wash: radial-gradient(110% 120% at 0% -10%, rgba(144, 112, 236, 0.30) 0%, rgba(144, 112, 236, 0) 60%), #1C1B24;
+  color-scheme: dark;
+}
 
-    --pl-radius-sm: 8px;
-    --pl-radius-md: 14px;
-    --pl-radius-lg: 22px;
-    --pl-radius-xl: 32px;
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 132px; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.55;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+img { display: block; max-width: 100%; height: auto; }
+a { color: var(--accent-ink); }
+h1, h2, h3 { font-weight: 600; margin: 0; letter-spacing: -0.01em; line-height: 1.15; }
+p { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 6px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+@media (min-width: 768px) { .wrap { padding: 0 32px; } }
 
-    --font-heading: 'Sora', system-ui, sans-serif;
-    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
+.skip { position: absolute; left: 16px; top: -100px; z-index: 100; background: var(--btn-bg); color: var(--btn-fg); padding: 12px 20px; border-radius: var(--radius-full); font-weight: 600; text-decoration: none; }
+.skip:focus { top: 12px; }
+main:focus { outline: none; }
 
-    --header-height: 66px;
-    --subnav-height: 56px;
-  }
+.ico { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: square; stroke-linejoin: miter; flex: none; }
 
-  [data-theme="dark"] {
-    --pl-bg: #0B1620;
-    --pl-bg-elev: #14222F;
-    --pl-bg-muted: #1C2D3D;
-    --pl-text: #EAF1F6;
-    --pl-text-muted: #9DB0BE;
-    --pl-text-faint: #637686;
-    --pl-border: #223446;
-    --pl-border-strong: #304559;
-    --pl-primary-soft: rgba(107, 184, 218, 0.18);
-    --pl-danger-soft: rgba(224, 78, 78, 0.16);
-    --pl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
-    --pl-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
-    --pl-shadow-lg: 0 24px 50px -12px rgba(0, 0, 0, 0.6);
-    --pl-shadow-xl: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
-  }
+.topbar { position: sticky; top: 0; z-index: 50; background: var(--topbar); backdrop-filter: saturate(160%) blur(14px); -webkit-backdrop-filter: saturate(160%) blur(14px); border-bottom: 1px solid var(--border); }
+.topbar-inner { display: flex; align-items: center; gap: 16px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; min-height: 44px; }
+.logo { height: 22px; width: auto; aspect-ratio: 724.17 / 171.61; fill: currentColor; display: block; }
+.brand-sub { font-size: 14px; color: var(--muted); padding-left: 12px; border-left: 1px solid var(--border-strong); line-height: 20px; }
+@media (max-width: 479px) { .brand-sub { display: none; } }
+.topnav { display: none; margin-left: auto; gap: 4px; }
+.topnav a { color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 600; padding: 10px 12px; border-radius: var(--radius-full); }
+.topnav a:hover { background: var(--accent-soft); color: var(--text); }
+@media (min-width: 1024px) { .topnav { display: flex; } }
+.theme { display: flex; gap: 2px; margin-left: auto; padding: 3px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); }
+@media (min-width: 1024px) { .theme { margin-left: 8px; } }
+.theme button { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: var(--radius-full); background: transparent; color: var(--muted); cursor: pointer; }
+.theme button:hover { color: var(--text); }
+.theme button[aria-pressed='true'] { background: var(--btn-bg); color: var(--btn-fg); }
+.theme .ico { width: 18px; height: 18px; }
 
-  [data-theme="dim"] {
-    --pl-bg: #131B24;
-    --pl-bg-elev: #1B2631;
-    --pl-bg-muted: #223040;
-    --pl-text: #E2E9EF;
-    --pl-text-muted: #9CABB8;
-    --pl-text-faint: #6A7985;
-    --pl-border: #2A3744;
-    --pl-border-strong: #3A4958;
-    --pl-primary-soft: rgba(107, 184, 218, 0.16);
-    --pl-danger-soft: rgba(224, 78, 78, 0.14);
-  }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 0 24px; border-radius: var(--radius-full); background: var(--btn-bg); color: var(--btn-fg); font-weight: 600; font-size: 16px; text-decoration: none; border: 1.5px solid transparent; transition: background 0.15s ease; }
+.btn:hover { background: var(--btn-hover); }
+.btn-ghost { background: transparent; color: var(--text); border-color: var(--ghost-border); }
+.btn-ghost:hover { background: var(--accent-soft); }
+.btn-light { background: #FFFFFF; color: #1C093E; }
+.btn-light:hover { background: #EEE7FF; }
 
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; line-height: 16px; letter-spacing: 0.04em; text-transform: uppercase; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); padding: 8px 14px; border-radius: var(--radius-full); }
+.eyebrow .ico { width: 16px; height: 16px; }
+.eyebrow-plain { background: transparent; padding: 0; }
 
-  body {
-    font-family: var(--font-body);
-    background: var(--pl-bg);
-    color: var(--pl-text);
-    -webkit-font-smoothing: antialiased;
-    line-height: 1.55;
-    min-height: 100vh;
-    transition: background 0.3s ease, color 0.3s ease;
-  }
+.hero { background: var(--wash); padding: 48px 0 56px; overflow: hidden; }
+.hero-grid { display: grid; gap: 40px; align-items: center; }
+.hero-text { display: grid; gap: 18px; max-width: 640px; }
+.hero h1 { font-size: clamp(36px, 7vw, 56px); line-height: 1.08; }
+.grad { background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 18px; line-height: 1.5; color: var(--text-2); max-width: 62ch; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.hero-visual { position: relative; min-height: 360px; display: none; }
+@media (min-width: 900px) {
+  .hero { padding: 72px 0 88px; }
+  .hero-grid { grid-template-columns: 1.05fr 1fr; }
+  .hero-visual { display: block; min-height: 520px; }
+}
+.hero-phone { position: absolute; width: 230px; right: 4%; top: 0; z-index: 2; }
+.hero-kiosk { position: absolute; width: 78%; left: 0; bottom: 8px; z-index: 1; }
+.orb { position: absolute; border-radius: 50%; pointer-events: none; }
+.orb-a { width: 340px; height: 340px; background: var(--orb-1); right: -60px; top: 40px; opacity: 0.9; }
+.orb-b { width: 220px; height: 220px; background: var(--orb-2); left: 10%; top: -20px; opacity: 0.85; mix-blend-mode: multiply; }
+:root[data-theme='dark'] .orb-b, :root[data-theme='dim'] .orb-b { mix-blend-mode: screen; opacity: 0.35; }
 
-  /* ===== Header (sticky) ===== */
-  .site-header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: color-mix(in srgb, var(--pl-bg-elev) 92%, transparent);
-    backdrop-filter: saturate(160%) blur(14px);
-    -webkit-backdrop-filter: saturate(160%) blur(14px);
-    border-bottom: 1px solid var(--pl-border);
-  }
-  .header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 12px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-  }
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 17px;
-    letter-spacing: -0.01em;
-    color: var(--pl-text);
-    text-decoration: none;
-    flex-shrink: 0;
-  }
-  .brand .logo-mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--pl-primary), #4FA8CE);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    font-weight: 800;
-    font-size: 16px;
-    box-shadow: 0 4px 12px rgba(107, 184, 218, 0.35);
-  }
-  .brand .brand-sub {
-    font-family: var(--font-body);
-    font-weight: 500;
-    font-size: 12.5px;
-    color: var(--pl-text-muted);
-    margin-left: 2px;
-  }
+.section-title { font-size: clamp(26px, 4vw, 32px); margin-bottom: 24px; }
+.surfaces { padding: 56px 0 24px; }
+.surface-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+@media (min-width: 340px) { .surface-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 479px) { .surface { padding: 16px; } .surface span { font-size: 14px; } }
+@media (min-width: 1024px) { .surface-grid { grid-template-columns: repeat(4, 1fr); } }
+.surface { display: grid; gap: 8px; align-content: start; height: 100%; padding: 20px; border: 1px solid var(--border); border-radius: var(--radius-xl); background: var(--surface); color: var(--text); text-decoration: none; transition: border-color 0.15s ease, transform 0.15s ease; }
+.surface:hover { border-color: var(--accent); transform: translateY(-2px); }
+.surface .ico { width: 28px; height: 28px; color: var(--accent-ink); margin-bottom: 6px; }
+.surface strong { font-size: 18px; font-weight: 600; }
+.surface span { color: var(--muted); font-size: 15px; }
 
-  /* Flow tabs (segmented control) */
-  .flow-tabs {
-    display: inline-flex;
-    background: var(--pl-bg-muted);
-    border: 1px solid var(--pl-border);
-    border-radius: 999px;
-    padding: 4px;
-    position: relative;
-  }
-  .flow-tab {
-    position: relative;
-    border: 0;
-    background: transparent;
-    color: var(--pl-text-muted);
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 13px;
-    padding: 8px 18px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: color 0.22s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 1;
-    white-space: nowrap;
-  }
-  .flow-tab:hover:not(.active) {
-    color: var(--pl-text);
-  }
-  .flow-tab.active {
-    color: #fff;
-  }
-  .flow-tab svg {
-    width: 14px;
-    height: 14px;
-  }
-  .flow-tabs .tab-indicator {
-    position: absolute;
-    top: 4px;
-    bottom: 4px;
-    background: var(--pl-primary);
-    border-radius: 999px;
-    transition: left 0.28s cubic-bezier(0.4, 0.0, 0.2, 1),
-                width 0.28s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 4px 10px rgba(107, 184, 218, 0.4);
-    z-index: 0;
-  }
+.flow { padding: 72px 0 24px; }
+.flow + .flow { border-top: 1px solid var(--border); }
+.flow-head { display: grid; gap: 14px; justify-items: start; max-width: 760px; margin-bottom: 28px; }
+.flow-head h2 { font-size: clamp(28px, 4.4vw, 40px); }
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tags li { font-size: 14px; color: var(--text-2); padding: 6px 12px; border: 1px solid var(--border-strong); border-radius: var(--radius-full); }
 
-  /* Theme switch */
-  .theme-switch {
-    display: inline-flex;
-    background: var(--pl-bg-muted);
-    border: 1px solid var(--pl-border);
-    border-radius: 999px;
-    padding: 3px;
-    flex-shrink: 0;
-  }
-  .theme-switch button {
-    border: 0;
-    background: transparent;
-    color: var(--pl-text-muted);
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 12px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: all 0.18s ease;
-  }
-  .theme-switch button.active {
-    background: var(--pl-bg-elev);
-    color: var(--pl-text);
-    box-shadow: var(--pl-shadow-sm);
-  }
+.stepnav { position: sticky; top: 64px; z-index: 20; margin: 0 -16px 8px; padding: 10px 16px; background: var(--topbar); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); }
+@media (min-width: 768px) { .stepnav { margin: 0 -32px 8px; padding: 10px 32px; } }
+.stepnav ol { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; scroll-snap-type: x proximity; }
+.stepnav ol::-webkit-scrollbar { display: none; }
+.stepnav li { flex: none; scroll-snap-align: start; }
+.stepnav a { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 6px; border-radius: var(--radius-full); color: var(--text-2); text-decoration: none; font-size: 14px; font-weight: 600; white-space: nowrap; border: 1px solid var(--border); background: var(--surface); }
+.stepnav a span { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--accent-soft); color: var(--accent-ink); font-size: 13px; }
+.stepnav a:hover { border-color: var(--border-strong); color: var(--text); }
+.stepnav a[aria-current='step'] { background: var(--btn-bg); color: var(--btn-fg); border-color: transparent; }
+.stepnav a[aria-current='step'] span { background: rgba(255, 255, 255, 0.18); color: inherit; }
 
-  /* Sub-nav: step progress (sticky just below header) */
-  .subnav {
-    position: sticky;
-    top: var(--header-height);
-    z-index: 90;
-    background: color-mix(in srgb, var(--pl-bg) 88%, transparent);
-    backdrop-filter: saturate(160%) blur(10px);
-    -webkit-backdrop-filter: saturate(160%) blur(10px);
-    border-bottom: 1px solid var(--pl-border);
-  }
-  .subnav-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 10px 28px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-  .subnav-inner::-webkit-scrollbar { display: none; }
-  .subnav-label {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--pl-text-faint);
-    margin-right: 8px;
-    flex-shrink: 0;
-  }
-  .step-dots {
-    display: inline-flex;
-    gap: 6px;
-    flex-shrink: 0;
-  }
-  .step-dot {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    background: transparent;
-    border: 1px solid var(--pl-border);
-    color: var(--pl-text-muted);
-    font-size: 12.5px;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    white-space: nowrap;
-    cursor: pointer;
-  }
-  .step-dot:hover {
-    border-color: var(--pl-primary);
-    color: var(--pl-primary);
-  }
-  .step-dot.active {
-    background: var(--pl-primary);
-    border-color: var(--pl-primary);
-    color: #fff;
-  }
-  .step-dot .dot-num {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    opacity: 0.7;
-  }
-  .step-dot.active .dot-num { opacity: 1; }
+.steps { display: grid; }
+.step { display: grid; gap: 28px; padding: 40px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.step:last-child { border-bottom: 0; }
+@media (min-width: 900px) {
+  .step { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 56px; padding: 56px 0; }
+}
+.step-text { display: grid; gap: 14px; max-width: 520px; }
+.step-num { font-size: 13px; font-weight: 600; letter-spacing: 0.06em; color: var(--accent-ink); }
+.step-num span:first-child { display: inline-grid; place-items: center; min-width: 44px; height: 32px; padding: 0 10px; border-radius: var(--radius-full); background: var(--accent-soft); }
+.step h3 { font-size: clamp(22px, 3vw, 28px); }
+.step-text > p:not(.step-num) { color: var(--text-2); font-size: 17px; }
+.ticks { display: grid; gap: 10px; margin-top: 4px; }
+.ticks li { position: relative; padding-left: 30px; color: var(--text-2); }
+.ticks li::before { content: ''; position: absolute; left: 0; top: 4px; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-soft); }
+.ticks li::after { content: ''; position: absolute; left: 6px; top: 8px; width: 5px; height: 8px; border: solid var(--accent-ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 
-  /* ===== Flow container (swapped via tabs) ===== */
-  .flow-container {
-    display: none;
-    animation: flowFadeIn 0.4s ease;
-  }
-  .flow-container.active { display: block; }
-  @keyframes flowFadeIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
+.step-media { margin: 0; display: flex; justify-content: center; align-items: flex-end; gap: 20px; min-width: 0; }
+.frame { background: var(--frame); box-shadow: var(--shadow); overflow: hidden; }
+.frame img { width: 100%; height: auto; }
+.frame-phone { width: min(280px, 76vw); padding: 8px; border-radius: 38px; }
+.frame-phone img { border-radius: 30px; }
+.frame-landscape { width: 100%; padding: 8px; border-radius: 18px; }
+.frame-landscape img, .frame-portrait img { border-radius: 10px; }
+.frame-portrait { width: min(260px, 60vw); padding: 8px; border-radius: 18px; }
+.frame-desktop { width: 100%; border-radius: 12px; padding: 0 0 0; }
+.frame-bar { display: flex; gap: 6px; padding: 10px 12px; background: #2A2633; }
+.frame-bar i { width: 10px; height: 10px; border-radius: 50%; background: rgba(255, 255, 255, 0.28); }
 
-  /* ===== Hero ===== */
-  .hero {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 56px 28px 20px;
-  }
-  .eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--pl-primary-soft);
-    color: var(--pl-primary);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 999px;
-    margin-bottom: 18px;
-  }
-  .eyebrow::before {
-    content: "";
-    width: 6px; height: 6px; border-radius: 999px;
-    background: var(--pl-primary);
-  }
-  h1.hero-title {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: clamp(32px, 4.2vw, 52px);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
-    margin: 0 0 16px;
-    color: var(--pl-text);
-    max-width: 880px;
-  }
-  h1 .accent { color: var(--pl-primary); }
-  .hero-sub {
-    font-size: 17px;
-    color: var(--pl-text-muted);
-    max-width: 720px;
-    margin: 0;
-  }
-  .hero-meta {
-    margin-top: 26px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .hero-actions {
-    margin-top: 28px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    align-items: center;
-  }
-  .btn-primary-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: var(--pl-primary);
-    color: #fff;
-    font-family: var(--font-body);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 13px 24px;
-    border-radius: 999px;
-    border: 0;
-    cursor: pointer;
-    text-decoration: none;
-    transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 6px 18px rgba(107, 184, 218, 0.4);
-  }
-  .btn-primary-cta:hover {
-    background: var(--pl-primary-hover);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 24px rgba(107, 184, 218, 0.55);
-  }
-  .btn-primary-cta:active {
-    transform: translateY(0);
-  }
-  .btn-primary-cta svg {
-    width: 15px;
-    height: 15px;
-  }
-  .live-hint {
-    font-size: 12.5px;
-    color: var(--pl-text-faint);
-    font-family: var(--font-mono);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .live-hint::before {
-    content: "";
-    width: 7px;
-    height: 7px;
-    border-radius: 999px;
-    background: var(--pl-success);
-    box-shadow: 0 0 0 3px rgba(34, 168, 118, 0.2);
-    animation: livePulse 2s ease-in-out infinite;
-  }
-  @keyframes livePulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(34, 168, 118, 0.2); }
-    50% { box-shadow: 0 0 0 6px rgba(34, 168, 118, 0.1); }
-  }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--pl-bg-elev);
-    border: 1px solid var(--pl-border);
-    color: var(--pl-text-muted);
-    font-size: 13px;
-    font-weight: 500;
-    padding: 7px 12px;
-    border-radius: 999px;
-  }
-  .chip svg { width: 14px; height: 14px; }
+.media-pair { flex-direction: column; align-items: center; }
+.media-pair .frame-portrait { width: min(240px, 62vw); }
+.media-pair .frame-phone { width: min(240px, 66vw); }
+@media (min-width: 640px) {
+  .media-pair { flex-direction: row; align-items: flex-end; }
+  .media-landscape-portrait .frame-landscape { flex: 2.4 1 0; width: auto; min-width: 0; }
+  .media-landscape-portrait .frame-portrait { flex: 1 1 0; width: auto; min-width: 0; }
+  .media-desktop-phone .frame-desktop { flex: 2.6 1 0; width: auto; min-width: 0; }
+  .media-desktop-phone .frame-phone { flex: 1 1 0; width: auto; min-width: 0; max-width: 220px; padding: 6px; border-radius: 28px; }
+  .media-desktop-phone .frame-phone img { border-radius: 22px; }
+}
 
-  /* ===== Steps ===== */
-  .steps {
-    max-width: 1400px;
-    margin: 40px auto 0;
-    padding: 0 28px;
-  }
+.info { padding: 72px 0; border-top: 1px solid var(--border); }
+.info-alt { background: var(--bg-alt); }
+.cards { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .cards { grid-template-columns: repeat(3, 1fr); } }
+.cards-tight { grid-template-columns: 1fr !important; }
+.card { display: grid; gap: 10px; align-content: start; padding: 24px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--border); }
+.info-alt .card { background: var(--surface); }
+.card .ico { width: 28px; height: 28px; color: var(--accent-ink); }
+.card h3 { font-size: 19px; }
+.card p { color: var(--text-2); }
+.cards-steps { counter-reset: s; }
+.cards-steps .card { position: relative; }
+.split { display: grid; gap: 32px; }
+@media (min-width: 900px) { .split { grid-template-columns: 1fr 1fr; } }
+.split-title { font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
 
-  /* QR flow uses narrower step media column (phone) */
-  .flow-container[data-flow="qr"] .step {
-    grid-template-columns: 1fr 360px;
-  }
-  .flow-container[data-flow="qr"] .step.reverse {
-    grid-template-columns: 360px 1fr;
-  }
+.pay-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+@media (min-width: 640px) { .pay-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1100px) { .pay-grid { grid-template-columns: repeat(4, 1fr); } }
+.pay { padding: 24px; border-radius: var(--radius-xl); background: var(--surface); border: 1px solid var(--border); }
+.pay h3 { display: flex; align-items: center; gap: 10px; font-size: 18px; margin-bottom: 16px; }
+.pay h3 .ico { color: var(--accent-ink); width: 24px; height: 24px; }
+.pay dl { margin: 0; display: grid; gap: 4px; }
+.pay dt { font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-top: 8px; }
+.pay dd { margin: 0; color: var(--text-2); }
 
-  /* Kiosk flow uses wider step media column */
-  .flow-container[data-flow="kiosk-landscape"] .step {
-    grid-template-columns: 340px 1fr;
-  }
-  .flow-container[data-flow="kiosk-landscape"] .step.reverse {
-    grid-template-columns: 1fr 340px;
-  }
+.cta { background: #1C093E; color: #F0EAFE; padding: 88px 0; overflow: hidden; }
+.cta-inner { position: relative; display: grid; gap: 18px; justify-items: start; }
+.cta h2 { font-size: clamp(28px, 4.6vw, 44px); max-width: 18ch; position: relative; z-index: 1; }
+.cta p { color: rgba(240, 234, 254, 0.86); font-size: 18px; max-width: 52ch; position: relative; z-index: 1; }
+.cta a.btn { position: relative; z-index: 1; }
+.orb-c { width: 420px; height: 420px; right: -140px; top: -180px; background: var(--orb-1); opacity: 0.85; }
+.orb-d { width: 300px; height: 300px; right: 120px; bottom: -220px; background: linear-gradient(135deg, #93AAFF 0%, #E0E7FF 40.9%, #F7F9FF 100%); opacity: 0.22; }
+@media (max-width: 640px) { .orb-c { opacity: 0.5; right: -240px; } .orb-d { display: none; } }
 
-  /* Portrait kiosk flow uses medium-wide step media column */
-  .flow-container[data-flow="kiosk-portrait"] .step {
-    grid-template-columns: 1fr 360px;
-  }
-  .flow-container[data-flow="kiosk-portrait"] .step.reverse {
-    grid-template-columns: 360px 1fr;
-  }
+.footer { padding: 40px 0 56px; border-top: 1px solid var(--border); }
+.footer-inner { display: grid; gap: 14px; justify-items: start; color: var(--muted); font-size: 14px; }
+.footer .logo { height: 20px; color: var(--text); }
 
-  .step {
-    display: grid;
-    gap: 56px;
-    align-items: center;
-    padding: 70px 0;
-    border-top: 1px solid var(--pl-border);
-    scroll-margin-top: calc(var(--header-height) + var(--subnav-height) + 20px);
-  }
-  .step:first-of-type { border-top: 0; padding-top: 24px; }
-
-  .step.reverse .step-media { order: 0; }
-  .step.reverse .step-content { order: 1; }
-
-  .step-num-wrapper {
-    display: inline-flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 18px;
-  }
-  .step-num {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px; height: 40px;
-    background: var(--pl-primary);
-    color: #fff;
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 16px;
-    border-radius: 12px;
-    box-shadow: 0 6px 14px rgba(107, 184, 218, 0.4);
-  }
-  .step-progress {
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    font-weight: 600;
-    color: var(--pl-text-faint);
-    letter-spacing: 0.06em;
-  }
-  .step-progress strong { color: var(--pl-text); }
-
-  .step-content h2 {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: clamp(24px, 2.4vw, 32px);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
-    margin: 0 0 14px;
-    color: var(--pl-text);
-  }
-  .step-content .lede {
-    font-size: 15.5px;
-    color: var(--pl-text-muted);
-    margin: 0 0 22px;
-    line-height: 1.6;
-  }
-  .step-details {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 10px;
-  }
-  .step-details li {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    font-size: 14px;
-    color: var(--pl-text);
-    line-height: 1.5;
-  }
-  .step-details li::before {
-    content: "";
-    flex-shrink: 0;
-    width: 18px; height: 18px;
-    background: var(--pl-primary-soft);
-    border-radius: 999px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236BB8DA' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='20 6 9 17 4 12'/></svg>");
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: 11px;
-    margin-top: 3px;
-  }
-  .step-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-family: var(--font-mono);
-    font-size: 11.5px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--pl-primary);
-    background: var(--pl-primary-soft);
-    padding: 5px 10px;
-    border-radius: 6px;
-    margin-bottom: 14px;
-  }
-
-  /* ===== Device frames ===== */
-  .step-media { display: flex; justify-content: center; }
-
-  /* Phone (QR) */
-  .phone {
-    position: relative;
-    width: 320px;
-    padding: 14px;
-    background: linear-gradient(160deg, #1F2C38 0%, #0C1820 100%);
-    border-radius: 46px;
-    box-shadow:
-      var(--pl-shadow-lg),
-      inset 0 0 0 1.5px rgba(255,255,255,0.08),
-      inset 0 0 0 5px #0B1620;
-  }
-  .phone::before {
-    content: "";
-    position: absolute;
-    top: 22px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 96px;
-    height: 26px;
-    background: #000;
-    border-radius: 999px;
-    z-index: 2;
-  }
-  .phone::after {
-    content: "";
-    position: absolute;
-    right: -2px;
-    top: 130px;
-    width: 3px;
-    height: 60px;
-    background: #3a4958;
-    border-radius: 2px;
-  }
-  .phone-screen {
-    position: relative;
-    border-radius: 34px;
-    overflow: hidden;
-    background: #fff;
-    aspect-ratio: 360 / 740;
-  }
-  .phone-screen img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: top center;
-  }
-
-  /* Kiosk (landscape terminal) */
-  .kiosk {
-    position: relative;
-    width: 100%;
-    max-width: 920px;
-    padding: 18px;
-    background: linear-gradient(160deg, #2B3A48 0%, #0C1820 100%);
-    border-radius: 22px;
-    box-shadow:
-      var(--pl-shadow-xl),
-      inset 0 0 0 1.5px rgba(255,255,255,0.06),
-      inset 0 0 0 5px #0B1620;
-  }
-  .kiosk::after {
-    content: "";
-    position: absolute;
-    bottom: -14px;
-    left: 50%;
-    width: 140px;
-    height: 14px;
-    background: linear-gradient(180deg, #14222F 0%, rgba(15,34,48,0) 100%);
-    transform: translateX(-50%);
-    border-radius: 0 0 20px 20px;
-    filter: blur(1px);
-    opacity: 0.7;
-  }
-  .kiosk::before {
-    content: "";
-    position: absolute;
-    top: 7px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 6px; height: 6px;
-    border-radius: 999px;
-    background: #0B1620;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
-    z-index: 2;
-  }
-  .kiosk-screen {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-  }
-  .kiosk-screen img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  /* Portrait Kiosk (vertical terminal) */
-  .kiosk-portrait {
-    position: relative;
-    width: 320px;
-    padding: 16px 14px;
-    background: linear-gradient(160deg, #2B3A48 0%, #0C1820 100%);
-    border-radius: 22px;
-    box-shadow:
-      var(--pl-shadow-xl),
-      inset 0 0 0 1.5px rgba(255,255,255,0.06),
-      inset 0 0 0 4px #0B1620;
-  }
-  .kiosk-portrait::before {
-    /* small camera dot on top bezel */
-    content: "";
-    position: absolute;
-    top: 7px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 5px; height: 5px;
-    border-radius: 999px;
-    background: #0B1620;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
-    z-index: 2;
-  }
-  .kiosk-portrait::after {
-    /* vertical stand hint */
-    content: "";
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    width: 120px;
-    height: 12px;
-    background: linear-gradient(180deg, #14222F 0%, rgba(15,34,48,0) 100%);
-    transform: translateX(-50%);
-    border-radius: 0 0 18px 18px;
-    filter: blur(1px);
-    opacity: 0.7;
-  }
-  .kiosk-portrait-screen {
-    position: relative;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
-    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.05);
-  }
-  .kiosk-portrait-screen img {
-    display: block;
-    width: 100%;
-    height: auto;
-  }
-
-  /* Placeholder screen (for "coming soon" confirmation) */
-  .screen-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    text-align: center;
-    background: linear-gradient(180deg, #F7F9FB 0%, #EDF2F5 100%);
-    color: #5A6B78;
-    gap: 14px;
-  }
-  .screen-placeholder .ph-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 999px;
-    background: var(--pl-primary-soft);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--pl-primary);
-  }
-  .screen-placeholder .ph-icon svg {
-    width: 30px;
-    height: 30px;
-  }
-  .screen-placeholder .ph-title {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 18px;
-    color: #0F2230;
-    line-height: 1.3;
-  }
-  .screen-placeholder .ph-sub {
-    font-size: 13px;
-    line-height: 1.5;
-    max-width: 240px;
-  }
-  .screen-placeholder .ph-badge {
-    margin-top: 6px;
-    font-family: var(--font-mono);
-    font-size: 10.5px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--pl-primary);
-    background: rgba(107, 184, 218, 0.12);
-    padding: 5px 10px;
-    border-radius: 999px;
-  }
-
-  /* ===== Edge-case section ===== */
-  .edge-section {
-    max-width: 1400px;
-    margin: 40px auto 0;
-    padding: 60px 28px;
-    border-top: 1px dashed var(--pl-border-strong);
-    scroll-margin-top: calc(var(--header-height) + var(--subnav-height) + 20px);
-  }
-  .edge-eyebrow {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--pl-danger-soft);
-    color: var(--pl-danger);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    padding: 6px 12px;
-    border-radius: 999px;
-    margin-bottom: 18px;
-  }
-  .edge-eyebrow::before {
-    content: "";
-    width: 6px; height: 6px; border-radius: 999px;
-    background: var(--pl-danger);
-  }
-  .edge-section h2 {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: clamp(24px, 2.4vw, 32px);
-    line-height: 1.15;
-    letter-spacing: -0.015em;
-    margin: 0 0 10px;
-  }
-  .edge-section .edge-sub {
-    color: var(--pl-text-muted);
-    max-width: 640px;
-    margin: 0 0 40px;
-    font-size: 15.5px;
-  }
-  .edge-grid {
-    display: grid;
-    gap: 50px;
-    align-items: center;
-  }
-  .flow-container[data-flow="qr"] .edge-grid {
-    grid-template-columns: 360px 1fr;
-  }
-  .flow-container[data-flow="kiosk-landscape"] .edge-grid {
-    grid-template-columns: 1fr 1fr;
-  }
-  .flow-container[data-flow="kiosk-portrait"] .edge-grid {
-    grid-template-columns: 360px 1fr;
-  }
-  .edge-copy h3 {
-    font-family: var(--font-heading);
-    font-weight: 600;
-    font-size: 20px;
-    margin: 0 0 10px;
-    color: var(--pl-text);
-  }
-  .edge-copy p {
-    color: var(--pl-text-muted);
-    font-size: 14.5px;
-    line-height: 1.6;
-    margin: 0 0 18px;
-  }
-
-  /* ===== End CTA ===== */
-  .end-cta {
-    max-width: 1400px;
-    margin: 40px auto 80px;
-    padding: 0 28px;
-  }
-  .end-cta-inner {
-    background: linear-gradient(135deg, var(--pl-primary) 0%, #4FA8CE 100%);
-    border-radius: var(--pl-radius-xl);
-    padding: 48px 40px;
-    color: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 30px;
-    flex-wrap: wrap;
-    box-shadow: var(--pl-shadow-lg);
-    position: relative;
-    overflow: hidden;
-  }
-  .end-cta-inner::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at top right, rgba(255,255,255,0.15), transparent 60%);
-    pointer-events: none;
-  }
-  .end-cta h3 {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 26px;
-    margin: 0 0 6px;
-    letter-spacing: -0.015em;
-    position: relative;
-  }
-  .end-cta p {
-    margin: 0;
-    color: rgba(255,255,255,0.9);
-    font-size: 15px;
-    max-width: 560px;
-    position: relative;
-  }
-  .end-stats {
-    display: flex;
-    gap: 28px;
-    flex-wrap: wrap;
-    position: relative;
-  }
-  .end-stat .n {
-    font-family: var(--font-heading);
-    font-weight: 700;
-    font-size: 28px;
-  }
-  .end-stat .l {
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    opacity: 0.85;
-  }
-
-  /* ===== Footer ===== */
-  footer {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 28px 28px 40px;
-    border-top: 1px solid var(--pl-border);
-    display: flex;
-    justify-content: space-between;
-    gap: 20px;
-    font-size: 13px;
-    color: var(--pl-text-faint);
-  }
-  footer a { color: var(--pl-text-muted); text-decoration: none; }
-  footer a:hover { color: var(--pl-primary); }
-
-  /* ===== Responsive ===== */
-  @media (max-width: 1100px) {
-    .flow-container[data-flow="qr"] .step,
-    .flow-container[data-flow="qr"] .step.reverse,
-    .flow-container[data-flow="kiosk-landscape"] .step,
-    .flow-container[data-flow="kiosk-landscape"] .step.reverse,
-    .flow-container[data-flow="kiosk-portrait"] .step,
-    .flow-container[data-flow="kiosk-portrait"] .step.reverse,
-    .flow-container[data-flow="qr"] .edge-grid,
-    .flow-container[data-flow="kiosk-landscape"] .edge-grid,
-    .flow-container[data-flow="kiosk-portrait"] .edge-grid {
-      grid-template-columns: 1fr;
-      gap: 36px;
-    }
-    .step, .step.reverse { padding: 50px 0; }
-    .step.reverse .step-media { order: 0; }
-    .step.reverse .step-content { order: 1; }
-    .step-media { order: 1; }
-    .step-content { order: 0; }
-    .edge-grid > .step-media { order: 0; }
-    .edge-grid > .edge-copy { order: 1; }
-  }
-  @media (max-width: 760px) {
-    .header-inner { padding: 10px 18px; gap: 10px; flex-wrap: wrap; }
-    .brand .brand-sub { display: none; }
-    .flow-tabs {
-      order: 3;
-      width: 100%;
-      max-width: 100%;
-      overflow-x: auto;
-      scrollbar-width: none;
-    }
-    .flow-tabs::-webkit-scrollbar { display: none; }
-    .flow-tab { padding: 7px 14px; font-size: 12.5px; }
-    .flow-tab svg { display: none; }
-    .subnav-inner { padding: 8px 18px; }
-    .step-dot { padding: 5px 10px; font-size: 12px; }
-    .hero { padding: 36px 18px 10px; }
-    .steps, .edge-section, .end-cta { padding-left: 18px; padding-right: 18px; }
-    .end-cta-inner { padding: 32px 24px; }
-    .end-cta h3 { font-size: 22px; }
-    footer { flex-direction: column; padding: 20px 18px 32px; }
-    .phone { width: 280px; padding: 12px; border-radius: 40px; }
-    .phone-screen { border-radius: 28px; }
-    .phone::before { top: 20px; width: 82px; height: 22px; }
-    .kiosk { padding: 10px; border-radius: 16px; }
-    .kiosk-screen { border-radius: 6px; }
-    .kiosk-portrait { width: 260px; padding: 12px 10px; border-radius: 18px; }
-    .kiosk-portrait-screen { border-radius: 8px; }
-  }
-
-  /* Scroll reveal */
-  .reveal {
-    opacity: 0;
-    transform: translateY(16px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-  .reveal.in-view {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  /* Hide scrollbar on step dots row */
-  @media (hover: hover) {
-    .subnav-inner { scrollbar-width: thin; }
-  }
 </style>
 </head>
-<body data-theme="light">
-
-<header class="site-header">
-  <div class="header-inner">
-    <a href="#" class="brand">
-      <span class="logo-mark">P</span>
-      <span>Plorea<span class="brand-sub"> · Order</span></span>
-    </a>
-
-    <nav class="flow-tabs" role="tablist" aria-label="Bestillingsflyt">
-      <span class="tab-indicator" id="tabIndicator"></span>
-      <button class="flow-tab active" role="tab" data-flow-btn="qr" aria-selected="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3"/><path d="M17 20h-3"/><path d="M21 14v3"/><path d="M21 21h-3"/></svg>
-        QR · Mobil
-      </button>
-      <button class="flow-tab" role="tab" data-flow-btn="kiosk-landscape" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Kiosk · Landskap
-      </button>
-      <button class="flow-tab" role="tab" data-flow-btn="kiosk-portrait" aria-selected="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        Kiosk · Portrett
-      </button>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="done-logo" viewBox="0 0 724.17 171.61"><path d="M72.38 73.38C62.87 82.89 51.59 90.43 39.17 95.57C26.75 100.72 13.44 103.37 0 103.37V171.61C11.2 171.61 22.3 169.4 32.64 165.12C42.99 160.83 52.39 154.55 60.31 146.63C68.23 138.71 74.51 129.31 78.8 118.96C83.09 108.61 85.29 97.52 85.29 86.32C85.29 78.22 84.14 70.18 81.88 62.44C78.98 66.31 75.81 69.97 72.37 73.4L72.38 73.38Z"/><path d="M102.37 0H0V1C11.2 1 22.3 3.21 32.64 7.49C42.99 11.78 52.39 18.06 60.31 25.98C68.23 33.9 74.51 43.31 78.8 53.65C79.99 56.52 81.02 59.44 81.88 62.41C104.26 32.59 102.37 0 102.37 0Z"/><path d="M717.1 78.49C712.55 69.88 706.13 63.13 697.84 58.26C689.71 53.38 680.29 50.95 669.56 50.95C658.83 50.95 648.19 53.63 639.09 58.99C630.15 64.19 623 71.34 617.64 80.44C612.44 89.54 609.84 99.78 609.84 111.15C609.84 122.52 612.52 133.01 617.88 142.11C623.24 151.21 630.56 158.44 639.82 163.81C649.08 169.01 659.48 171.61 671.02 171.61C680.12 171.61 688.65 169.9 696.61 166.49C704.73 163.08 711.56 158.12 717.09 151.62L702.95 137.24C699.05 141.79 694.34 145.2 688.81 147.48C683.45 149.75 677.52 150.89 671.02 150.89C663.22 150.89 656.31 149.27 650.3 146.01C644.29 142.6 639.66 137.89 636.41 131.87C634.42 128.09 633.05 123.95 632.28 119.44H722.95C723.44 117 723.76 114.89 723.92 113.1C724.08 111.15 724.16 109.36 724.16 107.74C724.16 96.85 721.8 87.1 717.09 78.49H717.1ZM649.33 76.05C655.02 72.8 661.6 71.17 669.08 71.17C676.56 71.17 682.32 72.71 687.36 75.8C692.4 78.73 696.3 82.95 699.06 88.48C700.94 92.13 702.17 96.37 702.77 101.16H632.34C633.09 96.98 634.36 93.15 636.18 89.7C639.27 83.85 643.65 79.3 649.34 76.05H649.33Z"/><path d="M577.95 57.53C571.29 53.14 563.57 50.95 554.79 50.95C546.01 50.95 538.13 52.98 531.14 57.04C525.88 59.98 521.49 63.75 517.98 68.35V53.39H496.04V169.18H517.98V101.66C517.98 95.81 519.28 90.61 521.88 86.06C524.48 81.51 528.06 77.93 532.61 75.33C537.16 72.73 542.36 71.43 548.21 71.43C556.99 71.43 564.14 74.27 569.66 79.96C575.18 85.65 577.95 92.88 577.95 101.66V169.18H599.89V97.27C599.89 89.31 597.94 81.83 594.04 74.84C590.14 67.69 584.78 61.92 577.95 57.53Z"/><path d="M453.53 58.99C444.43 53.63 434.27 50.95 423.06 50.95C411.85 50.95 401.45 53.63 392.35 58.99C383.25 64.35 376.02 71.58 370.66 80.68C365.3 89.62 362.62 99.69 362.62 110.91C362.62 122.13 365.3 132.6 370.66 141.87C376.02 150.97 383.25 158.2 392.35 163.57C401.45 168.93 411.69 171.61 423.06 171.61C434.43 171.61 444.43 168.93 453.53 163.57C462.79 158.21 470.11 150.98 475.47 141.87C480.83 132.61 483.51 122.29 483.51 110.91C483.51 99.53 480.83 89.54 475.47 80.44C470.11 71.34 462.8 64.19 453.53 58.99ZM455.97 131.39C452.72 137.24 448.25 141.87 442.56 145.28C436.87 148.69 430.37 150.4 423.06 150.4C415.75 150.4 409.25 148.69 403.56 145.28C397.87 141.87 393.4 137.24 390.15 131.39C386.9 125.38 385.27 118.55 385.27 110.91C385.27 103.27 386.89 96.77 390.15 90.92C393.4 85.07 397.87 80.52 403.56 77.27C409.25 73.86 415.75 72.15 423.06 72.15C430.37 72.15 436.79 73.86 442.32 77.27C448.01 80.52 452.48 85.07 455.73 90.92C459.14 96.77 460.85 103.43 460.85 110.91C460.85 118.39 459.23 125.37 455.97 131.39Z"/><path d="M328.89 24.13C321.25 16.49 312.15 10.56 301.59 6.34C291.19 2.11 279.81 0 267.46 0H204.81V169.17H267.94C280.13 169.17 291.42 167.06 301.82 162.83C312.38 158.61 321.48 152.67 329.12 145.04C336.76 137.41 342.69 128.46 346.91 118.23C351.3 107.83 353.49 96.62 353.49 84.59C353.49 72.56 351.3 61.19 346.91 50.95C342.68 40.71 336.67 31.77 328.87 24.14L328.89 24.13ZM321.82 117.49C316.62 127.08 309.31 134.64 299.88 140.16C290.45 145.52 279.49 148.2 266.97 148.2H227.72V20.96H266.97C279.32 20.96 290.21 23.64 299.63 29C309.05 34.36 316.45 41.84 321.81 51.43C327.17 61.02 329.85 71.99 329.85 84.34C329.85 96.69 327.17 107.9 321.81 117.49H321.82Z"/></symbol></svg>
+<a class="skip" href="#innhold">Hopp til innholdet</a>
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <a class="brand" href="#top" aria-label="Done – til toppen av siden"><svg class="logo" viewBox="0 0 724.17 171.61" aria-hidden="true" focusable="false"><use href="#done-logo"/></svg><span class="brand-sub">Gjestebestilling</span></a>
+    <nav class="topnav" aria-label="Hovedmeny">
+      <a href="#qr">QR</a><a href="#kiosk">Kiosk</a><a href="#online">Online Order</a><a href="#event">Arrangementer</a><a href="#betaling">Betaling</a>
     </nav>
-
-    <div class="theme-switch" role="tablist" aria-label="Theme">
-      <button class="active" data-theme-btn="light">Light</button>
-      <button data-theme-btn="dim">Dim</button>
-      <button data-theme-btn="dark">Dark</button>
+    <div class="theme" role="group" aria-label="Tema">
+      <button type="button" data-set-theme="light" aria-label="Lyst tema"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+      <button type="button" data-set-theme="dim" aria-label="Dempet tema"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg></button>
+      <button type="button" data-set-theme="dark" aria-label="Mørkt tema"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></button>
     </div>
   </div>
 </header>
 
-<!-- Sticky step progress bar -->
-<div class="subnav">
-  <div class="subnav-inner">
-    <span class="subnav-label">Steg</span>
-    <div class="step-dots" id="stepDotsQr" data-for="qr">
-      <a href="#qr-step-1" class="step-dot active" data-step="1"><span class="dot-num">01</span>Velkomst</a>
-      <a href="#qr-step-2" class="step-dot" data-step="2"><span class="dot-num">02</span>Meny</a>
-      <a href="#qr-step-3" class="step-dot" data-step="3"><span class="dot-num">03</span>Produkt</a>
-      <a href="#qr-step-4" class="step-dot" data-step="4"><span class="dot-num">04</span>Lagt i kurv</a>
-      <a href="#qr-step-5" class="step-dot" data-step="5"><span class="dot-num">05</span>Bestilling</a>
-      <a href="#qr-step-6" class="step-dot" data-step="6"><span class="dot-num">06</span>Telefon</a>
-      <a href="#qr-step-7" class="step-dot" data-step="7"><span class="dot-num">07</span>Bekreftelse</a>
-      <a href="#qr-edge" class="step-dot" data-step="edge"><span class="dot-num">!</span>Feilscenario</a>
+<main id="innhold" tabindex="-1">
+  <section class="hero" id="top" aria-labelledby="hero-title">
+    <div class="wrap hero-grid">
+      <div class="hero-text">
+        <p class="eyebrow eyebrow-plain">Gjestebestilling fra Done</p>
+        <h1 id="hero-title">La gjestene bestille selv – <span class="grad">på mobilen, i kiosken og på nett.</span></h1>
+        <p class="lead">Gjestene bestiller og betaler selv, uten å stå i kø. Bestillingen går rett til kjøkkenet, og gjesten får ordrebekreftelse på SMS.</p>
+        <p class="lead">Du velger flatene som passer driften din – QR-kode på bordet, selvbetjent kiosk, bestilling på nett eller bestilling fra plassen på arrangementer. Alt styres fra det samme oppsettet som kassen.</p>
+        <p class="hero-cta"><a class="btn" href="#flater">Se flatene <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn btn-ghost" href="#kontakt">Snakk med oss</a></p>
+      </div>
+      <div class="hero-visual" aria-hidden="true">
+        <span class="orb orb-a"></span><span class="orb orb-b"></span>
+        <div class="frame frame-phone hero-phone"><img src="images/qr-01-welcome-portrait.webp" width="750" height="1624" alt="" fetchpriority="high" decoding="async"></div>
+        <div class="frame frame-landscape hero-kiosk"><img src="images/kiosk-03-menu-landscape.webp" width="1280" height="720" alt="" loading="lazy" decoding="async"></div>
+      </div>
     </div>
-    <div class="step-dots" id="stepDotsKiosk" data-for="kiosk-landscape" style="display:none;">
-      <a href="#kiosk-step-1" class="step-dot active" data-step="1"><span class="dot-num">01</span>Velkomst</a>
-      <a href="#kiosk-step-2" class="step-dot" data-step="2"><span class="dot-num">02</span>Spis/Ta med</a>
-      <a href="#kiosk-step-3" class="step-dot" data-step="3"><span class="dot-num">03</span>Meny</a>
-      <a href="#kiosk-step-4" class="step-dot" data-step="4"><span class="dot-num">04</span>Produkt</a>
-      <a href="#kiosk-step-5" class="step-dot" data-step="5"><span class="dot-num">05</span>Handlekurv</a>
-      <a href="#kiosk-step-6" class="step-dot" data-step="6"><span class="dot-num">06</span>Telefon</a>
-      <a href="#kiosk-step-7" class="step-dot" data-step="7"><span class="dot-num">07</span>Bekreftelse</a>
-      <a href="#kiosk-edge" class="step-dot" data-step="edge"><span class="dot-num">!</span>Feilscenario</a>
+  </section>
+
+  <section class="surfaces" id="flater" aria-labelledby="flater-title">
+    <div class="wrap">
+      <h2 id="flater-title" class="section-title">Fire måter å bestille på</h2>
+      <ul class="surface-grid">
+        <li><a class="surface" href="#qr"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><strong>QR på mobil</strong><span>Gjesten skanner koden på bordet og bestiller fra egen mobil.</span></a></li>
+        <li><a class="surface" href="#kiosk"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg><strong>Selvbetjent kiosk</strong><span>Stor skjerm, liggende eller stående, med kortterminal.</span></a></li>
+        <li><a class="surface" href="#online"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><strong>Online Order</strong><span>Bestilling på nett for henting, fra mobil eller PC.</span></a></li>
+        <li><a class="surface" href="#event"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg><strong>Arrangementer</strong><span>Én QR-kode for hele arenaen. Gjesten velger tribune.</span></a></li>
+      </ul>
     </div>
-    <div class="step-dots" id="stepDotsPortrait" data-for="kiosk-portrait" style="display:none;">
-      <a href="#portrait-step-1" class="step-dot active" data-step="1"><span class="dot-num">01</span>Velkomst</a>
-      <a href="#portrait-step-2" class="step-dot" data-step="2"><span class="dot-num">02</span>Spis/Ta med</a>
-      <a href="#portrait-step-3" class="step-dot" data-step="3"><span class="dot-num">03</span>Meny</a>
-      <a href="#portrait-step-4" class="step-dot" data-step="4"><span class="dot-num">04</span>Produkt</a>
-      <a href="#portrait-step-5" class="step-dot" data-step="5"><span class="dot-num">05</span>Lagt i kurv</a>
-      <a href="#portrait-step-6" class="step-dot" data-step="6"><span class="dot-num">06</span>Bestilling</a>
-      <a href="#portrait-step-7" class="step-dot" data-step="7"><span class="dot-num">07</span>Telefon</a>
-      <a href="#portrait-step-8" class="step-dot" data-step="8"><span class="dot-num">08</span>Bekreftelse</a>
-      <a href="#portrait-edge" class="step-dot" data-step="edge"><span class="dot-num">!</span>Feilscenario</a>
+  </section>
+
+    <section class="flow" id="qr" aria-labelledby="qr-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg><span>QR på mobil</span></p>
+          <h2 id="qr-title">Gjesten bestiller fra bordet – på sin egen mobil</h2>
+          <p class="lead">En QR-kode på bordet er alt som trengs. Gjesten skanner, velger fra menyen og betaler i nettleseren. Ingen app, ingen innlogging og ingen kø ved disken.</p>
+          <ul class="tags" aria-label="Kort fortalt"><li>Ingen app</li><li>Norsk og engelsk</li><li>Bekreftelse på SMS</li></ul>
+        </header>
+        <nav class="stepnav" aria-label="Steg: QR på mobil">
+          <ol><li><a href="#qr-1"><span aria-hidden="true">1</span>Velkomst</a></li><li><a href="#qr-2"><span aria-hidden="true">2</span>Meny</a></li><li><a href="#qr-3"><span aria-hidden="true">3</span>Tilvalg</a></li><li><a href="#qr-4"><span aria-hidden="true">4</span>Handlekurv</a></li><li><a href="#qr-5"><span aria-hidden="true">5</span>Betaling</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="qr-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Steg 1 av 5</span></p>
+            <h3>Rett inn fra QR-koden</h3>
+            <p>Gjesten skanner koden og lander på velkomstsiden med ditt bilde, din logo og din velkomsttekst.</p>
+            <ul class="ticks"><li>Gjesten velger selv norsk eller engelsk</li><li>Estimert ventetid vises før bestillingen</li><li>Du kan legge til en kort «Slik bestiller du»</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/qr-01-welcome-portrait.webp" width="750" height="1624" alt="Velkomstsiden for QR-bestilling på mobil: bilde av burger og pizza, logoen, velkomsttekst og en lilla knapp med teksten «Trykk for å bestille»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Steg 2 av 5</span></p>
+            <h3>En meny som er lett å bla i</h3>
+            <p>Menyen er delt i kategorier med store bilder og tydelige priser.</p>
+            <ul class="ticks"><li>Kategorifaner øverst: Mat, Dessert, Drikke</li><li>Filter for å finne fram i lange menyer</li><li>Handlekurven er alltid ett trykk unna</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/qr-02-menu-portrait.webp" width="750" height="1624" alt="Menyen på mobil med kategorifaner og et rutenett av retter med bilde, navn og pris." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Steg 3 av 5</span></p>
+            <h3>Tilpass retten</h3>
+            <p>Et trykk på en rett åpner detaljene. Gjesten kan fjerne ingredienser og legge til ekstra, og prisen oppdateres med en gang.</p>
+            <ul class="ticks"><li>Beskrivelse og stort bilde</li><li>Fjern og ekstra, med pris per tillegg</li><li>Obligatoriske valg, som størrelse, må fylles ut</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/qr-03-product-portrait.webp" width="750" height="1624" alt="Produktvinduet for Classic Burger med bilde, beskrivelse, valg under «Fjern» og «Ekstra», og knappen «Legg i handlekurv»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Steg 4 av 5</span></p>
+            <h3>Oversikt før betaling</h3>
+            <p>Gjesten ser hele bestillingen med tilvalg og totalbeløp før betalingen.</p>
+            <ul class="ticks"><li>Endre antall eller fjern varer</li><li>Tilvalgene står under hver vare</li><li>Gjesten kan avbryte når som helst</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/qr-04-cart-portrait.webp" width="750" height="1624" alt="Handlekurven på mobil med en burger og en øl, delsum, totalbeløp og knappene «Tilbake» og «Betal»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="qr-5">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">05</span><span class="sr-only">Steg 5 av 5</span></p>
+            <h3>Mobilnummer og betaling</h3>
+            <p>Gjesten oppgir mobilnummeret og betaler med kort på en sikker betalingsside. Etter betaling får gjesten en bekreftelse med bestillingsnummer.</p>
+            <ul class="ticks"><li>Norsk landkode er forhåndsvalgt</li><li>Ordrebekreftelsen sendes på SMS</li><li>Bestillingen går rett til kjøkkenet</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/qr-05-phone-portrait.webp" width="750" height="1624" alt="Skjermen «Oppgi telefonnummer» med et felt for mobilnummer, norsk flagg som landkode og knappen «Fortsett»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="flow" id="kiosk" aria-labelledby="kiosk-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg><span>Selvbetjent kiosk</span></p>
+          <h2 id="kiosk-title">Kiosken tar bestillingen – og betalingen</h2>
+          <p class="lead">En stor berøringsskjerm med kortterminal ved siden av. Kiosken finnes liggende og stående, og gjesten betaler med kort uten å vente på en ansatt.</p>
+          <ul class="tags" aria-label="Kort fortalt"><li>Liggende og stående</li><li>Kortterminal</li><li>Spis her eller ta med</li></ul>
+        </header>
+        <nav class="stepnav" aria-label="Steg: Selvbetjent kiosk">
+          <ol><li><a href="#kiosk-1"><span aria-hidden="true">1</span>Velkomst</a></li><li><a href="#kiosk-2"><span aria-hidden="true">2</span>Spis her / ta med</a></li><li><a href="#kiosk-3"><span aria-hidden="true">3</span>Meny</a></li><li><a href="#kiosk-4"><span aria-hidden="true">4</span>Tilvalg</a></li><li><a href="#kiosk-5"><span aria-hidden="true">5</span>Handlekurv</a></li><li><a href="#kiosk-6"><span aria-hidden="true">6</span>Betaling</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="kiosk-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Steg 1 av 6</span></p>
+            <h3>Klar for neste gjest</h3>
+            <p>Kiosken viser bilde, logo og velkomsttekst og venter på neste gjest.</p>
+            <ul class="ticks"><li>Gjesten velger norsk eller engelsk</li><li>Språket nullstilles for hver ny gjest</li><li>Ett trykk starter bestillingen</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-01-welcome-landscape.webp" width="1280" height="720" alt="Liggende kiosk: velkomstsiden med matbilde til venstre, og logo, «Bestill her», velkomsttekst og knappen «Trykk for å bestille» til høyre." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-01-welcome-portrait.webp" width="720" height="1280" alt="Stående kiosk: velkomstsiden med matbilde øverst, logo, «Bestill her», velkomsttekst og knappen «Trykk for å bestille» nederst." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Steg 2 av 6</span></p>
+            <h3>Spis her eller ta med</h3>
+            <p>Gjesten velger om maten skal spises på stedet eller tas med, og riktig mva følger valget.</p>
+            <ul class="ticks"><li>To store knapper, lette å treffe</li><li>Kan skrus av hvis du bare tilbyr ett av dem</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-02-ordertype-landscape.webp" width="1280" height="720" alt="Liggende kiosk: spørsmålet «Hvor ønsker du å spise?» med de to knappene «Spis her» og «Ta med»." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-02-ordertype-portrait.webp" width="720" height="1280" alt="Stående kiosk: spørsmålet «Hvor ønsker du å spise?» med de to knappene «Spis her» og «Ta med»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Steg 3 av 6</span></p>
+            <h3>Meny laget for berøringsskjerm</h3>
+            <p>Store bilder og tydelige kategorier. Oppsettet tilpasser seg skjermen.</p>
+            <ul class="ticks"><li>Liggende: bestillingen er alltid synlig til høyre</li><li>Stående: kategoriene står i en kolonne til venstre</li><li>Antall retter per kategori vises</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-03-menu-landscape.webp" width="1280" height="720" alt="Liggende kiosk: menyen med kategorifaner øverst, et rutenett av retter og et tomt bestillingsfelt til høyre." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-03-menu-portrait.webp" width="720" height="1280" alt="Stående kiosk: menyen med kategoriene Mat, Dessert og Drikke i en kolonne til venstre og retter i et rutenett." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Steg 4 av 6</span></p>
+            <h3>Tilvalg med pris</h3>
+            <p>Gjesten tilpasser retten og ser prisen endre seg før den legges i kurven.</p>
+            <ul class="ticks"><li>Fjern ingredienser eller legg til ekstra</li><li>Velg antall direkte i vinduet</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-04-product-landscape.webp" width="1280" height="720" alt="Liggende kiosk: produktvinduet for Bacon Burger med bilde til venstre og tilvalg til høyre. Extra Cheddar og Fried Egg er valgt." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-04-product-portrait.webp" width="720" height="1280" alt="Stående kiosk: produktvinduet for Bacon Burger med tilvalg. Extra Cheddar og Fried Egg er valgt, og knappen viser 284 kroner." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-5">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">05</span><span class="sr-only">Steg 5 av 6</span></p>
+            <h3>Handlekurven</h3>
+            <p>På liggende skjerm står handlekurven fast til høyre. På stående skjerm glir den opp nedenfra.</p>
+            <ul class="ticks"><li>Mva og totalbeløp vises</li><li>Endre antall eller fjern varer</li><li>Gjesten kan avbryte bestillingen</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-05-cart-landscape.webp" width="1280" height="720" alt="Liggende kiosk: drikkemenyen til venstre og handlekurven til høyre med en burger og en cola, totalbeløp og knappen «Betal»." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-05-cart-portrait.webp" width="720" height="1280" alt="Stående kiosk: handlekurven har glidd opp nedenfra med en burger og en cola, mva, totalbeløp og knappen «Betal»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="kiosk-6">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">06</span><span class="sr-only">Steg 6 av 6</span></p>
+            <h3>Mobilnummer og kortbetaling</h3>
+            <p>Gjesten taster mobilnummeret på skjermen og betaler på kortterminalen ved kiosken. Etter betaling vises bestillingsnummeret.</p>
+            <ul class="ticks"><li>Eget talltastatur på skjermen</li><li>Betaling med kort på terminalen</li><li>Hent bestillingen når nummeret vises</li></ul>
+          </div>
+          <figure class="step-media media-pair media-landscape-portrait">
+            <div class="frame frame-landscape"><img src="images/kiosk-06-phone-landscape.webp" width="1280" height="720" alt="Liggende kiosk: «Oppgi telefonnummer» i høyre felt med talltastatur og knappen «Fortsett»." loading="lazy" decoding="async"></div>
+            <div class="frame frame-portrait"><img src="images/kiosk-06-phone-portrait.webp" width="720" height="1280" alt="Stående kiosk: «Oppgi telefonnummer» med et stort talltastatur og knappen «Fortsett»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="flow" id="online" aria-labelledby="online-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg><span>Online Order</span></p>
+          <h2 id="online-title">Bestilling på nett – for henting når det passer</h2>
+          <p class="lead">Gjesten bestiller fra mobil eller PC, velger når maten skal være klar og henter den i disken. Samme meny og samme oppsett som resten av driften.</p>
+          <ul class="tags" aria-label="Kort fortalt"><li>Mobil og PC</li><li>Valgfritt hentetidspunkt</li><li>Betaling på nett</li></ul>
+        </header>
+        <nav class="stepnav" aria-label="Steg: Online Order">
+          <ol><li><a href="#online-1"><span aria-hidden="true">1</span>Forside</a></li><li><a href="#online-2"><span aria-hidden="true">2</span>Meny</a></li><li><a href="#online-3"><span aria-hidden="true">3</span>Handlekurv</a></li><li><a href="#online-4"><span aria-hidden="true">4</span>Hentetid</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="online-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Steg 1 av 4</span></p>
+            <h3>Din egen bestillingsside</h3>
+            <p>Forsiden viser bilde, logo, velkomsttekst og estimert ventetid. Du kan legge til en kort veiledning.</p>
+            <ul class="ticks"><li>Fungerer like godt på PC og mobil</li><li>Norsk og engelsk</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="images/online-01-welcome-desktop.webp" width="1280" height="800" alt="Online Order på PC: forsiden med stort matbilde, logo, velkomsttekst, «Slik fungerer det» og knappen «Trykk for å bestille»." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="images/online-01-welcome-portrait.webp" width="750" height="1624" alt="Online Order på mobil: forsiden med matbilde, logo, velkomsttekst og «Slik fungerer det»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Steg 2 av 4</span></p>
+            <h3>Meny og tilvalg</h3>
+            <p>Retter med bilder, beskrivelse og tilvalg – på PC i et eget vindu, på mobil over hele skjermen.</p>
+            <ul class="ticks"><li>Fjern og ekstra med pris</li><li>Gjester med konto kan logge inn</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="images/online-02-product-desktop.webp" width="1280" height="800" alt="Online Order på PC: produktvinduet for Cheeseburger med bilde, beskrivelse og tilvalg." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="images/online-02-menu-portrait.webp" width="750" height="1624" alt="Online Order på mobil: menyen med kategorifaner og retter med bilde og pris." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Steg 3 av 4</span></p>
+            <h3>Handlekurven følger skjermen</h3>
+            <p>På PC ligger handlekurven fast i et sidepanel. På mobil åpnes den som et ark nedenfra.</p>
+            <ul class="ticks"><li>Totalbeløpet står på knappen til kassen</li><li>Endre antall uten å forlate menyen</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="images/online-03-cart-desktop.webp" width="1280" height="800" alt="Online Order på PC: menyen til venstre og handlekurven i et sidepanel til høyre med to varer og knappen «Gå til kassen»." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="images/online-03-cart-portrait.webp" width="750" height="1624" alt="Online Order på mobil: handlekurven åpnet som et ark med én burger og knappen «Gå til kassen»." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="online-4">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">04</span><span class="sr-only">Steg 4 av 4</span></p>
+            <h3>Gjesten velger hentetidspunkt</h3>
+            <p>I kassen velger gjesten «så snart som mulig» eller et fast tidspunkt innenfor åpningstiden, og betaler med kort på nett.</p>
+            <ul class="ticks"><li>Bare tidspunkter dere har åpent</li><li>Bekreftelse med hentenummer etter betaling</li></ul>
+          </div>
+          <figure class="step-media media-pair media-desktop-phone">
+            <div class="frame frame-desktop"><span class="frame-bar" aria-hidden="true"><i></i><i></i><i></i></span><img src="images/online-04-checkout-desktop.webp" width="1280" height="800" alt="Online Order på PC: kassen i sidepanelet med valg av hentetidspunkt, «Så snart som mulig» eller faste klokkeslett." loading="lazy" decoding="async"></div>
+            <div class="frame frame-phone"><img src="images/online-04-checkout-portrait.webp" width="750" height="1624" alt="Online Order på mobil: valg av hentetidspunkt med «Så snart som mulig» markert og faste klokkeslett fra 15:00 til 17:15." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="flow" id="event" aria-labelledby="event-title">
+      <div class="wrap">
+        <header class="flow-head">
+          <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg><span>Arrangementer</span></p>
+          <h2 id="event-title">Én QR-kode for hele arenaen</h2>
+          <p class="lead">På kamper, konserter og festivaler henger du opp én felles QR-kode. Gjesten velger tribunen eller utsalget sitt, bestiller fra plassen og henter når nummeret vises.</p>
+          <ul class="tags" aria-label="Kort fortalt"><li>Felles QR-kode</li><li>Velg tribune</li><li>Ingen kø</li></ul>
+        </header>
+        <nav class="stepnav" aria-label="Steg: Arrangementer">
+          <ol><li><a href="#event-1"><span aria-hidden="true">1</span>Velg tribune</a></li><li><a href="#event-2"><span aria-hidden="true">2</span>Slik fungerer det</a></li><li><a href="#event-3"><span aria-hidden="true">3</span>Bestill</a></li></ol>
+        </nav>
+        <ol class="steps">
+        <li class="step" id="event-1">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">01</span><span class="sr-only">Steg 1 av 3</span></p>
+            <h3>Gjesten velger tribunen sin</h3>
+            <p>Den felles QR-koden åpner en side med alle utsalgsstedene. Gjesten velger sitt og kommer rett til riktig meny.</p>
+            <ul class="ticks"><li>Én kode å henge opp, uansett antall utsalg</li><li>Du bestemmer navn og rekkefølge</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/event-01-stands-portrait.webp" width="750" height="1624" alt="Felles landingsside på mobil: «Velg tribunen din» med valgene Tribune Sør og Tribune Nord." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="event-2">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">02</span><span class="sr-only">Steg 2 av 3</span></p>
+            <h3>Din egen veiledning</h3>
+            <p>Under listen kan du skrive en kort veiledning eller svar på vanlige spørsmål.</p>
+            <ul class="ticks"><li>Overskrifter, lister og lenker</li><li>Åpnes og lukkes av gjesten</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/event-02-howto-portrait.webp" width="750" height="1624" alt="Landingssiden med «Slik fungerer det» åpnet og en nummerert liste med fire steg for å bestille." loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        <li class="step" id="event-3">
+          <div class="step-text">
+            <p class="step-num"><span aria-hidden="true">03</span><span class="sr-only">Steg 3 av 3</span></p>
+            <h3>Bestill fra plassen</h3>
+            <p>Gjesten bestiller fra det valgte utsalget og henter i kiosken når nummeret vises. Når arrangementet ikke er i gang, ser gjesten din stengt-melding i stedet.</p>
+            <ul class="ticks"><li>Samme bestillingsflyt som QR på mobil</li><li>Du bestemmer henteinformasjonen gjesten får</li></ul>
+          </div>
+          <figure class="step-media">
+            <div class="frame frame-phone"><img src="images/event-03-welcome-portrait.webp" width="750" height="1624" alt="Velkomstsiden for tribunen med teksten «Bestill fra plassen din og hent i kiosken – uten å stå i kø.»" loading="lazy" decoding="async"></div>
+          </figure>
+        </li>
+        </ol>
+      </div>
+    </section>
+
+  <section class="info" id="stengt" aria-labelledby="stengt-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Når det er stengt</span></p>
+        <h2 id="stengt-title">Bestillingen stenger av seg selv</h2>
+        <p class="lead">Gjestene kan bare bestille når dere faktisk tar imot bestillinger. Resten av tiden får de en tydelig beskjed.</p>
+      </header>
+      <ul class="cards">
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><h3>Åpningstider</h3><p>Utenfor åpningstidene tar flatene ikke imot bestillinger, og Online Order tilbyr bare hentetidspunkter innenfor åpningstiden.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.4A8 8 0 1 1 21 12Z"/></svg><h3>Din egen stengt-melding</h3><p>Du skriver selv meldingen gjesten ser når bestillingen er stengt – for eksempel når dere åpner igjen.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></svg><h3>Arrangement som ikke er i gang</h3><p>Før og etter et arrangement viser QR og kiosk stengt-meldingen i stedet for menyen. Kiosken sjekker selv jevnlig og åpner igjen når arrangementet starter.</p></li>
+      </ul>
     </div>
+  </section>
+
+  <section class="info info-alt" id="feil" aria-labelledby="feil-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3 2 20h20L12 3Z"/><path d="M12 10v4M12 17h.01"/></svg><span>Når noe går galt</span></p>
+        <h2 id="feil-title">Tydelig beskjed – og en vei videre</h2>
+        <p class="lead">Ingen gjest skal bli stående uten å vite hva som skjedde.</p>
+      </header>
+      <div class="split">
+        <div>
+          <h3 class="split-title">Det gjesten ser</h3>
+          <ul class="cards cards-tight">
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><h3>Betalingen går ikke gjennom</h3><p>Gjesten får en tydelig melding og kan prøve igjen eller gå tilbake til menyen. Handlekurven blir liggende.</p></li>
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><h3>Det stenger under betalingen</h3><p>Stenger bestillingen mens gjesten er i kassen, stoppes betalingen, og gjesten ser stengt-meldingen.</p></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="split-title">Det driften ser</h3>
+          <ul class="cards cards-tight">
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 13.9A4 4 0 0 1 7 6a5 5 0 0 1 10 0 4 4 0 0 1 1 7.9V20H6v-6.1Z"/><path d="M6 17h12"/></svg><h3>Bare betalte bestillinger</h3><p>Kjøkkenet får bestillingen når betalingen er godkjent – ikke før.</p></li>
+            <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><h3>Full oversikt</h3><p>Alle bestillinger og betalinger ligger i oversikten, sammen med salget fra kassen.</p></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="info" id="driften" aria-labelledby="driften-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 13.9A4 4 0 0 1 7 6a5 5 0 0 1 10 0 4 4 0 0 1 1 7.9V20H6v-6.1Z"/><path d="M6 17h12"/></svg><span>Det de ansatte ser</span></p>
+        <h2 id="driften-title">Fra bestilling til utlevering</h2>
+        <p class="lead">Gjestebestillingene havner der de ansatte allerede jobber.</p>
+      </header>
+      <ol class="cards cards-steps">
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg><h3>Ordreoversikten og kjøkkenskjermen</h3><p>Bestillingen dukker opp i ordreoversikten og på kjøkkenskjermen med en gang den er betalt.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M7 21h10M9 10h6"/></svg><h3>Henteskjermen</h3><p>Når maten er klar, vises bestillingsnummeret på henteskjermen, så gjesten vet når det er tid for å hente.</p></li>
+        <li class="card"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/></svg><h3>Utlevering</h3><p>Ved utlevering skanner den ansatte QR-koden på gjestens kvittering, og bestillingen markeres som levert.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="info info-alt" id="betaling" aria-labelledby="betaling-title">
+    <div class="wrap">
+      <header class="flow-head">
+        <p class="eyebrow"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/></svg><span>Betaling</span></p>
+        <h2 id="betaling-title">Betalt før den når kjøkkenet</h2>
+        <p class="lead">Gjesten betaler alltid i bestillingen. Betaling i disken etterpå tilbys ikke på gjesteflatene, så alle bestillinger kjøkkenet får, er betalt.</p>
+      </header>
+      <ul class="pay-grid">
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>QR på mobil</h3><dl><dt>Betaling</dt><dd>Kort på en sikker betalingsside i nettleseren</dd><dt>Bekreftelse</dt><dd>På SMS</dd></dl></li>
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5" y="2" width="14" height="14" rx="2"/><path d="M12 16v4M8 22h8"/></svg>Selvbetjent kiosk</h3><dl><dt>Betaling</dt><dd>Kort på terminalen ved kiosken</dd><dt>Bekreftelse</dt><dd>På SMS, og kvittering etter ditt oppsett</dd></dl></li>
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>Online Order</h3><dl><dt>Betaling</dt><dd>Kort på en sikker betalingsside</dd><dt>Bekreftelse</dt><dd>På SMS</dd></dl></li>
+        <li class="pay"><h3><svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M2 20h20M4 20V10l8-6 8 6v10"/><path d="M9 20v-6h6v6"/></svg>Arrangementer</h3><dl><dt>Betaling</dt><dd>Kort på en sikker betalingsside i nettleseren</dd><dt>Bekreftelse</dt><dd>På SMS, med henteinformasjon</dd></dl></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="cta" id="kontakt" aria-labelledby="kontakt-title">
+    <div class="wrap cta-inner">
+      <span class="orb orb-c" aria-hidden="true"></span><span class="orb orb-d" aria-hidden="true"></span>
+      <h2 id="kontakt-title">Vil du se gjestebestilling i din egen drift?</h2>
+      <p>Vi setter opp en demo med din meny og viser hvordan flatene passer hos deg.</p>
+      <p><a class="btn btn-light" href="https://www.done.ai/">Kontakt Done <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></p>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="wrap footer-inner">
+    <svg class="logo" viewBox="0 0 724.17 171.61" role="img" aria-label="Done"><use href="#done-logo"/></svg>
+    <p>Skjermbildene er tatt fra en demolokasjon i oktober 2026. Navn, priser og menyen er eksempler.</p>
   </div>
-</div>
-
-<!-- ============================================================ -->
-<!-- FLOW 1: QR ORDERING (MOBILE PORTRAIT)                        -->
-<!-- ============================================================ -->
-<div class="flow-container active" data-flow="qr">
-
-  <section class="hero">
-    <div class="eyebrow">Demo · QR-bestilling · Mobil</div>
-    <h1 class="hero-title">Gjesten skanner og bestiller <span class="accent">fra bordet</span>.</h1>
-    <p class="hero-sub">
-      Slik oppleves Plorea QR Ordering fra gjestens side – fra skanning av QR-koden til
-      SMS-bekreftelse og hentested. Ingen app, ingen innlogging, ingen kø ved disken.
-    </p>
-    <div class="hero-meta">
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3"/><path d="M17 20h-3"/><path d="M21 14v3"/><path d="M21 21h-3"/></svg>
-        QR-innsjekk
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-        Modifiers &amp; størrelser
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Adyen-betaling
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        SMS-oppdatering
-      </span>
-    </div>
-    <div class="hero-actions">
-      <a class="btn-primary-cta" href="http://terminal.ploreasystems.com/qrcode?id=eyJpdiI6IkVUa0o1NXZrNzgxSFArTjZDd1NCaWc9PSIsInZhbHVlIjoid3M5aHFDN3ZpVHcvdkwvUGx4TmRVZz09IiwibWFjIjoiNzNkODBkZjNhN2ZiYjBlNzk3OGI4ODJlNGZkOTZmMjdmNzFmZjMwOWUwMDNmZWY4NDU0NzMyM2ZiZGVjYTA3YyIsInRhZyI6IiJ9" target="_blank" rel="noopener noreferrer">
-        Åpne live-demo
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-      <span class="live-hint">Live i terminal.ploreasystems.com</span>
-    </div>
-  </section>
-
-  <section class="steps">
-
-    <article class="step" id="qr-step-1">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">1</div>
-          <div class="step-progress">Steg <strong>01</strong> / 07</div>
-        </div>
-        <span class="step-tag">Entry point</span>
-        <h2>Velkomstskjerm etter QR-skanning</h2>
-        <p class="lede">
-          Kunden skanner QR-koden på bordet og lander rett på en ren velkomstskjerm
-          med Plorea-logo og tydelig pulsende CTA. Ingen app, ingen innlogging, null friksjon.
-        </p>
-        <ul class="step-details">
-          <li>Lokasjonsnavn og språkvelger hentes fra Ops Control</li>
-          <li>Estimert leveringstid kan vises dynamisk</li>
-          <li>Én tydelig primær CTA – stort treffområde</li>
-          <li>Branding fra Plorea Design System</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-01-welcome.png" alt="Velkomstskjerm"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="qr-step-2">
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-02-menu.webp" alt="Menyvisning"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">2</div>
-          <div class="step-progress">Steg <strong>02</strong> / 07</div>
-        </div>
-        <span class="step-tag">Browse</span>
-        <h2>Bla i menyen etter kategori</h2>
-        <p class="lede">
-          Menyen er gruppert i kategorier med emoji-ikon og tydelig aktiv-tilstand. Filter-chip gir rask
-          tilgang i lange menyer. Store produktbilder i 2-kolonne-grid gjør det lett å kjenne igjen varene.
-        </p>
-        <ul class="step-details">
-          <li>Horisontal kategori-scroll: Mat, Dessert, Drikke</li>
-          <li>Filter-chip for tekstsøk og allergener</li>
-          <li>Produktkort med høy-kvalitets bilder, navn og pris</li>
-          <li>Handlekurv-ikon sticky i headeren</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="qr-step-3">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">3</div>
-          <div class="step-progress">Steg <strong>03</strong> / 07</div>
-        </div>
-        <span class="step-tag">Configure</span>
-        <h2>Størrelser og modifiers i produktmodal</h2>
-        <p class="lede">
-          Trykk på et produkt åpner en bottom-sheet med fullt produktbilde, beskrivelse,
-          obligatorisk størrelsesvelger og valgfrie <em>Fjern</em>-modifiers. Prisen på CTA
-          oppdateres i sanntid basert på valgene.
-        </p>
-        <ul class="step-details">
-          <li>Bottom-sheet som ikke mister kontekst</li>
-          <li>Obligatorisk valg markeres med asterisk (*)</li>
-          <li>Størrelsespåslag vises inline (+140 kr, +70 kr, +40 kr …)</li>
-          <li><em>Fjern</em>-modifiers: Without Tomato, Onion, Dressing, Base</li>
-          <li>CTA-pris oppdateres live ved hvert valg</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-03-product.webp" alt="Produktdetaljer med størrelser og modifiers"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="qr-step-4">
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-04-cart-added.webp" alt="Produkt lagt i kurv"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">4</div>
-          <div class="step-progress">Steg <strong>04</strong> / 07</div>
-        </div>
-        <span class="step-tag">Feedback</span>
-        <h2>Produkt lagt i handlekurv</h2>
-        <p class="lede">
-          Umiddelbar visuell bekreftelse: handlekurv-badgen teller opp, produktkortet får en
-          count-indikator, og en persistent bunn-CTA viser antall varer og akkumulert totalpris.
-        </p>
-        <ul class="step-details">
-          <li>Cart-badge teller opp i header (1)</li>
-          <li>Produktkort får blå counter øverst til høyre</li>
-          <li>Sticky bunn-bar: <em>Se bestilling – 331,00 kr</em></li>
-          <li>Null friksjon for å legge til flere varer</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="qr-step-5">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">5</div>
-          <div class="step-progress">Steg <strong>05</strong> / 07</div>
-        </div>
-        <span class="step-tag">Review</span>
-        <h2>Oversikt over bestillingen</h2>
-        <p class="lede">
-          Før betaling får gjesten en tydelig oppsummering: produktlinjer med modifier-tekst,
-          antall-stepper, subtotal og total. Redigér, slett eller avbryt – alt tilgjengelig i
-          ett skjermbilde.
-        </p>
-        <ul class="step-details">
-          <li>Produktlinjer med thumbnail, modifier-tekst, antall-stepper og slett-ikon</li>
-          <li>«Size Pizza – Family 45cm, Without To…» vises som sub-tekst</li>
-          <li>Tydelig skille mellom subtotal og total</li>
-          <li>Primær CTA: <em>Betal</em> – sekundær: Tilbake / Avbryt ordre</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-05-order.webp" alt="Min bestilling"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="qr-step-6">
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-06-phone.webp" alt="Oppgi telefonnummer"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">6</div>
-          <div class="step-progress">Steg <strong>06</strong> / 07</div>
-        </div>
-        <span class="step-tag">Identify</span>
-        <h2>Telefonnummer for SMS-bekreftelse</h2>
-        <p class="lede">
-          Eneste datapunkt vi trenger før betaling: mobilnummer. Landkode-velger med flagg
-          forhåndsutfylles basert på lokasjonen. Nummeret brukes for ordrebekreftelse og
-          statusoppdateringer – ingenting annet.
-        </p>
-        <ul class="step-details">
-          <li>Landkodevelger med flagg (default +47)</li>
-          <li>GDPR-vennlig: kun nødvendig data</li>
-          <li>Integrert med Plorea SMS-service (PLBR-1128-serien)</li>
-          <li>Leder videre til Adyen-betaling (Vipps, kort, Apple Pay)</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="qr-step-7">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">7</div>
-          <div class="step-progress">Steg <strong>07</strong> / 07</div>
-        </div>
-        <span class="step-tag">Complete</span>
-        <h2>Bekreftelse med hentested og SMS</h2>
-        <p class="lede">
-          Etter vellykket betaling vises en tydelig kvittering med ordrenummer, spesifikasjon,
-          MVA og pickup-info. Gjesten kan vise skjermen i kassen, og mottar i tillegg
-          SMS-oppdateringer.
-        </p>
-        <ul class="step-details">
-          <li>Grønt ✓-ikon gir umiddelbar suksessfølelse</li>
-          <li>Ordrenummer og produktlinjer med MVA</li>
-          <li>Hentested for «Pick up at counter»-flyt</li>
-          <li>SMS-oppdateringer: ordre mottatt → klar til henting</li>
-          <li>CTA for ny bestilling uten å skanne på nytt</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen">
-          <div class="screen-placeholder">
-            <div class="ph-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="ph-title">Bekreftelsesskjerm</div>
-            <div class="ph-sub">Endelig skjermbilde med hentested og SMS-kvittering kommer fra demomiljøet.</div>
-            <div class="ph-badge">Kommer snart</div>
-          </div>
-        </div></div>
-      </div>
-    </article>
-
-  </section>
-
-  <section class="edge-section" id="qr-edge">
-    <div class="edge-grid">
-      <div class="step-media">
-        <div class="phone"><div class="phone-screen"><img src="images/qr-edge-error.webp" alt="Betalingen mislyktes"></div></div>
-      </div>
-      <div class="edge-copy">
-        <div class="edge-eyebrow">Edge case · Ikke en del av happy path</div>
-        <h2>Hva skjer hvis betalingen feiler?</h2>
-        <p class="edge-sub">
-          Adyen håndterer de fleste betalingsfeilene, men det finnes scenarier der betalingen
-          ikke kan gjennomføres – f.eks. hvis integrasjonen til lokasjonen ikke er aktivert
-          eller Vipps/kort avvises. Plorea viser da en tydelig feilmelding med gode handlingsalternativer.
-        </p>
-        <h3>Hva gjesten ser</h3>
-        <ul class="step-details">
-          <li>Rødt ✕-ikon signaliserer tydelig at noe gikk galt</li>
-          <li>Meldingstekst forklarer årsaken uten teknisk sjargong</li>
-          <li>To like-verdige handlinger: <em>Avbryt</em> eller <em>Prøv igjen</em></li>
-          <li>Handlekurven bevares – ingen data går tapt</li>
-        </ul>
-        <h3 style="margin-top: 22px;">Hva driften ser</h3>
-        <ul class="step-details">
-          <li>Ordren logges som <em>payment_failed</em> i Ops Control</li>
-          <li>Sanntids-alarm i partner-portalen om problemet vedvarer</li>
-          <li>Adyen-ID tilgjengelig for feilsøking</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="end-cta">
-    <div class="end-cta-inner">
-      <div>
-        <h3>Fra skanning til kvittering på under 60 sekunder.</h3>
-        <p>Plorea QR Ordering fjerner friksjon for både gjest og drift – uten app, uten innlogging, uten kø ved disken.</p>
-      </div>
-      <div class="end-stats">
-        <div class="end-stat"><div class="n">7</div><div class="l">steg</div></div>
-        <div class="end-stat"><div class="n">0</div><div class="l">app-installasjoner</div></div>
-        <div class="end-stat"><div class="n">1</div><div class="l">QR-kode</div></div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- FLOW 2: SELF-SERVICE KIOSK (LANDSCAPE)                       -->
-<!-- ============================================================ -->
-<div class="flow-container" data-flow="kiosk-landscape">
-
-  <section class="hero">
-    <div class="eyebrow">Demo · Selvbetjent kiosk · Landskap</div>
-    <h1 class="hero-title">Gjesten bestiller selv <span class="accent">på landskap-terminal</span>.</h1>
-    <p class="hero-sub">
-      Slik oppleves Plorea Self-Service Kiosk på en liggende touch-terminal –
-      fra attract-modus til utskrevet kvittering og henting i disken. Samme motor som QR-flyten,
-      bare optimalisert for stående montering.
-    </p>
-    <div class="hero-meta">
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        Touchscreen-terminal
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Spis her / Ta med
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Adyen-betaling
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Skriv ut kvittering
-      </span>
-    </div>
-    <div class="hero-actions">
-      <a class="btn-primary-cta" href="http://terminal.ploreasystems.com/kiosk?id=eyJpdiI6IkdEUnRmMXJaQXA3Y3o4TS9IcFdJVGc9PSIsInZhbHVlIjoiN2JpVFFSQ1Vma3VtWWVrSG9uc0pOdz09IiwibWFjIjoiZjllNmMwNGVjMTg2YWJjM2UwOGY3ZGY4MjkwYWQ0MGRlM2YxN2Y1MTE3ZjU5ZTJlZjczYTYxYTdlYzQxZDZmZCIsInRhZyI6IiJ9" target="_blank" rel="noopener noreferrer">
-        Åpne live-demo
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-      <span class="live-hint">Live i terminal.ploreasystems.com</span>
-    </div>
-  </section>
-
-  <section class="steps">
-
-    <article class="step" id="kiosk-step-1">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">1</div>
-          <div class="step-progress">Steg <strong>01</strong> / 07</div>
-        </div>
-        <span class="step-tag">Attract mode</span>
-        <h2>Velkomstskjerm inviterer til å bestille</h2>
-        <p class="lede">
-          I hvilemodus viser kiosken en enkel, fullskjerm-invitasjon – Plorea-logo, stort
-          <em>Velkommen!</em> og en pulserende CTA. Et enkelt touch hvor som helst
-          på skjermen starter bestillingen.
-        </p>
-        <ul class="step-details">
-          <li>Fullskjerm-attract med høy kontrast og masse whitespace</li>
-          <li>Touch-området er hele skjermen, ikke bare knappen</li>
-          <li>Idle-timeout returnerer til attract etter inaktivitet</li>
-          <li>Subtil Plorea-footer nederst (brand-anchor)</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-01-welcome.webp" alt="Velkomstskjerm"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="kiosk-step-2">
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-02-dining.webp" alt="Spis her eller ta med"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">2</div>
-          <div class="step-progress">Steg <strong>02</strong> / 07</div>
-        </div>
-        <span class="step-tag">Dining mode</span>
-        <h2>Spis her eller ta med?</h2>
-        <p class="lede">
-          Enkelt binært valg som styrer resten av flyten: MVA-sats, køvisning
-          på kjøkkenet, og hvordan ordren ruter seg videre. To store touch-targets med ikon
-          – ingen lesing nødvendig.
-        </p>
-        <ul class="step-details">
-          <li>To likeverdige, store knapper med gode ikoner</li>
-          <li>Påvirker MVA-beregning (spis her 25% / ta med 15%)</li>
-          <li>Ruter til riktig KDS-skjerm på kjøkkenet</li>
-          <li>Tilbake-knapp øverst til venstre</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="kiosk-step-3">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">3</div>
-          <div class="step-progress">Steg <strong>03</strong> / 07</div>
-        </div>
-        <span class="step-tag">Browse</span>
-        <h2>Meny med handlekurv i sidefelt</h2>
-        <p class="lede">
-          Horisontalt layout utnytter bredden: kategorier som chip-rad øverst, produkter i
-          et tett 7-kolonne-grid med store bilder, og <em>Min bestilling</em> synlig hele tiden
-          til høyre. Gjesten mister aldri oversikten.
-        </p>
-        <ul class="step-details">
-          <li>Chip-rad: Mat, Dessert, Drikke</li>
-          <li>Store produktkort med bilde, navn og pris</li>
-          <li>Permanent handlekurv-sidebar (tom tilstand med ikon)</li>
-          <li>Tett grid utnytter landskap-formatet</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-03-menu.webp" alt="Menyvisning"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="kiosk-step-4">
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-04-product.webp" alt="Produktmodal"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">4</div>
-          <div class="step-progress">Steg <strong>04</strong> / 07</div>
-        </div>
-        <span class="step-tag">Configure</span>
-        <h2>Produktmodal med størrelser og modifiers</h2>
-        <p class="lede">
-          Trykk på et produkt dimmer menyen og åpner en sentrert modal med fullt produktbilde,
-          obligatorisk størrelsesvelger og valgfrie <em>Fjern</em>-modifiers. Lik flyt som på
-          mobil – samme motor.
-        </p>
-        <ul class="step-details">
-          <li>Bakgrunnen dimmes for å sentrere oppmerksomheten</li>
-          <li>Størrelser: Family 45cm, Large 35cm, Medium 30cm, Small 25cm</li>
-          <li>Modifiers: Without Tomato / Onion / Dressing / No Tomato Sauce</li>
-          <li>CTA viser akkumulert pris basert på valgene</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="kiosk-step-5">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">5</div>
-          <div class="step-progress">Steg <strong>05</strong> / 07</div>
-        </div>
-        <span class="step-tag">Review</span>
-        <h2>Handlekurv oppdatert i sidefelt</h2>
-        <p class="lede">
-          Etter lagt til i kurv kollapser modalen og sidefeltet oppdateres umiddelbart: produktlinje
-          med thumbnail, modifier-tekst, antall-stepper og slett-ikon. Nederst vises subtotal,
-          MVA, antall varer, total – og primær CTA <em>Betal</em>.
-        </p>
-        <ul class="step-details">
-          <li>Produktkort får counter-badge øverst til høyre (1)</li>
-          <li>Sidefelt: Subtotal, MVA, antall varer, Totalt</li>
-          <li>Gjesten kan fortsette å handle eller gå til betaling</li>
-          <li>Sekundær: <em>Avbryt ordre</em> (tømmer kurven)</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-05-cart.webp" alt="Handlekurv med produkt"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="kiosk-step-6">
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-06-phone.webp" alt="Oppgi telefonnummer"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">6</div>
-          <div class="step-progress">Steg <strong>06</strong> / 07</div>
-        </div>
-        <span class="step-tag">Identify</span>
-        <h2>Telefonnummer i sidefelt</h2>
-        <p class="lede">
-          Før betaling ber kiosken om mobilnummer for SMS-oppdatering – direkte i sidefeltet så
-          menyen fortsatt er synlig i bakgrunnen. Landkode forhåndsutfylles. On-screen keyboard
-          åpner fra bunn når input aktiveres.
-        </p>
-        <ul class="step-details">
-          <li>Landkodevelger med flagg, default +47</li>
-          <li>GDPR-vennlig: kun nødvendig data</li>
-          <li>Integrert med Plorea SMS-service (PLBR-1128-serien)</li>
-          <li>Tilbake-knapp for å gå tilbake til kurv</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="kiosk-step-7">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">7</div>
-          <div class="step-progress">Steg <strong>07</strong> / 07</div>
-        </div>
-        <span class="step-tag">Complete</span>
-        <h2>Bekreftelse med hentested og kvitteringsvalg</h2>
-        <p class="lede">
-          Etter vellykket betaling viser sidefeltet en tydelig kvittering: grønt ✓, ordrenummer,
-          produktlinjer med MVA, og hentested. Gjesten kan skrive ut kvittering, få den på SMS –
-          eller begge deler – og starte en ny bestilling.
-        </p>
-        <ul class="step-details">
-          <li>Ordrenummer #, produktlinjer og total med MVA</li>
-          <li>Hent her: lokasjonsnavn fra Ops Control</li>
-          <li>SMS-oppdateringer sendes til oppgitt nummer</li>
-          <li><em>Skriv ut</em> for fysisk kvittering på termoprinter</li>
-          <li><em>Ny bestilling</em> resetter kiosken uten omstart</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen" style="aspect-ratio: 1568 / 740; position: relative;">
-          <div class="screen-placeholder">
-            <div class="ph-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="ph-title">Bekreftelsesskjerm</div>
-            <div class="ph-sub">Endelig skjermbilde med hentested, SMS-kvittering og utskriftsvalg kommer fra demomiljøet.</div>
-            <div class="ph-badge">Kommer snart</div>
-          </div>
-        </div></div>
-      </div>
-    </article>
-
-  </section>
-
-  <section class="edge-section" id="kiosk-edge">
-    <div class="edge-grid">
-      <div class="edge-copy">
-        <div class="edge-eyebrow">Edge case · Ikke en del av happy path</div>
-        <h2>Betalingen feilet – hva nå?</h2>
-        <p class="edge-sub">
-          Samme underliggende feilhåndtering som i QR-flyten, men presentert i sidefeltet så
-          menyen fortsatt er synlig i bakgrunnen. Kunden kan prøve igjen eller avbryte uten å miste kurven.
-        </p>
-        <h3>Hva gjesten ser</h3>
-        <ul class="step-details">
-          <li>Rødt ✕-ikon i sidefeltet – menyen står stille bak</li>
-          <li>Kort forklaring uten teknisk sjargong</li>
-          <li>To like-verdige handlinger: <em>Avbryt</em> eller <em>Prøv igjen</em></li>
-          <li>Handlekurven bevares</li>
-        </ul>
-        <h3 style="margin-top: 22px;">Hva driften ser</h3>
-        <ul class="step-details">
-          <li>Ordren logges som <em>payment_failed</em> i Ops Control</li>
-          <li>Personalet kan assistere direkte ved kiosken</li>
-          <li>Alle feilede betalinger kan spores i partner-portalen</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk"><div class="kiosk-screen"><img src="images/kl-edge-error.webp" alt="Betalingen mislyktes i sidefelt"></div></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="end-cta">
-    <div class="end-cta-inner">
-      <div>
-        <h3>Selvbetjent, men aldri selvlaget rot.</h3>
-        <p>Plorea Kiosk reduserer køtid, øker snittordre via modifiers og cross-sell, og frigjør personalet til å gjøre det de gjør best – servere gjestene.</p>
-      </div>
-      <div class="end-stats">
-        <div class="end-stat"><div class="n">7</div><div class="l">steg</div></div>
-        <div class="end-stat"><div class="n">16:9</div><div class="l">landskap</div></div>
-        <div class="end-stat"><div class="n">1</div><div class="l">touchscreen</div></div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<!-- ============================================================ -->
-<!-- FLOW 3: SELF-SERVICE KIOSK (PORTRAIT)                        -->
-<!-- ============================================================ -->
-<div class="flow-container" data-flow="kiosk-portrait">
-
-  <section class="hero">
-    <div class="eyebrow">Demo · Selvbetjent kiosk · Portrett</div>
-    <h1 class="hero-title">Samme flyt, <span class="accent">stående terminal</span>.</h1>
-    <p class="hero-sub">
-      Stående selvbetjening-kiosk gir mer plass til kategorier og produktbilder, men krever en litt
-      annen layout: kategori-sidebar til venstre, produkter i midten, og handlekurven som flytende
-      modaler som reiser seg nedenfra. Åtte steg, rikere modifier-struktur.
-    </p>
-    <div class="hero-meta">
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-        Stående terminal
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Spis her / Ta med
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        Full modifier-struktur
-      </span>
-      <span class="chip">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Adyen-betaling
-      </span>
-    </div>
-    <div class="hero-actions">
-      <a class="btn-primary-cta" href="http://terminal.ploreasystems.com/kiosk?id=eyJpdiI6Ikx6Y3VyUWFJTEJTTHMzdEh2Mkl6VHc9PSIsInZhbHVlIjoiRWkrbTRuWW5tWm9KeG44NllLeHoxQT09IiwibWFjIjoiODY4MDFkNjFkMmZiZGE4MzYwYzFjNjdkZDJhMTc4YjZkZjFhOTYyYzc1Yzc5Y2M4NGFkMjdlOTU5ZTI4NzQ4ZiIsInRhZyI6IiJ9" target="_blank" rel="noopener noreferrer">
-        Åpne live-demo
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-      <span class="live-hint">Live i terminal.ploreasystems.com</span>
-    </div>
-  </section>
-
-  <section class="steps">
-
-    <article class="step" id="portrait-step-1">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">1</div>
-          <div class="step-progress">Steg <strong>01</strong> / 08</div>
-        </div>
-        <span class="step-tag">Attract mode</span>
-        <h2>Attract-modus på stående skjerm</h2>
-        <p class="lede">
-          Den stående orienteringen gir visuell tyngde til attract-skjermen – logo, velkomst og
-          pulserende CTA plassert midt i synsfeltet, uavhengig av om gjesten er stående eller sittende.
-        </p>
-        <ul class="step-details">
-          <li>Fullskjerm-attract med Plorea-branding</li>
-          <li>Touch-området er hele skjermen</li>
-          <li>Idle-timeout returnerer til attract etter inaktivitet</li>
-          <li>Samme attract-mønster som landskap-varianten</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-01-welcome.png" alt="Velkomstskjerm"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="portrait-step-2">
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-02-dining.png" alt="Spis her eller ta med"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">2</div>
-          <div class="step-progress">Steg <strong>02</strong> / 08</div>
-        </div>
-        <span class="step-tag">Dining mode</span>
-        <h2>Spis her eller ta med?</h2>
-        <p class="lede">
-          Samme binære valg som i landskap-flyten – bare justert for stående layout. To store,
-          kvadratiske touch-targets midt på skjermen, tilbake-knapp øverst til venstre.
-        </p>
-        <ul class="step-details">
-          <li>To likeverdige knapper med tydelige ikoner</li>
-          <li>Påvirker MVA-beregning (spis her 25% / ta med 15%)</li>
-          <li>Ruter til riktig KDS-skjerm på kjøkkenet</li>
-          <li>Stående layout gir god balanse i komposisjonen</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="portrait-step-3">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">3</div>
-          <div class="step-progress">Steg <strong>03</strong> / 08</div>
-        </div>
-        <span class="step-tag">Browse</span>
-        <h2>Meny med vertikal kategori-sidebar</h2>
-        <p class="lede">
-          I stående modus flyttes kategoriene til en tykk sidebar til venstre med store bilder og
-          etiketter – én tommel rekkevidde for høyrehendte og venstrehendte. Produktgridet i midten
-          utnytter bredden i et tett 4-kolonne-oppsett.
-        </p>
-        <ul class="step-details">
-          <li>Vertikal sidebar: Mat, Dessert, Drikke med bilde-ikoner</li>
-          <li>4-kolonne produktgrid fyller resten av skjermen</li>
-          <li>Handlekurv som sticky bunn-CTA når varer er lagt til</li>
-          <li>Cart-total og badge øverst til høyre</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-03-menu.png" alt="Menyvisning"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="portrait-step-4">
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-04-product.png" alt="Produktmodal med full modifier-struktur"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">4</div>
-          <div class="step-progress">Steg <strong>04</strong> / 08</div>
-        </div>
-        <span class="step-tag">Configure</span>
-        <h2>Produktmodal med full modifier-struktur</h2>
-        <p class="lede">
-          Stående format gir plass til den komplette modifier-strukturen i én modal: størrelser,
-          <em>Fjern</em>-valg, og et omfattende <em>Pizza topping</em>-bibliotek. Alt scrollbart
-          i samme vindu – ingen behov for flerstegs-guide.
-        </p>
-        <ul class="step-details">
-          <li><strong>Størrelser</strong> (obligatorisk): Family 45cm / Large 35cm / Medium 30cm / Small 25cm</li>
-          <li><strong>Fjern</strong>: Without Tomato / Onion / Dressing / Base – No Tomato Sauce</li>
-          <li><strong>Pizza topping</strong>: Olives, Pineapple, Rucola, Mushrooms, Jalapeños, Ham, Extra Pepperoni, Extra Cheese, Chèvre, Bell Peppers, Bacon, Thin Crust</li>
-          <li>CTA-pris oppdateres live med hvert valg</li>
-          <li>Lang liste er scrollbar innenfor modalen</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="portrait-step-5">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">5</div>
-          <div class="step-progress">Steg <strong>05</strong> / 08</div>
-        </div>
-        <span class="step-tag">Feedback</span>
-        <h2>Produkt lagt til – cart-total oppdateres</h2>
-        <p class="lede">
-          Etter <em>Legg i handlekurv</em> lukkes modalen og menyen oppdateres umiddelbart: cart-total
-          (606,00 kr) og badge-teller (2) i headeren, og en prominent <em>Se bestilling</em>-CTA nederst.
-          Gjesten kan fortsette å bygge ordren uten avbrudd.
-        </p>
-        <ul class="step-details">
-          <li>Cart-total oppdateres i header (606,00 kr)</li>
-          <li>Badge-teller viser antall varer (2)</li>
-          <li>Sticky bunn-CTA: <em>Se bestilling · 606,00 kr</em></li>
-          <li>Meny bevares fullt synlig – gjesten kan fortsette shopping</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-05-cart.png" alt="Meny med 2 varer i kurv"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="portrait-step-6">
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-06-order.png" alt="Min bestilling med 2 varianter"></div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">6</div>
-          <div class="step-progress">Steg <strong>06</strong> / 08</div>
-        </div>
-        <span class="step-tag">Review</span>
-        <h2>Oversikt – samme produkt, ulike konfigurasjoner</h2>
-        <p class="lede">
-          Min bestilling reiser seg som en bottom-sheet og viser produktlinjene med full modifier-tekst.
-          Samme produkt kan bestilles flere ganger med ulike konfigurasjoner – f.eks. en
-          <em>Pizza Pepperoni Family 45cm Without Tomato</em> (331 kr) og en
-          <em>Pizza Pepperoni Large 35cm Without Dressing</em> (275 kr) som to separate linjer.
-        </p>
-        <ul class="step-details">
-          <li>Hver konfigurasjon vises som separat linje</li>
-          <li>Modifier-tekst under hvert produktnavn</li>
-          <li>Antall-stepper og slett-ikon per linje</li>
-          <li>Meny-knapp (tre prikker) for redigering av modifiers</li>
-          <li>Subtotal, MVA og Varer-teller før total</li>
-        </ul>
-      </div>
-    </article>
-
-    <article class="step" id="portrait-step-7">
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">7</div>
-          <div class="step-progress">Steg <strong>07</strong> / 08</div>
-        </div>
-        <span class="step-tag">Identify</span>
-        <h2>Telefonnummer som sentrert modal</h2>
-        <p class="lede">
-          På stående kiosk åpner telefonnummer-steget som en sentrert modal over menyen. Den dimmede
-          bakgrunnen fokuserer oppmerksomheten uten å fjerne konteksten. Landkode forhåndsutfylles
-          basert på lokasjon.
-        </p>
-        <ul class="step-details">
-          <li>Sentrert modal med dimmet bakgrunn</li>
-          <li>Landkodevelger med flagg, default +47</li>
-          <li>GDPR-vennlig: kun nødvendig data</li>
-          <li>On-screen keyboard åpner ved aktivering av input</li>
-          <li>Tilbake-knapp for å returnere til kurv</li>
-        </ul>
-      </div>
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-07-phone.png" alt="Oppgi telefonnummer"></div></div>
-      </div>
-    </article>
-
-    <article class="step reverse" id="portrait-step-8">
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen">
-          <div style="aspect-ratio: 3/5; position: relative;">
-            <div class="screen-placeholder">
-              <div class="ph-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              </div>
-              <div class="ph-title">Bekreftelsesskjerm</div>
-              <div class="ph-sub">Endelig skjermbilde med kvittering, hentested og SMS kommer fra demomiljøet.</div>
-              <div class="ph-badge">Kommer snart</div>
-            </div>
-          </div>
-        </div></div>
-      </div>
-      <div class="step-content">
-        <div class="step-num-wrapper">
-          <div class="step-num">8</div>
-          <div class="step-progress">Steg <strong>08</strong> / 08</div>
-        </div>
-        <span class="step-tag">Complete</span>
-        <h2>Bekreftelse med hentested og kvittering</h2>
-        <p class="lede">
-          Etter vellykket betaling viser modalen en tydelig kvittering: grønt ✓, ordrenummer,
-          produktlinjer med MVA, og hentested. Gjesten kan skrive ut kvittering, få den på SMS –
-          eller begge deler – og starte en ny bestilling.
-        </p>
-        <ul class="step-details">
-          <li>Ordrenummer #, produktlinjer og total med MVA</li>
-          <li>Hent her: lokasjonsnavn fra Ops Control</li>
-          <li>SMS-oppdateringer sendes til oppgitt nummer</li>
-          <li><em>Skriv ut</em> for fysisk kvittering på termoprinter</li>
-          <li><em>Ny bestilling</em> resetter kiosken uten omstart</li>
-        </ul>
-      </div>
-    </article>
-
-  </section>
-
-  <section class="edge-section" id="portrait-edge">
-    <div class="edge-grid">
-      <div class="step-media">
-        <div class="kiosk-portrait"><div class="kiosk-portrait-screen"><img src="images/kp-edge-error.png" alt="Betalingen mislyktes"></div></div>
-      </div>
-      <div class="edge-copy">
-        <div class="edge-eyebrow">Edge case · Ikke en del av happy path</div>
-        <h2>Betalingen feilet – modalt varsel</h2>
-        <p class="edge-sub">
-          På stående kiosk presenteres feilscenarioet som en sentrert modal over menyen. Gjesten kan
-          prøve igjen eller avbryte uten å miste kurven – menyen og totalen står fortsatt i bakgrunnen.
-        </p>
-        <h3>Hva gjesten ser</h3>
-        <ul class="step-details">
-          <li>Rødt ✕-ikon i sentrert modal – menyen står stille bak</li>
-          <li>Kort forklaring uten teknisk sjargong</li>
-          <li>To like-verdige handlinger: <em>Avbryt</em> eller <em>Prøv igjen</em></li>
-          <li>Handlekurven bevares</li>
-        </ul>
-        <h3 style="margin-top: 22px;">Hva driften ser</h3>
-        <ul class="step-details">
-          <li>Ordren logges som <em>payment_failed</em> i Ops Control</li>
-          <li>Personalet kan assistere direkte ved kiosken</li>
-          <li>Alle feilede betalinger kan spores i partner-portalen</li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <section class="end-cta">
-    <div class="end-cta-inner">
-      <div>
-        <h3>Stående kiosk – kompakt footprint, full funksjonalitet.</h3>
-        <p>Ideell for trange lokaler og selvbetjening ved inngangen. Samme Plorea-motor som landskap-varianten, bare optimalisert for vertikal montering.</p>
-      </div>
-      <div class="end-stats">
-        <div class="end-stat"><div class="n">8</div><div class="l">steg</div></div>
-        <div class="end-stat"><div class="n">9:16</div><div class="l">portrett</div></div>
-        <div class="end-stat"><div class="n">1</div><div class="l">touchscreen</div></div>
-      </div>
-    </div>
-  </section>
-
-</div>
-
-<footer>
-  <div>Plorea Systems · Order Flow Demo</div>
-  <div>Design: <a href="#">Plorea Design System v2.9</a></div>
 </footer>
-
 <script>
-  // ===== Theme switching =====
-  const themeButtons = document.querySelectorAll('[data-theme-btn]');
-  const savedTheme = localStorage.getItem('plorea-theme') || 'light';
-  document.body.setAttribute('data-theme', savedTheme);
-  themeButtons.forEach(b => b.classList.toggle('active', b.dataset.themeBtn === savedTheme));
-
-  themeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const theme = btn.getAttribute('data-theme-btn');
-      document.body.setAttribute('data-theme', theme);
-      localStorage.setItem('plorea-theme', theme);
-      themeButtons.forEach(b => b.classList.toggle('active', b === btn));
+(function () {
+  var root = document.documentElement;
+  var buttons = document.querySelectorAll('[data-set-theme]');
+  var meta = document.querySelector('meta[name="theme-color"]');
+  var bars = { light: '#FFFFFF', dark: '#120428', dim: '#1C1B24' };
+  function apply(theme) {
+    root.setAttribute('data-theme', theme);
+    buttons.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-set-theme') === theme)); });
+    if (meta) meta.setAttribute('content', bars[theme]);
+  }
+  apply(root.getAttribute('data-theme') || 'light');
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      var theme = b.getAttribute('data-set-theme');
+      apply(theme);
+      try { localStorage.setItem('done-demo-theme', theme); } catch (e) {}
     });
   });
 
-  // ===== Flow tab switching =====
-  const flowButtons = document.querySelectorAll('[data-flow-btn]');
-  const flowContainers = document.querySelectorAll('.flow-container');
-  const stepDotsContainers = document.querySelectorAll('.step-dots');
-  const tabIndicator = document.getElementById('tabIndicator');
-
-  function positionIndicator() {
-    const active = document.querySelector('.flow-tab.active');
-    if (!active || !tabIndicator) return;
-    const parentRect = active.parentElement.getBoundingClientRect();
-    const rect = active.getBoundingClientRect();
-    tabIndicator.style.left = (rect.left - parentRect.left) + 'px';
-    tabIndicator.style.width = rect.width + 'px';
-  }
-
-  function switchFlow(flowName, {scroll = false} = {}) {
-    flowButtons.forEach(b => {
-      const isActive = b.dataset.flowBtn === flowName;
-      b.classList.toggle('active', isActive);
-      b.setAttribute('aria-selected', isActive ? 'true' : 'false');
-    });
-    flowContainers.forEach(c => {
-      c.classList.toggle('active', c.dataset.flow === flowName);
-    });
-    stepDotsContainers.forEach(c => {
-      c.style.display = c.dataset.for === flowName ? '' : 'none';
-    });
-    positionIndicator();
-    history.replaceState(null, '', '#' + flowName);
-
-    if (scroll) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-    // Reset active step dot
-    const dotsBar = document.querySelector(`.step-dots[data-for="${flowName}"]`);
-    if (dotsBar) {
-      dotsBar.querySelectorAll('.step-dot').forEach((d, i) => d.classList.toggle('active', i === 0));
-    }
-    // Re-observe the new flow's steps for active state
-    setupStepObserver();
-  }
-
-  flowButtons.forEach(btn => {
-    btn.addEventListener('click', () => switchFlow(btn.dataset.flowBtn, { scroll: true }));
-  });
-
-  // Initialize from hash
-  const initialHash = window.location.hash.replace('#', '');
-  if (initialHash === 'kiosk-landscape') {
-    switchFlow('kiosk-landscape');
-  } else if (initialHash === 'kiosk-portrait') {
-    switchFlow('kiosk-portrait');
-  } else if (initialHash === 'qr') {
-    switchFlow('qr');
-  } else if (initialHash.startsWith('kiosk-')) {
-    switchFlow('kiosk-landscape');
-  } else if (initialHash.startsWith('portrait-')) {
-    switchFlow('kiosk-portrait');
-  } else if (initialHash.startsWith('qr-')) {
-    switchFlow('qr');
-  }
-
-  // Reposition indicator on resize
-  window.addEventListener('resize', positionIndicator);
-  // Initial position after fonts load
-  setTimeout(positionIndicator, 50);
-  document.fonts?.ready?.then(positionIndicator);
-
-  // ===== Step dot active state via IntersectionObserver =====
-  let stepObserver = null;
-  function setupStepObserver() {
-    if (stepObserver) stepObserver.disconnect();
-
-    const activeFlow = document.querySelector('.flow-container.active');
-    if (!activeFlow) return;
-
-    const steps = activeFlow.querySelectorAll('.step, .edge-section');
-    const activeDotsBar = document.querySelector(`.step-dots[data-for="${activeFlow.dataset.flow}"]`);
-    if (!activeDotsBar) return;
-
-    stepObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const id = entry.target.id;
-          const dot = activeDotsBar.querySelector(`a[href="#${id}"]`);
-          if (dot) {
-            activeDotsBar.querySelectorAll('.step-dot').forEach(d => d.classList.remove('active'));
-            dot.classList.add('active');
-            // scroll dot into view in the horizontal nav
-            dot.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-          }
+  if (!('IntersectionObserver' in window)) return;
+  document.querySelectorAll('.flow').forEach(function (flow) {
+    var links = flow.querySelectorAll('.stepnav a');
+    var nav = flow.querySelector('.stepnav ol');
+    var current = null;
+    function mark(id) {
+      if (id === current) return;
+      current = id;
+      links.forEach(function (a) {
+        var on = a.getAttribute('href') === '#' + id;
+        if (on) {
+          a.setAttribute('aria-current', 'step');
+          var left = a.parentElement.offsetLeft - 16;
+          if (nav && (left < nav.scrollLeft || left + a.offsetWidth > nav.scrollLeft + nav.clientWidth)) nav.scrollTo({ left: left, behavior: 'smooth' });
+        } else {
+          a.removeAttribute('aria-current');
         }
       });
-    }, {
-      rootMargin: '-40% 0px -50% 0px',
-      threshold: 0
-    });
-
-    steps.forEach(s => stepObserver.observe(s));
-  }
-  setupStepObserver();
-
-  // ===== Smooth scroll for in-page anchors =====
-  document.addEventListener('click', (e) => {
-    const link = e.target.closest('a[href^="#"]');
-    if (!link) return;
-    const href = link.getAttribute('href');
-    if (href.length <= 1) return;
-    const target = document.querySelector(href);
-    if (!target) return;
-    // If the link points to a step in a different flow, switch flow first
-    const targetFlow = target.closest('.flow-container');
-    if (targetFlow && !targetFlow.classList.contains('active')) {
-      e.preventDefault();
-      switchFlow(targetFlow.dataset.flow);
-      setTimeout(() => target.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
     }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) mark(e.target.id); });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    flow.querySelectorAll('.step').forEach(function (s) { io.observe(s); });
   });
+})();
 
-  // ===== Scroll reveal =====
-  const revealIO = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('in-view');
-        revealIO.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.step, .edge-section, .end-cta-inner').forEach(el => {
-    el.classList.add('reveal');
-    revealIO.observe(el);
-  });
 </script>
-
 </body>
 </html>
