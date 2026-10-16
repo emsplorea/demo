@@ -47,6 +47,7 @@
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll('[data-sim]').forEach(function (sim) {
     var data = JSON.parse(sim.getAttribute('data-steps-json'));
+    var t = JSON.parse(sim.getAttribute('data-labels') || '{"step":"Steg","of":"av","play":"Spill av","pause":"Pause"}');
     var list = sim.querySelector('[data-steps]');
     var prev = sim.querySelector('[data-prev]');
     var next = sim.querySelector('[data-next]');
@@ -101,13 +102,13 @@
       }
       prev.disabled = index === 0;
       next.disabled = index === steps.length - 1;
-      live.textContent = 'Steg ' + (index + 1) + ' av ' + steps.length + ': ' + steps[index][0] + '. ' + steps[index][1];
+      live.textContent = t.step + ' ' + (index + 1) + ' ' + t.of + ' ' + steps.length + ': ' + steps[index][0] + '. ' + steps[index][1];
     }
     function stop() {
       clearInterval(timer);
       timer = null;
       play.setAttribute('aria-pressed', 'false');
-      play.textContent = 'Spill av';
+      play.textContent = t.play;
     }
     prev.addEventListener('click', function () { stop(); go(index - 1); });
     next.addEventListener('click', function () { stop(); go(index + 1); });
@@ -115,7 +116,7 @@
       if (timer) { stop(); return; }
       if (index === data.steps[scenario].length - 1) go(0);
       play.setAttribute('aria-pressed', 'true');
-      play.textContent = 'Pause';
+      play.textContent = t.pause;
       timer = setInterval(function () {
         if (index >= data.steps[scenario].length - 1) { stop(); return; }
         go(index + 1);
