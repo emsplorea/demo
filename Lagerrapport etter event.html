@@ -445,6 +445,32 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
 .need-demo { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: 0.03em; }
 @media (max-width: 500px) { .need { grid-template-columns: minmax(0, 1fr); } }
 
+/* Arrangement screen */
+.timeline-svg { overflow-x: auto; }
+.timeline-svg svg { width: 100%; min-width: 560px; height: auto; display: block; }
+.seg-head, .seg-row { display: grid; grid-template-columns: minmax(0, 1.6fr) 118px 118px 130px 110px 44px; gap: 8px; align-items: center; }
+.seg-head { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.seg-rows { display: grid; gap: 8px; }
+.seg-row select { width: 100%; min-height: 44px; font-size: 14px; padding: 6px 30px 6px 10px; background-position: calc(100% - 16px) 19px, calc(100% - 11px) 19px; }
+.seg-row .inp { width: 100%; }
+@media (max-width: 760px) {
+  .seg-head { display: none; }
+  .seg-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 10px; border: 1px solid var(--border); border-radius: 10px; }
+  .seg-row > :first-child { grid-column: 1 / -1; }
+}
+.split2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+table.matrix th { white-space: nowrap; }
+.mx-h { display: block; max-width: 96px; overflow: hidden; text-overflow: ellipsis; }
+table.matrix th small { display: block; font-weight: 500; }
+td.mx-c { text-align: center; }
+td.mx-c.peak { background: var(--accent-soft); }
+td.mx-c input { width: 20px; height: 20px; accent-color: var(--accent-fill); }
+table.matrix td .inp { min-width: 150px; font-size: 14px; }
+.delay { display: inline-flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.delay select { min-height: 44px; font-size: 14px; }
+.auto-factors { display: flex; flex-wrap: wrap; gap: 6px; }
+.event-head .field select { min-width: 220px; }
+
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -640,10 +666,30 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
 <!-- ============ MØTE ============ -->
 <section id="mote">
 <details class="fold" open>
-  <summary><span class="sum-text"><span class="eyebrow">Fra møtet 20. oktober</span><h2>Fem nye behov, fra varene kommer til de går tilbake</h2></span><span class="chev" aria-hidden="true"></span></summary>
+  <summary><span class="sum-text"><span class="eyebrow">Fra møtet 20. oktober</span><h2>Behovene fra møtet, fra planlegging til lagerverdi</h2></span><span class="chev" aria-hidden="true"></span></summary>
   <div class="fold-body stack-lg">
   <p class="prose muted">Hvert punkt fra møtet har fått en egen skjerm i demoen under. Rekkefølgen følger eventet: før, under og etter.</p>
   <div class="needs">
+    <article class="need">
+      <span class="need-n">0</span>
+      <div class="need-body">
+        <h3>Arrangement: program, pauser og publikum <span class="pill">Lagt til etter møtet</span></h3>
+        <p><b>Behovet:</b> resten av løsningen må vite hvordan kvelden ser ut. Det gjelder når dørene åpner, når pausene kommer, og hvor mange som er i salen. På en konsert er det flere band, og publikum kommer gjerne først til hovedakten.</p>
+        <p><b>Forslaget:</b> ett arrangement som samler alle salgsstedene. Det har:</p>
+        <ul class="need-list">
+          <li><b>Grunninfo:</b> type, dato, kapasitet, billetter og aldersgrense.</li>
+          <li><b>Program:</b> en tidslinje med deler (oppvarming, omganger, pause, band, ombygging). Hver del har forventet publikum og er merket som salgstopp, normal eller rolig.</li>
+          <li><b>Skjenketider:</b> automatisk alkoholstopp i kassene og på QR.</li>
+          <li><b>QR:</b> åpnings- og stengetider, og forhåndsbestilling til pausen.</li>
+          <li><b>Salgssteder:</b> hvilke som er åpne i hver del, antall kasser og ansvarlig.</li>
+          <li><b>Forsinkelser:</b> resten av programmet flyttes med ett trykk.</li>
+          <li><b>Maler:</b> for fotball og konsert.</li>
+        </ul>
+        <p>Programmet driver behovsplanen, prognosene og kassevarslene. Etterpå lagres de faktiske tidene, så neste plan blir bedre.</p>
+        <p class="internal note-int"><b>Internt:</b> i dag har hver enhetsgruppe sitt eget event med bare start, slutt og status. Arrangementet blir en ny enhet over dem, og det svarer på beslutning 3.</p>
+        <span class="need-demo">Demo: skjerm 0, Arrangement</span>
+      </div>
+    </article>
     <article class="need">
       <span class="need-n">1</span>
       <div class="need-body">
@@ -724,20 +770,21 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
   <summary><span class="sum-text"><span class="eyebrow">2 · Demo</span><h2>Fra varemottak til lagerverdi</h2></span><span class="chev" aria-hidden="true"></span></summary>
   <div class="fold-body">
   <div class="stack prose">
-    <p class="muted">Demoen følger eventet i sju skjermer. <b>Før eventet:</b> varemottak med følgeseddel og behovsplan ut fra billetter. <b>Under eventet:</b> prognoser for når varer går tom, hvor man henter fra og hvilke kasser som kan stenges. <b>Etter eventet:</b> stenging med lagerkontroll, samlet returforslag, lagerrapport og lagerverdi. Tellingen du gjør i stengingen brukes i retur, rapport og lagerverdi. Alle tall er eksempeldata.</p>
+    <p class="muted">Demoen følger eventet i åtte skjermer. <b>Før eventet:</b> arrangementet med program, skjenketider og salgssteder, varemottak med følgeseddel, og behovsplan ut fra billetter. Bytt mal i Arrangement fra fotball til konsert, så følger behovsplanen og prognosene etter. <b>Under eventet:</b> prognoser for når varer går tom, hvor man henter fra og hvilke kasser som kan stenges. <b>Etter eventet:</b> stenging med lagerkontroll, samlet returforslag, lagerrapport og lagerverdi. Tellingen du gjør i stengingen brukes i retur, rapport og lagerverdi. Alle tall er eksempeldata.</p>
   </div>
   </div>
 </details>
 
   <div class="window" id="win">
     <div class="window-bar">
-      <div class="crumbs">Admin <span aria-hidden="true">›</span> Enhetsgrupper <span aria-hidden="true">›</span> <span id="crumbGroup">Hovedlager</span> <span aria-hidden="true">›</span> <b id="crumbPage">Registrer varemottak</b></div>
+      <div class="crumbs">Admin <span aria-hidden="true">›</span> Enhetsgrupper <span aria-hidden="true">›</span> <span id="crumbGroup">Arrangementer</span> <span aria-hidden="true">›</span> <b id="crumbPage">Planlegg arrangement</b></div>
       <span class="pill">Eksempeldata</span>
     </div>
     <div class="window-body">
       <nav class="lifecycle" aria-label="Velg skjerm">
         <div class="lc-group"><span>Før eventet</span><div class="seg">
-          <button type="button" id="v-receipt" aria-pressed="true"><span class="n">1</span>Varemottak</button>
+          <button type="button" id="v-arr" aria-pressed="true"><span class="n">0</span>Arrangement</button>
+          <button type="button" id="v-receipt" aria-pressed="false"><span class="n">1</span>Varemottak</button>
           <button type="button" id="v-plan" aria-pressed="false"><span class="n">2</span>Behovsplan</button>
         </div></div>
         <div class="lc-group"><span>Under eventet</span><div class="seg">
@@ -751,7 +798,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
         </div></div>
       </nav>
 
-      <div class="view" id="receiptView"></div>
+      <div class="view" id="arrView"></div>
+      <div class="view" id="receiptView" hidden></div>
       <div class="view" id="planView" hidden></div>
       <div class="view" id="forecastView" hidden></div>
       <div class="view" id="returnView" hidden></div>
@@ -964,7 +1012,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
         <li><span class="who">BE</span>Profiler for behovsplan, og lært forbruk per 100 tilskuere fra tidligere eventer.</li>
         <li><span class="who">BE</span>Prognoseendepunkt: når hver vare går tom, hvor påfyllet bør hentes fra, og hvilke kasser som kan stenges.</li>
         <li><span class="who">BE</span>Samlet returforslag, flytting av alt lager til neste event, og lagerverdi.</li>
-        <li><span class="who">FE</span>Varemottak med vedlegg, Behovsplan, fanen Prognoser, Retur og Lagerverdi.</li>
+        <li><span class="who">BE</span>Arrangement over salgsstedenes eventer. Det har program med deler og publikum, skjenketider med automatisk alkoholstopp, QR-tider, åpne salgssteder per del, forsinkelser og maler.</li>
+        <li><span class="who">FE</span>Arrangement, varemottak med vedlegg, Behovsplan, fanen Prognoser, Retur og Lagerverdi.</li>
       </ul>
     </div>
   </div>
@@ -974,7 +1023,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     <ol class="decisions">
       <li><strong>Skal sluttelling være obligatorisk før eventet kan stenges?</strong><span class="rec"><b>Anbefaling:</b> eget steg i stengeflyten, som kan hoppes over med en begrunnelse. Uten telling viser rapporten forventet beholdning og ingen differanse.</span></li>
       <li><strong>Hvilken kostpris gjelder for kronebeløp?</strong><span class="rec"><b>Anbefaling:</b> siste innkjøpspris fra varemottak, med varens kostpris som reserve. Varens kostpris settes for hånd og blir fort utdatert.</span></li>
-      <li><strong>Hva er en kampdag på arena?</strong><span class="rec"><b>Anbefaling:</b> i første omgang alle eventer som var aktive samme dag på lokasjonen. Et eget «arrangement» som binder eventene sammen kan komme senere hvis det trengs.</span></li>
+      <li><strong>Hva er en kampdag på arena?</strong><span class="rec"><b>Anbefaling, endret 20.10:</b> et eget arrangement (skjerm 0) som salgsstedenes eventer henger under. Det gir program, skjenketider og én samlet rapport for hele kvelden.</span></li>
+      <li><strong>Skal alkoholen stoppe automatisk ved siste skjenk?</strong><span class="rec"><b>Anbefaling:</b> ja, i både kassene og på QR. Ansvarlig kan overstyre med PIN hvis bevillingen gjelder lenger den kvelden.</span></li>
       <li><strong>Skal toleransen for differanse kunne settes per varegruppe?</strong><span class="rec"><b>Anbefaling:</b> ja, med 0 som standard. Barer med fatøl får en egen toleranse.</span></li>
       <li><strong>Hvem bygger backend, jeg eller Cicero?</strong><span class="rec">Versjon 1 er mest backend. Feilen med svinn bør uansett bli en egen sak, fordi den gjelder alle kunder med eventer.</span></li>
       <li><strong>Skal følgesedler leses automatisk, og med hvilken tjeneste?</strong><span class="rec"><b>Anbefaling:</b> vedlegg først. Automatisk lesing blir en egen sak når tjenesten er valgt og det er avklart at følgesedler kan sendes dit.</span></li>
@@ -1691,6 +1741,249 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
   }
   function showToast(id, text) { var t = document.getElementById(id); if (t) { t.textContent = text; t.hidden = false; } }
 
+  /* ---------- 0. Arrangement ---------- */
+  var SEG_TYPES = { peak: { label: 'Salgstopp', k: 1.4 }, normal: { label: 'Normal', k: 1 }, calm: { label: 'Rolig', k: 0.3 } };
+  var ARR_TYPES = { fotball: 'Fotballkamp', konsert: 'Konsert', annet: 'Annet arrangement' };
+  function seg(name, start, end, type, crowd) { return { name: name, start: start, end: end, type: type, crowd: crowd }; }
+  var TEMPLATES = {
+    fotball: { label: 'Fotball: Eliteserien hjemmekamp', name: 'Eliteserien: hjemmekamp', type: 'fotball', date: 'Søndag 1. november', capacity: '16500', tickets: '14200', turnout: '88', age: 'alle',
+      firstCall: '16:45', lastCall: '19:35', autoStop: true, qrOpen: '16:30', qrClose: '19:52', preorder: true, preorderSeg: 3,
+      segs: [seg('Dørene åpner', '16:45', '17:30', 'normal', '4000'), seg('Før avspark', '17:30', '18:00', 'peak', '10000'), seg('1. omgang', '18:00', '18:47', 'calm', '12500'),
+        seg('Pause', '18:47', '19:03', 'peak', '12500'), seg('2. omgang', '19:03', '19:52', 'calm', '12500'), seg('Etter kampslutt', '19:52', '20:30', 'normal', '6000')],
+      closedCells: {} },
+    konsert: { label: 'Konsert: tre band', name: 'Konsert: Nordlys med gjester', type: 'konsert', date: 'Lørdag 14. november', capacity: '20000', tickets: '16500', turnout: '95', age: '18',
+      firstCall: '17:30', lastCall: '22:45', autoStop: true, qrOpen: '17:15', qrClose: '22:45', preorder: true, preorderSeg: 4,
+      segs: [seg('Dørene åpner', '17:30', '18:30', 'normal', '4000'), seg('Support: Kveldsrød', '18:30', '19:10', 'calm', '7000'), seg('Ombygging', '19:10', '19:40', 'peak', '8000'),
+        seg('Support: Halvmåne', '19:40', '20:30', 'calm', '11000'), seg('Ombygging', '20:30', '21:00', 'peak', '13500'), seg('Hovedakt: Nordlys', '21:00', '22:45', 'calm', '15500'),
+        seg('Ekstranummer', '22:45', '23:00', 'calm', '15500'), seg('Etter konserten', '23:00', '23:30', 'normal', '6000')],
+      closedCells: { lounge: [0, 1, 2] } }
+  };
+  (function loadCustom() {
+    var raw = store('lr-arr-custom');
+    if (!raw) return;
+    try { var t = JSON.parse(raw); if (t && t.segs) TEMPLATES.egen = t; } catch (e) { raw = null; }
+  })();
+  var arr = null, CURVE = null, arrMsg = '', arrDelay = { idx: 0 };
+  function loadTemplate(key) {
+    var t = JSON.parse(JSON.stringify(TEMPLATES[key]));
+    arr = t; arr.tpl = key;
+    arr.open = {}; arr.tills = {}; arr.lead = {}; arr.sms = {};
+    KIOSKS.forEach(function (k) {
+      var closed = (t.closedCells && t.closedCells[k.id]) || [];
+      arr.open[k.id] = arr.segs.map(function (s, i) { return closed.indexOf(i) < 0; });
+      arr.tills[k.id] = String(k.tills);
+      arr.lead[k.id] = (t.lead && t.lead[k.id]) || ('Vaktleder ' + k.name.replace('Kiosk ', '').replace('Bar ', ''));
+      arr.sms[k.id] = (t.sms && t.sms[k.id]) || '';
+    });
+    CURVE = null; arrMsg = '';
+  }
+  loadTemplate('fotball');
+  function arrChanged() { CURVE = null; }
+  function attendees() { return Math.round(num(arr.tickets) * num(arr.turnout) / 100); }
+  function arrBounds() {
+    var s = Infinity, e = -Infinity;
+    arr.segs.forEach(function (x) { s = Math.min(s, toMin(x.start)); e = Math.max(e, toMin(x.end)); });
+    return { start: s, end: e };
+  }
+  function segAt(m) {
+    for (var i = 0; i < arr.segs.length; i++) { var x = arr.segs[i]; if (m >= toMin(x.start) && m < toMin(x.end)) return { seg: x, idx: i }; }
+    return null;
+  }
+  function buildCurve() {
+    var b = arrBounds(), n = Math.max(1, b.end - b.start), fc0 = toMin(arr.firstCall), lc = toMin(arr.lastCall);
+    function mk(alc) {
+      var w = new Array(n), sum = 0;
+      for (var x = 0; x < n; x++) {
+        var m = b.start + x, sa = segAt(m), v = sa ? num(sa.seg.crowd) * SEG_TYPES[sa.seg.type].k : 0;
+        if (alc && arr.autoStop && (m < fc0 || m >= lc)) v = 0;
+        w[x] = v; sum += v;
+      }
+      var cum = new Array(n + 1); cum[0] = 0;
+      for (var y = 0; y < n; y++) cum[y + 1] = cum[y] + (sum ? w[y] / sum : 0);
+      return { w: w, sum: sum || 1, cum: cum };
+    }
+    return { start: b.start, end: b.end, all: mk(false), alc: mk(true) };
+  }
+  function curve() { if (!CURVE) CURVE = buildCurve(); return CURVE; }
+  function isAlc(i) { return CAT[i] === 'Øl' && i !== 'alkfri'; }
+  function arrFactors() {
+    var f = [];
+    if (arr.type === 'konsert') {
+      f.push({ name: 'Konsert', pct: 25, scope: 'Øl' }, { name: 'Konsert', pct: -40, scope: 'Mat' }, { name: 'Konsert', pct: -50, scope: 'Kaffe' }, { name: 'Konsert', pct: -20, scope: 'Snacks' });
+      if (arr.age === 'alle') f.push({ name: 'Alle aldre', pct: -20, scope: 'Øl' });
+    } else if (arr.type === 'fotball' && arr.age === '18') f.push({ name: '18 år', pct: 10, scope: 'Øl' });
+    return f;
+  }
+  function arrFactorFor(i) {
+    var m = 1;
+    arrFactors().forEach(function (f) { if (f.scope === 'Alle' || f.scope === CAT[i]) m *= 1 + f.pct / 100; });
+    return m;
+  }
+  function kioskOpenAny(kid) { return arr.open[kid].some(function (x) { return x; }); }
+  function peaks() { return arr.segs.filter(function (s) { return s.type === 'peak'; }).sort(function (a, b) { return toMin(a.start) - toMin(b.start); }); }
+  function defaultT() {
+    var p = peaks(), b = arrBounds(), target = p[1] || p[0];
+    var t = target ? toMin(target.start) - 12 : b.start + 60;
+    var min = b.start + 15;
+    t = min + Math.round((t - min) / 5) * 5;
+    return Math.max(min, Math.min(b.end - 30, t));
+  }
+
+  function renderArr() {
+    var v = document.getElementById('arrView'), b = arrBounds(), span = Math.max(1, b.end - b.start);
+    var W = 760, L = 12, R = 12, PW = W - L - R;
+    var x = function (m) { return L + (m - b.start) / span * PW; };
+    var cap = Math.max(num(arr.capacity), 1), maxCrowd = Math.max.apply(null, arr.segs.map(function (s) { return num(s.crowd); }));
+    var yc = function (c) { return 92 - Math.min(1, c / cap) * 70; };
+    var svg = '';
+    for (var hr = Math.ceil(b.start / 60) * 60; hr <= b.end; hr += 60) {
+      svg += '<line x1="' + x(hr) + '" x2="' + x(hr) + '" y1="16" y2="146" stroke="var(--border)" stroke-width="1"></line><text x="' + x(hr) + '" y="164" text-anchor="middle" font-size="11" fill="var(--muted)">' + hm(hr) + '</text>';
+    }
+    svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yc(cap) + '" y2="' + yc(cap) + '" stroke="var(--border-strong)" stroke-dasharray="2 4"></line><text x="' + (W - R) + '" y="' + (yc(cap) - 5) + '" text-anchor="end" font-size="11" fill="var(--muted)">Kapasitet ' + fmt.format(cap) + '</text>';
+    var path = '', sorted = arr.segs.slice().sort(function (a, c) { return toMin(a.start) - toMin(c.start); });
+    sorted.forEach(function (s, i) {
+      var x0 = x(toMin(s.start)), x1 = x(toMin(s.end)), y = yc(num(s.crowd));
+      path += (i === 0 ? 'M' : 'L') + x0 + ' ' + y + ' L' + x1 + ' ' + y + ' ';
+    });
+    svg += '<path d="' + path + '" fill="none" stroke="var(--s3)" stroke-width="2"></path>';
+    sorted.forEach(function (s) {
+      var x0 = x(toMin(s.start)), x1 = x(toMin(s.end)), w = Math.max(1, x1 - x0 - 2);
+      var fill = s.type === 'peak' ? 'var(--accent-fill)' : s.type === 'normal' ? 'var(--border-strong)' : 'var(--surface-2)';
+      var ink = s.type === 'peak' ? 'var(--accent-ink)' : 'var(--fg)';
+      svg += '<rect x="' + (x0 + 1) + '" y="104" width="' + w + '" height="36" rx="4" fill="' + fill + '" stroke="var(--border-strong)" stroke-width="' + (s.type === 'calm' ? 1 : 0) + '"><title>' + esc(s.name) + ' ' + s.start + '–' + s.end + '</title></rect>';
+      if (w > 64) svg += '<text x="' + (x0 + 7) + '" y="126" font-size="11" font-weight="600" fill="' + ink + '">' + esc(s.name.length > Math.floor(w / 6.5) ? s.name.slice(0, Math.max(3, Math.floor(w / 6.5) - 1)) + '…' : s.name) + '</text>';
+    });
+    if (arr.autoStop) {
+      var lx = x(toMin(arr.lastCall));
+      svg += '<line x1="' + lx + '" x2="' + lx + '" y1="10" y2="146" stroke="var(--warn)" stroke-width="2" stroke-dasharray="4 3"></line><text x="' + (lx - 4) + '" y="12" text-anchor="end" font-size="11" font-weight="600" fill="var(--warn)">Siste skjenk ' + arr.lastCall + '</text>';
+    }
+    var tplOpts = Object.keys(TEMPLATES).map(function (k) { return '<option value="' + k + '"' + (k === arr.tpl ? ' selected' : '') + '>' + esc(TEMPLATES[k].label || ('Egen mal: ' + TEMPLATES[k].name)) + '</option>'; }).join('');
+    var segRows = arr.segs.map(function (s, i) {
+      return '<div class="seg-row"><input class="inp" id="sg-name-' + i + '" data-si="' + i + '" data-sf="name" value="' + esc(s.name) + '" aria-label="Navn på del ' + (i + 1) + '">' +
+        '<input class="inp" type="time" id="sg-start-' + i + '" data-si="' + i + '" data-sf="start" value="' + s.start + '" aria-label="Start for ' + esc(s.name) + '">' +
+        '<input class="inp" type="time" id="sg-end-' + i + '" data-si="' + i + '" data-sf="end" value="' + s.end + '" aria-label="Slutt for ' + esc(s.name) + '">' +
+        '<select id="sg-type-' + i + '" data-si="' + i + '" data-sf="type" aria-label="Type for ' + esc(s.name) + '">' + Object.keys(SEG_TYPES).map(function (k) { return '<option value="' + k + '"' + (k === s.type ? ' selected' : '') + '>' + SEG_TYPES[k].label + '</option>'; }).join('') + '</select>' +
+        '<input class="inp" id="sg-crowd-' + i + '" data-si="' + i + '" data-sf="crowd" inputmode="numeric" value="' + esc(s.crowd) + '" aria-label="Forventet publikum under ' + esc(s.name) + '">' +
+        '<button class="icon-btn" type="button" data-arr="del-seg" data-idx="' + i + '" aria-label="Fjern ' + esc(s.name) + '">×</button></div>';
+    }).join('');
+    var matrix = '<div class="table-wrap"><table class="matrix"><thead><tr><th>Salgssted</th>' + arr.segs.map(function (s) { return '<th title="' + esc(s.name) + '"><span class="mx-h">' + esc(s.name) + '</span><small>' + s.start + '</small></th>'; }).join('') +
+      '<th>Kasser i topp</th><th style="text-align:left">Ansvarlig</th><th style="text-align:left">SMS-varsel til</th></tr></thead><tbody>' +
+      KIOSKS.map(function (k) {
+        return '<tr><td>' + k.name + '</td>' + arr.segs.map(function (s, i) {
+          return '<td class="mx-c' + (s.type === 'peak' ? ' peak' : '') + '"><input type="checkbox" id="op-' + k.id + '-' + i + '" data-ok="' + k.id + '" data-oi="' + i + '"' + (arr.open[k.id][i] ? ' checked' : '') + ' aria-label="' + k.name + ' åpen under ' + esc(s.name) + '"></td>';
+        }).join('') +
+          '<td><span class="qty-in"><input id="tl-' + k.id + '" data-tl="' + k.id + '" inputmode="numeric" value="' + esc(arr.tills[k.id]) + '" aria-label="Kasser i topp for ' + k.name + '"></span></td>' +
+          '<td style="text-align:left"><input class="inp" id="ld-' + k.id + '" data-ld="' + k.id + '" value="' + esc(arr.lead[k.id]) + '" aria-label="Ansvarlig for ' + k.name + '"></td>' +
+          '<td style="text-align:left"><input class="inp" id="sm-' + k.id + '" data-sm="' + k.id + '" inputmode="tel" placeholder="Mobilnummer" value="' + esc(arr.sms[k.id]) + '" aria-label="SMS-varsel for ' + k.name + '"></td></tr>';
+      }).join('') + '</tbody></table></div>';
+    var openKiosks = KIOSKS.filter(function (k) { return kioskOpenAny(k.id); }).length;
+    v.innerHTML =
+      '<div class="event-head"><div><h3>' + esc(arr.name) + '</h3><div class="event-meta"><span>' + ARR_TYPES[arr.type] + '</span><span>' + esc(arr.date) + '</span><span>' + hm(b.start) + '–' + hm(b.end) + '</span><span>' + openKiosks + ' salgssteder</span></div></div>' +
+      '<div class="field"><label for="arrTpl">Start fra mal</label><select id="arrTpl">' + tplOpts + '</select></div></div>' +
+      '<div class="card"><h4>Grunninfo</h4><div class="form-grid">' +
+      '<div class="field"><label for="arName">Navn</label><input class="inp" id="arName" data-af="name" value="' + esc(arr.name) + '"></div>' +
+      '<div class="field"><label for="arType">Type</label><select id="arType" data-af="type">' + Object.keys(ARR_TYPES).map(function (k) { return '<option value="' + k + '"' + (k === arr.type ? ' selected' : '') + '>' + ARR_TYPES[k] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="field"><label for="arDate">Dato</label><input class="inp" id="arDate" data-af="date" value="' + esc(arr.date) + '"></div>' +
+      '<div class="field"><label for="arCap">Kapasitet</label><input class="inp" id="arCap" data-af="capacity" inputmode="numeric" value="' + esc(arr.capacity) + '"></div>' +
+      '<div class="field"><label for="arTickets">Solgte billetter</label><input class="inp" id="arTickets" data-af="tickets" inputmode="numeric" value="' + esc(arr.tickets) + '"></div>' +
+      '<div class="field"><label for="arTurnout">Forventet oppmøte</label><span class="pct"><input class="inp" id="arTurnout" data-af="turnout" inputmode="decimal" value="' + esc(arr.turnout) + '"><span>%</span></span></div>' +
+      '<div class="field"><label for="arAge">Aldersgrense</label><select id="arAge" data-af="age"><option value="alle"' + (arr.age === 'alle' ? ' selected' : '') + '>Alle aldre</option><option value="18"' + (arr.age === '18' ? ' selected' : '') + '>18 år</option></select></div>' +
+      '</div><p class="small muted">Forventet oppmøte: <b>' + fmt.format(attendees()) + '</b>. Tallet går rett inn i behovsplanen.</p></div>' +
+      '<div class="card"><div class="count-tools"><h4>Program</h4><div class="legend"><span><i style="background:var(--accent-fill)"></i>Salgstopp</span><span><i style="background:var(--border-strong)"></i>Normal</span><span><i style="background:var(--surface-2);outline:1px solid var(--border-strong)"></i>Rolig</span><span><i style="background:var(--s3);height:3px;vertical-align:3px"></i>Publikum i salen</span></div></div>' +
+      '<div class="timeline-svg"><svg viewBox="0 0 ' + W + ' 172" role="img" aria-label="Programmet fra ' + hm(b.start) + ' til ' + hm(b.end) + ', med salgstopper og publikum i salen">' + svg + '</svg></div>' +
+      '<div class="seg-head" aria-hidden="true"><span>Del</span><span>Start</span><span>Slutt</span><span>Type</span><span>Publikum</span><span></span></div>' +
+      '<div class="seg-rows">' + segRows + '</div>' +
+      '<div class="actions"><button class="btn" type="button" data-arr="add-seg">Legg til del</button>' +
+      '<span class="delay"><label for="delaySeg" class="small muted">Forsinkelse fra</label><select id="delaySeg">' + arr.segs.map(function (s, i) { return '<option value="' + i + '"' + (i === arrDelay.idx ? ' selected' : '') + '>' + esc(s.name) + ' (' + s.start + ')</option>'; }).join('') + '</select>' +
+      '<button class="btn" type="button" data-arr="delay" data-min="5">+5 min</button><button class="btn" type="button" data-arr="delay" data-min="10">+10 min</button></span></div>' +
+      '<p class="toast" id="arrMsg"' + (arrMsg ? '' : ' hidden') + '>' + esc(arrMsg) + '</p>' +
+      '<p class="small muted">Delene merket «Salgstopp» er der salget topper seg, som pausen på fotball eller ombyggingen mellom band. Publikum per del gir kurven prognosene bruker gjennom kvelden.</p></div>' +
+      '<div class="split2"><div class="card"><h4>Skjenking</h4><div class="form-grid">' +
+      '<div class="field"><label for="arFirst">Første skjenk</label><input class="inp" type="time" id="arFirst" data-af="firstCall" value="' + arr.firstCall + '"></div>' +
+      '<div class="field"><label for="arLast">Siste skjenk</label><input class="inp" type="time" id="arLast" data-af="lastCall" value="' + arr.lastCall + '"></div></div>' +
+      '<label class="toggle" for="arAuto"><input type="checkbox" id="arAuto" data-af="autoStop"' + (arr.autoStop ? ' checked' : '') + '> Stopp alkohol automatisk i kassene og på QR ved siste skjenk</label>' +
+      '<p class="small muted">Skjenketiden følger bevillingen, så den flyttes ikke når programmet blir forsinket.</p></div>' +
+      '<div class="card"><h4>QR og forhåndsbestilling</h4><div class="form-grid">' +
+      '<div class="field"><label for="arQrOpen">QR åpner</label><input class="inp" type="time" id="arQrOpen" data-af="qrOpen" value="' + arr.qrOpen + '"></div>' +
+      '<div class="field"><label for="arQrClose">QR stenger</label><input class="inp" type="time" id="arQrClose" data-af="qrClose" value="' + arr.qrClose + '"></div></div>' +
+      '<label class="toggle" for="arPre"><input type="checkbox" id="arPre" data-af="preorder"' + (arr.preorder ? ' checked' : '') + '> Gjester kan bestille på forhånd og hente i</label>' +
+      '<select id="arPreSeg" data-af="preorderSeg" aria-label="Hent i"' + (arr.preorder ? '' : ' disabled') + '>' + arr.segs.map(function (s, i) { return '<option value="' + i + '"' + (i === +arr.preorderSeg ? ' selected' : '') + '>' + esc(s.name) + ' (' + s.start + ')</option>'; }).join('') + '</select>' +
+      '<p class="small muted">Forhåndsbestilling flytter salg ut av toppen, så køen i pausen blir kortere.</p></div></div>' +
+      '<div class="card"><h4>Salgssteder</h4><p class="small muted">Kryss av når hvert salgssted er åpent. Et salgssted som er stengt hele arrangementet, får ingenting i behovsplanen.</p>' + matrix + '</div>' +
+      '<div class="card"><h4>Etter arrangementet</h4><p class="small muted">Faktiske tider lagres fra kassene (første og siste salg) og fra forsinkelsene som ble lagt inn. Rapporten viser plan mot faktisk, og neste behovsplan lærer av det.</p></div>' +
+      '<div class="actions"><button class="btn primary" type="button" data-arr="activate">Planlegg aktivering</button><button class="btn" type="button" data-arr="save-tpl">Lagre som mal</button>' +
+      '<span class="toast" id="arrToast" hidden></span></div>';
+  }
+  (function bindArr() {
+    var v = document.getElementById('arrView');
+    function after(rerender) { arrChanged(); fc.t = Math.max(arrBounds().start + 15, Math.min(arrBounds().end - 30, fc.t)); if (rerender) keepFocus(renderArr); }
+    v.addEventListener('input', function (e) {
+      var t = e.target;
+      if (t.type === 'checkbox' || t.tagName === 'SELECT' || t.type === 'time') return;
+      if (t.hasAttribute('data-af')) { arr[t.getAttribute('data-af')] = t.value; after(t.getAttribute('data-af') !== 'name' && t.getAttribute('data-af') !== 'date'); }
+      else if (t.hasAttribute('data-si')) { arr.segs[+t.getAttribute('data-si')][t.getAttribute('data-sf')] = t.value; after(t.getAttribute('data-sf') !== 'name'); }
+      else if (t.hasAttribute('data-tl')) arr.tills[t.getAttribute('data-tl')] = t.value.replace(/\D/g, '');
+      else if (t.hasAttribute('data-ld')) arr.lead[t.getAttribute('data-ld')] = t.value;
+      else if (t.hasAttribute('data-sm')) arr.sms[t.getAttribute('data-sm')] = t.value;
+    });
+    v.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t.id === 'arrTpl') { loadTemplate(t.value); fc.t = defaultT(); fc.moves = []; fc.closed = {}; arrDelay.idx = 0; keepFocus(renderArr); return; }
+      if (t.id === 'delaySeg') { arrDelay.idx = +t.value; return; }
+      if (t.hasAttribute('data-ok')) { arr.open[t.getAttribute('data-ok')][+t.getAttribute('data-oi')] = t.checked; keepFocus(renderArr); return; }
+      if (t.hasAttribute('data-af')) {
+        arr[t.getAttribute('data-af')] = t.type === 'checkbox' ? t.checked : t.value; after(true); return;
+      }
+      if (t.hasAttribute('data-si') && (t.tagName === 'SELECT' || t.type === 'time')) {
+        arr.segs[+t.getAttribute('data-si')][t.getAttribute('data-sf')] = t.value;
+        if (t.type === 'time' && t.value) {
+          var moved = arr.segs.map(function (s, i) { return { s: s, open: KIOSKS.map(function (k) { return arr.open[k.id][i]; }) }; });
+          moved.sort(function (a, b) { return toMin(a.s.start) - toMin(b.s.start); });
+          arr.segs = moved.map(function (m) { return m.s; });
+          KIOSKS.forEach(function (k, ki) { arr.open[k.id] = moved.map(function (m) { return m.open[ki]; }); });
+        }
+        after(true);
+      }
+    });
+    v.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-arr]'); if (!b) return;
+      var a = b.getAttribute('data-arr');
+      if (a === 'add-seg') {
+        var last = arr.segs[arr.segs.length - 1], st = last ? last.end : '18:00';
+        arr.segs.push(seg('Ny del', st, hm(toMin(st) + 30), 'normal', last ? last.crowd : '1000'));
+        KIOSKS.forEach(function (k) { arr.open[k.id].push(true); });
+        after(true);
+      } else if (a === 'del-seg') {
+        if (arr.segs.length <= 1) return;
+        var idx = +b.getAttribute('data-idx');
+        arr.segs.splice(idx, 1);
+        KIOSKS.forEach(function (k) { arr.open[k.id].splice(idx, 1); });
+        if (+arr.preorderSeg >= arr.segs.length) arr.preorderSeg = arr.segs.length - 1;
+        arrDelay.idx = Math.min(arrDelay.idx, arr.segs.length - 1);
+        after(true);
+      } else if (a === 'delay') {
+        var n = +b.getAttribute('data-min'), from = arrDelay.idx;
+        if (from > 0) arr.segs[from - 1].end = hm(toMin(arr.segs[from - 1].end) + n);
+        for (var i = from; i < arr.segs.length; i++) {
+          arr.segs[i].start = hm(toMin(arr.segs[i].start) + n);
+          arr.segs[i].end = hm(toMin(arr.segs[i].end) + n);
+        }
+        arrMsg = '«' + arr.segs[from].name + '» og resten av programmet er flyttet ' + n + ' min' + (from > 0 ? ', og «' + arr.segs[from - 1].name + '» varer tilsvarende lenger' : '') + '. Prognosene og kassevarslene følger med. Siste skjenk står fast.';
+        after(true);
+      } else if (a === 'save-tpl') {
+        var copy = JSON.parse(JSON.stringify(arr));
+        copy.label = 'Egen mal: ' + arr.name;
+        copy.closedCells = {};
+        KIOSKS.forEach(function (k) { copy.closedCells[k.id] = arr.open[k.id].map(function (o, i) { return o ? -1 : i; }).filter(function (i) { return i >= 0; }); });
+        TEMPLATES.egen = copy; store('lr-arr-custom', JSON.stringify(copy)); arr.tpl = 'egen';
+        renderArr(); showToast('arrToast', 'Malen «' + arr.name + '» er lagret. Den ligger i «Start fra mal».');
+      } else if (a === 'activate') {
+        var bb = arrBounds(), open = KIOSKS.filter(function (k) { return kioskOpenAny(k.id); });
+        showToast('arrToast', 'Planlagt: ' + open.length + ' salgssteder aktiveres ' + hm(bb.start) + ', QR åpner ' + arr.qrOpen + (arr.autoStop ? ', alkoholen stopper ' + arr.lastCall : '') + '. Påminnelse om stenging og telling kl. ' + hm(bb.end) + '. (I demoen lagres ingenting.)');
+      }
+    });
+  })();
+
   /* ---------- 1. Varemottak ---------- */
   var SUPPLIERS = ['Drikkegrossist Øst AS', 'Bryggeri Nord AS', 'Snacksgrossisten AS', 'Pølsemakeriet AS'];
   var PDF_LINES = [
@@ -1832,23 +2125,24 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     demandTotal[l.i] = (demandTotal[l.i] || 0) + l.demand;
     demandBy[l.k + ':' + l.i] = l.demand;
   });
-  function attendees() { return Math.round(num(pe.tickets) * num(pe.turnout) / 100); }
   function learnedRate(i) { return demandTotal[i] / LAST_ATTENDANCE * 100 * BASIS[profile.basis].m; }
   function rateFor(i) { var o = profile.overrides[i]; return o !== undefined && String(o).trim() !== '' ? num(o) : learnedRate(i); }
   function factorFor(i) {
     var m = 1;
     profile.factors.forEach(function (f) { if (f.on && (f.scope === 'Alle' || f.scope === CAT[i])) m *= 1 + num(f.pct) / 100; });
-    return m;
+    return m * arrFactorFor(i);
   }
   function planRows() {
     var att = attendees(), buf = 1 + num(profile.buffer) / 100;
     return ITEMS.map(function (it) {
       var need = att * rateFor(it.id) / 100 * factorFor(it.id) * buf;
       var per = {}, total = 0;
+      var openTotal = 0;
+      KIOSKS.forEach(function (k) { if (kioskOpenAny(k.id)) openTotal += demandBy[k.id + ':' + it.id] || 0; });
       KIOSKS.forEach(function (k) {
         var d = demandBy[k.id + ':' + it.id];
-        if (!d) return;
-        var q = need * d / demandTotal[it.id];
+        if (!d || !kioskOpenAny(k.id) || !openTotal) return;
+        var q = need * d / openTotal;
         q = profile.round ? packUp(q, it.pack) : Math.ceil(q);
         per[k.id] = q; total += q;
       });
@@ -1876,16 +2170,16 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     v.innerHTML =
       '<div class="event-head"><div><h3>Behovsplan før event</h3><div class="event-meta"><span>Profil: ' + esc(profile.name) + '</span><span>Grunnlag: ' + BASIS[profile.basis].label + '</span></div></div><span class="pill">Ny side</span></div>' +
       '<div class="split"><div class="stack">' +
-      '<div class="card"><h4>Neste event</h4><div class="form-grid">' +
-      '<div class="field"><label for="peEvent">Event</label><select id="peEvent" data-pe="event">' + Object.keys(EVENTS_NEXT).map(function (k) { return '<option value="' + k + '"' + (k === pe.event ? ' selected' : '') + '>' + EVENTS_NEXT[k] + '</option>'; }).join('') + '</select></div>' +
-      '<div class="field"><label for="peTickets">Solgte billetter</label><input class="inp" id="peTickets" data-pe="tickets" inputmode="numeric" value="' + esc(pe.tickets) + '"></div>' +
-      '<div class="field"><label for="peTurnout">Forventet oppmøte</label><span class="pct"><input class="inp" id="peTurnout" data-pe="turnout" inputmode="decimal" value="' + esc(pe.turnout) + '"><span>%</span></span></div>' +
-      '</div><p class="small muted">Det er bare disse tallene som fylles inn mellom hvert event. Resten ligger i profilen.</p></div>' +
+      '<div class="card"><h4>Arrangement</h4><p><b>' + esc(arr.name) + '</b><br><span class="small muted">' + esc(arr.date) + ' · ' + ARR_TYPES[arr.type] + ' · ' + (arr.age === '18' ? '18 år' : 'alle aldre') + '</span></p><div class="form-grid">' +
+      '<div class="field"><label for="peTickets">Solgte billetter</label><input class="inp" id="peTickets" data-arrf="tickets" inputmode="numeric" value="' + esc(arr.tickets) + '"></div>' +
+      '<div class="field"><label for="peTurnout">Forventet oppmøte</label><span class="pct"><input class="inp" id="peTurnout" data-arrf="turnout" inputmode="decimal" value="' + esc(arr.turnout) + '"><span>%</span></span></div>' +
+      '</div><p class="small muted">Det er bare disse tallene som fylles inn mellom hvert event. Program, aldersgrense og åpne salgssteder kommer fra arrangementet. Resten ligger i profilen.</p><div class="actions"><button class="btn" type="button" data-pa="arr">Åpne arrangementet</button></div></div>' +
       '<div class="card"><h4>Profil: dine innstillinger</h4><div class="form-grid">' +
       '<div class="field"><label for="prName">Navn på profilen</label><input class="inp" id="prName" data-pr="name" value="' + esc(profile.name) + '"></div>' +
       '<div class="field"><label for="prBuffer">Buffer</label><span class="pct"><input class="inp" id="prBuffer" data-pr="buffer" inputmode="decimal" value="' + esc(profile.buffer) + '"><span>%</span></span></div>' +
       '<div class="field"><label for="prBasis">Lær forbruket fra</label><select id="prBasis" data-pr="basis">' + Object.keys(BASIS).map(function (k) { return '<option value="' + k + '"' + (k === profile.basis ? ' selected' : '') + '>' + BASIS[k].label + '</option>'; }).join('') + '</select></div>' +
       '</div><label class="toggle" for="prRound"><input type="checkbox" id="prRound" data-pr="round"' + (profile.round ? ' checked' : '') + '> Rund opp til hele kasser, esker og brett</label>' +
+      (arrFactors().length ? '<h4>Fra arrangementet</h4><div class="auto-factors">' + arrFactors().map(function (f) { return '<span class="flag ok">' + esc(f.name) + ': ' + (f.pct > 0 ? '+' : '−') + Math.abs(f.pct) + ' % ' + f.scope.toLowerCase() + '</span>'; }).join(' ') + '</div>' : '') +
       '<h4>Faktorer</h4><p class="small muted">Legg til det som påvirker salget hos dere. Kryss av for det som gjelder dette eventet.</p><div class="factors">' + factors + '</div>' +
       '<div class="factor add"><span></span><input class="inp" id="newName" data-pn="newName" placeholder="Ny faktor, f.eks. Familiedag" value="' + esc(pe.newName) + '" aria-label="Navn på ny faktor">' +
       '<span class="pct"><input class="inp" id="newPct" data-pn="newPct" inputmode="decimal" placeholder="0" value="' + esc(pe.newPct) + '" aria-label="Prosent for ny faktor"><span>%</span></span>' +
@@ -1893,7 +2187,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
       '<button class="btn" type="button" data-pa="add">Legg til</button></div>' +
       '<div class="actions"><button class="btn primary" type="button" data-pa="save">Lagre profil</button><button class="btn" type="button" data-pa="reset">Tilbakestill</button><span class="toast" id="planSaved"' + (pe.saved ? '' : ' hidden') + '>' + esc(pe.saved) + '</span></div></div>' +
       '</div><div class="stack">' +
-      '<div class="kpis"><div class="kpi"><span class="label">Forventet oppmøte</span><span class="value">' + fmt.format(att) + '</span><span class="sub">' + fmt.format(num(pe.tickets)) + ' billetter × ' + esc(pe.turnout) + ' %</span></div>' +
+      '<div class="kpis"><div class="kpi"><span class="label">Forventet oppmøte</span><span class="value">' + fmt.format(att) + '</span><span class="sub">' + fmt.format(num(arr.tickets)) + ' billetter × ' + esc(arr.turnout) + ' %</span></div>' +
       '<div class="kpi"><span class="label">Behov totalt</span><span class="value">' + fmt.format(sumBy(rows, function (r) { return r.total; })) + '</span><span class="sub">ca. ' + fmt.format(totalPacks) + ' kasser, esker og brett</span></div>' +
       '<div class="kpi ' + (miss.length ? 'bad' : '') + '"><span class="label">Mangler i hovedlageret</span><span class="value">' + miss.length + '</span><span class="sub">' + (miss.length ? 'varer må bestilles' : 'Alt finnes på lager') + '</span></div></div>' +
       '<div class="table-wrap"><table class="count"><thead><tr><th>Vare</th><th>Per 100 tilskuere<br><span style="font-weight:500">lært · overstyr</span></th><th>Faktor</th><th>Behov</th><th>Hovedlager</th><th>Bestill</th></tr></thead><tbody>' +
@@ -1916,7 +2210,8 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     var v = document.getElementById('planView');
     function onEdit(e) {
       var t = e.target, val = t.type === 'checkbox' ? t.checked : t.value;
-      if (t.hasAttribute('data-pe')) pe[t.getAttribute('data-pe')] = val;
+      if (t.hasAttribute('data-arrf')) { arr[t.getAttribute('data-arrf')] = val; arrChanged(); }
+      else if (t.hasAttribute('data-pe')) pe[t.getAttribute('data-pe')] = val;
       else if (t.hasAttribute('data-pr')) profile[t.getAttribute('data-pr')] = val;
       else if (t.hasAttribute('data-pn')) { pe[t.getAttribute('data-pn')] = val; return; }
       else if (t.hasAttribute('data-ov')) profile.overrides[t.getAttribute('data-ov')] = val;
@@ -1938,6 +2233,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
       } else if (a === 'del') { profile.factors.splice(+b.getAttribute('data-idx'), 1); pe.saved = ''; renderPlan(); }
       else if (a === 'save') { store('lr-profile', JSON.stringify(profile)); pe.saved = 'Profilen «' + profile.name + '» er lagret.'; renderPlan(); }
       else if (a === 'reset') { profile = JSON.parse(JSON.stringify(DEFAULT_PROFILE)); store('lr-profile', JSON.stringify(profile)); pe.saved = 'Profilen er tilbakestilt.'; renderPlan(); }
+      else if (a === 'arr') showView('arr');
       else if (a === 'pick') {
         var rows = planRows();
         showToast('pickToast', 'Plukkliste laget for ' + KIOSKS.length + ' salgssteder: ' + fmt.format(sumBy(rows, function (r) { return r.total; })) + ' enheter. (I demoen lagres ingenting.)');
@@ -1946,26 +2242,23 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
   })();
 
   /* ---------- 3. Prognoser ---------- */
-  var START = toMin('16:45'), END = toMin('20:30'), PAUSE_A = toMin('18:47'), PAUSE_B = toMin('19:03'), KICK = toMin('18:00'), FT = toMin('19:52');
   var AVG_TICKET = 105, TILL_CAP = 1.4;
-  var refillAt = {};
-  EVENTS.forEach(function (e) { if (e.type === 'refill') refillAt[e.k + ':' + e.i] = toMin(e.t); });
-  var fc = { t: toMin('18:35'), item: 'pils', moves: [], closed: {}, msg: '' };
-  function cumW(m) {
-    var x = (m - START) / 15;
+  var fc = { t: 0, item: 'pils', moves: [], closed: {}, msg: '' };
+  fc.t = defaultT();
+  function cumW(m, alc) {
+    var c = curve(), a = alc ? c.alc : c.all, x = Math.round(m - c.start);
     if (x <= 0) return 0;
-    var full = Math.floor(x), acc = 0;
-    for (var i = 0; i < full && i < WEIGHTS.length; i++) acc += WEIGHTS[i];
-    if (full < WEIGHTS.length) acc += WEIGHTS[full] * (x - full);
-    return Math.min(1, acc / WSUM);
+    if (x >= a.cum.length) return 1;
+    return a.cum[x];
   }
-  function wRate(m) { var b = Math.floor((m - START) / 15); return b < 0 || b >= WEIGHTS.length ? 0 : WEIGHTS[b] / WSUM / 15; }
+  function wRate(m, alc) {
+    var c = curve(), a = alc ? c.alc : c.all, x = Math.floor(m - c.start);
+    return x < 0 || x >= a.w.length ? 0 : a.w[x] / a.sum;
+  }
+  function attRatio() { return attendees() / LAST_ATTENDANCE; }
+  function dScale(i) { return attRatio() * arrFactorFor(i); }
   function supplyAt(l, m) {
-    var s = l.open, key = l.k + ':' + l.i;
-    if (l.refill && refillAt[key] != null && m >= refillAt[key]) s += l.refill;
-    if (l.tin && m >= toMin('19:24')) s += l.tin;
-    if (l.tout && m >= toMin('19:24')) s -= l.tout;
-    if (l.ret && m >= toMin('20:05')) s -= l.ret;
+    var s = l.open;
     fc.moves.forEach(function (mv) {
       if (mv.i !== l.i || m < mv.at) return;
       if (mv.to === l.k) s += mv.qty;
@@ -1974,16 +2267,19 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     return s;
   }
   function forecastLine(l, T) {
-    var now = Math.max(0, supplyAt(l, T) - l.demand * cumW(T));
-    var c0 = cumW(T), empty = null;
-    if (now <= 0) empty = T;
-    else {
-      for (var m = T + 1; m <= END; m++) {
-        if (now - l.demand * (cumW(m) - c0) <= 0) { empty = m; break; }
+    var END = curve().end, alc = isAlc(l.i), dem = kioskOpenAny(l.k) ? l.demand * dScale(l.i) : 0;
+    var now = Math.max(0, supplyAt(l, T) - dem * cumW(T, alc));
+    var c0 = cumW(T, alc), empty = null;
+    if (dem > 0) {
+      if (now <= 0) empty = T;
+      else {
+        for (var m = T + 1; m <= END; m++) {
+          if (now - dem * (cumW(m, alc) - c0) <= 0) { empty = m; break; }
+        }
       }
     }
-    var endLeft = now - l.demand * (1 - c0);
-    return { l: l, now: Math.round(now), rate: l.demand * wRate(T), empty: empty, endLeft: Math.round(endLeft) };
+    var endLeft = now - dem * (1 - c0);
+    return { l: l, dem: dem, now: Math.round(now), rate: dem * wRate(T, alc), empty: empty, endLeft: Math.round(endLeft) };
   }
   function allForecasts(T) { return LINES.map(function (l) { return forecastLine(l, T); }); }
   function suggestSource(f, list, used) {
@@ -2010,29 +2306,37 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
     return { from: 'main', qty: need, walk: WALK[f.l.k].main, note: why };
   }
   function tillPlan(k, T) {
-    var rev = revenueOf(LINES.filter(function (l) { return l.k === k.id; }));
-    function need(m) { var tpm = rev * wRate(m) * k.mix[0] / AVG_TICKET; return Math.max(1, Math.ceil(tpm / (TILL_CAP * 0.75))); }
-    var last15 = Math.round(rev * (cumW(T) - cumW(T - 15)) * k.mix[0] / AVG_TICKET);
-    var next30 = Math.round(rev * (cumW(T + 30) - cumW(T)) * k.mix[0] / AVG_TICKET);
-    var util = Math.min(100, Math.round(rev * wRate(T) * k.mix[0] / AVG_TICKET / (TILL_CAP * k.tills) * 100));
-    var canClose = k.tills > 1 && need(T) < k.tills;
+    var END = curve().end, tills = Math.max(1, Math.round(num(arr.tills[k.id])) || 1);
+    var rev = revenueOf(LINES.filter(function (l) { return l.k === k.id; })) * attRatio();
+    if (!kioskOpenAny(k.id)) rev = 0;
+    function need(m) { var tpm = rev * wRate(m, false) * k.mix[0] / AVG_TICKET; return Math.max(1, Math.ceil(tpm / (TILL_CAP * 0.75))); }
+    var last15 = Math.round(rev * (cumW(T, false) - cumW(T - 15, false)) * k.mix[0] / AVG_TICKET);
+    var next30 = Math.round(rev * (cumW(T + 30, false) - cumW(T, false)) * k.mix[0] / AVG_TICKET);
+    var util = Math.min(100, Math.round(rev * wRate(T, false) * k.mix[0] / AVG_TICKET / (TILL_CAP * tills) * 100));
+    var canClose = tills > 1 && need(T) < tills;
     var until = null;
-    if (canClose) { for (var m = T; m <= END; m++) { if (need(m) >= k.tills) { until = m; break; } } }
-    return { k: k, last15: last15, next30: next30, util: util, canClose: canClose, until: until };
+    if (canClose) { for (var m = T; m <= END; m++) { if (need(m) >= tills) { until = m; break; } } }
+    return { k: k, tills: tills, last15: last15, next30: next30, util: util, canClose: canClose, until: until };
   }
   function renderForecast() {
-    var v = document.getElementById('forecastView'), T = fc.t;
+    var v = document.getElementById('forecastView'), c = curve(), START = c.start, END = c.end;
+    fc.t = Math.max(START + 15, Math.min(END - 30, fc.t));
+    var T = fc.t;
     var list = allForecasts(T);
-    var short = list.filter(function (f) { return f.empty != null && f.empty < END && f.l.demand > 0; }).sort(function (a, b) { return a.empty - b.empty; });
-    var it = itemById[fc.item];
-    var rows = list.filter(function (f) { return f.l.i === fc.item; });
+    var short = list.filter(function (f) { return f.empty != null && f.empty < END && f.dem > 0; }).sort(function (a, b) { return a.empty - b.empty; });
+    var rows = list.filter(function (f) { return f.l.i === fc.item && kioskOpenAny(f.l.k); });
     var span = END - T;
-    var phase = T < KICK ? 'Før avspark' : T < PAUSE_A ? '1. omgang' : T < PAUSE_B ? 'Pause' : T < FT ? '2. omgang' : 'Etter kampslutt';
-    var totalRev = revenueOf(LINES), soFar = totalRev * cumW(T);
+    var sa = segAt(T), phase = sa ? sa.seg.name : (T < START ? 'Før dørene åpner' : 'Etter programmet');
+    var nextPeak = peaks().filter(function (p) { return toMin(p.end) > T; })[0];
+    var peakIn = nextPeak && toMin(nextPeak.start) > T ? Math.round(toMin(nextPeak.start) - T) : null;
+    var inPeak = nextPeak && toMin(nextPeak.start) <= T;
+    var peakShare = nextPeak ? Math.round((cumW(toMin(nextPeak.end), false) - cumW(Math.max(T, toMin(nextPeak.start)), false)) / Math.max(0.0001, 1 - cumW(T, false)) * 100) : 0;
+    var totalRev = revenueOf(LINES) * attRatio(), soFar = totalRev * cumW(T, false);
     var tills = KIOSKS.map(function (k) { return tillPlan(k, T); });
     var closable = tills.filter(function (t) { return t.canClose && !fc.closed[t.k.id] && (!t.until || t.until - T >= 15); });
     function pos(m) { return Math.max(0, Math.min(100, (m - T) / span * 100)); }
-    var markers = [[PAUSE_A, 'Pause'], [PAUSE_B, ''], [FT, 'Slutt']].filter(function (x) { return x[0] > T; });
+    var markers = peaks().filter(function (p) { return toMin(p.start) > T; }).map(function (p) { return [toMin(p.start), p.name]; });
+    if (arr.autoStop && toMin(arr.lastCall) > T) markers.push([toMin(arr.lastCall), 'Siste skjenk']);
     var runway = rows.map(function (f) {
       var bad = f.empty != null && f.empty < END;
       var w = bad ? pos(f.empty) : 100;
@@ -2040,50 +2344,49 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
       return '<div class="rw-row"><span class="rw-name">' + kioskById[f.l.k].name + '<small>' + fmt.format(f.now) + ' igjen · ' + f.rate.toFixed(1).replace('.', ',') + ' stk/min</small></span>' +
         '<div class="rw-track" role="img" aria-label="' + kioskById[f.l.k].name + ': ' + (bad ? 'tom ca. ' + hm(f.empty) : 'holder til stenging') + '"><span class="rw-fill' + (bad ? ' bad' : '') + '" style="width:' + w + '%"></span>' +
         markers.map(function (mk) { return '<span class="rw-mark" style="left:' + pos(mk[0]) + '%"></span>'; }).join('') + '</div><span class="rw-text">' + txt + '</span></div>';
-    }).join('');
-    var axis = '<div class="rw-row rw-axis" aria-hidden="true"><span></span><div class="rw-scale"><span style="left:0">' + hm(T) + '</span>' + markers.filter(function (m) { return m[1]; }).map(function (mk) { return '<span style="left:' + pos(mk[0]) + '%">' + mk[1] + ' ' + hm(mk[0]) + '</span>'; }).join('') + '<span style="left:100%;transform:translateX(-100%)">Stenging ' + hm(END) + '</span></div><span></span></div>';
+    }).join('') || '<div class="empty-note">Ingen åpne salgssteder selger denne varen.</div>';
+    var axis = '<div class="rw-row rw-axis" aria-hidden="true"><span></span><div class="rw-scale"><span style="left:0">' + hm(T) + '</span>' + markers.slice(0, 3).map(function (mk) { return '<span style="left:' + pos(mk[0]) + '%">' + esc(mk[1]) + ' ' + hm(mk[0]) + '</span>'; }).join('') + '<span style="left:100%;transform:translateX(-100%)">Slutt ' + hm(END) + '</span></div><span></span></div>';
     var used = {};
-    var moves = short.filter(function (f) { return f.l.demand > 20; }).slice(0, 5).map(function (f) {
+    var moves = short.filter(function (f) { return f.dem > 20; }).slice(0, 5).map(function (f) {
       var s = suggestSource(f, list, used), itx = itemById[f.l.i];
       var from = s.from === 'main' ? 'Hovedlageret' : kioskById[s.from].name;
       return '<div class="move-card"><div class="what"><strong>' + esc(itx.name) + ' til ' + kioskById[f.l.k].name + '</strong><span>Tom ca. ' + hm(f.empty) + '. Hent ' + fmt.format(s.qty) + ' stk (' + (s.qty / itx.pack) + ' ' + plural(itx, s.qty / itx.pack) + ') fra <b>' + from + '</b>, ' + s.walk + ' min å gå. ' + esc(s.note) + '.</span></div>' +
         '<button class="btn primary" type="button" data-mv="' + f.l.k + '|' + f.l.i + '|' + s.from + '|' + s.qty + '">Lag flytting</button></div>';
-    }).join('') || '<div class="empty-note">Ingen varer går tom før stenging med dagens tempo.</div>';
+    }).join('') || '<div class="empty-note">Ingen varer går tom før slutt med dagens tempo.</div>';
     var tillRows = tills.map(function (t) {
-      var rec;
-      if (fc.closed[t.k.id]) rec = '<span class="flag warn">Kasse 2 stengt ' + hm(fc.closed[t.k.id]) + '</span>';
-      else if (t.k.tills === 1) rec = '<span class="diff-zero">Én kasse</span>';
-      else if (t.canClose && t.until && t.until - T >= 15) rec = '<span class="flag ok">Kasse 2 kan stenges til ' + hm(t.until) + '</span>';
+      var rec, open = kioskOpenAny(t.k.id);
+      if (!open) rec = '<span class="diff-zero">Stengt dette arrangementet</span>';
+      else if (fc.closed[t.k.id]) rec = '<span class="flag warn">Én kasse stengt ' + hm(fc.closed[t.k.id]) + '</span>';
+      else if (t.tills === 1) rec = '<span class="diff-zero">Én kasse</span>';
+      else if (t.canClose && t.until && t.until - T >= 15) rec = '<span class="flag ok">Én kasse kan stenges til ' + hm(t.until) + '</span>';
       else if (t.canClose && t.until) rec = '<span class="flag warn">Behold: travelt igjen ' + hm(t.until) + '</span>';
-      else if (t.canClose) rec = '<span class="flag ok">Kasse 2 kan stenges resten av eventet</span>';
-      else rec = '<span class="diff-zero">Trenger begge</span>';
-      var btn = t.canClose && !fc.closed[t.k.id] && t.k.tills > 1 && (!t.until || t.until - T >= 15) ? ' <button class="btn small-btn" type="button" data-close="' + t.k.id + '">Steng</button>' : '';
-      return '<tr><td>' + t.k.name + '</td><td>' + (fc.closed[t.k.id] ? t.k.tills - 1 : t.k.tills) + ' av ' + t.k.tills + '</td><td>' + fmt.format(t.last15) + '</td><td>' + fmt.format(t.next30) + '</td><td><div class="bar-cell"><span>' + t.util + ' %</span><span class="minibar"><i style="width:' + t.util + '%;background:var(--accent-fill)"></i></span></div></td><td style="text-align:left;white-space:normal">' + rec + btn + '</td></tr>';
+      else if (t.canClose) rec = '<span class="flag ok">Én kasse kan stenges resten av kvelden</span>';
+      else rec = '<span class="diff-zero">Trenger alle</span>';
+      var btn = open && t.canClose && !fc.closed[t.k.id] && t.tills > 1 && (!t.until || t.until - T >= 15) ? ' <button class="btn small-btn" type="button" data-close="' + t.k.id + '">Steng én</button>' : '';
+      return '<tr><td>' + t.k.name + '</td><td>' + (fc.closed[t.k.id] ? t.tills - 1 : t.tills) + ' av ' + t.tills + '</td><td>' + fmt.format(t.last15) + '</td><td>' + fmt.format(t.next30) + '</td><td><div class="bar-cell"><span>' + t.util + ' %</span><span class="minibar"><i style="width:' + t.util + '%;background:var(--accent-fill)"></i></span></div></td><td style="text-align:left;white-space:normal">' + rec + btn + '</td></tr>';
     }).join('');
-    var pauseIn = T < PAUSE_A ? Math.round(PAUSE_A - T) : null;
-    var pauseShare = T < PAUSE_B ? Math.round((cumW(PAUSE_B) - cumW(Math.max(T, PAUSE_A))) / Math.max(0.0001, 1 - cumW(T)) * 100) : 0;
-    var pauseItems = short.filter(function (f) { return f.empty <= PAUSE_B + 10; }).map(function (f) { return itemById[f.l.i].name + ' i ' + kioskById[f.l.k].name; });
+    var peakItems = nextPeak ? short.filter(function (f) { return f.empty <= toMin(nextPeak.end) + 10; }).map(function (f) { return itemById[f.l.i].name + ' i ' + kioskById[f.l.k].name; }) : [];
     v.innerHTML =
       '<div class="admin-tabs" aria-hidden="true"><span>Enhetsgrupper</span><span>Hovedlager</span><span>Forpakninger</span><span>Eventstyring</span><span>Live monitorering</span><span class="on">Prognoser <span class="new-badge">Ny</span></span></div>' +
-      '<div class="event-head"><div><h3>Prognoser · hjemmekamp 18. oktober</h3><div class="event-meta"><span>5 salgssteder aktive</span><span>Oppdateres hvert minutt</span></div></div><span class="status-chip ok">● Live</span></div>' +
-      '<div class="scrub card"><label for="fcTime"><b>Klokken ' + hm(T) + '</b> · ' + phase + (pauseIn ? ' · pause om ' + pauseIn + ' min' : '') + '</label>' +
-      '<input type="range" id="fcTime" min="' + toMin('17:00') + '" max="' + toMin('19:50') + '" step="5" value="' + T + '" aria-label="Spol gjennom kampen">' +
-      '<span class="small muted">Demo: dra for å spole gjennom kampen og se prognosene endre seg.</span></div>' +
+      '<div class="event-head"><div><h3>Prognoser · ' + esc(arr.name) + '</h3><div class="event-meta"><span>' + esc(arr.date) + '</span><span>' + KIOSKS.filter(function (k) { return kioskOpenAny(k.id); }).length + ' salgssteder</span><span>Kurven kommer fra programmet i Arrangement</span></div></div><span class="status-chip ok">● Live</span></div>' +
+      '<div class="scrub card"><label for="fcTime"><b>Klokken ' + hm(T) + '</b> · ' + esc(phase) + (peakIn ? ' · ' + esc(nextPeak.name.toLowerCase()) + ' om ' + peakIn + ' min' : '') + '</label>' +
+      '<input type="range" id="fcTime" min="' + (START + 15) + '" max="' + (END - 30) + '" step="5" value="' + T + '" aria-label="Spol gjennom arrangementet">' +
+      '<span class="small muted">Demo: dra for å spole gjennom arrangementet og se prognosene endre seg.</span></div>' +
       '<div class="kpis">' +
-      '<div class="kpi ' + (short.length ? 'bad' : '') + '"><span class="label">Går tom før stenging</span><span class="value">' + short.length + '</span><span class="sub">' + (short[0] ? 'Først: ' + itemById[short[0].l.i].name + ', ' + kioskById[short[0].l.k].name + ' ' + hm(short[0].empty) : 'Alle varer holder') + '</span></div>' +
+      '<div class="kpi ' + (short.length ? 'bad' : '') + '"><span class="label">Går tom før slutt</span><span class="value">' + short.length + '</span><span class="sub">' + (short[0] ? 'Først: ' + itemById[short[0].l.i].name + ', ' + kioskById[short[0].l.k].name + ' ' + hm(short[0].empty) : 'Alle varer holder') + '</span></div>' +
       '<div class="kpi"><span class="label">Omsetning så langt</span><span class="value">' + kr(soFar) + '</span><span class="sub">Forventet ved slutt: ' + kr(totalRev) + '</span></div>' +
       '<div class="kpi"><span class="label">Kasser som kan stenges</span><span class="value">' + closable.length + '</span><span class="sub">' + (closable.length ? 'Uten å gi kø' : 'Alle trengs nå') + '</span></div>' +
-      '<div class="kpi warn"><span class="label">Pausen</span><span class="value">' + (pauseIn ? 'om ' + pauseIn + ' min' : T < PAUSE_B ? 'Nå' : 'Ferdig') + '</span><span class="sub">' + (T < PAUSE_B ? pauseShare + ' % av resten av salget' : 'Neste topp: etter kampslutt') + '</span></div></div>' +
+      '<div class="kpi warn"><span class="label">Neste salgstopp</span><span class="value">' + (peakIn ? 'om ' + peakIn + ' min' : inPeak ? 'Nå' : 'Ingen flere') + '</span><span class="sub">' + (nextPeak ? esc(nextPeak.name) + ': ' + peakShare + ' % av resten av salget' : 'Resten av kvelden er rolig') + '</span></div></div>' +
       '<div class="card"><div class="count-tools"><h4>a · Når går vi tom?</h4><div class="field"><label for="fcItem">Vare</label><select id="fcItem">' + ITEMS.map(function (x) { return '<option value="' + x.id + '"' + (x.id === fc.item ? ' selected' : '') + '>' + esc(x.name) + '</option>'; }).join('') + '</select></div></div>' +
-      '<div class="runway">' + runway + axis + '</div><p class="panel-note">Prognosen bruker tempoet nå og hvordan salget pleier å fordele seg gjennom en kamp, med topp før avspark, i pausen og etter slutt.</p></div>' +
+      '<div class="runway">' + runway + axis + '</div><p class="panel-note">Prognosen bruker tempoet nå og kurven fra programmet: publikum i salen og hvilke deler som er salgstopper.' + (arr.autoStop && isAlc(fc.item) ? ' Øl selges ikke etter siste skjenk kl. ' + arr.lastCall + '.' : '') + '</p></div>' +
       '<div class="card"><h4>b · Hvor bør vi hente fra?</h4><div class="moves">' + moves + '</div>' + (fc.msg ? '<p class="toast">' + esc(fc.msg) + '</p>' : '') +
-      '<p class="panel-note">Først et salgssted med nok til overs ved stenging og kortest gangtid, ellers hovedlageret. Flyttingen regnes inn i prognosen med en gang.</p></div>' +
+      '<p class="panel-note">Først et salgssted med nok til overs ved slutt og kortest gangtid, ellers hovedlageret. Flyttingen regnes inn i prognosen med en gang.</p></div>' +
       '<div class="card"><h4>c · Hvilke kasser kan stenges?</h4><div class="table-wrap"><table><thead><tr><th>Salgssted</th><th>Kasser åpne</th><th>Salg siste 15 min</th><th>Forventet neste 30 min</th><th>Kapasitet brukt</th><th style="text-align:left">Anbefaling</th></tr></thead><tbody>' + tillRows + '</tbody></table></div>' +
-      '<p class="panel-note">En kasse kan stenges når de andre klarer salget med god margin. Systemet sier fra når den må åpnes igjen, før pausen og før kampslutt. QR og selvbetjent er ikke regnet med.</p></div>' +
+      '<p class="panel-note">En kasse kan stenges når de andre klarer salget med god margin. Systemet sier fra når den må åpnes igjen før neste salgstopp. Antall kasser kommer fra Arrangement. QR og selvbetjent er ikke regnet med.</p></div>' +
       '<div class="card"><h4>Mer i fanen</h4><div class="extras">' +
-      '<div class="extra"><span class="where">Varsel</span><strong>Før det er tomt</strong><span>SMS til ansvarlig 15 minutter før en vare går tom, ikke først når den når Stopp-%.</span></div>' +
-      '<div class="extra"><span class="where">Pausen</span><strong>Fyll på før pausen</strong><span>' + (pauseItems.length && T < PAUSE_B ? 'Med dagens tempo går dette tomt rundt pausen: ' + esc(pauseItems.slice(0, 3).join(', ')) + '.' : 'Ingen varer går tom rundt pausen.') + '</span></div>' +
-      '<div class="extra"><span class="where">Plan</span><strong>Salg mot behovsplan</strong><span>' + Math.round(cumW(T) * 100) + ' % av planlagt salg er gjort. Varer som ligger langt over planen markeres tidlig.</span></div>' +
+      '<div class="extra"><span class="where">Varsel</span><strong>Før det er tomt</strong><span>SMS til ansvarlig for salgsstedet 15 minutter før en vare går tom, ikke først når den når Stopp-%.</span></div>' +
+      '<div class="extra"><span class="where">Salgstopp</span><strong>Fyll på før toppen</strong><span>' + (peakItems.length ? 'Med dagens tempo går dette tomt rundt ' + esc((nextPeak.name || '').toLowerCase()) + ': ' + esc(peakItems.slice(0, 3).join(', ')) + '.' : 'Ingen varer går tom rundt neste salgstopp.') + '</span></div>' +
+      '<div class="extra"><span class="where">Plan</span><strong>Salg mot behovsplan</strong><span>' + Math.round(cumW(T, false) * 100) + ' % av planlagt salg er gjort. Varer som ligger langt over planen markeres tidlig.</span></div>' +
       '<div class="extra"><span class="where">Kø</span><strong>Ventetid per salgssted</strong><span>Snitt ventetid de siste 10 minuttene, med pil opp eller ned, så man ser hvor det hoper seg opp.</span></div>' +
       '<div class="extra"><span class="where">QR</span><strong>Når QR stopper en vare</strong><span>Når en vare når Stopp-%, slutter QR å selge den. Prognosen viser når det skjer, så man kan fylle på før.</span></div>' +
       '</div></div>';
@@ -2267,9 +2570,10 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
   })();
 
   var VIEWS = [
+    { id: 'arr', group: 'Arrangementer', page: 'Planlegg arrangement', render: renderArr },
     { id: 'receipt', group: 'Hovedlager', page: 'Registrer varemottak', render: renderReceipt },
     { id: 'plan', group: 'Planlegging', page: 'Behovsplan', render: renderPlan },
-    { id: 'forecast', group: 'Prognoser', page: 'Hjemmekamp 18. oktober', render: renderForecast },
+    { id: 'forecast', group: 'Prognoser', page: 'Under arrangementet', render: renderForecast },
     { id: 'close', group: 'Kiosk Sør', page: 'Steng event', render: null },
     { id: 'return', group: 'Avsluttede eventer', page: 'Returforslag', render: renderReturn },
     { id: 'report', group: 'Avsluttede eventer', page: 'Lagerrapport', render: null },
@@ -2326,6 +2630,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent-fill); min-height:
 
   renderSteps();
   render();
+  renderArr();
   renderReceipt();
 })();
 </script>
