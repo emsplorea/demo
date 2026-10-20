@@ -1,0 +1,1534 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Lagerrapport etter event</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700&display=swap">
+<style>
+/* Layout: Done Dim, one committed dark look for a meeting-room screen. Brand bar on top, foldable info sections, the demo in a framed admin window. */
+:root {
+  color-scheme: dark;
+  --bg: #1c1b24;
+  --surface: #22212a;
+  --surface-2: #2a2833;
+  --border: #34313f;
+  --border-strong: #45424f;
+  --fg: #e4e1ec;
+  --fg-2: #a6a3b4;
+  --muted: #9a97ad;
+  --accent: #c4b0ff;
+  --accent-fill: #bba4ff;
+  --accent-ink: #1a0b33;
+  --accent-soft: #332a63;
+  --good: #4db896;
+  --good-bg: rgba(77, 184, 150, 0.14);
+  --warn: #e0c35a;
+  --warn-bg: rgba(224, 195, 90, 0.13);
+  --bad: #e97286;
+  --bad-bg: rgba(233, 114, 134, 0.13);
+  --s1: #9a72f0;
+  --s2: #d95926;
+  --s3: #199e70;
+  --band: rgba(187, 164, 255, 0.08);
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  --font-display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 64px;
+}
+.wrap { max-width: 1120px; margin: 0 auto; display: grid; gap: 56px; }
+.prose { max-width: 720px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: clamp(28px, 4.4vw, 40px); line-height: 1.15; font-weight: 700; }
+h2 { font-size: 24px; line-height: 1.25; font-weight: 600; }
+h3 { font-size: 17px; line-height: 1.35; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+.eyebrow { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+.lead { font-size: 17px; color: var(--fg-2); max-width: 680px; }
+.stack { display: grid; gap: 16px; }
+.stack-lg { display: grid; gap: 28px; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+.num { font-variant-numeric: tabular-nums; }
+code { font-size: 0.9em; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+header.top { display: grid; gap: 16px; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.toc a {
+  text-decoration: none; color: var(--fg); background: var(--surface); border: 1px solid var(--border);
+  padding: 8px 14px; border-radius: 999px; font-size: 14px; font-weight: 500;
+}
+.toc a:hover { border-color: var(--accent); color: var(--accent); }
+.pill {
+  display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600;
+  padding: 3px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--accent); white-space: nowrap;
+}
+
+/* Analysis */
+.readers { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.reader { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: grid; gap: 8px; align-content: start; }
+.reader .when { font-size: 13px; color: var(--muted); font-weight: 600; }
+.reader ul { margin: 0; padding-left: 18px; color: var(--fg-2); display: grid; gap: 4px; }
+
+.formula {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px; background: var(--surface);
+  border: 1px solid var(--border); border-radius: var(--radius); padding: 18px;
+}
+.formula .term { background: var(--surface-2); padding: 6px 10px; border-radius: 6px; font-weight: 600; font-size: 14px; }
+.formula .op { color: var(--muted); font-weight: 700; }
+.formula .term.key { background: var(--accent-soft); color: var(--accent); }
+.formula .break { flex-basis: 100%; height: 0; }
+
+.tiers { display: grid; gap: 20px; }
+.tier { display: grid; grid-template-columns: 150px 1fr; gap: 20px; padding-top: 20px; border-top: 1px solid var(--border-strong); }
+.tier-head { display: grid; gap: 4px; align-content: start; }
+.tier-head .tag { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
+.tier ol { margin: 0; padding-left: 20px; display: grid; gap: 12px; }
+.tier li strong { display: block; }
+.tier li span { color: var(--fg-2); }
+@media (max-width: 767px) { .tier { grid-template-columns: 1fr; gap: 10px; } }
+
+.findings { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 12px; }
+.finding { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; display: grid; gap: 6px; align-content: start; }
+.finding.risk { border-left: 3px solid var(--bad); }
+.finding p { color: var(--fg-2); font-size: 14px; }
+.finding .ref { font-size: 12px; color: var(--muted); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; overflow-wrap: anywhere; }
+
+.callout { background: var(--accent-soft); border-radius: var(--radius); padding: 16px 18px; display: grid; gap: 6px; }
+.callout p { color: var(--fg); }
+
+/* Demo window */
+.window { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.window-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 12px 18px;
+  border-bottom: 1px solid var(--border); background: var(--surface-2); font-size: 13px; color: var(--fg-2);
+}
+.crumbs { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.crumbs b { color: var(--fg); font-weight: 600; }
+.window-body { padding: 22px; display: grid; gap: 22px; }
+@media (max-width: 600px) { .window-body { padding: 16px; } }
+
+.event-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.event-head h3 { font-size: 22px; }
+.event-meta { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--fg-2); font-size: 14px; margin-top: 6px; }
+.status-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font-size: 13px; font-weight: 600; }
+.status-chip.ok { background: var(--good-bg); color: var(--good); }
+.status-chip.warn { background: var(--warn-bg); color: var(--warn); }
+.status-chip.bad { background: var(--bad-bg); color: var(--bad); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; }
+.field { display: grid; gap: 4px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+select {
+  font: inherit; font-size: 15px; color: var(--fg); background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 8px 34px 8px 12px; min-height: 44px; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px; background-size: 5px 5px; background-repeat: no-repeat;
+}
+.toggle { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 500; cursor: pointer; min-height: 44px; }
+.toggle input { width: 18px; height: 18px; accent-color: var(--accent-fill); }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+.kpi { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.kpi .label { font-size: 13px; color: var(--muted); font-weight: 500; }
+.kpi .value { font-family: var(--font-display); font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.kpi .sub { font-size: 13px; color: var(--fg-2); }
+.kpi.bad .value { color: var(--bad); }
+.kpi.warn .value { color: var(--warn); }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: thin; }
+.tab {
+  font: inherit; font-size: 14px; font-weight: 600; color: var(--fg-2); background: none; border: 0;
+  border-bottom: 2px solid transparent; padding: 10px 14px; min-height: 44px; cursor: pointer; white-space: nowrap;
+}
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.tab:hover { color: var(--fg); }
+.tab:focus-visible, select:focus-visible, .toc a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.panel { display: grid; gap: 14px; min-width: 0; }
+.panel-note { font-size: 13px; color: var(--muted); }
+
+.table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface-2); vertical-align: bottom; }
+th:first-child, td:first-child { text-align: left; }
+th.sep, td.sep { border-left: 1px solid var(--border-strong); }
+tbody tr:last-child td { border-bottom: 0; }
+tfoot td { font-weight: 700; background: var(--surface-2); border-top: 1px solid var(--border-strong); border-bottom: 0; }
+tr.group-row { cursor: pointer; }
+tr.group-row:hover td { background: var(--surface-2); }
+tr.group-row td:first-child::before { content: "▸"; display: inline-block; width: 16px; color: var(--muted); transition: transform .15s; }
+tr.group-row.open td:first-child::before { transform: rotate(90deg); }
+tr.child td { font-size: 13px; color: var(--fg-2); background: var(--bg); }
+tr.child td:first-child { padding-left: 32px; }
+.diff-neg { color: var(--bad); font-weight: 600; }
+.diff-pos { color: var(--warn); font-weight: 600; }
+.diff-zero { color: var(--muted); }
+.flag { display: inline-block; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 1px; }
+.flag.bad { background: var(--bad-bg); color: var(--bad); }
+.flag.warn { background: var(--warn-bg); color: var(--warn); }
+.flag.ok { background: var(--good-bg); color: var(--good); }
+
+.src { display: none; margin-top: 4px; }
+.show-src .src { display: block; }
+.src span { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.03em; padding: 1px 5px; border-radius: 4px; text-transform: uppercase; }
+.src .today { background: var(--good-bg); color: var(--good); }
+.src .derive { background: var(--accent-soft); color: var(--accent); }
+.src .new { background: var(--warn-bg); color: var(--warn); }
+.src-legend { display: none; flex-wrap: wrap; gap: 8px 16px; font-size: 13px; color: var(--fg-2); }
+.show-src .src-legend { display: flex; }
+.src-legend .src { display: inline; margin: 0; }
+
+.bar-cell { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+.minibar { width: 80px; height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; display: inline-block; }
+.minibar i { display: block; height: 100%; background: var(--bad); border-radius: 4px; }
+
+.chart-box { position: relative; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px 6px; }
+.chart-box svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--fg-2); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+.tooltip {
+  position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 8px 10px; font-size: 13px; box-shadow: var(--shadow); min-width: 170px; z-index: 2;
+}
+.tooltip .t-head { font-weight: 700; margin-bottom: 4px; }
+.tooltip .t-row { display: flex; justify-content: space-between; gap: 12px; font-variant-numeric: tabular-nums; }
+.tooltip .t-row i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+details.table-view summary { cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent); min-height: 32px; display: flex; align-items: center; }
+details.table-view .table-wrap { margin-top: 8px; }
+
+.timeline { display: grid; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.ev { display: grid; grid-template-columns: 64px 18px 1fr; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); align-items: start; }
+.ev:last-child { border-bottom: 0; }
+.ev time { font-weight: 700; font-variant-numeric: tabular-nums; }
+.ev .dot { width: 12px; height: 12px; border-radius: 50%; margin-top: 6px; }
+.ev .dot.empty { background: var(--bad); }
+.ev .dot.stop { background: var(--warn); }
+.ev .dot.move { background: var(--accent); }
+.ev .dot.refill { background: var(--good); }
+.ev .what { display: grid; gap: 2px; min-width: 0; }
+.ev .what span { color: var(--fg-2); font-size: 14px; }
+
+.btn {
+  font: inherit; font-size: 14px; font-weight: 600; border-radius: 8px; padding: 10px 16px; min-height: 44px; cursor: pointer;
+  border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg);
+}
+.btn.primary { background: var(--accent-fill); color: var(--accent-ink); border-color: var(--accent-fill); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.toast { font-size: 13px; color: var(--good); font-weight: 600; }
+
+/* Status and plan */
+.legend-row { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px; color: var(--fg-2); }
+.st { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.03em; white-space: nowrap; }
+.st.today { background: var(--good-bg); color: var(--good); }
+.st.derive { background: var(--accent-soft); color: var(--accent); }
+.st.part { background: var(--warn-bg); color: var(--warn); }
+.st.new { background: var(--bad-bg); color: var(--bad); }
+table.status td { white-space: normal; text-align: left; vertical-align: top; }
+table.status td:first-child { font-weight: 600; min-width: 170px; }
+table.status td:nth-child(2) { white-space: nowrap; }
+table.status td:last-child { color: var(--fg-2); min-width: 260px; }
+table.status th { text-align: left; }
+
+.phases { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.phase { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: grid; gap: 10px; align-content: start; }
+.phase h3 { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+.phase ul { margin: 0; padding-left: 18px; display: grid; gap: 6px; font-size: 14px; color: var(--fg-2); }
+.phase .who { font-size: 11px; font-weight: 700; color: var(--muted); margin-right: 4px; }
+
+.decisions { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; counter-reset: d; }
+.decisions li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px 14px 52px; position: relative; counter-increment: d; display: grid; gap: 4px; }
+.decisions li::before {
+  content: counter(d); position: absolute; left: 16px; top: 14px; width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent); font-weight: 700; font-size: 13px; display: grid; place-items: center;
+}
+.decisions .rec { font-size: 14px; color: var(--fg-2); }
+.decisions .rec b { color: var(--fg); }
+
+footer { font-size: 13px; color: var(--muted); border-top: 1px solid var(--border); padding-top: 16px; }
+
+/* View switch and closing flow */
+.seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; gap: 3px; flex-wrap: wrap; }
+.seg button {
+  font: inherit; font-size: 14px; font-weight: 600; border: 0; border-radius: 7px; padding: 8px 16px; min-height: 40px;
+  background: transparent; color: var(--fg-2); cursor: pointer;
+}
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow); }
+.seg button .n { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 12px; margin-right: 6px; }
+.report-view, .close-view { display: grid; gap: 22px; min-width: 0; }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.step { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; display: grid; grid-template-columns: 28px 1fr; gap: 4px 14px; align-items: start; }
+.step .mark { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 700; background: var(--surface-2); color: var(--muted); grid-row: span 2; }
+.step.done .mark { background: var(--good-bg); color: var(--good); }
+.step.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.step.active .mark { background: var(--accent-fill); color: var(--accent-ink); }
+.step .s-title { font-weight: 700; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.step .s-sub { font-size: 13px; color: var(--fg-2); }
+.step .s-body { grid-column: 1 / -1; display: grid; gap: 14px; margin-top: 10px; min-width: 0; }
+.step.pending .s-title { color: var(--muted); }
+.new-badge { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); text-transform: uppercase; letter-spacing: 0.03em; }
+.devices { display: grid; gap: 6px; }
+.device { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; padding: 8px 12px; background: var(--bg); border-radius: 8px; }
+.device span:first-child { font-weight: 600; }
+
+.choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.choice {
+  font: inherit; text-align: left; cursor: pointer; border: 1px solid var(--border-strong); background: var(--surface); color: var(--fg);
+  border-radius: 12px; padding: 16px 18px; display: grid; gap: 4px; min-height: 96px;
+}
+.choice:hover { border-color: var(--accent); }
+.choice b { font-family: var(--font-display); font-size: 17px; }
+.choice span { color: var(--fg-2); font-size: 14px; }
+.choice small { color: var(--muted); font-size: 12px; }
+.choice.rec { border-color: var(--accent); background: var(--accent-soft); }
+.hint { display: flex; gap: 10px; align-items: flex-start; padding: 10px 14px; border-radius: 8px; background: var(--warn-bg); color: var(--warn); font-size: 14px; }
+.hint b { color: inherit; }
+
+.count-tools { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; justify-content: space-between; }
+.progress { display: grid; gap: 4px; min-width: 200px; flex: 1 1 220px; max-width: 360px; }
+.progress .track { height: 8px; background: var(--surface-2); border-radius: 4px; overflow: hidden; }
+.progress .track i { display: block; height: 100%; background: var(--accent-fill); border-radius: 4px; transition: width .2s; }
+.progress span { font-size: 13px; color: var(--fg-2); font-weight: 600; }
+.count-tools .toggles { display: flex; flex-wrap: wrap; gap: 0 18px; }
+table.count td { vertical-align: middle; }
+table.count td.item { white-space: normal; min-width: 150px; }
+table.count td.item small { display: block; color: var(--muted); font-size: 12px; }
+.qty-in { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+.qty-in input {
+  font: inherit; font-size: 16px; width: 64px; min-height: 44px; padding: 6px 8px; text-align: right; font-variant-numeric: tabular-nums;
+  color: var(--fg); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px;
+}
+.qty-in input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.qty-group { display: inline-flex; gap: 10px; align-items: center; justify-content: flex-end; }
+.match-btn {
+  font: inherit; font-size: 13px; font-weight: 600; min-height: 44px; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--fg);
+}
+.match-btn:hover { border-color: var(--good); color: var(--good); }
+table.count select { font-size: 14px; min-height: 44px; padding: 6px 30px 6px 10px; background-position: calc(100% - 16px) 19px, calc(100% - 11px) 19px; }
+table.count select.missing { border-color: var(--bad); }
+tr.row-done td.item::after { content: " ✓"; color: var(--good); font-weight: 700; }
+.blind .exp-col { display: none; }
+.count-summary { display: flex; flex-wrap: wrap; gap: 8px 24px; font-size: 14px; padding: 12px 14px; background: var(--surface-2); border-radius: 8px; font-variant-numeric: tabular-nums; }
+.count-summary b { font-weight: 700; }
+.err { color: var(--bad); font-size: 14px; font-weight: 600; }
+.confirm-box { border: 1px solid var(--border-strong); border-radius: 12px; padding: 16px 18px; display: grid; gap: 12px; background: var(--bg); }
+.radio-list { display: grid; gap: 8px; }
+.radio-list label { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer; background: var(--surface); }
+.radio-list input { margin-top: 4px; accent-color: var(--accent-fill); width: 18px; height: 18px; flex: none; }
+.radio-list span small { display: block; color: var(--muted); font-size: 13px; }
+.success { background: var(--good-bg); color: var(--good); border-radius: 12px; padding: 18px; display: grid; gap: 10px; }
+.success p { color: var(--fg); }
+.btn.ghost { background: transparent; border-style: dashed; color: var(--fg-2); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.extras { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.extra { border-top: 2px solid var(--accent); padding-top: 10px; display: grid; gap: 4px; }
+.extra strong { font-size: 15px; }
+.extra span { color: var(--fg-2); font-size: 14px; }
+.extra .where { font-size: 12px; font-weight: 600; color: var(--muted); }
+
+
+/* Brand bar, folding and presentation mode */
+.brandbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px 20px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.brand .logo { height: 30px; width: auto; display: block; max-width: 60vw; }
+.brand-sep { width: 1px; height: 24px; background: var(--border-strong); }
+.brand-tag { font-family: var(--font-display); font-weight: 600; font-size: 15px; color: var(--fg-2); white-space: nowrap; }
+.view-tools { display: flex; flex-wrap: wrap; gap: 8px; }
+.present-btn[aria-pressed="true"] { background: var(--accent-fill); color: var(--accent-ink); border-color: var(--accent-fill); }
+.present .internal { display: none !important; }
+.int-tag { display: inline-block; font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 7px; border-radius: 4px; background: var(--warn-bg); color: var(--warn); vertical-align: 3px; margin-left: 6px; }
+.folded .fold-hide { display: none; }
+
+details.fold > summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 16px;
+  padding: 14px 18px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+}
+details.fold > summary::-webkit-details-marker { display: none; }
+details.fold > summary:hover { border-color: var(--border-strong); }
+details.fold > summary .sum-text { display: grid; gap: 4px; min-width: 0; }
+details.fold > summary .chev { flex: none; display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--accent); }
+details.fold > summary .chev::before { content: "Vis"; }
+details.fold[open] > summary .chev::before { content: "Skjul"; }
+details.fold > summary .chev::after {
+  content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translateY(-2px); transition: transform .15s;
+}
+details.fold[open] > summary .chev::after { transform: rotate(-135deg) translate(-2px, 0); }
+details.fold[open] > summary { border-color: transparent; background: transparent; padding-inline: 0; }
+details.fold > .fold-body { margin-top: 12px; }
+details.fold.sub > summary h3 { font-size: 17px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+
+<div class="brandbar">
+  <div class="brand"><svg class="logo" role="img" aria-label="Done Pay" viewBox="0 0 1139 218" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_2157_6264)">
+<path d="M72.38 73.9908C62.87 83.5008 51.59 91.0408 39.17 96.1808C26.75 101.331 13.44 103.981 0 103.981V172.221C11.2 172.221 22.3 170.011 32.64 165.731C42.99 161.441 52.39 155.161 60.31 147.241C68.23 139.321 74.51 129.921 78.8 119.571C83.09 109.221 85.29 98.1308 85.29 86.9308C85.29 78.8308 84.14 70.7908 81.88 63.0508C78.98 66.9208 75.81 70.5808 72.37 74.0108L72.38 73.9908Z" fill="#FFFFFF"/>
+<path d="M102.37 0.610352H0V1.61035C11.2 1.61035 22.3 3.82035 32.64 8.10035C42.99 12.3904 52.39 18.6704 60.31 26.5904C68.23 34.5104 74.51 43.9204 78.8 54.2604C79.99 57.1304 81.02 60.0504 81.88 63.0204C104.26 33.2004 102.37 0.610352 102.37 0.610352Z" fill="#FFFFFF"/>
+</g>
+<path d="M1070.9 170.265L1020.65 53.4209H1045.05L1082.37 144.896H1074.56L1113.83 53.4209H1138.23L1084.07 170.265H1070.9ZM1037.73 217.831L1071.88 147.823L1084.07 170.265L1062.12 217.831H1037.73Z" fill="#FFFFFF"/>
+<path d="M952.344 171.728C941.774 171.728 932.179 169.126 923.56 163.922C914.941 158.556 908.111 151.319 903.07 142.212C898.191 133.105 895.752 122.86 895.752 111.477C895.752 100.093 898.191 89.848 903.07 80.7412C908.111 71.6344 914.86 64.3977 923.316 59.0312C931.935 53.6647 941.611 50.9814 952.344 50.9814C961.126 50.9814 968.932 52.8516 975.762 56.5919C982.755 60.1696 988.365 65.2108 992.593 71.7157C996.821 78.0579 999.179 85.4572 999.667 93.9136V128.796C999.179 137.09 996.821 144.489 992.593 150.994C988.528 157.499 982.998 162.621 976.006 166.361C969.176 169.939 961.288 171.728 952.344 171.728ZM956.003 150.994C966.899 150.994 975.68 147.335 982.348 140.017C989.015 132.536 992.349 123.023 992.349 111.477C992.349 103.508 990.804 96.5968 987.714 90.7424C984.787 84.7254 980.559 80.0907 975.03 76.8383C969.501 73.4232 963.077 71.7157 955.759 71.7157C948.441 71.7157 941.937 73.4232 936.245 76.8383C930.716 80.2533 926.325 84.9694 923.072 90.9864C919.983 96.8407 918.438 103.59 918.438 111.233C918.438 119.039 919.983 125.95 923.072 131.967C926.325 137.821 930.797 142.456 936.489 145.871C942.18 149.286 948.685 150.994 956.003 150.994ZM990.886 169.289V138.065L995.032 109.769L990.886 81.7169V53.4208H1013.08V169.289H990.886Z" fill="#FFFFFF"/>
+<path d="M793.275 103.427V83.4249H839.378C845.72 83.4249 851.331 82.1239 856.21 79.522C861.251 76.92 865.154 73.261 867.918 68.545C870.846 63.829 872.309 58.2185 872.309 51.7137C872.309 45.2088 870.846 39.5984 867.918 34.8823C865.154 30.1663 861.251 26.5073 856.21 23.9054C851.331 21.3034 845.72 20.0024 839.378 20.0024H793.275V0H840.842C851.25 0 860.519 2.11408 868.65 6.34223C876.944 10.5704 883.449 16.5874 888.165 24.3932C893.043 32.0364 895.483 41.1433 895.483 51.7137C895.483 62.1214 893.043 71.2283 888.165 79.0341C883.449 86.6773 876.944 92.6943 868.65 97.0851C860.519 101.313 851.25 103.427 840.842 103.427H793.275ZM777.907 169.289V0H800.837V169.289H777.907Z" fill="#FFFFFF"/>
+<path d="M670.543 171.728C658.997 171.728 648.589 169.126 639.32 163.922C630.05 158.556 622.732 151.319 617.366 142.212C611.999 133.105 609.316 122.779 609.316 111.233C609.316 99.8492 611.918 89.6041 617.122 80.4973C622.488 71.3905 629.644 64.2351 638.588 59.0312C647.695 53.6647 657.858 50.9814 669.079 50.9814C679.812 50.9814 689.244 53.4208 697.376 58.2994C705.669 63.1781 712.093 69.9269 716.646 78.5458C721.362 87.1648 723.72 96.922 723.72 107.818C723.72 109.444 723.639 111.233 723.476 113.184C723.314 114.973 722.988 117.087 722.501 119.526H624.684V101.232H710.792L702.742 108.306C702.742 100.5 701.36 93.9136 698.595 88.547C695.831 83.0179 691.928 78.7897 686.886 75.8625C681.845 72.7727 675.747 71.2278 668.591 71.2278C661.111 71.2278 654.525 72.8541 648.833 76.1065C643.141 79.3589 638.75 83.9123 635.661 89.7667C632.571 95.6211 631.026 102.532 631.026 110.501C631.026 118.632 632.652 125.787 635.905 131.967C639.157 137.984 643.792 142.7 649.809 146.115C655.826 149.368 662.737 150.994 670.543 150.994C677.048 150.994 682.984 149.855 688.35 147.579C693.879 145.302 698.595 141.887 702.498 137.334L716.646 151.726C711.117 158.23 704.287 163.19 696.156 166.605C688.187 170.02 679.65 171.728 670.543 171.728Z" fill="#FFFFFF"/>
+<path d="M577.397 169.289V101.719C577.397 92.9378 574.633 85.7012 569.104 80.0094C563.574 74.3176 556.419 71.4718 547.638 71.4718C541.783 71.4718 536.579 72.7727 532.026 75.3747C527.472 77.9766 523.895 81.5543 521.293 86.1077C518.691 90.6611 517.39 95.865 517.39 101.719L508.364 96.5968C508.364 87.8152 510.316 80.0094 514.219 73.1793C518.122 66.3492 523.57 60.9827 530.562 57.0798C537.555 53.0142 545.442 50.9814 554.224 50.9814C563.005 50.9814 570.73 53.1768 577.397 57.5676C584.227 61.9584 589.594 67.7315 593.497 74.8868C597.4 81.8795 599.351 89.3601 599.351 97.3286V169.289H577.397ZM495.436 169.289V53.4208H517.39V169.289H495.436Z" fill="#FFFFFF"/>
+<path d="M422.401 171.728C411.018 171.728 400.772 169.045 391.666 163.678C382.559 158.312 375.322 151.075 369.956 141.968C364.589 132.699 361.906 122.372 361.906 110.989C361.906 99.7679 364.589 89.6854 369.956 80.7412C375.322 71.6344 382.559 64.3977 391.666 59.0312C400.772 53.6647 411.018 50.9814 422.401 50.9814C433.622 50.9814 443.786 53.6647 452.893 59.0312C462.162 64.2351 469.48 71.3905 474.846 80.4973C480.213 89.6041 482.896 99.7679 482.896 110.989C482.896 122.372 480.213 132.699 474.846 141.968C469.48 151.075 462.162 158.312 452.893 163.678C443.786 169.045 433.622 171.728 422.401 171.728ZM422.401 150.506C429.719 150.506 436.224 148.798 441.916 145.383C447.607 141.968 452.079 137.334 455.332 131.479C458.584 125.462 460.211 118.632 460.211 110.989C460.211 103.508 458.503 96.8407 455.088 90.9864C451.836 85.132 447.363 80.5786 441.672 77.3261C436.143 73.9111 429.719 72.2036 422.401 72.2036C415.083 72.2036 408.578 73.9111 402.886 77.3261C397.195 80.5786 392.723 85.132 389.47 90.9864C386.218 96.8407 384.591 103.508 384.591 110.989C384.591 118.632 386.218 125.462 389.47 131.479C392.723 137.334 397.195 141.968 402.886 145.383C408.578 148.798 415.083 150.506 422.401 150.506Z" fill="#FFFFFF"/>
+<path d="M220.124 169.289V148.311H267.203C279.725 148.311 290.702 145.628 300.134 140.261C309.566 134.732 316.884 127.17 322.088 117.575C327.454 107.981 330.137 96.9225 330.137 84.4006C330.137 72.0414 327.454 61.0644 322.088 51.4697C316.721 41.8751 309.322 34.3945 299.89 29.0279C290.458 23.6614 279.562 20.9782 267.203 20.9782H220.368V0H267.691C280.05 0 291.433 2.11408 301.841 6.34223C312.412 10.5704 321.518 16.5061 329.162 24.1493C336.967 31.7925 342.984 40.7367 347.213 50.9819C351.603 61.227 353.799 72.4479 353.799 84.6445C353.799 96.6785 351.603 107.899 347.213 118.307C342.984 128.552 337.049 137.497 329.406 145.14C321.762 152.783 312.656 158.719 302.085 162.947C291.677 167.175 280.375 169.289 268.178 169.289H220.124ZM205 169.289V0H227.93V169.289H205Z" fill="#FFFFFF"/>
+<defs>
+<clipPath id="clip0_2157_6264">
+<rect width="102" height="171" fill="white" transform="translate(0 1)"/>
+</clipPath>
+</defs>
+</svg><span class="brand-sep" aria-hidden="true"></span><span class="brand-tag">Event og arena</span></div>
+  <div class="view-tools">
+    <button class="btn" type="button" id="foldAll">Skjul all info</button>
+    <button class="btn present-btn" type="button" id="presentBtn" aria-pressed="false" title="Hurtigtast: P">Presentasjonsmodus</button>
+  </div>
+</div>
+
+<header class="top">
+  <span class="eyebrow">Vålerenga · Kiosker og barer på arena</span>
+  <h1>Lagerkontroll og lagerrapport etter event</h1>
+  <p class="lead fold-hide">Hva skal stå igjen i hver kiosk når kampen er over, stemmer det, og hva betyr det for neste kamp? Under ser du hva rapporten bør svare på, og en klikkbar demo av stengingen og rapporten. Alle tall er eksempeldata.</p>
+  <nav class="toc fold-hide" aria-label="Innhold">
+    <a href="#analyse">Hva rapporten skal svare på</a>
+    <a href="#demo">Demo</a>
+    <a href="#status" class="internal">Hva finnes i dag</a>
+    <a href="#plan" class="internal">Byggeplan og beslutninger</a>
+  </nav>
+</header>
+
+<!-- ============ ANALYSE ============ -->
+<section id="analyse">
+<details class="fold" open>
+  <summary><span class="sum-text"><span class="eyebrow">1 · Analyse</span><h2>Hva rapporten må svare på</h2></span><span class="chev" aria-hidden="true"></span></summary>
+  <div class="fold-body stack-lg">
+  <div class="stack prose">
+    <p>En kampdag på arena er kort og intens. Fem eller flere salgssteder åpner samtidig, varer flyttes mellom kioskene underveis, og alt stenger innen en time etter slutt. Rapporten etter eventet har én jobb: vise hvor varene ble av, og hva det betyr for neste kamp. Tre roller leser den, til ulik tid.</p>
+  </div>
+
+  <div class="readers">
+    <div class="reader">
+      <span class="when">Ved stenging, i kiosken</span>
+      <h3>Kioskansvarlig</h3>
+      <ul>
+        <li>Stemmer tellingen med det systemet forventer?</li>
+        <li>Hvilke varer har avvik som må sjekkes før jeg går?</li>
+        <li>Er alle kasser gjort opp?</li>
+      </ul>
+    </div>
+    <div class="reader">
+      <span class="when">Dagen etter</span>
+      <h3>Driftsleder / F&amp;B</h3>
+      <ul>
+        <li>Hvilken kiosk har svinn, og på hvilke varer?</li>
+        <li>Hvor og når gikk vi tom, og hvor lenge?</li>
+        <li>Hva skal hver kiosk ha med til neste kamp?</li>
+      </ul>
+    </div>
+    <div class="reader">
+      <span class="when">Etter uken eller sesongen</span>
+      <h3>Økonomi</h3>
+      <ul>
+        <li>Svinn og differanse i kroner, til kostpris.</li>
+        <li>Omsetning per kiosk, avstemt mot Z-rapportene.</li>
+        <li>Lagerverdi som står igjen i kioskene.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Kjernen er varebalansen</h3>
+    <p class="prose muted">Hver vare i hver kiosk får én linje. Alt som kom inn og alt som gikk ut gir en forventet beholdning. Tellingen ved stenging gir den faktiske. Forskjellen er differansen, og den er det rapporten egentlig handler om.</p>
+    <div class="formula" role="img" aria-label="Åpning pluss påfyll pluss inn fra andre kiosker minus ut til andre kiosker minus retur minus solgt minus registrert svinn er lik forventet. Talt minus forventet er lik differanse.">
+      <span class="term">Åpning</span><span class="op">+</span>
+      <span class="term">Påfyll</span><span class="op">+</span>
+      <span class="term">Inn fra kiosk</span><span class="op">−</span>
+      <span class="term">Ut til kiosk</span><span class="op">−</span>
+      <span class="term">Retur</span><span class="op">−</span>
+      <span class="term">Solgt</span><span class="op">−</span>
+      <span class="term">Registrert svinn</span><span class="op">=</span>
+      <span class="term key">Forventet</span>
+      <span class="break"></span>
+      <span class="term">Talt</span><span class="op">−</span>
+      <span class="term key">Forventet</span><span class="op">=</span>
+      <span class="term key">Differanse (stk og kr)</span>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Innhold, i prioritert rekkefølge</h3>
+    <div class="tiers">
+      <div class="tier">
+        <div class="tier-head"><span class="tag">Må ha</span><span class="small muted">Første versjon</span></div>
+        <ol>
+          <li><strong>Varebalanse per vare og kiosk</strong><span>Formelen over, med differanse i stk og i kroner til kostpris. Avvik over en terskel markeres.</span></li>
+          <li><strong>Sluttelling som del av stengingen</strong><span>Uten telling ved stenging finnes ingen faktisk beholdning, og da blir differansen gjetning.</span></li>
+          <li><strong>Kioskoversikt</strong><span>Omsetning, solgte enheter, differanse i kroner og i prosent av omsetningen, antall ganger utsolgt, og oppgjørsstatus for hver kasse.</span></li>
+          <li><strong>Svinn med årsak</strong><span>Svinn som er registrert i kassen (kassert, knust, personal) skilles fra ukjent telledifferanse. Den første er forklart, den andre må følges opp.</span></li>
+        </ol>
+      </div>
+      <div class="tier">
+        <div class="tier-head"><span class="tag">Bør ha</span><span class="small muted">Andre versjon</span></div>
+        <ol start="5">
+          <li><strong>Utsolgt og Stopp-%</strong><span>Når hver vare nådde Stopp-% og når den var tom, hvor lenge, og når påfyllet kom. Det er her tapt salg skjer.</span></li>
+          <li><strong>Salg over tid</strong><span>Per kvarter, med avspark, pause og slutt markert, og fordelt på kasse, QR og selvbetjent. Viser om pausen er bemannet riktig.</span></li>
+          <li><strong>Forslag til neste kamp</strong><span>Foreslått åpningsbeholdning per kiosk ut fra salget, rundet til hele forpakninger, og hva som må hentes fra hovedlageret.</span></li>
+        </ol>
+      </div>
+      <div class="tier">
+        <div class="tier-head"><span class="tag">Senere</span><span class="small muted">Når grunnlaget er på plass</span></div>
+        <ol start="8">
+          <li><strong>Arenatotal og sammenligning</strong><span>Alle salgssteder samme kampdag samlet, og sammenlignet med forrige hjemmekamp.</span></li>
+          <li><strong>Margin og lagerverdi</strong><span>Krever et avklart grunnlag for kostpris per vare.</span></li>
+          <li><strong>Eksport og utsending</strong><span>CSV og PDF, og et sammendrag på e-post eller SMS til ansvarlig når eventet er stengt.</span></li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack prose">
+    <h3>Kiosk og bar er ikke helt like</h3>
+    <p class="muted">En kiosk selger stykkvarer: bokser, flasker, pølser. Der skal differansen være null, og hver enhet teller. En bar kan selge fatøl og drinker, der telling skjer i fat eller liter og noe skumsvinn er normalt. Rapporten bør derfor kunne ha en toleranse per varegruppe, slik at et lite avvik på fatøl ikke ser like alvorlig ut som tolv manglende colaer. Barer har også oftere personaldrikke og representasjon, som bør registreres som egne svinnårsaker og ikke ende som ukjent differanse.</p>
+  </div>
+
+  <div class="stack internal">
+    <h3>Hva vi fant i koden <span class="int-tag">Internt</span></h3>
+    <p class="prose muted small">Lest fra Plorea-POS-Alpha på <code>origin/beta</code> 20.10.2026. Disse funnene styrer hva som er realistisk i første versjon.</p>
+    <div class="findings">
+      <div class="finding risk">
+        <h3>Svinn fra kassen trekkes ikke fra kioskens lager</h3>
+        <p>Når svinn registreres i kassen, hoppes lagertrekket over. Varen står fortsatt på lager og dukker opp som ukjent differanse ved neste telling. Dette er en feil, og den bør rettes før rapporten bygges.</p>
+        <span class="ref">PayOrderController.php:304 · SaveOrderController.php:133</span>
+      </div>
+      <div class="finding risk">
+        <h3>Ingen telling ved stenging</h3>
+        <p>Lagertelling finnes bare midt i et event (sperr, tell, aktiver). Stengeflyten gjør oppgjør, frigjør reservasjoner og lagrer forventet beholdning, men teller ikke.</p>
+        <span class="ref">DeviceGroupService.php:832 · ProcessEventCloseJob.php</span>
+      </div>
+      <div class="finding risk">
+        <h3>Stengingen går videre selv om en kasse ikke er gjort opp</h3>
+        <p>Feil i oppgjøret logges bare som en advarsel, og eventet stenges likevel. Kasser uten salg hoppes over og står som «venter». Skjermbildet fra Bar 1 viser begge deler: Tribune Nord står som PENDING under «Event closed successfully».</p>
+        <span class="ref">ProcessEventCloseJob.php:133 · DaysTakingService.php:1119</span>
+      </div>
+      <div class="finding">
+        <h3>Forventet beholdning lagres, men ingen leser den</h3>
+        <p>Ved stenging lagres systemets beholdning per vare. Det finnes ingen side eller endepunkt som viser den. Etter stenging viser enhetsgruppesiden ingenting om eventet.</p>
+        <span class="ref">DeviceGroupService.php:1068 · index.jsx:300</span>
+      </div>
+      <div class="finding">
+        <h3>Åpningsbeholdning overskrives</h3>
+        <p>Åpningen lagres i ett felt per vare og kiosk, som overskrives neste gang et event aktiveres. Eldre eventer mister åpningen sin.</p>
+        <span class="ref">DeviceGroupService.php:560</span>
+      </div>
+      <div class="finding">
+        <h3>Påfyll før eventet logges ikke</h3>
+        <p>Henting fra hovedlageret før aktivering flytter varene uten å lagre noen bevegelse. Påfyll og flytting under eventet logges.</p>
+        <span class="ref">DeviceGroupService.php:1112</span>
+      </div>
+      <div class="finding">
+        <h3>Ordre har kiosk, men ikke event</h3>
+        <p>Salg knyttes til eventet via kiosk og tidsvindu (aktivert til stenging). Indeksene for dette finnes allerede.</p>
+        <span class="ref">orders.device_group_id · idx_orders_dg_created</span>
+      </div>
+      <div class="finding">
+        <h3>Utsolgt-tidspunkt lagres ikke</h3>
+        <p>Når en vare når Stopp-% sendes en SMS, men tidspunktet lagres ikke. Utsolgt-loggen krever en ny tabell for lagerhendelser.</p>
+        <span class="ref">DeviceGroupService.php:444</span>
+      </div>
+      <div class="finding risk">
+        <h3>Kontantsalg bokføres som 0 ved automatisk oppgjør</h3>
+        <p>Stenging kjører oppgjør per kasse automatisk. Den kjente feilen i PLBR-2625 gjør at omsetning per kiosk blir feil for kontant til den er rettet.</p>
+        <span class="ref">PLBR-2625</span>
+      </div>
+    </div>
+  </div>
+  </div>
+</details>
+</section>
+
+<!-- ============ DEMO ============ -->
+<section id="demo" class="stack-lg">
+<details class="fold" open>
+  <summary><span class="sum-text"><span class="eyebrow">2 · Demo</span><h2>Fra stenging til rapport</h2></span><span class="chev" aria-hidden="true"></span></summary>
+  <div class="fold-body">
+  <div class="stack prose">
+    <p class="muted">Demoen har to deler. <b>Stenging</b> er det de ansatte ser når Kiosk Sør stenger eventet. Når kassene er gjort opp og salget er stoppet, viser systemet hva som skal stå igjen av hver vare, og den ansatte velger å godkjenne lageret eller telle. <b>Lagerrapport</b> er det driftslederen ser etterpå. Tellingen du gjør i stengingen kommer med i rapporten. Alle tall er eksempeldata.</p>
+  </div>
+  </div>
+</details>
+
+  <div class="window" id="win">
+    <div class="window-bar">
+      <div class="crumbs">Admin <span aria-hidden="true">›</span> Enhetsgrupper <span aria-hidden="true">›</span> <span id="crumbGroup">Kiosk Sør</span> <span aria-hidden="true">›</span> <b id="crumbPage">Steng event</b></div>
+      <span class="pill">Eksempeldata</span>
+    </div>
+    <div class="window-body">
+      <div class="seg" role="group" aria-label="Velg visning">
+        <button type="button" id="v-close" aria-pressed="true"><span class="n">1</span>Stenging</button>
+        <button type="button" id="v-report" aria-pressed="false"><span class="n">2</span>Lagerrapport</button>
+      </div>
+
+      <div class="close-view" id="closeView">
+        <div class="event-head">
+          <div>
+            <h3>Steng event · Kiosk Sør</h3>
+            <div class="event-meta num">
+              <span>Hjemmekamp, søndag 18. oktober</span>
+              <span>Aktivert 16:45</span>
+              <span>Stenging startet 20:27</span>
+            </div>
+          </div>
+          <span class="status-chip warn" id="closeChip">Venter på lagerkontroll</span>
+        </div>
+        <ol class="steps" id="steps"></ol>
+      </div>
+
+      <div class="report-view" id="reportView" hidden>
+      <div class="event-head">
+        <div>
+          <h3>Hjemmekamp, søndag 18. oktober</h3>
+          <div class="event-meta num">
+            <span>Intility Arena</span>
+            <span>Aktivert 16:45</span>
+            <span>Stengt 20:31</span>
+            <span>5 salgssteder · 9 kasser</span>
+          </div>
+        </div>
+        <div class="actions">
+          <span class="status-chip ok">✓ Oppgjør 9 av 9 kasser</span>
+          <span class="status-chip ok">✓ Sluttelling 5 av 5</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="field">
+          <label for="kiosk">Salgssted</label>
+          <select id="kiosk"></select>
+        </div>
+        <label class="toggle internal" for="srcToggle"><input type="checkbox" id="srcToggle"> Vis datakilde</label>
+      </div>
+      <div class="src-legend">
+        <span class="src"><span class="today">I dag</span></span> lagres allerede
+        <span class="src"><span class="derive">Utledes</span></span> kan regnes ut av data vi har
+        <span class="src"><span class="new">Ny</span></span> må bygges
+      </div>
+
+      <div class="kpis" id="kpis"></div>
+
+      <div class="tabs" role="tablist" aria-label="Rapportdeler">
+        <button class="tab" role="tab" id="t-balance" aria-controls="p-balance" aria-selected="true">Varebalanse</button>
+        <button class="tab" role="tab" id="t-kiosks" aria-controls="p-kiosks" aria-selected="false">Salgssteder</button>
+        <button class="tab" role="tab" id="t-time" aria-controls="p-time" aria-selected="false">Salg over tid</button>
+        <button class="tab" role="tab" id="t-events" aria-controls="p-events" aria-selected="false">Utsolgt og påfyll</button>
+        <button class="tab" role="tab" id="t-next" aria-controls="p-next" aria-selected="false">Neste kamp</button>
+      </div>
+
+      <div class="panel" role="tabpanel" id="p-balance" aria-labelledby="t-balance">
+        <p class="panel-note" id="balanceNote"></p>
+        <div class="table-wrap"><table id="balanceTable"></table></div>
+      </div>
+
+      <div class="panel" role="tabpanel" id="p-kiosks" aria-labelledby="t-kiosks" hidden>
+        <p class="panel-note">Differanse i prosent av omsetningen gjør store og små salgssteder sammenlignbare. Markeringen slår inn over 0,5 %.</p>
+        <div class="table-wrap"><table id="kioskTable"></table></div>
+      </div>
+
+      <div class="panel" role="tabpanel" id="p-time" aria-labelledby="t-time" hidden>
+        <div class="legend">
+          <span><i style="background:var(--s1)"></i>Kasse</span>
+          <span><i style="background:var(--s2)"></i>QR</span>
+          <span><i style="background:var(--s3)"></i>Selvbetjent</span>
+        </div>
+        <div class="chart-box" id="chartBox">
+          <svg id="chart" viewBox="0 0 760 300" role="img" aria-label="Omsetning per kvarter fordelt på kasse, QR og selvbetjent"></svg>
+          <div class="tooltip" id="tip" hidden></div>
+        </div>
+        <p class="panel-note">Avspark, pause og slutt er markert, så du ser hvordan salget fordeler seg rundt kampen.<span class="internal"> Kamptidene er lagt inn for hånd i demoen; Plorea har ikke kamptider i dag.</span></p>
+        <details class="table-view">
+          <summary>Vis som tabell</summary>
+          <div class="table-wrap"><table id="timeTable"></table></div>
+        </details>
+      </div>
+
+      <div class="panel" role="tabpanel" id="p-events" aria-labelledby="t-events" hidden>
+        <p class="panel-note">Lagerhendelser i tidsrekkefølge. Rødt er tomt, oransje er Stopp-% (QR slutter å selge varen), lilla er flytting mellom salgssteder, grønt er påfyll fra hovedlageret.</p>
+        <div class="timeline" id="timeline"></div>
+      </div>
+
+      <div class="panel" role="tabpanel" id="p-next" aria-labelledby="t-next" hidden>
+        <p class="panel-note">Foreslått åpning er salget i dag pluss 10 %, rundet opp til hel forpakning. Varer som gikk tom får et ekstra tillegg.<span class="internal"> Regelen er et forslag og skal regnes ut i backend.</span></p>
+        <div class="table-wrap"><table id="nextTable"></table></div>
+        <div class="actions">
+          <button class="btn primary" id="planBtn" type="button">Lag plukkliste fra hovedlageret</button>
+          <span class="toast" id="planToast" hidden></span>
+        </div>
+      </div>
+      </div>
+    </div>
+  </div>
+
+  <details class="fold sub" open>
+    <summary><span class="sum-text"><h3>Detaljer i stengingen</h3></span><span class="chev" aria-hidden="true"></span></summary>
+    <div class="fold-body stack">
+    <p class="prose muted small">Alt under er med i demoen over, og hvert punkt kan slås av per lokasjon hvis det blir for mye for de ansatte.</p>
+    <div class="extras">
+      <div class="extra"><span class="where">Før valget</span><strong>Anbefaling om å telle</strong><span>Hvis en vare gikk tom eller ble flyttet i kveld, sier systemet fra og anbefaler telling. Ellers er det lett å godkjenne på rutine.</span></div>
+      <div class="extra"><span class="where">Godkjenn lager</span><strong>Bekreftelse med navn og tid</strong><span>Godkjenning krever et kryss for at varene er sett over, og lagres med hvem og når. Da er godkjenning et ansvar, ikke en snarvei.</span></div>
+      <div class="extra"><span class="where">Telling</span><strong>Kasser og løse</strong><span>Antallet kan tastes som hele forpakninger pluss løse, slik det står på hyllen. Samme mønster som lagerjusteringen i dag.</span></div>
+      <div class="extra"><span class="where">Telling</span><strong>«Stemmer»-knapp per vare</strong><span>Ett trykk setter talt lik forventet. Det sparer tid på de fleste varene, og de ansatte bruker tiden på dem som avviker.</span></div>
+      <div class="extra"><span class="where">Telling</span><strong>Årsak ved avvik</strong><span>En vare med differanse må ha årsak: feiltelling, knust eller sølt, kassert, personal, representasjon eller ukjent. Da skilles forklart svinn fra ukjent.</span></div>
+      <div class="extra"><span class="where">Telling</span><strong>Blindtelling som valg</strong><span>Lokasjonen kan skjule forventet antall under tellingen. Det gir ærligere telling, fordi man ikke ser hva man «skal» finne. Av som standard.</span></div>
+      <div class="extra"><span class="where">Telling</span><strong>Fremdrift, filter og utkast</strong><span>Viser hvor mange varer som er talt, kan filtrere til bare avvik, og kan lagre et utkast hvis tellingen blir avbrutt.</span></div>
+      <div class="extra"><span class="where">Etter telling</span><strong>Hva skjer med varene nå</strong><span>Bli stående til neste event, returneres til hovedlageret, eller kasser mat som ikke kan selges igjen. Kassert mat blir registrert svinn med en gang.</span></div>
+      <div class="extra internal"><span class="where">Oppgjør</span><strong>Ingen stenging med kasse som venter</strong><span>Skjermbildet ditt viser «Event closed successfully» mens Tribune Nord står som PENDING. En kasse uten salg bør vise «Ingen salg». En kasse som ikke er gjort opp bør stoppe stengingen.</span></div>
+    </div>
+    </div>
+  </details>
+</section>
+
+<!-- ============ STATUS ============ -->
+<section id="status" class="internal">
+<details class="fold" open>
+  <summary><span class="sum-text"><span class="eyebrow">3 · Hva finnes i dag <span class="int-tag">Internt</span></span><h2>Hvert tall i rapporten, og hvor det kommer fra</h2></span><span class="chev" aria-hidden="true"></span></summary>
+  <div class="fold-body stack-lg">
+  <div class="stack prose">
+    <p class="muted">Mye kan regnes ut av data Plorea allerede lagrer. Det som mangler er åpning per event, sluttelling, utsolgt-tidspunkt og et kostgrunnlag for kronebeløp.</p>
+  </div>
+  <div class="legend-row">
+    <span><span class="st today">I dag</span> lagres og kan leses</span>
+    <span><span class="st derive">Utledes</span> regnes ut av eksisterende data</span>
+    <span><span class="st part">Delvis</span> finnes med hull</span>
+    <span><span class="st new">Mangler</span> må bygges</span>
+  </div>
+  <div class="table-wrap">
+    <table class="status">
+      <thead><tr><th>Tall</th><th>Status</th><th>Kilde og merknad</th></tr></thead>
+      <tbody>
+        <tr><td>Åpningsbeholdning</td><td><span class="st part">Delvis</span></td><td>Bare siste event; feltet overskrives ved neste aktivering. Trenger et åpnings-snapshot per event.</td></tr>
+        <tr><td>Påfyll under eventet</td><td><span class="st today">I dag</span></td><td>Overføringer fra hovedlager, med årsak, notat og forpakning.</td></tr>
+        <tr><td>Påfyll før eventet</td><td><span class="st new">Mangler</span></td><td>Henting fra hovedlager før aktivering lagrer ingen bevegelse.</td></tr>
+        <tr><td>Flytting mellom salgssteder</td><td><span class="st today">I dag</span></td><td>Lagres bare med eventet til gruppen som startet flyttingen. Rapporten må hente på gruppe og tidsvindu.</td></tr>
+        <tr><td>Retur til hovedlager</td><td><span class="st today">I dag</span></td><td>Overføring til hovedlageret. Ingen egen årsak for retur.</td></tr>
+        <tr><td>Solgt per kanal</td><td><span class="st derive">Utledes</span></td><td>Ordrelinjer per salgssted i eventvinduet; kanal fra enhetstypen (kasse, QR, selvbetjent).</td></tr>
+        <tr><td>Registrert svinn</td><td><span class="st derive">Utledes</span></td><td>Svinnordre per salgssted og vindu, med kostpris. Trekkes ikke fra lageret i dag (feil).</td></tr>
+        <tr><td>Forventet beholdning</td><td><span class="st today">I dag</span></td><td>Lukkesnapshot per vare. Ingen leser det ennå.</td></tr>
+        <tr><td>Talt beholdning ved stenging</td><td><span class="st new">Mangler</span></td><td>Telling finnes bare midt i eventet, uten fase.</td></tr>
+        <tr><td>Differanse i stk</td><td><span class="st new">Mangler</span></td><td>Følger av sluttellingen.</td></tr>
+        <tr><td>Differanse og svinn i kroner</td><td><span class="st new">Mangler</span></td><td>Krever valgt kostgrunnlag. Varens kostpris settes for hånd; siste innkjøpspris fra varemottak oppdaterer den ikke.</td></tr>
+        <tr><td>Omsetning per salgssted og vare</td><td><span class="st derive">Utledes</span></td><td>Samme grunnlag som dagens varerapport, men per event. Avhenger av PLBR-2625 for kontant.</td></tr>
+        <tr><td>Salg per kvarter</td><td><span class="st derive">Utledes</span></td><td>Fra ordretidspunkt. Kamptider (avspark, pause) finnes ikke.</td></tr>
+        <tr><td>Utsolgt og Stopp-%</td><td><span class="st new">Mangler</span></td><td>Bare SMS. Trenger en logg over lagerhendelser.</td></tr>
+        <tr><td>Oppgjør per kasse</td><td><span class="st today">I dag</span></td><td>Vises allerede i stengeflyten.</td></tr>
+        <tr><td>Refusjoner og annulleringer</td><td><span class="st derive">Utledes</span></td><td>Refusjonsordre har salgssted; slettede linjer ligger i systemloggen per kassedag.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  </div>
+</details>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section id="plan" class="internal">
+<details class="fold" open>
+  <summary><span class="sum-text"><span class="eyebrow">4 · Byggeplan <span class="int-tag">Internt</span></span><h2>Tre leveranser</h2></span><span class="chev" aria-hidden="true"></span></summary>
+  <div class="fold-body stack-lg">
+  <div class="stack prose">
+    <p class="muted">Første leveranse gir en rapport som stemmer. De neste gjør den nyttig for planlegging. Alle tall regnes i backend; frontend viser dem bare (D-005). Siden hører hjemme ved eventet på enhetsgruppesiden i Admin, der eventene styres i dag.</p>
+  </div>
+  <div class="phases">
+    <div class="phase">
+      <h3>Versjon 1 <span class="pill">Rapport som stemmer</span></h3>
+      <ul>
+        <li><span class="who">BE</span>Rett feilen: svinn fra kassen trekker kioskens lager.</li>
+        <li><span class="who">BE</span>Åpnings-snapshot per vare når eventet aktiveres.</li>
+        <li><span class="who">BE</span>Logg påfyll fra hovedlager før eventet.</li>
+        <li><span class="who">BE</span>Sluttelling som eget steg i stengeflyten, med fase på tellingen.</li>
+        <li><span class="who">BE</span>Rapportendepunkt per event: varebalanse og salgssteder.</li>
+        <li><span class="who">FE</span>Tellesteg i stengeflyten.</li>
+        <li><span class="who">FE</span>Liste over avsluttede eventer, og rapportens to første faner.</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <h3>Versjon 2 <span class="pill">Planlegging</span></h3>
+      <ul>
+        <li><span class="who">BE</span>Logg lagerhendelser: Stopp-%, tom, påfylt.</li>
+        <li><span class="who">BE</span>Salg per kvarter og kanal i rapportendepunktet.</li>
+        <li><span class="who">BE</span>Valgfrie kamptider på eventet.</li>
+        <li><span class="who">BE</span>Forslag til åpning ved neste event.</li>
+        <li><span class="who">FE</span>Fanene Salg over tid, Utsolgt og påfyll, og Neste kamp.</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <h3>Versjon 3 <span class="pill">Arena og økonomi</span></h3>
+      <ul>
+        <li><span class="who">BE</span>Arenatotal for alle eventer samme dag.</li>
+        <li><span class="who">BE</span>Kostgrunnlag, margin og lagerverdi.</li>
+        <li><span class="who">BE</span>Eksport til CSV og PDF, og sammendrag på e-post ved stenging.</li>
+        <li><span class="who">FE</span>Arenavisning og sammenligning med forrige kamp.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="stack">
+    <h3>Beslutninger du må ta</h3>
+    <ol class="decisions">
+      <li><strong>Skal sluttelling være obligatorisk før eventet kan stenges?</strong><span class="rec"><b>Anbefaling:</b> eget steg i stengeflyten, som kan hoppes over med en begrunnelse. Uten telling viser rapporten forventet beholdning og ingen differanse.</span></li>
+      <li><strong>Hvilken kostpris gjelder for kronebeløp?</strong><span class="rec"><b>Anbefaling:</b> siste innkjøpspris fra varemottak, med varens kostpris som reserve. Varens kostpris settes for hånd og blir fort utdatert.</span></li>
+      <li><strong>Hva er en kampdag på arena?</strong><span class="rec"><b>Anbefaling:</b> i første omgang alle eventer som var aktive samme dag på lokasjonen. Et eget «arrangement» som binder eventene sammen kan komme senere hvis det trengs.</span></li>
+      <li><strong>Skal toleransen for differanse kunne settes per varegruppe?</strong><span class="rec"><b>Anbefaling:</b> ja, med 0 som standard. Barer med fatøl får en egen toleranse.</span></li>
+      <li><strong>Hvem bygger backend, jeg eller Cicero?</strong><span class="rec">Versjon 1 er mest backend. Feilen med svinn bør uansett bli en egen sak, fordi den gjelder alle kunder med eventer.</span></li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <strong>Neste steg</strong>
+    <p>Når du har sett demoen og tatt beslutningene over, lager jeg Jira-sakene som én epic med versjon 1 først, og feilen med svinn som egen bug.</p>
+  </div>
+  </div>
+</details>
+</section>
+
+<footer class="internal">Laget 20.10.2026 fra Plorea-POS-Alpha <code>origin/beta</code>. Ingen kode er endret. Demoen bruker oppdiktede tall og navn på salgssteder.</footer>
+</div>
+
+<script>
+(function () {
+  var fmt = new Intl.NumberFormat('nb-NO');
+  var kr = function (n) { return 'kr ' + fmt.format(Math.round(n)); };
+  var sgn = function (n) { return n > 0 ? '+' + fmt.format(n) : n < 0 ? '−' + fmt.format(-n) : '0'; };
+  var sgnKr = function (n) { return n > 0 ? '+kr ' + fmt.format(Math.round(n)) : n < 0 ? '−kr ' + fmt.format(Math.round(-n)) : 'kr 0'; };
+
+  var KIOSKS = [
+    { id: 'nord', name: 'Kiosk Nord', tills: 2, f: 1.0, mix: [0.62, 0.24, 0.14], orders: 0 },
+    { id: 'sor', name: 'Kiosk Sør', tills: 2, f: 1.25, mix: [0.60, 0.25, 0.15] },
+    { id: 'ost', name: 'Kiosk Øst', tills: 2, f: 0.85, mix: [0.75, 0.25, 0] },
+    { id: 'vest', name: 'Kiosk Vest', tills: 2, f: 0.9, mix: [0.74, 0.26, 0] },
+    { id: 'lounge', name: 'Bar Lounge', tills: 1, f: 0.5, mix: [1, 0, 0] }
+  ];
+  var ITEMS = [
+    { id: 'pils', name: 'Pils 0,5 l', price: 119, cost: 38, pack: 24, packName: 'kasse', open: 192, demand: 206 },
+    { id: 'alkfri', name: 'Alkoholfri pils 0,5 l', price: 79, cost: 22, pack: 24, packName: 'kasse', open: 48, demand: 31 },
+    { id: 'cola', name: 'Cola 0,5 l', price: 49, cost: 11, pack: 24, packName: 'kasse', open: 96, demand: 78 },
+    { id: 'zero', name: 'Cola Zero 0,5 l', price: 49, cost: 11, pack: 24, packName: 'kasse', open: 72, demand: 61 },
+    { id: 'vann', name: 'Mineralvann 0,5 l', price: 39, cost: 6, pack: 24, packName: 'kasse', open: 72, demand: 52 },
+    { id: 'kaffe', name: 'Kaffe (beger)', price: 39, cost: 4, pack: 50, packName: 'pakke', open: 150, demand: 84 },
+    { id: 'polse', name: 'Pølse i lompe', price: 69, cost: 14, pack: 20, packName: 'eske', open: 120, demand: 112, food: true },
+    { id: 'pizza', name: 'Pizzastykke', price: 69, cost: 18, pack: 16, packName: 'brett', open: 64, demand: 51, food: true },
+    { id: 'sjoko', name: 'Sjokolade', price: 35, cost: 9, pack: 36, packName: 'eske', open: 72, demand: 58 },
+    { id: 'chips', name: 'Chips', price: 45, cost: 10, pack: 20, packName: 'eske', open: 60, demand: 43 }
+  ];
+  var LOUNGE_SKIP = { polse: 1, pizza: 1, sjoko: 1 };
+  var LOUNGE_MULT = { pils: 2, alkfri: 1.6 };
+
+  function noise(a, b) {
+    var h = 0, s = a + ':' + b;
+    for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return 0.9 + (h % 21) / 100;
+  }
+  function packUp(n, p) { return Math.ceil(n / p) * p; }
+
+  var OVERRIDE = {
+    'sor:pils': { open: 240, refill: 72, tin: 48, demand: 352, diff: -4 },
+    'ost:pils': { tout: 48 },
+    'nord:polse': { refill: 0, demand: 131, wasteFix: 0 },
+    'vest:zero': { refill: 0, demand: 62 },
+    'lounge:pils': { refill: 0, demand: 150, ret: 24, diff: -2 },
+    'vest:cola': { diff: -11 },
+    'nord:chips': { diff: -3 },
+    'ost:sjoko': { diff: 2 },
+    'nord:kaffe': { diff: -6 },
+    'sor:vann': { diff: -2 }
+  };
+
+  var LINES = [];
+  KIOSKS.forEach(function (k) {
+    ITEMS.forEach(function (it) {
+      if (k.id === 'lounge' && LOUNGE_SKIP[it.id]) return;
+      var f = k.f * (k.id === 'lounge' && LOUNGE_MULT[it.id] ? LOUNGE_MULT[it.id] : 1);
+      var o = OVERRIDE[k.id + ':' + it.id] || {};
+      var open = o.open != null ? o.open : packUp(it.open * f, it.pack);
+      var demand = o.demand != null ? o.demand : Math.round(it.demand * f * noise(k.id, it.id));
+      var need = demand - open * 0.92;
+      var refill = o.refill != null ? o.refill : (need > 0 ? packUp(need, it.pack) : 0);
+      var tin = o.tin || 0, tout = o.tout || 0, ret = o.ret || 0;
+      var avail = open + refill + tin - tout - ret;
+      var sold = Math.min(demand, avail);
+      var waste = 0;
+      if (it.food) {
+        waste = o.wasteFix != null ? o.wasteFix : Math.min(Math.round(open * 0.07 * noise(it.id, k.id)), avail - sold);
+      }
+      var expected = avail - sold - waste;
+      var counted = Math.max(0, expected + (o.diff || 0));
+      LINES.push({
+        k: k.id, i: it.id, open: open, refill: refill, tin: tin, tout: tout, ret: ret,
+        sold: sold, waste: waste, expected: expected, counted: counted, diff: counted - expected,
+        stockout: sold < demand
+      });
+    });
+  });
+
+  var itemById = {}; ITEMS.forEach(function (i) { itemById[i.id] = i; });
+  var kioskById = {}; KIOSKS.forEach(function (k) { kioskById[k.id] = k; });
+
+  var REFILL_TIMES = ['17:52', '18:38', '18:41', '19:16', '18:44'];
+  var EVENTS = [
+    { t: '18:58', type: 'stop', k: 'sor', i: 'pils', text: 'Nådde Stopp-% (20 %). QR sluttet å selge varen.' },
+    { t: '19:05', type: 'stop', k: 'vest', i: 'zero', text: 'Nådde Stopp-% (20 %). QR sluttet å selge varen resten av eventet.' },
+    { t: '19:12', type: 'empty', k: 'sor', i: 'pils', text: 'Tom. 12 minutter uten pils i pausens siste del.' },
+    { t: '19:22', type: 'stop', k: 'nord', i: 'polse', text: 'Nådde Stopp-% (20 %).' },
+    { t: '19:24', type: 'move', k: 'sor', i: 'pils', text: '48 stk flyttet fra Kiosk Øst til Kiosk Sør. Årsak: Utsolgt.' },
+    { t: '19:41', type: 'empty', k: 'nord', i: 'polse', text: 'Tom. Ikke fylt på før stenging (11 min før slutt).' },
+    { t: '20:05', type: 'move', k: 'lounge', i: 'pils', text: '24 stk returnert til hovedlageret. Årsak: Endret etterspørsel.' }
+  ];
+  var ri = 0;
+  LINES.forEach(function (l) {
+    if (l.refill > 0) {
+      EVENTS.push({ t: REFILL_TIMES[ri++ % REFILL_TIMES.length], type: 'refill', k: l.k, i: l.i,
+        text: l.refill + ' stk påfylt fra hovedlageret.' });
+    }
+  });
+  EVENTS.sort(function (a, b) { return a.t < b.t ? -1 : a.t > b.t ? 1 : 0; });
+
+  var BUCKETS = ['16:45', '17:00', '17:15', '17:30', '17:45', '18:00', '18:15', '18:30', '18:45', '19:00', '19:15', '19:30', '19:45', '20:00', '20:15'];
+  var WEIGHTS = [2, 4, 7, 10, 14, 7, 3, 4, 17, 12, 3, 3, 8, 5, 1];
+  var WSUM = WEIGHTS.reduce(function (a, b) { return a + b; }, 0);
+
+  var state = { kiosk: 'all', tab: 'balance', open: {} };
+
+  var sel = document.getElementById('kiosk');
+  sel.innerHTML = '<option value="all">Alle salgssteder</option>' +
+    KIOSKS.map(function (k) { return '<option value="' + k.id + '">' + k.name + '</option>'; }).join('');
+
+  function lines() {
+    return state.kiosk === 'all' ? LINES : LINES.filter(function (l) { return l.k === state.kiosk; });
+  }
+  function sumBy(arr, fn) { return arr.reduce(function (a, x) { return a + fn(x); }, 0); }
+  function revenueOf(ls) { return sumBy(ls, function (l) { return l.sold * itemById[l.i].price; }); }
+
+  function src(kind) {
+    var label = kind === 'today' ? 'I dag' : kind === 'derive' ? 'Utledes' : 'Ny';
+    return '<div class="src"><span class="' + kind + '">' + label + '</span></div>';
+  }
+  function diffCell(d) {
+    var c = d < 0 ? 'diff-neg' : d > 0 ? 'diff-pos' : 'diff-zero';
+    return '<span class="' + c + '">' + sgn(d) + '</span>';
+  }
+
+  function renderKpis() {
+    var ls = lines();
+    var rev = revenueOf(ls);
+    var units = sumBy(ls, function (l) { return l.sold; });
+    var diffKr = sumBy(ls, function (l) { return l.diff * itemById[l.i].cost; });
+    var diffUnits = sumBy(ls, function (l) { return l.diff; });
+    var wasteKr = sumBy(ls, function (l) { return l.waste * itemById[l.i].cost; });
+    var wasteUnits = sumBy(ls, function (l) { return l.waste; });
+    var ev = EVENTS.filter(function (e) { return state.kiosk === 'all' || e.k === state.kiosk; });
+    var empties = ev.filter(function (e) { return e.type === 'empty'; }).length;
+    var stops = ev.filter(function (e) { return e.type === 'stop'; }).length;
+    var pct = rev ? (Math.abs(diffKr) / rev * 100) : 0;
+    document.getElementById('kpis').innerHTML =
+      kpi('Omsetning', kr(rev), fmt.format(units) + ' enheter solgt', '') +
+      kpi('Differanse til kost', diffKr === 0 ? 'kr 0' : sgnKr(diffKr), sgn(diffUnits) + ' stk · ' + pct.toLocaleString('nb-NO', { maximumFractionDigits: 2 }) + ' % av omsetning', diffKr < 0 ? 'bad' : '') +
+      kpi('Registrert svinn', kr(wasteKr), fmt.format(wasteUnits) + ' stk, kassert ved stenging', '') +
+      kpi('Utsolgt', String(empties), stops + ' ganger Stopp-%', empties ? 'warn' : '');
+  }
+  function kpi(label, value, sub, cls) {
+    return '<div class="kpi ' + cls + '"><span class="label">' + label + '</span><span class="value">' + value + '</span><span class="sub">' + sub + '</span></div>';
+  }
+
+  var COLS = [
+    ['open', 'Åpning', 'new'], ['refill', 'Påfyll', 'new'], ['tin', 'Inn fra kiosk', 'today'], ['tout', 'Ut til kiosk', 'today'],
+    ['ret', 'Retur', 'today'], ['sold', 'Solgt', 'derive'], ['waste', 'Reg. svinn', 'derive']
+  ];
+  function balanceRow(name, l, cls, attrs) {
+    var it = itemById[l.i];
+    var cells = COLS.map(function (c, idx) {
+      var v = l[c[0]];
+      var shown = (c[0] === 'open' || c[0] === 'sold' || v === 0) ? fmt.format(v) : (c[0] === 'refill' || c[0] === 'tin' ? '+' + fmt.format(v) : '−' + fmt.format(v));
+      if (v === 0 && c[0] !== 'open' && c[0] !== 'sold') shown = '<span class="diff-zero">0</span>';
+      return '<td' + (idx === 0 ? '' : '') + '>' + shown + '</td>';
+    }).join('');
+    var flag = '';
+    if (l.diff <= -3) flag = '<span class="flag bad">Sjekk</span>';
+    else if (l.diff > 0) flag = '<span class="flag warn">Overskudd</span>';
+    var diffKr = l.diff * (it ? it.cost : 0);
+    return '<tr class="' + (cls || '') + '"' + (attrs || '') + '><td>' + name + '</td>' + cells +
+      '<td class="sep">' + fmt.format(l.expected) + '</td><td>' + fmt.format(l.counted) + '</td><td>' + diffCell(l.diff) + flag + '</td><td>' +
+      (l.diff === 0 ? '<span class="diff-zero">kr 0</span>' : '<span class="' + (l.diff < 0 ? 'diff-neg' : 'diff-pos') + '">' + sgnKr(diffKr) + '</span>') + '</td></tr>';
+  }
+  function aggregate(ls, id) {
+    var a = { i: id, open: 0, refill: 0, tin: 0, tout: 0, ret: 0, sold: 0, waste: 0, expected: 0, counted: 0, diff: 0 };
+    ls.forEach(function (l) { ['open', 'refill', 'tin', 'tout', 'ret', 'sold', 'waste', 'expected', 'counted', 'diff'].forEach(function (f) { a[f] += l[f]; }); });
+    return a;
+  }
+  function renderBalance() {
+    var head = '<thead><tr><th>Vare</th>' + COLS.map(function (c) { return '<th>' + c[1] + src(c[2]) + '</th>'; }).join('') +
+      '<th class="sep">Forventet' + src('today') + '</th><th>Talt' + src('new') + '</th><th>Differanse' + src('new') + '</th><th>Diff. til kost' + src('new') + '</th></tr></thead>';
+    var body = '';
+    var ls = lines();
+    ITEMS.forEach(function (it) {
+      var rows = ls.filter(function (l) { return l.i === it.id; });
+      if (!rows.length) return;
+      if (state.kiosk === 'all') {
+        var agg = aggregate(rows, it.id);
+        var isOpen = !!state.open[it.id];
+        body += balanceRow(it.name, agg, 'group-row' + (isOpen ? ' open' : ''), ' data-item="' + it.id + '" tabindex="0" aria-expanded="' + isOpen + '"');
+        if (isOpen) rows.forEach(function (l) { body += balanceRow(kioskById[l.k].name, l, 'child'); });
+      } else {
+        body += balanceRow(it.name, rows[0]);
+      }
+    });
+    var tot = aggregate(ls, null);
+    var totKr = sumBy(ls, function (l) { return l.diff * itemById[l.i].cost; });
+    var foot = '<tfoot><tr><td>Sum</td>' + COLS.map(function (c) { return '<td>' + fmt.format(tot[c[0]]) + '</td>'; }).join('') +
+      '<td class="sep">' + fmt.format(tot.expected) + '</td><td>' + fmt.format(tot.counted) + '</td><td>' + diffCell(tot.diff) + '</td><td><span class="' + (totKr < 0 ? 'diff-neg' : '') + '">' + sgnKr(totKr) + '</span></td></tr></tfoot>';
+    document.getElementById('balanceTable').innerHTML = head + '<tbody>' + body + '</tbody>' + foot;
+    document.getElementById('balanceNote').textContent = state.kiosk === 'all'
+      ? 'Summert for alle salgssteder. Trykk på en vare for å se hvert salgssted. «Sjekk» betyr at det mangler 3 stk eller mer.'
+      : 'Varebalanse for ' + kioskById[state.kiosk].name + '. «Sjekk» betyr at det mangler 3 stk eller mer.';
+  }
+
+  function renderKiosks() {
+    var rows = KIOSKS.map(function (k) {
+      var ls = LINES.filter(function (l) { return l.k === k.id; });
+      var rev = revenueOf(ls);
+      var units = sumBy(ls, function (l) { return l.sold; });
+      var dkr = sumBy(ls, function (l) { return l.diff * itemById[l.i].cost; });
+      var wkr = sumBy(ls, function (l) { return l.waste * itemById[l.i].cost; });
+      var pct = rev ? Math.abs(Math.min(dkr, 0)) / rev * 100 : 0;
+      var empties = EVENTS.filter(function (e) { return e.k === k.id && e.type === 'empty'; }).length;
+      return { k: k, rev: rev, units: units, dkr: dkr, wkr: wkr, pct: pct, empties: empties };
+    });
+    var maxPct = Math.max.apply(null, rows.map(function (r) { return r.pct; })) || 1;
+    var head = '<thead><tr><th>Salgssted</th><th>Kasser</th><th>Omsetning' + src('derive') + '</th><th>Enheter' + src('derive') + '</th><th>Reg. svinn' + src('derive') + '</th><th>Differanse' + src('new') + '</th><th>Diff. % av oms.' + src('new') + '</th><th>Utsolgt' + src('new') + '</th><th>Oppgjør' + src('today') + '</th></tr></thead>';
+    var body = rows.map(function (r) {
+      var hi = state.kiosk === r.k.id ? ' style="background:var(--accent-soft)"' : '';
+      var flag = r.pct > 0.5 ? '<span class="flag bad">Over 0,5 %</span>' : '';
+      return '<tr' + hi + '><td>' + r.k.name + '</td><td>' + r.k.tills + '</td><td>' + kr(r.rev) + '</td><td>' + fmt.format(r.units) + '</td><td>' + kr(r.wkr) + '</td><td>' +
+        (r.dkr === 0 ? '<span class="diff-zero">kr 0</span>' : '<span class="' + (r.dkr < 0 ? 'diff-neg' : 'diff-pos') + '">' + sgnKr(r.dkr) + '</span>') + '</td>' +
+        '<td><div class="bar-cell"><span>' + r.pct.toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %</span><span class="minibar"><i style="width:' + (r.pct / maxPct * 100) + '%"></i></span>' + flag + '</div></td>' +
+        '<td>' + (r.empties ? '<span class="flag warn">' + r.empties + '</span>' : '<span class="diff-zero">0</span>') + '</td>' +
+        '<td><span class="flag ok">✓ ' + r.k.tills + ' av ' + r.k.tills + '</span></td></tr>';
+    }).join('');
+    var tr = sumBy(rows, function (r) { return r.rev; }), tu = sumBy(rows, function (r) { return r.units; });
+    var td = sumBy(rows, function (r) { return r.dkr; }), tw = sumBy(rows, function (r) { return r.wkr; });
+    var foot = '<tfoot><tr><td>Sum</td><td>9</td><td>' + kr(tr) + '</td><td>' + fmt.format(tu) + '</td><td>' + kr(tw) + '</td><td><span class="diff-neg">' + sgnKr(td) + '</span></td><td>' +
+      (Math.abs(td) / tr * 100).toLocaleString('nb-NO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' %</td><td>' + sumBy(rows, function (r) { return r.empties; }) + '</td><td>9 av 9</td></tr></tfoot>';
+    document.getElementById('kioskTable').innerHTML = head + '<tbody>' + body + '</tbody>' + foot;
+  }
+
+  function seriesData() {
+    var ks = state.kiosk === 'all' ? KIOSKS : [kioskById[state.kiosk]];
+    return BUCKETS.map(function (b, bi) {
+      var v = [0, 0, 0];
+      ks.forEach(function (k) {
+        var rev = revenueOf(LINES.filter(function (l) { return l.k === k.id; }));
+        var w = WEIGHTS[bi] * (k.id === 'lounge' && bi >= 13 ? 1.6 : 1);
+        var share = rev * w / WSUM;
+        for (var c = 0; c < 3; c++) v[c] += share * k.mix[c];
+      });
+      return { t: b, v: v.map(Math.round) };
+    });
+  }
+  function niceMax(m) {
+    var steps = [1, 2, 2.5, 5, 10];
+    var p = Math.pow(10, Math.floor(Math.log10(m)));
+    for (var i = 0; i < steps.length; i++) if (steps[i] * p >= m) return steps[i] * p;
+    return 10 * p;
+  }
+  var CH = ['Kasse', 'QR', 'Selvbetjent'];
+  var CV = ['var(--s1)', 'var(--s2)', 'var(--s3)'];
+  function timeToX(t, x0, bw) {
+    var hm = t.split(':'); var mins = (+hm[0]) * 60 + (+hm[1]) - (16 * 60 + 45);
+    return x0 + mins / 15 * bw;
+  }
+  function renderChart() {
+    var data = seriesData();
+    var svg = document.getElementById('chart');
+    var W = 760, H = 300, L = 64, R = 12, T = 34, B = 34;
+    var pw = W - L - R, ph = H - T - B;
+    var max = niceMax(Math.max.apply(null, data.map(function (d) { return d.v[0] + d.v[1] + d.v[2]; })) * 1.05);
+    var bw = pw / data.length;
+    var y = function (v) { return T + ph - v / max * ph; };
+    var out = '';
+    var p1 = timeToX('18:47', L, bw), p2 = timeToX('19:03', L, bw);
+    out += '<rect x="' + p1 + '" y="' + T + '" width="' + (p2 - p1) + '" height="' + ph + '" fill="var(--band)"></rect>';
+    for (var g = 0; g <= 4; g++) {
+      var gv = max / 4 * g, gy = y(gv);
+      out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + gy + '" y2="' + gy + '" stroke="var(--border)" stroke-width="1"></line>';
+      out += '<text x="' + (L - 8) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="var(--muted)">' + (gv >= 1000 ? fmt.format(Math.round(gv / 1000)) + ' k' : fmt.format(gv)) + '</text>';
+    }
+    data.forEach(function (d, i) {
+      var x = L + i * bw + 3, w = bw - 6, acc = 0;
+      d.v.forEach(function (v, c) {
+        if (v <= 0) return;
+        var y1 = y(acc + v), y0 = y(acc);
+        var h = Math.max(0, y0 - y1 - (acc > 0 ? 2 : 0));
+        out += '<rect x="' + x + '" y="' + y1 + '" width="' + w + '" height="' + h + '" rx="' + (c === lastNonZero(d.v) ? 3 : 0) + '" fill="' + CV[c] + '"></rect>';
+        acc += v;
+      });
+      if (i % 2 === 0) out += '<text x="' + (L + i * bw + bw / 2) + '" y="' + (H - B + 18) + '" text-anchor="middle" font-size="11" fill="var(--muted)">' + d.t + '</text>';
+      out += '<rect class="hit" data-i="' + i + '" x="' + (L + i * bw) + '" y="' + T + '" width="' + bw + '" height="' + ph + '" fill="transparent"></rect>';
+    });
+    [['18:00', 'Avspark'], ['18:47', 'Pause'], ['19:52', 'Slutt']].forEach(function (m) {
+      var mx = timeToX(m[0], L, bw);
+      out += '<line x1="' + mx + '" x2="' + mx + '" y1="' + (T - 6) + '" y2="' + (T + ph) + '" stroke="var(--fg-2)" stroke-width="1" stroke-dasharray="3 3"></line>';
+      out += '<text x="' + (mx + 4) + '" y="' + (T - 10) + '" font-size="11" font-weight="600" fill="var(--fg-2)">' + m[1] + ' ' + m[0] + '</text>';
+    });
+    out += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + (T + ph) + '" y2="' + (T + ph) + '" stroke="var(--border-strong)" stroke-width="1"></line>';
+    svg.innerHTML = out;
+
+    var tip = document.getElementById('tip'), box = document.getElementById('chartBox');
+    svg.querySelectorAll('.hit').forEach(function (r) {
+      r.addEventListener('mousemove', function (e) {
+        var d = data[+r.getAttribute('data-i')];
+        var total = d.v[0] + d.v[1] + d.v[2];
+        tip.innerHTML = '<div class="t-head">' + d.t + '–' + addQ(d.t) + '</div>' +
+          d.v.map(function (v, c) { return v ? '<div class="t-row"><span><i style="background:' + CV[c] + '"></i>' + CH[c] + '</span><span>' + kr(v) + '</span></div>' : ''; }).join('') +
+          '<div class="t-row" style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-weight:700"><span>Sum</span><span>' + kr(total) + '</span></div>';
+        tip.hidden = false;
+        var b = box.getBoundingClientRect();
+        var x = e.clientX - b.left + 14, yy = e.clientY - b.top + 14;
+        if (x + 190 > b.width) x = e.clientX - b.left - 190;
+        tip.style.left = Math.max(4, x) + 'px'; tip.style.top = yy + 'px';
+      });
+      r.addEventListener('mouseleave', function () { tip.hidden = true; });
+    });
+
+    document.getElementById('timeTable').innerHTML = '<thead><tr><th>Kvarter</th><th>Kasse</th><th>QR</th><th>Selvbetjent</th><th>Sum</th></tr></thead><tbody>' +
+      data.map(function (d) { return '<tr><td>' + d.t + '</td>' + d.v.map(function (v) { return '<td>' + kr(v) + '</td>'; }).join('') + '<td>' + kr(d.v[0] + d.v[1] + d.v[2]) + '</td></tr>'; }).join('') + '</tbody>';
+  }
+  function lastNonZero(v) { for (var i = v.length - 1; i >= 0; i--) if (v[i] > 0) return i; return 0; }
+  function addQ(t) { var hm = t.split(':'); var m = (+hm[0]) * 60 + (+hm[1]) + 15; return String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0'); }
+
+  function renderEvents() {
+    var ev = EVENTS.filter(function (e) { return state.kiosk === 'all' || e.k === state.kiosk; });
+    var label = { empty: 'Tom', stop: 'Stopp-%', move: 'Flytting', refill: 'Påfyll' };
+    document.getElementById('timeline').innerHTML = ev.length ? ev.map(function (e) {
+      return '<div class="ev"><time>' + e.t + '</time><span class="dot ' + e.type + '" aria-hidden="true"></span><div class="what"><strong>' +
+        label[e.type] + ' · ' + kioskById[e.k].name + ' · ' + itemById[e.i].name + '</strong><span>' + e.text + '</span></div></div>';
+    }).join('') : '<div class="ev"><span></span><span></span><div class="what"><span>Ingen lagerhendelser for dette salgsstedet.</span></div></div>';
+  }
+
+  function nextPlan() {
+    return lines().map(function (l) {
+      var it = itemById[l.i];
+      var base = l.sold * (l.stockout ? 1.25 : 1.1);
+      var suggest = packUp(base, it.pack);
+      return { l: l, it: it, suggest: suggest, fetch: Math.max(0, suggest - l.counted) };
+    });
+  }
+  function renderNext() {
+    var plan = nextPlan();
+    var head = '<thead><tr><th>Vare</th>' + (state.kiosk === 'all' ? '<th>Salgssted</th>' : '') + '<th>Solgt i dag</th><th>Står igjen (talt)</th><th>Foreslått åpning</th><th>Hent fra hovedlager</th><th>Forpakning</th></tr></thead>';
+    var body = plan.map(function (p) {
+      return '<tr><td>' + p.it.name + (p.l.stockout ? '<span class="flag warn">Gikk tom</span>' : '') + '</td>' +
+        (state.kiosk === 'all' ? '<td style="text-align:left">' + kioskById[p.l.k].name + '</td>' : '') +
+        '<td>' + fmt.format(p.l.sold) + '</td><td>' + fmt.format(p.l.counted) + '</td><td><b>' + fmt.format(p.suggest) + '</b></td><td>' +
+        (p.fetch ? fmt.format(p.fetch) : '<span class="diff-zero">0</span>') + '</td><td>' + (p.fetch ? Math.ceil(p.fetch / p.it.pack) + ' × ' + p.it.pack : '–') + '</td></tr>';
+    }).join('');
+    document.getElementById('nextTable').innerHTML = head + '<tbody>' + body + '</tbody>';
+    document.getElementById('planToast').hidden = true;
+  }
+
+  function render() {
+    renderKpis(); renderBalance(); renderKiosks(); renderChart(); renderEvents(); renderNext();
+  }
+
+  sel.addEventListener('change', function () { state.kiosk = sel.value; render(); });
+  document.getElementById('srcToggle').addEventListener('change', function (e) {
+    document.getElementById('win').classList.toggle('show-src', e.target.checked);
+  });
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
+  function selectTab(t) {
+    tabs.forEach(function (x) {
+      var on = x === t;
+      x.setAttribute('aria-selected', on);
+      x.tabIndex = on ? 0 : -1;
+      document.getElementById(x.getAttribute('aria-controls')).hidden = !on;
+    });
+  }
+  tabs.forEach(function (t, idx) {
+    t.tabIndex = idx === 0 ? 0 : -1;
+    t.addEventListener('click', function () { selectTab(t); });
+    t.addEventListener('keydown', function (e) {
+      var n = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+      if (!n) return;
+      var nt = tabs[(idx + n + tabs.length) % tabs.length]; selectTab(nt); nt.focus();
+    });
+  });
+  function toggleRow(tr) {
+    var id = tr.getAttribute('data-item');
+    state.open[id] = !state.open[id];
+    renderBalance();
+    var again = document.querySelector('tr[data-item="' + id + '"]');
+    if (again) again.focus();
+  }
+  document.getElementById('balanceTable').addEventListener('click', function (e) {
+    var tr = e.target.closest('tr.group-row'); if (tr) toggleRow(tr);
+  });
+  document.getElementById('balanceTable').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    var tr = e.target.closest('tr.group-row'); if (tr) { e.preventDefault(); toggleRow(tr); }
+  });
+  document.getElementById('planBtn').addEventListener('click', function () {
+    var plan = nextPlan().filter(function (p) { return p.fetch > 0; });
+    var toast = document.getElementById('planToast');
+    toast.textContent = 'Plukkliste laget: ' + plan.length + ' linjer, ' + fmt.format(sumBy(plan, function (p) { return p.fetch; })) + ' stk. (I demoen lagres ingenting.)';
+    toast.hidden = false;
+  });
+
+  var CK = 'sor';
+  var PLURAL = { kasse: 'kasser', eske: 'esker', pakke: 'pakker', brett: 'brett' };
+  var REASONS = ['Feiltelling', 'Knust eller sølt', 'Kassert', 'Personal', 'Representasjon', 'Ikke registrert påfyll', 'Ukjent'];
+  var EXAMPLE = {};
+  LINES.forEach(function (l) { if (l.k === CK) EXAMPLE[l.i] = l.counted; });
+  function closeLines() { return LINES.filter(function (l) { return l.k === CK; }); }
+  function packText(n, it) {
+    var k = Math.floor(n / it.pack), r = n % it.pack, parts = [];
+    if (k) parts.push(k + ' ' + (k === 1 ? it.packName : PLURAL[it.packName]));
+    if (r || !k) parts.push(r + ' løse');
+    return parts.join(' + ');
+  }
+  function freshClose() {
+    return { mode: 'choice', counts: {}, reasons: {}, blind: false, onlyDiff: false, disposition: 'stay', err: '', toast: '', result: null };
+  }
+  var cs = freshClose();
+
+  function countedTotal(i) {
+    var c = cs.counts[i];
+    if (!c || (c.pk === '' && c.ls === '')) return null;
+    return (parseInt(c.pk || '0', 10) * itemById[i].pack) + parseInt(c.ls || '0', 10);
+  }
+  function deviations() {
+    return closeLines().map(function (l) {
+      var t = countedTotal(l.i);
+      return { l: l, t: t, d: t == null ? null : t - l.expected };
+    });
+  }
+
+  function stepHtml(n, title, sub, cls, body, extra) {
+    return '<li class="step ' + cls + '"><span class="mark">' + (cls === 'done' ? '✓' : n) + '</span>' +
+      '<div class="s-title">' + title + (extra || '') + '</div><div class="s-sub">' + sub + '</div>' +
+      (body ? '<div class="s-body">' + body + '</div>' : '') + '</li>';
+  }
+
+  function renderSteps() {
+    var done = cs.mode === 'done';
+    var devices = '<div class="devices">' +
+      '<div class="device"><span>Kasse Sør 1</span><span class="flag ok">✓ Gjort opp 20:24</span></div>' +
+      '<div class="device"><span>Kasse Sør 2</span><span class="flag ok">✓ Gjort opp 20:26</span></div>' +
+      '<div class="device"><span>Selvbetjent Sør</span><span class="flag ok">✓ Gjort opp 20:26</span></div>' +
+      '<div class="device"><span>QR Sør</span><span class="small muted">Ingen salg å gjøre opp</span></div></div>';
+    var html = '';
+    html += stepHtml(1, 'Oppgjør av kasser', 'Alle kasser med salg er gjort opp. Stengingen venter hvis en kasse ikke er det.', 'done', devices);
+    html += stepHtml(2, 'Salget er stoppet', 'Ingen nye salg eller reservasjoner.', 'done');
+    html += stepHtml(3, 'Reservasjoner frigjort', '0 QR-ordre ventet på henting.', 'done');
+    var s4sub = 'Sjekk at det som står igjen stemmer med systemet.';
+    if (done) s4sub = cs.result.summary;
+    html += stepHtml(4, 'Lagerkontroll', s4sub, done ? 'done' : 'active', done ? '' : step4Body(), ' <span class="new-badge">Nytt steg</span>');
+    html += stepHtml(5, 'Lagre beholdning', done ? 'Forventet og talt beholdning lagret for ' + closeLines().length + ' varer.' : 'Lagrer forventet og talt beholdning per vare.', done ? 'done' : 'pending');
+    html += stepHtml(6, 'Fullfør', done ? 'Eventet er låst.' : 'Låser eventet.', done ? 'done' : 'pending');
+    document.getElementById('steps').innerHTML = html;
+    var chip = document.getElementById('closeChip');
+    chip.className = 'status-chip ' + (done ? 'ok' : 'warn');
+    chip.textContent = done ? '✓ Eventet er stengt' : 'Venter på lagerkontroll';
+    renderSuccess();
+    if (cs.mode === 'count') bindCount();
+    if (cs.mode === 'review') bindReview();
+    if (cs.mode === 'approve') bindApprove();
+    bindStepButtons();
+  }
+
+  function renderSuccess() {
+    var old = document.getElementById('closeSuccess');
+    if (old) old.remove();
+    if (cs.mode !== 'done') return;
+    document.getElementById('steps').insertAdjacentHTML('afterend',
+      '<div class="success" id="closeSuccess"><h3>Eventet er stengt</h3><p>' + cs.result.detail + '</p>' +
+      '<div class="actions"><button class="btn primary" type="button" data-act="open-report">Åpne lagerrapport</button>' +
+      '<button class="btn" type="button" data-act="restart">Start stengingen på nytt</button></div></div>');
+  }
+
+  function step4Body() {
+    var ls = closeLines();
+    if (cs.mode === 'choice') {
+      var flagged = {};
+      EVENTS.forEach(function (e) { if (e.k === CK && (e.type === 'empty' || e.type === 'move')) flagged[e.i] = 1; });
+      var names = Object.keys(flagged).map(function (i) { return itemById[i].name; });
+      var hint = names.length ? '<div class="hint"><span aria-hidden="true">!</span><span><b>' + names.join(', ') + '</b> gikk tom og fikk varer fra et annet salgssted i kveld. Vi anbefaler telling.</span></div>' : '';
+      var rows = ls.map(function (l) {
+        var it = itemById[l.i];
+        return '<tr><td>' + it.name + '</td><td><b>' + fmt.format(l.expected) + '</b></td><td style="text-align:left">' + packText(l.expected, it) + '</td><td>' + kr(l.expected * it.cost) + '</td></tr>';
+      }).join('');
+      var tu = sumBy(ls, function (l) { return l.expected; }), tv = sumBy(ls, function (l) { return l.expected * itemById[l.i].cost; });
+      return '<p>Dette skal stå igjen i Kiosk Sør etter kveldens salg, påfyll og flytting:</p>' +
+        '<div class="table-wrap"><table><thead><tr><th>Vare</th><th>Skal være på lager</th><th style="text-align:left">I forpakning</th><th>Verdi til kost</th></tr></thead><tbody>' + rows +
+        '</tbody><tfoot><tr><td>Sum</td><td>' + fmt.format(tu) + '</td><td></td><td>' + kr(tv) + '</td></tr></tfoot></table></div>' + hint +
+        '<div class="choices">' +
+        '<button class="choice" type="button" data-act="approve"><b>Godkjenn lager</b><span>Antallene stemmer. Ingen telling.</span><small>Lagres med ditt navn og tidspunkt.</small></button>' +
+        '<button class="choice' + (names.length ? ' rec' : '') + '" type="button" data-act="count"><b>Ta telling</b><span>Tell hver vare og skriv inn det du finner.</span><small>' + (names.length ? 'Anbefalt i kveld.' : 'Tar noen minutter.') + '</small></button>' +
+        '</div>';
+    }
+    if (cs.mode === 'approve') {
+      return '<div class="confirm-box"><h3>Godkjenn lager uten telling</h3>' +
+        '<p>Antallene systemet forventer lagres som talt for alle ' + ls.length + ' varer i Kiosk Sør. Differansen blir 0. Hvis noe mangler, vises det først ved neste telling.</p>' +
+        '<label class="toggle" for="approveChk"><input type="checkbox" id="approveChk"> Jeg har sett over varene i Kiosk Sør, og antallene stemmer.</label>' +
+        '<div class="actions"><button class="btn primary" type="button" id="approveBtn" disabled>Godkjenn lager og steng</button>' +
+        '<button class="btn" type="button" data-act="count">Ta telling i stedet</button>' +
+        '<button class="btn" type="button" data-act="back">Tilbake</button></div></div>';
+    }
+    if (cs.mode === 'count') {
+      var rowsC = ls.map(function (l) {
+        var it = itemById[l.i], c = cs.counts[l.i] || { pk: '', ls: '' };
+        return '<tr id="cr-' + l.i + '"><td class="item">' + it.name + '<small>1 ' + it.packName + ' = ' + it.pack + ' stk</small></td>' +
+          '<td class="exp-col"><b>' + fmt.format(l.expected) + '</b><small style="display:block;color:var(--muted);font-size:12px">' + packText(l.expected, it) + '</small></td>' +
+          '<td><div class="qty-group">' +
+          '<label class="qty-in" for="pk-' + l.i + '">' + PLURAL[it.packName].replace(/^./, function (s) { return s.toUpperCase(); }) + '<input id="pk-' + l.i + '" data-i="' + l.i + '" data-f="pk" inputmode="numeric" autocomplete="off" value="' + c.pk + '" aria-label="' + it.name + ', antall ' + PLURAL[it.packName] + '"></label>' +
+          '<label class="qty-in" for="ls-' + l.i + '">Løse<input id="ls-' + l.i + '" data-i="' + l.i + '" data-f="ls" inputmode="numeric" autocomplete="off" value="' + c.ls + '" aria-label="' + it.name + ', antall løse"></label>' +
+          '<button class="match-btn exp-col" type="button" data-match="' + l.i + '">Stemmer</button></div></td>' +
+          '<td id="ct-' + l.i + '">–</td><td class="exp-col" id="cd-' + l.i + '">–</td></tr>';
+      }).join('');
+      return '<div class="count-tools"><div class="progress"><span id="progText"></span><div class="track"><i id="progBar"></i></div></div>' +
+        '<div class="toggles"><label class="toggle" for="blindChk"><input type="checkbox" id="blindChk"' + (cs.blind ? ' checked' : '') + '> Skjul forventet (blindtelling)</label>' +
+        '<label class="toggle" for="diffChk"><input type="checkbox" id="diffChk"' + (cs.onlyDiff ? ' checked' : '') + '> Vis bare avvik og utalte</label></div></div>' +
+        '<div class="table-wrap' + (cs.blind ? ' blind' : '') + '" id="countWrap"><table class="count"><thead><tr><th>Vare</th><th class="exp-col">Skal være</th><th>Du har talt</th><th>Sum talt</th><th class="exp-col">Differanse</th></tr></thead><tbody>' + rowsC + '</tbody></table></div>' +
+        '<div class="count-summary" id="countSummary"></div>' +
+        '<p class="err" id="countErr" role="alert"' + (cs.err ? '' : ' hidden') + '>' + cs.err + '</p>' +
+        '<div class="actions"><button class="btn primary" type="button" data-act="to-review">Gå videre</button>' +
+        '<button class="btn" type="button" data-act="draft">Lagre utkast</button>' +
+        '<button class="btn ghost" type="button" data-act="example">Demo: fyll inn eksempeltelling</button>' +
+        '<button class="btn" type="button" data-act="back">Tilbake til valget</button>' +
+        '<span class="toast" id="draftToast"' + (cs.toast ? '' : ' hidden') + '>' + cs.toast + '</span></div>';
+    }
+    if (cs.mode === 'review') {
+      var devs = deviations().filter(function (x) { return x.d !== 0; });
+      var dsum = sumBy(devs, function (x) { return x.d; }), dkr = sumBy(devs, function (x) { return x.d * itemById[x.l.i].cost; });
+      var list = devs.length ? '<div class="table-wrap"><table class="count"><thead><tr><th>Vare</th><th>Skal være</th><th>Talt</th><th>Differanse</th><th style="text-align:left">Årsak</th></tr></thead><tbody>' +
+        devs.map(function (x) {
+          var it = itemById[x.l.i], r = cs.reasons[x.l.i] || '';
+          return '<tr><td class="item">' + it.name + '</td><td>' + fmt.format(x.l.expected) + '</td><td>' + fmt.format(x.t) + '</td><td>' + diffCell(x.d) + '</td><td style="text-align:left">' +
+            '<select id="rs-' + x.l.i + '" data-i="' + x.l.i + '" aria-label="Årsak for ' + it.name + '"' + (cs.err && !r ? ' class="missing"' : '') + '><option value="">Velg årsak</option>' +
+            REASONS.map(function (o) { return '<option' + (o === r ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select></td></tr>';
+        }).join('') + '</tbody></table></div>' : '<div class="success"><p>Ingen avvik. Alle varer stemmer med systemet.</p></div>';
+      return '<div class="count-summary"><span>Talt <b>' + closeLines().length + ' av ' + closeLines().length + '</b> varer</span><span>Avvik på <b>' + devs.length + '</b> varer</span>' +
+        '<span>Differanse <b>' + sgn(dsum) + ' stk</b></span><span>Til kost <b class="' + (dkr < 0 ? 'diff-neg' : '') + '">' + sgnKr(dkr) + '</b></span></div>' +
+        (devs.length ? '<h3>Hva er årsaken til avvikene?</h3>' : '') + list +
+        '<h3>Hva skjer med varene nå?</h3><div class="radio-list" role="radiogroup" aria-label="Hva skjer med varene">' +
+        radio('stay', 'Blir stående i kiosken til neste event', 'Det talte antallet blir åpningsforslaget neste gang.') +
+        radio('food', 'Mat kasseres, resten blir stående', 'Pølser og pizza som står igjen registreres som kassert svinn med en gang.') +
+        radio('return', 'Alt returneres til hovedlageret', 'Lager en plukkliste for retur. Kiosken står tom til neste påfyll.') + '</div>' +
+        '<p class="err" id="reviewErr" role="alert"' + (cs.err ? '' : ' hidden') + '>' + cs.err + '</p>' +
+        '<div class="actions"><button class="btn primary" type="button" data-act="confirm">Bekreft telling og steng event</button>' +
+        '<button class="btn" type="button" data-act="count">Tilbake til tellingen</button></div>';
+    }
+    return '';
+  }
+  function radio(v, title, sub) {
+    return '<label for="disp-' + v + '"><input type="radio" name="disp" id="disp-' + v + '" value="' + v + '"' + (cs.disposition === v ? ' checked' : '') + '><span>' + title + '<small>' + sub + '</small></span></label>';
+  }
+
+  function setMode(m) { cs.mode = m; cs.err = ''; cs.toast = ''; renderSteps(); }
+
+  function bindStepButtons() {
+    document.querySelectorAll('#closeView [data-act]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var a = b.getAttribute('data-act');
+        if (a === 'approve') setMode('approve');
+        else if (a === 'count') setMode('count');
+        else if (a === 'back') setMode('choice');
+        else if (a === 'draft') { cs.toast = 'Utkast lagret kl. 20:31. Tellingen kan fortsettes fra en annen enhet.'; var t = document.getElementById('draftToast'); t.textContent = cs.toast; t.hidden = false; }
+        else if (a === 'example') {
+          closeLines().forEach(function (l) {
+            var it = itemById[l.i], n = EXAMPLE[l.i];
+            cs.counts[l.i] = { pk: String(Math.floor(n / it.pack)), ls: String(n % it.pack) };
+            document.getElementById('pk-' + l.i).value = cs.counts[l.i].pk;
+            document.getElementById('ls-' + l.i).value = cs.counts[l.i].ls;
+          });
+          refreshCount();
+        }
+        else if (a === 'to-review') {
+          var missing = deviations().filter(function (x) { return x.t == null; });
+          if (missing.length) {
+            cs.err = missing.length + (missing.length === 1 ? ' vare er' : ' varer er') + ' ikke talt: ' + missing.map(function (x) { return itemById[x.l.i].name; }).join(', ') + '. Tell dem, eller trykk «Stemmer» hvis antallet er likt.';
+            var e = document.getElementById('countErr'); e.textContent = cs.err; e.hidden = false;
+            return;
+          }
+          setMode('review');
+        }
+        else if (a === 'confirm') confirmCount();
+        else if (a === 'open-report') { showView('report'); sel.value = CK; state.kiosk = CK; render(); selectTab(tabs[0]); document.getElementById('win').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        else if (a === 'restart') { restoreLines(); cs = freshClose(); renderSteps(); render(); }
+      });
+    });
+  }
+
+  function bindApprove() {
+    var chk = document.getElementById('approveChk'), btn = document.getElementById('approveBtn');
+    chk.addEventListener('change', function () { btn.disabled = !chk.checked; });
+    btn.addEventListener('click', function () {
+      closeLines().forEach(function (l) { l.counted = l.expected; l.diff = 0; });
+      cs.result = { summary: 'Godkjent uten telling av deg kl. 20:31.', detail: 'Lageret i Kiosk Sør ble godkjent uten telling. Forventet beholdning er lagret som talt, så rapporten viser ingen differanse for Kiosk Sør.' };
+      cs.mode = 'done'; renderSteps(); render();
+    });
+  }
+
+  function refreshCount() {
+    var ls = closeLines(), counted = 0, devs = 0, dsum = 0, dkr = 0;
+    ls.forEach(function (l) {
+      var t = countedTotal(l.i), row = document.getElementById('cr-' + l.i);
+      var ct = document.getElementById('ct-' + l.i), cd = document.getElementById('cd-' + l.i);
+      if (t == null) { ct.textContent = '–'; cd.textContent = '–'; row.classList.remove('row-done'); row.hidden = false; return; }
+      counted++;
+      var d = t - l.expected;
+      ct.textContent = fmt.format(t);
+      cd.innerHTML = diffCell(d);
+      row.classList.add('row-done');
+      if (d !== 0) { devs++; dsum += d; dkr += d * itemById[l.i].cost; }
+      row.hidden = cs.onlyDiff && d === 0;
+    });
+    document.getElementById('progText').textContent = 'Talt ' + counted + ' av ' + ls.length + ' varer';
+    document.getElementById('progBar').style.width = (counted / ls.length * 100) + '%';
+    document.getElementById('countSummary').innerHTML = cs.blind
+      ? '<span>Forventet antall og differanse vises når du går videre.</span>'
+      : '<span>Avvik på <b>' + devs + '</b> varer</span><span>Differanse <b>' + sgn(dsum) + ' stk</b></span><span>Til kost <b class="' + (dkr < 0 ? 'diff-neg' : '') + '">' + sgnKr(dkr) + '</b></span>';
+  }
+
+  function bindCount() {
+    document.querySelectorAll('#countWrap input').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var clean = inp.value.replace(/\D/g, '').slice(0, 4);
+        if (clean !== inp.value) inp.value = clean;
+        var i = inp.getAttribute('data-i');
+        cs.counts[i] = cs.counts[i] || { pk: '', ls: '' };
+        cs.counts[i][inp.getAttribute('data-f')] = clean;
+        refreshCount();
+      });
+    });
+    document.querySelectorAll('[data-match]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var i = b.getAttribute('data-match'), it = itemById[i];
+        var l = closeLines().filter(function (x) { return x.i === i; })[0];
+        cs.counts[i] = { pk: String(Math.floor(l.expected / it.pack)), ls: String(l.expected % it.pack) };
+        document.getElementById('pk-' + i).value = cs.counts[i].pk;
+        document.getElementById('ls-' + i).value = cs.counts[i].ls;
+        refreshCount();
+      });
+    });
+    document.getElementById('blindChk').addEventListener('change', function (e) {
+      cs.blind = e.target.checked;
+      document.getElementById('countWrap').classList.toggle('blind', cs.blind);
+      refreshCount();
+    });
+    document.getElementById('diffChk').addEventListener('change', function (e) { cs.onlyDiff = e.target.checked; refreshCount(); });
+    refreshCount();
+  }
+
+  function bindReview() {
+    document.querySelectorAll('#closeView select[data-i]').forEach(function (s) {
+      s.addEventListener('change', function () { cs.reasons[s.getAttribute('data-i')] = s.value; s.classList.remove('missing'); });
+    });
+    document.querySelectorAll('input[name="disp"]').forEach(function (r) {
+      r.addEventListener('change', function () { cs.disposition = r.value; });
+    });
+  }
+
+  function confirmCount() {
+    var devs = deviations().filter(function (x) { return x.d !== 0; });
+    var missing = devs.filter(function (x) { return !cs.reasons[x.l.i]; });
+    if (missing.length) {
+      cs.err = 'Velg årsak for ' + missing.map(function (x) { return itemById[x.l.i].name; }).join(', ') + '.';
+      renderSteps();
+      return;
+    }
+    var foodWaste = 0;
+    closeLines().forEach(function (l) {
+      l.counted = countedTotal(l.i);
+      l.diff = l.counted - l.expected;
+      if (cs.disposition === 'food' && itemById[l.i].food && l.counted > 0) {
+        foodWaste += l.counted;
+        l.waste += l.counted; l.expected -= l.counted; l.counted = 0;
+      }
+    });
+    var dsum = sumBy(devs, function (x) { return x.d; }), dkr = sumBy(devs, function (x) { return x.d * itemById[x.l.i].cost; });
+    var disp = { stay: 'Varene blir stående i Kiosk Sør til neste event.', food: fmt.format(foodWaste) + ' stk mat er registrert som kassert svinn. Resten blir stående.', 'return': 'En plukkliste for retur til hovedlageret er laget.' }[cs.disposition];
+    cs.result = {
+      summary: 'Talt av deg kl. 20:34 · ' + devs.length + ' avvik · ' + sgnKr(dkr) + ' til kost.',
+      detail: 'Tellingen er lagret: ' + devs.length + ' varer avviker med til sammen ' + sgn(dsum) + ' stk (' + sgnKr(dkr) + ' til kost). ' + disp + ' Lagerrapporten bruker tellingen din for Kiosk Sør.'
+    };
+    cs.mode = 'done'; cs.err = '';
+    renderSteps(); render();
+  }
+
+  var ORIGINAL = LINES.map(function (l) { return { counted: l.counted, diff: l.diff, waste: l.waste, expected: l.expected }; });
+  function restoreLines() { LINES.forEach(function (l, idx) { var o = ORIGINAL[idx]; l.counted = o.counted; l.diff = o.diff; l.waste = o.waste; l.expected = o.expected; }); }
+
+  function showView(v) {
+    var isClose = v === 'close';
+    document.getElementById('closeView').hidden = !isClose;
+    document.getElementById('reportView').hidden = isClose;
+    document.getElementById('v-close').setAttribute('aria-pressed', isClose);
+    document.getElementById('v-report').setAttribute('aria-pressed', !isClose);
+    document.getElementById('crumbGroup').textContent = isClose ? 'Kiosk Sør' : 'Avsluttede eventer';
+    document.getElementById('crumbPage').textContent = isClose ? 'Steng event' : 'Lagerrapport';
+  }
+  document.getElementById('v-close').addEventListener('click', function () { showView('close'); });
+  document.getElementById('v-report').addEventListener('click', function () { showView('report'); });
+
+  function store(key, val) {
+    try { if (val === undefined) return localStorage.getItem(key); localStorage.setItem(key, val); } catch (e) { return null; }
+    return null;
+  }
+  var folds = Array.prototype.slice.call(document.querySelectorAll('details.fold'));
+  var foldBtn = document.getElementById('foldAll');
+  function setFolded(on) {
+    folds.forEach(function (d) { d.open = !on; });
+    document.body.classList.toggle('folded', on);
+    foldBtn.textContent = on ? 'Vis all info' : 'Skjul all info';
+    store('lr-folded', on ? '1' : '0');
+  }
+  foldBtn.addEventListener('click', function () { setFolded(!document.body.classList.contains('folded')); });
+  var presentBtn = document.getElementById('presentBtn');
+  function setPresent(on) {
+    document.body.classList.toggle('present', on);
+    presentBtn.setAttribute('aria-pressed', on);
+    if (on) {
+      var cb = document.getElementById('srcToggle');
+      if (cb.checked) { cb.checked = false; document.getElementById('win').classList.remove('show-src'); }
+    }
+    store('lr-present', on ? '1' : '0');
+  }
+  presentBtn.addEventListener('click', function () { setPresent(!document.body.classList.contains('present')); });
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'p' && e.key !== 'P') return;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target.tagName;
+    if (t === 'INPUT' || t === 'SELECT' || t === 'TEXTAREA') return;
+    setPresent(!document.body.classList.contains('present'));
+  });
+  if (store('lr-present') === '1') setPresent(true);
+  if (store('lr-folded') === '1') setFolded(true);
+
+  renderSteps();
+  render();
+})();
+</script>
+
+</body></html>
